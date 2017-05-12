@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Models\ApiError.cs" />
     <Compile Include="Models\ApiResult.cs" />
+    <Compile Include="Models\Entry.cs" />
     <Compile Include="Models\ServerConfiguration.cs" />
     <Compile Include="Models\LoginResult.cs" />
     <Compile Include="Models\ErrorResponse.cs" />

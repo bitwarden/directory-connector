@@ -242,30 +242,66 @@ namespace Bit.Console
             }
             else
             {
+                string input;
+
                 Con.Write("Address: ");
                 config.Address = Con.ReadLine().Trim();
-                Con.Write("Port (389): ");
-                var portInput = Con.ReadLine().Trim();
-                if(!string.IsNullOrWhiteSpace(portInput))
+                Con.Write("Port [{0}]: ", config.Port);
+                input = Con.ReadLine().Trim();
+                if(!string.IsNullOrWhiteSpace(input))
                 {
-                    config.Port = portInput;
+                    config.Port = input;
                 }
                 Con.Write("Path: ");
                 config.Path = Con.ReadLine().Trim();
                 Con.Write("Username: ");
                 config.Username = Con.ReadLine().Trim();
                 Con.Write("Password: ");
-                var passwordInput = ReadSecureLine();
-                if(!string.IsNullOrWhiteSpace(passwordInput))
+                input = ReadSecureLine();
+                if(!string.IsNullOrWhiteSpace(input))
                 {
-                    config.Password = new EncryptedData(passwordInput);
-                    passwordInput = null;
+                    config.Password = new EncryptedData(input);
+                    input = null;
                 }
                 Con.WriteLine();
-                Con.Write("Group filter: ");
-                config.GroupFilter = Con.ReadLine().Trim();
-                Con.Write("User filter: ");
-                config.UserFilter = Con.ReadLine().Trim();
+                Con.Write("Sync groups? [y]: ");
+                input = Con.ReadLine().Trim().ToLower();
+                config.SyncGroups = input == "y" || input == "yes" || string.IsNullOrWhiteSpace(input);
+                if(config.SyncGroups)
+                {
+                    Con.Write("Group filter [{0}]: ", config.GroupFilter);
+                    input = Con.ReadLine().Trim();
+                    if(!string.IsNullOrWhiteSpace(input))
+                    {
+                        config.GroupFilter = input;
+                    }
+                    Con.Write("Group name attribute [{0}]: ", config.GroupNameAttribute);
+                    input = Con.ReadLine().Trim();
+                    if(!string.IsNullOrWhiteSpace(input))
+                    {
+                        config.GroupNameAttribute = input;
+                    }
+                }
+                Con.Write("Sync users? [y]: ");
+                input = Con.ReadLine().Trim().ToLower();
+                config.SyncUsers = input == "y" || input == "yes" || string.IsNullOrWhiteSpace(input);
+                if(config.SyncUsers)
+                {
+                    Con.Write("User filter [{0}]: ", config.UserFilter);
+                    input = Con.ReadLine().Trim();
+                    if(!string.IsNullOrWhiteSpace(input))
+                    {
+                        config.UserFilter = input;
+                    }
+                    Con.Write("User email attribute [{0}]: ", config.UserEmailAttribute);
+                    input = Con.ReadLine().Trim();
+                    if(!string.IsNullOrWhiteSpace(input))
+                    {
+                        config.GroupNameAttribute = input;
+                    }
+                }
+
+                input = null;
             }
 
             Con.WriteLine();
