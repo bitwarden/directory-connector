@@ -59,7 +59,7 @@ namespace Bit.Core.Utilities
         public static async Task SyncAllAsync()
         {
             await SyncGroupsAsync();
-            //await SyncUsersAsync();
+            await SyncUsersAsync();
         }
 
         private static void PrintSearchResults(SearchResultCollection result)

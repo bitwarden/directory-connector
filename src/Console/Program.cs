@@ -261,7 +261,7 @@ namespace Bit.Console
                     config.Password = new EncryptedData(passwordInput);
                     passwordInput = null;
                 }
-
+                Con.WriteLine();
                 Con.Write("Group filter: ");
                 config.GroupFilter = Con.ReadLine().Trim();
                 Con.Write("User filter: ");
