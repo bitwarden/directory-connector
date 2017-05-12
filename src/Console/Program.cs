@@ -40,10 +40,10 @@ namespace Bit.Console
                     Con.WriteLine("=================================");
                     Con.WriteLine("1. Log in to bitwarden");
                     Con.WriteLine("2. Log out");
-                    Con.WriteLine("2. Configure directory connection");
-                    Con.WriteLine("3. Sync directory");
-                    Con.WriteLine("4. Start/stop background service");
-                    Con.WriteLine("5. Exit");
+                    Con.WriteLine("3. Configure directory connection");
+                    Con.WriteLine("4. Sync directory");
+                    Con.WriteLine("5. Start/stop background service");
+                    Con.WriteLine("6. Exit");
                     Con.WriteLine();
                     Con.Write("What would you like to do? ");
                     selection = Con.ReadLine();
@@ -62,6 +62,7 @@ namespace Bit.Console
                     case "signout":
                         await LogOutAsync();
                         break;
+                    case "3":
                     case "dir":
                     case "directory":
                         await DirectoryAsync();
@@ -193,8 +194,74 @@ namespace Bit.Console
             return Task.FromResult(0);
         }
 
-        private static async Task DirectoryAsync()
+        private static Task DirectoryAsync()
         {
+            var config = new ServerConfiguration();
+
+            if(_usingArgs)
+            {
+                var parameters = ParseParameters();
+                if(parameters.ContainsKey("a"))
+                {
+                    config.Address = parameters["a"];
+                }
+
+                if(parameters.ContainsKey("port"))
+                {
+                    config.Port = parameters["port"];
+                }
+
+                if(parameters.ContainsKey("path"))
+                {
+                    config.Password = parameters["path"];
+                }
+
+                if(parameters.ContainsKey("u"))
+                {
+                    config.Username = parameters["u"];
+                }
+
+                if(parameters.ContainsKey("p"))
+                {
+                    config.Password = parameters["p"];
+                }
+            }
+            else
+            {
+                Con.Write("Address: ");
+                config.Address = Con.ReadLine().Trim();
+                Con.Write("Port (389): ");
+                var portInput = Con.ReadLine().Trim();
+                if(!string.IsNullOrWhiteSpace(portInput))
+                {
+                    config.Port = portInput;
+                }
+                Con.Write("Path: ");
+                config.Path = Con.ReadLine().Trim();
+                Con.Write("Username: ");
+                config.Username = Con.ReadLine().Trim();
+                Con.Write("Password: ");
+                config.Password = ReadSecureLine();
+            }
+
+            Con.WriteLine();
+            Con.WriteLine();
+            if(string.IsNullOrWhiteSpace(config.Address))
+            {
+                Con.ForegroundColor = ConsoleColor.Red;
+                Con.WriteLine("Invalid input parameters.");
+                Con.ResetColor();
+            }
+            else
+            {
+                Core.Services.SettingsService.Instance.Server = config;
+                Con.ForegroundColor = ConsoleColor.Green;
+                Con.WriteLine("Saved directory server configuration.");
+                Con.ResetColor();
+            }
+
+
+            return Task.FromResult(0);
         }
 
         private static string ReadSecureLine()

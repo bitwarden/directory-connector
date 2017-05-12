@@ -35,7 +35,7 @@ namespace Bit.Core.Services
             }
         }
 
-        public SettingsModel Settings
+        private SettingsModel Settings
         {
             get
             {
@@ -101,10 +101,24 @@ namespace Bit.Core.Services
             }
         }
 
+        public ServerConfiguration Server
+        {
+            get
+            {
+                return Settings.Server;
+            }
+            set
+            {
+                Settings.Server = value;
+                SaveSettings();
+            }
+        }
+
         public class SettingsModel
         {
             public EncryptedData AccessToken { get; set; }
             public EncryptedData RefreshToken { get; set; }
+            public ServerConfiguration Server { get; set; }
         }
     }
 }
