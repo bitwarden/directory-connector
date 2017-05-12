@@ -1,4 +1,5 @@
 ﻿using Bit.Core.Models;
+using Bit.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -185,7 +186,9 @@ namespace Bit.Console
             if(Core.Services.AuthService.Instance.Authenticated)
             {
                 Core.Services.AuthService.Instance.LogOut();
+                Con.ForegroundColor = ConsoleColor.Green;
                 Con.WriteLine("You have successfully logged out!");
+                Con.ResetColor();
             }
             else
             {
@@ -269,7 +272,7 @@ namespace Bit.Console
             return Task.FromResult(0);
         }
 
-        private static Task SyncAsync()
+        private static async Task SyncAsync()
         {
             if(!Core.Services.AuthService.Instance.Authenticated)
             {
@@ -282,9 +285,11 @@ namespace Bit.Console
             else
             {
                 Con.WriteLine("Syncing...");
+                await Sync.SyncAllAsync();
+                Con.ForegroundColor = ConsoleColor.Green;
+                Con.WriteLine("Syncing complete.");
+                Con.ResetColor();
             }
-
-            return Task.FromResult(0);
         }
 
         private static string ReadSecureLine()
