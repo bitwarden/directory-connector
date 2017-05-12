@@ -101,10 +101,8 @@ namespace Bit.Console
 
             if(_usingArgs)
             {
-                Con.ForegroundColor = ConsoleColor.Red;
-                Con.WriteLine("You cannot log in via arguments. Use the console instead.");
-                Con.ResetColor();
-                return;
+                email = _args[1];
+                masterPassword = _args[2];
             }
             else
             {
@@ -140,6 +138,8 @@ namespace Bit.Console
                 Con.WriteLine(result.ErrorMessage);
                 Con.ResetColor();
             }
+
+            masterPassword = null;
         }
 
         private static string ReadSecureLine()
