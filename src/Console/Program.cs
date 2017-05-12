@@ -16,12 +16,19 @@ namespace Bit.Console
 
         static void Main(string[] args)
         {
+            MainAsync(args).Wait();
+        }
+
+        private static async Task MainAsync(string[] args)
+        {
             _args = args;
             _usingArgs = args.Length > 0;
             string selection = null;
 
             while(true)
             {
+                Con.ResetColor();
+
                 if(_usingArgs)
                 {
                     selection = args[0];
@@ -45,10 +52,12 @@ namespace Bit.Console
                 {
                     case "1":
                     case "login":
-                        LogIn();
+                    case "signin":
+                        await LogInAsync();
                         break;
                     case "2":
                     case "dir":
+                    case "directory":
 
                         break;
                     case "3":
@@ -57,6 +66,7 @@ namespace Bit.Console
                         break;
                     case "4":
                     case "svc":
+                    case "service":
 
                         break;
                     case "5":
@@ -84,37 +94,60 @@ namespace Bit.Console
             _args = null;
         }
 
-        public static void LogIn()
+        private static async Task LogInAsync()
         {
             string email = null;
-            SecureString masterPassword = null;
+            string masterPassword = null;
 
             if(_usingArgs)
             {
-                email = _args[1];
-                masterPassword = new SecureString();
-                foreach(var c in _args[2])
-                {
-                    masterPassword.AppendChar(c);
-                }
+                Con.ForegroundColor = ConsoleColor.Red;
+                Con.WriteLine("You cannot log in via arguments. Use the console instead.");
+                Con.ResetColor();
+                return;
             }
             else
             {
                 Con.Write("Email: ");
-                email = Con.ReadLine();
+                email = Con.ReadLine().Trim();
                 Con.Write("Master password: ");
                 masterPassword = ReadSecureLine();
             }
 
-            // TODO: Do login
+            var result = await Core.Services.AuthService.Instance.LogInAsync(email, masterPassword);
+
+            if(result.TwoFactorRequired)
+            {
+                Con.WriteLine();
+                Con.WriteLine();
+                Con.WriteLine("Two-step login is enabled on this account. Please enter your verification code.");
+                Con.Write("Verification code: ");
+                var token = Con.ReadLine().Trim();
+                result = await Core.Services.AuthService.Instance.LogInTwoFactorAsync(token, email, result.MasterPasswordHash);
+            }
+
+            Con.WriteLine();
+            Con.WriteLine();
+            if(result.Success)
+            {
+                Con.ForegroundColor = ConsoleColor.Green;
+                Con.WriteLine("You have successfully logged in as {0}!", Core.Services.TokenService.Instance.AccessTokenEmail);
+                Con.ResetColor();
+            }
+            else
+            {
+                Con.ForegroundColor = ConsoleColor.Red;
+                Con.WriteLine(result.ErrorMessage);
+                Con.ResetColor();
+            }
         }
 
-        public static SecureString ReadSecureLine()
+        private static string ReadSecureLine()
         {
-            var input = new SecureString();
+            var input = string.Empty;
             while(true)
             {
-                ConsoleKeyInfo i = Con.ReadKey(true);
+                var i = Con.ReadKey(true);
                 if(i.Key == ConsoleKey.Enter)
                 {
                     break;
@@ -123,13 +156,13 @@ namespace Bit.Console
                 {
                     if(input.Length > 0)
                     {
-                        input.RemoveAt(input.Length - 1);
+                        input = input.Remove(input.Length - 1);
                         Con.Write("\b \b");
                     }
                 }
                 else
                 {
-                    input.AppendChar(i.KeyChar);
+                    input = string.Concat(input, i.KeyChar);
                     Con.Write("*");
                 }
             }

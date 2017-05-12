@@ -30,6 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
@@ -43,9 +49,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TokenService.cs" />
-    <Compile Include="AuthService.cs" />
+    <Compile Include="Models\ApiError.cs" />
+    <Compile Include="Models\ApiResult.cs" />
+    <Compile Include="Models\LoginResult.cs" />
+    <Compile Include="Models\ErrorResponse.cs" />
+    <Compile Include="Models\EncryptedData.cs" />
+    <Compile Include="Models\TokenRequest.cs" />
+    <Compile Include="Models\TokenResponse.cs" />
+    <Compile Include="Services\ApiService.cs" />
+    <Compile Include="Services\SettingsService.cs" />
+    <Compile Include="Services\CryptoService.cs" />
+    <Compile Include="Services\TokenService.cs" />
+    <Compile Include="Services\AuthService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
