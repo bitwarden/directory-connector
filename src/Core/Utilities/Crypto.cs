@@ -2,34 +2,13 @@
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Bit.Core.Services
+namespace Bit.Core.Utilities
 {
-    public class CryptoService
+    public static class Crypto
     {
-        private static CryptoService _instance;
-
-        private CryptoService() { }
-
-        public static CryptoService Instance
-        {
-            get
-            {
-                if(_instance == null)
-                {
-                    _instance = new CryptoService();
-                }
-
-                return _instance;
-            }
-        }
-
-        public byte[] MakeKeyFromPassword(string password, string salt)
+        public static byte[] MakeKeyFromPassword(string password, string salt)
         {
             if(password == null)
             {
@@ -52,14 +31,14 @@ namespace Bit.Core.Services
             return keyBytes;
         }
 
-        public string MakeKeyFromPasswordBase64(string password, string salt)
+        public static string MakeKeyFromPasswordBase64(string password, string salt)
         {
             var key = MakeKeyFromPassword(password, salt);
             password = null;
             return Convert.ToBase64String(key);
         }
 
-        public byte[] HashPassword(byte[] key, string password)
+        public static byte[] HashPassword(byte[] key, string password)
         {
             if(key == null)
             {
@@ -81,7 +60,7 @@ namespace Bit.Core.Services
             return hashBytes;
         }
 
-        public string HashPasswordBase64(byte[] key, string password)
+        public static string HashPasswordBase64(byte[] key, string password)
         {
             var hash = HashPassword(key, password);
             password = null;
@@ -89,7 +68,7 @@ namespace Bit.Core.Services
             return Convert.ToBase64String(hash);
         }
 
-        private byte[] DeriveKey(byte[] password, byte[] salt, int rounds)
+        private static byte[] DeriveKey(byte[] password, byte[] salt, int rounds)
         {
             var generator = new Pkcs5S2ParametersGenerator(new Sha256Digest());
             generator.Init(password, salt, rounds);

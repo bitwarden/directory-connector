@@ -1,4 +1,5 @@
 ﻿using Bit.Core.Models;
+using Bit.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,12 +39,12 @@ namespace Bit.Core.Services
         public async Task<LoginResult> LogInAsync(string email, string masterPassword)
         {
             var normalizedEmail = email.Trim().ToLower();
-            var key = CryptoService.Instance.MakeKeyFromPassword(masterPassword, normalizedEmail);
+            var key = Crypto.MakeKeyFromPassword(masterPassword, normalizedEmail);
 
             var request = new TokenRequest
             {
                 Email = normalizedEmail,
-                MasterPasswordHash = CryptoService.Instance.HashPasswordBase64(key, masterPassword)
+                MasterPasswordHash = Crypto.HashPasswordBase64(key, masterPassword)
             };
 
             var response = await ApiService.Instance.PostTokenAsync(request);
@@ -74,10 +75,9 @@ namespace Bit.Core.Services
         public async Task<LoginResult> LogInTwoFactorAsync(string token, string email, string masterPassword)
         {
             var normalizedEmail = email.Trim().ToLower();
-            var key = CryptoService.Instance.MakeKeyFromPassword(masterPassword, normalizedEmail);
+            var key = Crypto.MakeKeyFromPassword(masterPassword, normalizedEmail);
 
-            var result = await LogInTwoFactorWithHashAsync(token, email,
-                CryptoService.Instance.HashPasswordBase64(key, masterPassword));
+            var result = await LogInTwoFactorWithHashAsync(token, email, Crypto.HashPasswordBase64(key, masterPassword));
 
             key = null;
             masterPassword = null;
