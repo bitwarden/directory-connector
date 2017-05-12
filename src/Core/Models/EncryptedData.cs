@@ -17,12 +17,25 @@ namespace Bit.Core.Models
             Value = ProtectedData.Protect(plainValue, IV, DataProtectionScope.CurrentUser);
         }
 
+        public EncryptedData(string plainValue)
+        {
+            var bytes = Encoding.UTF8.GetBytes(plainValue);
+            IV = RandomBytes();
+            Value = ProtectedData.Protect(bytes, IV, DataProtectionScope.CurrentUser);
+        }
+
         public byte[] Value { get; set; }
         public byte[] IV { get; set; }
 
         public byte[] Decrypt()
         {
             return ProtectedData.Unprotect(Value, IV, DataProtectionScope.CurrentUser);
+        }
+
+        public string DecryptToString()
+        {
+            var bytes = ProtectedData.Unprotect(Value, IV, DataProtectionScope.CurrentUser);
+            return Encoding.UTF8.GetString(bytes);
         }
 
         private byte[] RandomBytes()

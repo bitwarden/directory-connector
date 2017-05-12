@@ -67,8 +67,9 @@ namespace Bit.Console
                     case "directory":
                         await DirectoryAsync();
                         break;
+                    case "4":
                     case "sync":
-
+                        await SyncAsync();
                         break;
                     case "svc":
                     case "service":
@@ -213,7 +214,7 @@ namespace Bit.Console
 
                 if(parameters.ContainsKey("path"))
                 {
-                    config.Password = parameters["path"];
+                    config.Path = parameters["path"];
                 }
 
                 if(parameters.ContainsKey("u"))
@@ -223,7 +224,7 @@ namespace Bit.Console
 
                 if(parameters.ContainsKey("p"))
                 {
-                    config.Password = parameters["p"];
+                    config.Password = new EncryptedData(parameters["p"]);
                 }
             }
             else
@@ -241,7 +242,12 @@ namespace Bit.Console
                 Con.Write("Username: ");
                 config.Username = Con.ReadLine().Trim();
                 Con.Write("Password: ");
-                config.Password = ReadSecureLine();
+                var passwordInput = ReadSecureLine();
+                if(!string.IsNullOrWhiteSpace(passwordInput))
+                {
+                    config.Password = new EncryptedData(passwordInput);
+                    passwordInput = null;
+                }
             }
 
             Con.WriteLine();
@@ -260,6 +266,23 @@ namespace Bit.Console
                 Con.ResetColor();
             }
 
+            return Task.FromResult(0);
+        }
+
+        private static Task SyncAsync()
+        {
+            if(!Core.Services.AuthService.Instance.Authenticated)
+            {
+                Con.WriteLine("You are not logged in.");
+            }
+            else if(Core.Services.SettingsService.Instance.Server == null)
+            {
+                Con.WriteLine("Server is not configured.");
+            }
+            else
+            {
+                Con.WriteLine("Syncing...");
+            }
 
             return Task.FromResult(0);
         }
