@@ -168,12 +168,12 @@ namespace Bit.Core.Utilities
                 users = await SyncUsersAsync();
             }
 
-            AssociateMembers(ref groups, ref users);
+            AssociateGroups(groups, users);
         }
 
-        private static void AssociateMembers(ref List<GroupEntry> groups, ref List<UserEntry> users)
+        private static void AssociateGroups(List<GroupEntry> groups, List<UserEntry> users)
         {
-            if(groups == null)
+            if(groups == null || !groups.Any())
             {
                 return;
             }
@@ -186,12 +186,16 @@ namespace Bit.Core.Utilities
 
                     if(users != null)
                     {
-                        group.UserMembers = users.Where(u => group.Members.Contains(u.DistinguishedName)).ToList();
+                        var usersInThisGroup = users.Where(u => group.Members.Contains(u.DistinguishedName)).ToList();
+                        foreach(var user in usersInThisGroup)
+                        {
+                            user.Groups.Add(group);
+                        }
                     }
+
+                    AssociateGroups(group.GroupMembers, users);
                 }
             }
-
-            // TODO: Handle nested group associations with recursion
         }
 
         private static DateTime? ParseDate(ResultPropertyCollection collection, string dateKey)
