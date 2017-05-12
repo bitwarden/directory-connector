@@ -29,6 +29,12 @@ namespace Bit.Core.Services
 
         public bool Authenticated => !string.IsNullOrWhiteSpace(TokenService.Instance.AccessToken);
 
+        public void LogOut()
+        {
+            TokenService.Instance.AccessToken = null;
+            TokenService.Instance.RefreshToken = null;
+        }
+
         public async Task<LoginResult> LogInAsync(string email, string masterPassword)
         {
             var normalizedEmail = email.Trim().ToLower();
@@ -65,7 +71,21 @@ namespace Bit.Core.Services
             return result;
         }
 
-        public async Task<LoginResult> LogInTwoFactorAsync(string token, string email, string masterPasswordHash)
+        public async Task<LoginResult> LogInTwoFactorAsync(string token, string email, string masterPassword)
+        {
+            var normalizedEmail = email.Trim().ToLower();
+            var key = CryptoService.Instance.MakeKeyFromPassword(masterPassword, normalizedEmail);
+
+            var result = await LogInTwoFactorWithHashAsync(token, email,
+                CryptoService.Instance.HashPasswordBase64(key, masterPassword));
+
+            key = null;
+            masterPassword = null;
+
+            return result;
+        }
+
+        public async Task<LoginResult> LogInTwoFactorWithHashAsync(string token, string email, string masterPasswordHash)
         {
             var request = new TokenRequest
             {

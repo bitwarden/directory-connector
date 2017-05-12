@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bit.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
@@ -38,6 +39,7 @@ namespace Bit.Console
                     Con.WriteLine("Main Menu");
                     Con.WriteLine("=================================");
                     Con.WriteLine("1. Log in to bitwarden");
+                    Con.WriteLine("2. Log out");
                     Con.WriteLine("2. Configure directory connection");
                     Con.WriteLine("3. Sync directory");
                     Con.WriteLine("4. Start/stop background service");
@@ -56,20 +58,21 @@ namespace Bit.Console
                         await LogInAsync();
                         break;
                     case "2":
+                    case "logout":
+                    case "signout":
+                        await LogOutAsync();
+                        break;
                     case "dir":
                     case "directory":
-
+                        await DirectoryAsync();
                         break;
-                    case "3":
                     case "sync":
 
                         break;
-                    case "4":
                     case "svc":
                     case "service":
 
                         break;
-                    case "5":
                     case "exit":
                     case "quit":
                     case "q":
@@ -96,20 +99,28 @@ namespace Bit.Console
 
         private static async Task LogInAsync()
         {
+            if(Core.Services.AuthService.Instance.Authenticated)
+            {
+                Con.WriteLine("You are already logged in as {0}.", Core.Services.TokenService.Instance.AccessTokenEmail);
+                return;
+            }
+
             string email = null;
             string masterPassword = null;
+            string token = null;
 
             if(_usingArgs)
             {
-                if(_args.Length != 3)
+                var parameters = ParseParameters();
+                if(parameters.Count >= 2 && parameters.ContainsKey("e") && parameters.ContainsKey("p"))
                 {
-                    Con.ForegroundColor = ConsoleColor.Red;
-                    Con.WriteLine("Invalid arguments.");
-                    Con.ResetColor();
+                    email = parameters["e"];
+                    masterPassword = parameters["p"];
                 }
-
-                email = _args[1];
-                masterPassword = _args[2];
+                if(parameters.Count == 3 && parameters.ContainsKey("t"))
+                {
+                    token = parameters["t"];
+                }
             }
             else
             {
@@ -119,15 +130,33 @@ namespace Bit.Console
                 masterPassword = ReadSecureLine();
             }
 
-            var result = await Core.Services.AuthService.Instance.LogInAsync(email, masterPassword);
+            if(string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(masterPassword))
+            {
+                Con.WriteLine();
+                Con.WriteLine();
+                Con.ForegroundColor = ConsoleColor.Red;
+                Con.WriteLine("Invalid input parameters.");
+                Con.ResetColor();
+                return;
+            }
 
-            if(result.TwoFactorRequired)
+            LoginResult result = null;
+            if(string.IsNullOrWhiteSpace(token))
+            {
+                result = await Core.Services.AuthService.Instance.LogInAsync(email, masterPassword);
+            }
+            else
+            {
+                result = await Core.Services.AuthService.Instance.LogInTwoFactorAsync(email, masterPassword, token);
+            }
+
+            if(string.IsNullOrWhiteSpace(token) && result.TwoFactorRequired)
             {
                 Con.WriteLine();
                 Con.WriteLine();
                 Con.WriteLine("Two-step login is enabled on this account. Please enter your verification code.");
                 Con.Write("Verification code: ");
-                var token = Con.ReadLine().Trim();
+                token = Con.ReadLine().Trim();
                 result = await Core.Services.AuthService.Instance.LogInTwoFactorAsync(token, email, result.MasterPasswordHash);
             }
 
@@ -147,6 +176,25 @@ namespace Bit.Console
             }
 
             masterPassword = null;
+        }
+
+        private static Task LogOutAsync()
+        {
+            if(Core.Services.AuthService.Instance.Authenticated)
+            {
+                Core.Services.AuthService.Instance.LogOut();
+                Con.WriteLine("You have successfully logged out!");
+            }
+            else
+            {
+                Con.WriteLine("You are not logged in.");
+            }
+
+            return Task.FromResult(0);
+        }
+
+        private static async Task DirectoryAsync()
+        {
         }
 
         private static string ReadSecureLine()
@@ -174,6 +222,22 @@ namespace Bit.Console
                 }
             }
             return input;
+        }
+
+        private static IDictionary<string, string> ParseParameters()
+        {
+            var dict = new Dictionary<string, string>();
+            for(int i = 1; i < _args.Length; i = i + 2)
+            {
+                if(!_args[i].StartsWith("-"))
+                {
+                    continue;
+                }
+
+                dict.Add(_args[i].Substring(1), _args[i + 1]);
+            }
+
+            return dict;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Bit.Core.Services
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "\\bitwarden\\DirectoryConnector");
 
-        private IDictionary<string, object> _settings;
+        private SettingsModel _settings;
 
         private SettingsService() { }
 
@@ -35,7 +35,7 @@ namespace Bit.Core.Services
             }
         }
 
-        public IDictionary<string, object> Settings
+        public SettingsModel Settings
         {
             get
             {
@@ -47,83 +47,44 @@ namespace Bit.Core.Services
                     using(var sr = new StreamReader(s, Encoding.UTF8))
                     using(var jsonTextReader = new JsonTextReader(sr))
                     {
-                        _settings = serializer.Deserialize<IDictionary<string, object>>(jsonTextReader);
+                        _settings = serializer.Deserialize<SettingsModel>(jsonTextReader);
                     }
                 }
 
-                return _settings == null ? new Dictionary<string, object>() : _settings;
+                return _settings == null ? new SettingsModel() : _settings;
             }
-            set
+        }
+
+        private void SaveSettings()
+        {
+            lock(_locker)
             {
-                lock(_locker)
+                if(!Directory.Exists(_baseStoragePath))
                 {
-                    if(!Directory.Exists(_baseStoragePath))
-                    {
-                        Directory.CreateDirectory(_baseStoragePath);
-                    }
+                    Directory.CreateDirectory(_baseStoragePath);
+                }
 
-                    _settings = value;
-                    var filePath = $"{_baseStoragePath}\\settings.json";
-                    using(var s = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read))
-                    using(var sw = new StreamWriter(s, Encoding.UTF8))
-                    {
-                        var json = JsonConvert.SerializeObject(_settings);
-                        sw.Write(json);
-                    }
+                _settings = Settings;
+                var filePath = $"{_baseStoragePath}\\settings.json";
+                using(var s = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+                using(var sw = new StreamWriter(s, Encoding.UTF8))
+                {
+                    var json = JsonConvert.SerializeObject(_settings, Formatting.Indented);
+                    sw.Write(json);
                 }
             }
-        }
-
-        public void Set(string key, object value)
-        {
-            if(Contains(key))
-            {
-                Settings[key] = value;
-            }
-            else
-            {
-                Settings.Add(key, value);
-            }
-
-            Settings = Settings;
-        }
-
-        public void Remove(string key)
-        {
-            Settings.Remove(key);
-            Settings = Settings;
-        }
-
-        public bool Contains(string key)
-        {
-            return Settings.ContainsKey(key);
-        }
-
-        public T Get<T>(string key)
-        {
-            if(Settings.ContainsKey(key))
-            {
-                return (T)Settings[key];
-            }
-
-            return default(T);
         }
 
         public EncryptedData AccessToken
         {
             get
             {
-                return Get<EncryptedData>("AccessToken");
+                return Settings.AccessToken;
             }
             set
             {
-                if(value == null)
-                {
-                    Remove("AccessTolen");
-                    return;
-                }
-
-                Set("AccessToken", value);
+                Settings.AccessToken = value;
+                SaveSettings();
             }
         }
 
@@ -131,18 +92,19 @@ namespace Bit.Core.Services
         {
             get
             {
-                return Get<EncryptedData>("RefreshToken");
+                return Settings.RefreshToken;
             }
             set
             {
-                if(value == null)
-                {
-                    Remove("RefreshToken");
-                    return;
-                }
-
-                Set("RefreshToken", value);
+                Settings.RefreshToken = value;
+                SaveSettings();
             }
+        }
+
+        public class SettingsModel
+        {
+            public EncryptedData AccessToken { get; set; }
+            public EncryptedData RefreshToken { get; set; }
         }
     }
 }
