@@ -191,7 +191,7 @@ namespace Bit.Core.Utilities
                 }
             }
 
-            // TODO: Handle nested group associations
+            // TODO: Handle nested group associations with recursion
         }
 
         private static DateTime? ParseDate(ResultPropertyCollection collection, string dateKey)
