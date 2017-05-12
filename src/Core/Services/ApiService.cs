@@ -16,10 +16,20 @@ namespace Bit.Core.Services
         private ApiService()
         {
             ApiClient = new HttpClient();
-            ApiClient.BaseAddress = new Uri("https://api.bitwarden.com");
+            var apiUrl = "https://api.bitwarden.com";
+            if(!string.IsNullOrWhiteSpace(SettingsService.Instance.ApiBaseUrl))
+            {
+                apiUrl = SettingsService.Instance.ApiBaseUrl;
+            }
+            ApiClient.BaseAddress = new Uri(apiUrl);
 
             IdentityClient = new HttpClient();
-            IdentityClient.BaseAddress = new Uri("https://identity.bitwarden.com");
+            var identityUrl = "https://identity.bitwarden.com";
+            if(!string.IsNullOrWhiteSpace(SettingsService.Instance.IdentityBaseUrl))
+            {
+                identityUrl = SettingsService.Instance.IdentityBaseUrl;
+            }
+            IdentityClient.BaseAddress = new Uri(identityUrl);
         }
 
         public static ApiService Instance

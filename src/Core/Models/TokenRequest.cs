@@ -18,7 +18,7 @@ namespace Bit.Core.Models
                 { "username", Email },
                 { "password", MasterPasswordHash },
                 { "scope", "api offline_access" },
-                { "client_id", "mobile" }
+                { "client_id", "connector" }
             };
 
             if(Token != null && Provider.HasValue)

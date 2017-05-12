@@ -75,6 +75,32 @@ namespace Bit.Core.Services
             }
         }
 
+        public string ApiBaseUrl
+        {
+            get
+            {
+                return Settings.ApiBaseUrl;
+            }
+            set
+            {
+                Settings.ApiBaseUrl = value;
+                SaveSettings();
+            }
+        }
+
+        public string IdentityBaseUrl
+        {
+            get
+            {
+                return Settings.IdentityBaseUrl;
+            }
+            set
+            {
+                Settings.IdentityBaseUrl = value;
+                SaveSettings();
+            }
+        }
+
         public EncryptedData AccessToken
         {
             get
@@ -116,6 +142,8 @@ namespace Bit.Core.Services
 
         public class SettingsModel
         {
+            public string ApiBaseUrl { get; set; }
+            public string IdentityBaseUrl { get; set; }
             public EncryptedData AccessToken { get; set; }
             public EncryptedData RefreshToken { get; set; }
             public ServerConfiguration Server { get; set; }
