@@ -101,6 +101,13 @@ namespace Bit.Console
 
             if(_usingArgs)
             {
+                if(_args.Length != 3)
+                {
+                    Con.ForegroundColor = ConsoleColor.Red;
+                    Con.WriteLine("Invalid arguments.");
+                    Con.ResetColor();
+                }
+
                 email = _args[1];
                 masterPassword = _args[2];
             }
