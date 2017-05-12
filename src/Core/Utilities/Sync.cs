@@ -23,7 +23,9 @@ namespace Bit.Core.Utilities
             }
 
             var entry = Services.SettingsService.Instance.Server.GetDirectoryEntry();
-            var searcher = new DirectorySearcher(entry);
+            var filter = string.IsNullOrWhiteSpace(Services.SettingsService.Instance.Server.GroupFilter) ? null : 
+                Services.SettingsService.Instance.Server.GroupFilter;
+            var searcher = new DirectorySearcher(entry, filter);
             var result = searcher.FindAll();
 
             PrintSearchResults(result);
@@ -43,13 +45,21 @@ namespace Bit.Core.Utilities
                 throw new ApplicationException("Not authenticated.");
             }
 
+            var entry = Services.SettingsService.Instance.Server.GetDirectoryEntry();
+            var filter = string.IsNullOrWhiteSpace(Services.SettingsService.Instance.Server.UserFilter) ? null :
+                Services.SettingsService.Instance.Server.UserFilter;
+            var searcher = new DirectorySearcher(entry, filter);
+            var result = searcher.FindAll();
+
+            PrintSearchResults(result);
+
             return Task.FromResult(0);
         }
 
         public static async Task SyncAllAsync()
         {
             await SyncGroupsAsync();
-            await SyncUsersAsync();
+            //await SyncUsersAsync();
         }
 
         private static void PrintSearchResults(SearchResultCollection result)

@@ -229,6 +229,16 @@ namespace Bit.Console
                 {
                     config.Password = new EncryptedData(parameters["p"]);
                 }
+
+                if(parameters.ContainsKey("gf"))
+                {
+                    config.GroupFilter = parameters["gf"];
+                }
+
+                if(parameters.ContainsKey("uf"))
+                {
+                    config.UserFilter = parameters["uf"];
+                }
             }
             else
             {
@@ -251,6 +261,11 @@ namespace Bit.Console
                     config.Password = new EncryptedData(passwordInput);
                     passwordInput = null;
                 }
+
+                Con.Write("Group filter: ");
+                config.GroupFilter = Con.ReadLine().Trim();
+                Con.Write("User filter: ");
+                config.UserFilter = Con.ReadLine().Trim();
             }
 
             Con.WriteLine();

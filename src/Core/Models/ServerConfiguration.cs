@@ -17,6 +17,8 @@ namespace Bit.Core.Models
         public EncryptedData Password { get; set; }
         [JsonIgnore]
         public string ServerPath => $"LDAP://{Address}:{Port}/{Path}";
+        public string GroupFilter { get; set; }
+        public string UserFilter { get; set; }
 
         public DirectoryEntry GetDirectoryEntry()
         {
