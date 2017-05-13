@@ -1,4 +1,5 @@
-﻿using Bit.Core.Models;
+﻿using Bit.Core.Enums;
+using Bit.Core.Models;
 using Bit.Core.Utilities;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,7 @@ namespace Bit.Core.Services
         }
 
         public bool Authenticated => !string.IsNullOrWhiteSpace(TokenService.Instance.AccessToken);
+        public bool OrganizationSet => SettingsService.Instance.Organization != null;
 
         public void LogOut()
         {
@@ -68,8 +70,7 @@ namespace Bit.Core.Services
                 return result;
             }
 
-            await ProcessLogInSuccessAsync(response.Result);
-            return result;
+            return await ProcessLogInSuccessAsync(response.Result);
         }
 
         public async Task<LoginResult> LogInTwoFactorAsync(string token, string email, string masterPassword)
@@ -97,24 +98,54 @@ namespace Bit.Core.Services
 
             var response = await ApiService.Instance.PostTokenAsync(request);
 
-            var result = new LoginResult();
             if(!response.Succeeded)
             {
+                var result = new LoginResult();
                 result.Success = false;
                 result.ErrorMessage = response.Errors.FirstOrDefault()?.Message;
                 return result;
             }
 
-            result.Success = true;
-            await ProcessLogInSuccessAsync(response.Result);
-            return result;
+            return await ProcessLogInSuccessAsync(response.Result);
         }
 
-        private Task ProcessLogInSuccessAsync(TokenResponse response)
+        private async Task<LoginResult> ProcessLogInSuccessAsync(TokenResponse response)
         {
             TokenService.Instance.AccessToken = response.AccessToken;
             TokenService.Instance.RefreshToken = response.RefreshToken;
-            return Task.FromResult(0);
+
+            var result = new LoginResult();
+
+            var profile = await ApiService.Instance.GetProfileAsync();
+            if(profile.Succeeded)
+            {
+                var adminOrgs = profile.Result.Organizations.Where(o =>
+                    o.Status == OrganizationUserStatusType.Confirmed &&
+                    o.Type != OrganizationUserType.User);
+                if(!adminOrgs.Any())
+                {
+                    LogOut();
+                    result.Success = false;
+                    result.ErrorMessage = "You are not an admin of any organizations.";
+                    return result;
+                }
+
+                result.Organizations = adminOrgs.Select(o => new Organization(o)).ToList();
+                if(result.Organizations.Count == 1)
+                {
+                    SettingsService.Instance.Organization = new Organization(adminOrgs.First());
+                }
+
+                result.Success = true;
+                return result;
+            }
+            else
+            {
+                LogOut();
+                result.Success = false;
+                result.ErrorMessage = "Could not load profile.";
+                return result;
+            }
         }
     }
 }

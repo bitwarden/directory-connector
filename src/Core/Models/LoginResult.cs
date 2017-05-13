@@ -12,5 +12,6 @@ namespace Bit.Core.Models
         public string ErrorMessage { get; set; }
         public bool TwoFactorRequired { get; set; }
         public string MasterPasswordHash { get; set; }
+        public List<Organization> Organizations { get; set; }
     }
 }

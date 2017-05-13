@@ -111,6 +111,7 @@ namespace Bit.Console
             string email = null;
             string masterPassword = null;
             string token = null;
+            string orgId = null;
 
             if(_usingArgs)
             {
@@ -120,9 +121,13 @@ namespace Bit.Console
                     email = parameters["e"];
                     masterPassword = parameters["p"];
                 }
-                if(parameters.Count == 3 && parameters.ContainsKey("t"))
+                if(parameters.Count >= 3 && parameters.ContainsKey("t"))
                 {
                     token = parameters["t"];
+                }
+                if(parameters.Count >= 3 && parameters.ContainsKey("o"))
+                {
+                    orgId = parameters["o"];
                 }
             }
             else
@@ -160,7 +165,44 @@ namespace Bit.Console
                 Con.WriteLine("Two-step login is enabled on this account. Please enter your verification code.");
                 Con.Write("Verification code: ");
                 token = Con.ReadLine().Trim();
-                result = await Core.Services.AuthService.Instance.LogInTwoFactorAsync(token, email, result.MasterPasswordHash);
+                result = await Core.Services.AuthService.Instance.LogInTwoFactorWithHashAsync(token, email, 
+                    result.MasterPasswordHash);
+            }
+
+            if(result.Success && result.Organizations.Count > 1)
+            {
+                Organization org = null;
+                if(string.IsNullOrWhiteSpace(orgId))
+                {
+                    org = result.Organizations.FirstOrDefault(o => o.Id == orgId);
+                }
+                else
+                {
+                    Con.WriteLine();
+                    Con.WriteLine();
+                    for(int i = 0; i < result.Organizations.Count; i++)
+                    {
+                        Con.WriteLine("{0}. {1}", i + 1, result.Organizations[i].Name);
+                    }
+                    Con.Write("Select your organization: ");
+                    var orgIndexInput = Con.ReadLine().Trim();
+                    int orgIndex;
+                    if(int.TryParse(orgIndexInput, out orgIndex))
+                    {
+                        org = result.Organizations[orgIndex];
+                    }
+                }
+
+                if(org == null)
+                {
+                    result.Success = false;
+                    result.ErrorMessage = "Organization not found.";
+                    Core.Services.AuthService.Instance.LogOut();
+                }
+                else
+                {
+                    Core.Services.SettingsService.Instance.Organization = org;
+                }
             }
 
             Con.WriteLine();

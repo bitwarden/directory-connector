@@ -127,6 +127,19 @@ namespace Bit.Core.Services
             }
         }
 
+        public Organization Organization
+        {
+            get
+            {
+                return Settings.Organization;
+            }
+            set
+            {
+                Settings.Organization = value;
+                SaveSettings();
+            }
+        }
+
         public ServerConfiguration Server
         {
             get
@@ -147,6 +160,7 @@ namespace Bit.Core.Services
             public EncryptedData AccessToken { get; set; }
             public EncryptedData RefreshToken { get; set; }
             public ServerConfiguration Server { get; set; }
+            public Organization Organization { get; set; }
         }
     }
 }
