@@ -178,7 +178,7 @@ namespace Bit.Console
             if(result.Success && result.Organizations.Count > 1)
             {
                 Organization org = null;
-                if(string.IsNullOrWhiteSpace(orgId))
+                if(!string.IsNullOrWhiteSpace(orgId))
                 {
                     org = result.Organizations.FirstOrDefault(o => o.Id == orgId);
                 }
@@ -193,9 +193,9 @@ namespace Bit.Console
                     Con.Write("Select your organization: ");
                     var orgIndexInput = Con.ReadLine().Trim();
                     int orgIndex;
-                    if(int.TryParse(orgIndexInput, out orgIndex))
+                    if(int.TryParse(orgIndexInput, out orgIndex) && result.Organizations.Count >= orgIndex)
                     {
-                        org = result.Organizations[orgIndex];
+                        org = result.Organizations[orgIndex - 1];
                     }
                 }
 
