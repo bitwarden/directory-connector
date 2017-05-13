@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Bit.Core.Services
@@ -82,6 +83,40 @@ namespace Bit.Core.Services
             catch
             {
                 return HandledWebException<TokenResponse>();
+            }
+        }
+
+        public virtual async Task<ApiResult> PostImportAsync(ImportRequest requestObj)
+        {
+            var tokenStateResponse = await HandleTokenStateAsync();
+            if(!tokenStateResponse.Succeeded)
+            {
+                return tokenStateResponse;
+            }
+
+            var stringContent = JsonConvert.SerializeObject(requestObj);
+            var requestMessage = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(ApiClient.BaseAddress, "import"), // TODO: org id
+                Content = new StringContent(stringContent, Encoding.UTF8, "application/json"),
+            };
+
+            requestMessage.Headers.Add("Authorization", $"Bearer3 {TokenService.Instance.AccessToken}");
+
+            try
+            {
+                var response = await ApiClient.SendAsync(requestMessage).ConfigureAwait(false);
+                if(!response.IsSuccessStatusCode)
+                {
+                    return await HandleErrorAsync(response).ConfigureAwait(false);
+                }
+                
+                return ApiResult.Success(response.StatusCode);
+            }
+            catch
+            {
+                return HandledWebException();
             }
         }
 

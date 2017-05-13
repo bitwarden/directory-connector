@@ -1,36 +1,56 @@
 ﻿using Bit.Core.Models;
+using Bit.Core.Services;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bit.Core.Utilities
 {
     public static class Sync
     {
-        public static Task<List<GroupEntry>> SyncGroupsAsync()
+        public static async Task SyncAllAsync()
         {
-            if(!Services.SettingsService.Instance.Server.SyncGroups)
+            List<GroupEntry> groups = null;
+            if(SettingsService.Instance.Server.SyncGroups)
+            {
+                groups = await GetGroupsAsync();
+            }
+
+            List<UserEntry> users = null;
+            if(SettingsService.Instance.Server.SyncUsers)
+            {
+                users = await GetUsersAsync();
+            }
+
+            FlattenGroupsToUsers(groups, null, groups, users);
+
+            var request = new ImportRequest(groups, users);
+            await ApiService.Instance.PostImportAsync(request);
+        }
+
+        private static Task<List<GroupEntry>> GetGroupsAsync()
+        {
+            if(!SettingsService.Instance.Server.SyncGroups)
             {
                 throw new ApplicationException("Not configured to sync groups.");
             }
 
-            if(Services.SettingsService.Instance.Server == null)
+            if(SettingsService.Instance.Server == null)
             {
                 throw new ApplicationException("No configuration for directory server.");
             }
 
-            if(!Services.AuthService.Instance.Authenticated)
+            if(!AuthService.Instance.Authenticated)
             {
                 throw new ApplicationException("Not authenticated.");
             }
 
-            var entry = Services.SettingsService.Instance.Server.GetDirectoryEntry();
-            var filter = string.IsNullOrWhiteSpace(Services.SettingsService.Instance.Server.GroupFilter) ? null :
-                Services.SettingsService.Instance.Server.GroupFilter;
+            var entry = SettingsService.Instance.Server.GetDirectoryEntry();
+            var filter = string.IsNullOrWhiteSpace(SettingsService.Instance.Server.GroupFilter) ? null :
+                SettingsService.Instance.Server.GroupFilter;
             var searcher = new DirectorySearcher(entry, filter);
             var result = searcher.FindAll();
 
@@ -48,10 +68,10 @@ namespace Bit.Core.Utilities
                 }
 
                 // Name
-                if(item.Properties.Contains(Services.SettingsService.Instance.Server.GroupNameAttribute) &&
-                    item.Properties[Services.SettingsService.Instance.Server.GroupNameAttribute].Count > 0)
+                if(item.Properties.Contains(SettingsService.Instance.Server.GroupNameAttribute) &&
+                    item.Properties[SettingsService.Instance.Server.GroupNameAttribute].Count > 0)
                 {
-                    group.Name = item.Properties[Services.SettingsService.Instance.Server.GroupNameAttribute][0].ToString();
+                    group.Name = item.Properties[SettingsService.Instance.Server.GroupNameAttribute][0].ToString();
                 }
                 else if(item.Properties.Contains("cn") && item.Properties["cn"].Count > 0)
                 {
@@ -63,14 +83,14 @@ namespace Bit.Core.Utilities
                 }
 
                 // Dates
-                group.CreationDate = ParseDate(item.Properties, Services.SettingsService.Instance.Server.CreationDateAttribute);
-                group.RevisionDate = ParseDate(item.Properties, Services.SettingsService.Instance.Server.RevisionDateAttribute);
+                group.CreationDate = ParseDate(item.Properties, SettingsService.Instance.Server.CreationDateAttribute);
+                group.RevisionDate = ParseDate(item.Properties, SettingsService.Instance.Server.RevisionDateAttribute);
 
                 // Members
-                if(item.Properties.Contains(Services.SettingsService.Instance.Server.MemberAttribute) &&
-                    item.Properties[Services.SettingsService.Instance.Server.MemberAttribute].Count > 0)
+                if(item.Properties.Contains(SettingsService.Instance.Server.MemberAttribute) &&
+                    item.Properties[SettingsService.Instance.Server.MemberAttribute].Count > 0)
                 {
-                    foreach(var member in item.Properties[Services.SettingsService.Instance.Server.MemberAttribute])
+                    foreach(var member in item.Properties[SettingsService.Instance.Server.MemberAttribute])
                     {
                         var memberDn = member.ToString();
                         if(!group.Members.Contains(memberDn))
@@ -86,26 +106,26 @@ namespace Bit.Core.Utilities
             return Task.FromResult(groups);
         }
 
-        public static Task<List<UserEntry>> SyncUsersAsync()
+        private static Task<List<UserEntry>> GetUsersAsync()
         {
-            if(!Services.SettingsService.Instance.Server.SyncUsers)
+            if(!SettingsService.Instance.Server.SyncUsers)
             {
                 throw new ApplicationException("Not configured to sync users.");
             }
 
-            if(Services.SettingsService.Instance.Server == null)
+            if(SettingsService.Instance.Server == null)
             {
                 throw new ApplicationException("No configuration for directory server.");
             }
 
-            if(!Services.AuthService.Instance.Authenticated)
+            if(!AuthService.Instance.Authenticated)
             {
                 throw new ApplicationException("Not authenticated.");
             }
 
-            var entry = Services.SettingsService.Instance.Server.GetDirectoryEntry();
-            var filter = string.IsNullOrWhiteSpace(Services.SettingsService.Instance.Server.UserFilter) ? null :
-                Services.SettingsService.Instance.Server.UserFilter;
+            var entry = SettingsService.Instance.Server.GetDirectoryEntry();
+            var filter = string.IsNullOrWhiteSpace(SettingsService.Instance.Server.UserFilter) ? null :
+                SettingsService.Instance.Server.UserFilter;
             var searcher = new DirectorySearcher(entry, filter);
             var result = searcher.FindAll();
 
@@ -123,19 +143,19 @@ namespace Bit.Core.Utilities
                 }
 
                 // Email
-                if(Services.SettingsService.Instance.Server.EmailPrefixSuffix &&
-                    item.Properties.Contains(Services.SettingsService.Instance.Server.UserEmailPrefixAttribute) &&
-                    item.Properties[Services.SettingsService.Instance.Server.UserEmailPrefixAttribute].Count > 0 &&
-                    !string.IsNullOrWhiteSpace(Services.SettingsService.Instance.Server.UserEmailSuffix))
+                if(SettingsService.Instance.Server.EmailPrefixSuffix &&
+                    item.Properties.Contains(SettingsService.Instance.Server.UserEmailPrefixAttribute) &&
+                    item.Properties[SettingsService.Instance.Server.UserEmailPrefixAttribute].Count > 0 &&
+                    !string.IsNullOrWhiteSpace(SettingsService.Instance.Server.UserEmailSuffix))
                 {
                     user.Email = string.Concat(
-                        item.Properties[Services.SettingsService.Instance.Server.UserEmailPrefixAttribute][0].ToString(),
-                        Services.SettingsService.Instance.Server.UserEmailSuffix).ToLowerInvariant();
+                        item.Properties[SettingsService.Instance.Server.UserEmailPrefixAttribute][0].ToString(),
+                        SettingsService.Instance.Server.UserEmailSuffix).ToLowerInvariant();
                 }
-                else if(item.Properties.Contains(Services.SettingsService.Instance.Server.UserEmailAttribute) &&
-                    item.Properties[Services.SettingsService.Instance.Server.UserEmailAttribute].Count > 0)
+                else if(item.Properties.Contains(SettingsService.Instance.Server.UserEmailAttribute) &&
+                    item.Properties[SettingsService.Instance.Server.UserEmailAttribute].Count > 0)
                 {
-                    user.Email = item.Properties[Services.SettingsService.Instance.Server.UserEmailAttribute][0]
+                    user.Email = item.Properties[SettingsService.Instance.Server.UserEmailAttribute][0]
                         .ToString()
                         .ToLowerInvariant();
                 }
@@ -145,8 +165,8 @@ namespace Bit.Core.Utilities
                 }
 
                 // Dates
-                user.CreationDate = ParseDate(item.Properties, Services.SettingsService.Instance.Server.CreationDateAttribute);
-                user.RevisionDate = ParseDate(item.Properties, Services.SettingsService.Instance.Server.RevisionDateAttribute);
+                user.CreationDate = ParseDate(item.Properties, SettingsService.Instance.Server.CreationDateAttribute);
+                user.RevisionDate = ParseDate(item.Properties, SettingsService.Instance.Server.RevisionDateAttribute);
 
                 users.Add(user);
             }
@@ -154,24 +174,7 @@ namespace Bit.Core.Utilities
             return Task.FromResult(users);
         }
 
-        public static async Task SyncAllAsync()
-        {
-            List<GroupEntry> groups = null;
-            if(Services.SettingsService.Instance.Server.SyncGroups)
-            {
-                groups = await SyncGroupsAsync();
-            }
-
-            List<UserEntry> users = null;
-            if(Services.SettingsService.Instance.Server.SyncUsers)
-            {
-                users = await SyncUsersAsync();
-            }
-
-            FlattenGroupsToUsers(groups, null, groups, users);
-        }
-
-        private static void FlattenGroupsToUsers(List<GroupEntry> currentGroups, List<UserEntry> currentGroupsUsers, 
+        private static void FlattenGroupsToUsers(List<GroupEntry> currentGroups, List<UserEntry> currentGroupsUsers,
             List<GroupEntry> allGroups, List<UserEntry> allUsers)
         {
             foreach(var group in currentGroups)
