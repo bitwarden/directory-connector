@@ -168,33 +168,40 @@ namespace Bit.Core.Utilities
                 users = await SyncUsersAsync();
             }
 
-            AssociateGroups(groups, users);
+            FlattenGroupsToUsers(groups, null, groups, users);
         }
 
-        private static void AssociateGroups(List<GroupEntry> groups, List<UserEntry> users)
+        private static void FlattenGroupsToUsers(List<GroupEntry> currentGroups, List<UserEntry> currentGroupsUsers, 
+            List<GroupEntry> allGroups, List<UserEntry> allUsers)
         {
-            if(groups == null || !groups.Any())
+            foreach(var group in currentGroups)
             {
-                return;
-            }
+                var groupsInThisGroup = allGroups.Where(g => group.Members.Contains(g.DistinguishedName)).ToList();
+                var usersInThisGroup = allUsers.Where(u => group.Members.Contains(u.DistinguishedName)).ToList();
 
-            foreach(var group in groups)
-            {
-                if(group.Members.Any())
+                foreach(var user in usersInThisGroup)
                 {
-                    group.GroupMembers = groups.Where(g => group.Members.Contains(g.DistinguishedName)).ToList();
-
-                    if(users != null)
+                    if(!user.Groups.Contains(group.DistinguishedName))
                     {
-                        var usersInThisGroup = users.Where(u => group.Members.Contains(u.DistinguishedName)).ToList();
-                        foreach(var user in usersInThisGroup)
+                        user.Groups.Add(group.DistinguishedName);
+                    }
+                }
+
+                if(currentGroupsUsers != null)
+                {
+                    foreach(var user in currentGroupsUsers)
+                    {
+                        if(!user.Groups.Contains(group.DistinguishedName))
                         {
-                            user.Groups.Add(group);
+                            user.Groups.Add(group.DistinguishedName);
                         }
                     }
 
-                    AssociateGroups(group.GroupMembers, users);
+                    usersInThisGroup.AddRange(currentGroupsUsers);
                 }
+
+                // Recurse it
+                FlattenGroupsToUsers(groupsInThisGroup, usersInThisGroup, allGroups, allUsers);
             }
         }
 
