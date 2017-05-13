@@ -111,12 +111,46 @@ namespace Bit.Core.Services
                 {
                     return await HandleErrorAsync(response).ConfigureAwait(false);
                 }
-                
+
                 return ApiResult.Success(response.StatusCode);
             }
             catch
             {
                 return HandledWebException();
+            }
+        }
+
+        public virtual async Task<ApiResult<ProfileResponse>> GetProfileAsync()
+        {
+            var tokenStateResponse = await HandleTokenStateAsync<ProfileResponse>();
+            if(!tokenStateResponse.Succeeded)
+            {
+                return tokenStateResponse;
+            }
+
+            var requestMessage = new HttpRequestMessage()
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(ApiClient.BaseAddress, "accounts/profile"),
+            };
+
+            requestMessage.Headers.Add("Authorization", $"Bearer3 {TokenService.Instance.AccessToken}");
+
+            try
+            {
+                var response = await ApiClient.SendAsync(requestMessage).ConfigureAwait(false);
+                if(!response.IsSuccessStatusCode)
+                {
+                    return await HandleErrorAsync<ProfileResponse>(response).ConfigureAwait(false);
+                }
+
+                var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var responseObj = JsonConvert.DeserializeObject<ProfileResponse>(responseContent);
+                return ApiResult<ProfileResponse>.Success(responseObj, response.StatusCode);
+            }
+            catch
+            {
+                return HandledWebException<ProfileResponse>();
             }
         }
 
