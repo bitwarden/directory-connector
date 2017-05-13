@@ -42,9 +42,10 @@ namespace Bit.Console
                     Con.WriteLine("1. Log in to bitwarden");
                     Con.WriteLine("2. Log out");
                     Con.WriteLine("3. Configure directory connection");
-                    Con.WriteLine("4. Sync directory");
-                    Con.WriteLine("5. Start/stop background service");
-                    Con.WriteLine("6. Exit");
+                    Con.WriteLine("4. Configure sync");
+                    Con.WriteLine("5. Sync directory");
+                    Con.WriteLine("6. Start/stop background service");
+                    Con.WriteLine("7. Exit");
                     Con.WriteLine();
                     Con.Write("What would you like to do? ");
                     selection = Con.ReadLine();
@@ -64,11 +65,16 @@ namespace Bit.Console
                         await LogOutAsync();
                         break;
                     case "3":
-                    case "dir":
-                    case "directory":
-                        await DirectoryAsync();
+                    case "cdir":
+                    case "configdirectory":
+                        await ConfigDirectoryAsync();
                         break;
                     case "4":
+                    case "csync":
+                    case "configsync":
+                        await ConfigSyncAsync();
+                        break;
+                    case "5":
                     case "sync":
                         await SyncAsync();
                         break;
@@ -165,7 +171,7 @@ namespace Bit.Console
                 Con.WriteLine("Two-step login is enabled on this account. Please enter your verification code.");
                 Con.Write("Verification code: ");
                 token = Con.ReadLine().Trim();
-                result = await Core.Services.AuthService.Instance.LogInTwoFactorWithHashAsync(token, email, 
+                result = await Core.Services.AuthService.Instance.LogInTwoFactorWithHashAsync(token, email,
                     result.MasterPasswordHash);
             }
 
@@ -240,7 +246,7 @@ namespace Bit.Console
             return Task.FromResult(0);
         }
 
-        private static Task DirectoryAsync()
+        private static Task ConfigDirectoryAsync()
         {
             var config = new ServerConfiguration();
 
@@ -271,16 +277,6 @@ namespace Bit.Console
                 {
                     config.Password = new EncryptedData(parameters["p"]);
                 }
-
-                if(parameters.ContainsKey("gf"))
-                {
-                    config.GroupFilter = parameters["gf"];
-                }
-
-                if(parameters.ContainsKey("uf"))
-                {
-                    config.UserFilter = parameters["uf"];
-                }
             }
             else
             {
@@ -305,7 +301,76 @@ namespace Bit.Console
                     config.Password = new EncryptedData(input);
                     input = null;
                 }
-                Con.WriteLine();
+
+                input = null;
+            }
+
+            Con.WriteLine();
+            Con.WriteLine();
+            if(string.IsNullOrWhiteSpace(config.Address))
+            {
+                Con.ForegroundColor = ConsoleColor.Red;
+                Con.WriteLine("Invalid input parameters.");
+                Con.ResetColor();
+            }
+            else
+            {
+                Core.Services.SettingsService.Instance.Server = config;
+                Con.ForegroundColor = ConsoleColor.Green;
+                Con.WriteLine("Saved directory server configuration.");
+                Con.ResetColor();
+            }
+
+            return Task.FromResult(0);
+        }
+
+        private static Task ConfigSyncAsync()
+        {
+            var config = new SyncConfiguration();
+
+            if(_usingArgs)
+            {
+                var parameters = ParseParameters();
+
+                config.SyncGroups = parameters.ContainsKey("g");
+                if(parameters.ContainsKey("gf"))
+                {
+                    config.GroupFilter = parameters["gf"];
+                }
+                if(parameters.ContainsKey("gn"))
+                {
+                    config.GroupNameAttribute = parameters["gn"];
+                }
+
+                config.SyncGroups = parameters.ContainsKey("u");
+                if(parameters.ContainsKey("uf"))
+                {
+                    config.UserFilter = parameters["uf"];
+                }
+                if(parameters.ContainsKey("ue"))
+                {
+                    config.UserEmailAttribute = parameters["ue"];
+                }
+
+                if(parameters.ContainsKey("m"))
+                {
+                    config.MemberAttribute = parameters["m"];
+                }
+
+                if(parameters.ContainsKey("c"))
+                {
+                    config.CreationDateAttribute = parameters["c"];
+                }
+
+                if(parameters.ContainsKey("r"))
+                {
+                    config.RevisionDateAttribute = parameters["r"];
+                }
+            }
+            else
+            {
+                string input;
+
                 Con.Write("Sync groups? [y]: ");
                 input = Con.ReadLine().Trim().ToLower();
                 config.SyncGroups = input == "y" || input == "yes" || string.IsNullOrWhiteSpace(input);
@@ -343,24 +408,34 @@ namespace Bit.Console
                     }
                 }
 
+                Con.Write("Member Of Attribute [{0}]: ", config.MemberAttribute);
+                input = Con.ReadLine().Trim();
+                if(!string.IsNullOrWhiteSpace(input))
+                {
+                    config.MemberAttribute = input;
+                }
+                Con.Write("Creation Attribute [{0}]: ", config.CreationDateAttribute);
+                input = Con.ReadLine().Trim();
+                if(!string.IsNullOrWhiteSpace(input))
+                {
+                    config.CreationDateAttribute = input;
+                }
+                Con.Write("Changed Attribute [{0}]: ", config.RevisionDateAttribute);
+                input = Con.ReadLine().Trim();
+                if(!string.IsNullOrWhiteSpace(input))
+                {
+                    config.RevisionDateAttribute = input;
+                }
+
                 input = null;
             }
 
             Con.WriteLine();
             Con.WriteLine();
-            if(string.IsNullOrWhiteSpace(config.Address))
-            {
-                Con.ForegroundColor = ConsoleColor.Red;
-                Con.WriteLine("Invalid input parameters.");
-                Con.ResetColor();
-            }
-            else
-            {
-                Core.Services.SettingsService.Instance.Server = config;
-                Con.ForegroundColor = ConsoleColor.Green;
-                Con.WriteLine("Saved directory server configuration.");
-                Con.ResetColor();
-            }
+            Core.Services.SettingsService.Instance.Sync = config;
+            Con.ForegroundColor = ConsoleColor.Green;
+            Con.WriteLine("Saved sync configuration.");
+            Con.ResetColor();
 
             return Task.FromResult(0);
         }
@@ -378,10 +453,21 @@ namespace Bit.Console
             else
             {
                 Con.WriteLine("Syncing...");
-                await Sync.SyncAllAsync();
-                Con.ForegroundColor = ConsoleColor.Green;
-                Con.WriteLine("Syncing complete.");
-                Con.ResetColor();
+                var result = await Sync.SyncAllAsync();
+
+                if(result.Success)
+                {
+                    Con.ForegroundColor = ConsoleColor.Green;
+                    Con.WriteLine("Syncing complete ({0} users, {1} groups).", result.UserCount, result.GroupCount);
+                    Con.ResetColor();
+                }
+                else
+                {
+                    Con.ForegroundColor = ConsoleColor.Red;
+                    Con.WriteLine("Syncing failed.");
+                    Con.WriteLine(result.ErrorMessage);
+                    Con.ResetColor();
+                }
             }
         }
 

@@ -98,7 +98,7 @@ namespace Bit.Core.Services
             var requestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri(ApiClient.BaseAddress, "import"), // TODO: org id
+                RequestUri = new Uri(ApiClient.BaseAddress, $"organizations/{SettingsService.Instance.Organization.Id}/import"),
                 Content = new StringContent(stringContent, Encoding.UTF8, "application/json"),
             };
 

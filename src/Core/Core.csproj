@@ -57,10 +57,12 @@
     <Compile Include="Models\ImportRequest.cs" />
     <Compile Include="Models\Organization.cs" />
     <Compile Include="Models\ProfileOrganizationResponse.cs" />
+    <Compile Include="Models\SyncConfiguration.cs" />
     <Compile Include="Models\ServerConfiguration.cs" />
     <Compile Include="Models\LoginResult.cs" />
     <Compile Include="Models\ErrorResponse.cs" />
     <Compile Include="Models\EncryptedData.cs" />
+    <Compile Include="Models\SyncResult.cs" />
     <Compile Include="Models\TokenRequest.cs" />
     <Compile Include="Models\ProfileResponse.cs" />
     <Compile Include="Models\TokenResponse.cs" />

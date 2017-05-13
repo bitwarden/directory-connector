@@ -153,6 +153,19 @@ namespace Bit.Core.Services
             }
         }
 
+        public SyncConfiguration Sync
+        {
+            get
+            {
+                return Settings.Sync;
+            }
+            set
+            {
+                Settings.Sync = value;
+                SaveSettings();
+            }
+        }
+
         public class SettingsModel
         {
             public string ApiBaseUrl { get; set; }
@@ -160,6 +173,7 @@ namespace Bit.Core.Services
             public EncryptedData AccessToken { get; set; }
             public EncryptedData RefreshToken { get; set; }
             public ServerConfiguration Server { get; set; }
+            public SyncConfiguration Sync { get; set; }
             public Organization Organization { get; set; }
         }
     }

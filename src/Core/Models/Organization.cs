@@ -8,6 +8,8 @@ namespace Bit.Core.Models
 {
     public class Organization
     {
+        public Organization() { }
+
         public Organization(ProfileOrganizationResponseModel org)
         {
             Name = org.Name;
