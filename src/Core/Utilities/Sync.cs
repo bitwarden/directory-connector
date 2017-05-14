@@ -11,7 +11,7 @@ namespace Bit.Core.Utilities
 {
     public static class Sync
     {
-        public static async Task<SyncResult> SyncAllAsync()
+        public static async Task<SyncResult> SyncAllAsync(bool force = false)
         {
             if(!AuthService.Instance.Authenticated || !AuthService.Instance.OrganizationSet)
             {
@@ -45,13 +45,13 @@ namespace Bit.Core.Utilities
             List<GroupEntry> groups = null;
             if(SettingsService.Instance.Sync.SyncGroups)
             {
-                groups = await GetGroupsAsync();
+                groups = await GetGroupsAsync(force);
             }
 
             List<UserEntry> users = null;
             if(SettingsService.Instance.Sync.SyncUsers)
             {
-                users = await GetUsersAsync();
+                users = await GetUsersAsync(force);
             }
 
             FlattenGroupsToUsers(groups, null, groups, users);
@@ -87,7 +87,7 @@ namespace Bit.Core.Utilities
             }
         }
 
-        private static Task<List<GroupEntry>> GetGroupsAsync()
+        private static Task<List<GroupEntry>> GetGroupsAsync(bool force = false)
         {
             if(!SettingsService.Instance.Sync.SyncGroups)
             {
@@ -113,7 +113,7 @@ namespace Bit.Core.Utilities
             var filter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.GroupFilter) ? null :
                 SettingsService.Instance.Sync.GroupFilter;
 
-            if(!string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.RevisionDateAttribute) &&
+            if(!force && !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.RevisionDateAttribute) &&
                 SettingsService.Instance.LastGroupSyncDate.HasValue)
             {
                 filter = string.Format("(&{0}({1}>{2}))",
@@ -177,7 +177,7 @@ namespace Bit.Core.Utilities
             return Task.FromResult(groups);
         }
 
-        private static Task<List<UserEntry>> GetUsersAsync()
+        private static Task<List<UserEntry>> GetUsersAsync(bool force = false)
         {
             if(!SettingsService.Instance.Sync.SyncUsers)
             {
@@ -203,7 +203,7 @@ namespace Bit.Core.Utilities
             var filter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.UserFilter) ? null :
                 SettingsService.Instance.Sync.UserFilter;
 
-            if(!string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.RevisionDateAttribute) &&
+            if(!force && !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.RevisionDateAttribute) &&
                 SettingsService.Instance.LastUserSyncDate.HasValue)
             {
                 filter = string.Format("(&{0}({1}>{2}))",

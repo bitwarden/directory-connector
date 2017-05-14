@@ -530,8 +530,15 @@ namespace Bit.Console
             }
             else
             {
+                var force = false;
+                if(_usingArgs)
+                {
+                    var parameters = ParseParameters();
+                    force = parameters.ContainsKey("f");
+                }
+
                 Con.WriteLine("Syncing...");
-                var result = await Sync.SyncAllAsync();
+                var result = await Sync.SyncAllAsync(force);
 
                 if(result.Success)
                 {
