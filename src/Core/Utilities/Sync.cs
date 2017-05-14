@@ -13,6 +13,46 @@ namespace Bit.Core.Utilities
     {
         public static async Task<SyncResult> SyncAllAsync(bool force = false)
         {
+            var now = DateTime.UtcNow;
+            var gatherResult = await GatherAsync(force);
+            if(!gatherResult.Success)
+            {
+                return gatherResult;
+            }
+
+            var request = new ImportRequest(gatherResult.Groups, gatherResult.Users);
+            var response = await ApiService.Instance.PostImportAsync(request);
+            if(response.Succeeded)
+            {
+                if(SettingsService.Instance.Sync.SyncGroups)
+                {
+                    SettingsService.Instance.LastGroupSyncDate = now;
+                }
+
+                if(SettingsService.Instance.Sync.SyncUsers)
+                {
+                    SettingsService.Instance.LastUserSyncDate = now;
+                }
+
+                return new SyncResult
+                {
+                    Success = true,
+                    Groups = gatherResult.Groups,
+                    Users = gatherResult.Users
+                };
+            }
+            else
+            {
+                return new SyncResult
+                {
+                    Success = false,
+                    ErrorMessage = response.Errors.FirstOrDefault()?.Message
+                };
+            }
+        }
+
+        public static async Task<SyncResult> GatherAsync(bool force = false)
+        {
             if(!AuthService.Instance.Authenticated || !AuthService.Instance.OrganizationSet)
             {
                 return new SyncResult
@@ -40,8 +80,6 @@ namespace Bit.Core.Utilities
                 };
             }
 
-            var now = DateTime.UtcNow;
-
             List<GroupEntry> groups = null;
             if(SettingsService.Instance.Sync.SyncGroups)
             {
@@ -56,35 +94,12 @@ namespace Bit.Core.Utilities
 
             FlattenGroupsToUsers(groups, null, groups, users);
 
-            var request = new ImportRequest(groups, users);
-            var response = await ApiService.Instance.PostImportAsync(request);
-            if(response.Succeeded)
+            return new SyncResult
             {
-                if(SettingsService.Instance.Sync.SyncGroups)
-                {
-                    SettingsService.Instance.LastGroupSyncDate = now;
-                }
-
-                if(SettingsService.Instance.Sync.SyncUsers)
-                {
-                    SettingsService.Instance.LastUserSyncDate = now;
-                }
-
-                return new SyncResult
-                {
-                    Success = true,
-                    GroupCount = groups.Count,
-                    UserCount = users.Count
-                };
-            }
-            else
-            {
-                return new SyncResult
-                {
-                    Success = false,
-                    ErrorMessage = response.Errors.FirstOrDefault()?.Message
-                };
-            }
+                Success = true,
+                Groups = groups,
+                Users = users
+            };
         }
 
         private static Task<List<GroupEntry>> GetGroupsAsync(bool force = false)

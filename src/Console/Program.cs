@@ -43,9 +43,10 @@ namespace Bit.Console
                     Con.WriteLine("2. Log out");
                     Con.WriteLine("3. Configure directory connection");
                     Con.WriteLine("4. Configure sync");
-                    Con.WriteLine("5. Sync directory");
-                    Con.WriteLine("6. Start/stop background service");
-                    Con.WriteLine("7. Exit");
+                    Con.WriteLine("5. Simulate directory sync");
+                    Con.WriteLine("6. Sync directory");
+                    Con.WriteLine("7. Start/stop background service");
+                    Con.WriteLine("8. Exit");
                     Con.WriteLine();
                     Con.Write("What would you like to do? ");
                     selection = Con.ReadLine();
@@ -75,6 +76,12 @@ namespace Bit.Console
                         await ConfigSyncAsync();
                         break;
                     case "5":
+                    case "print":
+                    case "sim":
+                    case "simulate":
+                        await PrintAsync();
+                        break;
+                    case "6":
                     case "sync":
                         await SyncAsync();
                         break;
@@ -543,13 +550,65 @@ namespace Bit.Console
                 if(result.Success)
                 {
                     Con.ForegroundColor = ConsoleColor.Green;
-                    Con.WriteLine("Syncing complete ({0} users, {1} groups).", result.UserCount, result.GroupCount);
+                    Con.WriteLine("Syncing complete ({0} users, {1} groups).", result.Users.Count, result.Groups.Count);
                     Con.ResetColor();
                 }
                 else
                 {
                     Con.ForegroundColor = ConsoleColor.Red;
                     Con.WriteLine("Syncing failed.");
+                    Con.WriteLine(result.ErrorMessage);
+                    Con.ResetColor();
+                }
+            }
+        }
+
+        private static async Task PrintAsync()
+        {
+            if(!Core.Services.AuthService.Instance.Authenticated)
+            {
+                Con.WriteLine("You are not logged in.");
+            }
+            else if(Core.Services.SettingsService.Instance.Server == null)
+            {
+                Con.WriteLine("Server is not configured.");
+            }
+            else
+            {
+                var force = false;
+                if(_usingArgs)
+                {
+                    var parameters = ParseParameters();
+                    force = parameters.ContainsKey("f");
+                }
+
+                Con.WriteLine("Querying...");
+                Con.WriteLine();
+
+                var result = await Sync.GatherAsync(force);
+                if(result.Success)
+                {
+                    Con.WriteLine("Groups:");
+                    foreach(var group in result.Groups)
+                    {
+                        Con.WriteLine("  {0} - {1}", group.Name, group.DistinguishedName);
+                    }
+
+                    Con.WriteLine();
+                    Con.WriteLine("Users:");
+                    foreach(var user in result.Users)
+                    {
+                        Con.WriteLine("  {0}", user.Email);
+                        foreach(var group in user.Groups)
+                        {
+                            Con.WriteLine("    {0}", group);
+                        }
+                    }
+                }
+                else
+                {
+                    Con.ForegroundColor = ConsoleColor.Red;
+                    Con.WriteLine("Querying failed.");
                     Con.WriteLine(result.ErrorMessage);
                     Con.ResetColor();
                 }
