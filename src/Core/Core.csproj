@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\DirectoryType.cs" />
     <Compile Include="Enums\OrganizationUserType.cs" />
     <Compile Include="Enums\OrganizationUserStatusType.cs" />
     <Compile Include="Models\ApiError.cs" />

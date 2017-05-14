@@ -17,7 +17,7 @@ namespace Bit.Core.Models
         public EncryptedData Password { get; set; }
         [JsonIgnore]
         public string ServerPath => $"LDAP://{Address}:{Port}/{Path}";
-        public string Type { get; set; } = "Active Directory";
+        public Enums.DirectoryType Type { get; set; } = Enums.DirectoryType.ActiveDirectory;
 
         public DirectoryEntry GetDirectoryEntry()
         {

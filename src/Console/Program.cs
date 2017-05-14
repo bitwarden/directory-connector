@@ -248,11 +248,27 @@ namespace Bit.Console
 
         private static Task ConfigDirectoryAsync()
         {
-            var config = new ServerConfiguration();
+            var config = Core.Services.SettingsService.Instance.Server ?? new ServerConfiguration();
 
             if(_usingArgs)
             {
                 var parameters = ParseParameters();
+                if(parameters.ContainsKey("t"))
+                {
+                    Core.Enums.DirectoryType dirType;
+                    if(Enum.TryParse(parameters["t"], out dirType))
+                    {
+                        config.Type = dirType;
+                    }
+                    else
+                    {
+                        Con.ForegroundColor = ConsoleColor.Red;
+                        Con.WriteLine("Unable to parse type parameter.");
+                        Con.ResetColor();
+                        return Task.FromResult(0);
+                    }
+                }
+
                 if(parameters.ContainsKey("a"))
                 {
                     config.Address = parameters["a"];
@@ -282,18 +298,61 @@ namespace Bit.Console
             {
                 string input;
 
-                Con.Write("Address: ");
-                config.Address = Con.ReadLine().Trim();
+                Con.WriteLine("1. Active Directory");
+                //Con.WriteLine("2. Azure Active Directory ");
+                Con.WriteLine("2. Other LDAP Directory");
+
+                string currentType;
+                switch(config.Type)
+                {
+                    case Core.Enums.DirectoryType.ActiveDirectory:
+                        currentType = "1";
+                        break;
+                    default:
+                        currentType = "2";
+                        break;
+                }
+                Con.Write("Type [{0}]: ", currentType);
+                input = Con.ReadLine().Trim();
+                if(!string.IsNullOrWhiteSpace(input))
+                {
+                    switch(input)
+                    {
+                        case "1":
+                            config.Type = Core.Enums.DirectoryType.ActiveDirectory;
+                            break;
+                        //case "2":
+                        //    config.Type = Core.Enums.DirectoryType.AzureActiveCirectory;
+                        default:
+                            config.Type = Core.Enums.DirectoryType.Other;
+                            break;
+                    }
+                }
+
+                Con.Write("Address [{0}]: ", config.Address);
+                input = Con.ReadLine().Trim();
+                if(!string.IsNullOrWhiteSpace(input))
+                {
+                    config.Address = input;
+                }
                 Con.Write("Port [{0}]: ", config.Port);
                 input = Con.ReadLine().Trim();
                 if(!string.IsNullOrWhiteSpace(input))
                 {
                     config.Port = input;
                 }
-                Con.Write("Path: ");
-                config.Path = Con.ReadLine().Trim();
-                Con.Write("Username: ");
-                config.Username = Con.ReadLine().Trim();
+                Con.Write("Path [{0}]: ", config.Path);
+                input = Con.ReadLine().Trim();
+                if(!string.IsNullOrWhiteSpace(input))
+                {
+                    config.Path = input;
+                }
+                Con.Write("Username [{0}]: ", config.Username);
+                input = Con.ReadLine().Trim();
+                if(!string.IsNullOrWhiteSpace(input))
+                {
+                    config.Username = input;
+                }
                 Con.Write("Password: ");
                 input = ReadSecureLine();
                 if(!string.IsNullOrWhiteSpace(input))
@@ -326,7 +385,7 @@ namespace Bit.Console
 
         private static Task ConfigSyncAsync()
         {
-            var config = new SyncConfiguration();
+            var config = Core.Services.SettingsService.Instance.Sync ?? new SyncConfiguration();
 
             if(_usingArgs)
             {
@@ -357,6 +416,18 @@ namespace Bit.Console
                     config.MemberAttribute = parameters["m"];
                 }
 
+                config.EmailPrefixSuffix = parameters.ContainsKey("ps");
+
+                if(parameters.ContainsKey("ep"))
+                {
+                    config.UserEmailPrefixAttribute = parameters["ep"];
+                }
+
+                if(parameters.ContainsKey("es"))
+                {
+                    config.UserEmailSuffix = parameters["es"];
+                }
+
                 if(parameters.ContainsKey("c"))
                 {
                     config.CreationDateAttribute = parameters["c"];
@@ -371,7 +442,7 @@ namespace Bit.Console
             {
                 string input;
 
-                Con.Write("Sync groups? [y]: ");
+                Con.Write("Sync groups? [{0}]: ", config.SyncGroups ? "y" : "n");
                 input = Con.ReadLine().Trim().ToLower();
                 config.SyncGroups = input == "y" || input == "yes" || string.IsNullOrWhiteSpace(input);
                 if(config.SyncGroups)
@@ -389,7 +460,7 @@ namespace Bit.Console
                         config.GroupNameAttribute = input;
                     }
                 }
-                Con.Write("Sync users? [y]: ");
+                Con.Write("Sync users? [{0}]: ", config.SyncUsers ? "y" : "n");
                 input = Con.ReadLine().Trim().ToLower();
                 config.SyncUsers = input == "y" || input == "yes" || string.IsNullOrWhiteSpace(input);
                 if(config.SyncUsers)
