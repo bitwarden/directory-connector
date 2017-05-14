@@ -313,8 +313,8 @@ namespace Bit.Console
                         break;
                 }
                 Con.Write("Type [{0}]: ", currentType);
-                input = Con.ReadLine().Trim();
-                if(!string.IsNullOrWhiteSpace(input))
+                input = Con.ReadLine();
+                if(!string.IsNullOrEmpty(input))
                 {
                     switch(input)
                     {
@@ -330,32 +330,32 @@ namespace Bit.Console
                 }
 
                 Con.Write("Address [{0}]: ", config.Address);
-                input = Con.ReadLine().Trim();
-                if(!string.IsNullOrWhiteSpace(input))
+                input = Con.ReadLine();
+                if(!string.IsNullOrEmpty(input))
                 {
                     config.Address = input;
                 }
                 Con.Write("Port [{0}]: ", config.Port);
-                input = Con.ReadLine().Trim();
-                if(!string.IsNullOrWhiteSpace(input))
+                input = Con.ReadLine();
+                if(!string.IsNullOrEmpty(input))
                 {
                     config.Port = input;
                 }
                 Con.Write("Path [{0}]: ", config.Path);
-                input = Con.ReadLine().Trim();
-                if(!string.IsNullOrWhiteSpace(input))
+                input = Con.ReadLine();
+                if(!string.IsNullOrEmpty(input))
                 {
                     config.Path = input;
                 }
                 Con.Write("Username [{0}]: ", config.Username);
-                input = Con.ReadLine().Trim();
-                if(!string.IsNullOrWhiteSpace(input))
+                input = Con.ReadLine();
+                if(!string.IsNullOrEmpty(input))
                 {
                     config.Username = input;
                 }
                 Con.Write("Password: ");
                 input = ReadSecureLine();
-                if(!string.IsNullOrWhiteSpace(input))
+                if(!string.IsNullOrEmpty(input))
                 {
                     config.Password = new EncryptedData(input);
                     input = null;
@@ -385,7 +385,8 @@ namespace Bit.Console
 
         private static Task ConfigSyncAsync()
         {
-            var config = Core.Services.SettingsService.Instance.Sync ?? new SyncConfiguration();
+            var config = Core.Services.SettingsService.Instance.Sync ??
+                new SyncConfiguration(Core.Services.SettingsService.Instance.Server.Type);
 
             if(_usingArgs)
             {
@@ -443,57 +444,63 @@ namespace Bit.Console
                 string input;
 
                 Con.Write("Sync groups? [{0}]: ", config.SyncGroups ? "y" : "n");
-                input = Con.ReadLine().Trim().ToLower();
-                config.SyncGroups = input == "y" || input == "yes" || string.IsNullOrWhiteSpace(input);
+                input = Con.ReadLine().ToLower();
+                if(!string.IsNullOrEmpty(input))
+                {
+                    config.SyncGroups = input == "y" || input == "yes";
+                }
                 if(config.SyncGroups)
                 {
                     Con.Write("Group filter [{0}]: ", config.GroupFilter);
-                    input = Con.ReadLine().Trim();
-                    if(!string.IsNullOrWhiteSpace(input))
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
                     {
                         config.GroupFilter = input;
                     }
                     Con.Write("Group name attribute [{0}]: ", config.GroupNameAttribute);
-                    input = Con.ReadLine().Trim();
-                    if(!string.IsNullOrWhiteSpace(input))
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
                     {
                         config.GroupNameAttribute = input;
                     }
                 }
                 Con.Write("Sync users? [{0}]: ", config.SyncUsers ? "y" : "n");
-                input = Con.ReadLine().Trim().ToLower();
-                config.SyncUsers = input == "y" || input == "yes" || string.IsNullOrWhiteSpace(input);
+                input = Con.ReadLine().ToLower();
+                if(!string.IsNullOrEmpty(input))
+                {
+                    config.SyncUsers = input == "y" || input == "yes";
+                }
                 if(config.SyncUsers)
                 {
                     Con.Write("User filter [{0}]: ", config.UserFilter);
-                    input = Con.ReadLine().Trim();
-                    if(!string.IsNullOrWhiteSpace(input))
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
                     {
                         config.UserFilter = input;
                     }
                     Con.Write("User email attribute [{0}]: ", config.UserEmailAttribute);
-                    input = Con.ReadLine().Trim();
-                    if(!string.IsNullOrWhiteSpace(input))
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
                     {
                         config.GroupNameAttribute = input;
                     }
                 }
 
                 Con.Write("Member Of Attribute [{0}]: ", config.MemberAttribute);
-                input = Con.ReadLine().Trim();
-                if(!string.IsNullOrWhiteSpace(input))
+                input = Con.ReadLine();
+                if(!string.IsNullOrEmpty(input))
                 {
                     config.MemberAttribute = input;
                 }
                 Con.Write("Creation Attribute [{0}]: ", config.CreationDateAttribute);
-                input = Con.ReadLine().Trim();
-                if(!string.IsNullOrWhiteSpace(input))
+                input = Con.ReadLine();
+                if(!string.IsNullOrEmpty(input))
                 {
                     config.CreationDateAttribute = input;
                 }
                 Con.Write("Changed Attribute [{0}]: ", config.RevisionDateAttribute);
-                input = Con.ReadLine().Trim();
-                if(!string.IsNullOrWhiteSpace(input))
+                input = Con.ReadLine();
+                if(!string.IsNullOrEmpty(input))
                 {
                     config.RevisionDateAttribute = input;
                 }

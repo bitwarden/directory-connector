@@ -9,7 +9,7 @@ namespace Bit.Core.Enums
     public enum DirectoryType : byte
     {
         ActiveDirectory = 0,
-        AzureActiveCirectory = 1,
+        AzureActiveDirectory = 1,
         Other = 2
     }
 }

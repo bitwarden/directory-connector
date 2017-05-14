@@ -40,6 +40,8 @@ namespace Bit.Core.Utilities
                 };
             }
 
+            var now = DateTime.UtcNow;
+
             List<GroupEntry> groups = null;
             if(SettingsService.Instance.Sync.SyncGroups)
             {
@@ -58,6 +60,16 @@ namespace Bit.Core.Utilities
             var response = await ApiService.Instance.PostImportAsync(request);
             if(response.Succeeded)
             {
+                if(SettingsService.Instance.Sync.SyncGroups)
+                {
+                    SettingsService.Instance.LastGroupSyncDate = now;
+                }
+
+                if(SettingsService.Instance.Sync.SyncUsers)
+                {
+                    SettingsService.Instance.LastUserSyncDate = now;
+                }
+
                 return new SyncResult
                 {
                     Success = true,
@@ -100,6 +112,16 @@ namespace Bit.Core.Utilities
             var entry = SettingsService.Instance.Server.GetDirectoryEntry();
             var filter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.GroupFilter) ? null :
                 SettingsService.Instance.Sync.GroupFilter;
+
+            if(!string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.RevisionDateAttribute) &&
+                SettingsService.Instance.LastGroupSyncDate.HasValue)
+            {
+                filter = string.Format("(&{0}({1}>{2}))",
+                    filter != null ? string.Format("({0})", filter) : string.Empty,
+                    SettingsService.Instance.Sync.RevisionDateAttribute,
+                    SettingsService.Instance.LastGroupSyncDate.Value.ToGeneralizedTimeUTC());
+            }
+
             var searcher = new DirectorySearcher(entry, filter);
             var result = searcher.FindAll();
 
@@ -180,6 +202,16 @@ namespace Bit.Core.Utilities
             var entry = SettingsService.Instance.Server.GetDirectoryEntry();
             var filter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.UserFilter) ? null :
                 SettingsService.Instance.Sync.UserFilter;
+
+            if(!string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.RevisionDateAttribute) &&
+                SettingsService.Instance.LastUserSyncDate.HasValue)
+            {
+                filter = string.Format("(&{0}({1}>{2}))",
+                    filter != null ? string.Format("({0})", filter) : string.Empty,
+                    SettingsService.Instance.Sync.RevisionDateAttribute,
+                    SettingsService.Instance.LastUserSyncDate.Value.ToGeneralizedTimeUTC());
+            }
+
             var searcher = new DirectorySearcher(entry, filter);
             var result = searcher.FindAll();
 

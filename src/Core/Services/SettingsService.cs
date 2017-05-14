@@ -166,6 +166,32 @@ namespace Bit.Core.Services
             }
         }
 
+        public DateTime? LastGroupSyncDate
+        {
+            get
+            {
+                return Settings.LastGroupSyncDate;
+            }
+            set
+            {
+                Settings.LastGroupSyncDate = value;
+                SaveSettings();
+            }
+        }
+
+        public DateTime? LastUserSyncDate
+        {
+            get
+            {
+                return Settings.LastUserSyncDate;
+            }
+            set
+            {
+                Settings.LastUserSyncDate = value;
+                SaveSettings();
+            }
+        }
+
         public class SettingsModel
         {
             public string ApiBaseUrl { get; set; }
@@ -175,6 +201,8 @@ namespace Bit.Core.Services
             public ServerConfiguration Server { get; set; }
             public SyncConfiguration Sync { get; set; }
             public Organization Organization { get; set; }
+            public DateTime? LastGroupSyncDate { get; set; }
+            public DateTime? LastUserSyncDate { get; set; }
         }
     }
 }

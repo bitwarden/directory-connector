@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Bit.Core.Enums;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
@@ -10,17 +11,38 @@ namespace Bit.Core.Models
 {
     public class SyncConfiguration
     {
+        public SyncConfiguration() { }
+
+        public SyncConfiguration(DirectoryType type)
+        {
+            switch(type)
+            {
+                case DirectoryType.ActiveDirectory:
+                    MemberAttribute = "memberOf";
+                    CreationDateAttribute = "whenCreated";
+                    RevisionDateAttribute = "whenChanged";
+                    UserEmailPrefixAttribute = "sAMAccountName";
+                    break;
+                case DirectoryType.AzureActiveDirectory:
+                    break;
+                case DirectoryType.Other:
+                    break;
+                default:
+                    break;
+            }
+        }
+
         public string GroupFilter { get; set; } = "(&(objectClass=group))";
         public string UserFilter { get; set; } = "(&(objectClass=person))";
         public bool SyncGroups { get; set; } = true;
         public bool SyncUsers { get; set; } = true;
-        public string MemberAttribute { get; set; } = "memberOf";
+        public string MemberAttribute { get; set; } = "member";
         public string GroupNameAttribute { get; set; } = "name";
         public string UserEmailAttribute { get; set; } = "mail";
         public bool EmailPrefixSuffix { get; set; } = false;
-        public string UserEmailPrefixAttribute { get; set; } = "sAMAccountName";
+        public string UserEmailPrefixAttribute { get; set; } = "cn";
         public string UserEmailSuffix { get; set; } = "@companyname.com";
-        public string CreationDateAttribute { get; set; } = "whenCreated";
-        public string RevisionDateAttribute { get; set; } = "whenChanged";
+        public string CreationDateAttribute { get; set; }
+        public string RevisionDateAttribute { get; set; }
     }
 }
