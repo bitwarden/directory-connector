@@ -169,8 +169,8 @@ namespace Bit.Core.Utilities
                 }
 
                 // Dates
-                group.CreationDate = ParseDate(item.Properties, SettingsService.Instance.Sync.CreationDateAttribute);
-                group.RevisionDate = ParseDate(item.Properties, SettingsService.Instance.Sync.RevisionDateAttribute);
+                group.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.CreationDateAttribute);
+                group.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.RevisionDateAttribute);
 
                 // Members
                 if(item.Properties.Contains(SettingsService.Instance.Sync.MemberAttribute) &&
