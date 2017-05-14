@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.DirectoryServices;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,18 @@ namespace Bit.Core.Utilities
         public static string ToGeneralizedTimeUTC(this DateTime date)
         {
             return date.ToString("yyyyMMddHHmmss.f'Z'");
+        }
+
+        public static DateTime? ParseDateTime(this ResultPropertyCollection collection, string dateKey)
+        {
+            DateTime date;
+            if(collection.Contains(dateKey) && collection[dateKey].Count > 0 &&
+                DateTime.TryParse(collection[dateKey][0].ToString(), out date))
+            {
+                return date;
+            }
+
+            return null;
         }
     }
 }

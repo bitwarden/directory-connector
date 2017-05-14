@@ -266,8 +266,8 @@ namespace Bit.Core.Utilities
                 }
 
                 // Dates
-                user.CreationDate = ParseDate(item.Properties, SettingsService.Instance.Sync.CreationDateAttribute);
-                user.RevisionDate = ParseDate(item.Properties, SettingsService.Instance.Sync.RevisionDateAttribute);
+                user.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.CreationDateAttribute);
+                user.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.RevisionDateAttribute);
 
                 users.Add(user);
             }
@@ -307,18 +307,6 @@ namespace Bit.Core.Utilities
                 // Recurse it
                 FlattenGroupsToUsers(groupsInThisGroup, usersInThisGroup, allGroups, allUsers);
             }
-        }
-
-        private static DateTime? ParseDate(ResultPropertyCollection collection, string dateKey)
-        {
-            DateTime date;
-            if(collection.Contains(dateKey) && collection[dateKey].Count > 0 &&
-                DateTime.TryParse(collection[dateKey][0].ToString(), out date))
-            {
-                return date;
-            }
-
-            return null;
         }
     }
 }
