@@ -555,7 +555,7 @@ namespace Bit.Console
                 }
 
                 Con.WriteLine("Syncing...");
-                var result = await Sync.SyncAllAsync(force);
+                var result = await Sync.SyncAllAsync(force, true);
 
                 if(result.Success)
                 {
@@ -595,7 +595,7 @@ namespace Bit.Console
                 Con.WriteLine("Querying...");
                 Con.WriteLine();
 
-                var result = await Sync.GatherAsync(force);
+                var result = await Sync.SyncAllAsync(force, false);
                 if(result.Success)
                 {
                     Con.WriteLine("Groups:");
