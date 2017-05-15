@@ -8,7 +8,7 @@ namespace Bit.Core.Models
 {
     public abstract class Entry
     {
-        public string DistinguishedName { get; set; }
+        public string Id { get; set; }
         public DateTime? CreationDate { get; set; }
         public DateTime? RevisionDate { get; set; }
     }

@@ -19,7 +19,7 @@ namespace Bit.Core.Models
             public Group(GroupEntry entry)
             {
                 Name = entry.Name;
-                ExternalId = entry.DistinguishedName;
+                ExternalId = entry.Id;
             }
 
             public string Name { get; set; }

@@ -86,14 +86,14 @@ namespace Bit.Core.Utilities
         {
             foreach(var group in currentGroups)
             {
-                var groupsInThisGroup = allGroups.Where(g => group.Members.Contains(g.DistinguishedName)).ToList();
-                var usersInThisGroup = allUsers.Where(u => group.Members.Contains(u.DistinguishedName)).ToList();
+                var groupsInThisGroup = allGroups.Where(g => group.Members.Contains(g.Id)).ToList();
+                var usersInThisGroup = allUsers.Where(u => group.Members.Contains(u.Id)).ToList();
 
                 foreach(var user in usersInThisGroup)
                 {
-                    if(!user.Groups.Contains(group.DistinguishedName))
+                    if(!user.Groups.Contains(group.Id))
                     {
-                        user.Groups.Add(group.DistinguishedName);
+                        user.Groups.Add(group.Id);
                     }
                 }
 
@@ -101,9 +101,9 @@ namespace Bit.Core.Utilities
                 {
                     foreach(var user in currentGroupsUsers)
                     {
-                        if(!user.Groups.Contains(group.DistinguishedName))
+                        if(!user.Groups.Contains(group.Id))
                         {
-                            user.Groups.Add(group.DistinguishedName);
+                            user.Groups.Add(group.Id);
                         }
                     }
 

@@ -286,29 +286,52 @@ namespace Bit.Console
                     }
                 }
 
-                if(parameters.ContainsKey("a"))
+                if(config.Type == Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
-                    config.Address = parameters["a"];
-                }
+                    config.Azure = new AzureConfiguration();
 
-                if(parameters.ContainsKey("port"))
-                {
-                    config.Port = parameters["port"];
-                }
+                    if(parameters.ContainsKey("i"))
+                    {
+                        config.Azure.Id = parameters["i"];
+                    }
 
-                if(parameters.ContainsKey("path"))
-                {
-                    config.Path = parameters["path"];
-                }
+                    if(parameters.ContainsKey("s"))
+                    {
+                        config.Azure.Secret = new EncryptedData(parameters["s"]);
+                    }
 
-                if(parameters.ContainsKey("u"))
-                {
-                    config.Username = parameters["u"];
+                    if(parameters.ContainsKey("t"))
+                    {
+                        config.Azure.Tenant = parameters["t"];
+                    }
                 }
-
-                if(parameters.ContainsKey("p"))
+                else
                 {
-                    config.Password = new EncryptedData(parameters["p"]);
+                    config.Ldap = config.Ldap ?? new LdapConfiguration();
+                    if(parameters.ContainsKey("a"))
+                    {
+                        config.Ldap.Address = parameters["a"];
+                    }
+
+                    if(parameters.ContainsKey("port"))
+                    {
+                        config.Ldap.Port = parameters["port"];
+                    }
+
+                    if(parameters.ContainsKey("path"))
+                    {
+                        config.Ldap.Path = parameters["path"];
+                    }
+
+                    if(parameters.ContainsKey("u"))
+                    {
+                        config.Ldap.Username = parameters["u"];
+                    }
+
+                    if(parameters.ContainsKey("p"))
+                    {
+                        config.Ldap.Password = new EncryptedData(parameters["p"]);
+                    }
                 }
             }
             else
@@ -316,8 +339,8 @@ namespace Bit.Console
                 string input;
 
                 Con.WriteLine("1. Active Directory");
-                //Con.WriteLine("2. Azure Active Directory ");
-                Con.WriteLine("2. Other LDAP Directory");
+                Con.WriteLine("2. Azure Active Directory ");
+                Con.WriteLine("3. Other LDAP Directory");
 
                 string currentType;
                 switch(config.Type)
@@ -325,8 +348,11 @@ namespace Bit.Console
                     case Core.Enums.DirectoryType.ActiveDirectory:
                         currentType = "1";
                         break;
-                    default:
+                    case Core.Enums.DirectoryType.AzureActiveDirectory:
                         currentType = "2";
+                        break;
+                    default:
+                        currentType = "3";
                         break;
                 }
                 Con.Write("Type [{0}]: ", currentType);
@@ -338,44 +364,74 @@ namespace Bit.Console
                         case "1":
                             config.Type = Core.Enums.DirectoryType.ActiveDirectory;
                             break;
-                        //case "2":
-                        //    config.Type = Core.Enums.DirectoryType.AzureActiveCirectory;
+                        case "2":
+                            config.Type = Core.Enums.DirectoryType.AzureActiveDirectory;
+                            break;
                         default:
                             config.Type = Core.Enums.DirectoryType.Other;
                             break;
                     }
                 }
 
-                Con.Write("Address [{0}]: ", config.Address);
-                input = Con.ReadLine();
-                if(!string.IsNullOrEmpty(input))
+                if(config.Type == Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
-                    config.Address = input;
+                    config.Azure = config.Azure ?? new AzureConfiguration();
+
+                    Con.Write("Tenant [{0}]: ", config.Azure.Tenant);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Azure.Tenant = input;
+                    }
+                    Con.Write("Application Id [{0}]: ", config.Azure.Id);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Azure.Id = input;
+                    }
+                    Con.Write("Secret key: ");
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Azure.Secret = new EncryptedData(input);
+                        input = null;
+                    }
                 }
-                Con.Write("Port [{0}]: ", config.Port);
-                input = Con.ReadLine();
-                if(!string.IsNullOrEmpty(input))
+                else
                 {
-                    config.Port = input;
-                }
-                Con.Write("Path [{0}]: ", config.Path);
-                input = Con.ReadLine();
-                if(!string.IsNullOrEmpty(input))
-                {
-                    config.Path = input;
-                }
-                Con.Write("Username [{0}]: ", config.Username);
-                input = Con.ReadLine();
-                if(!string.IsNullOrEmpty(input))
-                {
-                    config.Username = input;
-                }
-                Con.Write("Password: ");
-                input = ReadSecureLine();
-                if(!string.IsNullOrEmpty(input))
-                {
-                    config.Password = new EncryptedData(input);
-                    input = null;
+                    config.Ldap = new LdapConfiguration();
+
+                    Con.Write("Address [{0}]: ", config.Ldap.Address);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Ldap.Address = input;
+                    }
+                    Con.Write("Port [{0}]: ", config.Ldap.Port);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Ldap.Port = input;
+                    }
+                    Con.Write("Path [{0}]: ", config.Ldap.Path);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Ldap.Path = input;
+                    }
+                    Con.Write("Username [{0}]: ", config.Ldap.Username);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Ldap.Username = input;
+                    }
+                    Con.Write("Password: ");
+                    input = ReadSecureLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Ldap.Password = new EncryptedData(input);
+                        input = null;
+                    }
                 }
 
                 input = null;
@@ -383,7 +439,14 @@ namespace Bit.Console
 
             Con.WriteLine();
             Con.WriteLine();
-            if(string.IsNullOrWhiteSpace(config.Address))
+            if(config.Ldap != null && string.IsNullOrWhiteSpace(config.Ldap.Address))
+            {
+                Con.ForegroundColor = ConsoleColor.Red;
+                Con.WriteLine("Invalid input parameters.");
+                Con.ResetColor();
+            }
+            else if(config.Azure != null && (string.IsNullOrWhiteSpace(config.Azure.Id) ||
+                config.Azure.Secret == null || string.IsNullOrWhiteSpace(config.Azure.Tenant)))
             {
                 Con.ForegroundColor = ConsoleColor.Red;
                 Con.WriteLine("Invalid input parameters.");
@@ -601,7 +664,7 @@ namespace Bit.Console
                     Con.WriteLine("Groups:");
                     foreach(var group in result.Groups)
                     {
-                        Con.WriteLine("  {0} - {1}", group.Name, group.DistinguishedName);
+                        Con.WriteLine("  {0} - {1}", group.Name, group.Id);
                     }
 
                     Con.WriteLine();

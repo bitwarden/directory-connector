@@ -10,19 +10,8 @@ namespace Bit.Core.Models
 {
     public class ServerConfiguration
     {
-        public string Address { get; set; }
-        public string Port { get; set; } = "389";
-        public string Path { get; set; }
-        public string Username { get; set; }
-        public EncryptedData Password { get; set; }
-        [JsonIgnore]
-        public string ServerPath => $"LDAP://{Address}:{Port}/{Path}";
         public Enums.DirectoryType Type { get; set; } = Enums.DirectoryType.ActiveDirectory;
-
-        public DirectoryEntry GetDirectoryEntry()
-        {
-            var entry = new DirectoryEntry(ServerPath, Username, Password.DecryptToString(), AuthenticationTypes.None);
-            return entry;
-        }
+        public LdapConfiguration Ldap { get; set; }
+        public AzureConfiguration Azure { get; set; }
     }
 }

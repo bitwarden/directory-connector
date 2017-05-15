@@ -34,7 +34,7 @@ namespace Bit.Core.Services
                 throw new ApplicationException("Not logged in or have an org set.");
             }
 
-            if(SettingsService.Instance.Server == null)
+            if(SettingsService.Instance.Server?.Ldap == null)
             {
                 throw new ApplicationException("No configuration for directory server.");
             }
@@ -66,7 +66,7 @@ namespace Bit.Core.Services
                 throw new ApplicationException("Not configured to sync groups.");
             }
 
-            if(SettingsService.Instance.Server == null)
+            if(SettingsService.Instance.Server?.Ldap == null)
             {
                 throw new ApplicationException("No configuration for directory server.");
             }
@@ -81,7 +81,7 @@ namespace Bit.Core.Services
                 throw new ApplicationException("Not authenticated.");
             }
 
-            var entry = SettingsService.Instance.Server.GetDirectoryEntry();
+            var entry = SettingsService.Instance.Server.Ldap.GetDirectoryEntry();
             var filter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.GroupFilter) ? null :
                 SettingsService.Instance.Sync.GroupFilter;
 
@@ -102,10 +102,10 @@ namespace Bit.Core.Services
             {
                 var group = new GroupEntry
                 {
-                    DistinguishedName = new Uri(item.Path).Segments?.LastOrDefault()
+                    Id = new Uri(item.Path).Segments?.LastOrDefault()
                 };
 
-                if(group.DistinguishedName == null)
+                if(group.Id == null)
                 {
                     continue;
                 }
@@ -156,7 +156,7 @@ namespace Bit.Core.Services
                 throw new ApplicationException("Not configured to sync users.");
             }
 
-            if(SettingsService.Instance.Server == null)
+            if(SettingsService.Instance.Server?.Ldap == null)
             {
                 throw new ApplicationException("No configuration for directory server.");
             }
@@ -171,7 +171,7 @@ namespace Bit.Core.Services
                 throw new ApplicationException("Not authenticated.");
             }
 
-            var entry = SettingsService.Instance.Server.GetDirectoryEntry();
+            var entry = SettingsService.Instance.Server.Ldap.GetDirectoryEntry();
             var filter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.UserFilter) ? null :
                 SettingsService.Instance.Sync.UserFilter;
 
@@ -192,10 +192,10 @@ namespace Bit.Core.Services
             {
                 var user = new UserEntry
                 {
-                    DistinguishedName = new Uri(item.Path).Segments?.LastOrDefault()
+                    Id = new Uri(item.Path).Segments?.LastOrDefault()
                 };
 
-                if(user.DistinguishedName == null)
+                if(user.Id == null)
                 {
                     continue;
                 }
