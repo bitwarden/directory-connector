@@ -89,14 +89,22 @@ namespace Bit.Core.Services
 
             var entries = new List<GroupEntry>();
 
-            var groups = await _graphClient.Groups.Request().GetAsync();
+            var groups = await _graphClient.Groups.Request().Select("id,displayName").GetAsync();
             foreach(var group in groups)
             {
-                entries.Add(new GroupEntry
+                var entry = new GroupEntry
                 {
                     Id = group.Id,
                     Name = group.DisplayName
-                });
+                };
+
+                var members = await _graphClient.Groups[group.Id].Members.Request().Select("id").GetAsync();
+                foreach(var member in members)
+                {
+                    entry.Members.Add(member.Id);
+                }
+
+                entries.Add(entry);
             }
 
             return entries;
@@ -126,14 +134,19 @@ namespace Bit.Core.Services
 
             var entries = new List<UserEntry>();
 
-            var users = await _graphClient.Users.Request().GetAsync();
+            var users = await _graphClient.Users.Request().Select("id,mail,userPrincipalName").GetAsync();
             foreach(var user in users)
             {
                 var entry = new UserEntry
                 {
                     Id = user.Id,
-                    Email = user.Mail
+                    Email = user.Mail ?? user.UserPrincipalName
                 };
+
+                if(entry.Email.Contains("#"))
+                {
+                    continue;
+                }
 
                 entries.Add(entry);
             }
