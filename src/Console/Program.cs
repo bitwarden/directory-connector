@@ -473,50 +473,54 @@ namespace Bit.Console
                 var parameters = ParseParameters();
 
                 config.SyncGroups = parameters.ContainsKey("g");
-                if(parameters.ContainsKey("gf"))
-                {
-                    config.GroupFilter = parameters["gf"];
-                }
-                if(parameters.ContainsKey("gn"))
-                {
-                    config.GroupNameAttribute = parameters["gn"];
-                }
+                config.SyncUsers = parameters.ContainsKey("u");
 
-                config.SyncGroups = parameters.ContainsKey("u");
-                if(parameters.ContainsKey("uf"))
+                if(Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
-                    config.UserFilter = parameters["uf"];
-                }
-                if(parameters.ContainsKey("ue"))
-                {
-                    config.UserEmailAttribute = parameters["ue"];
-                }
+                    if(parameters.ContainsKey("gf"))
+                    {
+                        config.GroupFilter = parameters["gf"];
+                    }
+                    if(parameters.ContainsKey("gn"))
+                    {
+                        config.GroupNameAttribute = parameters["gn"];
+                    }
 
-                if(parameters.ContainsKey("m"))
-                {
-                    config.MemberAttribute = parameters["m"];
-                }
+                    if(parameters.ContainsKey("uf"))
+                    {
+                        config.UserFilter = parameters["uf"];
+                    }
+                    if(parameters.ContainsKey("ue"))
+                    {
+                        config.UserEmailAttribute = parameters["ue"];
+                    }
 
-                config.EmailPrefixSuffix = parameters.ContainsKey("ps");
+                    if(parameters.ContainsKey("m"))
+                    {
+                        config.MemberAttribute = parameters["m"];
+                    }
 
-                if(parameters.ContainsKey("ep"))
-                {
-                    config.UserEmailPrefixAttribute = parameters["ep"];
-                }
+                    config.EmailPrefixSuffix = parameters.ContainsKey("ps");
 
-                if(parameters.ContainsKey("es"))
-                {
-                    config.UserEmailSuffix = parameters["es"];
-                }
+                    if(parameters.ContainsKey("ep"))
+                    {
+                        config.UserEmailPrefixAttribute = parameters["ep"];
+                    }
 
-                if(parameters.ContainsKey("c"))
-                {
-                    config.CreationDateAttribute = parameters["c"];
-                }
+                    if(parameters.ContainsKey("es"))
+                    {
+                        config.UserEmailSuffix = parameters["es"];
+                    }
 
-                if(parameters.ContainsKey("r"))
-                {
-                    config.RevisionDateAttribute = parameters["r"];
+                    if(parameters.ContainsKey("c"))
+                    {
+                        config.CreationDateAttribute = parameters["c"];
+                    }
+
+                    if(parameters.ContainsKey("r"))
+                    {
+                        config.RevisionDateAttribute = parameters["r"];
+                    }
                 }
             }
             else
@@ -529,7 +533,8 @@ namespace Bit.Console
                 {
                     config.SyncGroups = input == "y" || input == "yes";
                 }
-                if(config.SyncGroups)
+                if(config.SyncGroups &&
+                    Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
                     Con.Write("Group filter [{0}]: ", config.GroupFilter);
                     input = Con.ReadLine();
@@ -550,7 +555,8 @@ namespace Bit.Console
                 {
                     config.SyncUsers = input == "y" || input == "yes";
                 }
-                if(config.SyncUsers)
+                if(config.SyncUsers &&
+                    Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
                     Con.Write("User filter [{0}]: ", config.UserFilter);
                     input = Con.ReadLine();
@@ -566,23 +572,26 @@ namespace Bit.Console
                     }
                 }
 
-                Con.Write("Member Of Attribute [{0}]: ", config.MemberAttribute);
-                input = Con.ReadLine();
-                if(!string.IsNullOrEmpty(input))
+                if(Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
-                    config.MemberAttribute = input;
-                }
-                Con.Write("Creation Attribute [{0}]: ", config.CreationDateAttribute);
-                input = Con.ReadLine();
-                if(!string.IsNullOrEmpty(input))
-                {
-                    config.CreationDateAttribute = input;
-                }
-                Con.Write("Changed Attribute [{0}]: ", config.RevisionDateAttribute);
-                input = Con.ReadLine();
-                if(!string.IsNullOrEmpty(input))
-                {
-                    config.RevisionDateAttribute = input;
+                    Con.Write("Member Of Attribute [{0}]: ", config.MemberAttribute);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.MemberAttribute = input;
+                    }
+                    Con.Write("Creation Attribute [{0}]: ", config.CreationDateAttribute);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.CreationDateAttribute = input;
+                    }
+                    Con.Write("Changed Attribute [{0}]: ", config.RevisionDateAttribute);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.RevisionDateAttribute = input;
+                    }
                 }
 
                 input = null;

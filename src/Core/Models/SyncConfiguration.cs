@@ -24,6 +24,13 @@ namespace Bit.Core.Models
                     UserEmailPrefixAttribute = "sAMAccountName";
                     break;
                 case DirectoryType.AzureActiveDirectory:
+                    GroupFilter = null;
+                    UserFilter = null;
+                    MemberAttribute = null;
+                    GroupNameAttribute = null;
+                    UserEmailAttribute = null;
+                    UserEmailPrefixAttribute = null;
+                    UserEmailSuffix = null;
                     break;
                 case DirectoryType.Other:
                     break;
