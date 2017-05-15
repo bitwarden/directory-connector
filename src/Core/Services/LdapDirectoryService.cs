@@ -1,4 +1,5 @@
-﻿using Bit.Core.Models;
+﻿using Bit.Core.Enums;
+using Bit.Core.Models;
 using Bit.Core.Utilities;
 using System;
 using System.Collections.Generic;
@@ -226,10 +227,26 @@ namespace Bit.Core.Services
                 user.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.CreationDateAttribute);
                 user.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.RevisionDateAttribute);
 
-                users.Add(user);
+                user.Disabled = EntryDisabled(item);
             }
 
             return Task.FromResult(users);
+        }
+
+        private static bool EntryDisabled(SearchResult item)
+        {
+            if(!item.Properties.Contains("userAccountControl"))
+            {
+                return false;
+            }
+
+            UserAccountControl control;
+            if(!Enum.TryParse(item.Properties["userAccountControl"].ToString(), out control))
+            {
+                return false;
+            }
+
+            return (control & UserAccountControl.AccountDisabled) == UserAccountControl.AccountDisabled;
         }
     }
 }

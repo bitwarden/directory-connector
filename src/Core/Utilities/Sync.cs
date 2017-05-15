@@ -18,7 +18,7 @@ namespace Bit.Core.Utilities
                 var groups = entriesResult.Item1;
                 var users = entriesResult.Item2;
 
-                FlattenGroupsToUsers(groups, null, groups, users);
+                FlattenUsersToGroups(groups, null, groups, users);
 
                 if(!sendToServer)
                 {
@@ -81,7 +81,7 @@ namespace Bit.Core.Utilities
             }
         }
 
-        private static void FlattenGroupsToUsers(List<GroupEntry> currentGroups, List<UserEntry> currentGroupsUsers,
+        private static void FlattenUsersToGroups(List<GroupEntry> currentGroups, List<UserEntry> currentGroupsUsers,
             List<GroupEntry> allGroups, List<UserEntry> allUsers)
         {
             foreach(var group in currentGroups)
@@ -91,9 +91,9 @@ namespace Bit.Core.Utilities
 
                 foreach(var user in usersInThisGroup)
                 {
-                    if(!user.Groups.Contains(group.Id))
+                    if(!group.Users.Contains(user.Email))
                     {
-                        user.Groups.Add(group.Id);
+                        group.Users.Add(user.Email);
                     }
                 }
 
@@ -101,9 +101,9 @@ namespace Bit.Core.Utilities
                 {
                     foreach(var user in currentGroupsUsers)
                     {
-                        if(!user.Groups.Contains(group.Id))
+                        if(!group.Users.Contains(user.Email))
                         {
-                            user.Groups.Add(group.Id);
+                            group.Users.Add(user.Email);
                         }
                     }
 
@@ -111,7 +111,7 @@ namespace Bit.Core.Utilities
                 }
 
                 // Recurse it
-                FlattenGroupsToUsers(groupsInThisGroup, usersInThisGroup, allGroups, allUsers);
+                FlattenUsersToGroups(groupsInThisGroup, usersInThisGroup, allGroups, allUsers);
             }
         }
     }

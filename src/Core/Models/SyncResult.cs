@@ -10,7 +10,7 @@ namespace Bit.Core.Models
     {
         public bool Success { get; set; }
         public string ErrorMessage { get; set; }
-        public List<GroupEntry> Groups { get; set; }
-        public List<UserEntry> Users { get; set; }
+        public List<GroupEntry> Groups { get; set; } = new List<GroupEntry>();
+        public List<UserEntry> Users { get; set; } = new List<UserEntry>();
     }
 }

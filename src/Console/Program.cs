@@ -665,17 +665,17 @@ namespace Bit.Console
                     foreach(var group in result.Groups)
                     {
                         Con.WriteLine("  {0} - {1}", group.Name, group.Id);
+                        foreach(var user in group.Users)
+                        {
+                            Con.WriteLine("    {0}", user);
+                        }
                     }
 
                     Con.WriteLine();
                     Con.WriteLine("Users:");
                     foreach(var user in result.Users)
                     {
-                        Con.WriteLine("  {0}", user.Email);
-                        foreach(var group in user.Groups)
-                        {
-                            Con.WriteLine("    {0}", group);
-                        }
+                        Con.WriteLine("  {0}{1}", user.Email, user.Disabled ? " (disabled)" : null);
                     }
                 }
                 else

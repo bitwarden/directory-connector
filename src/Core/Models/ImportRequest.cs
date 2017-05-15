@@ -20,10 +20,12 @@ namespace Bit.Core.Models
             {
                 Name = entry.Name;
                 ExternalId = entry.Id;
+                Users = entry.Users;
             }
 
             public string Name { get; set; }
             public string ExternalId { get; set; }
+            public IEnumerable<string> Users { get; set; }
         }
 
         public class User
@@ -31,11 +33,11 @@ namespace Bit.Core.Models
             public User(UserEntry entry)
             {
                 Email = entry.Email;
-                ExternalGroupIds = entry.Groups;
+                Disabled = entry.Disabled;
             }
 
             public string Email { get; set; }
-            public IEnumerable<string> ExternalGroupIds { get; set; }
+            public bool Disabled { get; set; }
         }
     }
 

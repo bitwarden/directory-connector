@@ -134,13 +134,14 @@ namespace Bit.Core.Services
 
             var entries = new List<UserEntry>();
 
-            var users = await _graphClient.Users.Request().Select("id,mail,userPrincipalName").GetAsync();
+            var users = await _graphClient.Users.Request().Select("id,mail,userPrincipalName,accountEnabled").GetAsync();
             foreach(var user in users)
             {
                 var entry = new UserEntry
                 {
                     Id = user.Id,
-                    Email = user.Mail ?? user.UserPrincipalName
+                    Email = user.Mail ?? user.UserPrincipalName,
+                    Disabled = !user.AccountEnabled.GetValueOrDefault(true)
                 };
 
                 if(entry.Email.Contains("#"))

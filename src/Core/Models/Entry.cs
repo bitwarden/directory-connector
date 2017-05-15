@@ -17,11 +17,12 @@ namespace Bit.Core.Models
     {
         public string Name { get; set; }
         public HashSet<string> Members { get; set; } = new HashSet<string>();
+        public HashSet<string> Users { get; set; } = new HashSet<string>();
     }
 
     public class UserEntry : Entry
     {
         public string Email { get; set; }
-        public HashSet<string> Groups { get; set; } = new HashSet<string>();
+        public bool Disabled { get; set; }
     }
 }

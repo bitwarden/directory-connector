@@ -64,6 +64,7 @@
     <Compile Include="Enums\DirectoryType.cs" />
     <Compile Include="Enums\OrganizationUserType.cs" />
     <Compile Include="Enums\OrganizationUserStatusType.cs" />
+    <Compile Include="Enums\UserAccountControl.cs" />
     <Compile Include="Models\ApiError.cs" />
     <Compile Include="Models\ApiResult.cs" />
     <Compile Include="Models\Entry.cs" />
