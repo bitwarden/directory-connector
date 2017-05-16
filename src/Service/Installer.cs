@@ -50,11 +50,6 @@ namespace Service
             {
                 EventLog.DeleteEventSource(_serviceInstaller.ServiceName);
             }
-
-            if(EventLog.Exists("bitwarden"))
-            {
-                EventLog.Delete("bitwarden");
-            }
         }
     }
 }

@@ -14,14 +14,14 @@ namespace Bit.Core.Models
         public EncryptedData(byte[] plainValue)
         {
             IV = RandomBytes();
-            Value = ProtectedData.Protect(plainValue, IV, DataProtectionScope.CurrentUser);
+            Value = ProtectedData.Protect(plainValue, IV, DataProtectionScope.LocalMachine);
         }
 
         public EncryptedData(string plainValue)
         {
             var bytes = Encoding.UTF8.GetBytes(plainValue);
             IV = RandomBytes();
-            Value = ProtectedData.Protect(bytes, IV, DataProtectionScope.CurrentUser);
+            Value = ProtectedData.Protect(bytes, IV, DataProtectionScope.LocalMachine);
         }
 
         public byte[] Value { get; set; }

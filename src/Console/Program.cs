@@ -3,6 +3,8 @@ using Bit.Core.Services;
 using Bit.Core.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Security;
 using System.Text;
@@ -19,6 +21,9 @@ namespace Bit.Console
 
         static void Main(string[] args)
         {
+            Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+            //SetDebugDirectory();
+
             MainAsync(args).Wait();
         }
 
@@ -27,7 +32,6 @@ namespace Bit.Console
             _args = args;
             _usingArgs = args.Length > 0;
             string selection = null;
-
 
             Con.ForegroundColor = ConsoleColor.DarkCyan;
             Con.WriteLine(@" _     _ _                         _            
@@ -814,6 +818,14 @@ namespace Bit.Console
             }
 
             return dict;
+        }
+
+        [Conditional("DEBUG")]
+        private static void SetDebugDirectory()
+        {
+            Directory.SetCurrentDirectory(string.Concat(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "\\bitwarden\\DirectoryConnector"));
         }
     }
 }

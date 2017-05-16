@@ -14,9 +14,7 @@ namespace Bit.Core.Services
     {
         private static SettingsService _instance;
         private static object _locker = new object();
-        private static string _baseStoragePath = string.Concat(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "\\bitwarden\\DirectoryConnector");
+        private static string _baseStoragePath = Directory.GetCurrentDirectory();
 
         private SettingsModel _settings;
 

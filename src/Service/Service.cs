@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
@@ -21,21 +22,20 @@ namespace Service
 
         public Service()
         {
+            Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+
             ServiceName = "bitwarden Directory Connector";
 
             _components = new Container();
 
             _eventLog = new EventLog();
             _eventLog.Source = ServiceName;
-            _eventLog.Log = "bitwarden";
+            _eventLog.Log = "Application";
 
-            var eventLogSupprot = _eventLog as ISupportInitialize;
-            eventLogSupprot.BeginInit();
             if(!EventLog.SourceExists(_eventLog.Source))
             {
-                EventLog.CreateEventSource(ServiceName, _eventLog.Log);
+                EventLog.CreateEventSource(_eventLog.Source, _eventLog.Log);
             }
-            eventLogSupprot.EndInit();
         }
 
         protected override void Dispose(bool disposing)
