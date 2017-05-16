@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
@@ -11,10 +12,18 @@ namespace Service
     {
         static void Main()
         {
+            DebugMode();
+
             ServiceBase.Run(new ServiceBase[]
             {
                 new Service()
             });
+        }
+
+        [Conditional("DEBUG")]
+        private static void DebugMode()
+        {
+            Debugger.Launch();
         }
     }
 }
