@@ -19,7 +19,7 @@ namespace Bit.Core.Models
             public Group(GroupEntry entry)
             {
                 Name = entry.Name;
-                ExternalId = entry.Id;
+                ExternalId = entry.ExternalId;
                 Users = entry.Users;
             }
 
@@ -34,7 +34,7 @@ namespace Bit.Core.Models
             {
                 Email = entry.Email;
                 Disabled = entry.Disabled;
-                ExternalId = entry.Id;
+                ExternalId = entry.ExternalId;
             }
 
             public string ExternalId { get; set; }

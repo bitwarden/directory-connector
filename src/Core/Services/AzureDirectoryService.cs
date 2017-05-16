@@ -117,7 +117,8 @@ namespace Bit.Core.Services
                 {
                     var entry = new GroupEntry
                     {
-                        Id = group.Id,
+                        ReferenceId = group.Id,
+                        ExternalId = group.Id,
                         Name = group.DisplayName
                     };
 
@@ -204,7 +205,8 @@ namespace Bit.Core.Services
                 {
                     var entry = new UserEntry
                     {
-                        Id = user.Id,
+                        ReferenceId = user.Id,
+                        ExternalId = user.Id,
                         Email = user.Mail ?? user.UserPrincipalName,
                         Disabled = !user.AccountEnabled.GetValueOrDefault(true)
                     };

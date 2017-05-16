@@ -8,7 +8,8 @@ namespace Bit.Core.Models
 {
     public abstract class Entry
     {
-        public string Id { get; set; }
+        public string ReferenceId { get; set; }
+        public string ExternalId { get; set; }
         public DateTime? CreationDate { get; set; }
         public DateTime? RevisionDate { get; set; }
     }

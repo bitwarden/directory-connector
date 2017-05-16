@@ -103,12 +103,22 @@ namespace Bit.Core.Services
             {
                 var group = new GroupEntry
                 {
-                    Id = new Uri(item.Path).Segments?.LastOrDefault()
+                    ReferenceId = new Uri(item.Path).Segments?.LastOrDefault()
                 };
 
-                if(group.Id == null)
+                if(group.ReferenceId == null)
                 {
                     continue;
+                }
+
+                // External Id
+                if(item.Properties.Contains("objectGUID") && item.Properties["objectGUID"].Count > 0)
+                {
+                    group.ExternalId = item.Properties["objectGUID"][0].ToString();
+                }
+                else
+                {
+                    group.ExternalId = group.ReferenceId;
                 }
 
                 // Name
@@ -193,12 +203,22 @@ namespace Bit.Core.Services
             {
                 var user = new UserEntry
                 {
-                    Id = new Uri(item.Path).Segments?.LastOrDefault()
+                    ReferenceId = new Uri(item.Path).Segments?.LastOrDefault()
                 };
 
-                if(user.Id == null)
+                if(user.ReferenceId == null)
                 {
                     continue;
+                }
+
+                // External Id
+                if(item.Properties.Contains("objectGUID") && item.Properties["objectGUID"].Count > 0)
+                {
+                    user.ExternalId = item.Properties["objectGUID"][0].ToString();
+                }
+                else
+                {
+                    user.ExternalId = user.ReferenceId;
                 }
 
                 user.Disabled = EntryDisabled(item);

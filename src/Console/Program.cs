@@ -673,7 +673,7 @@ namespace Bit.Console
                     Con.WriteLine("Groups:");
                     foreach(var group in result.Groups)
                     {
-                        Con.WriteLine("  {0} - {1}", group.Name, group.Id);
+                        Con.WriteLine("  {0} - {1}", group.Name, group.ExternalId);
                         foreach(var user in group.Users)
                         {
                             Con.WriteLine("    {0}", user);
@@ -684,7 +684,7 @@ namespace Bit.Console
                     Con.WriteLine("Users:");
                     foreach(var user in result.Users)
                     {
-                        Con.WriteLine("  {0}{1}", user.Email ?? user.Id, user.Disabled ? " (disabled)" : null);
+                        Con.WriteLine("  {0}{1}", user.Email ?? user.ExternalId, user.Disabled ? " (disabled)" : null);
                     }
                 }
                 else
