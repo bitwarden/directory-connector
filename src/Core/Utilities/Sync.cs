@@ -91,9 +91,9 @@ namespace Bit.Core.Utilities
 
                 foreach(var user in usersInThisGroup)
                 {
-                    if(!group.Users.Contains(user.Email))
+                    if(!group.Users.Contains(user.Id))
                     {
-                        group.Users.Add(user.Email);
+                        group.Users.Add(user.Id);
                     }
                 }
 
@@ -101,9 +101,9 @@ namespace Bit.Core.Utilities
                 {
                     foreach(var user in currentGroupsUsers)
                     {
-                        if(!group.Users.Contains(user.Email))
+                        if(!group.Users.Contains(user.Id))
                         {
-                            group.Users.Add(user.Email);
+                            group.Users.Add(user.Id);
                         }
                     }
 

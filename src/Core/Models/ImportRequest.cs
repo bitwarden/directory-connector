@@ -34,8 +34,10 @@ namespace Bit.Core.Models
             {
                 Email = entry.Email;
                 Disabled = entry.Disabled;
+                ExternalId = entry.Id;
             }
 
+            public string ExternalId { get; set; }
             public string Email { get; set; }
             public bool Disabled { get; set; }
         }

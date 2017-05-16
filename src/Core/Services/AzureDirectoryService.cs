@@ -209,7 +209,12 @@ namespace Bit.Core.Services
                         Disabled = !user.AccountEnabled.GetValueOrDefault(true)
                     };
 
-                    if(entry?.Email?.Contains("#") ?? true)
+                    object deleted;
+                    if(user.AdditionalData.TryGetValue("@removed", out deleted) && deleted.ToString().Contains("changed"))
+                    {
+                        entry.Disabled = true;
+                    }
+                    else if(!entry.Disabled && (entry?.Email?.Contains("#") ?? true))
                     {
                         continue;
                     }
