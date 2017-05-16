@@ -201,6 +201,8 @@ namespace Bit.Core.Services
                     continue;
                 }
 
+                user.Disabled = EntryDisabled(item);
+
                 // Email
                 if(SettingsService.Instance.Sync.EmailPrefixSuffix &&
                     item.Properties.Contains(SettingsService.Instance.Sync.UserEmailPrefixAttribute) &&
@@ -218,7 +220,7 @@ namespace Bit.Core.Services
                         .ToString()
                         .ToLowerInvariant();
                 }
-                else
+                else if(!user.Disabled)
                 {
                     continue;
                 }
@@ -226,8 +228,6 @@ namespace Bit.Core.Services
                 // Dates
                 user.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.CreationDateAttribute);
                 user.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.RevisionDateAttribute);
-
-                user.Disabled = EntryDisabled(item);
             }
 
             return Task.FromResult(users);
