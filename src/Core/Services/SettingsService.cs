@@ -218,8 +218,8 @@ namespace Bit.Core.Services
 
         public class SettingsModel
         {
-            public string ApiBaseUrl { get; set; }
-            public string IdentityBaseUrl { get; set; }
+            public string ApiBaseUrl { get; set; } = "https://api.bitwarden.com";
+            public string IdentityBaseUrl { get; set; } = "https://identity.bitwarden.com";
             public EncryptedData AccessToken { get; set; }
             public EncryptedData RefreshToken { get; set; }
             public ServerConfiguration Server { get; set; }

@@ -61,7 +61,8 @@ namespace Bit.Console
                     Con.WriteLine("5. Simulate directory sync");
                     Con.WriteLine("6. Sync directory");
                     Con.WriteLine("7. Control background service");
-                    Con.WriteLine("8. Exit");
+                    Con.WriteLine("8. Set environment");
+                    Con.WriteLine("9. Exit");
                     Con.WriteLine();
                     Con.Write("What would you like to do? ");
                     selection = Con.ReadLine();
@@ -105,6 +106,12 @@ namespace Bit.Console
                     case "service":
                         await ServiceAsync();
                         break;
+                    case "8":
+                    case "environnment":
+                    case "env":
+                        await DebugAsync();
+                        break;
+                    case "9":
                     case "exit":
                     case "quit":
                     case "q":
@@ -708,6 +715,7 @@ namespace Bit.Console
             try
             {
                 Con.WriteLine("Service current status: {0}", ControllerService.Instance.StatusString);
+                Con.WriteLine();
             }
             catch
             {
@@ -759,6 +767,7 @@ namespace Bit.Console
                 }
             }
 
+            Con.WriteLine();
             if(start)
             {
                 Con.WriteLine("Starting service...");
@@ -772,6 +781,57 @@ namespace Bit.Console
             else if(status)
             {
                 Con.WriteLine("Status: {0}", ControllerService.Instance.StatusString);
+            }
+
+            return Task.FromResult(0);
+        }
+
+        private static Task DebugAsync()
+        {
+            if(_usingArgs)
+            {
+                var parameters = ParseParameters();
+                if(parameters.ContainsKey("debug"))
+                {
+                    SettingsService.Instance.ApiBaseUrl = "http://localhost:4000";
+                    SettingsService.Instance.IdentityBaseUrl = "http://localhost:33656";
+                }
+                else
+                {
+                    if(parameters.ContainsKey("api"))
+                    {
+                        SettingsService.Instance.ApiBaseUrl = parameters["api"];
+                    }
+                    if(parameters.ContainsKey("id"))
+                    {
+                        SettingsService.Instance.IdentityBaseUrl = parameters["id"];
+                    }
+                }
+            }
+            else
+            {
+                var input = string.Empty;
+
+                Con.Write("API [{0}]: ", SettingsService.Instance.ApiBaseUrl);
+                input = Con.ReadLine();
+                if(input == "debug")
+                {
+                    SettingsService.Instance.ApiBaseUrl = "http://localhost:4000";
+                }
+                else if(!string.IsNullOrEmpty(input))
+                {
+                    SettingsService.Instance.ApiBaseUrl = input;
+                }
+                Con.Write("Identity [{0}]: ", SettingsService.Instance.IdentityBaseUrl);
+                input = Con.ReadLine();
+                if(input == "debug")
+                {
+                    SettingsService.Instance.IdentityBaseUrl = "http://localhost:33656";
+                }
+                else if(!string.IsNullOrEmpty(input))
+                {
+                    SettingsService.Instance.IdentityBaseUrl = input;
+                }
             }
 
             return Task.FromResult(0);
