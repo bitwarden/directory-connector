@@ -77,8 +77,19 @@ namespace Service
                 return;
             }
 
+            var intervalMinutes = SettingsService.Instance.Sync.IntervalMinutes;
+            if(SettingsService.Instance.Server.Type == Bit.Core.Enums.DirectoryType.Other && intervalMinutes < 30)
+            {
+                intervalMinutes = 30;
+            }
+            else if(intervalMinutes < 1)
+            {
+                intervalMinutes = 1;
+            }
+
+            _eventLog.WriteEntry($"Starting timer with {intervalMinutes} minute interval.", EventLogEntryType.Information);
             var timerDelegate = new TimerCallback(Callback);
-            _timer = new Timer(timerDelegate, null, 1000, 60 * 1000);
+            _timer = new Timer(timerDelegate, null, 1000, 60 * 1000 * intervalMinutes);
         }
 
         protected override void OnStop()

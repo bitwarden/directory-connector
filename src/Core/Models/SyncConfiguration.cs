@@ -33,6 +33,7 @@ namespace Bit.Core.Models
                     UserEmailSuffix = null;
                     break;
                 case DirectoryType.Other:
+                    IntervalMinutes = 30;
                     break;
                 default:
                     break;
@@ -51,5 +52,6 @@ namespace Bit.Core.Models
         public string UserEmailSuffix { get; set; } = "@companyname.com";
         public string CreationDateAttribute { get; set; }
         public string RevisionDateAttribute { get; set; }
+        public int IntervalMinutes { get; set; } = 5;
     }
 }

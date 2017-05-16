@@ -220,6 +220,7 @@ namespace Bit.Console
                     {
                         Con.WriteLine("{0}. {1}", i + 1, result.Organizations[i].Name);
                     }
+                    Con.WriteLine();
                     Con.Write("Select your organization: ");
                     var orgIndexInput = Con.ReadLine().Trim();
                     int orgIndex;
@@ -488,6 +489,12 @@ namespace Bit.Console
                 config.SyncGroups = parameters.ContainsKey("g");
                 config.SyncUsers = parameters.ContainsKey("u");
 
+                int intervalMinutes;
+                if(parameters.ContainsKey("i") && int.TryParse(parameters["i"], out intervalMinutes))
+                {
+                    config.IntervalMinutes = intervalMinutes;
+                }
+
                 if(Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
                     if(parameters.ContainsKey("gf"))
@@ -605,6 +612,15 @@ namespace Bit.Console
                     {
                         config.RevisionDateAttribute = input;
                     }
+                }
+
+                Con.Write("Sync interval (minutes, minimum {1}) [{0}]: ", config.IntervalMinutes,
+                    SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.Other ? "30" : "1");
+                input = Con.ReadLine();
+                int intervalMinutes;
+                if(!string.IsNullOrEmpty(input) && int.TryParse(input, out intervalMinutes))
+                {
+                    config.IntervalMinutes = intervalMinutes;
                 }
 
                 input = null;
