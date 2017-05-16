@@ -53,6 +53,7 @@
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.Protocols" />
     <Reference Include="System.Security" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -83,6 +84,7 @@
     <Compile Include="Models\ProfileResponse.cs" />
     <Compile Include="Models\TokenResponse.cs" />
     <Compile Include="Services\ApiService.cs" />
+    <Compile Include="Services\ControllerService.cs" />
     <Compile Include="Services\AzureDirectoryService.cs" />
     <Compile Include="Services\LdapDirectoryService.cs" />
     <Compile Include="Services\IDirectoryService.cs" />

@@ -1,4 +1,5 @@
 ﻿using Bit.Core.Models;
+using Bit.Core.Services;
 using Bit.Core.Utilities;
 using System;
 using System.Collections.Generic;
@@ -55,7 +56,7 @@ namespace Bit.Console
                     Con.WriteLine("4. Configure sync");
                     Con.WriteLine("5. Simulate directory sync");
                     Con.WriteLine("6. Sync directory");
-                    Con.WriteLine("7. Start/stop background service");
+                    Con.WriteLine("7. Control background service");
                     Con.WriteLine("8. Exit");
                     Con.WriteLine();
                     Con.Write("What would you like to do? ");
@@ -95,9 +96,10 @@ namespace Bit.Console
                     case "sync":
                         await SyncAsync();
                         break;
+                    case "7":
                     case "svc":
                     case "service":
-
+                        await ServiceAsync();
                         break;
                     case "exit":
                     case "quit":
@@ -695,6 +697,80 @@ namespace Bit.Console
                     Con.ResetColor();
                 }
             }
+        }
+
+        private static Task ServiceAsync()
+        {
+            try
+            {
+                Con.WriteLine("Service current status: {0}", ControllerService.Instance.StatusString);
+            }
+            catch
+            {
+                Con.WriteLine("Service unavailable.");
+                return Task.FromResult(0);
+            }
+
+            var start = false;
+            var stop = false;
+            var status = false;
+            if(_usingArgs)
+            {
+                var parameters = ParseParameters();
+                if(parameters.ContainsKey("start"))
+                {
+                    start = true;
+                }
+                else if(parameters.ContainsKey("stop"))
+                {
+                    stop = true;
+                }
+            }
+            else
+            {
+                Con.WriteLine("1. Start service");
+                Con.WriteLine("2. Stop service");
+                Con.WriteLine("3. Check service status");
+                Con.WriteLine("4. Nothing, go back");
+                Con.WriteLine();
+                Con.Write("Option: ");
+                var selection = Con.ReadLine();
+
+                switch(selection)
+                {
+                    case "1":
+                    case "start":
+                        start = true;
+                        break;
+                    case "2":
+                    case "stop":
+                        stop = true;
+                        break;
+                    case "3":
+                    case "status":
+                        status = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if(start)
+            {
+                Con.WriteLine("Starting service...");
+                ControllerService.Instance.Start();
+            }
+            else if(stop)
+            {
+                Con.WriteLine("Stopping service...");
+                ControllerService.Instance.Stop();
+            }
+            else if(status)
+            {
+                Con.WriteLine("Status: {0}", ControllerService.Instance.StatusString);
+            }
+
+            return Task.FromResult(0);
         }
 
         private static string ReadSecureLine()
