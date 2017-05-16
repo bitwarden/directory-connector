@@ -1901,6 +1901,62 @@
     {
         "CustomAction"
         {
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_604229014D71484193DE8EBC0D4BC3E0"
+            {
+            "Name" = "8:Primary output from Service (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_F31597008F2B4030A5045D94C55F1BFE"
+            "FileType" = "3:2"
+            "InstallAction" = "3:2"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_40C02503_BB52_4439_AD28_33664400D65C"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:"
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_A65D458AD816456AAD5E2F2284B9CA3E"
+            {
+            "Name" = "8:Primary output from Service (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_F31597008F2B4030A5045D94C55F1BFE"
+            "FileType" = "3:2"
+            "InstallAction" = "3:3"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_2D127153_15A5_4ECD_B6EA_EE59D084ED43"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:"
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_ABA85A74F05F4E9386E988B5D2522916"
+            {
+            "Name" = "8:Primary output from Service (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_F31597008F2B4030A5045D94C55F1BFE"
+            "FileType" = "3:2"
+            "InstallAction" = "3:4"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_8371D8B6_1C1F_4517_AC51_35AF47F242AB"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:"
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_B5C8D6215A5E42F89642C1EF1637F04B"
+            {
+            "Name" = "8:Primary output from Service (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_F31597008F2B4030A5045D94C55F1BFE"
+            "FileType" = "3:2"
+            "InstallAction" = "3:1"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_522185CF_75C7_461C_A5DF_8B397EA66F2A"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:"
+            }
         }
         "DefaultFeature"
         {
@@ -3872,7 +3928,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:bitwarden Directory Connector"
         "ProductCode" = "8:{1E27A7B6-8CA5-4C8E-8DC8-A354AFF221FC}"
-        "PackageCode" = "8:{8DB492AB-E0D5-4216-B931-8396A3E15E49}"
+        "PackageCode" = "8:{BD9B692E-9999-4DE1-996D-0353A25B6FD9}"
         "UpgradeCode" = "8:{AD840539-416A-4C0F-9549-8D9EE828F80B}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"

@@ -6,6 +6,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration.Install;
+using System.Diagnostics;
 
 namespace Service
 {
@@ -31,14 +32,29 @@ namespace Service
 
             _serviceProcessInstaller.Account = ServiceAccount.LocalSystem;
             _serviceProcessInstaller.AfterInstall += new InstallEventHandler(AfterInstalled);
+            _serviceProcessInstaller.BeforeInstall += new InstallEventHandler(BeforeInstalled);
 
             _serviceInstaller.ServiceName = "bitwarden Directory Connector";
+            _serviceInstaller.Description = "Sync directory groups and users to your bitwarden organization.";
             Installers.AddRange(new System.Configuration.Install.Installer[] { _serviceProcessInstaller, _serviceInstaller });
         }
 
         private void AfterInstalled(object sender, InstallEventArgs e)
         {
 
+        }
+
+        private void BeforeInstalled(object sender, InstallEventArgs e)
+        {
+            if(EventLog.SourceExists(_serviceInstaller.ServiceName))
+            {
+                EventLog.DeleteEventSource(_serviceInstaller.ServiceName);
+            }
+
+            if(EventLog.Exists("bitwarden"))
+            {
+                EventLog.Delete("bitwarden");
+            }
         }
     }
 }

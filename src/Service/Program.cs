@@ -23,7 +23,7 @@ namespace Service
         [Conditional("DEBUG")]
         private static void DebugMode()
         {
-            Debugger.Launch();
+            //Debugger.Launch();
         }
     }
 }
