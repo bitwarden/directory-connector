@@ -29,12 +29,12 @@ namespace Bit.Core.Models
 
         public byte[] Decrypt()
         {
-            return ProtectedData.Unprotect(Value, IV, DataProtectionScope.CurrentUser);
+            return ProtectedData.Unprotect(Value, IV, DataProtectionScope.LocalMachine);
         }
 
         public string DecryptToString()
         {
-            var bytes = ProtectedData.Unprotect(Value, IV, DataProtectionScope.CurrentUser);
+            var bytes = ProtectedData.Unprotect(Value, IV, DataProtectionScope.LocalMachine);
             return Encoding.UTF8.GetString(bytes);
         }
 

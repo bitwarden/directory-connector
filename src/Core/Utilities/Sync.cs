@@ -11,6 +11,9 @@ namespace Bit.Core.Utilities
     {
         public static async Task<SyncResult> SyncAllAsync(bool force = false, bool sendToServer = true)
         {
+            var startingGroupDelta = SettingsService.Instance.GroupDeltaToken;
+            var startingUserDelta = SettingsService.Instance.UserDeltaToken;
+
             try
             {
                 var now = DateTime.UtcNow;
@@ -20,8 +23,9 @@ namespace Bit.Core.Utilities
 
                 FlattenUsersToGroups(groups, null, groups, users);
 
-                if(!sendToServer)
+                if(!sendToServer || (groups.Count == 0 && users.Count == 0))
                 {
+                    RestoreDeltas(startingGroupDelta, startingUserDelta);
                     return new SyncResult
                     {
                         Success = true,
@@ -53,6 +57,7 @@ namespace Bit.Core.Utilities
                 }
                 else
                 {
+                    RestoreDeltas(startingGroupDelta, startingUserDelta);
                     return new SyncResult
                     {
                         Success = false,
@@ -60,13 +65,19 @@ namespace Bit.Core.Utilities
                     };
                 }
             }
-            catch (ApplicationException e)
+            catch(ApplicationException e)
             {
+                RestoreDeltas(startingGroupDelta, startingUserDelta);
                 return new SyncResult
                 {
                     Success = false,
                     ErrorMessage = e.Message
                 };
+            }
+            catch
+            {
+                RestoreDeltas(startingGroupDelta, startingUserDelta);
+                throw;
             }
         }
 
@@ -113,6 +124,12 @@ namespace Bit.Core.Utilities
                 // Recurse it
                 FlattenUsersToGroups(groupsInThisGroup, usersInThisGroup, allGroups, allUsers);
             }
+        }
+
+        private static void RestoreDeltas(string groupDelta, string userDelta)
+        {
+            SettingsService.Instance.GroupDeltaToken = groupDelta;
+            SettingsService.Instance.UserDeltaToken = userDelta;
         }
     }
 }
