@@ -89,22 +89,64 @@ namespace Bit.Core.Services
 
             var entries = new List<GroupEntry>();
 
-            var groups = await _graphClient.Groups.Request().Select("id,displayName").GetAsync();
-            foreach(var group in groups)
-            {
-                var entry = new GroupEntry
-                {
-                    Id = group.Id,
-                    Name = group.DisplayName
-                };
+            var groupRequest = _graphClient.Groups.Delta();
+            IGroupDeltaCollectionPage groups = null;
 
-                var members = await _graphClient.Groups[group.Id].Members.Request().Select("id").GetAsync();
-                foreach(var member in members)
+            if(SettingsService.Instance.GroupDeltaToken != null)
+            {
+                try
                 {
-                    entry.Members.Add(member.Id);
+                    var delataRequest = groupRequest.Request();
+                    delataRequest.QueryOptions.Add(new QueryOption("$deltatoken", SettingsService.Instance.GroupDeltaToken));
+                    groups = await delataRequest.GetAsync();
+                }
+                catch
+                {
+                    groups = null;
+                }
+            }
+
+            if(groups == null)
+            {
+                groups = await groupRequest.Request().Select("id,displayName").GetAsync();
+            }
+
+            while(true)
+            {
+                foreach(var group in groups)
+                {
+                    var entry = new GroupEntry
+                    {
+                        Id = group.Id,
+                        Name = group.DisplayName
+                    };
+
+                    var members = await _graphClient.Groups[group.Id].Members.Request().Select("id").GetAsync();
+                    foreach(var member in members)
+                    {
+                        entry.Members.Add(member.Id);
+                    }
+
+                    entries.Add(entry);
                 }
 
-                entries.Add(entry);
+                if(groups.NextPageRequest == null)
+                {
+                    object deltaLink;
+                    if(groups.AdditionalData.TryGetValue("@odata.deltaLink", out deltaLink))
+                    {
+                        var deltaUriQuery = new Uri(deltaLink.ToString()).ParseQueryString();
+                        if(deltaUriQuery["$deltatoken"] != null)
+                        {
+                            SettingsService.Instance.GroupDeltaToken = deltaUriQuery["$deltatoken"];
+                        }
+                    }
+                    break;
+                }
+                else
+                {
+                    groups = await groups.NextPageRequest.GetAsync();
+                }
             }
 
             return entries;
@@ -134,22 +176,64 @@ namespace Bit.Core.Services
 
             var entries = new List<UserEntry>();
 
-            var users = await _graphClient.Users.Request().Select("id,mail,userPrincipalName,accountEnabled").GetAsync();
-            foreach(var user in users)
-            {
-                var entry = new UserEntry
-                {
-                    Id = user.Id,
-                    Email = user.Mail ?? user.UserPrincipalName,
-                    Disabled = !user.AccountEnabled.GetValueOrDefault(true)
-                };
+            var userRequest = _graphClient.Users.Delta();
+            IUserDeltaCollectionPage users = null;
 
-                if(entry.Email.Contains("#"))
+            if(SettingsService.Instance.UserDeltaToken != null)
+            {
+                try
                 {
-                    continue;
+                    var delataRequest = userRequest.Request();
+                    delataRequest.QueryOptions.Add(new QueryOption("$deltatoken", SettingsService.Instance.UserDeltaToken));
+                    users = await delataRequest.GetAsync();
+                }
+                catch
+                {
+                    users = null;
+                }
+            }
+
+            if(users == null)
+            {
+                users = await userRequest.Request().Select("id,mail,userPrincipalName,accountEnabled").GetAsync();
+            }
+
+            while(true)
+            {
+                foreach(var user in users)
+                {
+                    var entry = new UserEntry
+                    {
+                        Id = user.Id,
+                        Email = user.Mail ?? user.UserPrincipalName,
+                        Disabled = !user.AccountEnabled.GetValueOrDefault(true)
+                    };
+
+                    if(entry?.Email?.Contains("#") ?? true)
+                    {
+                        continue;
+                    }
+
+                    entries.Add(entry);
                 }
 
-                entries.Add(entry);
+                if(users.NextPageRequest == null)
+                {
+                    object deltaLink;
+                    if(users.AdditionalData.TryGetValue("@odata.deltaLink", out deltaLink))
+                    {
+                        var deltaUriQuery = new Uri(deltaLink.ToString()).ParseQueryString();
+                        if(deltaUriQuery["$deltatoken"] != null)
+                        {
+                            SettingsService.Instance.UserDeltaToken = deltaUriQuery["$deltatoken"];
+                        }
+                    }
+                    break;
+                }
+                else
+                {
+                    users = await users.NextPageRequest.GetAsync();
+                }
             }
 
             return entries;

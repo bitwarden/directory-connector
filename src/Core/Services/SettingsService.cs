@@ -192,6 +192,32 @@ namespace Bit.Core.Services
             }
         }
 
+        public string GroupDeltaToken
+        {
+            get
+            {
+                return Settings.GroupDeltaToken;
+            }
+            set
+            {
+                Settings.GroupDeltaToken = value;
+                SaveSettings();
+            }
+        }
+
+        public string UserDeltaToken
+        {
+            get
+            {
+                return Settings.UserDeltaToken;
+            }
+            set
+            {
+                Settings.UserDeltaToken = value;
+                SaveSettings();
+            }
+        }
+
         public class SettingsModel
         {
             public string ApiBaseUrl { get; set; }
@@ -203,6 +229,8 @@ namespace Bit.Core.Services
             public Organization Organization { get; set; }
             public DateTime? LastGroupSyncDate { get; set; }
             public DateTime? LastUserSyncDate { get; set; }
+            public string GroupDeltaToken { get; set; }
+            public string UserDeltaToken { get; set; }
         }
     }
 }

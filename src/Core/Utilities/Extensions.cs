@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.DirectoryServices;
 using System.Globalization;
 using System.Linq;
@@ -32,6 +33,24 @@ namespace Bit.Core.Utilities
             }
 
             return null;
+        }
+
+        public static NameValueCollection ParseQueryString(this Uri uri)
+        {
+            var queryParameters = new NameValueCollection();
+            var querySegments = uri.Query.Split('&');
+            foreach(var segment in querySegments)
+            {
+                var parts = segment.Split('=');
+                if(parts.Length > 0)
+                {
+                    var key = parts[0].Trim(new char[] { '?', ' ' });
+                    var val = parts[1].Trim();
+                    queryParameters.Add(key, val);
+                }
+            }
+
+            return queryParameters;
         }
     }
 }
