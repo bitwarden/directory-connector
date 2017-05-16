@@ -34,7 +34,14 @@ namespace Bit.Core.Services
         }
 
         public ServiceController Controller { get; private set; }
-        public ServiceControllerStatus Status => Controller.Status;
+        public ServiceControllerStatus Status
+        {
+            get
+            {
+                Controller.Refresh();
+                return Controller.Status;
+            }
+        }
         public string StatusString => Controller == null ? "Unavailable" : Status.ToString();
         public bool Running => Status == ServiceControllerStatus.Running;
         public bool Paused => Status == ServiceControllerStatus.Paused;
