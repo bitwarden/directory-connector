@@ -25,5 +25,6 @@ namespace Bit.Core.Models
     {
         public string Email { get; set; }
         public bool Disabled { get; set; }
+        public bool Deleted { get; set; }
     }
 }

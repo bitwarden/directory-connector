@@ -214,7 +214,7 @@ namespace Bit.Core.Services
                     object deleted;
                     if(user.AdditionalData.TryGetValue("@removed", out deleted) && deleted.ToString().Contains("changed"))
                     {
-                        entry.Disabled = true;
+                        entry.Deleted = true;
                     }
                     else if(!entry.Disabled && (entry?.Email?.Contains("#") ?? true))
                     {

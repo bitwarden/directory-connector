@@ -33,13 +33,13 @@ namespace Bit.Core.Models
             public User(UserEntry entry)
             {
                 Email = entry.Email;
-                Disabled = entry.Disabled;
+                Deleted = entry.Disabled || entry.Deleted;
                 ExternalId = entry.ExternalId;
             }
 
             public string ExternalId { get; set; }
             public string Email { get; set; }
-            public bool Disabled { get; set; }
+            public bool Deleted { get; set; }
         }
     }
 

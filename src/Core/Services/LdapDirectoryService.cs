@@ -201,56 +201,91 @@ namespace Bit.Core.Services
             var users = new List<UserEntry>();
             foreach(SearchResult item in result)
             {
-                var user = new UserEntry
-                {
-                    ReferenceId = new Uri(item.Path).Segments?.LastOrDefault()
-                };
-
-                if(user.ReferenceId == null)
+                var user = BuildUser(item, false);
+                if(user == null)
                 {
                     continue;
                 }
 
-                // External Id
-                if(item.Properties.Contains("objectGUID") && item.Properties["objectGUID"].Count > 0)
-                {
-                    user.ExternalId = item.Properties["objectGUID"][0].ToString();
-                }
-                else
-                {
-                    user.ExternalId = user.ReferenceId;
-                }
+                users.Add(user);
+            }
 
-                user.Disabled = EntryDisabled(item);
+            // Deleted users
+            if(SettingsService.Instance.Server.Type == DirectoryType.ActiveDirectory)
+            {
+                filter = string.Format("(&{0}(isDeleted=TRUE))",
+                    filter != null ? string.Format("({0})", filter) : string.Empty);
 
-                // Email
-                if(SettingsService.Instance.Sync.EmailPrefixSuffix &&
-                    item.Properties.Contains(SettingsService.Instance.Sync.UserEmailPrefixAttribute) &&
-                    item.Properties[SettingsService.Instance.Sync.UserEmailPrefixAttribute].Count > 0 &&
-                    !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.UserEmailSuffix))
+                searcher = new DirectorySearcher(entry, filter);
+                searcher.Tombstone = true;
+                result = searcher.FindAll();
+                foreach(SearchResult item in result)
                 {
-                    user.Email = string.Concat(
-                        item.Properties[SettingsService.Instance.Sync.UserEmailPrefixAttribute][0].ToString(),
-                        SettingsService.Instance.Sync.UserEmailSuffix).ToLowerInvariant();
-                }
-                else if(item.Properties.Contains(SettingsService.Instance.Sync.UserEmailAttribute) &&
-                    item.Properties[SettingsService.Instance.Sync.UserEmailAttribute].Count > 0)
-                {
-                    user.Email = item.Properties[SettingsService.Instance.Sync.UserEmailAttribute][0]
-                        .ToString()
-                        .ToLowerInvariant();
-                }
-                else if(!user.Disabled)
-                {
-                    continue;
-                }
+                    var user = BuildUser(item, true);
+                    if(user == null)
+                    {
+                        continue;
+                    }
 
-                // Dates
-                user.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.CreationDateAttribute);
-                user.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.RevisionDateAttribute);
+                    users.Add(user);
+                }
             }
 
             return Task.FromResult(users);
+        }
+
+        private static UserEntry BuildUser(SearchResult item, bool deleted)
+        {
+            var user = new UserEntry
+            {
+                ReferenceId = new Uri(item.Path).Segments?.LastOrDefault(),
+                Deleted = deleted
+            };
+
+            if(user.ReferenceId == null)
+            {
+                return null;
+            }
+
+            // External Id
+            if(item.Properties.Contains("objectGUID") && item.Properties["objectGUID"].Count > 0)
+            {
+                user.ExternalId = item.Properties["objectGUID"][0].ToString();
+            }
+            else
+            {
+                user.ExternalId = user.ReferenceId;
+            }
+
+            user.Disabled = EntryDisabled(item);
+
+            // Email
+            if(SettingsService.Instance.Sync.EmailPrefixSuffix &&
+                item.Properties.Contains(SettingsService.Instance.Sync.UserEmailPrefixAttribute) &&
+                item.Properties[SettingsService.Instance.Sync.UserEmailPrefixAttribute].Count > 0 &&
+                !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.UserEmailSuffix))
+            {
+                user.Email = string.Concat(
+                    item.Properties[SettingsService.Instance.Sync.UserEmailPrefixAttribute][0].ToString(),
+                    SettingsService.Instance.Sync.UserEmailSuffix).ToLowerInvariant();
+            }
+            else if(item.Properties.Contains(SettingsService.Instance.Sync.UserEmailAttribute) &&
+                item.Properties[SettingsService.Instance.Sync.UserEmailAttribute].Count > 0)
+            {
+                user.Email = item.Properties[SettingsService.Instance.Sync.UserEmailAttribute][0]
+                    .ToString()
+                    .ToLowerInvariant();
+            }
+            else if(!user.Disabled && !user.Deleted)
+            {
+                return null;
+            }
+
+            // Dates
+            user.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.CreationDateAttribute);
+            user.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.RevisionDateAttribute);
+
+            return user;
         }
 
         private static bool EntryDisabled(SearchResult item)
