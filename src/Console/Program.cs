@@ -783,6 +783,15 @@ namespace Bit.Console
             }
 
             Con.WriteLine();
+
+            if((start || stop) && !Helpers.IsAdministrator())
+            {
+                Con.ForegroundColor = ConsoleColor.Red;
+                Con.WriteLine("You must be an administrator to control the service.");
+                Con.ResetColor();
+                return Task.FromResult(0);
+            }
+
             if(start)
             {
                 Con.WriteLine("Starting service...");

@@ -1,4 +1,5 @@
 ﻿using Bit.Core.Models;
+using Bit.Core.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,6 @@ namespace Bit.Core.Services
     {
         private static SettingsService _instance;
         private static object _locker = new object();
-        private static string _baseStoragePath = string.Concat(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "\\bitwarden\\Directory Connector");
 
         private SettingsModel _settings;
 
@@ -39,7 +37,7 @@ namespace Bit.Core.Services
         {
             get
             {
-                var filePath = $"{_baseStoragePath}\\settings.json";
+                var filePath = $"{Constants.BaseStoragePath}\\settings.json";
                 if(_settings == null && File.Exists(filePath))
                 {
                     var serializer = new JsonSerializer();
@@ -59,13 +57,13 @@ namespace Bit.Core.Services
         {
             lock(_locker)
             {
-                if(!Directory.Exists(_baseStoragePath))
+                if(!Directory.Exists(Constants.BaseStoragePath))
                 {
-                    Directory.CreateDirectory(_baseStoragePath);
+                    Directory.CreateDirectory(Constants.BaseStoragePath);
                 }
 
                 _settings = Settings;
-                var filePath = $"{_baseStoragePath}\\settings.json";
+                var filePath = $"{Constants.BaseStoragePath}\\settings.json";
                 using(var s = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read))
                 using(var sw = new StreamWriter(s, Encoding.UTF8))
                 {

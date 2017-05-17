@@ -90,11 +90,13 @@
     <Compile Include="Services\IDirectoryService.cs" />
     <Compile Include="Services\SettingsService.cs" />
     <Compile Include="Utilities\AzureAuthenticationProvider.cs" />
+    <Compile Include="Utilities\Constants.cs" />
     <Compile Include="Utilities\Crypto.cs" />
     <Compile Include="Services\TokenService.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\Extensions.cs" />
+    <Compile Include="Utilities\Helpers.cs" />
     <Compile Include="Utilities\Sync.cs" />
   </ItemGroup>
   <ItemGroup>

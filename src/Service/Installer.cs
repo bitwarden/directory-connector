@@ -7,6 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Configuration.Install;
 using System.Diagnostics;
+using System.IO;
+using System.Security.AccessControl;
+using System.Security.Principal;
+using Bit.Core.Utilities;
 
 namespace Service
 {
@@ -41,7 +45,32 @@ namespace Service
 
         private void AfterInstalled(object sender, InstallEventArgs e)
         {
+            if(!Directory.Exists(Constants.BaseStoragePath))
+            {
+                Directory.CreateDirectory(Constants.BaseStoragePath);
+            }
 
+            var info = new DirectoryInfo(Constants.BaseStoragePath);
+            var sec = info.GetAccessControl();
+
+            var adminRule = new FileSystemAccessRule(
+                new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null),
+                FileSystemRights.FullControl | FileSystemRights.Write | FileSystemRights.Read,
+                InheritanceFlags.None,
+                PropagationFlags.NoPropagateInherit,
+                AccessControlType.Allow);
+            sec.AddAccessRule(adminRule);
+
+            var userRule = new FileSystemAccessRule(
+                WindowsIdentity.GetCurrent().Name,
+                FileSystemRights.Write | FileSystemRights.Read,
+                InheritanceFlags.None,
+                PropagationFlags.NoPropagateInherit,
+                AccessControlType.Allow);
+            sec.AddAccessRule(userRule);
+
+            sec.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
+            info.SetAccessControl(sec);
         }
 
         private void BeforeInstalled(object sender, InstallEventArgs e)
