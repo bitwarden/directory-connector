@@ -423,6 +423,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4F101A164D944C2BB911D6902498BD53"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_51DFC538915718DE3E74A95FF39DC749"
         "OwnerKey" = "8:_3C6F5AA45818456F957B56E21EBDE97F"
         "MsmSig" = "8:_UNDEFINED"
@@ -647,6 +653,12 @@
         {
         "MsmKey" = "8:_825BBC40331A31B7EA83E45C16C7CAB0"
         "OwnerKey" = "8:_3D190E0A0985449C8C27F3FCC81A5D85"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_89981CCDA2054138A68D552C31B6E5CC"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1894,6 +1906,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.6.1"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.6.1 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.6.1"
+                    }
+                }
             }
         }
     }
@@ -2538,6 +2558,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4F101A164D944C2BB911D6902498BD53"
+            {
+            "SourcePath" = "8:icon.ico"
+            "TargetName" = "8:icon.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_195A3C659FB74030BD0F825A0E4FE2A6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_51DFC538915718DE3E74A95FF39DC749"
             {
             "AssemblyRegister" = "3:1"
@@ -2545,11 +2585,6 @@
             "AssemblyAsmDisplayName" = "8:BouncyCastle.Crypto, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942"
                 "ScatterAssemblies"
                 {
-                    "_51DFC538915718DE3E74A95FF39DC749"
-                    {
-                    "Name" = "8:BouncyCastle.Crypto.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:BouncyCastle.Crypto.dll"
             "TargetName" = "8:"
@@ -2607,11 +2642,6 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.Graph, Version=1.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_62961836EBD5DE2C67B881D60D5FD720"
-                    {
-                    "Name" = "8:Microsoft.Graph.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Microsoft.Graph.dll"
             "TargetName" = "8:"
@@ -2817,6 +2847,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_89981CCDA2054138A68D552C31B6E5CC"
+            {
+            "SourcePath" = "8:setup-banner.bmp"
+            "TargetName" = "8:setup-banner.bmp"
+            "Tag" = "8:"
+            "Folder" = "8:_195A3C659FB74030BD0F825A0E4FE2A6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8CD2F401BC3E004DCA37820ED0B44EB2"
             {
             "AssemblyRegister" = "3:1"
@@ -2855,11 +2905,6 @@
             "AssemblyAsmDisplayName" = "8:Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_8F4B2B4A05B106CB2880FD2DC469FF06"
-                    {
-                    "Name" = "8:Newtonsoft.Json.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Newtonsoft.Json.dll"
             "TargetName" = "8:"
@@ -2886,11 +2931,6 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.Graph.Core, Version=1.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_938451235648294BEBE571FFF4F66A01"
-                    {
-                    "Name" = "8:Microsoft.Graph.Core.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Microsoft.Graph.Core.dll"
             "TargetName" = "8:"
@@ -3041,11 +3081,6 @@
             "AssemblyAsmDisplayName" = "8:Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_ABAAF01D71C0623588BF9114BAB8F55A"
-                    {
-                    "Name" = "8:Core.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Core.dll"
             "TargetName" = "8:"
@@ -3165,11 +3200,6 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.IdentityModel.Clients.ActiveDirectory.Platform, Version=3.13.9.1126, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_BF4801B0EEB45D9834E1CCF4BFC2873D"
-                    {
-                    "Name" = "8:Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll"
             "TargetName" = "8:"
@@ -3723,11 +3753,6 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.IdentityModel.Clients.ActiveDirectory, Version=3.13.9.1126, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_F44BED80D7FA78C84BD0165FA65762DB"
-                    {
-                    "Name" = "8:Microsoft.IdentityModel.Clients.ActiveDirectory.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Microsoft.IdentityModel.Clients.ActiveDirectory.dll"
             "TargetName" = "8:"
@@ -3928,7 +3953,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:bitwarden Directory Connector"
         "ProductCode" = "8:{1E27A7B6-8CA5-4C8E-8DC8-A354AFF221FC}"
-        "PackageCode" = "8:{BD9B692E-9999-4DE1-996D-0353A25B6FD9}"
+        "PackageCode" = "8:{871ED11B-96EA-41C5-A02C-CB97009F2970}"
         "UpgradeCode" = "8:{AD840539-416A-4C0F-9549-8D9EE828F80B}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -3945,7 +3970,7 @@
         "Keywords" = "8:bitwarden"
         "ARPCOMMENTS" = "8:bitwarden organizations directory connector."
         "ARPURLINFOABOUT" = "8:https://bitwarden.com"
-        "ARPPRODUCTICON" = "8:"
+        "ARPPRODUCTICON" = "8:_4F101A164D944C2BB911D6902498BD53"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
@@ -4075,7 +4100,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_89981CCDA2054138A68D552C31B6E5CC"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "InstallAllUsersVisible"
@@ -4110,7 +4136,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_89981CCDA2054138A68D552C31B6E5CC"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -4158,7 +4185,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_89981CCDA2054138A68D552C31B6E5CC"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -4189,7 +4217,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_89981CCDA2054138A68D552C31B6E5CC"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -4220,7 +4249,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_89981CCDA2054138A68D552C31B6E5CC"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -4264,7 +4294,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_89981CCDA2054138A68D552C31B6E5CC"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -4312,7 +4343,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_89981CCDA2054138A68D552C31B6E5CC"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -4334,7 +4366,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_89981CCDA2054138A68D552C31B6E5CC"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -4371,7 +4404,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_89981CCDA2054138A68D552C31B6E5CC"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "UpdateText"
@@ -4415,7 +4449,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_89981CCDA2054138A68D552C31B6E5CC"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
