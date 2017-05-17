@@ -21,9 +21,6 @@ namespace Bit.Console
 
         static void Main(string[] args)
         {
-            Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
-            //SetDebugDirectory();
-
             MainAsync(args).Wait();
         }
 
@@ -184,6 +181,8 @@ namespace Bit.Console
                 return;
             }
 
+            Con.WriteLine();
+            Con.WriteLine("Logging in...");
             LoginResult result = null;
             if(string.IsNullOrWhiteSpace(token))
             {
@@ -894,14 +893,6 @@ namespace Bit.Console
             }
 
             return dict;
-        }
-
-        [Conditional("DEBUG")]
-        private static void SetDebugDirectory()
-        {
-            Directory.SetCurrentDirectory(string.Concat(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "\\bitwarden\\DirectoryConnector"));
         }
     }
 }

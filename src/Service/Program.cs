@@ -12,7 +12,7 @@ namespace Service
     {
         static void Main()
         {
-            DebugMode();
+            //DebugMode();
 
             ServiceBase.Run(new ServiceBase[]
             {
@@ -23,7 +23,7 @@ namespace Service
         [Conditional("DEBUG")]
         private static void DebugMode()
         {
-            //Debugger.Launch();
+            Debugger.Launch();
         }
     }
 }

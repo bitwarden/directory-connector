@@ -22,8 +22,6 @@ namespace Service
 
         public Service()
         {
-            Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
-
             ServiceName = "bitwarden Directory Connector";
 
             _components = new Container();

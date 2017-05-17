@@ -14,7 +14,9 @@ namespace Bit.Core.Services
     {
         private static SettingsService _instance;
         private static object _locker = new object();
-        private static string _baseStoragePath = Directory.GetCurrentDirectory();
+        private static string _baseStoragePath = string.Concat(
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            "\\bitwarden\\Directory Connector");
 
         private SettingsModel _settings;
 
@@ -222,9 +224,9 @@ namespace Bit.Core.Services
             public string IdentityBaseUrl { get; set; } = "https://identity.bitwarden.com";
             public EncryptedData AccessToken { get; set; }
             public EncryptedData RefreshToken { get; set; }
-            public ServerConfiguration Server { get; set; }
-            public SyncConfiguration Sync { get; set; }
-            public Organization Organization { get; set; }
+            public ServerConfiguration Server { get; set; } = new ServerConfiguration();
+            public SyncConfiguration Sync { get; set; } = new SyncConfiguration(Enums.DirectoryType.ActiveDirectory);
+            public Organization Organization { get; set; } = new Organization();
             public DateTime? LastGroupSyncDate { get; set; }
             public DateTime? LastUserSyncDate { get; set; }
             public string GroupDeltaToken { get; set; }

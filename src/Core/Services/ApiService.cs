@@ -16,21 +16,7 @@ namespace Bit.Core.Services
 
         private ApiService()
         {
-            ApiClient = new HttpClient();
-            var apiUrl = "https://api.bitwarden.com";
-            if(!string.IsNullOrWhiteSpace(SettingsService.Instance.ApiBaseUrl))
-            {
-                apiUrl = SettingsService.Instance.ApiBaseUrl;
-            }
-            ApiClient.BaseAddress = new Uri(apiUrl);
-
-            IdentityClient = new HttpClient();
-            var identityUrl = "https://identity.bitwarden.com";
-            if(!string.IsNullOrWhiteSpace(SettingsService.Instance.IdentityBaseUrl))
-            {
-                identityUrl = SettingsService.Instance.IdentityBaseUrl;
-            }
-            IdentityClient.BaseAddress = new Uri(identityUrl);
+            Client = new HttpClient();
         }
 
         public static ApiService Instance
@@ -46,21 +32,20 @@ namespace Bit.Core.Services
             }
         }
 
-        protected HttpClient ApiClient { get; private set; }
-        protected HttpClient IdentityClient { get; private set; }
+        protected HttpClient Client { get; private set; }
 
         public virtual async Task<ApiResult<TokenResponse>> PostTokenAsync(TokenRequest requestObj)
         {
             var requestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri(IdentityClient.BaseAddress, "connect/token"),
+                RequestUri = new Uri(string.Concat(SettingsService.Instance.IdentityBaseUrl, "/connect/token")),
                 Content = new FormUrlEncodedContent(requestObj.ToIdentityTokenRequest())
             };
 
             try
             {
-                var response = await IdentityClient.SendAsync(requestMessage).ConfigureAwait(false);
+                var response = await Client.SendAsync(requestMessage).ConfigureAwait(false);
                 var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
                 if(!response.IsSuccessStatusCode)
@@ -98,7 +83,8 @@ namespace Bit.Core.Services
             var requestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri(ApiClient.BaseAddress, $"organizations/{SettingsService.Instance.Organization.Id}/import"),
+                RequestUri = new Uri(string.Concat(SettingsService.Instance.ApiBaseUrl, "/organizations/",
+                    SettingsService.Instance.Organization.Id, "/import")),
                 Content = new StringContent(stringContent, Encoding.UTF8, "application/json"),
             };
 
@@ -106,7 +92,7 @@ namespace Bit.Core.Services
 
             try
             {
-                var response = await ApiClient.SendAsync(requestMessage).ConfigureAwait(false);
+                var response = await Client.SendAsync(requestMessage).ConfigureAwait(false);
                 if(!response.IsSuccessStatusCode)
                 {
                     return await HandleErrorAsync(response).ConfigureAwait(false);
@@ -131,14 +117,14 @@ namespace Bit.Core.Services
             var requestMessage = new HttpRequestMessage()
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(ApiClient.BaseAddress, "accounts/profile"),
+                RequestUri = new Uri(string.Concat(SettingsService.Instance.ApiBaseUrl, "/accounts/profile")),
             };
 
             requestMessage.Headers.Add("Authorization", $"Bearer3 {TokenService.Instance.AccessToken}");
 
             try
             {
-                var response = await ApiClient.SendAsync(requestMessage).ConfigureAwait(false);
+                var response = await Client.SendAsync(requestMessage).ConfigureAwait(false);
                 if(!response.IsSuccessStatusCode)
                 {
                     return await HandleErrorAsync<ProfileResponse>(response).ConfigureAwait(false);
@@ -190,8 +176,9 @@ namespace Bit.Core.Services
                 var requestMessage = new HttpRequestMessage
                 {
                     Method = HttpMethod.Post,
-                    RequestUri = new Uri(IdentityClient.BaseAddress, "connect/token"),
-                    Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                    RequestUri = new Uri(string.Concat(SettingsService.Instance.IdentityBaseUrl, "/connect/token")),
+                    Content = new FormUrlEncodedContent(
+                        new Dictionary<string, string>
                         {
                             { "grant_type", "refresh_token" },
                             { "client_id", "mobile" },
@@ -201,7 +188,7 @@ namespace Bit.Core.Services
 
                 try
                 {
-                    var response = await IdentityClient.SendAsync(requestMessage).ConfigureAwait(false);
+                    var response = await Client.SendAsync(requestMessage).ConfigureAwait(false);
                     if(!response.IsSuccessStatusCode)
                     {
                         if(response.StatusCode == HttpStatusCode.BadRequest)
