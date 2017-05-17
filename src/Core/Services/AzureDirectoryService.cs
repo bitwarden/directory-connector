@@ -89,41 +89,54 @@ namespace Bit.Core.Services
 
             var entries = new List<GroupEntry>();
             var changedGroupIds = new List<string>();
-            if(SettingsService.Instance.GroupDeltaToken != null)
+            var getFullResults = SettingsService.Instance.GroupDeltaToken == null || force;
+
+            try
             {
-                try
+                var delataRequest = _graphClient.Groups.Delta().Request();
+                if(!getFullResults)
                 {
-                    var delataRequest = _graphClient.Groups.Delta().Request();
                     delataRequest.QueryOptions.Add(new QueryOption("$deltatoken", SettingsService.Instance.GroupDeltaToken));
-                    var groupsDelta = await delataRequest.GetAsync();
+                }
 
-                    while(true)
+                var groupsDelta = await delataRequest.GetAsync();
+                while(true)
+                {
+                    if(getFullResults)
                     {
-                        changedGroupIds.AddRange(groupsDelta.Select(g => g.Id));
-
-                        if(groupsDelta.NextPageRequest == null)
+                        foreach(var group in groupsDelta)
                         {
-                            object deltaLink;
-                            if(groupsDelta.AdditionalData.TryGetValue("@odata.deltaLink", out deltaLink))
-                            {
-                                var deltaUriQuery = new Uri(deltaLink.ToString()).ParseQueryString();
-                                if(deltaUriQuery["$deltatoken"] != null)
-                                {
-                                    SettingsService.Instance.GroupDeltaToken = deltaUriQuery["$deltatoken"];
-                                }
-                            }
-                            break;
-                        }
-                        else
-                        {
-                            groupsDelta = await groupsDelta.NextPageRequest.GetAsync();
+                            var entry = await BuildGroupAsync(group);
+                            entries.Add(entry);
                         }
                     }
-                }
-                catch { }
-            }
+                    else
+                    {
+                        changedGroupIds.AddRange(groupsDelta.Select(g => g.Id));
+                    }
 
-            if(!changedGroupIds.Any())
+                    if(groupsDelta.NextPageRequest == null)
+                    {
+                        object deltaLink;
+                        if(groupsDelta.AdditionalData.TryGetValue("@odata.deltaLink", out deltaLink))
+                        {
+                            var deltaUriQuery = new Uri(deltaLink.ToString()).ParseQueryString();
+                            if(deltaUriQuery["$deltatoken"] != null)
+                            {
+                                SettingsService.Instance.GroupDeltaToken = deltaUriQuery["$deltatoken"];
+                            }
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        groupsDelta = await groupsDelta.NextPageRequest.GetAsync();
+                    }
+                }
+            }
+            catch { }
+
+            if(getFullResults || (!getFullResults && !changedGroupIds.Any()))
             {
                 return entries;
             }
@@ -133,26 +146,7 @@ namespace Bit.Core.Services
             {
                 foreach(var group in groups)
                 {
-                    var entry = new GroupEntry
-                    {
-                        ReferenceId = group.Id,
-                        ExternalId = group.Id,
-                        Name = group.DisplayName
-                    };
-
-                    var members = await _graphClient.Groups[group.Id].Members.Request().Select("id").GetAsync();
-                    foreach(var member in members)
-                    {
-                        if(member is User)
-                        {
-                            entry.UserMemberExternalIds.Add(member.Id);
-                        }
-                        else if(member is Group)
-                        {
-                            entry.GroupMemberReferenceIds.Add(member.Id);
-                        }
-                    }
-
+                    var entry = await BuildGroupAsync(group);
                     entries.Add(entry);
                 }
 
@@ -167,6 +161,31 @@ namespace Bit.Core.Services
             }
 
             return entries;
+        }
+
+        private async static Task<GroupEntry> BuildGroupAsync(Group group)
+        {
+            var entry = new GroupEntry
+            {
+                ReferenceId = group.Id,
+                ExternalId = group.Id,
+                Name = group.DisplayName
+            };
+
+            var members = await _graphClient.Groups[group.Id].Members.Request().Select("id").GetAsync();
+            foreach(var member in members)
+            {
+                if(member is User)
+                {
+                    entry.UserMemberExternalIds.Add(member.Id);
+                }
+                else if(member is Group)
+                {
+                    entry.GroupMemberReferenceIds.Add(member.Id);
+                }
+            }
+
+            return entry;
         }
 
         private async static Task<List<UserEntry>> GetUsersAsync(bool force = false)
@@ -196,7 +215,7 @@ namespace Bit.Core.Services
             var userRequest = _graphClient.Users.Delta();
             IUserDeltaCollectionPage users = null;
 
-            if(SettingsService.Instance.UserDeltaToken != null)
+            if(!force && SettingsService.Instance.UserDeltaToken != null)
             {
                 try
                 {
