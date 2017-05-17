@@ -17,7 +17,7 @@ namespace Bit.Core.Services
 
         private ControllerService()
         {
-            Controller = new ServiceController("bitwarden Directory Connector");
+            Controller = new ServiceController(Constants.ProgramName);
         }
 
         public static ControllerService Instance

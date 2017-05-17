@@ -22,7 +22,7 @@ namespace Service
 
         public Service()
         {
-            ServiceName = "bitwarden Directory Connector";
+            ServiceName = Constants.ProgramName;
 
             _components = new Container();
 
@@ -99,15 +99,19 @@ namespace Service
         {
             try
             {
+                var sw = Stopwatch.StartNew();
                 var result = Sync.SyncAllAsync(false, true).GetAwaiter().GetResult();
+                sw.Stop();
                 if(result.Success)
                 {
-                    _eventLog.WriteEntry($"Synced {result.Groups.Count} groups, {result.Users.Count} users.",
+                    _eventLog.WriteEntry($"Synced {result.Groups.Count} groups, {result.Users.Count} users." +
+                        $"The sync took {(int)sw.Elapsed.TotalSeconds} seconds to complete.",
                         EventLogEntryType.SuccessAudit);
                 }
                 else
                 {
-                    _eventLog.WriteEntry($"Sync failed: {result.ErrorMessage}", EventLogEntryType.FailureAudit);
+                    _eventLog.WriteEntry($"Sync failed after {(int)sw.Elapsed.TotalSeconds} seconds: {result.ErrorMessage}.",
+                        EventLogEntryType.FailureAudit);
                 }
             }
             catch(ApplicationException e)

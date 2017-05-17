@@ -38,6 +38,12 @@ namespace Bit.Console
 |_.__/|_|\__| \_/\_/ \__,_|_|  \__,_|\___|_| |_|");
             Con.ResetColor();
             Con.WriteLine();
+            Con.WriteLine(Constants.ProgramName);
+            Con.WriteLine("Copyright 2015-{0}, 8bit Solutions LLC", DateTime.Now.Year);
+            Con.WriteLine();
+            Con.WriteLine("https://bitwarden.com");
+            Con.WriteLine("https://github.com/bitwarden/directory-connector");
+            Con.WriteLine();
 
             while(true)
             {
@@ -368,6 +374,7 @@ namespace Bit.Console
                         currentType = "3";
                         break;
                 }
+                Con.WriteLine();
                 Con.Write("Type [{0}]: ", currentType);
                 input = Con.ReadLine();
                 if(!string.IsNullOrEmpty(input))
@@ -394,19 +401,19 @@ namespace Bit.Console
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.Azure.Tenant = input;
+                        config.Azure.Tenant = input.Trim();
                     }
                     Con.Write("Application Id [{0}]: ", config.Azure.Id);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.Azure.Id = input;
+                        config.Azure.Id = input.Trim();
                     }
                     Con.Write("Secret key: ");
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.Azure.Secret = new EncryptedData(input);
+                        config.Azure.Secret = new EncryptedData(input.Trim());
                         input = null;
                     }
                 }
@@ -418,25 +425,25 @@ namespace Bit.Console
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.Ldap.Address = input;
+                        config.Ldap.Address = input.Trim();
                     }
                     Con.Write("Port [{0}]: ", config.Ldap.Port);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.Ldap.Port = input;
+                        config.Ldap.Port = input.Trim();
                     }
                     Con.Write("Path [{0}]: ", config.Ldap.Path);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.Ldap.Path = input;
+                        config.Ldap.Path = input.Trim();
                     }
                     Con.Write("Username [{0}]: ", config.Ldap.Username);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.Ldap.Username = input;
+                        config.Ldap.Username = input.Trim();
                     }
                     Con.Write("Password: ");
                     input = ReadSecureLine();
