@@ -83,11 +83,14 @@ namespace Bit.Core.Services
             }
 
             var entry = SettingsService.Instance.Server.Ldap.GetDirectoryEntry();
-            var filter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.GroupFilter) ? null :
+
+            string originalFilter;
+            var filter = originalFilter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.GroupFilter) ? null :
                 SettingsService.Instance.Sync.GroupFilter;
 
-            if(!force && !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.RevisionDateAttribute) &&
-                SettingsService.Instance.LastGroupSyncDate.HasValue)
+            var searchSinceRevision = !force && !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.RevisionDateAttribute) &&
+                SettingsService.Instance.LastGroupSyncDate.HasValue;
+            if(searchSinceRevision)
             {
                 filter = string.Format("(&{0}({1}>{2}))",
                     filter != null ? string.Format("({0})", filter) : string.Empty,
@@ -98,66 +101,122 @@ namespace Bit.Core.Services
             var searcher = new DirectorySearcher(entry, filter);
             var result = searcher.FindAll();
 
+            var initialSearchGroupIds = new List<string>();
+            foreach(SearchResult item in result)
+            {
+                initialSearchGroupIds.Add(new Uri(item.Path).Segments?.LastOrDefault());
+            }
+
+            if(searchSinceRevision && !initialSearchGroupIds.Any())
+            {
+                return Task.FromResult(new List<GroupEntry>());
+            }
+            else if(searchSinceRevision)
+            {
+                searcher = new DirectorySearcher(entry, originalFilter);
+                result = searcher.FindAll();
+            }
+
+            var userFilter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.UserFilter) ? null :
+                SettingsService.Instance.Sync.UserFilter;
+            var userSearcher = new DirectorySearcher(entry, userFilter);
+            var userResult = userSearcher.FindAll();
+
+            var userIdsDict = MakeIdIndex(userResult);
+
             var groups = new List<GroupEntry>();
             foreach(SearchResult item in result)
             {
-                var group = new GroupEntry
-                {
-                    ReferenceId = new Uri(item.Path).Segments?.LastOrDefault()
-                };
-
-                if(group.ReferenceId == null)
+                var group = BuildGroup(item, userIdsDict);
+                if(group == null)
                 {
                     continue;
-                }
-
-                // External Id
-                if(item.Properties.Contains("objectGUID") && item.Properties["objectGUID"].Count > 0)
-                {
-                    group.ExternalId = item.Properties["objectGUID"][0].ToString();
-                }
-                else
-                {
-                    group.ExternalId = group.ReferenceId;
-                }
-
-                // Name
-                if(item.Properties.Contains(SettingsService.Instance.Sync.GroupNameAttribute) &&
-                    item.Properties[SettingsService.Instance.Sync.GroupNameAttribute].Count > 0)
-                {
-                    group.Name = item.Properties[SettingsService.Instance.Sync.GroupNameAttribute][0].ToString();
-                }
-                else if(item.Properties.Contains("cn") && item.Properties["cn"].Count > 0)
-                {
-                    group.Name = item.Properties["cn"][0].ToString();
-                }
-                else
-                {
-                    continue;
-                }
-
-                // Dates
-                group.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.CreationDateAttribute);
-                group.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.RevisionDateAttribute);
-
-                // Members
-                if(item.Properties.Contains(SettingsService.Instance.Sync.MemberAttribute) &&
-                    item.Properties[SettingsService.Instance.Sync.MemberAttribute].Count > 0)
-                {
-                    foreach(var member in item.Properties[SettingsService.Instance.Sync.MemberAttribute])
-                    {
-                        var memberDn = member.ToString();
-                        if(!group.Members.Contains(memberDn))
-                        {
-                            group.Members.Add(memberDn);
-                        }
-                    }
                 }
 
                 groups.Add(group);
             }
 
             return Task.FromResult(groups);
+        }
+
+        private static Dictionary<string, string> MakeIdIndex(SearchResultCollection result)
+        {
+            var dict = new Dictionary<string, string>();
+            foreach(SearchResult item in result)
+            {
+                var referenceId = new Uri(item.Path).Segments?.LastOrDefault();
+                var externalId = referenceId;
+
+                if(item.Properties.Contains("objectGUID") && item.Properties["objectGUID"].Count > 0)
+                {
+                    externalId = item.Properties["objectGUID"][0].ToString();
+                }
+
+                dict.Add(referenceId, externalId);
+            }
+            return dict;
+        }
+
+        private static GroupEntry BuildGroup(SearchResult item, Dictionary<string, string> userIndex)
+        {
+            var group = new GroupEntry
+            {
+                ReferenceId = new Uri(item.Path).Segments?.LastOrDefault()
+            };
+
+            if(group.ReferenceId == null)
+            {
+                return null;
+            }
+
+            // External Id
+            if(item.Properties.Contains("objectGUID") && item.Properties["objectGUID"].Count > 0)
+            {
+                group.ExternalId = item.Properties["objectGUID"][0].ToString();
+            }
+            else
+            {
+                group.ExternalId = group.ReferenceId;
+            }
+
+            // Name
+            if(item.Properties.Contains(SettingsService.Instance.Sync.GroupNameAttribute) &&
+                item.Properties[SettingsService.Instance.Sync.GroupNameAttribute].Count > 0)
+            {
+                group.Name = item.Properties[SettingsService.Instance.Sync.GroupNameAttribute][0].ToString();
+            }
+            else if(item.Properties.Contains("cn") && item.Properties["cn"].Count > 0)
+            {
+                group.Name = item.Properties["cn"][0].ToString();
+            }
+            else
+            {
+                return null;
+            }
+
+            // Dates
+            group.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.CreationDateAttribute);
+            group.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.RevisionDateAttribute);
+
+            // Members
+            if(item.Properties.Contains(SettingsService.Instance.Sync.MemberAttribute) &&
+                item.Properties[SettingsService.Instance.Sync.MemberAttribute].Count > 0)
+            {
+                foreach(var member in item.Properties[SettingsService.Instance.Sync.MemberAttribute])
+                {
+                    var memberDn = member.ToString();
+                    if(userIndex.ContainsKey(memberDn) && !group.UserMemberExternalIds.Contains(userIndex[memberDn]))
+                    {
+                        group.UserMemberExternalIds.Add(userIndex[memberDn]);
+                    }
+                    else if(!group.GroupMemberReferenceIds.Contains(memberDn))
+                    {
+                        group.GroupMemberReferenceIds.Add(memberDn);
+                    }
+                }
+            }
+
+            return group;
         }
 
         private static Task<List<UserEntry>> GetUsersAsync(bool force = false)

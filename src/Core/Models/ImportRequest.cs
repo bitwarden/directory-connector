@@ -20,7 +20,7 @@ namespace Bit.Core.Models
             {
                 Name = entry.Name;
                 ExternalId = entry.ExternalId;
-                Users = entry.Users;
+                Users = entry.UserMemberExternalIds;
             }
 
             public string Name { get; set; }

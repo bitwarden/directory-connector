@@ -21,7 +21,7 @@ namespace Bit.Core.Utilities
                 var groups = entriesResult.Item1;
                 var users = entriesResult.Item2;
 
-                FlattenUsersToGroups(groups, null, groups, users);
+                FlattenUsersToGroups(groups, null, groups);
 
                 if(!sendToServer || (groups.Count == 0 && users.Count == 0))
                 {
@@ -92,29 +92,21 @@ namespace Bit.Core.Utilities
             }
         }
 
-        private static void FlattenUsersToGroups(List<GroupEntry> currentGroups, List<UserEntry> currentGroupsUsers,
-            List<GroupEntry> allGroups, List<UserEntry> allUsers)
+        private static void FlattenUsersToGroups(List<GroupEntry> currentGroups, List<string> currentGroupsUsers,
+            List<GroupEntry> allGroups)
         {
             foreach(var group in currentGroups)
             {
-                var groupsInThisGroup = allGroups.Where(g => group.Members.Contains(g.ReferenceId)).ToList();
-                var usersInThisGroup = allUsers.Where(u => group.Members.Contains(u.ReferenceId)).ToList();
-
-                foreach(var user in usersInThisGroup)
-                {
-                    if(!group.Users.Contains(user.ExternalId))
-                    {
-                        group.Users.Add(user.ExternalId);
-                    }
-                }
+                var groupsInThisGroup = allGroups.Where(g => group.GroupMemberReferenceIds.Contains(g.ReferenceId)).ToList();
+                var usersInThisGroup = group.UserMemberExternalIds.ToList();
 
                 if(currentGroupsUsers != null)
                 {
-                    foreach(var user in currentGroupsUsers)
+                    foreach(var id in currentGroupsUsers)
                     {
-                        if(!group.Users.Contains(user.ExternalId))
+                        if(!group.UserMemberExternalIds.Contains(id))
                         {
-                            group.Users.Add(user.ExternalId);
+                            group.UserMemberExternalIds.Add(id);
                         }
                     }
 
@@ -122,7 +114,7 @@ namespace Bit.Core.Utilities
                 }
 
                 // Recurse it
-                FlattenUsersToGroups(groupsInThisGroup, usersInThisGroup, allGroups, allUsers);
+                FlattenUsersToGroups(groupsInThisGroup, usersInThisGroup, allGroups);
             }
         }
 

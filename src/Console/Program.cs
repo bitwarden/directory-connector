@@ -702,7 +702,7 @@ namespace Bit.Console
                     foreach(var group in result.Groups)
                     {
                         Con.WriteLine("  {0} - {1}", group.Name, group.ExternalId);
-                        foreach(var user in group.Users)
+                        foreach(var user in group.UserMemberExternalIds)
                         {
                             Con.WriteLine("    {0}", user);
                         }

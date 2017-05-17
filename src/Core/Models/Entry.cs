@@ -17,8 +17,8 @@ namespace Bit.Core.Models
     public class GroupEntry : Entry
     {
         public string Name { get; set; }
-        public HashSet<string> Members { get; set; } = new HashSet<string>();
-        public HashSet<string> Users { get; set; } = new HashSet<string>();
+        public HashSet<string> UserMemberExternalIds { get; set; } = new HashSet<string>();
+        public HashSet<string> GroupMemberReferenceIds { get; set; } = new HashSet<string>();
     }
 
     public class UserEntry : Entry
