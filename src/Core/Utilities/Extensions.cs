@@ -52,5 +52,18 @@ namespace Bit.Core.Utilities
 
             return queryParameters;
         }
+
+        public static string FromGuidToString(this object property)
+        {
+            var propBytes = property as byte[];
+            if(propBytes != null)
+            {
+                return new Guid(propBytes).ToString();
+            }
+            else
+            {
+                return property.ToString();
+            }
+        }
     }
 }

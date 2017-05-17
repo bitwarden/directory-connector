@@ -342,14 +342,22 @@ namespace Bit.Console
                         config.Ldap.Path = parameters["path"];
                     }
 
-                    if(parameters.ContainsKey("u"))
+                    if(parameters.ContainsKey("cu"))
                     {
-                        config.Ldap.Username = parameters["u"];
+                        config.Ldap.Username = null;
+                        config.Ldap.Password = null;
                     }
-
-                    if(parameters.ContainsKey("p"))
+                    else
                     {
-                        config.Ldap.Password = new EncryptedData(parameters["p"]);
+                        if(parameters.ContainsKey("u"))
+                        {
+                            config.Ldap.Username = parameters["u"];
+                        }
+
+                        if(parameters.ContainsKey("p"))
+                        {
+                            config.Ldap.Password = new EncryptedData(parameters["p"]);
+                        }
                     }
                 }
             }
@@ -419,7 +427,7 @@ namespace Bit.Console
                 }
                 else
                 {
-                    config.Ldap = new LdapConfiguration();
+                    config.Ldap = config.Ldap ?? new LdapConfiguration();
 
                     Con.Write("Address [{0}]: ", config.Ldap.Address);
                     input = Con.ReadLine();
@@ -439,18 +447,36 @@ namespace Bit.Console
                     {
                         config.Ldap.Path = input.Trim();
                     }
-                    Con.Write("Username [{0}]: ", config.Ldap.Username);
-                    input = Con.ReadLine();
+
+                    var currentUser = string.IsNullOrWhiteSpace(config.Ldap.Username) &&
+                        config.Ldap.Password == null;
+                    Con.Write("Authenticate as current user? [{0}]: ", currentUser ? "y" : "n");
+                    input = Con.ReadLine().ToLower();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.Ldap.Username = input.Trim();
+                        currentUser = input == "y" || input == "yes";
                     }
-                    Con.Write("Password: ");
-                    input = ReadSecureLine();
-                    if(!string.IsNullOrEmpty(input))
+
+                    if(currentUser)
                     {
-                        config.Ldap.Password = new EncryptedData(input);
-                        input = null;
+                        config.Ldap.Username = null;
+                        config.Ldap.Password = null;
+                    }
+                    else
+                    {
+                        Con.Write("Username [{0}]: ", config.Ldap.Username);
+                        input = Con.ReadLine();
+                        if(!string.IsNullOrEmpty(input))
+                        {
+                            config.Ldap.Username = input.Trim();
+                        }
+                        Con.Write("Password: ");
+                        input = ReadSecureLine();
+                        if(!string.IsNullOrEmpty(input))
+                        {
+                            config.Ldap.Password = new EncryptedData(input);
+                            input = null;
+                        }
                     }
                 }
 

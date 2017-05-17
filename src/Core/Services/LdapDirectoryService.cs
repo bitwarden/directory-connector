@@ -149,7 +149,7 @@ namespace Bit.Core.Services
 
                 if(item.Properties.Contains("objectGUID") && item.Properties["objectGUID"].Count > 0)
                 {
-                    externalId = item.Properties["objectGUID"][0].ToString();
+                    externalId = item.Properties["objectGUID"][0].FromGuidToString();
                 }
 
                 dict.Add(referenceId, externalId);
@@ -172,7 +172,7 @@ namespace Bit.Core.Services
             // External Id
             if(item.Properties.Contains("objectGUID") && item.Properties["objectGUID"].Count > 0)
             {
-                group.ExternalId = item.Properties["objectGUID"][0].ToString();
+                group.ExternalId = item.Properties["objectGUID"][0].FromGuidToString();
             }
             else
             {
@@ -309,7 +309,7 @@ namespace Bit.Core.Services
             // External Id
             if(item.Properties.Contains("objectGUID") && item.Properties["objectGUID"].Count > 0)
             {
-                user.ExternalId = item.Properties["objectGUID"][0].ToString();
+                user.ExternalId = item.Properties["objectGUID"][0].FromGuidToString();
             }
             else
             {

@@ -21,8 +21,14 @@ namespace Bit.Core.Models
 
         public DirectoryEntry GetDirectoryEntry()
         {
-            var entry = new DirectoryEntry(ServerPath, Username, Password.DecryptToString(), AuthenticationTypes.None);
-            return entry;
+            if(Password == null && string.IsNullOrWhiteSpace(Username))
+            {
+                return new DirectoryEntry(ServerPath);
+            }
+            else
+            {
+                return new DirectoryEntry(ServerPath, Username, Password.DecryptToString(), AuthenticationTypes.None);
+            }
         }
     }
 }
