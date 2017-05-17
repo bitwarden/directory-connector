@@ -76,9 +76,9 @@ namespace Service
             }
 
             var intervalMinutes = SettingsService.Instance.Sync.IntervalMinutes;
-            if(SettingsService.Instance.Server.Type == Bit.Core.Enums.DirectoryType.Other && intervalMinutes < 30)
+            if(SettingsService.Instance.Server.Type == Bit.Core.Enums.DirectoryType.Other && intervalMinutes < 60)
             {
-                intervalMinutes = 30;
+                intervalMinutes = 60;
             }
             else if(intervalMinutes < 1)
             {

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Bit.Core.Services
@@ -104,7 +105,7 @@ namespace Bit.Core.Services
             var initialSearchGroupIds = new List<string>();
             foreach(SearchResult item in result)
             {
-                initialSearchGroupIds.Add(new Uri(item.Path).Segments?.LastOrDefault());
+                initialSearchGroupIds.Add(DNFromPath(item.Path));
             }
 
             if(searchSinceRevision && !initialSearchGroupIds.Any())
@@ -144,7 +145,7 @@ namespace Bit.Core.Services
             var dict = new Dictionary<string, string>();
             foreach(SearchResult item in result)
             {
-                var referenceId = new Uri(item.Path).Segments?.LastOrDefault();
+                var referenceId = DNFromPath(item.Path);
                 var externalId = referenceId;
 
                 if(item.Properties.Contains("objectGUID") && item.Properties["objectGUID"].Count > 0)
@@ -161,7 +162,7 @@ namespace Bit.Core.Services
         {
             var group = new GroupEntry
             {
-                ReferenceId = new Uri(item.Path).Segments?.LastOrDefault()
+                ReferenceId = DNFromPath(item.Path)
             };
 
             if(group.ReferenceId == null)
@@ -297,7 +298,7 @@ namespace Bit.Core.Services
         {
             var user = new UserEntry
             {
-                ReferenceId = new Uri(item.Path).Segments?.LastOrDefault(),
+                ReferenceId = DNFromPath(item.Path),
                 Deleted = deleted
             };
 
@@ -361,6 +362,17 @@ namespace Bit.Core.Services
             }
 
             return (control & UserAccountControl.AccountDisabled) == UserAccountControl.AccountDisabled;
+        }
+
+        private static string DNFromPath(string path)
+        {
+            var dn = new Uri(path).Segments?.LastOrDefault();
+            if(dn == null)
+            {
+                return null;
+            }
+
+            return WebUtility.UrlDecode(dn);
         }
     }
 }

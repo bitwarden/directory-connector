@@ -18,7 +18,6 @@ namespace Bit.Core.Models
             switch(type)
             {
                 case DirectoryType.ActiveDirectory:
-                    MemberAttribute = "memberOf";
                     CreationDateAttribute = "whenCreated";
                     RevisionDateAttribute = "whenChanged";
                     UserEmailPrefixAttribute = "sAMAccountName";
@@ -33,7 +32,7 @@ namespace Bit.Core.Models
                     UserEmailSuffix = null;
                     break;
                 case DirectoryType.Other:
-                    IntervalMinutes = 30;
+                    IntervalMinutes = 60;
                     break;
                 default:
                     break;
