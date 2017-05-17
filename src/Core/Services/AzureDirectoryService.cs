@@ -108,7 +108,7 @@ namespace Bit.Core.Services
 
             if(groups == null)
             {
-                groups = await groupRequest.Request().Select("id,displayName").GetAsync();
+                groups = await groupRequest.Request().GetAsync();
             }
 
             while(true)
@@ -196,7 +196,7 @@ namespace Bit.Core.Services
 
             if(users == null)
             {
-                users = await userRequest.Request().Select("id,mail,userPrincipalName,accountEnabled").GetAsync();
+                users = await userRequest.Request().GetAsync();
             }
 
             while(true)
