@@ -633,13 +633,13 @@ namespace Bit.Console
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.Ldap.GroupPath = input;
+                        config.Ldap.UserPath = input;
                     }
                     Con.Write("User object class [{0}]: ", config.Ldap.UserObjectClass);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.Ldap.GroupObjectClass = input;
+                        config.Ldap.UserObjectClass = input;
                     }
                     Con.Write("User email attribute [{0}]: ", config.Ldap.UserEmailAttribute);
                     input = Con.ReadLine();
