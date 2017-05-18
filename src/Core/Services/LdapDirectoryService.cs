@@ -46,16 +46,16 @@ namespace Bit.Core.Services
                 throw new ApplicationException("No configuration for sync.");
             }
 
-            List<GroupEntry> groups = null;
-            if(SettingsService.Instance.Sync.SyncGroups)
-            {
-                groups = await GetGroupsAsync(force);
-            }
-
             List<UserEntry> users = null;
             if(SettingsService.Instance.Sync.SyncUsers)
             {
                 users = await GetUsersAsync(force);
+            }
+
+            List<GroupEntry> groups = null;
+            if(SettingsService.Instance.Sync.SyncGroups)
+            {
+                groups = await GetGroupsAsync(force || users.Any());
             }
 
             return new Tuple<List<GroupEntry>, List<UserEntry>>(groups, users);
