@@ -106,6 +106,7 @@
     <Compile Include="Models\ProfileResponse.cs" />
     <Compile Include="Models\TokenResponse.cs" />
     <Compile Include="Services\ApiService.cs" />
+    <Compile Include="Services\GSuiteDirectoryService.cs" />
     <Compile Include="Services\ControllerService.cs" />
     <Compile Include="Services\AzureDirectoryService.cs" />
     <Compile Include="Services\LdapDirectoryService.cs" />

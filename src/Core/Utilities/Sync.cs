@@ -87,6 +87,8 @@ namespace Bit.Core.Utilities
             {
                 case Enums.DirectoryType.AzureActiveDirectory:
                     return AzureDirectoryService.Instance;
+                case Enums.DirectoryType.GSuite:
+                    return GSuiteDirectoryService.Instance;
                 default:
                     return LdapDirectoryService.Instance;
             }
