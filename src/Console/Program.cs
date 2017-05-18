@@ -112,7 +112,7 @@ namespace Bit.Console
                     case "8":
                     case "environnment":
                     case "env":
-                        await DebugAsync();
+                        await EnvironmentAsync();
                         break;
                     case "9":
                     case "exit":
@@ -864,7 +864,7 @@ namespace Bit.Console
             return Task.FromResult(0);
         }
 
-        private static Task DebugAsync()
+        private static Task EnvironmentAsync()
         {
             if(_usingArgs)
             {
