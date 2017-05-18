@@ -76,13 +76,15 @@ namespace Service
             }
 
             var intervalMinutes = SettingsService.Instance.Sync.IntervalMinutes;
-            if(SettingsService.Instance.Server.Type == Bit.Core.Enums.DirectoryType.Other && intervalMinutes < 60)
+            if((SettingsService.Instance.Server.Type == Bit.Core.Enums.DirectoryType.Other ||
+                SettingsService.Instance.Server.Type == Bit.Core.Enums.DirectoryType.GSuite)
+                && intervalMinutes < 60)
             {
                 intervalMinutes = 60;
             }
-            else if(intervalMinutes < 1)
+            else if(intervalMinutes < 5)
             {
-                intervalMinutes = 1;
+                intervalMinutes = 5;
             }
 
             _eventLog.WriteEntry($"Starting timer with {intervalMinutes} minute interval.", EventLogEntryType.Information);

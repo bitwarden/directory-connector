@@ -26,6 +26,9 @@ namespace Bit.Core.Models
                 case DirectoryType.Other:
                     IntervalMinutes = 60;
                     break;
+                case DirectoryType.GSuite:
+                    IntervalMinutes = 60;
+                    break;
                 default:
                     break;
             }
