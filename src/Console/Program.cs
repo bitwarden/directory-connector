@@ -323,6 +323,17 @@ namespace Bit.Console
                     {
                         config.GSuite.SecretFile = parameters["f"];
                     }
+
+                    if(parameters.ContainsKey("d"))
+                    {
+                        config.GSuite.Domain = parameters["d"];
+                        config.GSuite.Customer = null;
+                    }
+                    else if(parameters.ContainsKey("c"))
+                    {
+                        config.GSuite.Customer = parameters["c"];
+                        config.GSuite.Domain = null;
+                    }
                 }
                 else
                 {
@@ -441,6 +452,13 @@ namespace Bit.Console
                     if(!string.IsNullOrEmpty(input))
                     {
                         config.GSuite.SecretFile = input.Trim();
+                    }
+                    Con.Write("Domain [{0}]: ", config.GSuite.Domain);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.GSuite.Domain = input.Trim();
+                        config.GSuite.Customer = null;
                     }
                 }
                 else
