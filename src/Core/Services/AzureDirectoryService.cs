@@ -93,7 +93,7 @@ namespace Bit.Core.Services
 
             try
             {
-                var delataRequest = _graphClient.Groups.Delta().Request();
+                var delataRequest = _graphClient.Groups.Delta().Request().Filter(SettingsService.Instance.Sync.GroupFilter);
                 if(!getFullResults)
                 {
                     delataRequest.QueryOptions.Add(new QueryOption("$deltatoken", SettingsService.Instance.GroupDeltaToken));
@@ -141,7 +141,7 @@ namespace Bit.Core.Services
                 return entries;
             }
 
-            var groups = await _graphClient.Groups.Request().GetAsync();
+            var groups = await _graphClient.Groups.Request().Filter(SettingsService.Instance.Sync.GroupFilter).GetAsync();
             while(true)
             {
                 foreach(var group in groups)
@@ -219,7 +219,7 @@ namespace Bit.Core.Services
             {
                 try
                 {
-                    var delataRequest = userRequest.Request();
+                    var delataRequest = userRequest.Request().Filter(SettingsService.Instance.Sync.UserFilter);
                     delataRequest.QueryOptions.Add(new QueryOption("$deltatoken", SettingsService.Instance.UserDeltaToken));
                     users = await delataRequest.GetAsync();
                 }
@@ -231,7 +231,7 @@ namespace Bit.Core.Services
 
             if(users == null)
             {
-                users = await userRequest.Request().GetAsync();
+                users = await userRequest.Request().Filter(SettingsService.Instance.Sync.UserFilter).GetAsync();
             }
 
             while(true)
