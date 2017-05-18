@@ -11,6 +11,7 @@ using System.Linq;
 using Google.Apis.Admin.Directory.directory_v1.Data;
 using System.Threading;
 using Google.Apis.Util.Store;
+using Google.Apis.Requests;
 
 namespace Bit.Core.Services
 {
@@ -104,17 +105,18 @@ namespace Bit.Core.Services
             var request = _service.Groups.List();
             request.Domain = SettingsService.Instance.Server.GSuite.Domain;
             request.Customer = SettingsService.Instance.Server.GSuite.Customer;
-            var groups = await request.ExecuteAsync();
 
-            if(groups.GroupsValue != null)
+            var pageStreamer = new PageStreamer<Group, GroupsResource.ListRequest, Groups, string>(
+                (req, token) => req.PageToken = token,
+                res => res.NextPageToken,
+                res => res.GroupsValue);
+
+            foreach(var group in pageStreamer.Fetch(request))
             {
-                foreach(var group in groups.GroupsValue)
-                {
-                    // TODO: Group filter?
+                // TODO: Group filter?
 
-                    var entry = await BuildGroupAsync(group);
-                    entries.Add(entry);
-                }
+                var entry = await BuildGroupAsync(group);
+                entries.Add(entry);
             }
 
             return entries;
@@ -130,26 +132,26 @@ namespace Bit.Core.Services
             };
 
             var memberRequest = _service.Members.List(group.Id);
-            var members = await memberRequest.ExecuteAsync();
+            var pageStreamer = new PageStreamer<Member, MembersResource.ListRequest, Members, string>(
+                (req, token) => req.PageToken = token,
+                res => res.NextPageToken,
+                res => res.MembersValue);
 
-            if(members.MembersValue != null)
+            foreach(var member in pageStreamer.Fetch(memberRequest))
             {
-                foreach(var member in members.MembersValue)
-                {
-                    if(!member.Role.Equals("member", StringComparison.InvariantCultureIgnoreCase) ||
+                if(!member.Role.Equals("member", StringComparison.InvariantCultureIgnoreCase) ||
                         !member.Status.Equals("active", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        continue;
-                    }
+                {
+                    continue;
+                }
 
-                    if(member.Type.Equals("user", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        entry.UserMemberExternalIds.Add(member.Id);
-                    }
-                    else if(member.Type.Equals("group", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        entry.GroupMemberReferenceIds.Add(member.Id);
-                    }
+                if(member.Type.Equals("user", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    entry.UserMemberExternalIds.Add(member.Id);
+                }
+                else if(member.Type.Equals("group", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    entry.GroupMemberReferenceIds.Add(member.Id);
                 }
             }
 
@@ -164,36 +166,38 @@ namespace Bit.Core.Services
             request.Domain = SettingsService.Instance.Server.GSuite.Domain;
             request.Customer = SettingsService.Instance.Server.GSuite.Customer;
             request.Query = SettingsService.Instance.Sync.UserFilter;
-            var users = await request.ExecuteAsync();
 
-            if(users.UsersValue != null)
+            var pageStreamer = new PageStreamer<User, UsersResource.ListRequest, Users, string>(
+                (req, token) => req.PageToken = token,
+                res => res.NextPageToken,
+                res => res.UsersValue);
+
+            foreach(var user in pageStreamer.Fetch(request))
             {
-                foreach(var user in users.UsersValue)
+                var entry = BuildUser(user, false);
+                if(entry != null)
                 {
-                    var entry = BuildUser(user, false);
-                    if(entry != null)
-                    {
-                        entries.Add(entry);
-                    }
+                    entries.Add(entry);
                 }
             }
 
             var deletedRequest = _service.Users.List();
-            request.Domain = SettingsService.Instance.Server.GSuite.Domain;
-            request.Customer = SettingsService.Instance.Server.GSuite.Customer;
-            request.Query = SettingsService.Instance.Sync.UserFilter;
-            request.ShowDeleted = "true";
-            var deletedUsers = await request.ExecuteAsync();
+            deletedRequest.Domain = SettingsService.Instance.Server.GSuite.Domain;
+            deletedRequest.Customer = SettingsService.Instance.Server.GSuite.Customer;
+            deletedRequest.Query = SettingsService.Instance.Sync.UserFilter;
+            deletedRequest.ShowDeleted = "true";
 
-            if(deletedUsers.UsersValue != null)
+            var deletedPageStreamer = new PageStreamer<User, UsersResource.ListRequest, Users, string>(
+                (req, token) => req.PageToken = token,
+                res => res.NextPageToken,
+                res => res.UsersValue);
+
+            foreach(var user in deletedPageStreamer.Fetch(deletedRequest))
             {
-                foreach(var user in deletedUsers.UsersValue)
+                var entry = BuildUser(user, true);
+                if(entry != null)
                 {
-                    var entry = BuildUser(user, true);
-                    if(entry != null)
-                    {
-                        entries.Add(entry);
-                    }
+                    entries.Add(entry);
                 }
             }
 
