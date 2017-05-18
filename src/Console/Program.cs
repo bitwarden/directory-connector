@@ -512,8 +512,25 @@ namespace Bit.Console
                     config.IntervalMinutes = intervalMinutes;
                 }
 
+                if(parameters.ContainsKey("uf"))
+                {
+                    config.UserFilter = parameters["uf"];
+                }
+                if(parameters.ContainsKey("gf"))
+                {
+                    config.GroupFilter = parameters["gf"];
+                }
+
                 if(SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
+                    if(parameters.ContainsKey("go"))
+                    {
+                        config.Ldap.GroupObjectClass = parameters["go"];
+                    }
+                    if(parameters.ContainsKey("gp"))
+                    {
+                        config.Ldap.GroupPath = parameters["gp"];
+                    }
                     if(parameters.ContainsKey("gf"))
                     {
                         config.GroupFilter = parameters["gf"];
@@ -523,9 +540,13 @@ namespace Bit.Console
                         config.Ldap.GroupNameAttribute = parameters["gn"];
                     }
 
-                    if(parameters.ContainsKey("uf"))
+                    if(parameters.ContainsKey("uo"))
                     {
-                        config.UserFilter = parameters["uf"];
+                        config.Ldap.UserObjectClass = parameters["uo"];
+                    }
+                    if(parameters.ContainsKey("up"))
+                    {
+                        config.Ldap.UserPath = parameters["up"];
                     }
                     if(parameters.ContainsKey("ue"))
                     {
@@ -573,17 +594,17 @@ namespace Bit.Console
                 if(config.SyncGroups &&
                     SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
+                    Con.Write("Group path [{0}]: ", config.Ldap.GroupPath);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Ldap.GroupPath = input;
+                    }
                     Con.Write("Group object class [{0}]: ", config.Ldap.GroupObjectClass);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
                         config.Ldap.GroupObjectClass = input;
-                    }
-                    Con.Write("Group filter [{0}]: ", config.GroupFilter);
-                    input = Con.ReadLine();
-                    if(!string.IsNullOrEmpty(input))
-                    {
-                        config.GroupFilter = input;
                     }
                     Con.Write("Group name attribute [{0}]: ", config.Ldap.GroupNameAttribute);
                     input = Con.ReadLine();
@@ -592,11 +613,11 @@ namespace Bit.Console
                         config.Ldap.GroupNameAttribute = input;
                     }
                 }
-                Con.Write("Group path [{0}]: ", config.Ldap.GroupPath);
+                Con.Write("Group filter [{0}]: ", config.GroupFilter);
                 input = Con.ReadLine();
                 if(!string.IsNullOrEmpty(input))
                 {
-                    config.Ldap.GroupPath = input;
+                    config.GroupFilter = input;
                 }
 
                 Con.Write("Sync users? [{0}]: ", config.SyncUsers ? "y" : "n");
