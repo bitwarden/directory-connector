@@ -141,9 +141,9 @@ namespace Bit.Console
 
         private static async Task LogInAsync()
         {
-            if(Core.Services.AuthService.Instance.Authenticated)
+            if(AuthService.Instance.Authenticated)
             {
-                Con.WriteLine("You are already logged in as {0}.", Core.Services.TokenService.Instance.AccessTokenEmail);
+                Con.WriteLine("You are already logged in as {0}.", TokenService.Instance.AccessTokenEmail);
                 return;
             }
 
@@ -181,9 +181,7 @@ namespace Bit.Console
             {
                 Con.WriteLine();
                 Con.WriteLine();
-                Con.ForegroundColor = ConsoleColor.Red;
-                Con.WriteLine("Invalid input parameters.");
-                Con.ResetColor();
+                WriteErrorLine("Invalid input parameters.");
                 return;
             }
 
@@ -192,11 +190,11 @@ namespace Bit.Console
             LoginResult result = null;
             if(string.IsNullOrWhiteSpace(token))
             {
-                result = await Core.Services.AuthService.Instance.LogInAsync(email, masterPassword);
+                result = await AuthService.Instance.LogInAsync(email, masterPassword);
             }
             else
             {
-                result = await Core.Services.AuthService.Instance.LogInTwoFactorAsync(email, masterPassword, token);
+                result = await AuthService.Instance.LogInTwoFactorAsync(email, masterPassword, token);
             }
 
             if(string.IsNullOrWhiteSpace(token) && result.TwoFactorRequired)
@@ -206,7 +204,7 @@ namespace Bit.Console
                 Con.WriteLine("Two-step login is enabled on this account. Please enter your verification code.");
                 Con.Write("Verification code: ");
                 token = Con.ReadLine().Trim();
-                result = await Core.Services.AuthService.Instance.LogInTwoFactorWithHashAsync(token, email,
+                result = await AuthService.Instance.LogInTwoFactorWithHashAsync(token, email,
                     result.MasterPasswordHash);
             }
 
@@ -239,11 +237,11 @@ namespace Bit.Console
                 {
                     result.Success = false;
                     result.ErrorMessage = "Organization not found.";
-                    Core.Services.AuthService.Instance.LogOut();
+                    AuthService.Instance.LogOut();
                 }
                 else
                 {
-                    Core.Services.SettingsService.Instance.Organization = org;
+                    SettingsService.Instance.Organization = org;
                 }
             }
 
@@ -251,15 +249,12 @@ namespace Bit.Console
             Con.WriteLine();
             if(result.Success)
             {
-                Con.ForegroundColor = ConsoleColor.Green;
-                Con.WriteLine("You have successfully logged in as {0}!", Core.Services.TokenService.Instance.AccessTokenEmail);
-                Con.ResetColor();
+                WriteSuccessLine(string.Format("You have successfully logged in as {0}!",
+                    TokenService.Instance.AccessTokenEmail));
             }
             else
             {
-                Con.ForegroundColor = ConsoleColor.Red;
-                Con.WriteLine(result.ErrorMessage);
-                Con.ResetColor();
+                WriteErrorLine(result.ErrorMessage);
             }
 
             masterPassword = null;
@@ -267,16 +262,14 @@ namespace Bit.Console
 
         private static Task LogOutAsync()
         {
-            if(Core.Services.AuthService.Instance.Authenticated)
+            if(AuthService.Instance.Authenticated)
             {
-                Core.Services.AuthService.Instance.LogOut();
-                Con.ForegroundColor = ConsoleColor.Green;
-                Con.WriteLine("You have successfully logged out!");
-                Con.ResetColor();
+                AuthService.Instance.LogOut();
+                WriteSuccessLine("You have successfully logged out!");
             }
             else
             {
-                Con.WriteLine("You are not logged in.");
+                WriteErrorLine("You are not logged in.");
             }
 
             return Task.FromResult(0);
@@ -284,7 +277,7 @@ namespace Bit.Console
 
         private static Task ConfigDirectoryAsync()
         {
-            var config = Core.Services.SettingsService.Instance.Server ?? new ServerConfiguration();
+            var config = SettingsService.Instance.Server ?? new ServerConfiguration();
 
             if(_usingArgs)
             {
@@ -298,9 +291,7 @@ namespace Bit.Console
                     }
                     else
                     {
-                        Con.ForegroundColor = ConsoleColor.Red;
-                        Con.WriteLine("Unable to parse type parameter.");
-                        Con.ResetColor();
+                        WriteErrorLine("Unable to parse type parameter.");
                         return Task.FromResult(0);
                     }
                 }
@@ -487,23 +478,17 @@ namespace Bit.Console
             Con.WriteLine();
             if(config.Ldap != null && string.IsNullOrWhiteSpace(config.Ldap.Address))
             {
-                Con.ForegroundColor = ConsoleColor.Red;
-                Con.WriteLine("Invalid input parameters.");
-                Con.ResetColor();
+                WriteErrorLine("Invalid input parameters.");
             }
             else if(config.Azure != null && (string.IsNullOrWhiteSpace(config.Azure.Id) ||
                 config.Azure.Secret == null || string.IsNullOrWhiteSpace(config.Azure.Tenant)))
             {
-                Con.ForegroundColor = ConsoleColor.Red;
-                Con.WriteLine("Invalid input parameters.");
-                Con.ResetColor();
+                WriteErrorLine("Invalid input parameters.");
             }
             else
             {
-                Core.Services.SettingsService.Instance.Server = config;
-                Con.ForegroundColor = ConsoleColor.Green;
-                Con.WriteLine("Saved directory server configuration.");
-                Con.ResetColor();
+                SettingsService.Instance.Server = config;
+                WriteSuccessLine("Saved directory server configuration.");
             }
 
             return Task.FromResult(0);
@@ -511,8 +496,8 @@ namespace Bit.Console
 
         private static Task ConfigSyncAsync()
         {
-            var config = Core.Services.SettingsService.Instance.Sync ??
-                new SyncConfiguration(Core.Services.SettingsService.Instance.Server.Type);
+            var config = SettingsService.Instance.Sync ??
+                new SyncConfiguration(SettingsService.Instance.Server.Type);
 
             if(_usingArgs)
             {
@@ -527,7 +512,7 @@ namespace Bit.Console
                     config.IntervalMinutes = intervalMinutes;
                 }
 
-                if(Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
+                if(SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
                     if(parameters.ContainsKey("gf"))
                     {
@@ -586,7 +571,7 @@ namespace Bit.Console
                     config.SyncGroups = input == "y" || input == "yes";
                 }
                 if(config.SyncGroups &&
-                    Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
+                    SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
                     Con.Write("Group object class [{0}]: ", config.Ldap.GroupObjectClass);
                     input = Con.ReadLine();
@@ -621,7 +606,7 @@ namespace Bit.Console
                     config.SyncUsers = input == "y" || input == "yes";
                 }
                 if(config.SyncUsers &&
-                    Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
+                    SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
                     Con.Write("User path [{0}]: ", config.Ldap.UserPath);
                     input = Con.ReadLine();
@@ -649,7 +634,7 @@ namespace Bit.Console
                     config.UserFilter = input;
                 }
 
-                if(Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
+                if(SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
                     Con.Write("Member Of Attribute [{0}]: ", config.Ldap.MemberAttribute);
                     input = Con.ReadLine();
@@ -685,21 +670,19 @@ namespace Bit.Console
 
             Con.WriteLine();
             Con.WriteLine();
-            Core.Services.SettingsService.Instance.Sync = config;
-            Con.ForegroundColor = ConsoleColor.Green;
-            Con.WriteLine("Saved sync configuration.");
-            Con.ResetColor();
+            SettingsService.Instance.Sync = config;
+            WriteSuccessLine("Saved sync configuration.");
 
             return Task.FromResult(0);
         }
 
         private static async Task SyncAsync()
         {
-            if(!Core.Services.AuthService.Instance.Authenticated)
+            if(!AuthService.Instance.Authenticated)
             {
                 Con.WriteLine("You are not logged in.");
             }
-            else if(Core.Services.SettingsService.Instance.Server == null)
+            else if(SettingsService.Instance.Server == null)
             {
                 Con.WriteLine("Server is not configured.");
             }
@@ -717,27 +700,23 @@ namespace Bit.Console
 
                 if(result.Success)
                 {
-                    Con.ForegroundColor = ConsoleColor.Green;
-                    Con.WriteLine("Syncing complete ({0} users, {1} groups).", result.Users.Count, result.Groups.Count);
-                    Con.ResetColor();
+                    WriteSuccessLine(string.Format("Syncing complete ({0} users, {1} groups).", 
+                        result.Users.Count, result.Groups.Count));
                 }
                 else
                 {
-                    Con.ForegroundColor = ConsoleColor.Red;
-                    Con.WriteLine("Syncing failed.");
-                    Con.WriteLine(result.ErrorMessage);
-                    Con.ResetColor();
+                    WriteErrorLine("Syncing failed.\n" + result.ErrorMessage);
                 }
             }
         }
 
         private static async Task PrintAsync()
         {
-            if(!Core.Services.AuthService.Instance.Authenticated)
+            if(!AuthService.Instance.Authenticated)
             {
                 Con.WriteLine("You are not logged in.");
             }
-            else if(Core.Services.SettingsService.Instance.Server == null)
+            else if(SettingsService.Instance.Server == null)
             {
                 Con.WriteLine("Server is not configured.");
             }
@@ -775,10 +754,7 @@ namespace Bit.Console
                 }
                 else
                 {
-                    Con.ForegroundColor = ConsoleColor.Red;
-                    Con.WriteLine("Querying failed.");
-                    Con.WriteLine(result.ErrorMessage);
-                    Con.ResetColor();
+                    WriteErrorLine("Querying failed.\n" + result.ErrorMessage);
                 }
             }
         }
@@ -844,9 +820,7 @@ namespace Bit.Console
 
             if((start || stop) && !Helpers.IsAdministrator())
             {
-                Con.ForegroundColor = ConsoleColor.Red;
-                Con.WriteLine("You must be an administrator to control the service.");
-                Con.ResetColor();
+                WriteErrorLine("You must be an administrator to control the service.");
                 return Task.FromResult(0);
             }
 
@@ -960,6 +934,20 @@ namespace Bit.Console
             }
 
             return dict;
+        }
+
+        private static void WriteErrorLine(string message)
+        {
+            Con.ForegroundColor = ConsoleColor.Red;
+            Con.WriteLine(message);
+            Con.ResetColor();
+        }
+
+        private static void WriteSuccessLine(string message)
+        {
+            Con.ForegroundColor = ConsoleColor.Green;
+            Con.WriteLine(message);
+            Con.ResetColor();
         }
     }
 }
