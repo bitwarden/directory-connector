@@ -770,7 +770,8 @@ namespace Bit.Console
                     Con.WriteLine("Users:");
                     foreach(var user in result.Users)
                     {
-                        Con.WriteLine("  {0}{1}", user.Email ?? user.ExternalId, user.Disabled ? " (disabled)" : null);
+                        Con.WriteLine("  {0}{1}{2}", user.Email ?? user.ExternalId,
+                            user.Disabled ? " (-)" : null, user.Deleted ? " (X)" : null);
                     }
                 }
                 else

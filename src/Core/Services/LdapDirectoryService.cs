@@ -265,7 +265,7 @@ namespace Bit.Core.Services
 
                 var deletedSearcher = new DirectorySearcher(deletedEntry, deletedFilter);
                 deletedSearcher.Tombstone = true;
-                var deletedResult = searcher.FindAll();
+                var deletedResult = deletedSearcher.FindAll();
                 foreach(SearchResult item in deletedResult)
                 {
                     var user = BuildUser(item, true);
