@@ -657,7 +657,7 @@ namespace Bit.Console
 
                 if(SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
-                    Con.Write("Member Of Attribute [{0}]: ", config.Ldap.MemberAttribute);
+                    Con.Write("Member Attribute [{0}]: ", config.Ldap.MemberAttribute);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
