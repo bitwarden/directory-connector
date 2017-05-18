@@ -59,7 +59,7 @@ namespace Bit.Core.Services
             List<GroupEntry> groups = null;
             if(SettingsService.Instance.Sync.SyncGroups)
             {
-                groups = await GetGroupsAsync(force || users.Any(u => !u.Deleted && !u.Disabled));
+                groups = await GetGroupsAsync(force || (users?.Any(u => !u.Deleted && !u.Disabled) ?? false));
             }
 
             return new Tuple<List<GroupEntry>, List<UserEntry>>(groups, users);
