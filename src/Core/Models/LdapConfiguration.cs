@@ -39,6 +39,12 @@ namespace Bit.Core.Models
             return GetDirectoryEntry(path);
         }
 
+        public DirectoryEntry GetBasePathDirectoryEntry()
+        {
+            var path = Path.Substring(Path.IndexOf("dc=", StringComparison.InvariantCultureIgnoreCase));
+            return GetDirectoryEntry(path);
+        }
+
         public DirectoryEntry GetDirectoryEntry(string path = null)
         {
             if(Password == null && string.IsNullOrWhiteSpace(Username))

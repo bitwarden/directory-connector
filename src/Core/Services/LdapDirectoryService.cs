@@ -259,7 +259,7 @@ namespace Bit.Core.Services
             // Deleted users
             if(SettingsService.Instance.Server.Type == DirectoryType.ActiveDirectory)
             {
-                var deletedEntry = SettingsService.Instance.Server.Ldap.GetDirectoryEntry();
+                var deletedEntry = SettingsService.Instance.Server.Ldap.GetBasePathDirectoryEntry();
                 var deletedFilter = BuildBaseFilter(SettingsService.Instance.Sync.Ldap.UserObjectClass, "(isDeleted=TRUE)");
                 deletedFilter = BuildRevisionFilter(deletedFilter, force, SettingsService.Instance.LastUserSyncDate);
 
