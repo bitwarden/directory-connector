@@ -315,6 +315,15 @@ namespace Bit.Console
                         config.Azure.Tenant = parameters["t"];
                     }
                 }
+                else if(config.Type == Core.Enums.DirectoryType.GSuite)
+                {
+                    config.GSuite = new GSuiteConfiguration();
+
+                    if(parameters.ContainsKey("f"))
+                    {
+                        config.GSuite.SecretFile = parameters["f"];
+                    }
+                }
                 else
                 {
                     config.Ldap = config.Ldap ?? new LdapConfiguration();
@@ -358,7 +367,8 @@ namespace Bit.Console
 
                 Con.WriteLine("1. Active Directory");
                 Con.WriteLine("2. Azure Active Directory ");
-                Con.WriteLine("3. Other LDAP Directory");
+                Con.WriteLine("3. GSuite Directory");
+                Con.WriteLine("4. Other LDAP Directory");
 
                 string currentType;
                 switch(config.Type)
@@ -369,8 +379,11 @@ namespace Bit.Console
                     case Core.Enums.DirectoryType.AzureActiveDirectory:
                         currentType = "2";
                         break;
-                    default:
+                    case Core.Enums.DirectoryType.GSuite:
                         currentType = "3";
+                        break;
+                    default:
+                        currentType = "4";
                         break;
                 }
                 Con.WriteLine();
@@ -385,6 +398,9 @@ namespace Bit.Console
                             break;
                         case "2":
                             config.Type = Core.Enums.DirectoryType.AzureActiveDirectory;
+                            break;
+                        case "3":
+                            config.Type = Core.Enums.DirectoryType.GSuite;
                             break;
                         default:
                             config.Type = Core.Enums.DirectoryType.Other;
@@ -414,6 +430,17 @@ namespace Bit.Console
                     {
                         config.Azure.Secret = new EncryptedData(input.Trim());
                         input = null;
+                    }
+                }
+                else if(config.Type == Core.Enums.DirectoryType.GSuite)
+                {
+                    config.GSuite = config.GSuite ?? new GSuiteConfiguration();
+
+                    Con.Write("Secret file [{0}]: ", config.GSuite.SecretFile);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.GSuite.SecretFile = input.Trim();
                     }
                 }
                 else
@@ -523,7 +550,8 @@ namespace Bit.Console
 
                 config.RemoveDisabledUsers = parameters.ContainsKey("rd");
 
-                if(SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
+                if(SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.ActiveDirectory ||
+                    SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.Other)
                 {
                     if(parameters.ContainsKey("go"))
                     {
@@ -593,8 +621,8 @@ namespace Bit.Console
                 {
                     config.SyncGroups = input == "y" || input == "yes";
                 }
-                if(config.SyncGroups &&
-                    SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
+                if(config.SyncGroups && (SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.ActiveDirectory ||
+                    SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.Other))
                 {
                     Con.Write("Group path [{0}]: ", config.Ldap.GroupPath);
                     input = Con.ReadLine();
@@ -628,8 +656,8 @@ namespace Bit.Console
                 {
                     config.SyncUsers = input == "y" || input == "yes";
                 }
-                if(config.SyncUsers &&
-                    SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
+                if(config.SyncUsers && (SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.ActiveDirectory ||
+                    SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.Other))
                 {
                     Con.Write("User path [{0}]: ", config.Ldap.UserPath);
                     input = Con.ReadLine();
@@ -680,7 +708,8 @@ namespace Bit.Console
                     config.UserFilter = input;
                 }
 
-                if(SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
+                if(SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.ActiveDirectory ||
+                    SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.Other)
                 {
                     Con.Write("Member Attribute [{0}]: ", config.Ldap.MemberAttribute);
                     input = Con.ReadLine();
@@ -753,7 +782,7 @@ namespace Bit.Console
 
                 if(result.Success)
                 {
-                    WriteSuccessLine(string.Format("Syncing complete ({0} users, {1} groups).", 
+                    WriteSuccessLine(string.Format("Syncing complete ({0} users, {1} groups).",
                         result.Users.Count, result.Groups.Count));
                 }
                 else

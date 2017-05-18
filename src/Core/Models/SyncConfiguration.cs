@@ -22,8 +22,6 @@ namespace Bit.Core.Models
                 case DirectoryType.ActiveDirectory:
                     break;
                 case DirectoryType.AzureActiveDirectory:
-                    GroupFilter = null;
-                    UserFilter = null;
                     break;
                 case DirectoryType.Other:
                     IntervalMinutes = 60;

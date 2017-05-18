@@ -13,5 +13,6 @@ namespace Bit.Core.Models
         public Enums.DirectoryType Type { get; set; } = Enums.DirectoryType.ActiveDirectory;
         public LdapConfiguration Ldap { get; set; }
         public AzureConfiguration Azure { get; set; }
+        public GSuiteConfiguration GSuite { get; set; }
     }
 }

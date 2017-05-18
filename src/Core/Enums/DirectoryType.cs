@@ -10,6 +10,7 @@ namespace Bit.Core.Enums
     {
         ActiveDirectory = 0,
         AzureActiveDirectory = 1,
-        Other = 2
+        Other = 2,
+        GSuite = 3
     }
 }
