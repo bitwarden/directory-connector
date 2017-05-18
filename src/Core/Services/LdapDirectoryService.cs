@@ -93,8 +93,8 @@ namespace Bit.Core.Services
                 SettingsService.Instance.LastGroupSyncDate.HasValue;
             if(searchSinceRevision)
             {
-                filter = string.Format("(&{0}({1}>{2}))",
-                    filter != null ? string.Format("({0})", filter) : string.Empty,
+                filter = string.Format("(&{0}({1}>={2}))",
+                    filter,
                     SettingsService.Instance.Sync.RevisionDateAttribute,
                     SettingsService.Instance.LastGroupSyncDate.Value.ToGeneralizedTimeUTC());
             }
@@ -249,8 +249,8 @@ namespace Bit.Core.Services
             if(!force && !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.RevisionDateAttribute) &&
                 SettingsService.Instance.LastUserSyncDate.HasValue)
             {
-                filter = string.Format("(&{0}({1}>{2}))",
-                    filter != null ? string.Format("({0})", filter) : string.Empty,
+                filter = string.Format("(&{0}({1}>={2}))",
+                    filter,
                     SettingsService.Instance.Sync.RevisionDateAttribute,
                     SettingsService.Instance.LastUserSyncDate.Value.ToGeneralizedTimeUTC());
             }
@@ -273,8 +273,7 @@ namespace Bit.Core.Services
             // Deleted users
             if(SettingsService.Instance.Server.Type == DirectoryType.ActiveDirectory)
             {
-                filter = string.Format("(&{0}(isDeleted=TRUE))",
-                    filter != null ? string.Format("({0})", filter) : string.Empty);
+                filter = string.Format("(&{0}(isDeleted=TRUE))", filter);
 
                 searcher = new DirectorySearcher(entry, filter);
                 searcher.Tombstone = true;
@@ -350,13 +349,13 @@ namespace Bit.Core.Services
 
         private static bool EntryDisabled(SearchResult item)
         {
-            if(!item.Properties.Contains("userAccountControl"))
+            if(!item.Properties.Contains("userAccountControl") || item.Properties["userAccountControl"].Count == 0)
             {
                 return false;
             }
 
             UserAccountControl control;
-            if(!Enum.TryParse(item.Properties["userAccountControl"].ToString(), out control))
+            if(!Enum.TryParse(item.Properties["userAccountControl"][0].ToString(), out control))
             {
                 return false;
             }
