@@ -52,8 +52,8 @@ namespace Bit.Core.Models
                         CreationDateAttribute = "whenCreated";
                         RevisionDateAttribute = "whenChanged";
                         UserEmailPrefixAttribute = "sAMAccountName";
-                        UserPath = "Users";
-                        GroupPath = "Users";
+                        UserPath = "CN=Users";
+                        GroupPath = "CN=Users";
                         break;
                     case DirectoryType.Other:
                         break;
