@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Bit.Core.Services;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Bit.Core.Models
@@ -33,7 +34,7 @@ namespace Bit.Core.Models
             public User(UserEntry entry)
             {
                 Email = entry.Email;
-                Deleted = entry.Disabled || entry.Deleted;
+                Deleted = (SettingsService.Instance.Sync.RemoveDisabledUsers && entry.Disabled) || entry.Deleted;
                 ExternalId = entry.ExternalId;
             }
 

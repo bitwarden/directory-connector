@@ -521,6 +521,8 @@ namespace Bit.Console
                     config.GroupFilter = parameters["gf"];
                 }
 
+                config.RemoveDisabledUsers = parameters.ContainsKey("rd");
+
                 if(SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
                     if(parameters.ContainsKey("go"))
@@ -707,6 +709,13 @@ namespace Bit.Console
                 if(!string.IsNullOrEmpty(input) && int.TryParse(input, out intervalMinutes))
                 {
                     config.IntervalMinutes = intervalMinutes;
+                }
+
+                Con.Write("Remove disabled users? [{0}]: ", config.RemoveDisabledUsers ? "y" : "n");
+                input = Con.ReadLine().ToLower();
+                if(!string.IsNullOrEmpty(input))
+                {
+                    config.RemoveDisabledUsers = input == "y" || input == "yes";
                 }
 
                 input = null;

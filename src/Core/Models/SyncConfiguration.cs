@@ -38,6 +38,7 @@ namespace Bit.Core.Models
         public bool SyncGroups { get; set; } = true;
         public bool SyncUsers { get; set; } = true;
         public int IntervalMinutes { get; set; } = 5;
+        public bool RemoveDisabledUsers { get; set; }
         public LdapSyncConfiguration Ldap { get; set; } = new LdapSyncConfiguration();
 
         public class LdapSyncConfiguration
