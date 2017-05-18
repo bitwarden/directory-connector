@@ -15,14 +15,11 @@ namespace Bit.Core.Models
 
         public SyncConfiguration(DirectoryType type)
         {
+            Ldap = new LdapSyncConfiguration(type);
+
             switch(type)
             {
                 case DirectoryType.ActiveDirectory:
-                    Ldap.CreationDateAttribute = "whenCreated";
-                    Ldap.RevisionDateAttribute = "whenChanged";
-                    Ldap.UserEmailPrefixAttribute = "sAMAccountName";
-                    Ldap.UserPath = "Users";
-                    Ldap.GroupPath = "Users";
                     break;
                 case DirectoryType.AzureActiveDirectory:
                     GroupFilter = null;
@@ -45,6 +42,26 @@ namespace Bit.Core.Models
 
         public class LdapSyncConfiguration
         {
+            public LdapSyncConfiguration() { }
+
+            public LdapSyncConfiguration(DirectoryType type)
+            {
+                switch(type)
+                {
+                    case DirectoryType.ActiveDirectory:
+                        CreationDateAttribute = "whenCreated";
+                        RevisionDateAttribute = "whenChanged";
+                        UserEmailPrefixAttribute = "sAMAccountName";
+                        UserPath = "Users";
+                        GroupPath = "Users";
+                        break;
+                    case DirectoryType.Other:
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             public string UserPath { get; set; }
             public string GroupPath { get; set; }
             public string UserObjectClass { get; set; } = "person";

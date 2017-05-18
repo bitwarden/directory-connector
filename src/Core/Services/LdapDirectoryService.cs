@@ -83,7 +83,7 @@ namespace Bit.Core.Services
                 throw new ApplicationException("Not authenticated.");
             }
 
-            var entry = SettingsService.Instance.Server.Ldap.GetDirectoryEntry();
+            var entry = SettingsService.Instance.Server.Ldap.GetGroupDirectoryEntry();
 
             var originalFilter = BuildBaseFilter(SettingsService.Instance.Sync.Ldap.GroupObjectClass,
                 SettingsService.Instance.Sync.GroupFilter);
@@ -236,7 +236,7 @@ namespace Bit.Core.Services
                 throw new ApplicationException("Not authenticated.");
             }
 
-            var entry = SettingsService.Instance.Server.Ldap.GetDirectoryEntry();
+            var entry = SettingsService.Instance.Server.Ldap.GetUserDirectoryEntry();
             var filter = BuildBaseFilter(SettingsService.Instance.Sync.Ldap.UserObjectClass,
                 SettingsService.Instance.Sync.UserFilter);
             filter = BuildRevisionFilter(filter, force, SettingsService.Instance.LastUserSyncDate);
@@ -259,12 +259,14 @@ namespace Bit.Core.Services
             // Deleted users
             if(SettingsService.Instance.Server.Type == DirectoryType.ActiveDirectory)
             {
-                filter = string.Format("(&{0}(isDeleted=TRUE))", filter);
+                var deletedEntry = SettingsService.Instance.Server.Ldap.GetDirectoryEntry();
+                var deletedFilter = BuildBaseFilter(SettingsService.Instance.Sync.Ldap.UserObjectClass, "(isDeleted=TRUE)");
+                deletedFilter = BuildRevisionFilter(deletedFilter, force, SettingsService.Instance.LastUserSyncDate);
 
-                searcher = new DirectorySearcher(entry, filter);
-                searcher.Tombstone = true;
-                result = searcher.FindAll();
-                foreach(SearchResult item in result)
+                var deletedSearcher = new DirectorySearcher(deletedEntry, deletedFilter);
+                deletedSearcher.Tombstone = true;
+                var deletedResult = searcher.FindAll();
+                foreach(SearchResult item in deletedResult)
                 {
                     var user = BuildUser(item, true);
                     if(user == null)
