@@ -535,7 +535,7 @@ namespace Bit.Console
                     }
                     if(parameters.ContainsKey("gn"))
                     {
-                        config.GroupNameAttribute = parameters["gn"];
+                        config.Ldap.GroupNameAttribute = parameters["gn"];
                     }
 
                     if(parameters.ContainsKey("uf"))
@@ -544,34 +544,34 @@ namespace Bit.Console
                     }
                     if(parameters.ContainsKey("ue"))
                     {
-                        config.UserEmailAttribute = parameters["ue"];
+                        config.Ldap.UserEmailAttribute = parameters["ue"];
                     }
 
                     if(parameters.ContainsKey("m"))
                     {
-                        config.MemberAttribute = parameters["m"];
+                        config.Ldap.MemberAttribute = parameters["m"];
                     }
 
-                    config.EmailPrefixSuffix = parameters.ContainsKey("ps");
+                    config.Ldap.EmailPrefixSuffix = parameters.ContainsKey("ps");
 
                     if(parameters.ContainsKey("ep"))
                     {
-                        config.UserEmailPrefixAttribute = parameters["ep"];
+                        config.Ldap.UserEmailPrefixAttribute = parameters["ep"];
                     }
 
                     if(parameters.ContainsKey("es"))
                     {
-                        config.UserEmailSuffix = parameters["es"];
+                        config.Ldap.UserEmailSuffix = parameters["es"];
                     }
 
                     if(parameters.ContainsKey("c"))
                     {
-                        config.CreationDateAttribute = parameters["c"];
+                        config.Ldap.CreationDateAttribute = parameters["c"];
                     }
 
                     if(parameters.ContainsKey("r"))
                     {
-                        config.RevisionDateAttribute = parameters["r"];
+                        config.Ldap.RevisionDateAttribute = parameters["r"];
                     }
                 }
             }
@@ -588,19 +588,32 @@ namespace Bit.Console
                 if(config.SyncGroups &&
                     Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
+                    Con.Write("Group object class [{0}]: ", config.Ldap.GroupObjectClass);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Ldap.GroupObjectClass = input;
+                    }
                     Con.Write("Group filter [{0}]: ", config.GroupFilter);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
                         config.GroupFilter = input;
                     }
-                    Con.Write("Group name attribute [{0}]: ", config.GroupNameAttribute);
+                    Con.Write("Group name attribute [{0}]: ", config.Ldap.GroupNameAttribute);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.GroupNameAttribute = input;
+                        config.Ldap.GroupNameAttribute = input;
                     }
                 }
+                Con.Write("Group path [{0}]: ", config.Ldap.GroupPath);
+                input = Con.ReadLine();
+                if(!string.IsNullOrEmpty(input))
+                {
+                    config.Ldap.GroupPath = input;
+                }
+
                 Con.Write("Sync users? [{0}]: ", config.SyncUsers ? "y" : "n");
                 input = Con.ReadLine().ToLower();
                 if(!string.IsNullOrEmpty(input))
@@ -610,39 +623,51 @@ namespace Bit.Console
                 if(config.SyncUsers &&
                     Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
-                    Con.Write("User filter [{0}]: ", config.UserFilter);
+                    Con.Write("User path [{0}]: ", config.Ldap.UserPath);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.UserFilter = input;
+                        config.Ldap.GroupPath = input;
                     }
-                    Con.Write("User email attribute [{0}]: ", config.UserEmailAttribute);
+                    Con.Write("User object class [{0}]: ", config.Ldap.UserObjectClass);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.GroupNameAttribute = input;
+                        config.Ldap.GroupObjectClass = input;
                     }
+                    Con.Write("User email attribute [{0}]: ", config.Ldap.UserEmailAttribute);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Ldap.GroupNameAttribute = input;
+                    }
+                }
+                Con.Write("User filter [{0}]: ", config.UserFilter);
+                input = Con.ReadLine();
+                if(!string.IsNullOrEmpty(input))
+                {
+                    config.UserFilter = input;
                 }
 
                 if(Core.Services.SettingsService.Instance.Server.Type != Core.Enums.DirectoryType.AzureActiveDirectory)
                 {
-                    Con.Write("Member Of Attribute [{0}]: ", config.MemberAttribute);
+                    Con.Write("Member Of Attribute [{0}]: ", config.Ldap.MemberAttribute);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.MemberAttribute = input;
+                        config.Ldap.MemberAttribute = input;
                     }
-                    Con.Write("Creation Attribute [{0}]: ", config.CreationDateAttribute);
+                    Con.Write("Creation Attribute [{0}]: ", config.Ldap.CreationDateAttribute);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.CreationDateAttribute = input;
+                        config.Ldap.CreationDateAttribute = input;
                     }
-                    Con.Write("Changed Attribute [{0}]: ", config.RevisionDateAttribute);
+                    Con.Write("Changed Attribute [{0}]: ", config.Ldap.RevisionDateAttribute);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
                     {
-                        config.RevisionDateAttribute = input;
+                        config.Ldap.RevisionDateAttribute = input;
                     }
                 }
 

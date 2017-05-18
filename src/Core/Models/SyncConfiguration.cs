@@ -18,18 +18,15 @@ namespace Bit.Core.Models
             switch(type)
             {
                 case DirectoryType.ActiveDirectory:
-                    CreationDateAttribute = "whenCreated";
-                    RevisionDateAttribute = "whenChanged";
-                    UserEmailPrefixAttribute = "sAMAccountName";
+                    Ldap.CreationDateAttribute = "whenCreated";
+                    Ldap.RevisionDateAttribute = "whenChanged";
+                    Ldap.UserEmailPrefixAttribute = "sAMAccountName";
+                    Ldap.UserPath = "Users";
+                    Ldap.GroupPath = "Users";
                     break;
                 case DirectoryType.AzureActiveDirectory:
                     GroupFilter = null;
                     UserFilter = null;
-                    MemberAttribute = null;
-                    GroupNameAttribute = null;
-                    UserEmailAttribute = null;
-                    UserEmailPrefixAttribute = null;
-                    UserEmailSuffix = null;
                     break;
                 case DirectoryType.Other:
                     IntervalMinutes = 60;
@@ -39,18 +36,27 @@ namespace Bit.Core.Models
             }
         }
 
-        public string GroupFilter { get; set; } = "(&(objectClass=group))";
-        public string UserFilter { get; set; } = "(&(objectClass=person))";
+        public string GroupFilter { get; set; }
+        public string UserFilter { get; set; }
         public bool SyncGroups { get; set; } = true;
         public bool SyncUsers { get; set; } = true;
-        public string MemberAttribute { get; set; } = "member";
-        public string GroupNameAttribute { get; set; } = "name";
-        public string UserEmailAttribute { get; set; } = "mail";
-        public bool EmailPrefixSuffix { get; set; } = false;
-        public string UserEmailPrefixAttribute { get; set; } = "cn";
-        public string UserEmailSuffix { get; set; } = "@companyname.com";
-        public string CreationDateAttribute { get; set; }
-        public string RevisionDateAttribute { get; set; }
         public int IntervalMinutes { get; set; } = 5;
+        public LdapSyncConfiguration Ldap { get; set; } = new LdapSyncConfiguration();
+
+        public class LdapSyncConfiguration
+        {
+            public string UserPath { get; set; }
+            public string GroupPath { get; set; }
+            public string UserObjectClass { get; set; } = "person";
+            public string GroupObjectClass { get; set; } = "group";
+            public string MemberAttribute { get; set; } = "member";
+            public string GroupNameAttribute { get; set; } = "name";
+            public string UserEmailAttribute { get; set; } = "mail";
+            public bool EmailPrefixSuffix { get; set; } = false;
+            public string UserEmailPrefixAttribute { get; set; } = "cn";
+            public string UserEmailSuffix { get; set; } = "@companyname.com";
+            public string CreationDateAttribute { get; set; }
+            public string RevisionDateAttribute { get; set; }
+        }
     }
 }

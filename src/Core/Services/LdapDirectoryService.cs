@@ -85,19 +85,13 @@ namespace Bit.Core.Services
 
             var entry = SettingsService.Instance.Server.Ldap.GetDirectoryEntry();
 
-            string originalFilter;
-            var filter = originalFilter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.GroupFilter) ? null :
-                SettingsService.Instance.Sync.GroupFilter;
+            var originalFilter = BuildBaseFilter(SettingsService.Instance.Sync.Ldap.GroupObjectClass,
+                SettingsService.Instance.Sync.GroupFilter);
 
-            var searchSinceRevision = !force && !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.RevisionDateAttribute) &&
-                SettingsService.Instance.LastGroupSyncDate.HasValue;
-            if(searchSinceRevision)
-            {
-                filter = string.Format("(&{0}({1}>={2}))",
-                    filter,
-                    SettingsService.Instance.Sync.RevisionDateAttribute,
-                    SettingsService.Instance.LastGroupSyncDate.Value.ToGeneralizedTimeUTC());
-            }
+            var filter = originalFilter;
+            var revisionFilter = BuildRevisionFilter(filter, force, SettingsService.Instance.LastGroupSyncDate);
+            var searchSinceRevision = filter != revisionFilter;
+            filter = revisionFilter;
 
             var searcher = new DirectorySearcher(entry, filter);
             var result = searcher.FindAll();
@@ -118,8 +112,8 @@ namespace Bit.Core.Services
                 result = searcher.FindAll();
             }
 
-            var userFilter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.UserFilter) ? null :
-                SettingsService.Instance.Sync.UserFilter;
+            var userFilter = BuildBaseFilter(SettingsService.Instance.Sync.Ldap.UserObjectClass,
+                SettingsService.Instance.Sync.UserFilter);
             var userSearcher = new DirectorySearcher(entry, userFilter);
             var userResult = userSearcher.FindAll();
 
@@ -181,10 +175,10 @@ namespace Bit.Core.Services
             }
 
             // Name
-            if(item.Properties.Contains(SettingsService.Instance.Sync.GroupNameAttribute) &&
-                item.Properties[SettingsService.Instance.Sync.GroupNameAttribute].Count > 0)
+            if(item.Properties.Contains(SettingsService.Instance.Sync.Ldap.GroupNameAttribute) &&
+                item.Properties[SettingsService.Instance.Sync.Ldap.GroupNameAttribute].Count > 0)
             {
-                group.Name = item.Properties[SettingsService.Instance.Sync.GroupNameAttribute][0].ToString();
+                group.Name = item.Properties[SettingsService.Instance.Sync.Ldap.GroupNameAttribute][0].ToString();
             }
             else if(item.Properties.Contains("cn") && item.Properties["cn"].Count > 0)
             {
@@ -196,14 +190,14 @@ namespace Bit.Core.Services
             }
 
             // Dates
-            group.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.CreationDateAttribute);
-            group.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.RevisionDateAttribute);
+            group.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.Ldap.CreationDateAttribute);
+            group.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.Ldap.RevisionDateAttribute);
 
             // Members
-            if(item.Properties.Contains(SettingsService.Instance.Sync.MemberAttribute) &&
-                item.Properties[SettingsService.Instance.Sync.MemberAttribute].Count > 0)
+            if(item.Properties.Contains(SettingsService.Instance.Sync.Ldap.MemberAttribute) &&
+                item.Properties[SettingsService.Instance.Sync.Ldap.MemberAttribute].Count > 0)
             {
-                foreach(var member in item.Properties[SettingsService.Instance.Sync.MemberAttribute])
+                foreach(var member in item.Properties[SettingsService.Instance.Sync.Ldap.MemberAttribute])
                 {
                     var memberDn = member.ToString();
                     if(userIndex.ContainsKey(memberDn) && !group.UserMemberExternalIds.Contains(userIndex[memberDn]))
@@ -243,17 +237,9 @@ namespace Bit.Core.Services
             }
 
             var entry = SettingsService.Instance.Server.Ldap.GetDirectoryEntry();
-            var filter = string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.UserFilter) ? null :
-                SettingsService.Instance.Sync.UserFilter;
-
-            if(!force && !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.RevisionDateAttribute) &&
-                SettingsService.Instance.LastUserSyncDate.HasValue)
-            {
-                filter = string.Format("(&{0}({1}>={2}))",
-                    filter,
-                    SettingsService.Instance.Sync.RevisionDateAttribute,
-                    SettingsService.Instance.LastUserSyncDate.Value.ToGeneralizedTimeUTC());
-            }
+            var filter = BuildBaseFilter(SettingsService.Instance.Sync.Ldap.UserObjectClass,
+                SettingsService.Instance.Sync.UserFilter);
+            filter = BuildRevisionFilter(filter, force, SettingsService.Instance.LastUserSyncDate);
 
             var searcher = new DirectorySearcher(entry, filter);
             var result = searcher.FindAll();
@@ -293,6 +279,36 @@ namespace Bit.Core.Services
             return Task.FromResult(users);
         }
 
+        private static string BuildBaseFilter(string objectClass, string subFilter)
+        {
+            var filter = BuildObjectClassFilter(objectClass);
+            if(!string.IsNullOrWhiteSpace(subFilter))
+            {
+                filter = string.Format("(&{0}{1})", filter, subFilter);
+            }
+
+            return filter;
+        }
+
+        private static string BuildObjectClassFilter(string objectClass)
+        {
+            return string.Format("(&(objectClass={0}))", objectClass);
+        }
+
+        private static string BuildRevisionFilter(string baseFilter, bool force, DateTime? lastRevisionDate)
+        {
+            if(!force && lastRevisionDate.HasValue &&
+                !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.Ldap.RevisionDateAttribute))
+            {
+                baseFilter = string.Format("(&{0}({1}>={2}))",
+                    baseFilter,
+                    SettingsService.Instance.Sync.Ldap.RevisionDateAttribute,
+                    lastRevisionDate.Value.ToGeneralizedTimeUTC());
+            }
+
+            return baseFilter;
+        }
+
         private static UserEntry BuildUser(SearchResult item, bool deleted)
         {
             var user = new UserEntry
@@ -319,19 +335,19 @@ namespace Bit.Core.Services
             user.Disabled = EntryDisabled(item);
 
             // Email
-            if(SettingsService.Instance.Sync.EmailPrefixSuffix &&
-                item.Properties.Contains(SettingsService.Instance.Sync.UserEmailPrefixAttribute) &&
-                item.Properties[SettingsService.Instance.Sync.UserEmailPrefixAttribute].Count > 0 &&
-                !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.UserEmailSuffix))
+            if(SettingsService.Instance.Sync.Ldap.EmailPrefixSuffix &&
+                item.Properties.Contains(SettingsService.Instance.Sync.Ldap.UserEmailPrefixAttribute) &&
+                item.Properties[SettingsService.Instance.Sync.Ldap.UserEmailPrefixAttribute].Count > 0 &&
+                !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.Ldap.UserEmailSuffix))
             {
                 user.Email = string.Concat(
-                    item.Properties[SettingsService.Instance.Sync.UserEmailPrefixAttribute][0].ToString(),
-                    SettingsService.Instance.Sync.UserEmailSuffix).ToLowerInvariant();
+                    item.Properties[SettingsService.Instance.Sync.Ldap.UserEmailPrefixAttribute][0].ToString(),
+                    SettingsService.Instance.Sync.Ldap.UserEmailSuffix).ToLowerInvariant();
             }
-            else if(item.Properties.Contains(SettingsService.Instance.Sync.UserEmailAttribute) &&
-                item.Properties[SettingsService.Instance.Sync.UserEmailAttribute].Count > 0)
+            else if(item.Properties.Contains(SettingsService.Instance.Sync.Ldap.UserEmailAttribute) &&
+                item.Properties[SettingsService.Instance.Sync.Ldap.UserEmailAttribute].Count > 0)
             {
-                user.Email = item.Properties[SettingsService.Instance.Sync.UserEmailAttribute][0]
+                user.Email = item.Properties[SettingsService.Instance.Sync.Ldap.UserEmailAttribute][0]
                     .ToString()
                     .ToLowerInvariant();
             }
@@ -341,8 +357,8 @@ namespace Bit.Core.Services
             }
 
             // Dates
-            user.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.CreationDateAttribute);
-            user.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.RevisionDateAttribute);
+            user.CreationDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.Ldap.CreationDateAttribute);
+            user.RevisionDate = item.Properties.ParseDateTime(SettingsService.Instance.Sync.Ldap.RevisionDateAttribute);
 
             return user;
         }
