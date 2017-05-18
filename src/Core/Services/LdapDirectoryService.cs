@@ -337,7 +337,15 @@ namespace Bit.Core.Services
             user.Disabled = EntryDisabled(item);
 
             // Email
-            if(SettingsService.Instance.Sync.Ldap.EmailPrefixSuffix &&
+            if(item.Properties.Contains(SettingsService.Instance.Sync.Ldap.UserEmailAttribute) &&
+                item.Properties[SettingsService.Instance.Sync.Ldap.UserEmailAttribute].Count > 0)
+            {
+                user.Email = item.Properties[SettingsService.Instance.Sync.Ldap.UserEmailAttribute][0]
+                    .ToString()
+                    .ToLowerInvariant();
+            }
+
+            if(string.IsNullOrWhiteSpace(user.Email) && SettingsService.Instance.Sync.Ldap.EmailPrefixSuffix &&
                 item.Properties.Contains(SettingsService.Instance.Sync.Ldap.UserEmailPrefixAttribute) &&
                 item.Properties[SettingsService.Instance.Sync.Ldap.UserEmailPrefixAttribute].Count > 0 &&
                 !string.IsNullOrWhiteSpace(SettingsService.Instance.Sync.Ldap.UserEmailSuffix))
@@ -346,14 +354,8 @@ namespace Bit.Core.Services
                     item.Properties[SettingsService.Instance.Sync.Ldap.UserEmailPrefixAttribute][0].ToString(),
                     SettingsService.Instance.Sync.Ldap.UserEmailSuffix).ToLowerInvariant();
             }
-            else if(item.Properties.Contains(SettingsService.Instance.Sync.Ldap.UserEmailAttribute) &&
-                item.Properties[SettingsService.Instance.Sync.Ldap.UserEmailAttribute].Count > 0)
-            {
-                user.Email = item.Properties[SettingsService.Instance.Sync.Ldap.UserEmailAttribute][0]
-                    .ToString()
-                    .ToLowerInvariant();
-            }
-            else if(!user.Disabled && !user.Deleted)
+
+            if(string.IsNullOrWhiteSpace(user.Email) && !user.Disabled && !user.Deleted)
             {
                 return null;
             }

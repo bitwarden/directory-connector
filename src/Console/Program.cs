@@ -647,6 +647,29 @@ namespace Bit.Console
                     {
                         config.Ldap.GroupNameAttribute = input;
                     }
+
+                    Con.Write("Use email prefix/suffix fallback? [{0}]: ", config.Ldap.EmailPrefixSuffix ? "y" : "n");
+                    input = Con.ReadLine().ToLower();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Ldap.EmailPrefixSuffix = input == "y" || input == "yes";
+                    }
+
+                    if(config.Ldap.EmailPrefixSuffix)
+                    {
+                        Con.Write("Email prefix attribute [{0}]: ", config.Ldap.UserEmailPrefixAttribute);
+                        input = Con.ReadLine();
+                        if(!string.IsNullOrEmpty(input))
+                        {
+                            config.Ldap.UserEmailPrefixAttribute = input;
+                        }
+                        Con.Write("Email suffix [{0}]: ", config.Ldap.UserEmailSuffix);
+                        input = Con.ReadLine();
+                        if(!string.IsNullOrEmpty(input))
+                        {
+                            config.Ldap.UserEmailSuffix = input;
+                        }
+                    }
                 }
                 Con.Write("User filter [{0}]: ", config.UserFilter);
                 input = Con.ReadLine();
