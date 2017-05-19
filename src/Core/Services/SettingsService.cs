@@ -216,6 +216,19 @@ namespace Bit.Core.Services
             }
         }
 
+        public string LastSyncHash
+        {
+            get
+            {
+                return Settings.LastSyncHash;
+            }
+            set
+            {
+                Settings.LastSyncHash = value;
+                SaveSettings();
+            }
+        }
+
         public class SettingsModel
         {
             public string ApiBaseUrl { get; set; } = "https://api.bitwarden.com";
@@ -229,6 +242,7 @@ namespace Bit.Core.Services
             public DateTime? LastUserSyncDate { get; set; }
             public string GroupDeltaToken { get; set; }
             public string UserDeltaToken { get; set; }
+            public string LastSyncHash { get; set; }
         }
     }
 }

@@ -1,8 +1,11 @@
 ﻿using Bit.Core.Models;
 using Bit.Core.Services;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Bit.Core.Utilities
@@ -23,9 +26,13 @@ namespace Bit.Core.Utilities
 
                 FlattenUsersToGroups(groups, null, groups);
 
-                if(!sendToServer || (groups.Count == 0 && users.Count == 0))
+                if(!sendToServer)
                 {
                     RestoreDeltas(startingGroupDelta, startingUserDelta);
+                }
+
+                if(!sendToServer || (groups.Count == 0 && users.Count == 0))
+                {
                     return new SyncResult
                     {
                         Success = true,
@@ -35,9 +42,24 @@ namespace Bit.Core.Utilities
                 }
 
                 var request = new ImportRequest(groups, users);
+                var json = JsonConvert.SerializeObject(request);
+                var hash = ComputeHash(json);
+
+                if(hash == SettingsService.Instance.LastSyncHash)
+                {
+                    return new SyncResult
+                    {
+                        Success = true,
+                        Groups = groups,
+                        Users = users
+                    };
+                }
+
                 var response = await ApiService.Instance.PostImportAsync(request);
                 if(response.Succeeded)
                 {
+                    SettingsService.Instance.LastSyncHash = hash;
+
                     if(SettingsService.Instance.Sync.SyncGroups)
                     {
                         SettingsService.Instance.LastGroupSyncDate = now;
@@ -122,8 +144,31 @@ namespace Bit.Core.Utilities
 
         private static void RestoreDeltas(string groupDelta, string userDelta)
         {
+            if(SettingsService.Instance.Server.Type != Enums.DirectoryType.AzureActiveDirectory)
+            {
+                return;
+            }
+
             SettingsService.Instance.GroupDeltaToken = groupDelta;
             SettingsService.Instance.UserDeltaToken = userDelta;
+        }
+
+        private static string ComputeHash(string value)
+        {
+            if(value == null)
+            {
+                return null;
+            }
+
+            string result = null;
+            using(var hash = SHA256.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(value);
+                var hashBytes = hash.ComputeHash(bytes);
+                result = Convert.ToBase64String(hashBytes);
+            }
+
+            return result;
         }
     }
 }
