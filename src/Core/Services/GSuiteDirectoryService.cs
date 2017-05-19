@@ -11,6 +11,7 @@ using System.Linq;
 using Google.Apis.Admin.Directory.directory_v1.Data;
 using Google.Apis.Requests;
 using Google.Apis.Json;
+using System.Net;
 
 namespace Bit.Core.Services
 {
@@ -96,9 +97,22 @@ namespace Bit.Core.Services
                 res => res.NextPageToken,
                 res => res.GroupsValue);
 
+            var filter = CreateSetFromFilter(SettingsService.Instance.Sync.GroupFilter);
             foreach(var group in pageStreamer.Fetch(request))
             {
-                // TODO: Group filter?
+                if(filter != null)
+                {
+                    // excluded groups
+                    if(filter.Item1 && filter.Item2.Contains(group.Name, StringComparer.InvariantCultureIgnoreCase))
+                    {
+                        continue;
+                    }
+                    // included groups
+                    else if (!filter.Item1 && !filter.Item2.Contains(group.Name, StringComparer.InvariantCultureIgnoreCase))
+                    {
+                        continue;
+                    }
+                }
 
                 var entry = await BuildGroupAsync(group);
                 entries.Add(entry);
@@ -150,7 +164,7 @@ namespace Bit.Core.Services
             var request = _service.Users.List();
             request.Domain = SettingsService.Instance.Server.GSuite.Domain;
             request.Customer = SettingsService.Instance.Server.GSuite.Customer;
-            request.Query = SettingsService.Instance.Sync.UserFilter;
+            request.Query = WebUtility.UrlEncode(SettingsService.Instance.Sync.UserFilter);
 
             var pageStreamer = new PageStreamer<User, UsersResource.ListRequest, Users, string>(
                 (req, token) => req.PageToken = token,
@@ -169,7 +183,7 @@ namespace Bit.Core.Services
             var deletedRequest = _service.Users.List();
             deletedRequest.Domain = SettingsService.Instance.Server.GSuite.Domain;
             deletedRequest.Customer = SettingsService.Instance.Server.GSuite.Customer;
-            deletedRequest.Query = SettingsService.Instance.Sync.UserFilter;
+            deletedRequest.Query = WebUtility.UrlEncode(SettingsService.Instance.Sync.UserFilter);
             deletedRequest.ShowDeleted = "true";
 
             var deletedPageStreamer = new PageStreamer<User, UsersResource.ListRequest, Users, string>(
@@ -206,6 +220,37 @@ namespace Bit.Core.Services
             }
 
             return entry;
+        }
+
+        private Tuple<bool, HashSet<string>> CreateSetFromFilter(string filter)
+        {
+            if(string.IsNullOrWhiteSpace(filter))
+            {
+                return null;
+            }
+
+            var parts = filter.Split(':');
+            if(parts.Count() != 2)
+            {
+                return null;
+            }
+
+            var exclude = true;
+            if(string.Equals(parts[0], "include", StringComparison.InvariantCultureIgnoreCase))
+            {
+                exclude = false;
+            }
+            else if(string.Equals(parts[0], "exclude", StringComparison.InvariantCultureIgnoreCase))
+            {
+                exclude = true;
+            }
+            else
+            {
+                return null;
+            }
+
+            var list = new HashSet<string>(parts[1].Split(','));
+            return new Tuple<bool, HashSet<string>>(exclude, list);
         }
 
         private ServiceAccountCredential CreateServiceAccountCredential(JsonCredentialParameters credParams)
