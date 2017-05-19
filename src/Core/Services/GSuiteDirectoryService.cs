@@ -84,7 +84,7 @@ namespace Bit.Core.Services
             return new Tuple<List<GroupEntry>, List<UserEntry>>(groups, users);
         }
 
-        private async Task<List<GroupEntry>> GetGroupsAsync(bool force)
+        private Task<List<GroupEntry>> GetGroupsAsync(bool force)
         {
             var entries = new List<GroupEntry>();
 
@@ -100,28 +100,19 @@ namespace Bit.Core.Services
             var filter = CreateSetFromFilter(SettingsService.Instance.Sync.GroupFilter);
             foreach(var group in pageStreamer.Fetch(request))
             {
-                if(filter != null)
+                if(FilterOutResult(filter, group.Name))
                 {
-                    // excluded groups
-                    if(filter.Item1 && filter.Item2.Contains(group.Name, StringComparer.InvariantCultureIgnoreCase))
-                    {
-                        continue;
-                    }
-                    // included groups
-                    else if (!filter.Item1 && !filter.Item2.Contains(group.Name, StringComparer.InvariantCultureIgnoreCase))
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
-                var entry = await BuildGroupAsync(group);
+                var entry = BuildGroup(group);
                 entries.Add(entry);
             }
 
-            return entries;
+            return Task.FromResult(entries);
         }
 
-        private async static Task<GroupEntry> BuildGroupAsync(Group group)
+        private static GroupEntry BuildGroup(Group group)
         {
             var entry = new GroupEntry
             {
@@ -157,22 +148,29 @@ namespace Bit.Core.Services
             return entry;
         }
 
-        private async Task<List<UserEntry>> GetUsersAsync(bool force)
+        private Task<List<UserEntry>> GetUsersAsync(bool force)
         {
             var entries = new List<UserEntry>();
+            var query = CreateGSuiteQueryFromFilter(SettingsService.Instance.Sync.UserFilter);
 
             var request = _service.Users.List();
             request.Domain = SettingsService.Instance.Server.GSuite.Domain;
             request.Customer = SettingsService.Instance.Server.GSuite.Customer;
-            request.Query = WebUtility.UrlEncode(SettingsService.Instance.Sync.UserFilter);
+            request.Query = query;
 
             var pageStreamer = new PageStreamer<User, UsersResource.ListRequest, Users, string>(
                 (req, token) => req.PageToken = token,
                 res => res.NextPageToken,
                 res => res.UsersValue);
 
+            var filter = CreateSetFromFilter(SettingsService.Instance.Sync.UserFilter);
             foreach(var user in pageStreamer.Fetch(request))
             {
+                if(FilterOutResult(filter, user.PrimaryEmail))
+                {
+                    continue;
+                }
+
                 var entry = BuildUser(user, false);
                 if(entry != null)
                 {
@@ -183,7 +181,7 @@ namespace Bit.Core.Services
             var deletedRequest = _service.Users.List();
             deletedRequest.Domain = SettingsService.Instance.Server.GSuite.Domain;
             deletedRequest.Customer = SettingsService.Instance.Server.GSuite.Customer;
-            deletedRequest.Query = WebUtility.UrlEncode(SettingsService.Instance.Sync.UserFilter);
+            deletedRequest.Query = query;
             deletedRequest.ShowDeleted = "true";
 
             var deletedPageStreamer = new PageStreamer<User, UsersResource.ListRequest, Users, string>(
@@ -193,6 +191,11 @@ namespace Bit.Core.Services
 
             foreach(var user in deletedPageStreamer.Fetch(deletedRequest))
             {
+                if(FilterOutResult(filter, user.PrimaryEmail))
+                {
+                    continue;
+                }
+
                 var entry = BuildUser(user, true);
                 if(entry != null)
                 {
@@ -200,7 +203,7 @@ namespace Bit.Core.Services
                 }
             }
 
-            return entries;
+            return Task.FromResult(entries);
         }
 
         private UserEntry BuildUser(User user, bool deleted)
@@ -222,6 +225,22 @@ namespace Bit.Core.Services
             return entry;
         }
 
+        private string CreateGSuiteQueryFromFilter(string filter)
+        {
+            if(string.IsNullOrWhiteSpace(filter))
+            {
+                return null;
+            }
+
+            var mainParts = filter.Split('|');
+            if(mainParts.Count() < 2)
+            {
+                return null;
+            }
+
+            return mainParts[1].Trim();
+        }
+
         private Tuple<bool, HashSet<string>> CreateSetFromFilter(string filter)
         {
             if(string.IsNullOrWhiteSpace(filter))
@@ -229,18 +248,24 @@ namespace Bit.Core.Services
                 return null;
             }
 
-            var parts = filter.Split(':');
+            var mainParts = filter.Split('|');
+            if(mainParts.Count() < 1)
+            {
+                return null;
+            }
+
+            var parts = mainParts[0].Split(':');
             if(parts.Count() != 2)
             {
                 return null;
             }
 
             var exclude = true;
-            if(string.Equals(parts[0], "include", StringComparison.InvariantCultureIgnoreCase))
+            if(string.Equals(parts[0].Trim(), "include", StringComparison.InvariantCultureIgnoreCase))
             {
                 exclude = false;
             }
-            else if(string.Equals(parts[0], "exclude", StringComparison.InvariantCultureIgnoreCase))
+            else if(string.Equals(parts[0].Trim(), "exclude", StringComparison.InvariantCultureIgnoreCase))
             {
                 exclude = true;
             }
@@ -249,8 +274,27 @@ namespace Bit.Core.Services
                 return null;
             }
 
-            var list = new HashSet<string>(parts[1].Split(','));
+            var list = new HashSet<string>(parts[1].Split(',').Select(p => p.Trim()));
             return new Tuple<bool, HashSet<string>>(exclude, list);
+        }
+
+        private bool FilterOutResult(Tuple<bool, HashSet<string>> filter, string result)
+        {
+            if(filter != null)
+            {
+                // excluded
+                if(filter.Item1 && filter.Item2.Contains(result, StringComparer.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+                // included
+                else if(!filter.Item1 && !filter.Item2.Contains(result, StringComparer.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private ServiceAccountCredential CreateServiceAccountCredential(JsonCredentialParameters credParams)
