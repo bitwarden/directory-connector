@@ -47,9 +47,12 @@ namespace Bit.Core.Services
                     {
                         _settings = serializer.Deserialize<SettingsModel>(jsonTextReader);
                     }
+
+                    return _settings;
                 }
 
-                return _settings == null ? new SettingsModel() : _settings;
+                InitSettings();
+                return _settings;
             }
         }
 
@@ -62,7 +65,6 @@ namespace Bit.Core.Services
                     Directory.CreateDirectory(Constants.BaseStoragePath);
                 }
 
-                _settings = Settings;
                 var filePath = $"{Constants.BaseStoragePath}\\settings.json";
                 using(var s = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read))
                 using(var sw = new StreamWriter(s, Encoding.UTF8))
@@ -70,6 +72,14 @@ namespace Bit.Core.Services
                     var json = JsonConvert.SerializeObject(_settings, Formatting.Indented);
                     sw.Write(json);
                 }
+            }
+        }
+
+        private void InitSettings()
+        {
+            if(_settings == null)
+            {
+                _settings = new SettingsModel();
             }
         }
 
@@ -81,7 +91,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.ApiBaseUrl = value;
+                InitSettings();
+                _settings.ApiBaseUrl = value;
                 SaveSettings();
             }
         }
@@ -94,7 +105,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.IdentityBaseUrl = value;
+                InitSettings();
+                _settings.IdentityBaseUrl = value;
                 SaveSettings();
             }
         }
@@ -107,7 +119,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.AccessToken = value;
+                InitSettings();
+                _settings.AccessToken = value;
                 SaveSettings();
             }
         }
@@ -120,7 +133,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.RefreshToken = value;
+                InitSettings();
+                _settings.RefreshToken = value;
                 SaveSettings();
             }
         }
@@ -133,7 +147,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.Organization = value;
+                InitSettings();
+                _settings.Organization = value;
                 SaveSettings();
             }
         }
@@ -146,7 +161,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.Server = value;
+                InitSettings();
+                _settings.Server = value;
                 SaveSettings();
             }
         }
@@ -159,7 +175,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.Sync = value;
+                InitSettings();
+                _settings.Sync = value;
                 SaveSettings();
             }
         }
@@ -172,7 +189,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.LastGroupSyncDate = value;
+                InitSettings();
+                _settings.LastGroupSyncDate = value;
                 SaveSettings();
             }
         }
@@ -185,7 +203,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.LastUserSyncDate = value;
+                InitSettings();
+                _settings.LastUserSyncDate = value;
                 SaveSettings();
             }
         }
@@ -198,7 +217,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.GroupDeltaToken = value;
+                InitSettings();
+                _settings.GroupDeltaToken = value;
                 SaveSettings();
             }
         }
@@ -211,7 +231,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.UserDeltaToken = value;
+                InitSettings();
+                _settings.UserDeltaToken = value;
                 SaveSettings();
             }
         }
@@ -224,7 +245,8 @@ namespace Bit.Core.Services
             }
             set
             {
-                Settings.LastSyncHash = value;
+                InitSettings();
+                _settings.LastSyncHash = value;
                 SaveSettings();
             }
         }
