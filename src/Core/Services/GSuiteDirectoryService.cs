@@ -233,7 +233,7 @@ namespace Bit.Core.Services
             }
 
             var mainParts = filter.Split('|');
-            if(mainParts.Count() < 2)
+            if(mainParts.Count() < 2 || string.IsNullOrWhiteSpace(mainParts[1]))
             {
                 return null;
             }
@@ -249,7 +249,7 @@ namespace Bit.Core.Services
             }
 
             var mainParts = filter.Split('|');
-            if(mainParts.Count() < 1)
+            if(mainParts.Count() < 1 || string.IsNullOrWhiteSpace(mainParts[0]))
             {
                 return null;
             }
