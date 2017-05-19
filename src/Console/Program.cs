@@ -821,7 +821,7 @@ namespace Bit.Console
                 if(result.Success)
                 {
                     WriteSuccessLine(string.Format("Syncing complete ({0} users, {1} groups).",
-                        result.Users.Count, result.Groups.Count));
+                        result.Users?.Count ?? 0, result.Groups?.Count ?? 0));
                 }
                 else
                 {
@@ -855,22 +855,30 @@ namespace Bit.Console
                 var result = await Sync.SyncAllAsync(force, false);
                 if(result.Success)
                 {
-                    Con.WriteLine("Groups:");
-                    foreach(var group in result.Groups)
+                    if(result.Groups != null)
                     {
-                        Con.WriteLine("  {0} - {1}", group.Name, group.ExternalId);
-                        foreach(var user in group.UserMemberExternalIds)
+                        Con.WriteLine("Groups:");
+
+                        foreach(var group in result.Groups)
                         {
-                            Con.WriteLine("    {0}", user);
+                            Con.WriteLine("  {0} - {1}", group.Name, group.ExternalId);
+                            foreach(var user in group.UserMemberExternalIds)
+                            {
+                                Con.WriteLine("    {0}", user);
+                            }
                         }
                     }
 
-                    Con.WriteLine();
-                    Con.WriteLine("Users:");
-                    foreach(var user in result.Users)
+                    if(result.Users != null)
                     {
-                        Con.WriteLine("  {0}{1}{2}", user.Email ?? user.ExternalId,
-                            user.Disabled ? " (-)" : null, user.Deleted ? " (X)" : null);
+                        Con.WriteLine();
+                        Con.WriteLine("Users:");
+
+                        foreach(var user in result.Users)
+                        {
+                            Con.WriteLine("  {0}{1}{2}", user.Email ?? user.ExternalId,
+                                user.Disabled ? " (-)" : null, user.Deleted ? " (X)" : null);
+                        }
                     }
                 }
                 else

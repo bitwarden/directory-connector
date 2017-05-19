@@ -8,8 +8,8 @@ namespace Bit.Core.Models
     {
         public ImportRequest(List<GroupEntry> groups, List<UserEntry> users)
         {
-            Groups = groups.Select(g => new Group(g)).ToArray();
-            Users = users.Select(u => new User(u)).ToArray();
+            Groups = groups?.Select(g => new Group(g)).ToArray() ?? new Group[] { };
+            Users = users?.Select(u => new User(u)).ToArray() ?? new User[] { };
         }
 
         public Group[] Groups { get; set; }

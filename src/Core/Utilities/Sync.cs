@@ -24,14 +24,17 @@ namespace Bit.Core.Utilities
                 var groups = entriesResult.Item1;
                 var users = entriesResult.Item2;
 
-                FlattenUsersToGroups(groups, null, groups);
+                if(groups?.Any() ?? false)
+                {
+                    FlattenUsersToGroups(groups, null, groups);
+                }
 
                 if(!sendToServer)
                 {
                     RestoreDeltas(startingGroupDelta, startingUserDelta);
                 }
 
-                if(!sendToServer || (groups.Count == 0 && users.Count == 0))
+                if(!sendToServer || ((groups?.Count ?? 0) == 0 && (users?.Count ?? 0) == 0))
                 {
                     return new SyncResult
                     {

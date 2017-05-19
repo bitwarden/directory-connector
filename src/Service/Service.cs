@@ -100,7 +100,7 @@ namespace Service
                 sw.Stop();
                 if(result.Success)
                 {
-                    _eventLog.WriteEntry($"Synced {result.Groups.Count} groups, {result.Users.Count} users. " +
+                    _eventLog.WriteEntry($"Synced {result.Groups?.Count ?? 0} groups, {result.Users?.Count ?? 0} users. " +
                         $"The sync took {(int)sw.Elapsed.TotalSeconds} seconds to complete.",
                         EventLogEntryType.SuccessAudit);
                 }
