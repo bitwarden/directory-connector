@@ -64,7 +64,7 @@ namespace Bit.Console
                     Con.WriteLine("5. Simulate directory sync");
                     Con.WriteLine("6. Sync directory");
                     Con.WriteLine("7. Control background service");
-                    Con.WriteLine("8. Set environment");
+                    Con.WriteLine("8. Configure environment");
                     Con.WriteLine("9. Exit");
                     Con.WriteLine();
                     Con.Write("What would you like to do? ");
@@ -112,7 +112,7 @@ namespace Bit.Console
                     case "8":
                     case "environnment":
                     case "env":
-                        await EnvironmentAsync();
+                        await ConfigEnvironmentAsync();
                         break;
                     case "9":
                     case "exit":
@@ -970,7 +970,7 @@ namespace Bit.Console
             return Task.FromResult(0);
         }
 
-        private static Task EnvironmentAsync()
+        private static Task ConfigEnvironmentAsync()
         {
             if(_usingArgs)
             {
