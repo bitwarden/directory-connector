@@ -43,7 +43,7 @@ namespace Bit.Core.Utilities
 
                 var request = new ImportRequest(groups, users);
                 var json = JsonConvert.SerializeObject(request);
-                var hash = ComputeHash(json);
+                var hash = ComputeHash(string.Concat(SettingsService.Instance.ApiBaseUrl, json));
 
                 if(hash == SettingsService.Instance.LastSyncHash)
                 {
