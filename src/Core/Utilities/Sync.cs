@@ -87,7 +87,7 @@ namespace Bit.Core.Utilities
                     };
                 }
             }
-            catch(ApplicationException e)
+            catch(Exception e)
             {
                 RestoreDeltas(startingGroupDelta, startingUserDelta);
                 return new SyncResult
@@ -95,11 +95,6 @@ namespace Bit.Core.Utilities
                     Success = false,
                     ErrorMessage = e.Message
                 };
-            }
-            catch
-            {
-                RestoreDeltas(startingGroupDelta, startingUserDelta);
-                throw;
             }
         }
 
