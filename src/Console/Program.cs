@@ -675,12 +675,21 @@ namespace Bit.Console
                     {
                         config.Ldap.GroupNameAttribute = input;
                     }
+                    Con.Write("Member Attribute [{0}]: ", config.Ldap.MemberAttribute);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.Ldap.MemberAttribute = input;
+                    }
                 }
-                Con.Write("Group filter [{0}]: ", config.GroupFilter);
-                input = Con.ReadLine();
-                if(!string.IsNullOrEmpty(input))
+                if(config.SyncGroups)
                 {
-                    config.GroupFilter = input;
+                    Con.Write("Group filter [{0}]: ", config.GroupFilter);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.GroupFilter = input;
+                    }
                 }
 
                 Con.Write("Sync users? [{0}]: ", config.SyncUsers ? "y" : "n");
@@ -734,22 +743,19 @@ namespace Bit.Console
                         }
                     }
                 }
-                Con.Write("User filter [{0}]: ", config.UserFilter);
-                input = Con.ReadLine();
-                if(!string.IsNullOrEmpty(input))
+                if(config.SyncUsers)
                 {
-                    config.UserFilter = input;
+                    Con.Write("User filter [{0}]: ", config.UserFilter);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.UserFilter = input;
+                    }
                 }
 
                 if(SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.ActiveDirectory ||
                     SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.Other)
                 {
-                    Con.Write("Member Attribute [{0}]: ", config.Ldap.MemberAttribute);
-                    input = Con.ReadLine();
-                    if(!string.IsNullOrEmpty(input))
-                    {
-                        config.Ldap.MemberAttribute = input;
-                    }
                     Con.Write("Creation Attribute [{0}]: ", config.Ldap.CreationDateAttribute);
                     input = Con.ReadLine();
                     if(!string.IsNullOrEmpty(input))
@@ -764,19 +770,19 @@ namespace Bit.Console
                     }
                 }
 
+                Con.Write("Remove disabled users? [{0}]: ", config.RemoveDisabledUsers ? "y" : "n");
+                input = Con.ReadLine().ToLower();
+                if(!string.IsNullOrEmpty(input))
+                {
+                    config.RemoveDisabledUsers = input == "y" || input == "yes";
+                }
+
                 Con.Write("Sync interval (minutes, minimum {1}) [{0}]: ", config.IntervalMinutes, "5");
                 input = Con.ReadLine();
                 int intervalMinutes;
                 if(!string.IsNullOrEmpty(input) && int.TryParse(input, out intervalMinutes))
                 {
                     config.IntervalMinutes = intervalMinutes;
-                }
-
-                Con.Write("Remove disabled users? [{0}]: ", config.RemoveDisabledUsers ? "y" : "n");
-                input = Con.ReadLine().ToLower();
-                if(!string.IsNullOrEmpty(input))
-                {
-                    config.RemoveDisabledUsers = input == "y" || input == "yes";
                 }
 
                 input = null;
