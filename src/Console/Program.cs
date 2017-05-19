@@ -749,9 +749,7 @@ namespace Bit.Console
                     }
                 }
 
-                Con.Write("Sync interval (minutes, minimum {1}) [{0}]: ", config.IntervalMinutes,
-                    SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.Other ||
-                    SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.GSuite ? "60" : "5");
+                Con.Write("Sync interval (minutes, minimum {1}) [{0}]: ", config.IntervalMinutes, "5");
                 input = Con.ReadLine();
                 int intervalMinutes;
                 if(!string.IsNullOrEmpty(input) && int.TryParse(input, out intervalMinutes))
