@@ -324,6 +324,11 @@ namespace Bit.Console
                         config.GSuite.SecretFile = parameters["f"];
                     }
 
+                    if(parameters.ContainsKey("u"))
+                    {
+                        config.GSuite.AdminUser = parameters["u"];
+                    }
+
                     if(parameters.ContainsKey("d"))
                     {
                         config.GSuite.Domain = parameters["d"];
@@ -459,6 +464,12 @@ namespace Bit.Console
                     {
                         config.GSuite.Domain = input.Trim();
                         config.GSuite.Customer = null;
+                    }
+                    Con.Write("Admin user [{0}]: ", config.GSuite.AdminUser);
+                    input = Con.ReadLine();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.GSuite.AdminUser = input.Trim();
                     }
                 }
                 else

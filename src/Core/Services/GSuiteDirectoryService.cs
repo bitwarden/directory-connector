@@ -9,9 +9,8 @@ using System.IO;
 using Bit.Core.Utilities;
 using System.Linq;
 using Google.Apis.Admin.Directory.directory_v1.Data;
-using System.Threading;
-using Google.Apis.Util.Store;
 using Google.Apis.Requests;
+using Google.Apis.Json;
 
 namespace Bit.Core.Services
 {
@@ -22,28 +21,14 @@ namespace Bit.Core.Services
 
         private GSuiteDirectoryService()
         {
-            //GoogleCredential creds;
-            UserCredential creds;
+            ICredential creds;
 
             var secretFilePath = Path.Combine(Constants.BaseStoragePath, SettingsService.Instance.Server.GSuite.SecretFile);
             using(var stream = new FileStream(secretFilePath, FileMode.Open, FileAccess.Read))
             {
-                var scopes = new List<string>
-                {
-                    DirectoryService.Scope.AdminDirectoryUserReadonly,
-                    DirectoryService.Scope.AdminDirectoryGroupReadonly,
-                    DirectoryService.Scope.AdminDirectoryGroupMemberReadonly
-                };
-
                 //creds = GoogleCredential.FromStream(stream).CreateScoped(scopes);
-
-                var credsPath = Path.Combine(Constants.BaseStoragePath, "gsuite_credentials");
-                creds = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    scopes,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credsPath, true)).Result;
+                var credParams = NewtonsoftJsonSerializer.Instance.Deserialize<JsonCredentialParameters>(stream);
+                creds = CreateServiceAccountCredential(credParams);
             }
 
             _service = new DirectoryService(new BaseClientService.Initializer
@@ -221,6 +206,29 @@ namespace Bit.Core.Services
             }
 
             return entry;
+        }
+
+        private ServiceAccountCredential CreateServiceAccountCredential(JsonCredentialParameters credParams)
+        {
+            var scopes = new List<string>
+            {
+                DirectoryService.Scope.AdminDirectoryUserReadonly,
+                DirectoryService.Scope.AdminDirectoryGroupReadonly,
+                DirectoryService.Scope.AdminDirectoryGroupMemberReadonly
+            };
+
+            if(credParams.Type != JsonCredentialParameters.ServiceAccountCredentialType ||
+                string.IsNullOrEmpty(credParams.ClientEmail) ||
+                string.IsNullOrEmpty(credParams.PrivateKey))
+            {
+                throw new InvalidOperationException("JSON data does not represent a valid service account credential.");
+            }
+
+            var initializer = new ServiceAccountCredential.Initializer(credParams.ClientEmail);
+            initializer.User = SettingsService.Instance.Server.GSuite.AdminUser;
+            initializer.Scopes = scopes;
+
+            return new ServiceAccountCredential(initializer.FromPrivateKey(credParams.PrivateKey));
         }
     }
 }
