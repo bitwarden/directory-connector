@@ -30,7 +30,7 @@ namespace Bit.Console
             _usingArgs = args.Length > 0;
             string selection = null;
 
-            Con.ForegroundColor = ConsoleColor.DarkCyan;
+            Con.ForegroundColor = ConsoleColor.Cyan;
             Con.WriteLine(@" _     _ _                         _            
 | |__ (_) |___      ____ _ _ __ __| | ___ _ __  
 | '_ \| | __\ \ /\ / / _` | '__/ _` |/ _ \ '_ \ 
