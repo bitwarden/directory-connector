@@ -355,7 +355,7 @@ namespace Bit.Core.Services
                     SettingsService.Instance.Sync.Ldap.UserEmailSuffix).ToLowerInvariant();
             }
 
-            if(string.IsNullOrWhiteSpace(user.Email) && !user.Disabled && !user.Deleted)
+            if(string.IsNullOrWhiteSpace(user.Email) && !user.Deleted)
             {
                 return null;
             }

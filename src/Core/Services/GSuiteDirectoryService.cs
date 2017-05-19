@@ -214,7 +214,8 @@ namespace Bit.Core.Services
                 ExternalId = user.Id,
                 Email = user.PrimaryEmail,
                 Disabled = user.Suspended.GetValueOrDefault(false),
-                Deleted = deleted
+                Deleted = deleted,
+                CreationDate = user.CreationTime
             };
 
             if(string.IsNullOrWhiteSpace(entry.Email) && !entry.Deleted)
