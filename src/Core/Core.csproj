@@ -67,6 +67,7 @@
       <HintPath>..\..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.Protocols" />
@@ -87,6 +88,7 @@
     <Compile Include="Enums\OrganizationUserType.cs" />
     <Compile Include="Enums\OrganizationUserStatusType.cs" />
     <Compile Include="Enums\UserAccountControl.cs" />
+    <Compile Include="Installer.cs" />
     <Compile Include="Models\ApiError.cs" />
     <Compile Include="Models\ApiResult.cs" />
     <Compile Include="Models\Entry.cs" />

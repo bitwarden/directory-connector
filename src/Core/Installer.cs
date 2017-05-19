@@ -12,13 +12,12 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using Bit.Core.Utilities;
 
-namespace Service
+namespace Core
 {
     [RunInstaller(true)]
     [DesignerCategory("Code")]
     public class Installer : System.Configuration.Install.Installer
     {
-
         private IContainer _components = null;
         private ServiceProcessInstaller _serviceProcessInstaller;
         private ServiceInstaller _serviceInstaller;
@@ -63,7 +62,7 @@ namespace Service
 
             var userRule = new FileSystemAccessRule(
                 WindowsIdentity.GetCurrent().Name,
-                FileSystemRights.Write | FileSystemRights.Read,
+                FileSystemRights.FullControl | FileSystemRights.Write | FileSystemRights.Read,
                 InheritanceFlags.None,
                 PropagationFlags.NoPropagateInherit,
                 AccessControlType.Allow);
