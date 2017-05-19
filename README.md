@@ -20,7 +20,7 @@ Supported directories:
 
 - [Visual Studio](https://www.visualstudio.com/)
 
-Open `bitwarden-directory-connector.sln`. After restoring the nuget packages, you can build and run the application.
+Open `bitwarden-directory-connector.sln` or `bitwarden-directory-connector-noinstaller.sln`. After restoring the nuget packages, you can build and run the application.
 
 # Contribute
 
