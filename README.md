@@ -12,6 +12,8 @@ Supported directories:
 - GSuite (Google)
 - Any other LDAP-based directory
 
+<img src="https://i.imgur.com/IdqS0se.png" alt="" width="680" height="479" />
+
 # Build/Run
 
 **Requirements**
