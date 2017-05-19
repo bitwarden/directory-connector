@@ -751,6 +751,12 @@ namespace Bit.Console
                     {
                         config.UserFilter = input;
                     }
+                    Con.Write("Remove disabled users? [{0}]: ", config.RemoveDisabledUsers ? "y" : "n");
+                    input = Con.ReadLine().ToLower();
+                    if(!string.IsNullOrEmpty(input))
+                    {
+                        config.RemoveDisabledUsers = input == "y" || input == "yes";
+                    }
                 }
 
                 if(SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.ActiveDirectory ||
@@ -768,13 +774,6 @@ namespace Bit.Console
                     {
                         config.Ldap.RevisionDateAttribute = input;
                     }
-                }
-
-                Con.Write("Remove disabled users? [{0}]: ", config.RemoveDisabledUsers ? "y" : "n");
-                input = Con.ReadLine().ToLower();
-                if(!string.IsNullOrEmpty(input))
-                {
-                    config.RemoveDisabledUsers = input == "y" || input == "yes";
                 }
 
                 Con.Write("Sync interval (minutes, minimum {1}) [{0}]: ", config.IntervalMinutes, "5");
