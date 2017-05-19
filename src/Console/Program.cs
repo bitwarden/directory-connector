@@ -120,6 +120,10 @@ namespace Bit.Console
                     case "q":
                         _exit = true;
                         break;
+                    case "cache":
+                    case "clearcache":
+                        await ClearCacheAsync();
+                        break;
                     default:
                         Con.WriteLine("Unknown command.");
                         break;
@@ -1001,6 +1005,16 @@ namespace Bit.Console
                 }
             }
 
+            return Task.FromResult(0);
+        }
+
+        private static Task ClearCacheAsync()
+        {
+            SettingsService.Instance.GroupDeltaToken = null;
+            SettingsService.Instance.LastGroupSyncDate = null;
+            SettingsService.Instance.UserDeltaToken = null;
+            SettingsService.Instance.LastUserSyncDate = null;
+            SettingsService.Instance.LastSyncHash = null;
             return Task.FromResult(0);
         }
 
