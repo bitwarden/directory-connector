@@ -314,9 +314,9 @@ namespace Bit.Console
                         config.Azure.Secret = new EncryptedData(parameters["s"]);
                     }
 
-                    if(parameters.ContainsKey("t"))
+                    if(parameters.ContainsKey("te"))
                     {
-                        config.Azure.Tenant = parameters["t"];
+                        config.Azure.Tenant = parameters["te"];
                     }
                 }
                 else if(config.Type == Core.Enums.DirectoryType.GSuite)
