@@ -594,10 +594,6 @@ namespace Bit.Console
                     {
                         config.Ldap.GroupPath = parameters["gp"];
                     }
-                    if(parameters.ContainsKey("gf"))
-                    {
-                        config.GroupFilter = parameters["gf"];
-                    }
                     if(parameters.ContainsKey("gn"))
                     {
                         config.Ldap.GroupNameAttribute = parameters["gn"];
