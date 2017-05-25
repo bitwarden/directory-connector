@@ -45,14 +45,14 @@ namespace Bit.Core.Models
          *    - Read more at http://bit.ly/2q3FOOD
          *    - ex. "startswith(displayName,'J')"
          *    
-         * 3. GSuite
+         * 3. G Suite
          *    - Group Filter
          *      - Custom filtering syntax that allows you to exclude or include a comma separated list of group names.
          *      - ex. "include:Group A,Sales People,My Other Group"
          *         or "exclude:Group C,Developers,Some Other Group"
          *    - User Filter
          *      - Custom filtering syntax that allows you to exclude or include a comma separated list of group names.
-         *      - Allows you to concatenate a GSuite Admin API user search query to the end of the filter after delimiting
+         *      - Allows you to concatenate a G Suite Admin API user search query to the end of the filter after delimiting
          *        the include/exclude filter with a pipe (|).
          *      - Read more at http://bit.ly/2rlTskX
          *      - ex. 

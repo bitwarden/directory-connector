@@ -387,7 +387,7 @@ namespace Bit.Console
 
                 Con.WriteLine("1. Active Directory");
                 Con.WriteLine("2. Azure Active Directory ");
-                Con.WriteLine("3. GSuite Directory");
+                Con.WriteLine("3. G Suite Directory");
                 Con.WriteLine("4. Other LDAP Directory");
 
                 string currentType;
