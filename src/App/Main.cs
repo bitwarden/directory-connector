@@ -40,7 +40,8 @@ namespace App
                     }
                 }
 
-                result = await AuthService.Instance.LogInTwoFactorWithHashAsync(token, usernameTextBox.Text,
+                result = await AuthService.Instance.LogInTwoFactorWithHashAsync(
+                    Bit.Core.Enums.TwoFactorProviderType.Authenticator, token, usernameTextBox.Text,
                     result.MasterPasswordHash);
             }
 
