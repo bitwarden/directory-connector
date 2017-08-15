@@ -181,7 +181,7 @@ namespace Bit.Core.Services
                         new Dictionary<string, string>
                         {
                             { "grant_type", "refresh_token" },
-                            { "client_id", "mobile" },
+                            { "client_id", "connector" },
                             { "refresh_token", TokenService.Instance.RefreshToken }
                         })
                 };
