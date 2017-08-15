@@ -87,6 +87,7 @@
     <Compile Include="Enums\DirectoryType.cs" />
     <Compile Include="Enums\OrganizationUserType.cs" />
     <Compile Include="Enums\OrganizationUserStatusType.cs" />
+    <Compile Include="Enums\TwoFactorProviderType.cs" />
     <Compile Include="Enums\UserAccountControl.cs" />
     <Compile Include="Installer.cs" />
     <Compile Include="Models\ApiError.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Models\TokenRequest.cs" />
     <Compile Include="Models\ProfileResponse.cs" />
     <Compile Include="Models\TokenResponse.cs" />
+    <Compile Include="Models\TwoFactorEmailRequest.cs" />
     <Compile Include="Services\ApiService.cs" />
     <Compile Include="Services\GSuiteDirectoryService.cs" />
     <Compile Include="Services\ControllerService.cs" />

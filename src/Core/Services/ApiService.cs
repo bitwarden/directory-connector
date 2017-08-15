@@ -1,4 +1,5 @@
-﻿using Bit.Core.Models;
+﻿using Bit.Core.Enums;
+using Bit.Core.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -51,11 +52,12 @@ namespace Bit.Core.Services
                 if(!response.IsSuccessStatusCode)
                 {
                     var errorResponse = JObject.Parse(responseContent);
-                    if(errorResponse["TwoFactorProviders"] != null)
+                    if(errorResponse["TwoFactorProviders2"] != null)
                     {
                         return ApiResult<TokenResponse>.Success(new TokenResponse
                         {
-                            TwoFactorProviders = errorResponse["TwoFactorProviders"].ToObject<List<int>>()
+                            TwoFactorProviders2 = errorResponse["TwoFactorProviders2"]
+                                .ToObject<Dictionary<TwoFactorProviderType, Dictionary<string, object>>>()
                         }, response.StatusCode);
                     }
 
@@ -137,6 +139,33 @@ namespace Bit.Core.Services
             catch
             {
                 return HandledWebException<ProfileResponse>();
+            }
+        }
+
+        public virtual async Task<ApiResult> PostTwoFactorSendEmailLoginAsync(TwoFactorEmailRequest requestObj)
+        {
+            var stringContent = JsonConvert.SerializeObject(requestObj);
+
+            var requestMessage = new HttpRequestMessage()
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(string.Concat(SettingsService.Instance.ApiBaseUrl, "/two-factor/send-email-login")),
+                Content = new StringContent(stringContent, Encoding.UTF8, "application/json")
+            };
+
+            try
+            {
+                var response = await Client.SendAsync(requestMessage).ConfigureAwait(false);
+                if(!response.IsSuccessStatusCode)
+                {
+                    return await HandleErrorAsync(response).ConfigureAwait(false);
+                }
+
+                return ApiResult.Success(response.StatusCode);
+            }
+            catch
+            {
+                return HandledWebException();
             }
         }
 

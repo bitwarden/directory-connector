@@ -63,9 +63,9 @@ namespace Bit.Core.Services
             }
 
             result.Success = true;
-            if(response.Result.TwoFactorProviders != null && response.Result.TwoFactorProviders.Count > 0)
+            if(response.Result.TwoFactorProviders2 != null && response.Result.TwoFactorProviders2.Count > 0)
             {
-                result.TwoFactorRequired = true;
+                result.TwoFactorProviders = response.Result.TwoFactorProviders2;
                 result.MasterPasswordHash = request.MasterPasswordHash;
                 return result;
             }
@@ -73,12 +73,13 @@ namespace Bit.Core.Services
             return await ProcessLogInSuccessAsync(response.Result);
         }
 
-        public async Task<LoginResult> LogInTwoFactorAsync(string token, string email, string masterPassword)
+        public async Task<LoginResult> LogInTwoFactorAsync(TwoFactorProviderType type, string token, string email,
+            string masterPassword)
         {
             var normalizedEmail = email.Trim().ToLower();
             var key = Crypto.MakeKeyFromPassword(masterPassword, normalizedEmail);
 
-            var result = await LogInTwoFactorWithHashAsync(token, email, Crypto.HashPasswordBase64(key, masterPassword));
+            var result = await LogInTwoFactorWithHashAsync(type, token, email, Crypto.HashPasswordBase64(key, masterPassword));
 
             key = null;
             masterPassword = null;
@@ -86,14 +87,21 @@ namespace Bit.Core.Services
             return result;
         }
 
-        public async Task<LoginResult> LogInTwoFactorWithHashAsync(string token, string email, string masterPasswordHash)
+        public async Task<LoginResult> LogInTwoFactorWithHashAsync(TwoFactorProviderType type, string token, string email,
+            string masterPasswordHash)
         {
+            if(type == TwoFactorProviderType.Email || type == TwoFactorProviderType.Authenticator)
+            {
+                token = token.Trim().Replace(" ", "");
+            }
+
             var request = new TokenRequest
             {
                 Email = email.Trim().ToLower(),
                 MasterPasswordHash = masterPasswordHash,
-                Token = token.Trim().Replace(" ", ""),
-                Provider = 0 // Authenticator app (only 1 provider for now, so hard coded)
+                Token = token,
+                Provider = type,
+                Remember = false
             };
 
             var response = await ApiService.Instance.PostTokenAsync(request);

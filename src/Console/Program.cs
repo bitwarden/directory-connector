@@ -1,19 +1,16 @@
-﻿using Bit.Core.Models;
+﻿using Bit.Core.Enums;
+using Bit.Core.Models;
 using Bit.Core.Services;
 using Bit.Core.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Security;
-using System.Text;
 using System.Threading.Tasks;
 using Con = System.Console;
 
 namespace Bit.Console
 {
-    class Program
+    public class Program
     {
         private static bool _usingArgs = false;
         private static bool _exit = false;
@@ -155,6 +152,7 @@ namespace Bit.Console
             string masterPassword = null;
             string token = null;
             string orgId = null;
+            var provider = TwoFactorProviderType.Authenticator;
 
             if(_usingArgs)
             {
@@ -164,7 +162,8 @@ namespace Bit.Console
                     email = parameters["e"];
                     masterPassword = parameters["p"];
                 }
-                if(parameters.Count >= 3 && parameters.ContainsKey("t"))
+                if(parameters.Count >= 4 && parameters.ContainsKey("t") && parameters.ContainsKey("tp") &&
+                    Enum.TryParse(parameters["tp"], out provider))
                 {
                     token = parameters["t"];
                 }
@@ -198,21 +197,81 @@ namespace Bit.Console
             }
             else
             {
-                result = await AuthService.Instance.LogInTwoFactorAsync(email, masterPassword, token);
+                result = await AuthService.Instance.LogInTwoFactorAsync(provider, token,
+                    email, masterPassword);
             }
 
             if(string.IsNullOrWhiteSpace(token) && result.TwoFactorRequired)
             {
                 Con.WriteLine();
                 Con.WriteLine();
-                Con.WriteLine("Two-step login is enabled on this account. Please enter your verification code.");
-                Con.Write("Verification code: ");
-                token = Con.ReadLine().Trim();
-                result = await AuthService.Instance.LogInTwoFactorWithHashAsync(token, email,
-                    result.MasterPasswordHash);
+                Con.WriteLine("Two-step login is enabled on this account.");
+                if(result.TwoFactorProviders.Count > 1)
+                {
+                    for(var i = 0; i < result.TwoFactorProviders.Count; i++)
+                    {
+                        Con.WriteLine("{0}. {1}{2}", i + 1, result.TwoFactorProviders.ElementAt(i).Key,
+                            result.TwoFactorProviders.ElementAt(i).Key == TwoFactorProviderType.Duo ||
+                                result.TwoFactorProviders.ElementAt(i).Key == TwoFactorProviderType.U2f ?
+                                " - not supported" : string.Empty);
+                    }
+                    Con.WriteLine();
+                    Con.Write("Which provider would you like to use?: ");
+                    var providerIndexInput = Con.ReadLine().Trim();
+                    int providerIndex;
+                    if(int.TryParse(providerIndexInput, out providerIndex) && result.TwoFactorProviders.Count >= providerIndex)
+                    {
+                        provider = result.TwoFactorProviders.ElementAt(providerIndex - 1).Key;
+                    }
+                    else
+                    {
+                        provider = result.TwoFactorProviders.First().Key;
+                    }
+                }
+                else
+                {
+                    provider = result.TwoFactorProviders.First().Key;
+                    Con.WriteLine();
+                }
+
+                var readingTokenInput = true;
+                if(provider == TwoFactorProviderType.YubiKey)
+                {
+                    Con.Write("Tap the button on your YubiKey: ");
+                }
+                else if(provider == TwoFactorProviderType.Email)
+                {
+                    if(result.TwoFactorProviders.Count > 1)
+                    {
+                        await ApiService.Instance.PostTwoFactorSendEmailLoginAsync(new TwoFactorEmailRequest
+                        {
+                            Email = email,
+                            MasterPasswordHash = result.MasterPasswordHash
+                        });
+                    }
+
+                    Con.Write("Enter the verification code that was emailed to you: ");
+                }
+                else if(provider == TwoFactorProviderType.Authenticator)
+                {
+                    Con.Write("Enter the verification code from your authenticator app: ");
+                }
+                else
+                {
+                    Con.WriteLine("The selected two-step login method is not supported on this platform/application. " +
+                        "Use a different two step-login method.");
+                    readingTokenInput = false;
+                }
+
+                if(readingTokenInput)
+                {
+                    token = Con.ReadLine().Trim();
+                    result = await AuthService.Instance.LogInTwoFactorWithHashAsync(provider, token, email,
+                        result.MasterPasswordHash);
+                }
             }
 
-            if(result.Success && result.Organizations.Count > 1)
+            if(result.Success && result.Organizations != null && result.Organizations.Count > 1)
             {
                 Organization org = null;
                 if(!string.IsNullOrWhiteSpace(orgId))
@@ -253,8 +312,15 @@ namespace Bit.Console
             Con.WriteLine();
             if(result.Success)
             {
-                WriteSuccessLine(string.Format("You have successfully logged in as {0}!",
-                    TokenService.Instance.AccessTokenEmail));
+                if(!result.TwoFactorRequired)
+                {
+                    WriteSuccessLine(string.Format("You have successfully logged in as {0}!",
+                        TokenService.Instance.AccessTokenEmail));
+                }
+                else
+                {
+                    WriteErrorLine("Unable to log in.");
+                }
             }
             else
             {
