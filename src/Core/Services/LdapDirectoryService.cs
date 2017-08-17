@@ -93,6 +93,7 @@ namespace Bit.Core.Services
             var searchSinceRevision = filter != revisionFilter;
             filter = revisionFilter;
 
+            Console.WriteLine("Group search: {0} => {1}", entry.Path, filter);
             var searcher = new DirectorySearcher(entry, filter);
             var result = searcher.FindAll();
 
@@ -241,6 +242,7 @@ namespace Bit.Core.Services
                 SettingsService.Instance.Sync.UserFilter);
             filter = BuildRevisionFilter(filter, force, SettingsService.Instance.LastUserSyncDate);
 
+            Console.WriteLine("User search: {0} => {1}", entry.Path, filter);
             var searcher = new DirectorySearcher(entry, filter);
             var result = searcher.FindAll();
 
