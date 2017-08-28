@@ -40,12 +40,12 @@ namespace Service
 
         private void AfterInstalled(object sender, InstallEventArgs e)
         {
-            if(!Directory.Exists(Constants.BaseStoragePath))
+            var info = new DirectoryInfo(Constants.BaseStoragePath);
+            if(!info.Exists)
             {
-                Directory.CreateDirectory(Constants.BaseStoragePath);
+                info.Create();
             }
 
-            var info = new DirectoryInfo(Constants.BaseStoragePath);
             var sec = info.GetAccessControl();
 
             var adminRule = new FileSystemAccessRule(
@@ -56,13 +56,13 @@ namespace Service
                 AccessControlType.Allow);
             sec.AddAccessRule(adminRule);
 
-            var userRule = new FileSystemAccessRule(
-                WindowsIdentity.GetCurrent().Name,
+            var usersRule = new FileSystemAccessRule(
+                new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
                 FileSystemRights.FullControl | FileSystemRights.Write | FileSystemRights.Read,
                 InheritanceFlags.None,
                 PropagationFlags.NoPropagateInherit,
                 AccessControlType.Allow);
-            sec.AddAccessRule(userRule);
+            sec.AddAccessRule(usersRule);
 
             sec.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
             info.SetAccessControl(sec);
