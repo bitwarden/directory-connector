@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
 using System.Configuration.Install;
 using System.Diagnostics;
 using System.IO;
@@ -12,7 +8,7 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using Bit.Core.Utilities;
 
-namespace Core
+namespace Service
 {
     [RunInstaller(true)]
     [DesignerCategory("Code")]
