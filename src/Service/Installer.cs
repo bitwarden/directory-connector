@@ -47,25 +47,24 @@ namespace Service
             }
 
             var sec = info.GetAccessControl();
-
-            var adminRule = new FileSystemAccessRule(
-                new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null),
-                FileSystemRights.FullControl | FileSystemRights.Write | FileSystemRights.Read,
-                InheritanceFlags.None,
-                PropagationFlags.NoPropagateInherit,
-                AccessControlType.Allow);
-            sec.AddAccessRule(adminRule);
-
-            var usersRule = new FileSystemAccessRule(
-                new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
-                FileSystemRights.FullControl | FileSystemRights.Write | FileSystemRights.Read,
-                InheritanceFlags.None,
-                PropagationFlags.NoPropagateInherit,
-                AccessControlType.Allow);
-            sec.AddAccessRule(usersRule);
-
+            AddPermission(new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null), sec);
+            AddPermission(new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null), sec);
+            AddPermission(new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null), sec);
+            AddPermission(new SecurityIdentifier(WellKnownSidType.CreatorOwnerSid, null), sec);
+            AddPermission(WindowsIdentity.GetCurrent().User, sec);
             sec.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
             info.SetAccessControl(sec);
+        }
+
+        private void AddPermission(IdentityReference sid, DirectorySecurity sec)
+        {
+            var rule = new FileSystemAccessRule(
+                sid,
+                FileSystemRights.FullControl | FileSystemRights.Write | FileSystemRights.Read,
+                InheritanceFlags.None,
+                PropagationFlags.NoPropagateInherit,
+                AccessControlType.Allow);
+            sec.AddAccessRule(rule);
         }
 
         private void BeforeInstalled(object sender, InstallEventArgs e)
