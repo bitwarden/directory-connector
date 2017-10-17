@@ -90,7 +90,7 @@ namespace Bit.Core.Services
                 Content = new StringContent(stringContent, Encoding.UTF8, "application/json"),
             };
 
-            requestMessage.Headers.Add("Authorization", $"Bearer3 {TokenService.Instance.AccessToken}");
+            requestMessage.Headers.Add("Authorization", $"Bearer {TokenService.Instance.AccessToken}");
 
             try
             {
@@ -122,7 +122,7 @@ namespace Bit.Core.Services
                 RequestUri = new Uri(string.Concat(SettingsService.Instance.ApiBaseUrl, "/accounts/profile")),
             };
 
-            requestMessage.Headers.Add("Authorization", $"Bearer3 {TokenService.Instance.AccessToken}");
+            requestMessage.Headers.Add("Authorization", $"Bearer {TokenService.Instance.AccessToken}");
 
             try
             {
