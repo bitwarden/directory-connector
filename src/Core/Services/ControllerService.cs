@@ -1,13 +1,7 @@
-﻿using Bit.Core.Enums;
-using Bit.Core.Models;
-using Bit.Core.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security;
+﻿using Bit.Core.Utilities;
+#if NET461
 using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
+#endif
 
 namespace Bit.Core.Services
 {
@@ -17,7 +11,9 @@ namespace Bit.Core.Services
 
         private ControllerService()
         {
+#if NET461
             Controller = new ServiceController(Constants.ProgramName);
+#endif
         }
 
         public static ControllerService Instance
@@ -33,6 +29,7 @@ namespace Bit.Core.Services
             }
         }
 
+#if NET461
         public ServiceController Controller { get; private set; }
         public ServiceControllerStatus Status
         {
@@ -42,7 +39,6 @@ namespace Bit.Core.Services
                 return Controller.Status;
             }
         }
-        public string StatusString => Controller == null ? "Unavailable" : Status.ToString();
         public bool Running => Status == ServiceControllerStatus.Running;
         public bool Paused => Status == ServiceControllerStatus.Paused;
         public bool Stopped => Status == ServiceControllerStatus.Stopped;
@@ -51,9 +47,23 @@ namespace Bit.Core.Services
             Status == ServiceControllerStatus.PausePending ||
             Status == ServiceControllerStatus.StartPending ||
             Status == ServiceControllerStatus.StopPending;
+#endif
+        public string StatusString
+        {
+            get
+            {
+#if NET461
+                return Controller == null ? "Unavailable" : Status.ToString();
+#else
+                return "Unavailable";
+#endif
+            }
+        }
+
 
         public bool Start()
         {
+#if NET461
             if(Controller == null || !Stopped)
             {
                 return false;
@@ -61,17 +71,25 @@ namespace Bit.Core.Services
 
             Controller.Start();
             return true;
+#else
+            throw new System.Exception("Controller unavailable.");
+#endif
         }
 
         public bool Stop()
         {
+#if NET461
             if(Controller == null || !Controller.CanStop)
             {
                 return false;
             }
 
             Controller.Stop();
+
             return true;
+#else
+            throw new System.Exception("Controller unavailable.");
+#endif
         }
     }
 }

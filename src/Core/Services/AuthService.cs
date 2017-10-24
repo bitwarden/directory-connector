@@ -1,11 +1,7 @@
 ﻿using Bit.Core.Enums;
 using Bit.Core.Models;
 using Bit.Core.Utilities;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bit.Core.Services

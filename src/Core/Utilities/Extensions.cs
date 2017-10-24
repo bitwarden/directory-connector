@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
+#if NET461
 using System.DirectoryServices;
+#endif
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bit.Core.Utilities
 {
@@ -23,6 +21,7 @@ namespace Bit.Core.Utilities
             return date.ToString("yyyyMMddHHmmss.f'Z'");
         }
 
+#if NET461
         public static DateTime? ParseDateTime(this ResultPropertyCollection collection, string dateKey)
         {
             DateTime date;
@@ -34,6 +33,7 @@ namespace Bit.Core.Utilities
 
             return null;
         }
+#endif
 
         public static NameValueCollection ParseQueryString(this Uri uri)
         {

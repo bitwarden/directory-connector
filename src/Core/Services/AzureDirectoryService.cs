@@ -3,8 +3,6 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.Graph;
-using System.Net.Http.Headers;
-using System.Diagnostics;
 using System.Linq;
 using Bit.Core.Utilities;
 

@@ -110,7 +110,11 @@ namespace Bit.Core.Utilities
                 case Enums.DirectoryType.GSuite:
                     return GSuiteDirectoryService.Instance;
                 default:
+#if NET461
                     return LdapDirectoryService.Instance;
+#else
+                    throw new Exception("LdapDirectoryService not supported.");
+#endif
             }
         }
 

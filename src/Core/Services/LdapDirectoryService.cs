@@ -1,4 +1,5 @@
-﻿using Bit.Core.Enums;
+﻿#if NET461
+using Bit.Core.Enums;
 using Bit.Core.Models;
 using Bit.Core.Utilities;
 using System;
@@ -397,3 +398,4 @@ namespace Bit.Core.Services
         }
     }
 }
+#endif

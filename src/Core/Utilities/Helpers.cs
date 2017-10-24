@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Security.Principal;
 
 namespace Bit.Core.Utilities
 {
@@ -11,9 +6,13 @@ namespace Bit.Core.Utilities
     {
         public static bool IsAdministrator()
         {
+#if NET461
             var identity = WindowsIdentity.GetCurrent();
             var principal = new WindowsPrincipal(identity);
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
+#else
+            return false;
+#endif
         }
     }
 }

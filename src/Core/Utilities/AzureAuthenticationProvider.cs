@@ -23,11 +23,5 @@ namespace Bit.Core.Utilities
             var authResult = await authContext.AcquireTokenAsync("https://graph.microsoft.com/", creds);
             request.Headers.Add("Authorization", $"Bearer {authResult.AccessToken}");
         }
-
-        // ref: https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/511
-        private static void SomeMethodToLinkPlatform()
-        {
-            var creds = new UserPasswordCredential("user", "pass");
-        }
     }
 }

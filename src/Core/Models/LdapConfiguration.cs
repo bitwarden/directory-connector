@@ -1,11 +1,8 @@
 ﻿using Bit.Core.Services;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
+#if NET461
 using System.DirectoryServices;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+#endif
 
 namespace Bit.Core.Models
 {
@@ -18,6 +15,7 @@ namespace Bit.Core.Models
         public EncryptedData Password { get; set; }
         public Enums.DirectoryType Type { get; set; } = Enums.DirectoryType.ActiveDirectory;
 
+#if NET461
         public DirectoryEntry GetUserDirectoryEntry()
         {
             return GetPathedDirectoryEntry(SettingsService.Instance.Sync.Ldap.UserPath);
@@ -56,6 +54,7 @@ namespace Bit.Core.Models
                 return new DirectoryEntry(ServerPath(path), Username, Password.DecryptToString(), AuthenticationTypes.None);
             }
         }
+#endif
 
         private string ServerPath(string path)
         {

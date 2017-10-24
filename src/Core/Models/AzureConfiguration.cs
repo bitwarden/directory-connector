@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.DirectoryServices;
-
-namespace Bit.Core.Models
+﻿namespace Bit.Core.Models
 {
     public class AzureConfiguration
     {
