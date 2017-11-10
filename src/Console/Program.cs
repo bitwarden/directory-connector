@@ -62,7 +62,8 @@ namespace Bit.Console
                     Con.WriteLine("6. Sync directory");
                     Con.WriteLine("7. Control background service");
                     Con.WriteLine("8. Configure environment");
-                    Con.WriteLine("9. Exit");
+                    Con.WriteLine("9. Clear sync cache");
+                    Con.WriteLine("10. Exit");
                     Con.WriteLine();
                     Con.Write("What would you like to do? ");
                     selection = Con.ReadLine();
@@ -112,14 +113,15 @@ namespace Bit.Console
                         await ConfigEnvironmentAsync();
                         break;
                     case "9":
+                    case "cache":
+                    case "clearcache":
+                        await ClearCacheAsync();
+                        break;
+                    case "10":
                     case "exit":
                     case "quit":
                     case "q":
                         _exit = true;
-                        break;
-                    case "cache":
-                    case "clearcache":
-                        await ClearCacheAsync();
                         break;
                     default:
                         Con.WriteLine("Unknown command.");
