@@ -18,8 +18,8 @@ namespace Bit.Core.Utilities
 
             var authContext = new AuthenticationContext(
                 $"https://login.windows.net/{SettingsService.Instance.Server.Azure.Tenant}/oauth2/token");
-            var creds = new ClientCredential(SettingsService.Instance.Server.Azure.Id,
-                SettingsService.Instance.Server.Azure.Secret.DecryptToString());
+            var secret = SettingsService.Instance.Server.Azure.Secret.DecryptToString();
+            var creds = new ClientCredential(SettingsService.Instance.Server.Azure.Id, secret);
             var authResult = await authContext.AcquireTokenAsync("https://graph.microsoft.com/", creds);
             request.Headers.Add("Authorization", $"Bearer {authResult.AccessToken}");
         }

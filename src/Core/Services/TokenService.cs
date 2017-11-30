@@ -38,7 +38,7 @@ namespace Bit.Core.Services
                 }
 
                 var encBytes = SettingsService.Instance.AccessToken;
-                if(encBytes != null)
+                if(encBytes?.Value != null)
                 {
                     _accessToken = Encoding.ASCII.GetString(encBytes.Decrypt());
                 }
