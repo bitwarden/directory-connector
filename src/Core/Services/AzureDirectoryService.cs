@@ -88,10 +88,11 @@ namespace Bit.Core.Services
             var entries = new List<GroupEntry>();
             var changedGroupIds = new List<string>();
             var getFullResults = SettingsService.Instance.GroupDeltaToken == null || force;
+            var filter = CreateSetFromFilter(SettingsService.Instance.Sync.GroupFilter);
 
             try
             {
-                var delataRequest = _graphClient.Groups.Delta().Request().Filter(SettingsService.Instance.Sync.GroupFilter);
+                var delataRequest = _graphClient.Groups.Delta().Request();
                 if(!getFullResults)
                 {
                     delataRequest.QueryOptions.Add(new QueryOption("$deltatoken", SettingsService.Instance.GroupDeltaToken));
@@ -104,6 +105,11 @@ namespace Bit.Core.Services
                     {
                         foreach(var group in groupsDelta)
                         {
+                            if(FilterOutResult(filter, group.DisplayName))
+                            {
+                                continue;
+                            }
+
                             var entry = await BuildGroupAsync(group);
                             entries.Add(entry);
                         }
@@ -139,11 +145,16 @@ namespace Bit.Core.Services
                 return entries;
             }
 
-            var groups = await _graphClient.Groups.Request().Filter(SettingsService.Instance.Sync.GroupFilter).GetAsync();
+            var groups = await _graphClient.Groups.Request().GetAsync();
             while(true)
             {
                 foreach(var group in groups)
                 {
+                    if(FilterOutResult(filter, group.DisplayName))
+                    {
+                        continue;
+                    }
+
                     var entry = await BuildGroupAsync(group);
                     entries.Add(entry);
                 }
@@ -209,6 +220,7 @@ namespace Bit.Core.Services
             }
 
             var entries = new List<UserEntry>();
+            var filter = CreateSetFromFilter(SettingsService.Instance.Sync.UserFilter);
 
             var userRequest = _graphClient.Users.Delta();
             IUserDeltaCollectionPage users = null;
@@ -217,7 +229,7 @@ namespace Bit.Core.Services
             {
                 try
                 {
-                    var delataRequest = userRequest.Request().Filter(SettingsService.Instance.Sync.UserFilter);
+                    var delataRequest = userRequest.Request();
                     delataRequest.QueryOptions.Add(new QueryOption("$deltatoken", SettingsService.Instance.UserDeltaToken));
                     users = await delataRequest.GetAsync();
                 }
@@ -229,7 +241,7 @@ namespace Bit.Core.Services
 
             if(users == null)
             {
-                users = await userRequest.Request().Filter(SettingsService.Instance.Sync.UserFilter).GetAsync();
+                users = await userRequest.Request().GetAsync();
             }
 
             while(true)
@@ -244,8 +256,12 @@ namespace Bit.Core.Services
                         Disabled = !user.AccountEnabled.GetValueOrDefault(true)
                     };
 
-                    object deleted;
-                    if(user.AdditionalData.TryGetValue("@removed", out deleted) && deleted.ToString().Contains("changed"))
+                    if(FilterOutResult(filter, entry.Email))
+                    {
+                        continue;
+                    }
+
+                    if(user.AdditionalData.TryGetValue("@removed", out object deleted) && deleted.ToString().Contains("changed"))
                     {
                         entry.Deleted = true;
                     }
@@ -259,8 +275,7 @@ namespace Bit.Core.Services
 
                 if(users.NextPageRequest == null)
                 {
-                    object deltaLink;
-                    if(users.AdditionalData.TryGetValue("@odata.deltaLink", out deltaLink))
+                    if(users.AdditionalData.TryGetValue("@odata.deltaLink", out object deltaLink))
                     {
                         var deltaUriQuery = new Uri(deltaLink.ToString()).ParseQueryString();
                         if(deltaUriQuery["$deltatoken"] != null)
@@ -277,6 +292,56 @@ namespace Bit.Core.Services
             }
 
             return entries;
+        }
+
+        private static Tuple<bool, HashSet<string>> CreateSetFromFilter(string filter)
+        {
+            if(string.IsNullOrWhiteSpace(filter))
+            {
+                return null;
+            }
+
+            var parts = filter.Split(':');
+            if(parts.Length != 2)
+            {
+                return null;
+            }
+
+            var exclude = true;
+            if(string.Equals(parts[0].Trim(), "include", StringComparison.InvariantCultureIgnoreCase))
+            {
+                exclude = false;
+            }
+            else if(string.Equals(parts[0].Trim(), "exclude", StringComparison.InvariantCultureIgnoreCase))
+            {
+                exclude = true;
+            }
+            else
+            {
+                return null;
+            }
+
+            var list = new HashSet<string>(parts[1].Split(',').Select(p => p.Trim()));
+            return new Tuple<bool, HashSet<string>>(exclude, list);
+        }
+
+        private static bool FilterOutResult(Tuple<bool, HashSet<string>> filter, string result)
+        {
+            if(filter != null)
+            {
+                // excluded
+                if(filter.Item1 && filter.Item2.Contains(result, StringComparer.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+                // included
+                else if(!filter.Item1 && !filter.Item2.Contains(result, StringComparer.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
