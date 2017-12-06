@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+    <TargetFramework>net461</TargetFramework>
     <RootNamespace>Bit.Console</RootNamespace>
   </PropertyGroup>
 
