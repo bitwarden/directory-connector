@@ -84,7 +84,7 @@ namespace Bit.Core.Services
                 throw new ApplicationException("Not authenticated.");
             }
 
-            var entry = SettingsService.Instance.Server.Ldap.GetGroupDirectoryEntry();
+            var groupEntry = SettingsService.Instance.Server.Ldap.GetGroupDirectoryEntry();
 
             var originalFilter = BuildBaseFilter(SettingsService.Instance.Sync.Ldap.GroupObjectClass,
                 SettingsService.Instance.Sync.GroupFilter);
@@ -94,8 +94,8 @@ namespace Bit.Core.Services
             var searchSinceRevision = filter != revisionFilter;
             filter = revisionFilter;
 
-            Console.WriteLine("Group search: {0} => {1}", entry.Path, filter);
-            var searcher = new DirectorySearcher(entry, filter);
+            Console.WriteLine("Group search: {0} => {1}", groupEntry.Path, filter);
+            var searcher = new DirectorySearcher(groupEntry, filter);
             var result = searcher.FindAll();
 
             var initialSearchGroupIds = new List<string>();
@@ -110,13 +110,14 @@ namespace Bit.Core.Services
             }
             else if(searchSinceRevision)
             {
-                searcher = new DirectorySearcher(entry, originalFilter);
+                searcher = new DirectorySearcher(groupEntry, originalFilter);
                 result = searcher.FindAll();
             }
 
+            var userEntry = SettingsService.Instance.Server.Ldap.GetUserDirectoryEntry();
             var userFilter = BuildBaseFilter(SettingsService.Instance.Sync.Ldap.UserObjectClass,
                 SettingsService.Instance.Sync.UserFilter);
-            var userSearcher = new DirectorySearcher(entry, userFilter);
+            var userSearcher = new DirectorySearcher(userEntry, userFilter);
             var userResult = userSearcher.FindAll();
 
             var userIdsDict = MakeIdIndex(userResult);
@@ -238,13 +239,13 @@ namespace Bit.Core.Services
                 throw new ApplicationException("Not authenticated.");
             }
 
-            var entry = SettingsService.Instance.Server.Ldap.GetUserDirectoryEntry();
+            var userEntry = SettingsService.Instance.Server.Ldap.GetUserDirectoryEntry();
             var filter = BuildBaseFilter(SettingsService.Instance.Sync.Ldap.UserObjectClass,
                 SettingsService.Instance.Sync.UserFilter);
             filter = BuildRevisionFilter(filter, force, SettingsService.Instance.LastUserSyncDate);
 
-            Console.WriteLine("User search: {0} => {1}", entry.Path, filter);
-            var searcher = new DirectorySearcher(entry, filter);
+            Console.WriteLine("User search: {0} => {1}", userEntry.Path, filter);
+            var searcher = new DirectorySearcher(userEntry, filter);
             var result = searcher.FindAll();
 
             var users = new List<UserEntry>();
