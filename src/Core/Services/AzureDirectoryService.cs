@@ -57,13 +57,20 @@ namespace Bit.Core.Services
             List<GroupEntry> groups = null;
             if(SettingsService.Instance.Sync.SyncGroups)
             {
-                groups = await GetGroupsAsync(force || (users?.Any(u => !u.Deleted && !u.Disabled) ?? false));
+                var filter = CreateSetFromFilter(SettingsService.Instance.Sync.GroupFilter);
+                groups = await GetGroupsAsync(force || (users?.Any(u => !u.Deleted && !u.Disabled) ?? false), filter);
+
+                if(filter != null && users != null)
+                {
+                    users = users.Where(u => u.Disabled || u.Deleted || 
+                        groups.Any(g => g.UserMemberExternalIds.Contains(u.ExternalId))).ToList();
+                }
             }
 
             return new Tuple<List<GroupEntry>, List<UserEntry>>(groups, users);
         }
 
-        private async static Task<List<GroupEntry>> GetGroupsAsync(bool force = false)
+        private async static Task<List<GroupEntry>> GetGroupsAsync(bool force, Tuple<bool, HashSet<string>> filter)
         {
             if(!SettingsService.Instance.Sync.SyncGroups)
             {
@@ -88,7 +95,6 @@ namespace Bit.Core.Services
             var entries = new List<GroupEntry>();
             var changedGroupIds = new List<string>();
             var getFullResults = SettingsService.Instance.GroupDeltaToken == null || force;
-            var filter = CreateSetFromFilter(SettingsService.Instance.Sync.GroupFilter);
 
             try
             {
@@ -140,7 +146,7 @@ namespace Bit.Core.Services
             }
             catch { }
 
-            if(getFullResults || (!getFullResults && !changedGroupIds.Any()))
+            if(getFullResults || !changedGroupIds.Any())
             {
                 return entries;
             }
@@ -197,7 +203,7 @@ namespace Bit.Core.Services
             return entry;
         }
 
-        private async static Task<List<UserEntry>> GetUsersAsync(bool force = false)
+        private async static Task<List<UserEntry>> GetUsersAsync(bool force)
         {
             if(!SettingsService.Instance.Sync.SyncUsers)
             {
