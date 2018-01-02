@@ -1132,7 +1132,7 @@ namespace Bit.Console
                     continue;
                 }
 
-                dict.Add(_args[i].Substring(1), _args[i + 1]);
+                dict.Add(_args[i].Substring(1), _args[i]);
             }
 
             return dict;
