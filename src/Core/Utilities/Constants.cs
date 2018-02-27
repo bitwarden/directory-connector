@@ -10,7 +10,7 @@ namespace Bit.Core.Utilities
     {
         public static string BaseStoragePath = string.Concat(
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "\\bitwarden\\Directory Connector");
+            "\\Bitwarden\\Directory Connector");
 
         public const string ProgramName = "Bitwarden Directory Connector";
     }
