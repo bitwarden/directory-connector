@@ -54,7 +54,7 @@ namespace Bit.Console
                 {
                     Con.WriteLine("Main Menu");
                     Con.WriteLine("=================================");
-                    Con.WriteLine("1. Log in to bitwarden");
+                    Con.WriteLine("1. Log in to Bitwarden");
                     Con.WriteLine("2. Log out");
                     Con.WriteLine("3. Configure directory connection");
                     Con.WriteLine("4. Configure sync");

@@ -34,7 +34,7 @@ namespace Service
             _serviceProcessInstaller.BeforeInstall += new InstallEventHandler(BeforeInstalled);
 
             _serviceInstaller.ServiceName = Constants.ProgramName;
-            _serviceInstaller.Description = "Sync directory groups and users to your bitwarden organization.";
+            _serviceInstaller.Description = "Sync directory groups and users to your Bitwarden organization.";
             Installers.AddRange(new System.Configuration.Install.Installer[] { _serviceProcessInstaller, _serviceInstaller });
         }
 
