@@ -356,7 +356,7 @@ namespace Bit.Console
                 var parameters = ParseParameters();
                 if(parameters.ContainsKey("t"))
                 {
-                    Core.Enums.DirectoryType dirType;
+                    DirectoryType dirType;
                     if(Enum.TryParse(parameters["t"], out dirType))
                     {
                         config.Type = dirType;
@@ -368,7 +368,7 @@ namespace Bit.Console
                     }
                 }
 
-                if(config.Type == Core.Enums.DirectoryType.AzureActiveDirectory)
+                if(config.Type == DirectoryType.AzureActiveDirectory)
                 {
                     config.Azure = new AzureConfiguration();
 
@@ -387,7 +387,7 @@ namespace Bit.Console
                         config.Azure.Tenant = parameters["te"];
                     }
                 }
-                else if(config.Type == Core.Enums.DirectoryType.GSuite)
+                else if(config.Type == DirectoryType.GSuite)
                 {
                     config.GSuite = new GSuiteConfiguration();
 
@@ -461,13 +461,13 @@ namespace Bit.Console
                 string currentType;
                 switch(config.Type)
                 {
-                    case Core.Enums.DirectoryType.ActiveDirectory:
+                    case DirectoryType.ActiveDirectory:
                         currentType = "1";
                         break;
-                    case Core.Enums.DirectoryType.AzureActiveDirectory:
+                    case DirectoryType.AzureActiveDirectory:
                         currentType = "2";
                         break;
-                    case Core.Enums.DirectoryType.GSuite:
+                    case DirectoryType.GSuite:
                         currentType = "3";
                         break;
                     default:
@@ -482,21 +482,21 @@ namespace Bit.Console
                     switch(input)
                     {
                         case "1":
-                            config.Type = Core.Enums.DirectoryType.ActiveDirectory;
+                            config.Type = DirectoryType.ActiveDirectory;
                             break;
                         case "2":
-                            config.Type = Core.Enums.DirectoryType.AzureActiveDirectory;
+                            config.Type = DirectoryType.AzureActiveDirectory;
                             break;
                         case "3":
-                            config.Type = Core.Enums.DirectoryType.GSuite;
+                            config.Type = DirectoryType.GSuite;
                             break;
                         default:
-                            config.Type = Core.Enums.DirectoryType.Other;
+                            config.Type = DirectoryType.Other;
                             break;
                     }
                 }
 
-                if(config.Type == Core.Enums.DirectoryType.AzureActiveDirectory)
+                if(config.Type == DirectoryType.AzureActiveDirectory)
                 {
                     config.Azure = config.Azure ?? new AzureConfiguration();
 
@@ -520,7 +520,7 @@ namespace Bit.Console
                         input = null;
                     }
                 }
-                else if(config.Type == Core.Enums.DirectoryType.GSuite)
+                else if(config.Type == DirectoryType.GSuite)
                 {
                     config.GSuite = config.GSuite ?? new GSuiteConfiguration();
 
@@ -651,8 +651,8 @@ namespace Bit.Console
 
                 config.RemoveDisabledUsers = parameters.ContainsKey("rd");
 
-                if(SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.ActiveDirectory ||
-                    SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.Other)
+                if(SettingsService.Instance.Server.Type == DirectoryType.ActiveDirectory ||
+                    SettingsService.Instance.Server.Type == DirectoryType.Other)
                 {
                     if(parameters.ContainsKey("go"))
                     {
@@ -718,8 +718,8 @@ namespace Bit.Console
                 {
                     config.SyncGroups = input == "y" || input == "yes";
                 }
-                if(config.SyncGroups && (SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.ActiveDirectory ||
-                    SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.Other))
+                if(config.SyncGroups && (SettingsService.Instance.Server.Type == DirectoryType.ActiveDirectory ||
+                    SettingsService.Instance.Server.Type == DirectoryType.Other))
                 {
                     Con.Write("Group path [{0}]: ", config.Ldap.GroupPath);
                     input = Con.ReadLine();
@@ -762,8 +762,8 @@ namespace Bit.Console
                 {
                     config.SyncUsers = input == "y" || input == "yes";
                 }
-                if(config.SyncUsers && (SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.ActiveDirectory ||
-                    SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.Other))
+                if(config.SyncUsers && (SettingsService.Instance.Server.Type == DirectoryType.ActiveDirectory ||
+                    SettingsService.Instance.Server.Type == DirectoryType.Other))
                 {
                     Con.Write("User path [{0}]: ", config.Ldap.UserPath);
                     input = Con.ReadLine();
@@ -823,8 +823,8 @@ namespace Bit.Console
                     }
                 }
 
-                if(SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.ActiveDirectory ||
-                    SettingsService.Instance.Server.Type == Core.Enums.DirectoryType.Other)
+                if(SettingsService.Instance.Server.Type == DirectoryType.ActiveDirectory ||
+                    SettingsService.Instance.Server.Type == DirectoryType.Other)
                 {
                     Con.Write("Creation Attribute [{0}]: ", config.Ldap.CreationDateAttribute);
                     input = Con.ReadLine();
