@@ -214,6 +214,7 @@ namespace Bit.Console
                     {
                         Con.WriteLine("{0}. {1}{2}", i + 1, result.TwoFactorProviders.ElementAt(i).Key,
                             result.TwoFactorProviders.ElementAt(i).Key == TwoFactorProviderType.Duo ||
+                            result.TwoFactorProviders.ElementAt(i).Key == TwoFactorProviderType.OrganizationDuo ||
                                 result.TwoFactorProviders.ElementAt(i).Key == TwoFactorProviderType.U2f ?
                                 " - not supported" : string.Empty);
                     }
@@ -260,8 +261,8 @@ namespace Bit.Console
                 }
                 else
                 {
-                    Con.WriteLine("The selected two-step login method is not supported on this platform/application. " +
-                        "Use a different two step-login method.");
+                    Con.WriteLine("The selected two-step login method is not supported on this " +
+                        "platform/application. Use a different two step-login method.");
                     readingTokenInput = false;
                 }
 
