@@ -1,0 +1,118 @@
+﻿@import "variables.scss";
+
+#login-page, #lock-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+
+    @media (min-height: 500px) {
+        height: calc(100% + 50px);
+        margin-top: -50px;
+    }
+
+    @media (min-height: 800px) {
+        height: calc(100% + 300px);
+        margin-top: -300px;
+    }
+
+    img {
+        margin: 0 auto 15px;
+        width: 282px;
+        display: block;
+    }
+}
+
+#register-page, #hint-page, #two-factor-page {
+    padding-top: 20px;
+
+    .content {
+        margin: 0 auto;
+    }
+
+    img {
+        margin-bottom: 10px;
+        max-width: 100%;
+        height: auto;
+        display: block;
+        border-radius: $border-radius;
+    }
+}
+
+#login-page, #register-page, #hint-page, #two-factor-page, #lock-page {
+    .content {
+        width: 300px;
+
+        p {
+            text-align: center
+        }
+
+        p.lead, h1 {
+            font-size: $font-size-large;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        .box {
+            margin-bottom: 20px;
+
+            &.last {
+                margin-bottom: 15px;
+            }
+        }
+
+        .buttons {
+            display: flex;
+            margin-bottom: 20px;
+
+            button {
+                margin-right: 10px;
+
+                &:last-child {
+                    margin-right: 0;
+                }
+            }
+        }
+
+        .sub-options {
+            text-align: center;
+            margin-bottom: 20px;
+
+            a {
+                display: block;
+                margin-bottom: 10px;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        a.settings-icon {
+            color: #bbbbbb;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+
+            span {
+                visibility: hidden;
+            }
+
+            &:hover, &:focus {
+                color: $brand-primary;
+                text-decoration: none;
+
+                span {
+                    visibility: visible;
+                }
+            }
+        }
+    }
+}
+
+#register-page {
+    .content {
+        width: 400px;
+    }
+}
