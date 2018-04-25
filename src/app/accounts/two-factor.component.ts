@@ -34,10 +34,10 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     constructor(authService: AuthService, router: Router,
         analytics: Angulartics2, toasterService: ToasterService,
         i18nService: I18nService, apiService: ApiService,
-        platformUtilsService: PlatformUtilsService, syncService: SyncService,
-        environmentService: EnvironmentService, private componentFactoryResolver: ComponentFactoryResolver) {
+        platformUtilsService: PlatformUtilsService, environmentService: EnvironmentService,
+        private componentFactoryResolver: ComponentFactoryResolver) {
         super(authService, router, analytics, toasterService, i18nService, apiService,
-            platformUtilsService, syncService, window, environmentService);
+            platformUtilsService, window, environmentService);
     }
 
     anotherMethod() {

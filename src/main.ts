@@ -2,9 +2,9 @@ import { app, BrowserWindow } from 'electron';
 import * as path from 'path';
 
 // import { ElectronMainMessagingService } from 'jslib/electron/services/desktopMainMessaging.service';
-import { I18nService } from 'jslib/services/i18n.service';
 
 import { MessagingMain } from './main/messaging.main';
+import { I18nService } from './services/i18n.service';
 
 import { ElectronLogService } from 'jslib/electron/services/electronLog.service';
 import { ElectronStorageService } from 'jslib/electron/services/electronStorage.service';
@@ -43,7 +43,7 @@ export class Main {
         }
 
         this.logService = new ElectronLogService(null, app.getPath('userData'));
-        // this.i18nService = new I18nService('en', './locales/');
+        this.i18nService = new I18nService('en', './locales/');
         this.storageService = new ElectronStorageService();
         // this.messagingService = new DesktopMainMessagingService(this);
 

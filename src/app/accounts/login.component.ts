@@ -27,9 +27,8 @@ export class LoginComponent extends BaseLoginComponent {
 
     constructor(authService: AuthService, router: Router,
         analytics: Angulartics2, toasterService: ToasterService,
-        i18nService: I18nService, syncService: SyncService,
-        private componentFactoryResolver: ComponentFactoryResolver) {
-        super(authService, router, analytics, toasterService, i18nService, syncService);
+        i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver) {
+        super(authService, router, analytics, toasterService, i18nService);
     }
 
     settings() {
