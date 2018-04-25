@@ -3,9 +3,11 @@ import * as path from 'path';
 
 // import { ElectronMainMessagingService } from 'jslib/electron/services/desktopMainMessaging.service';
 
+import { MenuMain } from './main/menu.main';
 import { MessagingMain } from './main/messaging.main';
 import { I18nService } from './services/i18n.service';
 
+import { KeytarStorageListener } from 'jslib/electron/keytarStorageListener';
 import { ElectronLogService } from 'jslib/electron/services/electronLog.service';
 import { ElectronStorageService } from 'jslib/electron/services/electronStorage.service';
 import { WindowMain } from 'jslib/electron/window.main';
@@ -14,9 +16,11 @@ export class Main {
     logService: ElectronLogService;
     i18nService: I18nService;
     storageService: ElectronStorageService;
+    keytarStorageListener: KeytarStorageListener;
 
     windowMain: WindowMain;
     messagingMain: MessagingMain;
+    menuMain: MenuMain;
 
     constructor() {
         // Set paths for portable builds
@@ -48,12 +52,17 @@ export class Main {
         // this.messagingService = new DesktopMainMessagingService(this);
 
         this.windowMain = new WindowMain(this.storageService);
-        this.messagingMain = new MessagingMain(this);
+        this.menuMain = new MenuMain(this);
+        this.messagingMain = new MessagingMain(this.windowMain);
+
+        this.keytarStorageListener = new KeytarStorageListener('Bitwarden Directory Connector');
     }
 
     bootstrap() {
+        this.keytarStorageListener.init();
         this.windowMain.init().then(async () => {
             await this.i18nService.init(app.getLocale());
+            this.menuMain.init();
             this.messagingMain.init();
         }, (e: any) => {
             // tslint:disable-next-line
