@@ -38,6 +38,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
         private componentFactoryResolver: ComponentFactoryResolver) {
         super(authService, router, analytics, toasterService, i18nService, apiService,
             platformUtilsService, window, environmentService);
+        super.successRoute = '/dashboard';
     }
 
     anotherMethod() {

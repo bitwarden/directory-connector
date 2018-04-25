@@ -12,9 +12,11 @@ import { ElectronRendererSecureStorageService } from 'jslib/electron/services/el
 import { ElectronStorageService } from 'jslib/electron/services/electronStorage.service';
 import { isDev } from 'jslib/electron/utils';
 
-import { I18nService } from '../services/i18n.service';
+import { AuthGuardService } from './auth-guard.service';
+import { LaunchGuardService } from './launch-guard.service';
 
-import { AuthGuardService } from 'jslib/angular/services/auth-guard.service';
+import { I18nService } from '../../services/i18n.service';
+
 import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
 import { ValidationService } from 'jslib/angular/services/validation.service';
 
@@ -31,6 +33,7 @@ import { NodeCryptoFunctionService } from 'jslib/services/nodeCryptoFunction.ser
 import { StateService } from 'jslib/services/state.service';
 import { TokenService } from 'jslib/services/token.service';
 import { UserService } from 'jslib/services/user.service';
+import { WebCryptoFunctionService } from 'jslib/services/webCryptoFunction.service';
 
 import { ApiService as ApiServiceAbstraction } from 'jslib/abstractions/api.service';
 import { AppIdService as AppIdServiceAbstraction } from 'jslib/abstractions/appId.service';
@@ -55,7 +58,8 @@ const broadcasterService = new BroadcasterService();
 const messagingService = new ElectronRendererMessagingService(broadcasterService);
 const storageService: StorageServiceAbstraction = new ElectronStorageService();
 const secureStorageService: StorageServiceAbstraction = new ElectronRendererSecureStorageService();
-const cryptoFunctionService: CryptoFunctionServiceAbstraction = new NodeCryptoFunctionService();
+const cryptoFunctionService: CryptoFunctionServiceAbstraction = new WebCryptoFunctionService(window,
+    platformUtilsService);
 const cryptoService = new CryptoService(storageService, secureStorageService, cryptoFunctionService);
 const appIdService = new AppIdService(storageService);
 const tokenService = new TokenService(storageService);
@@ -104,6 +108,7 @@ export function initFactory(): Function {
     providers: [
         ValidationService,
         AuthGuardService,
+        LaunchGuardService,
         { provide: AuthServiceAbstraction, useValue: authService },
         { provide: EnvironmentServiceAbstraction, useValue: environmentService },
         { provide: TokenServiceAbstraction, useValue: tokenService },
