@@ -68,10 +68,10 @@ const apiService = new ApiService(tokenService, platformUtilsService,
 const environmentService = new EnvironmentService(apiService, storageService);
 const userService = new UserService(tokenService, storageService);
 const containerService = new ContainerService(cryptoService, platformUtilsService);
-const authService = new AuthService(cryptoService, apiService,
-    userService, tokenService, appIdService, i18nService, platformUtilsService, messagingService);
+const authService = new AuthService(cryptoService, apiService, userService, tokenService, appIdService,
+    i18nService, platformUtilsService, messagingService, false);
 
-const analytics = new Analytics(window, () => isDev(), platformUtilsService, storageService, appIdService);
+const analytics = new Analytics(window, () => true, platformUtilsService, storageService, appIdService);
 containerService.attachToWindow(window);
 environmentService.setUrlsFromStorage().then(() => {
     // Do nothing
