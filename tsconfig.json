@@ -21,6 +21,7 @@
   "exclude": [
     "node_modules",
     "jslib/node_modules",
+    "jslib/src/services/webCryptoFunction.service.ts",
     "dist",
     "jslib/dist",
     "build",
