@@ -33,7 +33,6 @@ import { NodeCryptoFunctionService } from 'jslib/services/nodeCryptoFunction.ser
 import { StateService } from 'jslib/services/state.service';
 import { TokenService } from 'jslib/services/token.service';
 import { UserService } from 'jslib/services/user.service';
-import { WebCryptoFunctionService } from 'jslib/services/webCryptoFunction.service';
 
 import { ApiService as ApiServiceAbstraction } from 'jslib/abstractions/api.service';
 import { AppIdService as AppIdServiceAbstraction } from 'jslib/abstractions/appId.service';
@@ -58,8 +57,7 @@ const broadcasterService = new BroadcasterService();
 const messagingService = new ElectronRendererMessagingService(broadcasterService);
 const storageService: StorageServiceAbstraction = new ElectronStorageService();
 const secureStorageService: StorageServiceAbstraction = new ElectronRendererSecureStorageService();
-const cryptoFunctionService: CryptoFunctionServiceAbstraction = new WebCryptoFunctionService(window,
-    platformUtilsService);
+const cryptoFunctionService: CryptoFunctionServiceAbstraction = new NodeCryptoFunctionService();
 const cryptoService = new CryptoService(storageService, secureStorageService, cryptoFunctionService);
 const appIdService = new AppIdService(storageService);
 const tokenService = new TokenService(storageService);
