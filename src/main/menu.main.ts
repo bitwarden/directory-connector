@@ -1,24 +1,12 @@
 import {
-    app,
-    BrowserWindow,
-    clipboard,
-    dialog,
-    ipcMain,
     Menu,
     MenuItem,
     MenuItemConstructorOptions,
-    shell,
 } from 'electron';
 
 import { Main } from '../main';
 
 import { BaseMenu } from 'jslib/electron/baseMenu';
-import { WindowMain } from 'jslib/electron/window.main';
-
-import { ConstantsService } from 'jslib/services/constants.service';
-
-import { I18nService } from 'jslib/abstractions/i18n.service';
-import { MessagingService } from 'jslib/abstractions/messaging.service';
 
 export class MenuMain extends BaseMenu {
     menu: Menu;
