@@ -1,14 +1,13 @@
 import { app, BrowserWindow } from 'electron';
 import * as path from 'path';
 
-// import { ElectronMainMessagingService } from 'jslib/electron/services/desktopMainMessaging.service';
-
 import { MenuMain } from './main/menu.main';
 import { MessagingMain } from './main/messaging.main';
 import { I18nService } from './services/i18n.service';
 
 import { KeytarStorageListener } from 'jslib/electron/keytarStorageListener';
 import { ElectronLogService } from 'jslib/electron/services/electronLog.service';
+import { ElectronMainMessagingService } from 'jslib/electron/services/electronMainMessaging.service';
 import { ElectronStorageService } from 'jslib/electron/services/electronStorage.service';
 import { WindowMain } from 'jslib/electron/window.main';
 
@@ -16,6 +15,7 @@ export class Main {
     logService: ElectronLogService;
     i18nService: I18nService;
     storageService: ElectronStorageService;
+    messagingService: ElectronMainMessagingService;
     keytarStorageListener: KeytarStorageListener;
 
     windowMain: WindowMain;
@@ -49,11 +49,13 @@ export class Main {
         this.logService = new ElectronLogService(null, app.getPath('userData'));
         this.i18nService = new I18nService('en', './locales/');
         this.storageService = new ElectronStorageService();
-        // this.messagingService = new DesktopMainMessagingService(this);
 
         this.windowMain = new WindowMain(this.storageService);
-        this.menuMain = new MenuMain(this);
         this.messagingMain = new MessagingMain(this.windowMain);
+        this.menuMain = new MenuMain(this);
+        this.messagingService = new ElectronMainMessagingService(this.windowMain, (message) => {
+            this.messagingMain.onMessage(message);
+        });
 
         this.keytarStorageListener = new KeytarStorageListener('Bitwarden Directory Connector');
     }

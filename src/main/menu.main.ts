@@ -22,7 +22,7 @@ export class MenuMain extends BaseMenu {
 
     constructor(private main: Main) {
         super(main.i18nService, main.windowMain, main.i18nService.t('bitwardenDirectoryConnector'),
-            () => { /* TODO: Log Out Message */ });
+            () => this.main.messagingService.send('logout'));
     }
 
     init() {
@@ -39,14 +39,10 @@ export class MenuMain extends BaseMenu {
     }
 
     private initApplicationMenu() {
-        const accountSubmenu: MenuItemConstructorOptions[] = [
-            this.logOutMenuItemOptions,
-        ];
-
         const template: MenuItemConstructorOptions[] = [
             {
                 label: this.i18nService.t('file'),
-                submenu: [ this.logOutMenuItemOptions ],
+                submenu: [this.logOutMenuItemOptions],
             },
             this.editMenuItemOptions,
             {
