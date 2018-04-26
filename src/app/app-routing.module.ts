@@ -9,7 +9,9 @@ import { LaunchGuardService } from './services/launch-guard.service';
 
 import { LoginComponent } from './accounts/login.component';
 import { TwoFactorComponent } from './accounts/two-factor.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { DashboardComponent } from './tabs/dashboard.component';
+import { SettingsComponent } from './tabs/settings.component';
+import { TabsComponent } from './tabs/tabs.component';
 
 const routes: Routes = [
     { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -20,9 +22,25 @@ const routes: Routes = [
     },
     { path: '2fa', component: TwoFactorComponent },
     {
-        path: 'dashboard',
-        component: DashboardComponent,
-        canActivate: [AuthGuardService],
+        path: 'tabs',
+        component: TabsComponent,
+        children: [
+            {
+                path: '',
+                redirectTo: '/tabs/dashboard',
+                pathMatch: 'full',
+            },
+            {
+                path: 'dashboard',
+                component: DashboardComponent,
+                canActivate: [AuthGuardService],
+            },
+            {
+                path: 'settings',
+                component: SettingsComponent,
+                canActivate: [AuthGuardService],
+            },
+        ],
     },
 ];
 

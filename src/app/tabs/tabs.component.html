@@ -1,0 +1,13 @@
+<div class="tab-page">
+    <nav class="nav flex-column">
+        <a class="nav-link" routerLink="dashboard" routerLinkActive="active">
+            <i class="fa fa-rocket"></i>
+            {{'masterPass' | i18n}}
+        </a>
+        <a class="nav-link" routerLink="settings" routerLinkActive="active">
+            <i class="fa fa-cogs"></i>
+            {{'settings' | i18n}}
+        </a>
+    </nav>
+    <router-outlet></router-outlet>
+</div>

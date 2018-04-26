@@ -16,7 +16,7 @@ export class LaunchGuardService implements CanActivate {
             return true;
         }
 
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/tabs/dashboard']);
         return false;
     }
 }
