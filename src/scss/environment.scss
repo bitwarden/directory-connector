@@ -1,7 +1,7 @@
-﻿@import "variables.scss";
+﻿@import "bootstrap.scss";
 
 html.os_windows {
     body {
-        border-top: 1px solid $border-color-dark;
+        border-top: 1px solid $gray-400;
     }
 }
