@@ -66,16 +66,9 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.ngZone.runOutsideAngular(() => {
-            setTimeout(async () => {
+            window.setTimeout(async () => {
                 await this.updateAppMenu();
             }, 1000);
-
-            window.onmousemove = () => this.recordActivity();
-            window.onmousedown = () => this.recordActivity();
-            window.ontouchstart = () => this.recordActivity();
-            window.onclick = () => this.recordActivity();
-            window.onscroll = () => this.recordActivity();
-            window.onkeypress = () => this.recordActivity();
         });
 
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
@@ -121,16 +114,6 @@ export class AppComponent implements OnInit {
             }
             this.router.navigate(['login']);
         });
-    }
-
-    private async recordActivity() {
-        const now = (new Date()).getTime();
-        if (this.lastActivity != null && now - this.lastActivity < 250) {
-            return;
-        }
-
-        this.lastActivity = now;
-        this.storageService.save(ConstantsService.lastActiveKey, now);
     }
 
     private openModal<T>(type: Type<T>, ref: ViewContainerRef) {
