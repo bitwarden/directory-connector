@@ -13,16 +13,20 @@ import {
 import { Main } from '../main';
 
 import { BaseMenu } from 'jslib/electron/baseMenu';
+import { WindowMain } from 'jslib/electron/window.main';
 
 import { ConstantsService } from 'jslib/services/constants.service';
+
+import { I18nService } from 'jslib/abstractions/i18n.service';
+import { MessagingService } from 'jslib/abstractions/messaging.service';
 
 export class MenuMain extends BaseMenu {
     menu: Menu;
     logOut: MenuItem;
 
-    constructor(private main: Main) {
+    constructor(main: Main) {
         super(main.i18nService, main.windowMain, main.i18nService.t('bitwardenDirectoryConnector'),
-            () => this.main.messagingService.send('logout'));
+            () => main.messagingService.send('logout'));
     }
 
     init() {
@@ -31,10 +35,10 @@ export class MenuMain extends BaseMenu {
         this.initApplicationMenu();
 
         this.logOut = this.menu.getMenuItemById('logOut');
-        this.updateApplicationMenuState(false, true);
+        this.updateApplicationMenuState(false);
     }
 
-    updateApplicationMenuState(isAuthenticated: boolean, isLocked: boolean) {
+    updateApplicationMenuState(isAuthenticated: boolean) {
         this.logOut.enabled = isAuthenticated;
     }
 
@@ -46,7 +50,7 @@ export class MenuMain extends BaseMenu {
             },
             this.editMenuItemOptions,
             {
-                label: this.main.i18nService.t('view'),
+                label: this.i18nService.t('view'),
                 submenu: this.viewSubMenuItemOptions,
             },
             this.windowMenuItemOptions,

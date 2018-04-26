@@ -51,8 +51,8 @@ export class Main {
         this.storageService = new ElectronStorageService();
 
         this.windowMain = new WindowMain(this.storageService);
-        this.messagingMain = new MessagingMain(this.windowMain);
         this.menuMain = new MenuMain(this);
+        this.messagingMain = new MessagingMain(this.windowMain, this.menuMain);
         this.messagingService = new ElectronMainMessagingService(this.windowMain, (message) => {
             this.messagingMain.onMessage(message);
         });

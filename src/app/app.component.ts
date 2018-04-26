@@ -24,7 +24,6 @@ import { ModalComponent } from 'jslib/angular/components/modal.component';
 import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
 
 import { AuthService } from 'jslib/abstractions/auth.service';
-import { CryptoService } from 'jslib/abstractions/crypto.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { MessagingService } from 'jslib/abstractions/messaging.service';
 import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
@@ -63,8 +62,7 @@ export class AppComponent implements OnInit {
         private authService: AuthService, private router: Router, private analytics: Angulartics2,
         private toasterService: ToasterService, private i18nService: I18nService,
         private platformUtilsService: PlatformUtilsService, private ngZone: NgZone,
-        private cryptoService: CryptoService, private componentFactoryResolver: ComponentFactoryResolver,
-        private messagingService: MessagingService) { }
+        private componentFactoryResolver: ComponentFactoryResolver, private messagingService: MessagingService) { }
 
     ngOnInit() {
         this.ngZone.runOutsideAngular(() => {
@@ -104,7 +102,6 @@ export class AppComponent implements OnInit {
     private async updateAppMenu() {
         this.messagingService.send('updateAppMenu', {
             isAuthenticated: await this.userService.isAuthenticated(),
-            isLocked: (await this.cryptoService.getKey()) == null,
         });
     }
 
@@ -113,7 +110,6 @@ export class AppComponent implements OnInit {
 
         await Promise.all([
             this.tokenService.clearToken(),
-            this.cryptoService.clearKeys(),
             this.userService.clear(),
         ]);
 

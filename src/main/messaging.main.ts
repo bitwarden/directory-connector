@@ -5,12 +5,14 @@ import {
 
 import { WindowMain } from 'jslib/electron/window.main';
 
+import { MenuMain } from './menu.main';
+
 const SyncInterval = 5 * 60 * 1000; // 5 minutes
 
 export class MessagingMain {
     private syncTimeout: NodeJS.Timer;
 
-    constructor(private windowMain: WindowMain) { }
+    constructor(private windowMain: WindowMain, private menuMain: MenuMain) { }
 
     init() {
         this.scheduleNextSync();
@@ -23,7 +25,7 @@ export class MessagingMain {
                 this.scheduleNextSync();
                 break;
             case 'updateAppMenu':
-                // this.main.menuMain.updateApplicationMenuState(message.isAuthenticated, message.isLocked);
+                this.menuMain.updateApplicationMenuState(message.isAuthenticated);
                 break;
             default:
                 break;
