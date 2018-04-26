@@ -2,8 +2,8 @@
     "bitwardenDirectoryConnector": {
         "message": "Bitwarden Directory Connector"
     },
-    "email": {
-        "message": "Email"
+    "emailAddress": {
+        "message": "Email Address"
     },
     "masterPass": {
         "message": "Master Password"
