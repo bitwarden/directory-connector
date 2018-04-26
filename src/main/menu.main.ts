@@ -21,7 +21,7 @@ export class MenuMain extends BaseMenu {
     logOut: MenuItem;
 
     constructor(private main: Main) {
-        super(main.i18nService, main.windowMain, 'Bitwarden Directory Connector',
+        super(main.i18nService, main.windowMain, main.i18nService.t('bitwardenDirectoryConnector'),
             () => { /* TODO: Log Out Message */ });
     }
 

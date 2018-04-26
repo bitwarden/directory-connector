@@ -1,5 +1,307 @@
 {
-    "hello": {
-        "message": "hello"
+    "bitwardenDirectoryConnector": {
+        "message": "Bitwarden Directory Connector"
+    },
+    "email": {
+        "message": "Email"
+    },
+    "masterPass": {
+        "message": "Master Password"
+    },
+    "logIn": {
+        "message": "Log In"
+    },
+    "submit": {
+        "message": "Submit"
+    },
+    "settings": {
+        "message": "Settings"
+    },
+    "emailRequired": {
+        "message": "Email address is required."
+    },
+    "invalidEmail": {
+        "message": "Invalid email address."
+    },
+    "masterPassRequired": {
+        "message": "Master password is required."
+    },
+    "unexpectedError": {
+        "message": "An unexpected error has occurred."
+    },
+    "verificationCode": {
+        "message": "Verification Code"
+    },
+    "verificationCodeRequired": {
+        "message": "Verification code is required."
+    },
+    "continue": {
+        "message": "Continue"
+    },
+    "enterVerificationCodeApp": {
+        "message": "Enter the 6 digit verification code from your authenticator app."
+    },
+    "enterVerificationCodeEmail": {
+        "message": "Enter the 6 digit verification code that was emailed to $EMAIL$.",
+        "placeholders": {
+            "email": {
+                "content": "$1",
+                "example": "example@gmail.com"
+            }
+        }
+    },
+    "verificationCodeEmailSent": {
+        "message": "Verification email sent to $EMAIL$.",
+        "placeholders": {
+            "email": {
+                "content": "$1",
+                "example": "example@gmail.com"
+            }
+        }
+    },
+    "rememberMe": {
+        "message": "Remember me"
+    },
+    "sendVerificationCodeEmailAgain": {
+        "message": "Send verification code email again"
+    },
+    "useAnotherTwoStepMethod": {
+        "message": "Use another two-step login method"
+    },
+    "insertYubiKey": {
+        "message": "Insert your YubiKey into your computer's USB port, then touch its button."
+    },
+    "insertU2f": {
+        "message": "Insert your security key into your computer's USB port. If it has a button, touch it."
+    },
+    "recoveryCodeDesc": {
+        "message": "Lost access to all of your two-factor providers? Use your recovery code to disable all two-factor providers from your account."
+    },
+    "recoveryCodeTitle": {
+        "message": "Recovery Code"
+    },
+    "authenticatorAppTitle": {
+        "message": "Authenticator App"
+    },
+    "authenticatorAppDesc": {
+        "message": "Use an authenticator app (such as Authy or Google Authenticator) to generate time-based verification codes.",
+        "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+    },
+    "yubiKeyTitle": {
+        "message": "YubiKey OTP Security Key"
+    },
+    "yubiKeyDesc": {
+        "message": "Use a YubiKey to access your account. Works with YubiKey 4, 4 Nano, 4C, and NEO devices."
+    },
+    "duoDesc": {
+        "message": "Verify with Duo Security using the Duo Mobile app, SMS, phone call, or U2F security key.",
+        "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
+    },
+    "duoOrganizationDesc": {
+        "message": "Verify with Duo Security for your organization using the Duo Mobile app, SMS, phone call, or U2F security key.",
+        "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
+    },
+    "u2fDesc": {
+        "message": "Use any FIDO U2F enabled security key to access your account."
+    },
+    "u2fTitle": {
+        "message": "FIDO U2F Security Key"
+    },
+    "emailTitle": {
+        "message": "Email"
+    },
+    "emailDesc": {
+        "message": "Verification codes will be emailed to you."
+    },
+    "loginUnavailable": {
+        "message": "Login Unavailable"
+    },
+    "noTwoStepProviders": {
+        "message": "This account has two-step login enabled, however, none of the configured two-step providers are supported by this device."
+    },
+    "noTwoStepProviders2": {
+        "message": "Please add additional providers that are better supported across devices (such as an authenticator app)."
+    },
+    "twoStepOptions": {
+        "message": "Two-step Login Options"
+    },
+    "selfHostedEnvironment": {
+        "message": "Self-hosted Environment"
+    },
+    "selfHostedEnvironmentFooter": {
+        "message": "Specify the base URL of your on-premise hosted Bitwarden installation."
+    },
+    "customEnvironment": {
+        "message": "Custom Environment"
+    },
+    "customEnvironmentFooter": {
+        "message": "For advanced users. You can specify the base URL of each service independently."
+    },
+    "baseUrl": {
+        "message": "Server URL"
+    },
+    "apiUrl": {
+        "message": "API Server URL"
+    },
+    "identityUrl": {
+        "message": "Identity Server URL"
+    },
+    "environmentSaved": {
+        "message": "The environment URLs have been saved."
+    },
+    "ok": {
+        "message": "Ok"
+    },
+    "yes": {
+        "message": "Yes"
+    },
+    "no": {
+        "message": "No"
+    },
+    "cancel": {
+        "message": "Cancel"
+    },
+    "close": {
+        "message": "Close"
+    },
+    "save": {
+        "message": "Save"
+    },
+    "loggedOut": {
+        "message": "Logged out"
+    },
+    "loginExpired": {
+        "message": "Your login session has expired."
+    },
+    "logOutConfirmation": {
+        "message": "Are you sure you want to log out?"
+    },
+    "logOut": {
+        "message": "Log Out"
+    },
+    "copy": {
+        "message": "Copy",
+        "description": "Copy to clipboard"
+    },
+    "checkForUpdates": {
+        "message": "Check For Updates"
+    },
+    "version": {
+        "message": "Version $VERSION_NUM$",
+        "placeholders": {
+            "version_num": {
+                "content": "$1",
+                "example": "1.2.3"
+            }
+        }
+    },
+    "restartToUpdate": {
+        "message": "Restart To Update"
+    },
+    "restartToUpdateDesc": {
+        "message": "Version $VERSION_NUM$ is ready to install. You must restart the application to complete the installation. Do you want to restart and update now?",
+        "placeholders": {
+            "version_num": {
+                "content": "$1",
+                "example": "1.2.3"
+            }
+        }
+    },
+    "updateAvailable": {
+        "message": "Update Available"
+    },
+    "updateAvailableDesc": {
+        "message": "An update was found. Do you want to download it now?"
+    },
+    "restart": {
+        "message": "Restart"
+    },
+    "later": {
+        "message": "Later"
+    },
+    "noUpdatesAvailable": {
+        "message": "No updates are currently available. You are using the latest version."
+    },
+    "updateError": {
+        "message": "Update Error"
+    },
+    "unknown": {
+        "message": "Unknown"
+    },
+    "view": {
+      "message": "View"
+    },
+    "file": {
+      "message": "File"
+    },
+    "edit": {
+      "message": "Edit"
+    },
+    "undo": {
+        "message": "Undo"
+    },
+    "redo": {
+        "message": "Redo"
+    },
+    "cut": {
+        "message": "Cut",
+        "description": "Cut to clipboard"
+    },
+    "paste": {
+        "message": "Paste",
+        "description": "Paste from clipboard"
+    },
+    "selectAll": {
+        "message": "Select All"
+    },
+    "zoomIn": {
+        "message": "Zoom In"
+    },
+    "zoomOut": {
+        "message": "Zoom Out"
+    },
+    "resetZoom": {
+        "message": "Reset Zoom"
+    },
+    "toggleFullScreen": {
+        "message": "Toggle Full Screen"
+    },
+    "reload": {
+        "message": "Reload"
+    },
+    "toggleDevTools": {
+        "message": "Toggle Developer Tools"
+    },
+    "minimize": {
+        "message": "Minimize",
+        "description": "Minimize window"
+    },
+    "zoom": {
+        "message": "Zoom"
+    },
+    "bringAllToFront": {
+        "message": "Bring All to Front",
+        "description": "Bring all windows to front (foreground)"
+    },
+    "aboutBitwarden": {
+        "message": "About Bitwarden Directory Connector"
+    },
+    "services": {
+        "message": "Services"
+    },
+    "hideBitwarden": {
+        "message": "Hide Bitwarden Directory Connector"
+    },
+    "hideOthers": {
+        "message": "Hide Others"
+    },
+    "showAll": {
+        "message": "Show All"
+    },
+    "quitBitwarden": {
+        "message": "Quit Bitwarden Directory Connector"
+    },
+    "window": {
+        "message": "Window"
     }
 }
