@@ -96,7 +96,7 @@
     "electron-log": "2.2.14",
     "electron-store": "1.3.0",
     "electron-updater": "2.21.4",
-    "googleapis": "28.1.0",
+    "googleapis": "29.0.0",
     "keytar": "4.1.0",
     "ldapjs": "1.0.2",
     "lunr": "2.1.6",

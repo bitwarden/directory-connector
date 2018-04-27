@@ -46,7 +46,7 @@ const common = {
     },
     plugins: [],
     resolve: {
-        extensions: ['.tsx', '.ts', '.js'],
+        extensions: ['.tsx', '.ts', '.js', '.json'],
         alias: {
             jslib: path.join(__dirname, 'jslib/src')
         },
@@ -136,6 +136,7 @@ const renderer = {
             filename: '[name].js.map',
             include: ['app/main.js']
         }),
+        new webpack.DefinePlugin({ 'global.GENTLY': false }),
         extractCss
     ]
 };
