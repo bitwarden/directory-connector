@@ -331,7 +331,7 @@
         "message": "Directory"
     },
     "currentUser": {
-        "message": "Current user"
+        "message": "Authenticate as current user"
     },
     "rootPath": {
         "message": "Root Path"
@@ -410,5 +410,23 @@
     },
     "groupNameAttribute": {
         "message": "Group Name Attribute"
+    },
+    "userEmailAttribute": {
+        "message": "User Email Attribute"
+    },
+    "sync": {
+        "message": "Sync"
+    },
+    "ldapSsl": {
+        "message": "This connection uses SSL (LDAPS)"
+    },
+    "ldapAd": {
+        "message": "This LDAP server is Active Directory"
+    },
+    "select": {
+        "message": "Select"
+    },
+    "dashboard": {
+        "message": "Dashboard"
     }
 }

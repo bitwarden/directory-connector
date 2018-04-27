@@ -1,5 +1,9 @@
 @import "bootstrap.scss";
 
+body {
+    padding: 10px 0 20px 0;
+}
+
 h1 {
     border-bottom: 1px solid $border-color;
     margin-bottom: 20px;
@@ -17,6 +21,10 @@ h2 {
 
 h3 {
     text-transform: uppercase;
+}
+
+.nav.nav-tabs {
+    margin-bottom: 20px;
 }
 
 #duo-frame {
