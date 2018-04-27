@@ -229,13 +229,13 @@
         "message": "Unknown"
     },
     "view": {
-      "message": "View"
+        "message": "View"
     },
     "file": {
-      "message": "File"
+        "message": "File"
     },
     "edit": {
-      "message": "Edit"
+        "message": "Edit"
     },
     "undo": {
         "message": "Undo"
@@ -303,5 +303,112 @@
     },
     "window": {
         "message": "Window"
+    },
+    "ex": {
+        "message": "ex.",
+        "description": "Short abbreviation for 'example'."
+    },
+    "serverHostname": {
+        "message": "Server Hostname"
+    },
+    "port": {
+        "message": "Port",
+        "description": "A server's port number. ex. google.com:8080"
+    },
+    "username": {
+        "message": "Username"
+    },
+    "password": {
+        "message": "Password"
+    },
+    "thisIsActiveDirectory": {
+        "message": "This is an Active Directory LDAP server."
+    },
+    "type": {
+        "message": "Type"
+    },
+    "directory": {
+        "message": "Directory"
+    },
+    "currentUser": {
+        "message": "Current user"
+    },
+    "rootPath": {
+        "message": "Root Path"
+    },
+    "tenant": {
+        "message": "Tenant"
+    },
+    "applicationId": {
+        "message": "Application Id"
+    },
+    "secretKey": {
+        "message": "Secret Key"
+    },
+    "adminUser": {
+        "message": "Admin User"
+    },
+    "domain": {
+        "message": "Domain"
+    },
+    "customerId": {
+        "message": "Customer Id"
+    },
+    "privateKey": {
+        "message": "Private Key (from key file)"
+    },
+    "clientEmail": {
+        "message": "Client Email (from key file)"
+    },
+    "interval": {
+        "message": "Interval (in minutes)"
+    },
+    "removeDisabled": {
+        "message": "Remove disabled users"
+    },
+    "memberAttribute": {
+        "message": "Member Attribute"
+    },
+    "creationDateAttribute": {
+        "message": "Creation Date Attribute"
+    },
+    "revisionDateAttribute": {
+        "message": "Revision Date Attribute"
+    },
+    "useEmailPrefixSuffix": {
+        "message": "Use email prefix/suffix"
+    },
+    "emailPrefixAttribute": {
+        "message": "Email Prefix Attribute"
+    },
+    "emailSuffix": {
+        "message": "Email Suffix"
+    },
+    "syncUsers": {
+        "message": "Sync users"
+    },
+    "userFilter": {
+        "message": "User Filter"
+    },
+    "userObjectClass": {
+        "message": "User Object Class"
+    },
+    "userPath": {
+        "message": "User Path"
+    },
+    "syncGroups": {
+        "message": "Sync groups"
+    },
+    "groupFilter": {
+        "message": "Group Filter"
+    },
+    "groupObjectClass": {
+        "message": "Group Object Class"
+    },
+    "groupPath": {
+        "message": "Group Path"
+    },
+    "groupNameAttribute": {
+        "message": "Group Name Attribute"
     }
 }

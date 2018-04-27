@@ -7,6 +7,7 @@ root = true
 [*]
 end_of_line = lf
 insert_final_newline = true
+quote_type = single
 
 # Set default charset
 [*.{js,ts,scss,html}]

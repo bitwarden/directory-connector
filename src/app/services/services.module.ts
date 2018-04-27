@@ -15,6 +15,7 @@ import { isDev } from 'jslib/electron/utils';
 import { AuthGuardService } from './auth-guard.service';
 import { LaunchGuardService } from './launch-guard.service';
 
+import { ConfigurationService } from '../../services/configuration.service';
 import { I18nService } from '../../services/i18n.service';
 
 import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
@@ -68,6 +69,7 @@ const userService = new UserService(tokenService, storageService);
 const containerService = new ContainerService(cryptoService, platformUtilsService);
 const authService = new AuthService(cryptoService, apiService, userService, tokenService, appIdService,
     i18nService, platformUtilsService, messagingService, false);
+const configurationService = new ConfigurationService(storageService, secureStorageService);
 
 const analytics = new Analytics(window, () => true, platformUtilsService, storageService, appIdService);
 containerService.attachToWindow(window);
@@ -120,6 +122,7 @@ export function initFactory(): Function {
         { provide: StorageServiceAbstraction, useValue: storageService },
         { provide: StateServiceAbstraction, useValue: stateService },
         { provide: LogServiceAbstraction, useValue: logService },
+        { provide: ConfigurationService, useValue: configurationService },
         {
             provide: APP_INITIALIZER,
             useFactory: initFactory,

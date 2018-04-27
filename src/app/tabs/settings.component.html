@@ -1,3 +1,194 @@
-<i class="fa fa-rocket"></i>
+<form (ngSubmit)="submit()">
+    <h2>Directory</h2>
+    <div class="form-group">
+        <label for="directory">{{'type' | i18n}}</label>
+        <select class="form-control" id="directory" name="Directory" [(ngModel)]="directory">
+            <option *ngFor="let o of directoryOptions" [ngValue]="o.value">{{o.name}}</option>
+        </select>
+    </div>
+    <div [hidden]="directory != directoryType.Ldap">
+        <div class="form-group">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="ssl" [(ngModel)]="ldap.ssl" name="SSL">
+                <label class="form-check-label" for="ssl">SSL (LDAPS)</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="hostname">{{'serverHostname' | i18n}}</label>
+            <input type="text" class="form-control" id="hostname" name="Hostname"
+                   placeholder="{{'ex' | i18n}} ad.company.com" [(ngModel)]="ldap.hostname">
+        </div>
+        <div class="form-group">
+            <label for="port">{{'port' | i18n}}</label>
+            <input type="text" class="form-control" id="port" name="Port" placeholder="{{'ex' | i18n}} 389"
+                   [(ngModel)]="ldap.port">
+        </div>
+        <div class="form-group">
+            <label for="rootPath">{{'rootPath' | i18n}}</label>
+            <input type="text" class="form-control" id="rootPath" name="RootPath" [(ngModel)]="ldap.rootPath"
+                   placeholder="{{'ex' | i18n}} DC=ad,DC=company,DC=com">
+        </div>
+        <div class="form-group">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="currentUser" [(ngModel)]="ldap.currentUser"
+                    name="CurrentUser">
+                <label class="form-check-label" for="currentUser">{{'currentUser' | i18n}}</label>
+            </div>
+        </div>
+        <div [hidden]="ldap.currentUser">
+            <div class="form-group">
+                <label for="username">{{'username' | i18n}}</label>
+                <input type="text" class="form-control" id="username" name="Username" [(ngModel)]="ldap.username"
+                       placeholder="{{'ex' | i18n}} admin@company.com">
+            </div>
+            <div class="form-group">
+                <label for="password">{{'password' | i18n}}</label>
+                <input type="password" class="form-control" id="password" name="Password" [(ngModel)]="ldap.password">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="ad" [(ngModel)]="ldap.ad" name="AD">
+                <label class="form-check-label" for="ad">Active Directory</label>
+            </div>
+        </div>
+    </div>
+    <div [hidden]="directory != directoryType.AzureActiveDirectory">
+        <div class="form-group">
+            <label for="tenant">{{'tenant' | i18n}}</label>
+            <input type="text" class="form-control" id="tenant" name="Tenant" [(ngModel)]="azure.tenant"
+                   placeholder="{{'ex' | i18n}} companyad.onmicrosoft.com">
+        </div>
+        <div class="form-group">
+            <label for="applicationId">{{'applicationId' | i18n}}</label>
+            <input type="text" class="form-control" id="applicationId" name="ApplicationId"
+                   [(ngModel)]="azure.applicationId">
+        </div>
+        <div class="form-group">
+            <label for="secretKey">{{'secretKey' | i18n}}</label>
+            <input type="password" class="form-control" id="secretKey" name="SecretKey" [(ngModel)]="azure.key">
+        </div>
+    </div>
+    <div [hidden]="directory != directoryType.GSuite">
+        <div class="form-group">
+            <label for="domain">{{'domain' | i18n}}</label>
+            <input type="text" class="form-control" id="domain" name="Domain" [(ngModel)]="gsuite.domain"
+                   placeholder="{{'ex' | i18n}} company.com">
+        </div>
+        <div class="form-group">
+            <label for="adminUser">{{'adminUser' | i18n}}</label>
+            <input type="text" class="form-control" id="adminUser" name="AdminUser" [(ngModel)]="gsuite.adminUser"
+                   placeholder="{{'ex' | i18n}} admin@company.com">
+        </div>
+        <div class="form-group">
+            <label for="customerId">{{'customerId' | i18n}}</label>
+            <input type="text" class="form-control" id="customerId" name="CustomerId" [(ngModel)]="gsuite.customer"
+                   placeholder="{{'ex' | i18n}} 39204722352">
+        </div>
+        <div class="form-group">
+            <label for="clientEmail">{{'clientEmail' | i18n}}</label>
+            <input type="text" class="form-control" id="clientEmail" name="ClientEmail"
+                   [(ngModel)]="gsuite.clientEmail">
+        </div>
+        <div class="form-group">
+            <label for="privateKey">{{'privateKey' | i18n}}</label>
+            <textarea class="form-control" id="privateKey" name="PrivateKey" [(ngModel)]="gsuite.privateKey">
+            </textarea>
+        </div>
+    </div>
 
-The settings!!!
+    <h2>Sync</h2>
+    <div class="form-group">
+        <label for="interval">{{'interval' | i18n}}</label>
+        <input type="number" min="5" class="form-control" id="interval" name="Interval" [(ngModel)]="sync.interval">
+    </div>
+    <div class="form-group">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="removeDisabled" [(ngModel)]="sync.removeDisabled" 
+                   name="RemoveDisabled">
+            <label class="form-check-label" for="removeDisabled">{{'removeDisabled' | i18n}}</label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="memberAttribute">{{'memberAttribute' | i18n}}</label>
+        <input type="text" class="form-control" id="memberAttribute" name="MemberAttribute" [(ngModel)]="sync.memberAttribute">
+    </div>
+    <div class="form-group">
+        <label for="creationDateAttribute">{{'creationDateAttribute' | i18n}}</label>
+        <input type="text" class="form-control" id="creationDateAttribute" name="CreationDateAttribute" [(ngModel)]="sync.creationDateAttribute">
+    </div>
+    <div class="form-group">
+        <label for="revisionDateAttribute">{{'revisionDateAttribute' | i18n}}</label>
+        <input type="text" class="form-control" id="revisionDateAttribute" name="RevisionDateAttribute" [(ngModel)]="sync.revisionDateAttribute">
+    </div>
+    <div class="form-group">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="useEmailPrefixSuffix" [(ngModel)]="sync.useEmailPrefixSuffix" name="UseEmailPrefixSuffix">
+            <label class="form-check-label" for="useEmailPrefixSuffix">{{'useEmailPrefixSuffix' | i18n}}</label>
+        </div>
+    </div>
+    <div [hidden]="!sync.useEmailPrefixSuffix">
+        <div class="form-group">
+            <label for="emailPrefixAttribute">{{'emailPrefixAttribute' | i18n}}</label>
+            <input type="text" class="form-control" id="emailPrefixAttribute" name="EmailPrefixAttribute" [(ngModel)]="sync.emailPrefixAttribute">
+        </div>
+        <div class="form-group">
+            <label for="emailSuffix">{{'emailSuffix' | i18n}}</label>
+            <input type="text" class="form-control" id="emailSuffix" name="EmailSuffix" [(ngModel)]="sync.emailSuffix">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="syncUsers" [(ngModel)]="sync.users" name="SyncUsers">
+            <label class="form-check-label" for="syncUsers">{{'syncUsers' | i18n}}</label>
+        </div>
+    </div>
+
+    <div [hidden]="!sync.users">
+        <div class="form-group">
+            <label for="userFilter">{{'userFilter' | i18n}}</label>
+            <textarea class="form-control" id="userFilter" name="UserFilter" [(ngModel)]="sync.userFilter">
+            </textarea>
+        </div>
+        <div class="form-group">
+            <label for="userObjectClass">{{'userObjectClass' | i18n}}</label>
+            <input type="text" class="form-control" id="userObjectClass" name="UserObjectClass" [(ngModel)]="sync.userObjectClass">
+        </div>
+        <div class="form-group">
+            <label for="userPath">{{'userPath' | i18n}}</label>
+            <input type="text" class="form-control" id="userPath" name="UserPath" [(ngModel)]="sync.userPath">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="syncGroups" [(ngModel)]="sync.groups" name="SyncGroups">
+            <label class="form-check-label" for="syncGroups">{{'syncGroups' | i18n}}</label>
+        </div>
+    </div>
+
+    <div [hidden]="!sync.groups">
+        <div class="form-group">
+            <label for="groupFilter">{{'groupFilter' | i18n}}</label>
+            <textarea class="form-control" id="groupFilter" name="GroupFilter" [(ngModel)]="sync.groupFilter">
+            </textarea>
+        </div>
+        <div class="form-group">
+            <label for="groupObjectClass">{{'groupObjectClass' | i18n}}</label>
+            <input type="text" class="form-control" id="groupObjectClass" name="GroupObjectClass" [(ngModel)]="sync.groupObjectClass">
+        </div>
+        <div class="form-group">
+            <label for="groupPath">{{'groupPath' | i18n}}</label>
+            <input type="text" class="form-control" id="groupPath" name="GroupPath" [(ngModel)]="sync.groupPath">
+        </div>
+        <div class="form-group">
+            <label for="groupNameAttribute">{{'groupNameAttribute' | i18n}}</label>
+            <input type="text" class="form-control" id="groupNameAttribute" name="GroupNameAttribute" [(ngModel)]="sync.groupNameAttribute">
+        </div>
+    </div>
+
+    <button appBlurClick type="submit" class="btn btn-primary">
+        {{'save' | i18n}}
+    </button>
+</form>
