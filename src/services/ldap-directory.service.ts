@@ -1,15 +1,36 @@
 import * as ldap from 'ldapjs';
 
-import { DirectoryService } from 'src/services/directory.service';
+import { DirectoryType } from '../enums/directoryType';
 
-const Url = 'ldap://ldap.forumsys.com:389';
-const Username = 'cn=read-only-admin,dc=example,dc=com';
-const Password = 'password';
+import { LdapConfiguration } from '../models/ldapConfiguration';
+import { SyncConfiguration } from '../models/syncConfiguration';
+
+import { ConfigurationService } from './configuration.service';
+import { DirectoryService } from './directory.service';
 
 export class LdapDirectoryService implements DirectoryService {
     private client: ldap.Client;
+    private dirConfig: LdapConfiguration;
+    private syncConfig: SyncConfiguration;
+
+    constructor(private configurationService: ConfigurationService) { }
 
     async getEntries(force = false) {
+        const type = await this.configurationService.getDirectoryType();
+        if (type !== DirectoryType.Ldap) {
+            return;
+        }
+
+        this.dirConfig = await this.configurationService.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
+        if (this.dirConfig == null) {
+            return;
+        }
+
+        this.syncConfig = await this.configurationService.getSync();
+        if (this.syncConfig == null) {
+            return;
+        }
+
         await this.auth();
         await this.getUsers();
     }
@@ -49,11 +70,13 @@ export class LdapDirectoryService implements DirectoryService {
 
     private async auth() {
         return new Promise((resolve, reject) => {
+            const url = 'ldap' + (this.dirConfig.ssl ? 's' : '') + '://' + this.dirConfig.hostname +
+                ':' + this.dirConfig.port;
             this.client = ldap.createClient({
-                url: Url,
+                url: url,
             });
 
-            this.client.bind(Username, Password, (err) => {
+            this.client.bind(this.dirConfig.username, this.dirConfig.password, (err) => {
                 if (err != null) {
                     reject(err);
                 } else {

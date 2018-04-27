@@ -2,28 +2,32 @@ import * as graph from '@microsoft/microsoft-graph-client';
 import * as https from 'https';
 import * as querystring from 'querystring';
 
-import { DirectoryService } from 'src/services/directory.service';
+import { DirectoryType } from '../enums/directoryType';
 
-const Key = '';
-const ApplicationId = '';
-const Tenant = '';
+import { AzureConfiguration } from '../models/azureConfiguration';
+import { SyncConfiguration } from '../models/syncConfiguration';
+
+import { ConfigurationService } from './configuration.service';
+import { DirectoryService } from './directory.service';
 
 export class AzureDirectoryService implements DirectoryService {
     private client: graph.Client;
+    private dirConfig: AzureConfiguration;
+    private syncConfig: SyncConfiguration;
 
-    async getEntries(force = false) {
+    constructor(private configurationService: ConfigurationService) {
         this.client = graph.Client.init({
             authProvider: (done) => {
                 const data = querystring.stringify({
-                    client_id: ApplicationId,
-                    client_secret: Key,
+                    client_id: this.dirConfig.applicationId,
+                    client_secret: this.dirConfig.key,
                     grant_type: 'client_credentials',
                     scope: 'https://graph.microsoft.com/.default',
                 });
 
                 const req = https.request({
                     host: 'login.microsoftonline.com',
-                    path: '/' + Tenant + '/oauth2/v2.0/token',
+                    path: '/' + this.dirConfig.tenant + '/oauth2/v2.0/token',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -49,6 +53,24 @@ export class AzureDirectoryService implements DirectoryService {
                 req.end();
             },
         });
+    }
+
+    async getEntries(force = false) {
+        const type = await this.configurationService.getDirectoryType();
+        if (type !== DirectoryType.AzureActiveDirectory) {
+            return;
+        }
+
+        this.dirConfig = await this.configurationService.getDirectory<AzureConfiguration>(
+            DirectoryType.AzureActiveDirectory);
+        if (this.dirConfig == null) {
+            return;
+        }
+
+        this.syncConfig = await this.configurationService.getSync();
+        if (this.syncConfig == null) {
+            return;
+        }
 
         await this.getUsers();
         await this.getGroups();

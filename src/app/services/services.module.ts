@@ -17,6 +17,7 @@ import { LaunchGuardService } from './launch-guard.service';
 
 import { ConfigurationService } from '../../services/configuration.service';
 import { I18nService } from '../../services/i18n.service';
+import { SyncService } from '../../services/sync.service';
 
 import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
 import { ValidationService } from 'jslib/angular/services/validation.service';
@@ -70,6 +71,7 @@ const containerService = new ContainerService(cryptoService, platformUtilsServic
 const authService = new AuthService(cryptoService, apiService, userService, tokenService, appIdService,
     i18nService, platformUtilsService, messagingService, false);
 const configurationService = new ConfigurationService(storageService, secureStorageService);
+const syncSevrice = new SyncService(configurationService);
 
 const analytics = new Analytics(window, () => true, platformUtilsService, storageService, appIdService);
 containerService.attachToWindow(window);
@@ -123,6 +125,7 @@ export function initFactory(): Function {
         { provide: StateServiceAbstraction, useValue: stateService },
         { provide: LogServiceAbstraction, useValue: logService },
         { provide: ConfigurationService, useValue: configurationService },
+        { provide: SyncService, useValue: syncSevrice },
         {
             provide: APP_INITIALIZER,
             useFactory: initFactory,

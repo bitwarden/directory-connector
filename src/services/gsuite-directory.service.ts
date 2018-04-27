@@ -2,23 +2,41 @@ import { JWT } from 'google-auth-library';
 import { google, GoogleApis } from 'googleapis';
 import { Admin } from 'googleapis/build/src/apis/admin/directory_v1';
 
-import { DirectoryService } from 'src/services/directory.service';
+import { DirectoryType } from '../enums/directoryType';
 
-const PrivateKey = '';
-const ClientEmail = '';
-const AdminEmail = '';
-const Domain = '';
+import { GSuiteConfiguration } from '../models/gsuiteConfiguration';
+import { SyncConfiguration } from '../models/syncConfiguration';
+
+import { ConfigurationService } from './configuration.service';
+import { DirectoryService } from './directory.service';
 
 export class GSuiteDirectoryService implements DirectoryService {
     private client: JWT;
     private service: Admin;
     private authParams: any;
+    private dirConfig: GSuiteConfiguration;
+    private syncConfig: SyncConfiguration;
 
-    constructor() {
+    constructor(private configurationService: ConfigurationService) {
         this.service = google.admin<Admin>('directory_v1');
     }
 
     async getEntries(force = false) {
+        const type = await this.configurationService.getDirectoryType();
+        if (type !== DirectoryType.GSuite) {
+            return;
+        }
+
+        this.dirConfig = await this.configurationService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+        if (this.dirConfig == null) {
+            return;
+        }
+
+        this.syncConfig = await this.configurationService.getSync();
+        if (this.syncConfig == null) {
+            return;
+        }
+
         await this.auth();
         await this.getUsers();
         await this.getGroups();
@@ -48,9 +66,9 @@ export class GSuiteDirectoryService implements DirectoryService {
 
     private async auth() {
         this.client = new google.auth.JWT({
-            email: ClientEmail,
-            key: PrivateKey,
-            subject: AdminEmail,
+            email: this.dirConfig.clientEmail,
+            key: this.dirConfig.privateKey,
+            subject: this.dirConfig.adminUser,
             scopes: [
                 'https://www.googleapis.com/auth/admin.directory.user.readonly',
                 'https://www.googleapis.com/auth/admin.directory.group.readonly',
@@ -59,11 +77,13 @@ export class GSuiteDirectoryService implements DirectoryService {
         });
 
         await this.client.authorize();
+
         this.authParams = {
             auth: this.client,
-            domain: Domain,
+            domain: this.dirConfig.domain,
         };
-
-        // TODO: add customer?
+        if (this.dirConfig.customer != null) {
+            this.authParams.customer = this.dirConfig.customer;
+        }
     }
 }

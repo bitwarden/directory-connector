@@ -10,7 +10,6 @@ import { ToasterService } from 'angular2-toaster';
 import { Angulartics2 } from 'angulartics2';
 
 import { I18nService } from 'jslib/abstractions/i18n.service';
-import { StorageService } from 'jslib/abstractions/storage.service';
 
 import { ConfigurationService } from '../../services/configuration.service';
 
@@ -36,7 +35,7 @@ export class SettingsComponent implements OnInit {
 
     constructor(analytics: Angulartics2, toasterService: ToasterService,
         i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver,
-        private configurationService: ConfigurationService, private storageService: StorageService) {
+        private configurationService: ConfigurationService) {
         this.directoryOptions = [
             { name: i18nService.t('select'), value: null },
             { name: 'Active Directory / LDAP', value: DirectoryType.Ldap },
@@ -46,21 +45,21 @@ export class SettingsComponent implements OnInit {
     }
 
     async ngOnInit() {
-        this.directory = await this.storageService.get<DirectoryType>('directory');
-        this.ldap = (await this.configurationService.get<LdapConfiguration>(DirectoryType.Ldap)) ||
+        this.directory = await this.configurationService.getDirectoryType();
+        this.ldap = (await this.configurationService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)) ||
             this.ldap;
-        this.gsuite = (await this.configurationService.get<GSuiteConfiguration>(DirectoryType.GSuite)) ||
+        this.gsuite = (await this.configurationService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite)) ||
             this.gsuite;
-        this.azure = (await this.configurationService.get<AzureConfiguration>(DirectoryType.AzureActiveDirectory)) ||
-            this.azure;
-        this.sync = (await this.storageService.get<SyncConfiguration>('syncConfig')) || this.sync;
+        this.azure = (await this.configurationService.getDirectory<AzureConfiguration>(
+            DirectoryType.AzureActiveDirectory)) || this.azure;
+        this.sync = (await this.configurationService.getSync()) || this.sync;
     }
 
     async submit() {
-        await this.storageService.save('directory', this.directory);
-        await this.configurationService.save(DirectoryType.Ldap, this.ldap);
-        await this.configurationService.save(DirectoryType.GSuite, this.gsuite);
-        await this.configurationService.save(DirectoryType.AzureActiveDirectory, this.azure);
-        await this.storageService.save('syncConfig', this.sync);
+        await this.configurationService.saveDirectoryType(this.directory);
+        await this.configurationService.saveDirectory(DirectoryType.Ldap, this.ldap);
+        await this.configurationService.saveDirectory(DirectoryType.GSuite, this.gsuite);
+        await this.configurationService.saveDirectory(DirectoryType.AzureActiveDirectory, this.azure);
+        await this.configurationService.saveSync(this.sync);
     }
 }
