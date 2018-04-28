@@ -1,13 +1,13 @@
 import { DirectoryType } from '../enums/directoryType';
 
 export class LdapConfiguration {
-    ssl: boolean = false;
+    ssl = false;
     hostname: string;
-    port: number = 389;
+    port = 389;
     domain: string;
     rootPath: string;
-    currentUser: boolean = false;
+    currentUser = false;
     username: string;
     password: string;
-    ad: boolean = true;
+    ad = true;
 }

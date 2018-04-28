@@ -1,10 +1,10 @@
 export class SyncConfiguration {
-    users: boolean = false;
-    groups: boolean = false;
-    interval: number = 5;
+    users = false;
+    groups = false;
+    interval = 5;
     userFilter: string;
     groupFilter: string;
-    removeDisabled: boolean = false;
+    removeDisabled = false;
     // Ldap properties
     groupObjectClass: string;
     userObjectClass: string;
@@ -13,7 +13,7 @@ export class SyncConfiguration {
     groupNameAttribute: string;
     userEmailAttribute: string;
     memberAttribute: string;
-    useEmailPrefixSuffix: boolean = false;
+    useEmailPrefixSuffix = false;
     emailPrefixAttribute: string;
     emailSuffix: string;
     creationDateAttribute: string;
