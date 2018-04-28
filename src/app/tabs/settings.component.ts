@@ -1,13 +1,8 @@
 import {
     Component,
-    ComponentFactoryResolver,
+    OnDestroy,
     OnInit,
-    ViewChild,
-    ViewContainerRef,
 } from '@angular/core';
-
-import { ToasterService } from 'angular2-toaster';
-import { Angulartics2 } from 'angulartics2';
 
 import { I18nService } from 'jslib/abstractions/i18n.service';
 
@@ -24,7 +19,7 @@ import { SyncConfiguration } from '../../models/syncConfiguration';
     selector: 'app-settings',
     templateUrl: 'settings.component.html',
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
     directory: DirectoryType;
     directoryType = DirectoryType;
     ldap = new LdapConfiguration();
@@ -33,9 +28,7 @@ export class SettingsComponent implements OnInit {
     sync = new SyncConfiguration();
     directoryOptions: any[];
 
-    constructor(analytics: Angulartics2, toasterService: ToasterService,
-        i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver,
-        private configurationService: ConfigurationService) {
+    constructor(private i18nService: I18nService, private configurationService: ConfigurationService) {
         this.directoryOptions = [
             { name: i18nService.t('select'), value: null },
             { name: 'Active Directory / LDAP', value: DirectoryType.Ldap },
@@ -53,6 +46,10 @@ export class SettingsComponent implements OnInit {
         this.azure = (await this.configurationService.getDirectory<AzureConfiguration>(
             DirectoryType.AzureActiveDirectory)) || this.azure;
         this.sync = (await this.configurationService.getSync()) || this.sync;
+    }
+
+    async ngOnDestroy() {
+        await this.submit();
     }
 
     async submit() {
