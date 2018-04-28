@@ -56,6 +56,14 @@ export class SettingsComponent implements OnInit {
     }
 
     async submit() {
+        if (this.ldap.ad) {
+            this.sync.creationDateAttribute = 'whenCreated';
+            this.sync.revisionDateAttribute = 'whenChanged';
+            this.sync.emailPrefixAttribute = 'sAMAccountName';
+            this.sync.groupPath = 'CN=Users';
+            this.sync.userPath = 'CN=Users';
+        }
+
         await this.configurationService.saveDirectoryType(this.directory);
         await this.configurationService.saveDirectory(DirectoryType.Ldap, this.ldap);
         await this.configurationService.saveDirectory(DirectoryType.GSuite, this.gsuite);

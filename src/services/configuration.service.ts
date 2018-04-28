@@ -63,7 +63,7 @@ export class ConfigurationService {
                 if (savedConfig.privateKey == null) {
                     await this.secureStorageService.remove(Keys.gsuite);
                 } else {
-                    (config as any).privateKey = savedConfig.privateKey =
+                    (config as GSuiteConfiguration).privateKey = savedConfig.privateKey =
                         savedConfig.privateKey.replace(/\\n/g, '\n');
                     await this.secureStorageService.save(Keys.gsuite, savedConfig.privateKey);
                     savedConfig.privateKey = StoredSecurely;

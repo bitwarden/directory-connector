@@ -321,9 +321,6 @@
     "password": {
         "message": "Password"
     },
-    "thisIsActiveDirectory": {
-        "message": "This is an Active Directory LDAP server."
-    },
     "type": {
         "message": "Type"
     },
@@ -331,7 +328,7 @@
         "message": "Directory"
     },
     "currentUser": {
-        "message": "Authenticate as current user"
+        "message": "Authenticate as current system user"
     },
     "rootPath": {
         "message": "Root Path"
@@ -364,7 +361,7 @@
         "message": "Interval (in minutes)"
     },
     "removeDisabled": {
-        "message": "Remove disabled users"
+        "message": "Remove disabled users during sync"
     },
     "memberAttribute": {
         "message": "Member Attribute"
@@ -376,7 +373,7 @@
         "message": "Revision Date Attribute"
     },
     "useEmailPrefixSuffix": {
-        "message": "Use email prefix/suffix"
+        "message": "If a user has no email address, combine a username prefix with a suffix value to form an email"
     },
     "emailPrefixAttribute": {
         "message": "Email Prefix Attribute"
@@ -418,10 +415,10 @@
         "message": "Sync"
     },
     "ldapSsl": {
-        "message": "This connection uses SSL (LDAPS)"
+        "message": "This server uses SSL (LDAPS)"
     },
     "ldapAd": {
-        "message": "This LDAP server is Active Directory"
+        "message": "This server uses Active Directory"
     },
     "select": {
         "message": "Select"

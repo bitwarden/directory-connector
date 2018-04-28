@@ -101,41 +101,45 @@
                         <input type="number" min="5" class="form-control" id="interval" name="Interval" [(ngModel)]="sync.interval" placeholder="{{'ex' | i18n}} 5">
                     </div>
                     <div class="form-group">
-                        <label for="memberAttribute">{{'memberAttribute' | i18n}}</label>
-                        <input type="text" class="form-control" id="memberAttribute" name="MemberAttribute" [(ngModel)]="sync.memberAttribute" placeholder="{{'ex' | i18n}} member">
-                    </div>
-                    <div class="form-group">
-                        <label for="creationDateAttribute">{{'creationDateAttribute' | i18n}}</label>
-                        <input type="text" class="form-control" id="creationDateAttribute" name="CreationDateAttribute" [(ngModel)]="sync.creationDateAttribute"
-                            placeholder="{{'ex' | i18n}} whenCreated">
-                    </div>
-                    <div class="form-group">
-                        <label for="revisionDateAttribute">{{'revisionDateAttribute' | i18n}}</label>
-                        <input type="text" class="form-control" id="revisionDateAttribute" name="RevisionDateAttribute" [(ngModel)]="sync.revisionDateAttribute"
-                            placeholder="{{'ex' | i18n}} whenChanged">
-                    </div>
-                    <div class="form-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="removeDisabled" [(ngModel)]="sync.removeDisabled" name="RemoveDisabled">
                             <label class="form-check-label" for="removeDisabled">{{'removeDisabled' | i18n}}</label>
                         </div>
                     </div>
+                    <div [hidden]="directory != directoryType.Ldap">
+                        <div class="form-group">
+                            <label for="memberAttribute">{{'memberAttribute' | i18n}}</label>
+                            <input type="text" class="form-control" id="memberAttribute" name="MemberAttribute" [(ngModel)]="sync.memberAttribute" placeholder="{{'ex' | i18n}} member">
+                        </div>
+                        <div [hidden]="ldap.ad">
+                            <div class="form-group">
+                                <label for="creationDateAttribute">{{'creationDateAttribute' | i18n}}</label>
+                                <input type="text" class="form-control" id="creationDateAttribute" name="CreationDateAttribute" [(ngModel)]="sync.creationDateAttribute"
+                                    placeholder="{{'ex' | i18n}} whenCreated">
+                            </div>
+                            <div class="form-group">
+                                <label for="revisionDateAttribute">{{'revisionDateAttribute' | i18n}}</label>
+                                <input type="text" class="form-control" id="revisionDateAttribute" name="RevisionDateAttribute" [(ngModel)]="sync.revisionDateAttribute"
+                                    placeholder="{{'ex' | i18n}} whenChanged">
+                            </div>
+                        </div>
 
-                    <div class="form-group">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="useEmailPrefixSuffix" [(ngModel)]="sync.useEmailPrefixSuffix" name="UseEmailPrefixSuffix">
-                            <label class="form-check-label" for="useEmailPrefixSuffix">{{'useEmailPrefixSuffix' | i18n}}</label>
-                        </div>
-                    </div>
-                    <div [hidden]="!sync.useEmailPrefixSuffix">
                         <div class="form-group">
-                            <label for="emailPrefixAttribute">{{'emailPrefixAttribute' | i18n}}</label>
-                            <input type="text" class="form-control" id="emailPrefixAttribute" name="EmailPrefixAttribute" [(ngModel)]="sync.emailPrefixAttribute"
-                                placeholder="{{'ex' | i18n}} sAMAccountName">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="useEmailPrefixSuffix" [(ngModel)]="sync.useEmailPrefixSuffix" name="UseEmailPrefixSuffix">
+                                <label class="form-check-label" for="useEmailPrefixSuffix">{{'useEmailPrefixSuffix' | i18n}}</label>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="emailSuffix">{{'emailSuffix' | i18n}}</label>
-                            <input type="text" class="form-control" id="emailSuffix" name="EmailSuffix" [(ngModel)]="sync.emailSuffix" placeholder="{{'ex' | i18n}} @company.com">
+                        <div [hidden]="!sync.useEmailPrefixSuffix">
+                            <div class="form-group" [hidden]="ldap.ad">
+                                <label for="emailPrefixAttribute">{{'emailPrefixAttribute' | i18n}}</label>
+                                <input type="text" class="form-control" id="emailPrefixAttribute" name="EmailPrefixAttribute" [(ngModel)]="sync.emailPrefixAttribute"
+                                    placeholder="{{'ex' | i18n}} sAMAccountName">
+                            </div>
+                            <div class="form-group">
+                                <label for="emailSuffix">{{'emailSuffix' | i18n}}</label>
+                                <input type="text" class="form-control" id="emailSuffix" name="EmailSuffix" [(ngModel)]="sync.emailSuffix" placeholder="{{'ex' | i18n}} @company.com">
+                            </div>
                         </div>
                     </div>
 
@@ -150,18 +154,20 @@
                             <label for="userFilter">{{'userFilter' | i18n}}</label>
                             <textarea class="form-control" id="userFilter" name="UserFilter" [(ngModel)]="sync.userFilter" placeholder="{{'ex' | i18n}} (&amp;(objectClass=user))"></textarea>
                         </div>
-                        <div class="form-group">
-                            <label for="userObjectClass">{{'userObjectClass' | i18n}}</label>
-                            <input type="text" class="form-control" id="userObjectClass" name="UserObjectClass" [(ngModel)]="sync.userObjectClass" placeholder="{{'ex' | i18n}} user">
-                        </div>
-                        <div class="form-group">
-                            <label for="userPath">{{'userPath' | i18n}}</label>
-                            <input type="text" class="form-control" id="userPath" name="UserPath" [(ngModel)]="sync.userPath" placeholder="{{'ex' | i18n}} CN=Users">
-                        </div>
-                        <div class="form-group">
-                            <label for="userEmailAttribute">{{'userEmailAttribute' | i18n}}</label>
-                            <input type="text" class="form-control" id="userEmailAttribute" name="UserEmailAttribute" [(ngModel)]="sync.userEmailAttribute"
-                                placeholder="{{'ex' | i18n}} mail">
+                        <div [hidden]="directory != directoryType.Ldap">
+                            <div class="form-group">
+                                <label for="userObjectClass">{{'userObjectClass' | i18n}}</label>
+                                <input type="text" class="form-control" id="userObjectClass" name="UserObjectClass" [(ngModel)]="sync.userObjectClass" placeholder="{{'ex' | i18n}} user">
+                            </div>
+                            <div class="form-group" [hidden]="ldap.ad">
+                                <label for="userPath">{{'userPath' | i18n}}</label>
+                                <input type="text" class="form-control" id="userPath" name="UserPath" [(ngModel)]="sync.userPath" placeholder="{{'ex' | i18n}} CN=Users">
+                            </div>
+                            <div class="form-group">
+                                <label for="userEmailAttribute">{{'userEmailAttribute' | i18n}}</label>
+                                <input type="text" class="form-control" id="userEmailAttribute" name="UserEmailAttribute" [(ngModel)]="sync.userEmailAttribute"
+                                    placeholder="{{'ex' | i18n}} mail">
+                            </div>
                         </div>
                     </div>
 
@@ -176,19 +182,21 @@
                             <label for="groupFilter">{{'groupFilter' | i18n}}</label>
                             <textarea class="form-control" id="groupFilter" name="GroupFilter" [(ngModel)]="sync.groupFilter" placeholder="{{'ex' | i18n}} (&amp;(objectClass=group))"></textarea>
                         </div>
-                        <div class="form-group">
-                            <label for="groupObjectClass">{{'groupObjectClass' | i18n}}</label>
-                            <input type="text" class="form-control" id="groupObjectClass" name="GroupObjectClass" [(ngModel)]="sync.groupObjectClass"
-                                placeholder="{{'ex' | i18n}} group">
-                        </div>
-                        <div class="form-group">
-                            <label for="groupPath">{{'groupPath' | i18n}}</label>
-                            <input type="text" class="form-control" id="groupPath" name="GroupPath" [(ngModel)]="sync.groupPath" placeholder="{{'ex' | i18n}} CN=Groups">
-                        </div>
-                        <div class="form-group">
-                            <label for="groupNameAttribute">{{'groupNameAttribute' | i18n}}</label>
-                            <input type="text" class="form-control" id="groupNameAttribute" name="GroupNameAttribute" [(ngModel)]="sync.groupNameAttribute"
-                                placeholder="{{'ex' | i18n}} name">
+                        <div [hidden]="directory != directoryType.Ldap">
+                            <div class="form-group">
+                                <label for="groupObjectClass">{{'groupObjectClass' | i18n}}</label>
+                                <input type="text" class="form-control" id="groupObjectClass" name="GroupObjectClass" [(ngModel)]="sync.groupObjectClass"
+                                    placeholder="{{'ex' | i18n}} group">
+                            </div>
+                            <div class="form-group" [hidden]="ldap.ad">
+                                <label for="groupPath">{{'groupPath' | i18n}}</label>
+                                <input type="text" class="form-control" id="groupPath" name="GroupPath" [(ngModel)]="sync.groupPath" placeholder="{{'ex' | i18n}} CN=Groups">
+                            </div>
+                            <div class="form-group">
+                                <label for="groupNameAttribute">{{'groupNameAttribute' | i18n}}</label>
+                                <input type="text" class="form-control" id="groupNameAttribute" name="GroupNameAttribute" [(ngModel)]="sync.groupNameAttribute"
+                                    placeholder="{{'ex' | i18n}} name">
+                            </div>
                         </div>
                     </div>
                 </div>
