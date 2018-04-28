@@ -2,8 +2,10 @@ import * as ldap from 'ldapjs';
 
 import { DirectoryType } from '../enums/directoryType';
 
+import { GroupEntry } from '../models/groupEntry';
 import { LdapConfiguration } from '../models/ldapConfiguration';
 import { SyncConfiguration } from '../models/syncConfiguration';
+import { UserEntry } from '../models/userEntry';
 
 import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
@@ -15,7 +17,7 @@ export class LdapDirectoryService implements DirectoryService {
 
     constructor(private configurationService: ConfigurationService) { }
 
-    async getEntries(force = false) {
+    async getEntries(force = false): Promise<[GroupEntry[], UserEntry[]]> {
         const type = await this.configurationService.getDirectoryType();
         if (type !== DirectoryType.Ldap) {
             return;
@@ -33,6 +35,8 @@ export class LdapDirectoryService implements DirectoryService {
 
         await this.auth();
         await this.getUsers();
+
+        return null;
     }
 
     private getUsers() {

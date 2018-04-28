@@ -1,3 +1,6 @@
+import { GroupEntry } from '../models/groupEntry';
+import { UserEntry } from '../models/userEntry';
+
 export interface DirectoryService {
-    getEntries(force?: boolean): any;
+    getEntries(force?: boolean): Promise<[GroupEntry[], UserEntry[]]>;
 }

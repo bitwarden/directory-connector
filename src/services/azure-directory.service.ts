@@ -5,7 +5,9 @@ import * as querystring from 'querystring';
 import { DirectoryType } from '../enums/directoryType';
 
 import { AzureConfiguration } from '../models/azureConfiguration';
+import { GroupEntry } from '../models/groupEntry';
 import { SyncConfiguration } from '../models/syncConfiguration';
+import { UserEntry } from '../models/userEntry';
 
 import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
@@ -55,7 +57,7 @@ export class AzureDirectoryService implements DirectoryService {
         });
     }
 
-    async getEntries(force = false) {
+    async getEntries(force = false): Promise<[GroupEntry[], UserEntry[]]> {
         const type = await this.configurationService.getDirectoryType();
         if (type !== DirectoryType.AzureActiveDirectory) {
             return;
@@ -74,6 +76,8 @@ export class AzureDirectoryService implements DirectoryService {
 
         await this.getUsers();
         await this.getGroups();
+
+        return null;
     }
 
     private async getUsers() {
