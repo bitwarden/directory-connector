@@ -14,6 +14,8 @@ const Keys = {
     directoryConfigPrefix: 'directoryConfig_',
     sync: 'syncConfig',
     directoryType: 'directoryType',
+    userDelta: 'userDeltaToken',
+    groupDelta: 'groupDeltaToken',
 };
 
 export class ConfigurationService {
@@ -73,19 +75,48 @@ export class ConfigurationService {
         await this.storageService.save(Keys.directoryConfigPrefix + type, savedConfig);
     }
 
-    async getSync(): Promise<SyncConfiguration> {
+    getSync(): Promise<SyncConfiguration> {
         return this.storageService.get<SyncConfiguration>(Keys.sync);
     }
 
-    async saveSync(config: SyncConfiguration) {
+    saveSync(config: SyncConfiguration) {
         return this.storageService.save(Keys.sync, config);
     }
 
-    async getDirectoryType(): Promise<DirectoryType> {
+    getDirectoryType(): Promise<DirectoryType> {
         return this.storageService.get<DirectoryType>(Keys.directoryType);
     }
 
     async saveDirectoryType(type: DirectoryType) {
+        const currentType = await this.getDirectoryType();
+        if (type !== currentType) {
+            await this.saveUserDeltaToken(null);
+            await this.saveGroupDeltaToken(null);
+        }
         return this.storageService.save(Keys.directoryType, type);
+    }
+
+    getUserDeltaToken(): Promise<string> {
+        return this.storageService.get<string>(Keys.userDelta);
+    }
+
+    saveUserDeltaToken(token: string) {
+        if (token == null) {
+            return this.storageService.remove(Keys.userDelta);
+        } else {
+            return this.storageService.save(Keys.userDelta, token);
+        }
+    }
+
+    getGroupDeltaToken(): Promise<string> {
+        return this.storageService.get<string>(Keys.groupDelta);
+    }
+
+    saveGroupDeltaToken(token: string) {
+        if (token == null) {
+            return this.storageService.remove(Keys.groupDelta);
+        } else {
+            return this.storageService.save(Keys.groupDelta, token);
+        }
     }
 }

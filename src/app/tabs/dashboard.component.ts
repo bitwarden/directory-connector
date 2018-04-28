@@ -15,7 +15,7 @@ export class DashboardComponent {
     constructor(private i18nService: I18nService, private syncService: SyncService) { }
 
     async sync() {
-        await this.syncService.sync(true, true);
+        await this.syncService.sync(false, true);
     }
 
     async simulate() {
