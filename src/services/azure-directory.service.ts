@@ -21,6 +21,8 @@ export class AzureDirectoryService implements DirectoryService {
     private client: graph.Client;
     private dirConfig: AzureConfiguration;
     private syncConfig: SyncConfiguration;
+    private accessToken: string;
+    private accessTokenExpiration: Date;
 
     constructor(private configurationService: ConfigurationService) {
         this.init();
@@ -290,6 +292,13 @@ export class AzureDirectoryService implements DirectoryService {
     private init() {
         this.client = graph.Client.init({
             authProvider: (done) => {
+                if (!this.accessTokenIsExpired()) {
+                    done(null, this.accessToken);
+                }
+
+                this.accessToken = null;
+                this.accessTokenExpiration = null;
+
                 const data = querystring.stringify({
                     client_id: this.dirConfig.applicationId,
                     client_secret: this.dirConfig.key,
@@ -310,6 +319,7 @@ export class AzureDirectoryService implements DirectoryService {
                     res.on('data', (chunk: string) => {
                         const d = JSON.parse(chunk);
                         if (res.statusCode === 200 && d.access_token != null) {
+                            this.setAccessTokenExpiration(d.access_token, d.expires_in);
                             done(null, d.access_token);
                         } else if (d.error != null && d.error_description != null) {
                             done(d.error + ' (' + res.statusCode + '): ' + d.error_description, null);
@@ -325,5 +335,26 @@ export class AzureDirectoryService implements DirectoryService {
                 req.end();
             },
         });
+    }
+
+    private accessTokenIsExpired() {
+        if (this.accessToken == null || this.accessTokenExpiration == null) {
+            return true;
+        }
+
+        // expired if less than 2 minutes til expiration
+        const now = new Date();
+        return this.accessTokenExpiration.getTime() - now.getTime() < 120000;
+    }
+
+    private setAccessTokenExpiration(accessToken: string, expSeconds: number) {
+        if (accessToken == null || expSeconds == null) {
+            return;
+        }
+
+        this.accessToken = accessToken;
+        const exp = new Date();
+        exp.setSeconds(exp.getSeconds() + expSeconds);
+        this.accessTokenExpiration = exp;
     }
 }
