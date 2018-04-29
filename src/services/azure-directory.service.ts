@@ -294,6 +294,7 @@ export class AzureDirectoryService implements DirectoryService {
             authProvider: (done) => {
                 if (!this.accessTokenIsExpired()) {
                     done(null, this.accessToken);
+                    return;
                 }
 
                 this.accessToken = null;
