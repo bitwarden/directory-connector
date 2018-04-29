@@ -15,6 +15,7 @@ import { DirectoryService } from './directory.service';
 
 const NextLink = '@odata.nextLink';
 const DeltaLink = '@odata.deltaLink';
+const ObjectType = '@odata.type';
 
 export class AzureDirectoryService implements DirectoryService {
     private client: graph.Client;
@@ -49,7 +50,21 @@ export class AzureDirectoryService implements DirectoryService {
 
         let groups: GroupEntry[];
         if (this.syncConfig.groups) {
-            groups = await this.getGroups();
+            const setFilter = this.createSet(this.syncConfig.groupFilter);
+
+            const groupForce = force ||
+                (users != null && users.filter((u) => !u.deleted && !u.disabled).length > 0);
+
+            groups = await this.getGroups(groupForce, setFilter);
+            if (setFilter != null && users != null) {
+                users = users.filter((u) => {
+                    if (u.disabled || u.deleted) {
+                        return true;
+                    }
+
+                    return groups.filter((g) => g.userMemberExternalIds.has(u.externalId)).length > 0;
+                });
+            }
         }
 
         return [groups, users];
@@ -76,22 +91,16 @@ export class AzureDirectoryService implements DirectoryService {
 
         const filter = this.createSet(this.syncConfig.userFilter);
         while (true) {
-            const users: graphType.User[] = res.val;
+            const users: graphType.User[] = res.value;
             if (users != null) {
                 users.forEach((user) => {
-                    const entry = new UserEntry();
-                    entry.referenceId = user.id;
-                    entry.externalId = user.id;
-                    entry.email = user.mail || user.userPrincipalName;
-                    entry.disabled = user.accountEnabled == null ? false : !user.accountEnabled;
-
+                    const entry = this.buildUser(user);
                     if (this.filterOutResult(filter, entry.email)) {
                         return;
                     }
 
-                    if ((user as any)['@removed'] != null && (user as any)['@removed'].reason === 'changed') {
-                        entry.deleted = true;
-                    } else if (!entry.disabled && (entry.email == null || entry.email.indexOf('#') > -1)) {
+                    if (!entry.disabled && !entry.deleted &&
+                        (entry.email == null || entry.email.indexOf('#') > -1)) {
                         return;
                     }
 
@@ -113,20 +122,124 @@ export class AzureDirectoryService implements DirectoryService {
         return entries;
     }
 
-    private async getGroups(): Promise<GroupEntry[]> {
+    private buildUser(user: graphType.User): UserEntry {
+        const entry = new UserEntry();
+        entry.referenceId = user.id;
+        entry.externalId = user.id;
+        entry.email = user.mail || user.userPrincipalName;
+        entry.disabled = user.accountEnabled == null ? false : !user.accountEnabled;
+
+        if ((user as any)['@removed'] != null && (user as any)['@removed'].reason === 'changed') {
+            entry.deleted = true;
+        }
+
+        return entry;
+    }
+
+    private async getGroups(force: boolean, setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
+        const changedGroupIds: string[] = [];
+        const token = await this.configurationService.getGroupDeltaToken();
+        const getFullResults = token == null || force;
+        let res: any = null;
+        let errored = false;
 
-        const request = this.client.api('/groups/delta');
-        const groups = await request.get();
-        console.log(groups);
+        try {
+            if (!getFullResults) {
+                try {
+                    const deltaReq = this.client.api(token);
+                    res = await deltaReq.get();
+                } catch {
+                    res = null;
+                }
+            }
 
-        groups.value.forEach(async (g: any) => {
-            const membersRequest = this.client.api('/groups/' + g.id + '/members');
-            const members = await membersRequest.get();
-            console.log(members);
-        });
+            if (res == null) {
+                const groupReq = this.client.api('/groups/delta');
+                res = await groupReq.get();
+            }
+
+            while (true) {
+                const groups: graphType.Group[] = res.value;
+                if (groups != null) {
+                    groups.forEach(async (group) => {
+                        if (getFullResults) {
+                            if (this.filterOutResult(setFilter, group.displayName)) {
+                                return;
+                            }
+
+                            const entry = await this.buildGroup(group);
+                            entries.push(entry);
+                        } else {
+                            changedGroupIds.push(group.id);
+                        }
+                    });
+                }
+
+                if (res[NextLink] == null) {
+                    if (res[DeltaLink] != null) {
+                        await this.configurationService.saveGroupDeltaToken(res[DeltaLink]);
+                    }
+                    break;
+                } else {
+                    const nextReq = this.client.api(res[NextLink]);
+                    res = await nextReq.get();
+                }
+            }
+        } catch {
+            errored = true;
+        }
+
+        if (!errored && (getFullResults || changedGroupIds.length === 0)) {
+            return entries;
+        }
+
+        const allGroupsReq = this.client.api('/groups');
+        res = await allGroupsReq.get();
+        while (true) {
+            const allGroups: graphType.Group[] = res.value;
+            if (allGroups != null) {
+                allGroups.forEach(async (group) => {
+                    if (this.filterOutResult(setFilter, group.displayName)) {
+                        return;
+                    }
+
+                    const entry = await this.buildGroup(group);
+                    entries.push(entry);
+                });
+            }
+
+            if (res[NextLink] == null) {
+                break;
+            } else {
+                const nextReq = this.client.api(res[NextLink]);
+                res = await nextReq.get();
+            }
+        }
 
         return entries;
+    }
+
+    private async buildGroup(group: graphType.Group): Promise<GroupEntry> {
+        const entry = new GroupEntry();
+        entry.referenceId = group.id;
+        entry.externalId = group.id;
+        entry.name = group.displayName;
+
+        const memReq = this.client.api('/groups/' + group.id + '/members');
+        const memRes = await memReq.get();
+        const members: any = memRes.value;
+        if (members != null) {
+            members.forEach((member: any) => {
+                if (member[ObjectType] === '#microsoft.graph.group') {
+                    entry.groupMemberReferenceIds.add((member as graphType.Group).id);
+                } else if (member[ObjectType] === '#microsoft.graph.user') {
+                    entry.userMemberExternalIds.add((member as graphType.User).id);
+                }
+            });
+        }
+
+        return entry;
     }
 
     private createSet(filter: string): [boolean, Set<string>] {
