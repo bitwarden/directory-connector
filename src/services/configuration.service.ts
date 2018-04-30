@@ -16,6 +16,8 @@ const Keys = {
     directoryType: 'directoryType',
     userDelta: 'userDeltaToken',
     groupDelta: 'groupDeltaToken',
+    lastUserSync: 'lastUserSync',
+    lastGroupSync: 'lastGroupSync',
 };
 
 export class ConfigurationService {
@@ -117,6 +119,30 @@ export class ConfigurationService {
             return this.storageService.remove(Keys.groupDelta);
         } else {
             return this.storageService.save(Keys.groupDelta, token);
+        }
+    }
+
+    getLastUserSyncDate(): Promise<Date> {
+        return this.storageService.get<Date>(Keys.lastUserSync);
+    }
+
+    saveLastUserSyncDate(date: Date) {
+        if (date == null) {
+            return this.storageService.remove(Keys.lastUserSync);
+        } else {
+            return this.storageService.save(Keys.lastUserSync, date);
+        }
+    }
+
+    getLastGroupSyncDate(): Promise<Date> {
+        return this.storageService.get<Date>(Keys.lastGroupSync);
+    }
+
+    saveLastGroupSyncDate(date: Date) {
+        if (date == null) {
+            return this.storageService.remove(Keys.lastGroupSync);
+        } else {
+            return this.storageService.save(Keys.lastGroupSync, date);
         }
     }
 }

@@ -39,7 +39,7 @@ export class SyncService {
             case DirectoryType.AzureActiveDirectory:
                 return new AzureDirectoryService(this.configurationService);
             case DirectoryType.Ldap:
-                return new LdapDirectoryService(this.configurationService);
+                return new LdapDirectoryService(this.configurationService, this.logService);
             default:
                 return null;
         }
