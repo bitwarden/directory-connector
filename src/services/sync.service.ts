@@ -8,6 +8,7 @@ import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 import { GSuiteDirectoryService } from './gsuite-directory.service';
 import { LdapDirectoryService } from './ldap-directory.service';
+import { GroupEntry } from '../models/groupEntry';
 
 const Keys = {
 };
@@ -28,8 +29,47 @@ export class SyncService {
             return;
         }
 
-        const entries = await directoryService.getEntries(force);
-        console.log(entries);
+        const startingGroupDelta = await this.configurationService.getGroupDeltaToken();
+        const startingUserDelta = await this.configurationService.getUserDeltaToken();
+        const now = new Date();
+
+        try {
+            const entries = await directoryService.getEntries(force);
+            const groups = entries[0];
+            const users = entries[1];
+
+            if (groups != null && groups.length > 0) {
+                this.flattenUsersToGroups(groups, null, groups);
+            }
+
+            console.log(groups);
+            console.log(users);
+
+            if (!sendToServer) {
+                // TODO: restore deltas
+            }
+
+            if (!sendToServer || groups == null || groups.length === 0 || users == null || users.length === 0) {
+                // TODO: return new sync result
+            }
+        } catch (e) {
+            // TODO: restore deltas
+            // failed sync result
+        }
+    }
+
+    private flattenUsersToGroups(currentGroups: GroupEntry[], currentGroupsUsers: string[], allGroups: GroupEntry[]) {
+        currentGroups.forEach((group) => {
+            const groupsInThisGroup = allGroups.filter((g) => group.groupMemberReferenceIds.has(g.referenceId));
+            let usersInThisGroup = Array.from(group.userMemberExternalIds);
+
+            if (currentGroupsUsers != null) {
+                currentGroupsUsers.forEach((id) => group.userMemberExternalIds.add(id));
+                usersInThisGroup = usersInThisGroup.concat(currentGroupsUsers);
+            }
+
+            this.flattenUsersToGroups(groupsInThisGroup, usersInThisGroup, allGroups);
+        });
     }
 
     private getDirectoryService(): DirectoryService {
