@@ -107,10 +107,6 @@ export class LdapDirectoryService implements DirectoryService {
             return null;
         }
 
-        // TODO: dates
-        user.revisonDate = new Date();
-        user.creationDate = new Date();
-
         return user;
     }
 
@@ -176,10 +172,6 @@ export class LdapDirectoryService implements DirectoryService {
         if (group.name == null) {
             return null;
         }
-
-        // TODO: dates
-        group.revisonDate = new Date();
-        group.creationDate = new Date();
 
         const members = this.getAttrVals(item, this.syncConfig.memberAttribute);
         if (members != null) {
