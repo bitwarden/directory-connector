@@ -323,14 +323,13 @@ export class LdapDirectoryService implements DirectoryService {
                 url: url.toLowerCase(),
             });
 
-            const user = this.dirConfig.username == null || this.dirConfig.username.trim() === '' ? null :
-                this.dirConfig.username;
-            const pass = this.dirConfig.password == null || this.dirConfig.password.trim() === '' ? null :
-                this.dirConfig.password;
-
-            if (user == null && pass == null) {
-                resolve();
-                return;
+            let user: string = null;
+            let pass: string = null;
+            if (!this.dirConfig.currentUser) {
+                user = this.dirConfig.username == null || this.dirConfig.username.trim() === '' ? null :
+                    this.dirConfig.username;
+                pass = this.dirConfig.password == null || this.dirConfig.password.trim() === '' ? null :
+                    this.dirConfig.password;
             }
 
             this.client.bind(user, pass, (err) => {
