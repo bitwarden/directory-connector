@@ -11,6 +11,7 @@ import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 
 import { LogService } from 'jslib/abstractions/log.service';
+import { Utils } from 'jslib/misc/utils';
 
 const UserControlAccountDisabled = 2;
 
@@ -198,7 +199,7 @@ export class LdapDirectoryService implements DirectoryService {
     private getExternalId(item: any, referenceId: string) {
         const attrObj = this.getAttrObj(item, 'objectGUID');
         if (attrObj != null && attrObj._vals != null && attrObj._vals.length > 0) {
-            return makeGuidString(attrObj._vals[0]);
+            return this.bufToGuid(attrObj._vals[0]);
         } else {
             return referenceId;
         }
@@ -349,24 +350,14 @@ export class LdapDirectoryService implements DirectoryService {
             });
         });
     }
-}
 
-// ref: https://github.com/zefferus/uuid-parse/blob/parse/uuid-parse.js
-
-const byteToHex: string[] = [];
-for (let i = 0; i < 256; i++) {
-    byteToHex[i] = (i + 0x100).toString(16).substr(1);
-}
-
-function makeGuidString(buf: Buffer) {
-    let i = 0;
-    const bth = byteToHex;
-    return bth[buf[i++]] + bth[buf[i++]] +
-        bth[buf[i++]] + bth[buf[i++]] + '-' +
-        bth[buf[i++]] + bth[buf[i++]] + '-' +
-        bth[buf[i++]] + bth[buf[i++]] + '-' +
-        bth[buf[i++]] + bth[buf[i++]] + '-' +
-        bth[buf[i++]] + bth[buf[i++]] +
-        bth[buf[i++]] + bth[buf[i++]] +
-        bth[buf[i++]] + bth[buf[i++]];
+    private bufToGuid(buf: Buffer) {
+        const p1 = buf.slice(0, 4).reverse().buffer;
+        const p2 = buf.slice(4, 6).reverse().buffer;
+        const p3 = buf.slice(6, 8).reverse().buffer;
+        const p4 = buf.slice(8).buffer;
+        const guid = Utils.fromBufferToHex(p1) + '-' + Utils.fromBufferToHex(p2) + '-' + Utils.fromBufferToHex(p3) +
+            '-' + Utils.fromBufferToHex(p4);
+        return guid.toLowerCase();
+    }
 }
