@@ -81,9 +81,9 @@ export class LdapDirectoryService implements DirectoryService {
             const deletedPath = this.makeSearchPath('CN=Deleted Objects');
             this.logService.info('Deleted user search: ' + deletedPath + ' => ' + deletedFilter);
 
+            const delControl = new (ldap as any).Control({ type: '1.2.840.113556.1.4.417', criticality: true });
             const deletedUsers = await this.search<UserEntry>(deletedPath, deletedFilter,
-                (item: any) => this.buildUser(item, true),
-                [{ type: '1.2.840.113556.1.4.417', criticality: true }]);
+                (item: any) => this.buildUser(item, true), [delControl]);
             return regularUsers.concat(deletedUsers);
         } catch (e) {
             this.logService.warning('Cannot query deleted users.');
