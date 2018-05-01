@@ -1,5 +1,12 @@
 import { DirectoryType } from '../enums/directoryType';
 
+import { GroupEntry } from '../models/groupEntry';
+import { UserEntry } from '../models/userEntry';
+
+import { ImportDirectoryRequest } from 'jslib/models/request/importDirectoryRequest';
+import { ImportDirectoryRequestGroup } from 'jslib/models/request/importDirectoryRequestGroup';
+import { ImportDirectoryRequestUser } from 'jslib/models/request/importDirectoryRequestUser';
+
 import { LogService } from 'jslib/abstractions/log.service';
 import { StorageService } from 'jslib/abstractions/storage.service';
 
@@ -8,7 +15,6 @@ import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 import { GSuiteDirectoryService } from './gsuite-directory.service';
 import { LdapDirectoryService } from './ldap-directory.service';
-import { GroupEntry } from '../models/groupEntry';
 
 const Keys = {
 };
@@ -18,17 +24,18 @@ export class SyncService {
 
     constructor(private configurationService: ConfigurationService, private logService: LogService) { }
 
-    async sync(force = true, sendToServer = true): Promise<any> {
+    async sync(force = true, sendToServer = true): Promise<[GroupEntry[], UserEntry[]]> {
         this.dirType = await this.configurationService.getDirectoryType();
         if (this.dirType == null) {
-            return;
+            throw new Error('No directory configured.');
         }
 
         const directoryService = this.getDirectoryService();
         if (directoryService == null) {
-            return;
+            throw new Error('Cannot load directory service.');
         }
 
+        const syncConfig = await this.configurationService.getSync();
         const startingGroupDelta = await this.configurationService.getGroupDeltaToken();
         const startingUserDelta = await this.configurationService.getUserDeltaToken();
         const now = new Date();
@@ -50,11 +57,14 @@ export class SyncService {
             }
 
             if (!sendToServer || groups == null || groups.length === 0 || users == null || users.length === 0) {
-                // TODO: return new sync result
+                return [groups, users];
             }
+
+            const req = this.buildRequest(groups, users, syncConfig.removeDisabled);
         } catch (e) {
             // TODO: restore deltas
             // failed sync result
+            throw e;
         }
     }
 
@@ -83,5 +93,31 @@ export class SyncService {
             default:
                 return null;
         }
+    }
+
+    private buildRequest(groups: GroupEntry[], users: UserEntry[], removeDisabled: boolean): ImportDirectoryRequest {
+        const model = new ImportDirectoryRequest();
+
+        if (groups != null) {
+            groups.forEach((g) => {
+                const ig = new ImportDirectoryRequestGroup();
+                ig.name = g.name;
+                ig.externalId = g.externalId;
+                ig.users = Array.from(g.userMemberExternalIds);
+                model.groups.push(ig);
+            });
+        }
+
+        if (users != null) {
+            users.forEach((u) => {
+                const iu = new ImportDirectoryRequestUser();
+                iu.email = u.email;
+                iu.externalId = u.externalId;
+                iu.deleted = u.deleted || (removeDisabled && u.disabled);
+                model.users.push(iu);
+            });
+        }
+
+        return model;
     }
 }
