@@ -188,11 +188,12 @@ export class LdapDirectoryService implements DirectoryService {
     }
 
     private getExternalId(item: any, referenceId: string) {
-        let externalId = this.getAttr(item, 'objectGUID'); // from guid to string?
-        if (externalId == null) {
-            externalId = referenceId;
+        const attrObj = this.getAttrObj(item, 'objectGUID');
+        if (attrObj != null && attrObj._vals != null && attrObj._vals.length > 0) {
+            return makeGuidString(attrObj._vals[0]);
+        } else {
+            return referenceId;
         }
-        return externalId;
     }
 
     private buildBaseFilter(objectClass: string, subFilter: string): string {
@@ -230,7 +231,7 @@ export class LdapDirectoryService implements DirectoryService {
         return null;
     }
 
-    private getAttrVals(searchEntry: any, attr: string): string[] {
+    private getAttrObj(searchEntry: any, attr: string): any {
         if (searchEntry == null || searchEntry.attributes == null) {
             return null;
         }
@@ -240,7 +241,15 @@ export class LdapDirectoryService implements DirectoryService {
             return null;
         }
 
-        return attrs[0].vals;
+        return attrs[0];
+    }
+
+    private getAttrVals(searchEntry: any, attr: string): string[] {
+        const obj = this.getAttrObj(searchEntry, attr);
+        if (obj == null) {
+            return null;
+        }
+        return obj.vals;
     }
 
     private getAttr(searchEntry: any, attr: string): string {
@@ -334,4 +343,24 @@ export class LdapDirectoryService implements DirectoryService {
             });
         });
     }
+}
+
+// ref: https://github.com/zefferus/uuid-parse/blob/parse/uuid-parse.js
+
+const byteToHex: string[] = [];
+for (let i = 0; i < 256; i++) {
+    byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function makeGuidString(buf: Buffer) {
+    let i = 0;
+    const bth = byteToHex;
+    return bth[buf[i++]] + bth[buf[i++]] +
+        bth[buf[i++]] + bth[buf[i++]] + '-' +
+        bth[buf[i++]] + bth[buf[i++]] + '-' +
+        bth[buf[i++]] + bth[buf[i++]] + '-' +
+        bth[buf[i++]] + bth[buf[i++]] + '-' +
+        bth[buf[i++]] + bth[buf[i++]] +
+        bth[buf[i++]] + bth[buf[i++]] +
+        bth[buf[i++]] + bth[buf[i++]];
 }
