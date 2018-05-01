@@ -12,6 +12,8 @@ import { DirectoryService } from './directory.service';
 
 import { LogService } from 'jslib/abstractions/log.service';
 
+const UserControlAccountDisabled = 2;
+
 export class LdapDirectoryService implements DirectoryService {
     private client: ldap.Client;
     private dirConfig: LdapConfiguration;
@@ -261,12 +263,15 @@ export class LdapDirectoryService implements DirectoryService {
     }
 
     private entryDisabled(searchEntry: any): boolean {
-        const control = this.getAttr(searchEntry, 'userAccountControl');
-        if (control == null) {
-            return false;
+        const c = this.getAttr(searchEntry, 'userAccountControl');
+        if (c != null) {
+            try {
+                const control = parseInt(c, null);
+                // tslint:disable-next-line
+                return (control & UserControlAccountDisabled) === UserControlAccountDisabled;
+            } catch { }
         }
 
-        // TODO
         return false;
     }
 
