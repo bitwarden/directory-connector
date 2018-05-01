@@ -59,6 +59,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.sync.emailPrefixAttribute = 'sAMAccountName';
             this.sync.groupPath = 'CN=Users';
             this.sync.userPath = 'CN=Users';
+            this.sync.memberAttribute = 'member';
+            this.sync.userObjectClass = 'person';
+            this.sync.groupObjectClass = 'group';
+            this.sync.userEmailAttribute = 'mail';
+            this.sync.groupNameAttribute = 'name';
         }
 
         await this.configurationService.saveDirectoryType(this.directory);

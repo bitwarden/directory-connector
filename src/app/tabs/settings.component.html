@@ -34,7 +34,7 @@
                             <label class="form-check-label" for="ad">{{'ldapAd' | i18n}}</label>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" [hidden]="true">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="currentUser" [(ngModel)]="ldap.currentUser" name="CurrentUser">
                             <label class="form-check-label" for="currentUser">{{'currentUser' | i18n}}</label>
@@ -106,11 +106,11 @@
                     </div>
                 </div>
                 <div [hidden]="directory != directoryType.Ldap">
-                    <div class="form-group">
-                        <label for="memberAttribute">{{'memberAttribute' | i18n}}</label>
-                        <input type="text" class="form-control" id="memberAttribute" name="MemberAttribute" [(ngModel)]="sync.memberAttribute" placeholder="{{'ex' | i18n}} member">
-                    </div>
                     <div [hidden]="ldap.ad">
+                        <div class="form-group">
+                            <label for="memberAttribute">{{'memberAttribute' | i18n}}</label>
+                            <input type="text" class="form-control" id="memberAttribute" name="MemberAttribute" [(ngModel)]="sync.memberAttribute" placeholder="{{'ex' | i18n}} member">
+                        </div>
                         <div class="form-group">
                             <label for="creationDateAttribute">{{'creationDateAttribute' | i18n}}</label>
                             <input type="text" class="form-control" id="creationDateAttribute" name="CreationDateAttribute" [(ngModel)]="sync.creationDateAttribute"
@@ -153,12 +153,12 @@
                         <label for="userFilter">{{'userFilter' | i18n}}</label>
                         <textarea class="form-control" id="userFilter" name="UserFilter" [(ngModel)]="sync.userFilter" placeholder="{{'ex' | i18n}} (&amp;(objectClass=user))"></textarea>
                     </div>
-                    <div [hidden]="directory != directoryType.Ldap">
+                    <div [hidden]="directory != directoryType.Ldap || ldap.ad">
                         <div class="form-group">
                             <label for="userObjectClass">{{'userObjectClass' | i18n}}</label>
                             <input type="text" class="form-control" id="userObjectClass" name="UserObjectClass" [(ngModel)]="sync.userObjectClass" placeholder="{{'ex' | i18n}} user">
                         </div>
-                        <div class="form-group" [hidden]="ldap.ad">
+                        <div class="form-group">
                             <label for="userPath">{{'userPath' | i18n}}</label>
                             <input type="text" class="form-control" id="userPath" name="UserPath" [(ngModel)]="sync.userPath" placeholder="{{'ex' | i18n}} CN=Users">
                         </div>
@@ -181,13 +181,13 @@
                         <label for="groupFilter">{{'groupFilter' | i18n}}</label>
                         <textarea class="form-control" id="groupFilter" name="GroupFilter" [(ngModel)]="sync.groupFilter" placeholder="{{'ex' | i18n}} (&amp;(objectClass=group))"></textarea>
                     </div>
-                    <div [hidden]="directory != directoryType.Ldap">
+                    <div [hidden]="directory != directoryType.Ldap || ldap.ad">
                         <div class="form-group">
                             <label for="groupObjectClass">{{'groupObjectClass' | i18n}}</label>
                             <input type="text" class="form-control" id="groupObjectClass" name="GroupObjectClass" [(ngModel)]="sync.groupObjectClass"
                                 placeholder="{{'ex' | i18n}} group">
                         </div>
-                        <div class="form-group" [hidden]="ldap.ad">
+                        <div class="form-group">
                             <label for="groupPath">{{'groupPath' | i18n}}</label>
                             <input type="text" class="form-control" id="groupPath" name="GroupPath" [(ngModel)]="sync.groupPath" placeholder="{{'ex' | i18n}} CN=Groups">
                         </div>
