@@ -68,9 +68,7 @@ export class LdapDirectoryService implements DirectoryService {
         const path = this.makeSearchPath(this.syncConfig.userPath);
         this.logService.info('User search: ' + path + ' => ' + filter);
 
-        const regularUsers = await this.search<UserEntry>(path, filter,
-            (item: any) => this.buildUser(item, false));
-
+        const regularUsers = await this.search<UserEntry>(path, filter, (se: any) => this.buildUser(se, false));
         if (!this.dirConfig.ad) {
             return regularUsers;
         }
@@ -84,7 +82,7 @@ export class LdapDirectoryService implements DirectoryService {
 
             const delControl = new (ldap as any).Control({ type: '1.2.840.113556.1.4.417', criticality: true });
             const deletedUsers = await this.search<UserEntry>(deletedPath, deletedFilter,
-                (item: any) => this.buildUser(item, true), [delControl]);
+                (se: any) => this.buildUser(se, true), [delControl]);
             return regularUsers.concat(deletedUsers);
         } catch (e) {
             this.logService.warning('Cannot query deleted users.');
@@ -92,21 +90,21 @@ export class LdapDirectoryService implements DirectoryService {
         }
     }
 
-    private buildUser(item: any, deleted: boolean): UserEntry {
+    private buildUser(searchEntry: any, deleted: boolean): UserEntry {
         const user = new UserEntry();
-        user.referenceId = item.objectName;
+        user.referenceId = searchEntry.objectName;
         user.deleted = deleted;
 
         if (user.referenceId == null) {
             return null;
         }
 
-        user.externalId = this.getExternalId(item, user.referenceId);
-        user.disabled = this.entryDisabled(item);
-        user.email = this.getAttr(item, this.syncConfig.userEmailAttribute);
+        user.externalId = this.getExternalId(searchEntry, user.referenceId);
+        user.disabled = this.entryDisabled(searchEntry);
+        user.email = this.getAttr(searchEntry, this.syncConfig.userEmailAttribute);
         if (user.email == null && this.syncConfig.useEmailPrefixSuffix &&
             this.syncConfig.emailPrefixAttribute != null && this.syncConfig.emailSuffix != null) {
-            const prefixAttr = this.getAttr(item, this.syncConfig.emailPrefixAttribute);
+            const prefixAttr = this.getAttr(searchEntry, this.syncConfig.emailPrefixAttribute);
             if (prefixAttr != null) {
                 user.email = (prefixAttr + this.syncConfig.emailSuffix).toLowerCase();
             }
@@ -133,29 +131,28 @@ export class LdapDirectoryService implements DirectoryService {
         const path = this.makeSearchPath(this.syncConfig.groupPath);
         this.logService.info('Group search: ' + path + ' => ' + filter);
 
-        let items: any[] = [];
-        const initialSearchGroupIds = await this.search<string>(path, filter, (item: any) => {
-            items.push(item);
-            return item.objectName;
+        let groupSearchEntries: any[] = [];
+        const initialSearchGroupIds = await this.search<string>(path, filter, (se: any) => {
+            groupSearchEntries.push(se);
+            return se.objectName;
         });
 
         if (searchSinceRevision && initialSearchGroupIds.length === 0) {
             return [];
         } else if (searchSinceRevision) {
-            items = await this.search<string>(path, originalFilter, (item: any) => item);
+            groupSearchEntries = await this.search<string>(path, originalFilter, (se: any) => se);
         }
 
         const userFilter = this.buildBaseFilter(this.syncConfig.userObjectClass, this.syncConfig.userFilter);
         const userPath = this.makeSearchPath(this.syncConfig.userPath);
-
         const userIdMap = new Map<string, string>();
-        await this.search<string>(path, filter, (item: any) => {
-            userIdMap.set(item.objectName, this.getExternalId(item, item.objectName));
-            return null;
+        await this.search<string>(userPath, userFilter, (se: any) => {
+            userIdMap.set(se.objectName, this.getExternalId(se, se.objectName));
+            return se;
         });
 
-        items.forEach((item) => {
-            const group = this.buildGroup(item, userIdMap);
+        groupSearchEntries.forEach((se) => {
+            const group = this.buildGroup(se, userIdMap);
             if (group != null) {
                 entries.push(group);
             }
@@ -164,25 +161,25 @@ export class LdapDirectoryService implements DirectoryService {
         return entries;
     }
 
-    private buildGroup(item: any, userMap: Map<string, string>) {
+    private buildGroup(searchEntry: any, userMap: Map<string, string>) {
         const group = new GroupEntry();
-        group.referenceId = item.objectName;
+        group.referenceId = searchEntry.objectName;
         if (group.referenceId == null) {
             return null;
         }
 
-        group.externalId = this.getExternalId(item, group.referenceId);
+        group.externalId = this.getExternalId(searchEntry, group.referenceId);
 
-        group.name = this.getAttr(item, this.syncConfig.groupNameAttribute);
+        group.name = this.getAttr(searchEntry, this.syncConfig.groupNameAttribute);
         if (group.name == null) {
-            group.name = this.getAttr(item, 'cn');
+            group.name = this.getAttr(searchEntry, 'cn');
         }
 
         if (group.name == null) {
             return null;
         }
 
-        const members = this.getAttrVals(item, this.syncConfig.memberAttribute);
+        const members = this.getAttrVals(searchEntry, this.syncConfig.memberAttribute);
         if (members != null) {
             members.forEach((memDn) => {
                 if (userMap.has(memDn) && !group.userMemberExternalIds.has(userMap.get(memDn))) {
@@ -196,8 +193,8 @@ export class LdapDirectoryService implements DirectoryService {
         return group;
     }
 
-    private getExternalId(item: any, referenceId: string) {
-        const attrObj = this.getAttrObj(item, 'objectGUID');
+    private getExternalId(searchEntry: any, referenceId: string) {
+        const attrObj = this.getAttrObj(searchEntry, 'objectGUID');
         if (attrObj != null && attrObj._vals != null && attrObj._vals.length > 0) {
             return this.bufToGuid(attrObj._vals[0]);
         } else {
