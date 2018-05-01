@@ -82,7 +82,8 @@ export class LdapDirectoryService implements DirectoryService {
             this.logService.info('Deleted user search: ' + deletedPath + ' => ' + deletedFilter);
 
             const deletedUsers = await this.search<UserEntry>(deletedPath, deletedFilter,
-                (item: any) => this.buildUser(item, true), { includeDeleted: true });
+                (item: any) => this.buildUser(item, true),
+                [{ type: '1.2.840.113556.1.4.417', criticality: true }]);
             return regularUsers.concat(deletedUsers);
         } catch (e) {
             this.logService.warning('Cannot query deleted users.');
@@ -281,16 +282,15 @@ export class LdapDirectoryService implements DirectoryService {
     }
 
     private async search<T>(path: string, filter: string, processEntry: (searchEntry: any) => T,
-        additionalOptions: any = {}): Promise<T[]> {
-        const defaultOptions: ldap.SearchOptions = {
+        controls: ldap.Control[] = []): Promise<T[]> {
+        const options: ldap.SearchOptions = {
             filter: filter,
             scope: 'sub',
             paged: true,
         };
-        const options = Object.assign({}, defaultOptions, additionalOptions);
         const entries: T[] = [];
         return new Promise<T[]>((resolve, reject) => {
-            this.client.search(path, options, (err, res) => {
+            this.client.search(path, options, controls, (err, res) => {
                 if (err != null) {
                     reject(err);
                     return;
