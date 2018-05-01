@@ -352,10 +352,11 @@ export class LdapDirectoryService implements DirectoryService {
     }
 
     private bufToGuid(buf: Buffer) {
-        const p1 = buf.slice(0, 4).reverse().buffer;
-        const p2 = buf.slice(4, 6).reverse().buffer;
-        const p3 = buf.slice(6, 8).reverse().buffer;
-        const p4 = buf.slice(8).buffer;
+        const arr = new Uint8Array(buf);
+        const p1 = arr.slice(0, 4).reverse().buffer;
+        const p2 = arr.slice(4, 6).reverse().buffer;
+        const p3 = arr.slice(6, 8).reverse().buffer;
+        const p4 = arr.slice(8).buffer;
         const guid = Utils.fromBufferToHex(p1) + '-' + Utils.fromBufferToHex(p2) + '-' + Utils.fromBufferToHex(p3) +
             '-' + Utils.fromBufferToHex(p4);
         return guid.toLowerCase();
