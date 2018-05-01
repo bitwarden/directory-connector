@@ -74,15 +74,20 @@ export class LdapDirectoryService implements DirectoryService {
             return regularUsers;
         }
 
-        let deletedFilter = this.buildBaseFilter(this.syncConfig.userObjectClass, '(isDeleted=TRUE)');
-        deletedFilter = this.buildRevisionFilter(deletedFilter, force, lastSync);
+        try {
+            let deletedFilter = this.buildBaseFilter(this.syncConfig.userObjectClass, '(isDeleted=TRUE)');
+            deletedFilter = this.buildRevisionFilter(deletedFilter, force, lastSync);
 
-        const deletedPath = this.makeSearchPath('CN=Deleted Objects');
-        this.logService.info('Deleted user search: ' + deletedPath + ' => ' + deletedFilter);
+            const deletedPath = this.makeSearchPath('CN=Deleted Objects');
+            this.logService.info('Deleted user search: ' + deletedPath + ' => ' + deletedFilter);
 
-        const deletedUsers = await this.search<UserEntry>(deletedPath, deletedFilter,
-            (item: any) => this.buildUser(item, true));
-        return regularUsers.concat(deletedUsers);
+            const deletedUsers = await this.search<UserEntry>(deletedPath, deletedFilter,
+                (item: any) => this.buildUser(item, true), { includeDeleted: true });
+            return regularUsers.concat(deletedUsers);
+        } catch (e) {
+            this.logService.warning('Cannot query deleted users.');
+            return regularUsers;
+        }
     }
 
     private buildUser(item: any, deleted: boolean): UserEntry {
@@ -275,13 +280,14 @@ export class LdapDirectoryService implements DirectoryService {
         return false;
     }
 
-    private async search<T>(path: string, filter: string, processEntry: (searchEntry: any) => T): Promise<T[]> {
-        const options: ldap.SearchOptions = {
+    private async search<T>(path: string, filter: string, processEntry: (searchEntry: any) => T,
+        additionalOptions: any = {}): Promise<T[]> {
+        const defaultOptions: ldap.SearchOptions = {
             filter: filter,
             scope: 'sub',
             paged: true,
         };
-
+        const options = Object.assign({}, defaultOptions, additionalOptions);
         const entries: T[] = [];
         return new Promise<T[]>((resolve, reject) => {
             this.client.search(path, options, (err, res) => {
