@@ -231,8 +231,8 @@
     "view": {
         "message": "View"
     },
-    "file": {
-        "message": "File"
+    "jsonKeyFile": {
+        "message": "JSON Key File"
     },
     "edit": {
         "message": "Edit"

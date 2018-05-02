@@ -87,10 +87,15 @@
                         <small class="text-muted form-text">{{'ex' | i18n}} 39204722352</small>
                     </div>
                     <div class="form-group">
+                        <label for="keyFile">{{'jsonKeyFile' | i18n}}</label>
+                        <input type="file" class="form-control-file" id="keyFile" accept=".json" (change)="parseKeyFile()">
+                        <small class="text-muted form-text">{{'ex' | i18n}} My Project-jksd3jd223.json</small>
+                    </div>
+                    <div class="form-group" [hidden]="!gsuite.clientEmail">
                         <label for="clientEmail">{{'clientEmail' | i18n}}</label>
                         <input type="text" class="form-control" id="clientEmail" name="ClientEmail" [(ngModel)]="gsuite.clientEmail">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" [hidden]="!gsuite.privateKey">
                         <label for="privateKey">{{'privateKey' | i18n}}</label>
                         <textarea class="form-control text-monospace" id="privateKey" name="PrivateKey" [(ngModel)]="gsuite.privateKey">
                             </textarea>

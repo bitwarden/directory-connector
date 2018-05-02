@@ -65,20 +65,9 @@ export class AppComponent implements OnInit {
         private componentFactoryResolver: ComponentFactoryResolver, private messagingService: MessagingService) { }
 
     ngOnInit() {
-        this.ngZone.runOutsideAngular(() => {
-            window.setTimeout(async () => {
-                await this.updateAppMenu();
-            }, 1000);
-        });
-
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
             this.ngZone.run(async () => {
                 switch (message.command) {
-                    case 'loggedIn':
-                    case 'unlocked':
-                    case 'loggedOut':
-                        this.updateAppMenu();
-                        break;
                     case 'logout':
                         this.logOut(!!message.expired);
                         break;
@@ -90,12 +79,6 @@ export class AppComponent implements OnInit {
 
     ngOnDestroy() {
         this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-    }
-
-    private async updateAppMenu() {
-        this.messagingService.send('updateAppMenu', {
-            isAuthenticated: await this.userService.isAuthenticated(),
-        });
     }
 
     private async logOut(expired: boolean) {

@@ -1,5 +1,7 @@
 import {
+    ChangeDetectorRef,
     Component,
+    NgZone,
     OnDestroy,
     OnInit,
 } from '@angular/core';
@@ -28,7 +30,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     sync = new SyncConfiguration();
     directoryOptions: any[];
 
-    constructor(private i18nService: I18nService, private configurationService: ConfigurationService) {
+    constructor(private i18nService: I18nService, private configurationService: ConfigurationService,
+        private changeDetectorRef: ChangeDetectorRef, private ngZone: NgZone) {
         this.directoryOptions = [
             { name: i18nService.t('select'), value: null },
             { name: 'Active Directory / LDAP', value: DirectoryType.Ldap },
@@ -71,5 +74,33 @@ export class SettingsComponent implements OnInit, OnDestroy {
         await this.configurationService.saveDirectory(DirectoryType.GSuite, this.gsuite);
         await this.configurationService.saveDirectory(DirectoryType.AzureActiveDirectory, this.azure);
         await this.configurationService.saveSync(this.sync);
+    }
+
+    async parseKeyFile() {
+        const filePicker = (document.getElementById('keyFile') as HTMLInputElement);
+        if (filePicker.files == null || filePicker.files.length < 0) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsText(filePicker.files[0], 'utf-8');
+        reader.onload = (evt) => {
+            this.ngZone.run(async () => {
+                try {
+                    const result = JSON.parse((evt.target as FileReader).result);
+                    if (result.client_email != null && result.private_key != null) {
+                        this.gsuite.clientEmail = result.client_email;
+                        this.gsuite.privateKey = result.private_key;
+                    }
+                } catch { }
+                this.changeDetectorRef.detectChanges();
+            });
+
+            // reset file input
+            // ref: https://stackoverflow.com/a/20552042
+            filePicker.type = '';
+            filePicker.type = 'file';
+            filePicker.value = '';
+        };
     }
 }

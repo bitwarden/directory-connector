@@ -24,9 +24,6 @@ export class MessagingMain {
             case 'scheduleNextSync':
                 this.scheduleNextSync();
                 break;
-            case 'updateAppMenu':
-                this.menuMain.updateApplicationMenuState(message.isAuthenticated);
-                break;
             default:
                 break;
         }
