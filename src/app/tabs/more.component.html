@@ -1,0 +1,23 @@
+<div class="row">
+    <div class="col-sm">
+        <div class="card">
+            <h3 class="card-header">{{'about' | i18n}}</h3>
+            <div class="card-body">
+                <p>
+                    {{'bitwardenDirectoryConnector' | i18n}}<br />
+                    {{'version' | i18n : version}}
+                    <br /> &copy; 8bit Solutions LLC 2015-{{year}}
+                </p>
+                <button class="btn btn-primary" type="button" (click)="update()">{{'checkForUpdates' | i18n}}</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm">
+        <div class="card">
+            <h3 class="card-header">{{'other' | i18n}}</h3>
+            <div class="card-body">
+                <button class="btn btn-primary" type="button" (click)="logOut()">{{'logOut' | i18n}}</button>
+            </div>
+        </div>
+    </div>
+</div>

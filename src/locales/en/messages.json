@@ -283,8 +283,8 @@
         "message": "Bring All to Front",
         "description": "Bring all windows to front (foreground)"
     },
-    "aboutBitwarden": {
-        "message": "About Bitwarden Directory Connector"
+    "about": {
+        "message": "About"
     },
     "services": {
         "message": "Services"
@@ -428,5 +428,11 @@
     },
     "organization": {
         "message": "Organization"
+    },
+    "more": {
+        "message": "More"
+    },
+    "other": {
+        "message": "Other"
     }
 }

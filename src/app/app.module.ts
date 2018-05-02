@@ -23,6 +23,7 @@ import { LoginComponent } from './accounts/login.component';
 import { TwoFactorOptionsComponent } from './accounts/two-factor-options.component';
 import { TwoFactorComponent } from './accounts/two-factor.component';
 import { DashboardComponent } from './tabs/dashboard.component';
+import { MoreComponent } from './tabs/more.component';
 import { SettingsComponent } from './tabs/settings.component';
 import { TabsComponent } from './tabs/tabs.component';
 
@@ -64,6 +65,7 @@ import { SearchCiphersPipe } from 'jslib/angular/pipes/search-ciphers.pipe';
         IconComponent,
         LoginComponent,
         ModalComponent,
+        MoreComponent,
         SearchCiphersPipe,
         SettingsComponent,
         StopClickDirective,

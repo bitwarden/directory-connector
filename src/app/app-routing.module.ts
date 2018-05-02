@@ -10,6 +10,7 @@ import { LaunchGuardService } from './services/launch-guard.service';
 import { LoginComponent } from './accounts/login.component';
 import { TwoFactorComponent } from './accounts/two-factor.component';
 import { DashboardComponent } from './tabs/dashboard.component';
+import { MoreComponent } from './tabs/more.component';
 import { SettingsComponent } from './tabs/settings.component';
 import { TabsComponent } from './tabs/tabs.component';
 
@@ -38,6 +39,11 @@ const routes: Routes = [
             {
                 path: 'settings',
                 component: SettingsComponent,
+                canActivate: [AuthGuardService],
+            },
+            {
+                path: 'more',
+                component: MoreComponent,
                 canActivate: [AuthGuardService],
             },
         ],
