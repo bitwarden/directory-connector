@@ -21,8 +21,8 @@ export class DashboardComponent {
     simDisabledUsers: UserEntry[] = [];
     simDeletedUsers: UserEntry[] = [];
     simPromise: Promise<any>;
+    simSinceLast: boolean = false;
     syncPromise: Promise<any>;
-    sinceLast: boolean = false;
 
     constructor(private i18nService: I18nService, private syncService: SyncService) { }
 
@@ -32,9 +32,15 @@ export class DashboardComponent {
     }
 
     async simulate() {
+        this.simGroups = null;
+        this.simUsers = null;
+        this.simEnabledUsers = [];
+        this.simDisabledUsers = [];
+        this.simDeletedUsers = [];
+
         this.simPromise = new Promise(async (resolve, reject) => {
             try {
-                const result = await this.syncService.sync(!this.sinceLast, false);
+                const result = await this.syncService.sync(!this.simSinceLast, false);
                 this.simUsers = result[1];
                 this.simGroups = result[0];
             } catch (e) {

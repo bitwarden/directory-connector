@@ -15,8 +15,8 @@
             Simulate
         </button>
         <div class="form-check mt-2">
-            <input class="form-check-input" type="checkbox" id="sinceLast" [(ngModel)]="sinceLast">
-            <label class="form-check-label" for="sinceLast">Since the last successful sync</label>
+            <input class="form-check-input" type="checkbox" id="simSinceLast" [(ngModel)]="simSinceLast">
+            <label class="form-check-label" for="simSinceLast">Since the last successful sync</label>
         </div>
         <ng-container *ngIf="!simBtn.loading && (simUsers || simGroups)">
             <hr />
