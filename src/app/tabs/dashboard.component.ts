@@ -7,6 +7,7 @@ import { GSuiteDirectoryService } from '../../services/gsuite-directory.service'
 import { LdapDirectoryService } from '../../services/ldap-directory.service';
 import { SyncService } from '../../services/sync.service';
 
+import { Entry } from '../../models/entry';
 import { GroupEntry } from '../../models/groupEntry';
 import { UserEntry } from '../../models/userEntry';
 
@@ -49,6 +50,7 @@ export class DashboardComponent {
 
             const userMap = new Map<string, UserEntry>();
             if (this.simUsers != null) {
+                this.sort(this.simUsers);
                 this.simUsers.forEach((u) => {
                     userMap.set(u.externalId, u);
                     if (u.deleted) {
@@ -62,6 +64,7 @@ export class DashboardComponent {
             }
 
             if (userMap.size > 0 && this.simGroups != null) {
+                this.sort(this.simGroups);
                 this.simGroups.forEach((g) => {
                     if (g.userMemberExternalIds == null) {
                         return;
@@ -75,9 +78,20 @@ export class DashboardComponent {
                             (g as any).users.push(userMap.get(uid));
                         }
                     });
+
+                    if ((g as any).users != null) {
+                        this.sort((g as any).users);
+                    }
                 });
             }
             resolve();
+        });
+    }
+
+    private sort(arr: Entry[]) {
+        arr.sort((a, b) => {
+            return this.i18nService.collator ? this.i18nService.collator.compare(a.displayName, b.displayName) :
+                a.displayName.localeCompare(b.displayName);
         });
     }
 }
