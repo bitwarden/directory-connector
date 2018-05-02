@@ -312,7 +312,7 @@
         "message": "Server Hostname"
     },
     "port": {
-        "message": "Port",
+        "message": "Server Port",
         "description": "A server's port number. ex. google.com:8080"
     },
     "username": {
