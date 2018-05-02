@@ -47,3 +47,13 @@ app-root > #loading {
     margin-top: 20px;
     color: $text-muted;
 }
+
+ul.testing-list {
+    ul {
+        padding-left: 18px;
+    }
+
+    li.deleted {
+        text-decoration: line-through;
+    }
+}

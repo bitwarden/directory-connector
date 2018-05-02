@@ -1,2 +1,51 @@
-<button (click)="sync()">Sync</button>
-<button (click)="simulate()">Simulate</button>
+<div class="card mb-3">
+    <h3 class="card-header">{{'sync' | i18n}}</h3>
+    <div class="card-body">
+        <button #syncBtn (click)="sync()" [appApiAction]="syncPromise" class="btn btn-primary" [disabled]="syncBtn.loading">
+            <i class="fa fa-spinner fa-spin" [hidden]="!syncBtn.loading"></i>
+            {{'sync' | i18n}}
+        </button>
+    </div>
+</div>
+<div class="card">
+    <h3 class="card-header">Testing</h3>
+    <div class="card-body">
+        <button #simBtn (click)="simulate()" [appApiAction]="simPromise" class="btn btn-primary" [disabled]="simBtn.loading">
+            <i class="fa fa-spinner fa-spin" [hidden]="!simBtn.loading"></i>
+            Simulate
+        </button>
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" id="sinceLast" [(ngModel)]="sinceLast">
+            <label class="form-check-label" for="sinceLast">Since the last successful sync</label>
+        </div>
+        <ng-container *ngIf="!simBtn.loading && (simUsers || simGroups)">
+            <hr />
+            <div class="row">
+                <div class="col-lg">
+                    <h4>Users</h4>
+                    <ul class="fa-ul testing-list" *ngIf="simUsers && simUsers.length">
+                        <li *ngFor="let u of simUsers" [ngClass]="{'deleted': u.deleted}" title="{{u.referenceId}}">
+                            <i class="fa-li fa fa-user"></i>
+                            {{u.displayName}}
+                            <i class="fa fa-minus-circle" *ngIf="u.disabled"></i>
+                        </li>
+                    </ul>
+                    <p *ngIf="!simUsers || !simUsers.length">No users to list.</p>
+                </div>
+                <div class="col-lg">
+                    <h4>Groups</h4>
+                    <ul class="fa-ul testing-list" *ngIf="simGroups && simGroups.length">
+                        <li *ngFor="let g of simGroups" title="{{g.referenceId}}">
+                            <i class="fa-li fa fa-sitemap"></i>
+                            {{g.displayName}}
+                            <ul class="small" *ngIf="g.users && g.users.length">
+                                <li *ngFor="let u of g.users" title="{{u.referenceId}}">{{u.displayName}}</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p *ngIf="!simGroups || !simGroups.length">No groups to list.</p>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>

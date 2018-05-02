@@ -164,7 +164,7 @@ export class AzureDirectoryService implements DirectoryService {
             while (true) {
                 const groups: graphType.Group[] = res.value;
                 if (groups != null) {
-                    groups.forEach(async (group) => {
+                    for (const group of groups) {
                         if (getFullResults) {
                             if (this.filterOutResult(setFilter, group.displayName)) {
                                 return;
@@ -175,7 +175,7 @@ export class AzureDirectoryService implements DirectoryService {
                         } else {
                             changedGroupIds.push(group.id);
                         }
-                    });
+                    }
                 }
 
                 if (res[NextLink] == null) {
@@ -201,14 +201,14 @@ export class AzureDirectoryService implements DirectoryService {
         while (true) {
             const allGroups: graphType.Group[] = res.value;
             if (allGroups != null) {
-                allGroups.forEach(async (group) => {
+                for (const group of allGroups) {
                     if (this.filterOutResult(setFilter, group.displayName)) {
                         return;
                     }
 
                     const entry = await this.buildGroup(group);
                     entries.push(entry);
-                });
+                }
             }
 
             if (res[NextLink] == null) {

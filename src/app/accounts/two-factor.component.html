@@ -43,10 +43,8 @@
                         </ng-container>
                         <button type="submit" class="btn btn-primary" [disabled]="form.loading" appBlurClick *ngIf="selectedProviderType != null && selectedProviderType !== providerType.U2f && selectedProviderType !== providerType.Duo && 
                         selectedProviderType !== providerType.OrganizationDuo">
-                            <span [hidden]="form.loading">
-                                <i class="fa fa-sign-in"></i> {{'continue' | i18n}}
-                            </span>
                             <i class="fa fa-spinner fa-spin" [hidden]="!form.loading"></i>
+                            {{'continue' | i18n}}
                         </button>
                         <a routerLink="/login" class="btn btn-link">{{'cancel' | i18n}}</a>
                     </div>

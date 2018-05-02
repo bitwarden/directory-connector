@@ -16,10 +16,8 @@
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary" [disabled]="form.loading" appBlurClick>
-                            <span [hidden]="form.loading">
-                                <i class="fa fa-sign-in"></i> {{'logIn' | i18n}}
-                            </span>
                             <i class="fa fa-spinner fa-spin" [hidden]="!form.loading"></i>
+                            {{'logIn' | i18n}}
                         </button>
                         <button type="button" class="btn btn-link" (click)="settings()" appBlurClick>
                             {{'settings' | i18n}}

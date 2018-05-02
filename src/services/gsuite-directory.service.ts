@@ -137,14 +137,14 @@ export class GSuiteDirectoryService implements DirectoryService {
 
         const filter = this.createSet(this.syncConfig.groupFilter);
         if (res.data.groups != null) {
-            res.data.groups.forEach(async (group) => {
+            for (const group of res.data.groups) {
                 if (this.filterOutResult(filter, group.name)) {
                     return;
                 }
 
                 const entry = await this.buildGroup(group);
                 entries.push(entry);
-            });
+            }
         }
 
         return entries;
