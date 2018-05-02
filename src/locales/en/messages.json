@@ -425,5 +425,8 @@
     },
     "dashboard": {
         "message": "Dashboard"
+    },
+    "organization": {
+        "message": "Organization"
     }
 }

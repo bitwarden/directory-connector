@@ -1,75 +1,64 @@
-<form id="two-factor-page" #form (ngSubmit)="submit()" [appApiAction]="formPromise">
-    <div class="content">
-        <h1>{{title}}</h1>
-        <p *ngIf="selectedProviderType === providerType.Authenticator">{{'enterVerificationCodeApp' | i18n}}</p>
-        <p *ngIf="selectedProviderType === providerType.Email">
-            {{'enterVerificationCodeEmail' | i18n : twoFactorEmail}}
-        </p>
-        <div class="box last"
-             *ngIf="selectedProviderType === providerType.Email || selectedProviderType === providerType.Authenticator">
-            <div class="box-content">
-                <div class="box-content-row" appBoxRow>
-                    <label for="code">{{'verificationCode' | i18n}}</label>
-                    <input id="code" type="text" name="Code" [(ngModel)]="token" required appAutofocus>
-                </div>
-                <div class="box-content-row box-content-row-checkbox" appBoxRow>
-                    <label for="remember">{{'rememberMe' | i18n}}</label>
-                    <input id="remember" type="checkbox" name="Remember" [(ngModel)]="remember">
-                </div>
-            </div>
-        </div>
-        <ng-container *ngIf="selectedProviderType === providerType.Yubikey">
-            <p>{{'insertYubiKey' | i18n}}</p>
-            <img src="../../images/yubikey.jpg" alt="">
-            <div class="box last">
-                <div class="box-content">
-                    <div class="box-content-row" appBoxRow>
-                        <label for="code" class="sr-only">{{'verificationCode' | i18n}}</label>
-                        <input id="code" type="password" name="Code" [(ngModel)]="token" required appAutofocus>
-                    </div>
-                    <div class="box-content-row box-content-row-checkbox" appBoxRow>
-                        <label for="remember">{{'rememberMe' | i18n}}</label>
-                        <input id="remember" type="checkbox" name="Remember" [(ngModel)]="remember">
-                    </div>
-                </div>
-            </div>
-        </ng-container>
-        <ng-container *ngIf="selectedProviderType === providerType.Duo ||
-                        selectedProviderType === providerType.OrganizationDuo">
-            <div id="duo-frame"><iframe id="duo_iframe"></iframe></div>
-            <div class="box last">
-                <div class="box-content">
-                    <div class="box-content-row box-content-row-checkbox" appBoxRow>
-                        <label for="remember">{{'rememberMe' | i18n}}</label>
-                        <input id="remember" type="checkbox" name="Remember" [(ngModel)]="remember">
-                    </div>
-                </div>
-            </div>
-        </ng-container>
-        <div class="box last" *ngIf="selectedProviderType == null">
-            <div class="box-content">
-                <div class="box-content-row">
-                    <p>{{'noTwoStepProviders' | i18n}}</p>
-                    <p>{{'noTwoStepProviders2' | i18n}}</p>
-                </div>
-            </div>
-        </div>
-        <div class="buttons">
-            <button type="submit" class="btn primary block" [disabled]="form.loading" appBlurClick
-                    *ngIf="selectedProviderType != null && selectedProviderType !== providerType.Duo && 
+<div class="container-fluid">
+    <form #form (ngSubmit)="submit()" [appApiAction]="formPromise">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card">
+                    <h5 class="card-header">{{title}}</h5>
+                    <div class="card-body">
+                        <ng-container *ngIf="selectedProviderType === providerType.Email || selectedProviderType === providerType.Authenticator">
+                            <p *ngIf="selectedProviderType === providerType.Authenticator">
+                                {{'enterVerificationCodeApp' | i18n}}
+                            </p>
+                            <p *ngIf="selectedProviderType === providerType.Email">
+                                {{'enterVerificationCodeEmail' | i18n : twoFactorEmail}}
+                            </p>
+                            <div class="form-group">
+                                <label for="code">{{'verificationCode' | i18n}}</label>
+                                <input id="code" type="text" name="Code" [(ngModel)]="token" appAutofocus class="form-control">
+                            </div>
+                        </ng-container>
+                        <ng-container *ngIf="selectedProviderType === providerType.Yubikey">
+                            <p>{{'insertYubiKey' | i18n}}</p>
+                            <img src="../../images/yubikey.jpg" alt="">
+                            <div class="form-group">
+                                <label for="code">{{'verificationCode' | i18n}}</label>
+                                <input id="code" type="password" name="Code" [(ngModel)]="token" appAutofocus class="form-control">
+                            </div>
+                        </ng-container>
+                        <ng-container *ngIf="selectedProviderType === providerType.Duo ||
+                                              selectedProviderType === providerType.OrganizationDuo">
+                            <div id="duo-frame">
+                                <iframe id="duo_iframe"></iframe>
+                            </div>
+                        </ng-container>
+                        <div class="form-group" *ngIf="selectedProviderType !== null && selectedProviderType !== providerType.U2f">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remember" [(ngModel)]="remember" name="Remember">
+                                <label class="form-check-label" for="remember">{{'rememberMe' | i18n}}</label>
+                            </div>
+                        </div>
+                        <ng-container class="card-body" *ngIf="selectedProviderType === null || selectedProviderType === providerType.U2f">
+                            <p>{{'noTwoStepProviders' | i18n}}</p>
+                            <p>{{'noTwoStepProviders2' | i18n}}</p>
+                        </ng-container>
+                        <button type="submit" class="btn btn-primary" [disabled]="form.loading" appBlurClick *ngIf="selectedProviderType != null && selectedProviderType !== providerType.U2f && selectedProviderType !== providerType.Duo && 
                         selectedProviderType !== providerType.OrganizationDuo">
-                <span [hidden]="form.loading"><i class="fa fa-sign-in"></i> {{'continue' | i18n}}</span>
-                <i class="fa fa-spinner fa-spin" [hidden]="!form.loading"></i>
-            </button>
-            <a routerLink="/login" class="btn block">{{'cancel' | i18n}}</a>
+                            <span [hidden]="form.loading">
+                                <i class="fa fa-sign-in"></i> {{'continue' | i18n}}
+                            </span>
+                            <i class="fa fa-spinner fa-spin" [hidden]="!form.loading"></i>
+                        </button>
+                        <a routerLink="/login" class="btn btn-link">{{'cancel' | i18n}}</a>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="#" appStopClick (click)="anotherMethod()">{{'useAnotherTwoStepMethod' | i18n}}</a>
+                    <a href="#" appStopClick (click)="sendEmail(true)" [appApiAction]="emailPromise" *ngIf="selectedProviderType === providerType.Email">
+                        {{'sendVerificationCodeEmailAgain' | i18n}}
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="sub-options">
-            <a href="#" appStopClick (click)="anotherMethod()">{{'useAnotherTwoStepMethod' | i18n}}</a>
-            <a href="#" appStopClick (click)="sendEmail(true)" [appApiAction]="emailPromise"
-               *ngIf="selectedProviderType === providerType.Email">
-                {{'sendVerificationCodeEmailAgain' | i18n}}
-            </a>
-        </div>
-    </div>
-</form>
+    </form>
+</div>
 <ng-template #twoFactorOptions></ng-template>

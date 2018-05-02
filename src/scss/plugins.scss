@@ -2,7 +2,7 @@ $fa-font-path: "~font-awesome/fonts";
 @import "~font-awesome/scss/font-awesome.scss";
 @import "~angular2-toaster/toaster";
 
-@import "bootstrap.scss";
+@import "~bootstrap/scss/_variables.scss";
 
 #toast-container {
     .toast-close-button {
@@ -72,4 +72,49 @@ $fa-font-path: "~font-awesome/fonts";
             }
         }
     }
+}
+
+@keyframes modalshow {
+    0% {
+        opacity: 0;
+        transform: translate(0, -25%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(0, 0);
+    }
+}
+
+@keyframes backdropshow {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: $modal-backdrop-opacity;
+    }
+}
+
+.modal {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+.modal-dialog {
+    .modal.fade & {
+        transform: initial !important;
+        animation: modalshow 0.3s ease-in;
+    }
+    .modal.show & {
+        transform: initial !important;
+    }
+    transform: translate(0, 0);
+}
+
+.modal-backdrop {
+    &.fade {
+        animation: backdropshow 0.1s ease-in;
+    }
+    opacity: $modal-backdrop-opacity !important;
 }

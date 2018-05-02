@@ -29,7 +29,7 @@ export class LoginComponent extends BaseLoginComponent {
         analytics: Angulartics2, toasterService: ToasterService,
         i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver) {
         super(authService, router, analytics, toasterService, i18nService);
-        super.successRoute = '/dashboard';
+        super.successRoute = '/tabs/dashboard';
     }
 
     settings() {
