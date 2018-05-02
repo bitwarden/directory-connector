@@ -23,14 +23,29 @@
             <div class="row">
                 <div class="col-lg">
                     <h4>Users</h4>
-                    <ul class="fa-ul testing-list" *ngIf="simUsers && simUsers.length">
-                        <li *ngFor="let u of simUsers" [ngClass]="{'deleted': u.deleted}" title="{{u.referenceId}}">
+                    <ul class="fa-ul testing-list" *ngIf="simEnabledUsers && simEnabledUsers.length">
+                        <li *ngFor="let u of simEnabledUsers" title="{{u.referenceId}}">
                             <i class="fa-li fa fa-user"></i>
                             {{u.displayName}}
-                            <i class="fa fa-minus-circle" *ngIf="u.disabled"></i>
                         </li>
                     </ul>
-                    <p *ngIf="!simUsers || !simUsers.length">No users to list.</p>
+                    <p *ngIf="!simEnabledUsers || !simEnabledUsers.length">No users to list.</p>
+                    <h4>Disabled Users</h4>
+                    <ul class="fa-ul testing-list" *ngIf="simDisabledUsers && simDisabledUsers.length">
+                        <li *ngFor="let u of simDisabledUsers" title="{{u.referenceId}}">
+                            <i class="fa-li fa fa-user"></i>
+                            {{u.displayName}}
+                        </li>
+                    </ul>
+                    <p *ngIf="!simDisabledUsers || !simDisabledUsers.length">No users to list.</p>
+                    <h4>Deleted Users</h4>
+                    <ul class="fa-ul testing-list" *ngIf="simDeletedUsers && simDeletedUsers.length">
+                        <li *ngFor="let u of simDeletedUsers" title="{{u.referenceId}}">
+                            <i class="fa-li fa fa-user"></i>
+                            {{u.displayName}}
+                        </li>
+                    </ul>
+                    <p *ngIf="!simDeletedUsers || !simDeletedUsers.length">No users to list.</p>
                 </div>
                 <div class="col-lg">
                     <h4>Groups</h4>

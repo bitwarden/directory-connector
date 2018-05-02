@@ -17,6 +17,9 @@ import { UserEntry } from '../../models/userEntry';
 export class DashboardComponent {
     simGroups: GroupEntry[];
     simUsers: UserEntry[];
+    simEnabledUsers: UserEntry[] = [];
+    simDisabledUsers: UserEntry[] = [];
+    simDeletedUsers: UserEntry[] = [];
     simPromise: Promise<any>;
     syncPromise: Promise<any>;
     sinceLast: boolean = false;
@@ -42,6 +45,13 @@ export class DashboardComponent {
             if (this.simUsers != null) {
                 this.simUsers.forEach((u) => {
                     userMap.set(u.externalId, u);
+                    if (u.deleted) {
+                        this.simDeletedUsers.push(u);
+                    } else if (u.disabled) {
+                        this.simDisabledUsers.push(u);
+                    } else {
+                        this.simEnabledUsers.push(u);
+                    }
                 });
             }
 
