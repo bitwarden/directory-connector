@@ -198,10 +198,13 @@ export class ConfigurationService {
         }
     }
 
-    private async clearStatefulSettings() {
+    async clearStatefulSettings(hashToo = false) {
         await this.saveUserDeltaToken(null);
         await this.saveGroupDeltaToken(null);
         await this.saveLastGroupSyncDate(null);
         await this.saveLastUserSyncDate(null);
+        if (hashToo) {
+            await this.saveLastSyncHash(null);
+        }
     }
 }

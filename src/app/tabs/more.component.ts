@@ -3,9 +3,12 @@ import {
     OnInit,
 } from '@angular/core';
 
+import { ToasterService } from 'angular2-toaster';
+
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { MessagingService } from 'jslib/abstractions/messaging.service';
 import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
+import { ConfigurationService } from '../../services/configuration.service';
 
 @Component({
     selector: 'app-more',
@@ -16,7 +19,8 @@ export class MoreComponent implements OnInit {
     year: string;
 
     constructor(private platformUtilsService: PlatformUtilsService, private i18nService: I18nService,
-        private messagingService: MessagingService) { }
+        private messagingService: MessagingService, private configurationService: ConfigurationService,
+        private toasterService: ToasterService) { }
 
     ngOnInit() {
         this.year = new Date().getFullYear().toString();
@@ -32,5 +36,10 @@ export class MoreComponent implements OnInit {
         if (confirmed) {
             this.messagingService.send('logout');
         }
+    }
+
+    async clearCache() {
+        await this.configurationService.clearStatefulSettings(true);
+        this.toasterService.popAsync('success', null, this.i18nService.t('syncCacheCleared'));
     }
 }

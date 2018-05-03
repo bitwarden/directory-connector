@@ -32,6 +32,7 @@
 <div class="card">
     <h3 class="card-header">Testing</h3>
     <div class="card-body">
+        <p>You can run tests to see how your directory and sync settings are working. Tests will not sync to your Bitwarden organization.</p>
         <button #simBtn (click)="simulate()" [appApiAction]="simPromise" class="btn btn-primary" [disabled]="simBtn.loading">
             <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!simBtn.loading"></i>
             <i class="fa fa-bug fa-fw" [hidden]="simBtn.loading"></i>

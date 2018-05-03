@@ -440,5 +440,11 @@
     },
     "token": {
         "message": "Token"
+    },
+    "clearSyncCache": {
+        "message": "Clear Sync Cache"
+    },
+    "syncCacheCleared": {
+        "message": "The sync cache has been cleared."
     }
 }

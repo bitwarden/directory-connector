@@ -25,6 +25,9 @@ export class MessagingMain {
                 this.scheduleNextSync();
                 break;
             case 'cancelDirSync':
+                this.windowMain.win.webContents.send('messagingService', {
+                    command: 'syncScheduleStopped',
+                });
                 if (this.syncTimeout) {
                     global.clearTimeout(this.syncTimeout);
                 }
@@ -35,6 +38,10 @@ export class MessagingMain {
     }
 
     private scheduleNextSync() {
+        this.windowMain.win.webContents.send('messagingService', {
+            command: 'syncScheduleStarted',
+        });
+
         if (this.syncTimeout) {
             global.clearTimeout(this.syncTimeout);
         }

@@ -10,6 +10,7 @@ import { ToasterService } from 'angular2-toaster';
 
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { MessagingService } from 'jslib/abstractions/messaging.service';
+import { StateService } from 'jslib/abstractions/state.service';
 
 import { AzureDirectoryService } from '../../services/azure-directory.service';
 import { GSuiteDirectoryService } from '../../services/gsuite-directory.service';
@@ -46,7 +47,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     constructor(private i18nService: I18nService, private syncService: SyncService,
         private configurationService: ConfigurationService, private broadcasterService: BroadcasterService,
         private ngZone: NgZone, private messagingService: MessagingService,
-        private toasterService: ToasterService, private changeDetectorRef: ChangeDetectorRef) { }
+        private toasterService: ToasterService, private changeDetectorRef: ChangeDetectorRef,
+        private stateService: StateService) { }
 
     async ngOnInit() {
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
@@ -63,6 +65,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
         });
 
+        this.syncRunning = !!(await this.stateService.get('syncingDir'));
         this.updateLastSync();
     }
 

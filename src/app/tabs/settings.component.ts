@@ -89,6 +89,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.sync.groupNameAttribute = 'name';
         }
 
+        if (this.sync.interval != null) {
+            if (this.sync.interval <= 0) {
+                this.sync.interval = null;
+            } else if (this.sync.interval < 5) {
+                this.sync.interval = 5;
+            }
+        }
+
         await this.configurationService.saveOrganizationId(this.organizationId);
         await this.configurationService.saveDirectoryType(this.directory);
         await this.configurationService.saveDirectory(DirectoryType.Ldap, this.ldap);

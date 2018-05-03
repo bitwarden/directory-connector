@@ -81,6 +81,10 @@ export class AppComponent implements OnInit {
                             this.stateService.save('profileOrganizations', profile.organizations);
                         }
                         break;
+                    case 'syncScheduleStarted':
+                    case 'syncScheduleStopped':
+                        this.stateService.save('syncingDir', message.command === 'syncScheduleStarted');
+                        break;
                     case 'logout':
                         this.logOut(!!message.expired);
                         break;
