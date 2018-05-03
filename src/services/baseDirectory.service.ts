@@ -79,4 +79,8 @@ export abstract class BaseDirectoryService {
             return groups.filter((g) => g.userMemberExternalIds.has(u.externalId)).length > 0;
         });
     }
+
+    protected forceGroup(force: boolean, users: UserEntry[]): boolean {
+        return force || (users != null && users.filter((u) => !u.deleted && !u.disabled).length > 0);
+    }
 }

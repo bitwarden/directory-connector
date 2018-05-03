@@ -59,7 +59,9 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
 
         let groups: GroupEntry[];
         if (this.syncConfig.groups) {
-            groups = await this.getGroups();
+            const setFilter = this.createCustomSet(this.syncConfig.groupFilter);
+            groups = await this.getGroups(setFilter);
+            users = this.filterUsersFromGroupsSet(users, groups, setFilter);
         }
 
         return [groups, users];
@@ -127,7 +129,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         return entry;
     }
 
-    private async getGroups(): Promise<GroupEntry[]> {
+    private async getGroups(setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
 
         this.logService.info('Querying groups.');
@@ -135,16 +137,12 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         if (res.status !== 200) {
             throw new Error('Group list API failed: ' + res.statusText);
         }
-
-        const filter = this.createCustomSet(this.syncConfig.groupFilter);
         if (res.data.groups != null) {
             for (const group of res.data.groups) {
-                if (this.filterOutResult(filter, group.name)) {
-                    return;
+                if (!this.filterOutResult(setFilter, group.name)) {
+                    const entry = await this.buildGroup(group);
+                    entries.push(entry);
                 }
-
-                const entry = await this.buildGroup(group);
-                entries.push(entry);
             }
         }
 

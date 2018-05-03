@@ -52,11 +52,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
         let groups: GroupEntry[];
         if (this.syncConfig.groups) {
             const setFilter = this.createCustomSet(this.syncConfig.groupFilter);
-
-            const groupForce = force ||
-                (users != null && users.filter((u) => !u.deleted && !u.disabled).length > 0);
-
-            groups = await this.getGroups(groupForce, setFilter);
+            groups = await this.getGroups(this.forceGroup(force, users), setFilter);
             users = this.filterUsersFromGroupsSet(users, groups, setFilter);
         }
 
@@ -96,8 +92,8 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
         const oktaFilter = this.buildOktaFilter(this.syncConfig.groupFilter, force, lastSync);
 
         this.logService.info('Querying groups.');
-        await this.client.listGroups({ filter: oktaFilter }).each((group: any) => {
-            const entry = this.buildGroup(group);
+        await this.client.listGroups({ filter: oktaFilter }).each(async (group: any) => {
+            const entry = await this.buildGroup(group);
             if (entry != null && !this.filterOutResult(setFilter, entry.name)) {
                 entries.push(entry);
             }
@@ -105,11 +101,16 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
         return entries;
     }
 
-    private buildGroup(group: any) {
+    private async buildGroup(group: any): Promise<GroupEntry> {
         const entry = new GroupEntry();
         entry.externalId = group.id;
         entry.referenceId = group.id;
         entry.name = group.profile.name;
+
+        await this.client.listGroupUsers(group.id).each((user: any) => {
+            entry.userMemberExternalIds.add(user.id);
+        });
+
         return entry;
     }
 
