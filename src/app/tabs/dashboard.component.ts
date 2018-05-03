@@ -1,6 +1,8 @@
 import {
+    ChangeDetectorRef,
     Component,
     NgZone,
+    OnDestroy,
     OnInit,
 } from '@angular/core';
 
@@ -27,7 +29,7 @@ const BroadcasterSubscriptionId = 'DashboardComponent';
     selector: 'app-dashboard',
     templateUrl: 'dashboard.component.html',
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
     simGroups: GroupEntry[];
     simUsers: UserEntry[];
     simEnabledUsers: UserEntry[] = [];
@@ -35,7 +37,7 @@ export class DashboardComponent implements OnInit {
     simDeletedUsers: UserEntry[] = [];
     simPromise: Promise<any>;
     simSinceLast: boolean = false;
-    syncPromise: Promise<any>;
+    syncPromise: Promise<[GroupEntry[], UserEntry[]]>;
     startPromise: Promise<any>;
     lastGroupSync: Date;
     lastUserSync: Date;
@@ -44,7 +46,7 @@ export class DashboardComponent implements OnInit {
     constructor(private i18nService: I18nService, private syncService: SyncService,
         private configurationService: ConfigurationService, private broadcasterService: BroadcasterService,
         private ngZone: NgZone, private messagingService: MessagingService,
-        private toasterService: ToasterService) { }
+        private toasterService: ToasterService, private changeDetectorRef: ChangeDetectorRef) { }
 
     async ngOnInit() {
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
@@ -54,11 +56,18 @@ export class DashboardComponent implements OnInit {
                         this.updateLastSync();
                         break;
                     default:
+                        break;
                 }
+
+                this.changeDetectorRef.detectChanges();
             });
         });
 
         this.updateLastSync();
+    }
+
+    async ngOnDestroy() {
+        this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     }
 
     async start() {
@@ -77,7 +86,10 @@ export class DashboardComponent implements OnInit {
 
     async sync() {
         this.syncPromise = this.syncService.sync(false, false);
-        await this.syncPromise;
+        const result = await this.syncPromise;
+        const groupCount = result[0] != null ? result[0].length : 0;
+        const userCount = result[1] != null ? result[1].length : 0;
+        this.toasterService.popAsync('success', null, 'Synced ' + groupCount + ' groups and ' + userCount + ' users.');
     }
 
     async simulate() {

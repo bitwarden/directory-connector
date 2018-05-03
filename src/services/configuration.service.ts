@@ -107,9 +107,9 @@ export class ConfigurationService {
     async saveDirectoryType(type: DirectoryType) {
         const currentType = await this.getDirectoryType();
         if (type !== currentType) {
-            await this.saveUserDeltaToken(null);
-            await this.saveGroupDeltaToken(null);
+            await this.clearStatefulSettings();
         }
+
         return this.storageService.save(Keys.directoryType, type);
     }
 
@@ -137,8 +137,12 @@ export class ConfigurationService {
         }
     }
 
-    getLastUserSyncDate(): Promise<Date> {
-        return this.storageService.get<Date>(Keys.lastUserSync);
+    async getLastUserSyncDate(): Promise<Date> {
+        const dateString = await this.storageService.get<string>(Keys.lastUserSync);
+        if (dateString == null) {
+            return null;
+        }
+        return new Date(dateString);
     }
 
     saveLastUserSyncDate(date: Date) {
@@ -149,8 +153,12 @@ export class ConfigurationService {
         }
     }
 
-    getLastGroupSyncDate(): Promise<Date> {
-        return this.storageService.get<Date>(Keys.lastGroupSync);
+    async getLastGroupSyncDate(): Promise<Date> {
+        const dateString = await this.storageService.get<string>(Keys.lastGroupSync);
+        if (dateString == null) {
+            return null;
+        }
+        return new Date(dateString);
     }
 
     saveLastGroupSyncDate(date: Date) {
@@ -177,11 +185,23 @@ export class ConfigurationService {
         return this.storageService.get<string>(Keys.organizationId);
     }
 
-    saveOrganizationId(id: string) {
+    async saveOrganizationId(id: string) {
+        const currentId = await this.getOrganizationId();
+        if (currentId !== id) {
+            await this.clearStatefulSettings();
+        }
+
         if (id == null) {
             return this.storageService.remove(Keys.organizationId);
         } else {
             return this.storageService.save(Keys.organizationId, id);
         }
+    }
+
+    private async clearStatefulSettings() {
+        await this.saveUserDeltaToken(null);
+        await this.saveGroupDeltaToken(null);
+        await this.saveLastGroupSyncDate(null);
+        await this.saveLastUserSyncDate(null);
     }
 }

@@ -114,6 +114,18 @@
                 </div>
             </div>
         </div>
+
+        <div class="card mb-3">
+            <h3 class="card-header">{{'organization' | i18n}}</h3>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="organizationId">{{'organization' | i18n}}</label>
+                    <select class="form-control" id="organizationId" name="OrganizationId" [(ngModel)]="organizationId">
+                        <option *ngFor="let o of organizationOptions" [ngValue]="o.value">{{o.name}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-sm">
         <div class="card">

@@ -121,7 +121,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
             return baseFilter;
         }
 
-        const updatedFilter = 'lastUpdated gt ' + lastSync.toISOString();
+        const updatedFilter = 'lastUpdated gt "' + lastSync.toISOString() + '"';
         if (baseFilter == null) {
             return updatedFilter;
         }

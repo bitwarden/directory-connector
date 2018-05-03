@@ -101,6 +101,13 @@ export function initFactory(): Function {
         if (installAction != null) {
             await storageService.save(ConstantsService.installedVersionKey, currentVersion);
         }
+
+        window.setTimeout(async () => {
+            if (await userService.isAuthenticated()) {
+                const profile = await apiService.getProfile();
+                stateService.save('profileOrganizations', profile.organizations);
+            }
+        }, 500);
     };
 }
 

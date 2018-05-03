@@ -1,6 +1,7 @@
 import { DirectoryType } from '../enums/directoryType';
 
 import { GroupEntry } from '../models/groupEntry';
+import { SyncConfiguration } from '../models/syncConfiguration';
 import { UserEntry } from '../models/userEntry';
 
 import { ImportDirectoryRequest } from 'jslib/models/request/importDirectoryRequest';
@@ -51,14 +52,18 @@ export class SyncService {
         this.messagingService.send('dirSyncStarted');
         try {
             const entries = await directoryService.getEntries(force, test);
-            const groups = entries[0];
-            const users = entries[1];
+            let groups = entries[0];
+            let users = entries[1];
 
             if (groups != null && groups.length > 0) {
                 this.flattenUsersToGroups(groups, null, groups);
             }
 
             if (test || groups == null || groups.length === 0 || users == null || users.length === 0) {
+                if (!test) {
+                    await this.saveSyncTimes(syncConfig, now);
+                }
+
                 this.messagingService.send('dirSyncCompleted', { successfully: true });
                 return [groups, users];
             }
@@ -81,14 +86,12 @@ export class SyncService {
 
                 const res = await this.apiService.postImportDirectory(orgId, req);
                 await this.configurationService.saveLastSyncHash(hash);
-                if (syncConfig.groups) {
-                    await this.configurationService.saveLastGroupSyncDate(now);
-                }
-                if (syncConfig.users) {
-                    await this.configurationService.saveLastUserSyncDate(now);
-                }
+            } else {
+                groups = null;
+                users = null;
             }
 
+            await this.saveSyncTimes(syncConfig, now);
             this.messagingService.send('dirSyncCompleted', { successfully: true });
             return [groups, users];
         } catch (e) {
@@ -155,5 +158,14 @@ export class SyncService {
         }
 
         return model;
+    }
+
+    private async saveSyncTimes(syncConfig: SyncConfiguration, time: Date) {
+        if (syncConfig.groups) {
+            await this.configurationService.saveLastGroupSyncDate(time);
+        }
+        if (syncConfig.users) {
+            await this.configurationService.saveLastUserSyncDate(time);
+        }
     }
 }

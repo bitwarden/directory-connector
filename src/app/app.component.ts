@@ -23,10 +23,12 @@ import { ModalComponent } from 'jslib/angular/components/modal.component';
 
 import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
 
+import { ApiService } from 'jslib/abstractions/api.service';
 import { AuthService } from 'jslib/abstractions/auth.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { MessagingService } from 'jslib/abstractions/messaging.service';
 import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
+import { StateService } from 'jslib/abstractions/state.service';
 import { StorageService } from 'jslib/abstractions/storage.service';
 import { TokenService } from 'jslib/abstractions/token.service';
 import { UserService } from 'jslib/abstractions/user.service';
@@ -66,12 +68,19 @@ export class AppComponent implements OnInit {
         private toasterService: ToasterService, private i18nService: I18nService,
         private platformUtilsService: PlatformUtilsService, private ngZone: NgZone,
         private componentFactoryResolver: ComponentFactoryResolver, private messagingService: MessagingService,
-        private configurationService: ConfigurationService, private syncService: SyncService) { }
+        private configurationService: ConfigurationService, private syncService: SyncService,
+        private stateService: StateService, private apiService: ApiService) { }
 
     ngOnInit() {
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
             this.ngZone.run(async () => {
                 switch (message.command) {
+                    case 'loggedIn':
+                        if (await this.userService.isAuthenticated()) {
+                            const profile = await this.apiService.getProfile();
+                            this.stateService.save('profileOrganizations', profile.organizations);
+                        }
+                        break;
                     case 'logout':
                         this.logOut(!!message.expired);
                         break;

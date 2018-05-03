@@ -7,6 +7,9 @@ import {
 } from '@angular/core';
 
 import { I18nService } from 'jslib/abstractions/i18n.service';
+import { StateService } from 'jslib/abstractions/state.service';
+
+import { ProfileOrganizationResponse } from 'jslib/models/response/profileOrganizationResponse';
 
 import { ConfigurationService } from '../../services/configuration.service';
 
@@ -30,10 +33,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     azure = new AzureConfiguration();
     okta = new OktaConfiguration();
     sync = new SyncConfiguration();
+    organizationId: string;
     directoryOptions: any[];
+    organizationOptions: any[];
 
     constructor(private i18nService: I18nService, private configurationService: ConfigurationService,
-        private changeDetectorRef: ChangeDetectorRef, private ngZone: NgZone) {
+        private changeDetectorRef: ChangeDetectorRef, private ngZone: NgZone,
+        private stateService: StateService) {
         this.directoryOptions = [
             { name: i18nService.t('select'), value: null },
             { name: 'Active Directory / LDAP', value: DirectoryType.Ldap },
@@ -44,6 +50,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
+        this.organizationOptions = [{ name: this.i18nService.t('select'), value: null }];
+        const orgs = await this.stateService.get<ProfileOrganizationResponse[]>('profileOrganizations');
+        if (orgs != null) {
+            for (const org of orgs) {
+                this.organizationOptions.push({ name: org.name, value: org.id });
+            }
+        }
+
+        this.organizationId = await this.configurationService.getOrganizationId();
         this.directory = await this.configurationService.getDirectoryType();
         this.ldap = (await this.configurationService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)) ||
             this.ldap;
@@ -74,6 +89,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.sync.groupNameAttribute = 'name';
         }
 
+        await this.configurationService.saveOrganizationId(this.organizationId);
         await this.configurationService.saveDirectoryType(this.directory);
         await this.configurationService.saveDirectory(DirectoryType.Ldap, this.ldap);
         await this.configurationService.saveDirectory(DirectoryType.GSuite, this.gsuite);
