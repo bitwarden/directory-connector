@@ -10,6 +10,7 @@ import { ImportDirectoryRequestUser } from 'jslib/models/request/importDirectory
 import { ApiService } from 'jslib/abstractions/api.service';
 import { CryptoFunctionService } from 'jslib/abstractions/cryptoFunction.service';
 import { LogService } from 'jslib/abstractions/log.service';
+import { MessagingService } from 'jslib/abstractions/messaging.service';
 import { StorageService } from 'jslib/abstractions/storage.service';
 
 import { Utils } from 'jslib/misc/utils';
@@ -28,7 +29,8 @@ export class SyncService {
     private dirType: DirectoryType;
 
     constructor(private configurationService: ConfigurationService, private logService: LogService,
-        private cryptoFunctionService: CryptoFunctionService, private apiService: ApiService) { }
+        private cryptoFunctionService: CryptoFunctionService, private apiService: ApiService,
+        private messagingService: MessagingService) { }
 
     async sync(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
         this.dirType = await this.configurationService.getDirectoryType();
@@ -46,6 +48,7 @@ export class SyncService {
         const startingUserDelta = await this.configurationService.getUserDeltaToken();
         const now = new Date();
 
+        this.messagingService.send('dirSyncStarted');
         try {
             const entries = await directoryService.getEntries(force, test);
             const groups = entries[0];
@@ -56,6 +59,7 @@ export class SyncService {
             }
 
             if (test || groups == null || groups.length === 0 || users == null || users.length === 0) {
+                this.messagingService.send('dirSyncCompleted', { successfully: true });
                 return [groups, users];
             }
 
@@ -85,12 +89,15 @@ export class SyncService {
                 }
             }
 
+            this.messagingService.send('dirSyncCompleted', { successfully: true });
             return [groups, users];
         } catch (e) {
             if (!test) {
                 await this.configurationService.saveGroupDeltaToken(startingGroupDelta);
                 await this.configurationService.saveUserDeltaToken(startingUserDelta);
             }
+
+            this.messagingService.send('dirSyncCompleted', { successfully: false });
             throw e;
         }
     }

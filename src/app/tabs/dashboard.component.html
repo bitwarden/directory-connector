@@ -14,8 +14,9 @@
             <strong *ngIf="syncRunning" class="text-success">Running</strong>
             <strong *ngIf="!syncRunning" class="text-danger">Stopped</strong>
         </p>
-        <button (click)="start()" class="btn btn-primary">
-            <i class="fa fa-play fa-fw"></i>
+        <button #startBtn (click)="start()" [appApiAction]="startPromise" class="btn btn-primary" [disabled]="startBtn.loading">
+            <i class="fa fa-play fa-fw" [hidden]="startBtn.loading"></i>
+            <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!startBtn.loading"></i>
             Start Sync
         </button>
         <button (click)="stop()" class="btn btn-primary">

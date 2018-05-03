@@ -33,6 +33,9 @@ import { UserService } from 'jslib/abstractions/user.service';
 
 import { ConstantsService } from 'jslib/services/constants.service';
 
+import { ConfigurationService } from '../services/configuration.service';
+import { SyncService } from '../services/sync.service';
+
 const BroadcasterSubscriptionId = 'AppComponent';
 
 @Component({
@@ -62,7 +65,8 @@ export class AppComponent implements OnInit {
         private authService: AuthService, private router: Router, private analytics: Angulartics2,
         private toasterService: ToasterService, private i18nService: I18nService,
         private platformUtilsService: PlatformUtilsService, private ngZone: NgZone,
-        private componentFactoryResolver: ComponentFactoryResolver, private messagingService: MessagingService) { }
+        private componentFactoryResolver: ComponentFactoryResolver, private messagingService: MessagingService,
+        private configurationService: ConfigurationService, private syncService: SyncService) { }
 
     ngOnInit() {
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
@@ -70,6 +74,41 @@ export class AppComponent implements OnInit {
                 switch (message.command) {
                     case 'logout':
                         this.logOut(!!message.expired);
+                        break;
+                    case 'checkDirSync':
+                        try {
+                            const syncConfig = await this.configurationService.getSync();
+                            if (syncConfig.interval == null || syncConfig.interval < 5) {
+                                return;
+                            }
+
+                            const syncInterval = syncConfig.interval * 60000;
+                            const lastGroupSync = await this.configurationService.getLastGroupSyncDate();
+                            const lastUserSync = await this.configurationService.getLastUserSyncDate();
+                            let lastSync: Date = null;
+                            if (lastGroupSync != null && lastUserSync == null) {
+                                lastSync = lastGroupSync;
+                            } else if (lastGroupSync == null && lastUserSync != null) {
+                                lastSync = lastUserSync;
+                            } else if (lastGroupSync != null && lastUserSync != null) {
+                                if (lastGroupSync.getTime() < lastUserSync.getTime()) {
+                                    lastSync = lastGroupSync;
+                                } else {
+                                    lastSync = lastUserSync;
+                                }
+                            }
+
+                            let lastSyncAgo = syncInterval + 1;
+                            if (lastSync != null) {
+                                lastSyncAgo = new Date().getTime() - lastSync.getTime();
+                            }
+
+                            if (lastSyncAgo >= syncInterval) {
+                                await this.syncService.sync(false, false);
+                            }
+                        } catch { }
+
+                        this.messagingService.send('scheduleNextDirSync');
                         break;
                     default:
                 }

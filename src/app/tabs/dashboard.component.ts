@@ -1,9 +1,13 @@
 import {
     Component,
+    NgZone,
     OnInit,
 } from '@angular/core';
 
+import { ToasterService } from 'angular2-toaster';
+
 import { I18nService } from 'jslib/abstractions/i18n.service';
+import { MessagingService } from 'jslib/abstractions/messaging.service';
 
 import { AzureDirectoryService } from '../../services/azure-directory.service';
 import { GSuiteDirectoryService } from '../../services/gsuite-directory.service';
@@ -14,6 +18,10 @@ import { Entry } from '../../models/entry';
 import { GroupEntry } from '../../models/groupEntry';
 import { UserEntry } from '../../models/userEntry';
 import { ConfigurationService } from '../../services/configuration.service';
+
+import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
+
+const BroadcasterSubscriptionId = 'DashboardComponent';
 
 @Component({
     selector: 'app-dashboard',
@@ -28,24 +36,43 @@ export class DashboardComponent implements OnInit {
     simPromise: Promise<any>;
     simSinceLast: boolean = false;
     syncPromise: Promise<any>;
+    startPromise: Promise<any>;
     lastGroupSync: Date;
     lastUserSync: Date;
     syncRunning: boolean;
 
     constructor(private i18nService: I18nService, private syncService: SyncService,
-        private configurationService: ConfigurationService) { }
+        private configurationService: ConfigurationService, private broadcasterService: BroadcasterService,
+        private ngZone: NgZone, private messagingService: MessagingService,
+        private toasterService: ToasterService) { }
 
     async ngOnInit() {
-        this.lastGroupSync = await this.configurationService.getLastGroupSyncDate();
-        this.lastUserSync = await this.configurationService.getLastUserSyncDate();
+        this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
+            this.ngZone.run(async () => {
+                switch (message.command) {
+                    case 'dirSyncCompleted':
+                        this.updateLastSync();
+                        break;
+                    default:
+                }
+            });
+        });
+
+        this.updateLastSync();
     }
 
     async start() {
+        this.startPromise = this.syncService.sync(false, false);
+        await this.startPromise;
+        this.messagingService.send('scheduleNextDirSync');
         this.syncRunning = true;
+        this.toasterService.popAsync('success', null, 'Syncing started.');
     }
 
     async stop() {
+        this.messagingService.send('cancelDirSync');
         this.syncRunning = false;
+        this.toasterService.popAsync('success', null, 'Syncing stopped.');
     }
 
     async sync() {
@@ -114,5 +141,10 @@ export class DashboardComponent implements OnInit {
             return this.i18nService.collator ? this.i18nService.collator.compare(a.displayName, b.displayName) :
                 a.displayName.localeCompare(b.displayName);
         });
+    }
+
+    private async updateLastSync() {
+        this.lastGroupSync = await this.configurationService.getLastGroupSyncDate();
+        this.lastUserSync = await this.configurationService.getLastUserSyncDate();
     }
 }
