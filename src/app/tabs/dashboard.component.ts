@@ -28,7 +28,7 @@ export class DashboardComponent {
     constructor(private i18nService: I18nService, private syncService: SyncService) { }
 
     async sync() {
-        this.syncPromise = this.syncService.sync(false, true);
+        this.syncPromise = this.syncService.sync(false, false);
         await this.syncPromise;
     }
 
@@ -41,7 +41,7 @@ export class DashboardComponent {
 
         this.simPromise = new Promise(async (resolve, reject) => {
             try {
-                const result = await this.syncService.sync(!this.simSinceLast, false);
+                const result = await this.syncService.sync(!this.simSinceLast, true);
                 this.simUsers = result[1];
                 this.simGroups = result[0];
             } catch (e) {
@@ -51,7 +51,7 @@ export class DashboardComponent {
             const userMap = new Map<string, UserEntry>();
             if (this.simUsers != null) {
                 this.sort(this.simUsers);
-                this.simUsers.forEach((u) => {
+                for (const u of this.simUsers) {
                     userMap.set(u.externalId, u);
                     if (u.deleted) {
                         this.simDeletedUsers.push(u);
@@ -60,29 +60,29 @@ export class DashboardComponent {
                     } else {
                         this.simEnabledUsers.push(u);
                     }
-                });
+                }
             }
 
             if (userMap.size > 0 && this.simGroups != null) {
                 this.sort(this.simGroups);
-                this.simGroups.forEach((g) => {
+                for (const g of this.simGroups) {
                     if (g.userMemberExternalIds == null) {
                         return;
                     }
 
-                    g.userMemberExternalIds.forEach((uid) => {
+                    for (const uid of g.userMemberExternalIds) {
                         if (userMap.has(uid)) {
                             if ((g as any).users == null) {
                                 (g as any).users = [];
                             }
                             (g as any).users.push(userMap.get(uid));
                         }
-                    });
+                    }
 
                     if ((g as any).users != null) {
                         this.sort((g as any).users);
                     }
-                });
+                }
             }
             resolve();
         });

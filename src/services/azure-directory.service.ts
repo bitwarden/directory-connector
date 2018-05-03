@@ -28,7 +28,7 @@ export class AzureDirectoryService implements DirectoryService {
         this.init();
     }
 
-    async getEntries(force = false): Promise<[GroupEntry[], UserEntry[]]> {
+    async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
         const type = await this.configurationService.getDirectoryType();
         if (type !== DirectoryType.AzureActiveDirectory) {
             return;
@@ -47,7 +47,7 @@ export class AzureDirectoryService implements DirectoryService {
 
         let users: UserEntry[];
         if (this.syncConfig.users) {
-            users = await this.getUsers(force);
+            users = await this.getUsers(force, !test);
         }
 
         let groups: GroupEntry[];
@@ -57,7 +57,7 @@ export class AzureDirectoryService implements DirectoryService {
             const groupForce = force ||
                 (users != null && users.filter((u) => !u.deleted && !u.disabled).length > 0);
 
-            groups = await this.getGroups(groupForce, setFilter);
+            groups = await this.getGroups(groupForce, !test, setFilter);
             if (setFilter != null && users != null) {
                 users = users.filter((u) => {
                     if (u.disabled || u.deleted) {
@@ -72,7 +72,7 @@ export class AzureDirectoryService implements DirectoryService {
         return [groups, users];
     }
 
-    private async getUsers(force: boolean): Promise<UserEntry[]> {
+    private async getUsers(force: boolean, saveDelta: boolean): Promise<UserEntry[]> {
         const entries: UserEntry[] = [];
 
         let res: any = null;
@@ -95,7 +95,7 @@ export class AzureDirectoryService implements DirectoryService {
         while (true) {
             const users: graphType.User[] = res.value;
             if (users != null) {
-                users.forEach((user) => {
+                for (const user of users) {
                     const entry = this.buildUser(user);
                     if (this.filterOutResult(filter, entry.email)) {
                         return;
@@ -107,11 +107,11 @@ export class AzureDirectoryService implements DirectoryService {
                     }
 
                     entries.push(entry);
-                });
+                }
             }
 
             if (res[NextLink] == null) {
-                if (res[DeltaLink] != null) {
+                if (res[DeltaLink] != null && saveDelta) {
                     await this.configurationService.saveUserDeltaToken(res[DeltaLink]);
                 }
                 break;
@@ -138,7 +138,8 @@ export class AzureDirectoryService implements DirectoryService {
         return entry;
     }
 
-    private async getGroups(force: boolean, setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
+    private async getGroups(force: boolean, saveDelta: boolean,
+        setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
         const changedGroupIds: string[] = [];
         const token = await this.configurationService.getGroupDeltaToken();
@@ -179,7 +180,7 @@ export class AzureDirectoryService implements DirectoryService {
                 }
 
                 if (res[NextLink] == null) {
-                    if (res[DeltaLink] != null) {
+                    if (res[DeltaLink] != null && saveDelta) {
                         await this.configurationService.saveGroupDeltaToken(res[DeltaLink]);
                     }
                     break;
@@ -232,13 +233,13 @@ export class AzureDirectoryService implements DirectoryService {
         const memRes = await memReq.get();
         const members: any = memRes.value;
         if (members != null) {
-            members.forEach((member: any) => {
+            for (const member of members) {
                 if (member[ObjectType] === '#microsoft.graph.group') {
                     entry.groupMemberReferenceIds.add((member as graphType.Group).id);
                 } else if (member[ObjectType] === '#microsoft.graph.user') {
                     entry.userMemberExternalIds.add((member as graphType.User).id);
                 }
-            });
+            }
         }
 
         return entry;
@@ -266,9 +267,9 @@ export class AzureDirectoryService implements DirectoryService {
 
         const set = new Set<string>();
         const pieces = parts[1].split(',');
-        pieces.forEach((p) => {
+        for (const p of pieces) {
             set.add(p.trim().toLowerCase());
-        });
+        }
 
         return [exclude, set];
     }

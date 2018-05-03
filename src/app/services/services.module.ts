@@ -71,7 +71,7 @@ const containerService = new ContainerService(cryptoService, platformUtilsServic
 const authService = new AuthService(cryptoService, apiService, userService, tokenService, appIdService,
     i18nService, platformUtilsService, messagingService, false);
 const configurationService = new ConfigurationService(storageService, secureStorageService);
-const syncSevrice = new SyncService(configurationService, logService);
+const syncSevrice = new SyncService(configurationService, logService, cryptoFunctionService, apiService);
 
 const analytics = new Analytics(window, () => true, platformUtilsService, storageService, appIdService);
 containerService.attachToWindow(window);

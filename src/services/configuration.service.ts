@@ -18,6 +18,8 @@ const Keys = {
     groupDelta: 'groupDeltaToken',
     lastUserSync: 'lastUserSync',
     lastGroupSync: 'lastGroupSync',
+    lastSyncHash: 'lastSyncHash',
+    organizationId: 'organizationId',
 };
 
 export class ConfigurationService {
@@ -143,6 +145,30 @@ export class ConfigurationService {
             return this.storageService.remove(Keys.lastGroupSync);
         } else {
             return this.storageService.save(Keys.lastGroupSync, date);
+        }
+    }
+
+    getLastSyncHash(): Promise<string> {
+        return this.storageService.get<string>(Keys.lastSyncHash);
+    }
+
+    saveLastSyncHash(hash: string) {
+        if (hash == null) {
+            return this.storageService.remove(Keys.lastSyncHash);
+        } else {
+            return this.storageService.save(Keys.lastSyncHash, hash);
+        }
+    }
+
+    getOrganizationId(): Promise<string> {
+        return this.storageService.get<string>(Keys.organizationId);
+    }
+
+    saveOrganizationId(id: string) {
+        if (id == null) {
+            return this.storageService.remove(Keys.organizationId);
+        } else {
+            return this.storageService.save(Keys.organizationId, id);
         }
     }
 }

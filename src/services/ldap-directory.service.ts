@@ -22,7 +22,7 @@ export class LdapDirectoryService implements DirectoryService {
 
     constructor(private configurationService: ConfigurationService, private logService: LogService) { }
 
-    async getEntries(force = false): Promise<[GroupEntry[], UserEntry[]]> {
+    async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
         const type = await this.configurationService.getDirectoryType();
         if (type !== DirectoryType.Ldap) {
             return;
@@ -61,7 +61,6 @@ export class LdapDirectoryService implements DirectoryService {
 
     private async getUsers(force: boolean): Promise<UserEntry[]> {
         const lastSync = await this.configurationService.getLastUserSyncDate();
-
         let filter = this.buildBaseFilter(this.syncConfig.userObjectClass, this.syncConfig.userFilter);
         filter = this.buildRevisionFilter(filter, force, lastSync);
 
@@ -121,7 +120,6 @@ export class LdapDirectoryService implements DirectoryService {
         const entries: GroupEntry[] = [];
 
         const lastSync = await this.configurationService.getLastUserSyncDate();
-
         const originalFilter = this.buildBaseFilter(this.syncConfig.groupObjectClass, this.syncConfig.groupFilter);
         let filter = originalFilter;
         const revisionFilter = this.buildRevisionFilter(filter, force, lastSync);
@@ -151,12 +149,12 @@ export class LdapDirectoryService implements DirectoryService {
             return se;
         });
 
-        groupSearchEntries.forEach((se) => {
+        for (const se of groupSearchEntries) {
             const group = this.buildGroup(se, userIdMap);
             if (group != null) {
                 entries.push(group);
             }
-        });
+        }
 
         return entries;
     }
@@ -181,13 +179,13 @@ export class LdapDirectoryService implements DirectoryService {
 
         const members = this.getAttrVals(searchEntry, this.syncConfig.memberAttribute);
         if (members != null) {
-            members.forEach((memDn) => {
+            for (const memDn of members) {
                 if (userMap.has(memDn) && !group.userMemberExternalIds.has(userMap.get(memDn))) {
                     group.userMemberExternalIds.add(userMap.get(memDn));
                 } else if (!group.groupMemberReferenceIds.has(memDn)) {
                     group.groupMemberReferenceIds.add(memDn);
                 }
-            });
+            }
         }
 
         return group;
@@ -326,9 +324,14 @@ export class LdapDirectoryService implements DirectoryService {
             const pass = this.dirConfig.password == null || this.dirConfig.password.trim() === '' ? null :
                 this.dirConfig.password;
 
+            if (user == null || pass == null) {
+                reject('Username and/or password re not configured.');
+                return;
+            }
+
             this.client.bind(user, pass, (err) => {
                 if (err != null) {
-                    reject(err);
+                    reject('Error authenticating: ' + err.message);
                 } else {
                     resolve();
                 }

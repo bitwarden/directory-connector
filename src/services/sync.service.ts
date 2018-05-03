@@ -7,6 +7,8 @@ import { ImportDirectoryRequest } from 'jslib/models/request/importDirectoryRequ
 import { ImportDirectoryRequestGroup } from 'jslib/models/request/importDirectoryRequestGroup';
 import { ImportDirectoryRequestUser } from 'jslib/models/request/importDirectoryRequestUser';
 
+import { ApiService } from 'jslib/abstractions/api.service';
+import { CryptoFunctionService } from 'jslib/abstractions/cryptoFunction.service';
 import { LogService } from 'jslib/abstractions/log.service';
 import { StorageService } from 'jslib/abstractions/storage.service';
 
@@ -15,6 +17,7 @@ import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 import { GSuiteDirectoryService } from './gsuite-directory.service';
 import { LdapDirectoryService } from './ldap-directory.service';
+import { Utils } from 'jslib/misc/utils';
 
 const Keys = {
 };
@@ -22,9 +25,10 @@ const Keys = {
 export class SyncService {
     private dirType: DirectoryType;
 
-    constructor(private configurationService: ConfigurationService, private logService: LogService) { }
+    constructor(private configurationService: ConfigurationService, private logService: LogService,
+        private cryptoFunctionService: CryptoFunctionService, private apiService: ApiService) { }
 
-    async sync(force = true, sendToServer = true): Promise<[GroupEntry[], UserEntry[]]> {
+    async sync(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
         this.dirType = await this.configurationService.getDirectoryType();
         if (this.dirType == null) {
             throw new Error('No directory configured.');
@@ -41,7 +45,7 @@ export class SyncService {
         const now = new Date();
 
         try {
-            const entries = await directoryService.getEntries(force);
+            const entries = await directoryService.getEntries(force, test);
             const groups = entries[0];
             const users = entries[1];
 
@@ -49,27 +53,48 @@ export class SyncService {
                 this.flattenUsersToGroups(groups, null, groups);
             }
 
-            console.log(groups);
-            console.log(users);
-
-            if (!sendToServer) {
-                // TODO: restore deltas
-            }
-
-            if (!sendToServer || groups == null || groups.length === 0 || users == null || users.length === 0) {
+            if (test || groups == null || groups.length === 0 || users == null || users.length === 0) {
                 return [groups, users];
             }
 
             const req = this.buildRequest(groups, users, syncConfig.removeDisabled);
+            const reqJson = JSON.stringify(req);
+
+            let hash: string = null;
+            const hashBuf = await this.cryptoFunctionService.hash(this.apiService.baseUrl + reqJson, 'sha256');
+            if (hashBuf != null) {
+                hash = Utils.fromBufferToB64(hashBuf);
+            }
+            const lastHash = await this.configurationService.getLastSyncHash();
+
+            if (lastHash == null || hash !== lastHash) {
+                const orgId = await this.configurationService.getOrganizationId();
+                if (orgId == null) {
+                    throw new Error('Organization not set.');
+                }
+
+                const res = await this.apiService.postImportDirectory(orgId, req);
+                await this.configurationService.saveLastSyncHash(hash);
+                if (syncConfig.groups) {
+                    await this.configurationService.saveLastGroupSyncDate(now);
+                }
+                if (syncConfig.users) {
+                    await this.configurationService.saveLastUserSyncDate(now);
+                }
+            }
+
+            return [groups, users];
         } catch (e) {
-            // TODO: restore deltas
-            // failed sync result
+            if (!test) {
+                await this.configurationService.saveGroupDeltaToken(startingGroupDelta);
+                await this.configurationService.saveUserDeltaToken(startingUserDelta);
+            }
             throw e;
         }
     }
 
     private flattenUsersToGroups(currentGroups: GroupEntry[], currentGroupsUsers: string[], allGroups: GroupEntry[]) {
-        currentGroups.forEach((group) => {
+        for (const group of currentGroups) {
             const groupsInThisGroup = allGroups.filter((g) => group.groupMemberReferenceIds.has(g.referenceId));
             let usersInThisGroup = Array.from(group.userMemberExternalIds);
 
@@ -79,7 +104,7 @@ export class SyncService {
             }
 
             this.flattenUsersToGroups(groupsInThisGroup, usersInThisGroup, allGroups);
-        });
+        }
     }
 
     private getDirectoryService(): DirectoryService {
@@ -99,23 +124,23 @@ export class SyncService {
         const model = new ImportDirectoryRequest();
 
         if (groups != null) {
-            groups.forEach((g) => {
+            for (const g of groups) {
                 const ig = new ImportDirectoryRequestGroup();
                 ig.name = g.name;
                 ig.externalId = g.externalId;
                 ig.users = Array.from(g.userMemberExternalIds);
                 model.groups.push(ig);
-            });
+            }
         }
 
         if (users != null) {
-            users.forEach((u) => {
+            for (const u of users) {
                 const iu = new ImportDirectoryRequestUser();
                 iu.email = u.email;
                 iu.externalId = u.externalId;
                 iu.deleted = u.deleted || (removeDisabled && u.disabled);
                 model.users.push(iu);
-            });
+            }
         }
 
         return model;

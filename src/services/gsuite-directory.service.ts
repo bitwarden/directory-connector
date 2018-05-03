@@ -32,7 +32,7 @@ export class GSuiteDirectoryService implements DirectoryService {
         this.service = google.admin<Admin>('directory_v1');
     }
 
-    async getEntries(force = false): Promise<[GroupEntry[], UserEntry[]]> {
+    async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
         const type = await this.configurationService.getDirectoryType();
         if (type !== DirectoryType.GSuite) {
             return;
@@ -76,7 +76,7 @@ export class GSuiteDirectoryService implements DirectoryService {
 
         const filter = this.createSet(this.syncConfig.userFilter);
         if (res.data.users != null) {
-            res.data.users.forEach((user) => {
+            for (const user of res.data.users) {
                 if (this.filterOutResult(filter, user.primaryEmail)) {
                     return;
                 }
@@ -85,7 +85,7 @@ export class GSuiteDirectoryService implements DirectoryService {
                 if (entry != null) {
                     entries.push(entry);
                 }
-            });
+            }
         }
 
         this.logService.info('Querying deleted users.');
@@ -96,7 +96,7 @@ export class GSuiteDirectoryService implements DirectoryService {
         }
 
         if (delRes.data.users != null) {
-            delRes.data.users.forEach((user) => {
+            for (const user of delRes.data.users) {
                 if (this.filterOutResult(filter, user.primaryEmail)) {
                     return;
                 }
@@ -105,7 +105,7 @@ export class GSuiteDirectoryService implements DirectoryService {
                 if (entry != null) {
                     entries.push(entry);
                 }
-            });
+            }
         }
 
         return entries;
@@ -164,7 +164,7 @@ export class GSuiteDirectoryService implements DirectoryService {
         }
 
         if (memRes.data.members != null) {
-            memRes.data.members.forEach((member) => {
+            for (const member of memRes.data.members) {
                 if (member.role.toLowerCase() !== 'member') {
                     return;
                 }
@@ -177,7 +177,7 @@ export class GSuiteDirectoryService implements DirectoryService {
                 } else if (member.type.toLowerCase() === 'group') {
                     entry.groupMemberReferenceIds.add(member.id);
                 }
-            });
+            }
         }
 
         return entry;
@@ -223,9 +223,9 @@ export class GSuiteDirectoryService implements DirectoryService {
 
         const set = new Set<string>();
         const pieces = parts[1].split(',');
-        pieces.forEach((p) => {
+        for (const p of pieces) {
             set.add(p.trim().toLowerCase());
-        });
+        }
 
         return [exclude, set];
     }
