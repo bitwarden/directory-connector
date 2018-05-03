@@ -86,6 +86,7 @@ export function initFactory(): Function {
         const htmlEl = window.document.documentElement;
         htmlEl.classList.add('os_' + platformUtilsService.getDeviceString());
         htmlEl.classList.add('locale_' + i18nService.translationLocale);
+        window.document.title = i18nService.t('bitwardenDirectoryConnector');
 
         let installAction = null;
         const installedVersion = await storageService.get<string>(ConstantsService.installedVersionKey);
