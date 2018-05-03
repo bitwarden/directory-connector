@@ -57,26 +57,42 @@ export class OktaDirectoryService implements DirectoryService {
     private async getUsers(force: boolean): Promise<UserEntry[]> {
         const entries: UserEntry[] = [];
         this.logService.info('Querying users.');
+        await this.client.listUsers().each((user: any) => {
+            const entry = this.buildUser(user);
+            if (entry != null) {
+                entries.push(entry);
+            }
+        });
         return entries;
     }
 
     private buildUser(user: any) {
-        if ((user.emails == null || user.emails === '') && !user.deleted) {
-            return null;
-        }
-
         const entry = new UserEntry();
+        entry.externalId = user.id;
+        entry.referenceId = user.id;
+        entry.email = user.profile.email;
+        entry.deleted = user.status === 'DEPROVISIONED';
+        entry.disabled = user.status === 'SUSPENDED';
         return entry;
     }
 
     private async getGroups(force: boolean): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
         this.logService.info('Querying groups.');
+        await this.client.listGroups().each((group: any) => {
+            const entry = this.buildGroup(group);
+            if (entry != null) {
+                entries.push(entry);
+            }
+        });
         return entries;
     }
 
-    private async buildGroup(group: any) {
+    private buildGroup(group: any) {
         const entry = new GroupEntry();
+        entry.externalId = group.id;
+        entry.referenceId = group.id;
+        entry.name = group.profile.name;
         return entry;
     }
 }
