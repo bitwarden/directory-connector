@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-sm">
-        <div class="card">
+        <div class="card mb-3">
             <h3 class="card-header">{{'directory' | i18n}}</h3>
             <div class="card-body">
                 <div class="form-group">
@@ -67,7 +67,18 @@
                     </div>
                     <div class="form-group">
                         <label for="secretKey">{{'secretKey' | i18n}}</label>
-                        <input type="password" class="form-control" id="secretKey" name="SecretKey" [(ngModel)]="azure.key">
+                        <input type="text" class="form-control" id="secretKey" name="SecretKey" [(ngModel)]="azure.key">
+                    </div>
+                </div>
+                <div [hidden]="directory != directoryType.Okta">
+                    <div class="form-group">
+                        <label for="orgUrl">{{'organizationUrl' | i18n}}</label>
+                        <input type="text" class="form-control" id="orgUrl" name="OrgUrl" [(ngModel)]="okta.orgUrl">
+                        <small class="text-muted form-text">{{'ex' | i18n}} https://mycompany.okta.com/</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="oktaToken">{{'token' | i18n}}</label>
+                        <input type="text" class="form-control" id="oktaToken" name="OktaToken" [(ngModel)]="okta.token">
                     </div>
                 </div>
                 <div [hidden]="directory != directoryType.GSuite">

@@ -19,6 +19,7 @@ import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 import { GSuiteDirectoryService } from './gsuite-directory.service';
 import { LdapDirectoryService } from './ldap-directory.service';
+import { OktaDirectoryService } from './okta-directory.service';
 
 const Keys = {
 };
@@ -116,6 +117,8 @@ export class SyncService {
                 return new AzureDirectoryService(this.configurationService);
             case DirectoryType.Ldap:
                 return new LdapDirectoryService(this.configurationService, this.logService);
+            case DirectoryType.Okta:
+                return new OktaDirectoryService(this.configurationService, this.logService);
             default:
                 return null;
         }

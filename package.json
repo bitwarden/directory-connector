@@ -89,6 +89,7 @@
     "@angular/router": "5.2.0",
     "@angular/upgrade": "5.2.0",
     "@microsoft/microsoft-graph-client": "1.0.0",
+    "@okta/okta-sdk-nodejs": "1.1.0",
     "angular2-toaster": "4.0.2",
     "angulartics2": "5.0.1",
     "bootstrap": "4.1.0",

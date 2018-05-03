@@ -434,5 +434,11 @@
     },
     "other": {
         "message": "Other"
+    },
+    "organizationUrl": {
+        "message": "Organization URL"
+    },
+    "token": {
+        "message": "Token"
     }
 }

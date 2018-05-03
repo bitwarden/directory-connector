@@ -4,6 +4,7 @@ import { StorageService } from 'jslib/abstractions/storage.service';
 import { AzureConfiguration } from '../models/azureConfiguration';
 import { GSuiteConfiguration } from '../models/gsuiteConfiguration';
 import { LdapConfiguration } from '../models/ldapConfiguration';
+import { OktaConfiguration } from '../models/oktaConfiguration';
 import { SyncConfiguration } from '../models/syncConfiguration';
 
 const StoredSecurely = '[STORED SECURELY]';
@@ -11,6 +12,7 @@ const Keys = {
     ldap: 'ldapPassword',
     gsuite: 'gsuitePrivateKey',
     azure: 'azureKey',
+    okta: 'oktaToken',
     directoryConfigPrefix: 'directoryConfig_',
     sync: 'syncConfig',
     directoryType: 'directoryType',
@@ -38,6 +40,9 @@ export class ConfigurationService {
             case DirectoryType.AzureActiveDirectory:
                 (config as any).key = await this.secureStorageService.get<string>(Keys.azure);
                 break;
+            case DirectoryType.Okta:
+                (config as any).token = await this.secureStorageService.get<string>(Keys.okta);
+                break;
             case DirectoryType.GSuite:
                 (config as any).privateKey = await this.secureStorageService.get<string>(Keys.gsuite);
                 break;
@@ -46,7 +51,7 @@ export class ConfigurationService {
     }
 
     async saveDirectory(type: DirectoryType,
-        config: LdapConfiguration | GSuiteConfiguration | AzureConfiguration): Promise<any> {
+        config: LdapConfiguration | GSuiteConfiguration | AzureConfiguration | OktaConfiguration): Promise<any> {
         const savedConfig: any = Object.assign({}, config);
         switch (type) {
             case DirectoryType.Ldap:
@@ -63,6 +68,14 @@ export class ConfigurationService {
                 } else {
                     await this.secureStorageService.save(Keys.azure, savedConfig.key);
                     savedConfig.key = StoredSecurely;
+                }
+                break;
+            case DirectoryType.Okta:
+                if (savedConfig.token == null) {
+                    await this.secureStorageService.remove(Keys.okta);
+                } else {
+                    await this.secureStorageService.save(Keys.okta, savedConfig.token);
+                    savedConfig.token = StoredSecurely;
                 }
                 break;
             case DirectoryType.GSuite:
