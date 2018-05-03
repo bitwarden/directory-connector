@@ -1,9 +1,30 @@
 <div class="card mb-3">
     <h3 class="card-header">{{'sync' | i18n}}</h3>
     <div class="card-body">
+        <p>
+            Last group sync:
+            <span *ngIf="!lastGroupSync">-</span>
+            {{lastGroupSync | date:'medium'}}
+            <br /> Last user sync:
+            <span *ngIf="!lastUserSync">-</span>
+            {{lastUserSync | date:'medium'}}
+        </p>
+        <p>
+            Sync status:
+            <strong *ngIf="syncRunning" class="text-success">Running</strong>
+            <strong *ngIf="!syncRunning" class="text-danger">Stopped</strong>
+        </p>
+        <button (click)="start()" class="btn btn-primary">
+            <i class="fa fa-play fa-fw"></i>
+            Start Sync
+        </button>
+        <button (click)="stop()" class="btn btn-primary">
+            <i class="fa fa-stop fa-fw"></i>
+            Stop Sync
+        </button>
         <button #syncBtn (click)="sync()" [appApiAction]="syncPromise" class="btn btn-primary" [disabled]="syncBtn.loading">
-            <i class="fa fa-spinner fa-spin" [hidden]="!syncBtn.loading"></i>
-            {{'sync' | i18n}}
+            <i class="fa fa-refresh fa-fw" [ngClass]="{'fa-spin': syncBtn.loading}"></i>
+            Sync Now
         </button>
     </div>
 </div>
@@ -11,8 +32,9 @@
     <h3 class="card-header">Testing</h3>
     <div class="card-body">
         <button #simBtn (click)="simulate()" [appApiAction]="simPromise" class="btn btn-primary" [disabled]="simBtn.loading">
-            <i class="fa fa-spinner fa-spin" [hidden]="!simBtn.loading"></i>
-            Simulate
+            <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!simBtn.loading"></i>
+            <i class="fa fa-bug fa-fw" [hidden]="simBtn.loading"></i>
+            Test Now
         </button>
         <div class="form-check mt-2">
             <input class="form-check-input" type="checkbox" id="simSinceLast" [(ngModel)]="simSinceLast">

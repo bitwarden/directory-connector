@@ -12,12 +12,13 @@ import { CryptoFunctionService } from 'jslib/abstractions/cryptoFunction.service
 import { LogService } from 'jslib/abstractions/log.service';
 import { StorageService } from 'jslib/abstractions/storage.service';
 
+import { Utils } from 'jslib/misc/utils';
+
 import { AzureDirectoryService } from './azure-directory.service';
 import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 import { GSuiteDirectoryService } from './gsuite-directory.service';
 import { LdapDirectoryService } from './ldap-directory.service';
-import { Utils } from 'jslib/misc/utils';
 
 const Keys = {
 };

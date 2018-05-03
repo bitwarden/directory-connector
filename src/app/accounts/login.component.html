@@ -15,11 +15,12 @@
                                 <input id="masterPassword" type="password" name="MasterPassword" [(ngModel)]="masterPassword" class="form-control">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary" [disabled]="form.loading" appBlurClick>
+                        <button type="submit" class="btn btn-primary" [disabled]="form.loading">
                             <i class="fa fa-spinner fa-spin" [hidden]="!form.loading"></i>
+                            <i class="fa fa-sign-in fa-fw" [hidden]="form.loading"></i>
                             {{'logIn' | i18n}}
                         </button>
-                        <button type="button" class="btn btn-link" (click)="settings()" appBlurClick>
+                        <button type="button" class="btn btn-link" (click)="settings()">
                             {{'settings' | i18n}}
                         </button>
                     </div>

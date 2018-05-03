@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import {
+    Component,
+    OnInit,
+} from '@angular/core';
 
 import { I18nService } from 'jslib/abstractions/i18n.service';
 
@@ -10,12 +13,13 @@ import { SyncService } from '../../services/sync.service';
 import { Entry } from '../../models/entry';
 import { GroupEntry } from '../../models/groupEntry';
 import { UserEntry } from '../../models/userEntry';
+import { ConfigurationService } from '../../services/configuration.service';
 
 @Component({
     selector: 'app-dashboard',
     templateUrl: 'dashboard.component.html',
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
     simGroups: GroupEntry[];
     simUsers: UserEntry[];
     simEnabledUsers: UserEntry[] = [];
@@ -24,8 +28,25 @@ export class DashboardComponent {
     simPromise: Promise<any>;
     simSinceLast: boolean = false;
     syncPromise: Promise<any>;
+    lastGroupSync: Date;
+    lastUserSync: Date;
+    syncRunning: boolean;
 
-    constructor(private i18nService: I18nService, private syncService: SyncService) { }
+    constructor(private i18nService: I18nService, private syncService: SyncService,
+        private configurationService: ConfigurationService) { }
+
+    async ngOnInit() {
+        this.lastGroupSync = await this.configurationService.getLastGroupSyncDate();
+        this.lastUserSync = await this.configurationService.getLastUserSyncDate();
+    }
+
+    async start() {
+        this.syncRunning = true;
+    }
+
+    async stop() {
+        this.syncRunning = false;
+    }
 
     async sync() {
         this.syncPromise = this.syncService.sync(false, false);

@@ -41,8 +41,9 @@
                             <p>{{'noTwoStepProviders' | i18n}}</p>
                             <p>{{'noTwoStepProviders2' | i18n}}</p>
                         </ng-container>
-                        <button type="submit" class="btn btn-primary" [disabled]="form.loading" appBlurClick *ngIf="selectedProviderType != null && selectedProviderType !== providerType.U2f && selectedProviderType !== providerType.Duo && 
+                        <button type="submit" class="btn btn-primary" [disabled]="form.loading" *ngIf="selectedProviderType != null && selectedProviderType !== providerType.U2f && selectedProviderType !== providerType.Duo && 
                         selectedProviderType !== providerType.OrganizationDuo">
+                            <i class="fa fa-sign-in fa-fw" [hidden]="form.loading"></i>
                             <i class="fa fa-spinner fa-spin" [hidden]="!form.loading"></i>
                             {{'continue' | i18n}}
                         </button>
