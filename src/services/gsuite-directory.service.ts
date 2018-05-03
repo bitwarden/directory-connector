@@ -16,12 +16,13 @@ import { GSuiteConfiguration } from '../models/gsuiteConfiguration';
 import { SyncConfiguration } from '../models/syncConfiguration';
 import { UserEntry } from '../models/userEntry';
 
+import { BaseDirectoryService } from './baseDirectory.service';
 import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 
 import { LogService } from 'jslib/abstractions/log.service';
 
-export class GSuiteDirectoryService implements DirectoryService {
+export class GSuiteDirectoryService extends BaseDirectoryService implements DirectoryService {
     private client: JWT;
     private service: Admin;
     private authParams: any;
@@ -29,6 +30,7 @@ export class GSuiteDirectoryService implements DirectoryService {
     private syncConfig: SyncConfiguration;
 
     constructor(private configurationService: ConfigurationService, private logService: LogService) {
+        super();
         this.service = google.admin<Admin>('directory_v1');
     }
 
@@ -65,7 +67,7 @@ export class GSuiteDirectoryService implements DirectoryService {
 
     private async getUsers(): Promise<UserEntry[]> {
         const entries: UserEntry[] = [];
-        const query = this.createQuery(this.syncConfig.userFilter);
+        const query = this.createDirectoryQuery(this.syncConfig.userFilter);
 
         this.logService.info('Querying users.');
         let p = Object.assign({ query: query }, this.authParams);
@@ -74,7 +76,7 @@ export class GSuiteDirectoryService implements DirectoryService {
             throw new Error('User list API failed: ' + res.statusText);
         }
 
-        const filter = this.createSet(this.syncConfig.userFilter);
+        const filter = this.createCustomSet(this.syncConfig.userFilter);
         if (res.data.users != null) {
             for (const user of res.data.users) {
                 if (this.filterOutResult(filter, user.primaryEmail)) {
@@ -134,7 +136,7 @@ export class GSuiteDirectoryService implements DirectoryService {
             throw new Error('Group list API failed: ' + res.statusText);
         }
 
-        const filter = this.createSet(this.syncConfig.groupFilter);
+        const filter = this.createCustomSet(this.syncConfig.groupFilter);
         if (res.data.groups != null) {
             for (const group of res.data.groups) {
                 if (this.filterOutResult(filter, group.name)) {
@@ -180,69 +182,6 @@ export class GSuiteDirectoryService implements DirectoryService {
         }
 
         return entry;
-    }
-
-    private createQuery(filter: string) {
-        if (filter == null || filter === '') {
-            return null;
-        }
-
-        const mainParts = filter.split('|');
-        if (mainParts.length < 2 || mainParts[1] == null || mainParts[1].trim() === '') {
-            return null;
-        }
-
-        return mainParts[1].trim();
-    }
-
-    private createSet(filter: string): [boolean, Set<string>] {
-        if (filter == null || filter === '') {
-            return null;
-        }
-
-        const mainParts = filter.split('|');
-        if (mainParts.length < 1 || mainParts[0] == null || mainParts[0].trim() === '') {
-            return null;
-        }
-
-        const parts = mainParts[0].split(':');
-        if (parts.length !== 2) {
-            return null;
-        }
-
-        const keyword = parts[0].trim().toLowerCase();
-        let exclude = true;
-        if (keyword === 'include') {
-            exclude = false;
-        } else if (keyword === 'exclude') {
-            exclude = true;
-        } else {
-            return null;
-        }
-
-        const set = new Set<string>();
-        const pieces = parts[1].split(',');
-        for (const p of pieces) {
-            set.add(p.trim().toLowerCase());
-        }
-
-        return [exclude, set];
-    }
-
-    private filterOutResult(filter: [boolean, Set<string>], result: string) {
-        if (filter != null) {
-            result = result.trim().toLowerCase();
-            const excluded = filter[0];
-            const set = filter[1];
-
-            if (excluded && set.has(result)) {
-                return true;
-            } else if (!excluded && !set.has(result)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private async auth() {

@@ -10,6 +10,7 @@ import { GroupEntry } from '../models/groupEntry';
 import { SyncConfiguration } from '../models/syncConfiguration';
 import { UserEntry } from '../models/userEntry';
 
+import { BaseDirectoryService } from './baseDirectory.service';
 import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 
@@ -17,7 +18,7 @@ const NextLink = '@odata.nextLink';
 const DeltaLink = '@odata.deltaLink';
 const ObjectType = '@odata.type';
 
-export class AzureDirectoryService implements DirectoryService {
+export class AzureDirectoryService extends BaseDirectoryService implements DirectoryService {
     private client: graph.Client;
     private dirConfig: AzureConfiguration;
     private syncConfig: SyncConfiguration;
@@ -25,6 +26,7 @@ export class AzureDirectoryService implements DirectoryService {
     private accessTokenExpiration: Date;
 
     constructor(private configurationService: ConfigurationService) {
+        super();
         this.init();
     }
 
@@ -52,21 +54,13 @@ export class AzureDirectoryService implements DirectoryService {
 
         let groups: GroupEntry[];
         if (this.syncConfig.groups) {
-            const setFilter = this.createSet(this.syncConfig.groupFilter);
+            const setFilter = this.createCustomSet(this.syncConfig.groupFilter);
 
             const groupForce = force ||
                 (users != null && users.filter((u) => !u.deleted && !u.disabled).length > 0);
 
             groups = await this.getGroups(groupForce, !test, setFilter);
-            if (setFilter != null && users != null) {
-                users = users.filter((u) => {
-                    if (u.disabled || u.deleted) {
-                        return true;
-                    }
-
-                    return groups.filter((g) => g.userMemberExternalIds.has(u.externalId)).length > 0;
-                });
-            }
+            users = this.filterUsersFromGroupsSet(users, groups, setFilter);
         }
 
         return [groups, users];
@@ -91,13 +85,13 @@ export class AzureDirectoryService implements DirectoryService {
             res = await userReq.get();
         }
 
-        const filter = this.createSet(this.syncConfig.userFilter);
+        const setFilter = this.createCustomSet(this.syncConfig.userFilter);
         while (true) {
             const users: graphType.User[] = res.value;
             if (users != null) {
                 for (const user of users) {
                     const entry = this.buildUser(user);
-                    if (this.filterOutResult(filter, entry.email)) {
+                    if (this.filterOutResult(setFilter, entry.email)) {
                         return;
                     }
 
@@ -243,51 +237,6 @@ export class AzureDirectoryService implements DirectoryService {
         }
 
         return entry;
-    }
-
-    private createSet(filter: string): [boolean, Set<string>] {
-        if (filter == null || filter === '') {
-            return null;
-        }
-
-        const parts = filter.split(':');
-        if (parts.length !== 2) {
-            return null;
-        }
-
-        const keyword = parts[0].trim().toLowerCase();
-        let exclude = true;
-        if (keyword === 'include') {
-            exclude = false;
-        } else if (keyword === 'exclude') {
-            exclude = true;
-        } else {
-            return null;
-        }
-
-        const set = new Set<string>();
-        const pieces = parts[1].split(',');
-        for (const p of pieces) {
-            set.add(p.trim().toLowerCase());
-        }
-
-        return [exclude, set];
-    }
-
-    private filterOutResult(filter: [boolean, Set<string>], result: string) {
-        if (filter != null) {
-            result = result.trim().toLowerCase();
-            const excluded = filter[0];
-            const set = filter[1];
-
-            if (excluded && set.has(result)) {
-                return true;
-            } else if (!excluded && !set.has(result)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private init() {
