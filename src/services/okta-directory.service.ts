@@ -66,13 +66,31 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
         const setFilter = this.createCustomSet(this.syncConfig.userFilter);
 
         this.logService.info('Querying users.');
-        await this.client.listUsers({ filter: oktaFilter }).each((user: any) => {
+        const usersPromise = this.client.listUsers({ filter: oktaFilter }).each((user: any) => {
             const entry = this.buildUser(user);
             if (entry != null && !this.filterOutResult(setFilter, entry.email)) {
                 entries.push(entry);
             }
         });
 
+        // Deactivated users have to be queried for separately, only when no filter is provided in the first query
+        let deactUsersPromise: any;
+        if (oktaFilter == null || oktaFilter.indexOf('lastUpdated ') === -1) {
+            let deactOktaFilter = 'status eq "DEPROVISIONED"';
+            if (oktaFilter != null) {
+                deactOktaFilter = '(' + oktaFilter + ') and ' + deactOktaFilter;
+            }
+            deactUsersPromise = this.client.listUsers({ filter: deactOktaFilter }).each((user: any) => {
+                const entry = this.buildUser(user);
+                if (entry != null && !this.filterOutResult(setFilter, entry.email)) {
+                    entries.push(entry);
+                }
+            });
+        } else {
+            deactUsersPromise = Promise.resolve();
+        }
+
+        await Promise.all([usersPromise, deactUsersPromise]);
         return entries;
     }
 
