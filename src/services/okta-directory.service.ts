@@ -56,13 +56,17 @@ export class OktaDirectoryService implements DirectoryService {
 
     private async getUsers(force: boolean): Promise<UserEntry[]> {
         const entries: UserEntry[] = [];
+        const lastSync = await this.configurationService.getLastUserSyncDate();
+        const filter = this.buildFilter(this.syncConfig.userFilter, force, lastSync);
+
         this.logService.info('Querying users.');
-        await this.client.listUsers().each((user: any) => {
+        await this.client.listUsers({ filter: filter }).each((user: any) => {
             const entry = this.buildUser(user);
             if (entry != null) {
                 entries.push(entry);
             }
         });
+
         return entries;
     }
 
@@ -78,8 +82,11 @@ export class OktaDirectoryService implements DirectoryService {
 
     private async getGroups(force: boolean): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
+        const lastSync = await this.configurationService.getLastGroupSyncDate();
+        const filter = this.buildFilter(this.syncConfig.groupFilter, force, lastSync);
+
         this.logService.info('Querying groups.');
-        await this.client.listGroups().each((group: any) => {
+        await this.client.listGroups({ filter: filter }).each((group: any) => {
             const entry = this.buildGroup(group);
             if (entry != null) {
                 entries.push(entry);
@@ -94,5 +101,19 @@ export class OktaDirectoryService implements DirectoryService {
         entry.referenceId = group.id;
         entry.name = group.profile.name;
         return entry;
+    }
+
+    private buildFilter(baseFilter: string, force: boolean, lastSync: Date) {
+        baseFilter = baseFilter == null || baseFilter.trim() === '' ? null : baseFilter;
+        if (force || lastSync == null) {
+            return baseFilter;
+        }
+
+        const updatedFilter = 'lastUpdated gt ' + lastSync.toISOString();
+        if (baseFilter == null) {
+            return updatedFilter;
+        }
+
+        return '(' + baseFilter + ') and ' + updatedFilter;
     }
 }

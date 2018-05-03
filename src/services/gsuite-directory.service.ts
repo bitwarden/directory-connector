@@ -122,7 +122,6 @@ export class GSuiteDirectoryService implements DirectoryService {
         entry.email = user.primaryEmail;
         entry.disabled = user.suspended || false;
         entry.deleted = deleted;
-        // entry.creationDate = user.creationTime; // TODO: string to date conversion
         return entry;
     }
 
