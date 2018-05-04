@@ -22,6 +22,8 @@
     "node_modules",
     "jslib/node_modules",
     "jslib/src/services/webCryptoFunction.service.ts",
+    "jslib/src/services/search.service.ts",
+    "jslib/src/angular/components/export.component.ts",
     "dist",
     "jslib/dist",
     "build",
