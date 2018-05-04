@@ -525,5 +525,8 @@
     },
     "account": {
         "message": "Account"
+    },
+    "intervalMin": {
+        "message": "Minimum sync interval is 5 minutes."
     }
 }

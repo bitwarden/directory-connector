@@ -134,6 +134,7 @@
                 <div class="form-group">
                     <label for="interval">{{'interval' | i18n}}</label>
                     <input type="number" min="5" class="form-control" id="interval" name="Interval" [(ngModel)]="sync.interval">
+                    <small class="text-muted form-text">{{'intervalMin' | i18n}}</small>
                 </div>
                 <div class="form-group">
                     <div class="form-check">
@@ -190,7 +191,10 @@
                     <div class="form-group">
                         <label for="userFilter">{{'userFilter' | i18n}}</label>
                         <textarea class="form-control" id="userFilter" name="UserFilter" [(ngModel)]="sync.userFilter"></textarea>
-                        <small class="text-muted form-text">{{'ex' | i18n}} (&amp;(objectClass=user))</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.Ldap">{{'ex' | i18n}} (&amp;(givenName=John)(|(l=Dallas)(l=Austin)))</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.AzureActiveDirectory">{{'ex' | i18n}} exclude:joe@company.com</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.Okta">{{'ex' | i18n}} exclude:joe@company.com | profile.firstName eq "John"</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.GSuite">{{'ex' | i18n}} exclude:joe@company.com | orgName=Engineering</small>
                     </div>
                     <div [hidden]="directory != directoryType.Ldap || ldap.ad">
                         <div class="form-group">
@@ -221,7 +225,10 @@
                     <div class="form-group">
                         <label for="groupFilter">{{'groupFilter' | i18n}}</label>
                         <textarea class="form-control" id="groupFilter" name="GroupFilter" [(ngModel)]="sync.groupFilter"></textarea>
-                        <small class="text-muted form-text">{{'ex' | i18n}} (&amp;(objectClass=group))</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.Ldap">{{'ex' | i18n}} (&amp;!(name=Sales*)!(name=IT*))</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.AzureActiveDirectory">{{'ex' | i18n}} include:Sales,IT</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.Okta">{{'ex' | i18n}} include:Sales,IT | type eq "APP_GROUP"</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.GSuite">{{'ex' | i18n}} include:Sales,IT</small>
                     </div>
                     <div [hidden]="directory != directoryType.Ldap || ldap.ad">
                         <div class="form-group">
