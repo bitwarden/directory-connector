@@ -8,8 +8,9 @@
                     <br /> {{'version' | i18n : version}}
                     <br /> &copy; 8bit Solutions LLC 2015-{{year}}
                 </p>
-                <button class="btn btn-primary" type="button" (click)="update()">
-                    <i class="fa fa-download fa-fw"></i>
+                <button class="btn btn-primary" type="button" (click)="update()" [disabled]="checkingForUpdate">
+                    <i class="fa fa-download fa-fw" [hidden]="checkingForUpdate"></i>
+                    <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!checkingForUpdate"></i>
                     {{'checkForUpdates' | i18n}}
                 </button>
             </div>

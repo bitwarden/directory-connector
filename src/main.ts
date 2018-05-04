@@ -9,6 +9,7 @@ import { KeytarStorageListener } from 'jslib/electron/keytarStorageListener';
 import { ElectronLogService } from 'jslib/electron/services/electronLog.service';
 import { ElectronMainMessagingService } from 'jslib/electron/services/electronMainMessaging.service';
 import { ElectronStorageService } from 'jslib/electron/services/electronStorage.service';
+import { UpdaterMain } from 'jslib/electron/updater.main';
 import { WindowMain } from 'jslib/electron/window.main';
 
 export class Main {
@@ -21,6 +22,7 @@ export class Main {
     windowMain: WindowMain;
     messagingMain: MessagingMain;
     menuMain: MenuMain;
+    updaterMain: UpdaterMain;
 
     constructor() {
         // Set paths for portable builds
@@ -52,7 +54,12 @@ export class Main {
 
         this.windowMain = new WindowMain(this.storageService);
         this.menuMain = new MenuMain(this);
-        this.messagingMain = new MessagingMain(this.windowMain, this.menuMain);
+        this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain, 'directory-connector', () => {
+            this.messagingService.send('checkingForUpdate');
+        }, null, () => {
+            this.messagingService.send('doneCheckingForUpdate');
+        });
+        this.messagingMain = new MessagingMain(this.windowMain, this.menuMain, this.updaterMain);
         this.messagingService = new ElectronMainMessagingService(this.windowMain, (message) => {
             this.messagingMain.onMessage(message);
         });
@@ -66,6 +73,7 @@ export class Main {
             await this.i18nService.init(app.getLocale());
             this.menuMain.init();
             this.messagingMain.init();
+            await this.updaterMain.init();
         }, (e: any) => {
             // tslint:disable-next-line
             console.error(e);

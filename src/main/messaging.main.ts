@@ -3,6 +3,7 @@ import {
     ipcMain,
 } from 'electron';
 
+import { UpdaterMain } from 'jslib/electron/updater.main';
 import { WindowMain } from 'jslib/electron/window.main';
 
 import { MenuMain } from './menu.main';
@@ -12,15 +13,18 @@ const SyncCheckInterval = 60 * 1000; // 1 minute
 export class MessagingMain {
     private syncTimeout: NodeJS.Timer;
 
-    constructor(private windowMain: WindowMain, private menuMain: MenuMain) { }
+    constructor(private windowMain: WindowMain, private menuMain: MenuMain,
+        private updaterMain: UpdaterMain) { }
 
     init() {
-        this.scheduleNextSync();
         ipcMain.on('messagingService', async (event: any, message: any) => this.onMessage(message));
     }
 
     onMessage(message: any) {
         switch (message.command) {
+            case 'checkForUpdate':
+                this.updaterMain.checkForUpdate(true);
+                break;
             case 'scheduleNextDirSync':
                 this.scheduleNextSync();
                 break;
