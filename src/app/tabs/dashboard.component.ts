@@ -78,13 +78,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         await this.startPromise;
         this.messagingService.send('scheduleNextDirSync');
         this.syncRunning = true;
-        this.toasterService.popAsync('success', null, 'Syncing started.');
+        this.toasterService.popAsync('success', null, this.i18nService.t('syncingStarted'));
     }
 
     async stop() {
         this.messagingService.send('cancelDirSync');
         this.syncRunning = false;
-        this.toasterService.popAsync('success', null, 'Syncing stopped.');
+        this.toasterService.popAsync('success', null, this.i18nService.t('syncingStopped'));
     }
 
     async sync() {
@@ -92,7 +92,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const result = await this.syncPromise;
         const groupCount = result[0] != null ? result[0].length : 0;
         const userCount = result[1] != null ? result[1].length : 0;
-        this.toasterService.popAsync('success', null, 'Synced ' + groupCount + ' groups and ' + userCount + ' users.');
+        this.toasterService.popAsync('success', null,
+            this.i18nService.t('syncCounts', groupCount.toString(), userCount.toString()));
     }
 
     async simulate() {
@@ -108,7 +109,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.simUsers = result[1];
                 this.simGroups = result[0];
             } catch (e) {
-                reject(e || 'Sync error.');
+                reject(e || this.i18nService.t('syncError'));
             }
 
             const userMap = new Map<string, UserEntry>();

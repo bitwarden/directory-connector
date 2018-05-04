@@ -446,5 +446,84 @@
     },
     "syncCacheCleared": {
         "message": "The sync cache has been cleared."
+    },
+    "lastGroupSync": {
+        "message": "Last group sync"
+    },
+    "lastUserSync": {
+        "message": "Last user sync"
+    },
+    "syncStatus": {
+        "message": "Sync status"
+    },
+    "running": {
+        "message": "Running"
+    },
+    "stopped": {
+        "message": "Stopped"
+    },
+    "startSync": {
+        "message": "Start Sync"
+    },
+    "stopSync": {
+        "message": "Stop Sync"
+    },
+    "syncNow": {
+        "message": "Sync Now"
+    },
+    "testing": {
+        "message": "Testing"
+    },
+    "testingDesc": {
+        "message": "You can run tests to see how your directory and sync settings are working. Tests will not sync to your Bitwarden organization."
+    },
+    "testNow": {
+        "message": "Test Now"
+    },
+    "testLastSync": {
+        "message": "Test since the last successful sync"
+    },
+    "users": {
+        "message": "Users"
+    },
+    "disabledUsers": {
+        "message": "Disabled Users"
+    },
+    "deletedUsers": {
+        "message": "Deleted Users"
+    },
+    "noUsers": {
+        "message": "No users to list."
+    },
+    "groups": {
+        "message": "Groups"
+    },
+    "noGroups": {
+        "message": "No groups to list."
+    },
+    "syncingStarted": {
+        "message": "Syncing started."
+    },
+    "syncingStopped": {
+        "message": "Syncing stopped."
+    },
+    "syncCounts": {
+        "message": "Synced $GROUP_COUNT$ group(s) and $USER_COUNT$ user(s).",
+        "placeholders": {
+            "group_count": {
+                "content": "$1",
+                "example": "10"
+            },
+            "user_count": {
+                "content": "$1",
+                "example": "55"
+            }
+        }
+    },
+    "syncError": {
+        "message": "Sync error."
+    },
+    "account": {
+        "message": "Account"
     }
 }
