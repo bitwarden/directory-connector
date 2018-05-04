@@ -1,7 +1,7 @@
 {
-  "name": "bitwarden",
+  "name": "bitwarden-directory-connector",
   "productName": "Bitwarden Directory Connector",
-  "description": "A secure and free password manager for all of your devices.",
+  "description": "Sync your user directory to your Bitwarden organization.",
   "version": "0.0.0",
   "keywords": [
     "bitwarden",
@@ -41,6 +41,70 @@
     "publish:lin": "npm run build && npm run clean:dist && build --linux --x64 -p always",
     "publish:mac": "npm run build && npm run clean:dist && build --mac -p always",
     "publish:win": "npm run build && npm run clean:dist && build --win --x64 --ia32 -p always -c.win.certificateSubjectName=\"8bit Solutions LLC\""
+  },
+  "build": {
+    "appId": "com.bitwarden.directory-connector",
+    "copyright": "Copyright © 2015-2018 8bit Solutions LLC",
+    "directories": {
+      "buildResources": "resources",
+      "output": "dist",
+      "app": "build"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "linux": {
+      "category": "Utility",
+      "synopsis": "Sync your user directory to your Bitwarden organization.",
+      "target": [
+        "AppImage"
+      ]
+    },
+    "dmg": {
+      "artifactName": "Bitwarden-Connector-${version}.${ext}",
+      "icon": "dmg.icns",
+      "contents": [
+        {
+          "x": 150,
+          "y": 185,
+          "type": "file"
+        },
+        {
+          "x": 390,
+          "y": 180,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Bitwarden-Connector-Installer-${version}.${ext}",
+      "uninstallDisplayName": "${productName}",
+      "deleteAppDataOnUninstall": true
+    },
+    "portable": {
+      "artifactName": "Bitwarden-Connector-Portable-${version}.${ext}"
+    },
+    "appImage": {
+      "artifactName": "Bitwarden-Connector-${version}-${arch}.${ext}"
+    }
   },
   "devDependencies": {
     "@angular/compiler-cli": "5.2.0",
