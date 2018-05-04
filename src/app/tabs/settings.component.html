@@ -23,7 +23,7 @@
                     <div class="form-group">
                         <label for="rootPath">{{'rootPath' | i18n}}</label>
                         <input type="text" class="form-control" id="rootPath" name="RootPath" [(ngModel)]="ldap.rootPath">
-                        <small class="text-muted form-text">{{'ex' | i18n}} DC=ad,DC=company,DC=com</small>
+                        <small class="text-muted form-text">{{'ex' | i18n}} dc=company,dc=com</small>
                     </div>
                     <div class="form-group">
                         <div class="form-check">
@@ -47,7 +47,8 @@
                         <div class="form-group">
                             <label for="username">{{'username' | i18n}}</label>
                             <input type="text" class="form-control" id="username" name="Username" [(ngModel)]="ldap.username">
-                            <small class="text-muted form-text">{{'ex' | i18n}} company/admin</small>
+                            <small class="text-muted form-text" *ngIf="ldap.ad">{{'ex' | i18n}} company\admin</small>
+                            <small class="text-muted form-text" *ngIf="!ldap.ad">{{'ex' | i18n}} cn=admin,dc=company,dc=com</small>
                         </div>
                         <div class="form-group">
                             <label for="password">{{'password' | i18n}}</label>
