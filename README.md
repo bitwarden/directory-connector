@@ -3,27 +3,35 @@
 
 # Bitwarden Directory Connector
 
-The Bitwarden Directory Connector is a command line application used to connect your Bitwarden enterprise organization to an existing directory of users and groups.
-It is written in C# with the .NET Framework. It consists of a console application and an optional windows service to run syncs in the background on a specified interval.
+<a href="https://bitwarden.com/#download"><img src="https://imgur.com/SLv9paA.png" width="500" height="113"></a>
+
+The Bitwarden Directory Connector is an application used to connect your Bitwarden enterprise organization to an existing directory of users and groups.
 
 Supported directories:
 - Active Directory
-- Azure Active Directory
-- GSuite (Google)
 - Any other LDAP-based directory
+- Azure Active Directory
+- G Suite (Google)
+- Okta
 
-<img src="https://i.imgur.com/IdqS0se.png" alt="" width="680" height="479" />
+The Bitwarden Directory Connector application is written using Electron and Angular. The application installs on Windows, macOS, and Linux distributions.
 
 # Build/Run
 
 **Requirements**
 
-- [Visual Studio](https://www.visualstudio.com/)
+- [Node.js](https://nodejs.org/)
+- Windows users: To compile the native node modules used in the app you will need the Visual C++ toolset, available through the standard Visual Studio installer (recommended) or by installing [`windows-build-tools`](https://github.com/felixrieseberg/windows-build-tools) through `npm`. See more at [Compiling native Addon modules](https://github.com/Microsoft/nodejs-guidelines/blob/master/windows-environment.md#compiling-native-addon-modules).
 
-Open `bitwarden-directory-connector.sln` or `bitwarden-directory-connector-noinstaller.sln`. After restoring the nuget packages, you can build and run the application.
+**Run the app**
+
+```bash
+npm install
+npm run electron
+```
 
 # Contribute
 
-Code contributions are welcome! Visual Studio is required to work on this project. Please commit any pull requests against the `master` branch.
+Code contributions are welcome! Please commit any pull requests against the `master` branch. Learn more about how to contribute by reading the [`CONTRIBUTING.md`](CONTRIBUTING.md) file.
 
 Security audits and feedback are welcome. Please open an issue or email us privately if the report is sensitive in nature. You can read our security policy in the [`SECURITY.md`](SECURITY.md) file.
