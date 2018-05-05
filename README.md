@@ -3,9 +3,7 @@
 
 # Bitwarden Directory Connector
 
-<a href="https://bitwarden.com/#download"><img src="https://imgur.com/SLv9paA.png" width="500" height="113"></a>
-
-The Bitwarden Directory Connector is an application used to connect your Bitwarden enterprise organization to an existing directory of users and groups.
+The Bitwarden Directory Connector is a a desktop application used to sync your Bitwarden enterprise organization to an existing directory of users and groups.
 
 Supported directories:
 - Active Directory
@@ -14,7 +12,9 @@ Supported directories:
 - G Suite (Google)
 - Okta
 
-The Bitwarden Directory Connector application is written using Electron and Angular. The application installs on Windows, macOS, and Linux distributions.
+<a href="https://bitwarden.com/#download"><img src="https://imgur.com/SLv9paA.png" width="500" height="113"></a>
+
+The application is written using Electron with Angular and installs on Windows, macOS, and Linux distributions.
 
 # Build/Run
 
