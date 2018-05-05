@@ -12,9 +12,9 @@ Supported directories:
 - G Suite (Google)
 - Okta
 
-<a href="https://bitwarden.com/#download"><img src="https://imgur.com/SLv9paA.png" width="500" height="113"></a>
-
 The application is written using Electron with Angular and installs on Windows, macOS, and Linux distributions.
+
+<a href="https://bitwarden.com/#download"><img src="https://imgur.com/SLv9paA.png" width="500" height="113"></a>
 
 # Build/Run
 
