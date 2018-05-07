@@ -56,7 +56,7 @@ export class SyncService {
             let users = entries[1];
 
             if (groups != null && groups.length > 0) {
-                this.flattenUsersToGroups(groups, null, groups);
+                this.flattenUsersToGroups(groups, groups);
             }
 
             if (test || groups == null || groups.length === 0 || users == null || users.length === 0) {
@@ -105,18 +105,15 @@ export class SyncService {
         }
     }
 
-    private flattenUsersToGroups(currentGroups: GroupEntry[], currentGroupsUsers: string[], allGroups: GroupEntry[]) {
-        for (const group of currentGroups) {
-            const groupsInThisGroup = allGroups.filter((g) => group.groupMemberReferenceIds.has(g.referenceId));
-            let usersInThisGroup = Array.from(group.userMemberExternalIds);
-
-            if (currentGroupsUsers != null) {
-                currentGroupsUsers.forEach((id) => group.userMemberExternalIds.add(id));
-                usersInThisGroup = usersInThisGroup.concat(currentGroupsUsers);
-            }
-
-            this.flattenUsersToGroups(groupsInThisGroup, usersInThisGroup, allGroups);
+    private flattenUsersToGroups(levelGroups: GroupEntry[], allGroups: GroupEntry[]): Set<string> {
+        let allUsers = new Set<string>();
+        for (const group of levelGroups) {
+            const childGroups = allGroups.filter((g) => group.groupMemberReferenceIds.has(g.referenceId));
+            const childUsers = this.flattenUsersToGroups(childGroups, allGroups);
+            childUsers.forEach((id) => group.userMemberExternalIds.add(id));
+            allUsers = new Set([...allUsers, ...group.userMemberExternalIds]);
         }
+        return allUsers;
     }
 
     private getDirectoryService(): DirectoryService {
