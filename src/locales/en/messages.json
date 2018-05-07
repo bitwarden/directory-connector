@@ -515,7 +515,7 @@
                 "example": "10"
             },
             "user_count": {
-                "content": "$1",
+                "content": "$2",
                 "example": "55"
             }
         }
