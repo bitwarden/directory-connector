@@ -82,7 +82,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         if (res.data.users != null) {
             for (const user of res.data.users) {
                 if (this.filterOutResult(filter, user.primaryEmail)) {
-                    return;
+                    continue;
                 }
 
                 const entry = this.buildUser(user, false);
@@ -102,7 +102,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         if (delRes.data.users != null) {
             for (const user of delRes.data.users) {
                 if (this.filterOutResult(filter, user.primaryEmail)) {
-                    return;
+                    continue;
                 }
 
                 const entry = this.buildUser(user, true);
@@ -165,10 +165,10 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         if (memRes.data.members != null) {
             for (const member of memRes.data.members) {
                 if (member.role.toLowerCase() !== 'member') {
-                    return;
+                    continue;
                 }
                 if (member.status.toLowerCase() !== 'active') {
-                    return;
+                    continue;
                 }
 
                 if (member.type.toLowerCase() === 'user') {

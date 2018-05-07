@@ -88,12 +88,12 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
                 for (const user of users) {
                     const entry = this.buildUser(user);
                     if (this.filterOutResult(setFilter, entry.email)) {
-                        return;
+                        continue;
                     }
 
                     if (!entry.disabled && !entry.deleted &&
                         (entry.email == null || entry.email.indexOf('#') > -1)) {
-                        return;
+                        continue;
                     }
 
                     entries.push(entry);
@@ -158,7 +158,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
                     for (const group of groups) {
                         if (getFullResults) {
                             if (this.filterOutResult(setFilter, group.displayName)) {
-                                return;
+                                continue;
                             }
 
                             const entry = await this.buildGroup(group);
@@ -194,7 +194,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
             if (allGroups != null) {
                 for (const group of allGroups) {
                     if (this.filterOutResult(setFilter, group.displayName)) {
-                        return;
+                        continue;
                     }
 
                     const entry = await this.buildGroup(group);
