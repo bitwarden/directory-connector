@@ -528,5 +528,11 @@
     },
     "intervalMin": {
         "message": "Minimum sync interval is 5 minutes."
+    },
+    "welcome": {
+        "message": "Welcome to the Bitwarden Directory Connector"
+    },
+    "logInDesc": {
+        "message": "Log in as an organization admin user below."
     }
 }
