@@ -131,7 +131,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.sort(this.simGroups);
                 for (const g of this.simGroups) {
                     if (g.userMemberExternalIds == null) {
-                        return;
+                        continue;
                     }
 
                     for (const uid of g.userMemberExternalIds) {
