@@ -10,7 +10,9 @@ import { UserEntry } from '../models/userEntry';
 import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 
+import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
+
 import { Utils } from 'jslib/misc/utils';
 
 const UserControlAccountDisabled = 2;
@@ -20,7 +22,8 @@ export class LdapDirectoryService implements DirectoryService {
     private dirConfig: LdapConfiguration;
     private syncConfig: SyncConfiguration;
 
-    constructor(private configurationService: ConfigurationService, private logService: LogService) { }
+    constructor(private configurationService: ConfigurationService, private logService: LogService,
+        private i18nService: I18nService) { }
 
     async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
         const type = await this.configurationService.getDirectoryType();
@@ -312,6 +315,11 @@ export class LdapDirectoryService implements DirectoryService {
 
     private async bind(): Promise<any> {
         return new Promise((resolve, reject) => {
+            if (this.dirConfig.hostname == null || this.dirConfig.port == null) {
+                reject(this.i18nService.t('dirConfigIncomplete'));
+                return;
+            }
+
             const url = 'ldap' + (this.dirConfig.ssl ? 's' : '') + '://' + this.dirConfig.hostname +
                 ':' + this.dirConfig.port;
 
@@ -325,13 +333,13 @@ export class LdapDirectoryService implements DirectoryService {
                 this.dirConfig.password;
 
             if (user == null || pass == null) {
-                reject('Username and/or password are not configured.');
+                reject(this.i18nService.t('usernamePasswordNotConfigured'));
                 return;
             }
 
             this.client.bind(user, pass, (err) => {
                 if (err != null) {
-                    reject('Error authenticating: ' + err.message);
+                    reject(err.message);
                 } else {
                     resolve();
                 }

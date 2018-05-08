@@ -20,6 +20,7 @@ import { BaseDirectoryService } from './baseDirectory.service';
 import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 
+import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 
 export class GSuiteDirectoryService extends BaseDirectoryService implements DirectoryService {
@@ -29,7 +30,8 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
     private dirConfig: GSuiteConfiguration;
     private syncConfig: SyncConfiguration;
 
-    constructor(private configurationService: ConfigurationService, private logService: LogService) {
+    constructor(private configurationService: ConfigurationService, private logService: LogService,
+        private i18nService: I18nService) {
         super();
         this.service = google.admin<Admin>('directory_v1');
     }
@@ -183,6 +185,11 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
     }
 
     private async auth() {
+        if (this.dirConfig.clientEmail == null || this.dirConfig.privateKey == null ||
+            this.dirConfig.adminUser == null || this.dirConfig.domain == null) {
+            throw new Error(this.i18nService.t('dirConfigIncomplete'));
+        }
+
         this.client = new google.auth.JWT({
             email: this.dirConfig.clientEmail,
             key: this.dirConfig.privateKey,
