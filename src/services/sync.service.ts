@@ -10,6 +10,7 @@ import { ImportDirectoryRequestUser } from 'jslib/models/request/importDirectory
 
 import { ApiService } from 'jslib/abstractions/api.service';
 import { CryptoFunctionService } from 'jslib/abstractions/cryptoFunction.service';
+import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 import { MessagingService } from 'jslib/abstractions/messaging.service';
 import { StorageService } from 'jslib/abstractions/storage.service';
@@ -31,7 +32,7 @@ export class SyncService {
 
     constructor(private configurationService: ConfigurationService, private logService: LogService,
         private cryptoFunctionService: CryptoFunctionService, private apiService: ApiService,
-        private messagingService: MessagingService) { }
+        private messagingService: MessagingService, private i18nService: I18nService) { }
 
     async sync(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
         this.dirType = await this.configurationService.getDirectoryType();
@@ -119,13 +120,13 @@ export class SyncService {
     private getDirectoryService(): DirectoryService {
         switch (this.dirType) {
             case DirectoryType.GSuite:
-                return new GSuiteDirectoryService(this.configurationService, this.logService);
+                return new GSuiteDirectoryService(this.configurationService, this.logService, this.i18nService);
             case DirectoryType.AzureActiveDirectory:
-                return new AzureDirectoryService(this.configurationService);
+                return new AzureDirectoryService(this.configurationService, this.logService, this.i18nService);
             case DirectoryType.Ldap:
-                return new LdapDirectoryService(this.configurationService, this.logService);
+                return new LdapDirectoryService(this.configurationService, this.logService, this.i18nService);
             case DirectoryType.Okta:
-                return new OktaDirectoryService(this.configurationService, this.logService);
+                return new OktaDirectoryService(this.configurationService, this.logService, this.i18nService);
             default:
                 return null;
         }

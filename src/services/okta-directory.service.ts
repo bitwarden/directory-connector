@@ -9,6 +9,7 @@ import { BaseDirectoryService } from './baseDirectory.service';
 import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 
+import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 
 // tslint:disable-next-line
@@ -19,7 +20,8 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
     private syncConfig: SyncConfiguration;
     private client: any;
 
-    constructor(private configurationService: ConfigurationService, private logService: LogService) {
+    constructor(private configurationService: ConfigurationService, private logService: LogService,
+        private i18nService: I18nService) {
         super();
     }
 
@@ -37,6 +39,10 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
         this.syncConfig = await this.configurationService.getSync();
         if (this.syncConfig == null) {
             return;
+        }
+
+        if (this.dirConfig.orgUrl == null || this.dirConfig.token == null) {
+            throw new Error(this.i18nService.t('dirConfigIncomplete'));
         }
 
         this.client = new okta.Client({

@@ -14,6 +14,9 @@ import { BaseDirectoryService } from './baseDirectory.service';
 import { ConfigurationService } from './configuration.service';
 import { DirectoryService } from './directory.service';
 
+import { I18nService } from 'jslib/abstractions/i18n.service';
+import { LogService } from 'jslib/abstractions/log.service';
+
 const NextLink = '@odata.nextLink';
 const DeltaLink = '@odata.deltaLink';
 const ObjectType = '@odata.type';
@@ -25,7 +28,8 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
     private accessToken: string;
     private accessTokenExpiration: Date;
 
-    constructor(private configurationService: ConfigurationService) {
+    constructor(private configurationService: ConfigurationService, private logService: LogService,
+        private i18nService: I18nService) {
         super();
         this.init();
     }
@@ -238,6 +242,12 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
     private init() {
         this.client = graph.Client.init({
             authProvider: (done) => {
+                if (this.dirConfig.applicationId == null || this.dirConfig.key == null ||
+                    this.dirConfig.tenant == null) {
+                    done(this.i18nService.t('dirConfigIncomplete'), null);
+                    return;
+                }
+
                 if (!this.accessTokenIsExpired()) {
                     done(null, this.accessToken);
                     return;

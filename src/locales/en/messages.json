@@ -534,5 +534,11 @@
     },
     "logInDesc": {
         "message": "Log in as an organization admin user below."
+    },
+    "dirConfigIncomplete": {
+        "message": "Directory configuration incomplete."
+    },
+    "usernamePasswordNotConfigured": {
+        "message": "Username/password are not configured."
     }
 }

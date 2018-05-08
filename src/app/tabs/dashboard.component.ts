@@ -97,8 +97,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     async simulate() {
-        this.simGroups = null;
-        this.simUsers = null;
+        this.simGroups = [];
+        this.simUsers = [];
         this.simEnabledUsers = [];
         this.simDisabledUsers = [];
         this.simDeletedUsers = [];
@@ -106,28 +106,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.simPromise = new Promise(async (resolve, reject) => {
             try {
                 const result = await this.syncService.sync(!this.simSinceLast, true);
-                this.simUsers = result[1];
-                this.simGroups = result[0];
+                if (result[0] != null) {
+                    this.simGroups = result[0];
+                }
+                if (result[1] != null) {
+                    this.simUsers = result[1];
+                }
             } catch (e) {
+                this.simGroups = null;
+                this.simUsers = null;
                 reject(e || this.i18nService.t('syncError'));
+                return;
             }
 
             const userMap = new Map<string, UserEntry>();
-            if (this.simUsers != null) {
-                this.sort(this.simUsers);
-                for (const u of this.simUsers) {
-                    userMap.set(u.externalId, u);
-                    if (u.deleted) {
-                        this.simDeletedUsers.push(u);
-                    } else if (u.disabled) {
-                        this.simDisabledUsers.push(u);
-                    } else {
-                        this.simEnabledUsers.push(u);
-                    }
+            this.sort(this.simUsers);
+            for (const u of this.simUsers) {
+                userMap.set(u.externalId, u);
+                if (u.deleted) {
+                    this.simDeletedUsers.push(u);
+                } else if (u.disabled) {
+                    this.simDisabledUsers.push(u);
+                } else {
+                    this.simEnabledUsers.push(u);
                 }
             }
 
-            if (userMap.size > 0 && this.simGroups != null) {
+            if (userMap.size > 0) {
                 this.sort(this.simGroups);
                 for (const g of this.simGroups) {
                     if (g.userMemberExternalIds == null) {
