@@ -11,9 +11,8 @@ import { BaseMenu } from 'jslib/electron/baseMenu';
 export class MenuMain extends BaseMenu {
     menu: Menu;
 
-    constructor(main: Main) {
-        super(main.i18nService, main.windowMain, main.i18nService.t('bitwardenDirectoryConnector'),
-            () => main.messagingService.send('logout'));
+    constructor(private main: Main) {
+        super(main.i18nService, main.windowMain);
     }
 
     init() {
@@ -41,7 +40,7 @@ export class MenuMain extends BaseMenu {
             ];
 
             template.unshift({
-                label: this.appName,
+                label: this.main.i18nService.t('bitwardenDirectoryConnector'),
                 submenu: firstMenuPart.concat(this.macAppMenuItemOptions),
             });
 
