@@ -48,6 +48,12 @@ export class MenuMain extends BaseMenu {
             template[template.length - 1].submenu = this.macWindowSubmenuOptions;
         }
 
+        (template[template.length - 1].submenu as MenuItemConstructorOptions[]).splice(1, 0, {
+            label: this.main.i18nService.t('hideToTray'),
+            click: () => this.main.messagingService.send('hideToTray'),
+            accelerator: 'CmdOrCtrl+Shift+M',
+        });
+
         this.menu = Menu.buildFromTemplate(template);
         Menu.setApplicationMenu(this.menu);
     }

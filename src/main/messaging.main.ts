@@ -3,6 +3,7 @@ import {
     ipcMain,
 } from 'electron';
 
+import { TrayMain } from 'jslib/electron/tray.main';
 import { UpdaterMain } from 'jslib/electron/updater.main';
 import { WindowMain } from 'jslib/electron/window.main';
 
@@ -14,7 +15,7 @@ export class MessagingMain {
     private syncTimeout: NodeJS.Timer;
 
     constructor(private windowMain: WindowMain, private menuMain: MenuMain,
-        private updaterMain: UpdaterMain) { }
+        private updaterMain: UpdaterMain, private trayMain: TrayMain) { }
 
     init() {
         ipcMain.on('messagingService', async (event: any, message: any) => this.onMessage(message));
@@ -35,6 +36,9 @@ export class MessagingMain {
                 if (this.syncTimeout) {
                     global.clearTimeout(this.syncTimeout);
                 }
+                break;
+            case 'hideToTray':
+                this.trayMain.hideToTray();
                 break;
             default:
                 break;
