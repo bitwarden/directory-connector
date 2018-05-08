@@ -9,6 +9,7 @@ import { KeytarStorageListener } from 'jslib/electron/keytarStorageListener';
 import { ElectronLogService } from 'jslib/electron/services/electronLog.service';
 import { ElectronMainMessagingService } from 'jslib/electron/services/electronMainMessaging.service';
 import { ElectronStorageService } from 'jslib/electron/services/electronStorage.service';
+import { TrayMain } from 'jslib/electron/tray.main';
 import { UpdaterMain } from 'jslib/electron/updater.main';
 import { WindowMain } from 'jslib/electron/window.main';
 
@@ -23,6 +24,7 @@ export class Main {
     messagingMain: MessagingMain;
     menuMain: MenuMain;
     updaterMain: UpdaterMain;
+    trayMain: TrayMain;
 
     constructor() {
         // Set paths for portable builds
@@ -57,7 +59,8 @@ export class Main {
         }, null, () => {
             this.messagingService.send('doneCheckingForUpdate');
         });
-        this.messagingMain = new MessagingMain(this.windowMain, this.menuMain, this.updaterMain);
+        this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.storageService,);
+        this.messagingMain = new MessagingMain(this.windowMain, this.menuMain, this.updaterMain, this.trayMain);
         this.messagingService = new ElectronMainMessagingService(this.windowMain, (message) => {
             this.messagingMain.onMessage(message);
         });
@@ -72,6 +75,7 @@ export class Main {
             this.menuMain.init();
             this.messagingMain.init();
             await this.updaterMain.init();
+            await this.trayMain.init(this.i18nService.t('bitwardenDirectoryConnector'));
         }, (e: any) => {
             // tslint:disable-next-line
             console.error(e);

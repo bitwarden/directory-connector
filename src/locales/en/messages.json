@@ -540,5 +540,15 @@
     },
     "usernamePasswordNotConfigured": {
         "message": "Username/password are not configured."
+    },
+    "exit": {
+        "message": "Exit"
+    },
+    "showHide": {
+        "message": "Show / Hide",
+        "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+    },
+    "hideToTray": {
+        "message": "Hide to Tray"
     }
 }
