@@ -132,26 +132,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
             }
 
-            if (userMap.size > 0) {
-                this.sort(this.simGroups);
-                for (const g of this.simGroups) {
-                    if (g.userMemberExternalIds == null) {
-                        continue;
-                    }
-
-                    const anyG = (g as any);
-                    anyG.users = [];
-                    for (const uid of g.userMemberExternalIds) {
-                        if (userMap.has(uid)) {
-                            anyG.users.push(userMap.get(uid));
-                        } else {
-                            anyG.users.push(uid);
-                        }
-                    }
-
-                    this.sort(anyG.users);
+            this.sort(this.simGroups);
+            for (const g of this.simGroups) {
+                if (g.userMemberExternalIds == null) {
+                    continue;
                 }
+
+                const anyG = (g as any);
+                anyG.users = [];
+                for (const uid of g.userMemberExternalIds) {
+                    if (userMap.has(uid)) {
+                        anyG.users.push(userMap.get(uid));
+                    } else {
+                        anyG.users.push({ displayName: uid });
+                    }
+                }
+
+                this.sort(anyG.users);
             }
+
             resolve();
         });
     }
