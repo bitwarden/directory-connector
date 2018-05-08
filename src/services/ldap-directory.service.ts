@@ -325,7 +325,7 @@ export class LdapDirectoryService implements DirectoryService {
                 this.dirConfig.password;
 
             if (user == null || pass == null) {
-                reject('Username and/or password re not configured.');
+                reject('Username and/or password are not configured.');
                 return;
             }
 
