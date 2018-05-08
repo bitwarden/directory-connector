@@ -56,10 +56,12 @@ export class Main {
         this.menuMain = new MenuMain(this);
         this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain, 'directory-connector', () => {
             this.messagingService.send('checkingForUpdate');
-        }, null, () => {
+        }, () => {
+            this.messagingService.send('doneCheckingForUpdate');
+        }, () => {
             this.messagingService.send('doneCheckingForUpdate');
         });
-        this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.storageService,);
+        this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.storageService, );
         this.messagingMain = new MessagingMain(this.windowMain, this.menuMain, this.updaterMain, this.trayMain);
         this.messagingService = new ElectronMainMessagingService(this.windowMain, (message) => {
             this.messagingMain.onMessage(message);
