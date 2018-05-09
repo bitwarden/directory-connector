@@ -85,7 +85,7 @@ export class SyncService {
                     throw new Error('Organization not set.');
                 }
 
-                const res = await this.apiService.postImportDirectory(orgId, req);
+                await this.apiService.postImportDirectory(orgId, req);
                 await this.configurationService.saveLastSyncHash(hash);
             } else {
                 groups = null;
