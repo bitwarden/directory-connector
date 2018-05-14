@@ -197,16 +197,16 @@
                         <small class="text-muted form-text" *ngIf="directory === directoryType.Okta">{{'ex' | i18n}} exclude:joe@company.com | profile.firstName eq "John"</small>
                         <small class="text-muted form-text" *ngIf="directory === directoryType.GSuite">{{'ex' | i18n}} exclude:joe@company.com | orgName=Engineering</small>
                     </div>
+                    <div class="form-group" [hidden]="directory != directoryType.Ldap">
+                        <label for="userPath">{{'userPath' | i18n}}</label>
+                        <input type="text" class="form-control" id="userPath" name="UserPath" [(ngModel)]="sync.userPath">
+                        <small class="text-muted form-text">{{'ex' | i18n}} CN=Users</small>
+                    </div>
                     <div [hidden]="directory != directoryType.Ldap || ldap.ad">
                         <div class="form-group">
                             <label for="userObjectClass">{{'userObjectClass' | i18n}}</label>
                             <input type="text" class="form-control" id="userObjectClass" name="UserObjectClass" [(ngModel)]="sync.userObjectClass">
                             <small class="text-muted form-text">{{'ex' | i18n}} inetOrgPerson</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="userPath">{{'userPath' | i18n}}</label>
-                            <input type="text" class="form-control" id="userPath" name="UserPath" [(ngModel)]="sync.userPath">
-                            <small class="text-muted form-text">{{'ex' | i18n}} CN=Users</small>
                         </div>
                         <div class="form-group">
                             <label for="userEmailAttribute">{{'userEmailAttribute' | i18n}}</label>
@@ -231,16 +231,17 @@
                         <small class="text-muted form-text" *ngIf="directory === directoryType.Okta">{{'ex' | i18n}} include:Sales,IT | type eq "APP_GROUP"</small>
                         <small class="text-muted form-text" *ngIf="directory === directoryType.GSuite">{{'ex' | i18n}} include:Sales,IT</small>
                     </div>
+                    <div class="form-group" [hidden]="directory != directoryType.Ldap">
+                        <label for="groupPath">{{'groupPath' | i18n}}</label>
+                        <input type="text" class="form-control" id="groupPath" name="GroupPath" [(ngModel)]="sync.groupPath">
+                        <small class="text-muted form-text" *ngIf="!ldap.ad">{{'ex' | i18n}} CN=Groups</small>
+                        <small class="text-muted form-text" *ngIf="ldap.ad">{{'ex' | i18n}} CN=Users</small>
+                    </div>
                     <div [hidden]="directory != directoryType.Ldap || ldap.ad">
                         <div class="form-group">
                             <label for="groupObjectClass">{{'groupObjectClass' | i18n}}</label>
                             <input type="text" class="form-control" id="groupObjectClass" name="GroupObjectClass" [(ngModel)]="sync.groupObjectClass">
                             <small class="text-muted form-text">{{'ex' | i18n}} groupOfUniqueNames</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="groupPath">{{'groupPath' | i18n}}</label>
-                            <input type="text" class="form-control" id="groupPath" name="GroupPath" [(ngModel)]="sync.groupPath">
-                            <small class="text-muted form-text">{{'ex' | i18n}} CN=Groups</small>
                         </div>
                         <div class="form-group">
                             <label for="groupNameAttribute">{{'groupNameAttribute' | i18n}}</label>
