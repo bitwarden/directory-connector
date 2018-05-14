@@ -80,13 +80,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.sync.creationDateAttribute = 'whenCreated';
             this.sync.revisionDateAttribute = 'whenChanged';
             this.sync.emailPrefixAttribute = 'sAMAccountName';
-            this.sync.groupPath = 'CN=Users';
-            this.sync.userPath = 'CN=Users';
             this.sync.memberAttribute = 'member';
             this.sync.userObjectClass = 'person';
             this.sync.groupObjectClass = 'group';
             this.sync.userEmailAttribute = 'mail';
             this.sync.groupNameAttribute = 'name';
+
+            if (this.sync.groupPath == null) {
+                this.sync.groupPath = 'CN=Users';
+            }
+            if (this.sync.userPath == null) {
+                this.sync.userPath = 'CN=Users';
+            }
         }
 
         if (this.sync.interval != null) {
