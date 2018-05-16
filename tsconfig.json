@@ -11,11 +11,21 @@
     "types": [],
     "baseUrl": ".",
     "paths": {
-      "jslib/*": [ "jslib/src/*" ],
-      "@angular/*": [ "node_modules/@angular/*" ],
-      "angular2-toaster": [ "node_modules/angular2-toaster" ],
-      "angulartics2": [ "node_modules/angulartics2" ],
-      "electron": [ "node_modules/electron" ]
+      "jslib/*": [
+        "jslib/src/*"
+      ],
+      "@angular/*": [
+        "node_modules/@angular/*"
+      ],
+      "angular2-toaster": [
+        "node_modules/angular2-toaster"
+      ],
+      "angulartics2": [
+        "node_modules/angulartics2"
+      ],
+      "electron": [
+        "node_modules/electron"
+      ]
     }
   },
   "exclude": [
@@ -23,6 +33,7 @@
     "jslib/node_modules",
     "jslib/src/services/webCryptoFunction.service.ts",
     "jslib/src/services/search.service.ts",
+    "jslib/src/services/nodeApi.service.ts",
     "jslib/src/angular/components/export.component.ts",
     "dist",
     "jslib/dist",

@@ -64,14 +64,14 @@ const cryptoService = new CryptoService(storageService, secureStorageService, cr
 const appIdService = new AppIdService(storageService);
 const tokenService = new TokenService(storageService);
 const apiService = new ApiService(tokenService, platformUtilsService,
-    (expired: boolean) => messagingService.send('logout', { expired: expired }));
+    async (expired: boolean) => messagingService.send('logout', { expired: expired }));
 const environmentService = new EnvironmentService(apiService, storageService);
 const userService = new UserService(tokenService, storageService);
 const containerService = new ContainerService(cryptoService, platformUtilsService);
 const authService = new AuthService(cryptoService, apiService, userService, tokenService, appIdService,
     i18nService, platformUtilsService, messagingService, false);
 const configurationService = new ConfigurationService(storageService, secureStorageService);
-const syncSevrice = new SyncService(configurationService, logService, cryptoFunctionService, apiService,
+const syncService = new SyncService(configurationService, logService, cryptoFunctionService, apiService,
     messagingService, i18nService);
 
 const analytics = new Analytics(window, () => true, platformUtilsService, storageService, appIdService);
@@ -134,7 +134,7 @@ export function initFactory(): Function {
         { provide: StateServiceAbstraction, useValue: stateService },
         { provide: LogServiceAbstraction, useValue: logService },
         { provide: ConfigurationService, useValue: configurationService },
-        { provide: SyncService, useValue: syncSevrice },
+        { provide: SyncService, useValue: syncService },
         {
             provide: APP_INITIALIZER,
             useFactory: initFactory,
