@@ -34,6 +34,7 @@
     "jslib/src/services/webCryptoFunction.service.ts",
     "jslib/src/services/search.service.ts",
     "jslib/src/services/nodeApi.service.ts",
+    "jslib/src/services/export.service.ts",
     "jslib/src/angular/components/export.component.ts",
     "dist",
     "jslib/dist",
