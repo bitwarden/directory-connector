@@ -69,7 +69,9 @@ export class AppComponent implements OnInit {
         private platformUtilsService: PlatformUtilsService, private ngZone: NgZone,
         private componentFactoryResolver: ComponentFactoryResolver, private messagingService: MessagingService,
         private configurationService: ConfigurationService, private syncService: SyncService,
-        private stateService: StateService, private apiService: ApiService) { }
+        private stateService: StateService, private apiService: ApiService) {
+            (window as any).BitwardenToasterService = toasterService;
+        }
 
     ngOnInit() {
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
