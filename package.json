@@ -120,7 +120,7 @@
     "concurrently": "3.5.1",
     "copy-webpack-plugin": "^4.2.0",
     "css-loader": "^0.28.7",
-    "electron": "1.8.4",
+    "electron": "2.0.2",
     "electron-builder": "^20.8.1",
     "electron-rebuild": "1.7.3",
     "electron-reload": "1.2.2",
