@@ -14,7 +14,7 @@ Supported directories:
 
 The application is written using Electron with Angular and installs on Windows, macOS, and Linux distributions.
 
-<a href="https://help.bitwarden.com/article/directory-sync/#download-and-install"><img src="https://imgur.com/SLv9paA.png" width="500" height="113"></a>
+[![Platforms](https://imgur.com/SLv9paA.png "Windows, macOS, and Linux")](https://help.bitwarden.com/article/directory-sync/#download-and-install)
 
 ![Directory Connector](http://imgur.com/I6FjN4j.png "Dashboard")
 
