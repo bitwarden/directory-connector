@@ -73,7 +73,7 @@ export class SyncService {
             const reqJson = JSON.stringify(req);
 
             let hash: string = null;
-            const hashBuf = await this.cryptoFunctionService.hash(this.apiService.baseUrl + reqJson, 'sha256');
+            const hashBuf = await this.cryptoFunctionService.hash(this.apiService.apiBaseUrl + reqJson, 'sha256');
             if (hashBuf != null) {
                 hash = Utils.fromBufferToB64(hashBuf);
             }
