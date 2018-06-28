@@ -123,6 +123,11 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         entry.referenceId = user.id;
         entry.externalId = user.id;
         entry.email = user.mail || user.userPrincipalName;
+
+        if (entry.email != null) {
+            entry.email = entry.email.toLowerCase();
+        }
+
         entry.disabled = user.accountEnabled == null ? false : !user.accountEnabled;
 
         if ((user as any)['@removed'] != null && (user as any)['@removed'].reason === 'changed') {

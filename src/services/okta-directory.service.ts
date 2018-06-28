@@ -104,7 +104,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
         const entry = new UserEntry();
         entry.externalId = user.id;
         entry.referenceId = user.id;
-        entry.email = user.profile.email;
+        entry.email = user.profile.email != null ? user.profile.email.toLowerCase() : null;
         entry.deleted = user.status === 'DEPROVISIONED';
         entry.disabled = user.status === 'SUSPENDED';
         return entry;

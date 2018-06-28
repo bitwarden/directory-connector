@@ -13,7 +13,6 @@ import { CryptoFunctionService } from 'jslib/abstractions/cryptoFunction.service
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 import { MessagingService } from 'jslib/abstractions/messaging.service';
-import { StorageService } from 'jslib/abstractions/storage.service';
 
 import { Utils } from 'jslib/misc/utils';
 
@@ -23,9 +22,6 @@ import { DirectoryService } from './directory.service';
 import { GSuiteDirectoryService } from './gsuite-directory.service';
 import { LdapDirectoryService } from './ldap-directory.service';
 import { OktaDirectoryService } from './okta-directory.service';
-
-const Keys = {
-};
 
 export class SyncService {
     private dirType: DirectoryType;
@@ -149,6 +145,9 @@ export class SyncService {
             for (const u of users) {
                 const iu = new ImportDirectoryRequestUser();
                 iu.email = u.email;
+                if (iu.email != null) {
+                    iu.email = iu.email.toLowerCase();
+                }
                 iu.externalId = u.externalId;
                 iu.deleted = u.deleted || (removeDisabled && u.disabled);
                 model.users.push(iu);
