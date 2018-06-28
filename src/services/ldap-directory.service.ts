@@ -108,8 +108,12 @@ export class LdapDirectoryService implements DirectoryService {
             this.syncConfig.emailPrefixAttribute != null && this.syncConfig.emailSuffix != null) {
             const prefixAttr = this.getAttr(searchEntry, this.syncConfig.emailPrefixAttribute);
             if (prefixAttr != null) {
-                user.email = (prefixAttr + this.syncConfig.emailSuffix).toLowerCase();
+                user.email = prefixAttr + this.syncConfig.emailSuffix;
             }
+        }
+
+        if (user.email != null) {
+            user.email = user.email.toLowerCase();
         }
 
         if (!user.deleted && (user.email == null || user.email.trim() === '')) {
