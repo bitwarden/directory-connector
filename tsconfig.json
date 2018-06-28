@@ -36,6 +36,7 @@
     "jslib/src/services/nodeApi.service.ts",
     "jslib/src/services/export.service.ts",
     "jslib/src/angular/components/export.component.ts",
+    "jslib/src/importers",
     "dist",
     "jslib/dist",
     "build",
