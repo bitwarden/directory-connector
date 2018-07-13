@@ -13,7 +13,7 @@ import { EnvironmentComponent } from './environment.component';
 
 import { AuthService } from 'jslib/abstractions/auth.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
-import { SyncService } from 'jslib/abstractions/sync.service';
+import { StorageService } from 'jslib/abstractions/storage.service';
 
 import { LoginComponent as BaseLoginComponent } from 'jslib/angular/components/login.component';
 import { ModalComponent } from 'jslib/angular/components/modal.component';
@@ -27,8 +27,9 @@ export class LoginComponent extends BaseLoginComponent {
 
     constructor(authService: AuthService, router: Router,
         analytics: Angulartics2, toasterService: ToasterService,
-        i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver) {
-        super(authService, router, analytics, toasterService, i18nService);
+        i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver,
+        storageService: StorageService) {
+        super(authService, router, analytics, toasterService, i18nService, storageService);
         super.successRoute = '/tabs/dashboard';
     }
 
