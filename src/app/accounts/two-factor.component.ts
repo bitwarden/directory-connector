@@ -19,7 +19,6 @@ import { AuthService } from 'jslib/abstractions/auth.service';
 import { EnvironmentService } from 'jslib/abstractions/environment.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
-import { SyncService } from 'jslib/abstractions/sync.service';
 
 import { ModalComponent } from 'jslib/angular/components/modal.component';
 import { TwoFactorComponent as BaseTwoFactorComponent } from 'jslib/angular/components/two-factor.component';
