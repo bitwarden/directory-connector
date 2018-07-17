@@ -67,6 +67,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
     }
 
     private async getUsers(force: boolean, saveDelta: boolean): Promise<UserEntry[]> {
+        const entryIds = new Set<string>();
         const entries: UserEntry[] = [];
 
         let res: any = null;
@@ -90,6 +91,9 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
             const users: graphType.User[] = res.value;
             if (users != null) {
                 for (const user of users) {
+                    if (user.id == null || entryIds.has(user.id)) {
+                        continue;
+                    }
                     const entry = this.buildUser(user);
                     if (this.filterOutResult(setFilter, entry.email)) {
                         continue;
@@ -101,6 +105,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
                     }
 
                     entries.push(entry);
+                    entryIds.add(user.id);
                 }
             }
 
@@ -139,6 +144,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
 
     private async getGroups(force: boolean, saveDelta: boolean,
         setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
+        const entryIds = new Set<string>();
         const entries: GroupEntry[] = [];
         const changedGroupIds: string[] = [];
         const token = await this.configurationService.getGroupDeltaToken();
@@ -166,12 +172,16 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
                 if (groups != null) {
                     for (const group of groups) {
                         if (getFullResults) {
+                            if (group.id == null || entryIds.has(group.id)) {
+                                continue;
+                            }
                             if (this.filterOutResult(setFilter, group.displayName)) {
                                 continue;
                             }
 
                             const entry = await this.buildGroup(group);
                             entries.push(entry);
+                            entryIds.add(group.id);
                         } else {
                             changedGroupIds.push(group.id);
                         }
@@ -202,12 +212,16 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
             const allGroups: graphType.Group[] = res.value;
             if (allGroups != null) {
                 for (const group of allGroups) {
+                    if (group.id == null || entryIds.has(group.id)) {
+                        continue;
+                    }
                     if (this.filterOutResult(setFilter, group.displayName)) {
                         continue;
                     }
 
                     const entry = await this.buildGroup(group);
                     entries.push(entry);
+                    entryIds.add(group.id);
                 }
             }
 
