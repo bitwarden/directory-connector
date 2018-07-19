@@ -16,7 +16,7 @@ The application is written using Electron with Angular and installs on Windows, 
 
 [![Platforms](https://imgur.com/SLv9paA.png "Windows, macOS, and Linux")](https://help.bitwarden.com/article/directory-sync/#download-and-install)
 
-![Directory Connector](http://imgur.com/I6FjN4j.png "Dashboard")
+![Directory Connector](https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/directory-connector-macos.png "Dashboard")
 
 # Build/Run
 
