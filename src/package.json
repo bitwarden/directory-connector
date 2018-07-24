@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "electron-log": "2.2.14",
-    "electron-updater": "2.21.4",
-    "keytar": "4.1.0",
+    "electron-updater": "3.0.3",
+    "keytar": "4.2.1",
     "lowdb": "1.0.0"
   }
 }
