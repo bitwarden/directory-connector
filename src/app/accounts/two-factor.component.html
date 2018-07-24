@@ -19,7 +19,7 @@
                         </ng-container>
                         <ng-container *ngIf="selectedProviderType === providerType.Yubikey">
                             <p>{{'insertYubiKey' | i18n}}</p>
-                            <img src="../../images/yubikey.jpg" alt="">
+                            <p><img src="../../images/yubikey.jpg" class="img-fluid rounded" alt=""></p>
                             <div class="form-group">
                                 <label for="code">{{'verificationCode' | i18n}}</label>
                                 <input id="code" type="password" name="Code" [(ngModel)]="token" appAutofocus class="form-control">
