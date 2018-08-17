@@ -9,7 +9,7 @@
             </div>
             <div class="modal-body">
                 <p *ngFor="let p of providers">
-                    <a href="#" (click)="choose(p)">
+                    <a href="#" appStopClick (click)="choose(p)">
                         <strong>{{p.name}}</strong>
                     </a>
                     <br /> {{p.description}}
