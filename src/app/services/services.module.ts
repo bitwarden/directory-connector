@@ -67,7 +67,7 @@ const appIdService = new AppIdService(storageService);
 const tokenService = new TokenService(storageService);
 const apiService = new ApiService(tokenService, platformUtilsService,
     async (expired: boolean) => messagingService.send('logout', { expired: expired }));
-const environmentService = new EnvironmentService(apiService, storageService);
+const environmentService = new EnvironmentService(apiService, storageService, null);
 const userService = new UserService(tokenService, storageService);
 const containerService = new ContainerService(cryptoService, platformUtilsService);
 const authService = new AuthService(cryptoService, apiService, userService, tokenService, appIdService,
@@ -78,12 +78,10 @@ const syncService = new SyncService(configurationService, logService, cryptoFunc
 
 const analytics = new Analytics(window, () => true, platformUtilsService, storageService, appIdService);
 containerService.attachToWindow(window);
-environmentService.setUrlsFromStorage().then(() => {
-    // Do nothing
-});
 
 export function initFactory(): Function {
     return async () => {
+        await environmentService.setUrlsFromStorage();
         await i18nService.init();
         await authService.init();
         const htmlEl = window.document.documentElement;
