@@ -127,7 +127,12 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         const entry = new UserEntry();
         entry.referenceId = user.id;
         entry.externalId = user.id;
-        entry.email = user.mail || user.userPrincipalName;
+        entry.email = user.mail;
+
+        if (user.userPrincipalName && (entry.email == null || entry.email === '' ||
+            entry.email.indexOf('onmicrosoft.com') > -1)) {
+            entry.email = user.userPrincipalName;
+        }
 
         if (entry.email != null) {
             entry.email = entry.email.toLowerCase();
