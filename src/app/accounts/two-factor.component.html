@@ -31,7 +31,7 @@
                                 <iframe id="duo_iframe"></iframe>
                             </div>
                         </ng-container>
-                        <div class="form-group" *ngIf="selectedProviderType !== null && selectedProviderType !== providerType.U2f">
+                        <div class="form-group" *ngIf="selectedProviderType != null && selectedProviderType !== providerType.U2f">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="remember" [(ngModel)]="remember" name="Remember">
                                 <label class="form-check-label" for="remember">{{'rememberMe' | i18n}}</label>
