@@ -59,7 +59,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         let groups: GroupEntry[];
         if (this.syncConfig.groups) {
             const setFilter = this.createCustomSet(this.syncConfig.groupFilter);
-            groups = await this.getGroups(this.forceGroup(force, users), !test, setFilter);
+            groups = await this.getGroups(setFilter);
             users = this.filterUsersFromGroupsSet(users, groups, setFilter);
         }
 
@@ -147,76 +147,15 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         return entry;
     }
 
-    private async getGroups(force: boolean, saveDelta: boolean,
-        setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
+    private async getGroups(setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
         const entryIds = new Set<string>();
         const entries: GroupEntry[] = [];
-        const changedGroupIds: string[] = [];
-        const token = await this.configurationService.getGroupDeltaToken();
-        const getFullResults = token == null || force;
-        let res: any = null;
-        let errored = false;
-
-        try {
-            if (!getFullResults) {
-                try {
-                    const deltaReq = this.client.api(token);
-                    res = await deltaReq.get();
-                } catch {
-                    res = null;
-                }
-            }
-
-            if (res == null) {
-                const groupReq = this.client.api('/groups/delta');
-                res = await groupReq.get();
-            }
-
-            while (true) {
-                const groups: graphType.Group[] = res.value;
-                if (groups != null) {
-                    for (const group of groups) {
-                        if (getFullResults) {
-                            if (group.id == null || entryIds.has(group.id)) {
-                                continue;
-                            }
-                            if (this.filterOutResult(setFilter, group.displayName)) {
-                                continue;
-                            }
-
-                            const entry = await this.buildGroup(group);
-                            entries.push(entry);
-                            entryIds.add(group.id);
-                        } else {
-                            changedGroupIds.push(group.id);
-                        }
-                    }
-                }
-
-                if (res[NextLink] == null) {
-                    if (res[DeltaLink] != null && saveDelta) {
-                        await this.configurationService.saveGroupDeltaToken(res[DeltaLink]);
-                    }
-                    break;
-                } else {
-                    const nextReq = this.client.api(res[NextLink]);
-                    res = await nextReq.get();
-                }
-            }
-        } catch {
-            errored = true;
-        }
-
-        if (!errored && (getFullResults || changedGroupIds.length === 0)) {
-            return entries;
-        }
-
-        const allGroupsReq = this.client.api('/groups');
-        res = await allGroupsReq.get();
+        const groupsReq = this.client.api('/groups');
+        let res = await groupsReq.get();
         while (true) {
-            const allGroups: graphType.Group[] = res.value;
-            if (allGroups != null) {
-                for (const group of allGroups) {
+            const groups: graphType.Group[] = res.value;
+            if (groups != null) {
+                for (const group of groups) {
                     if (group.id == null || entryIds.has(group.id)) {
                         continue;
                     }
