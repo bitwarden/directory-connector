@@ -125,7 +125,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         const entry = new UserEntry();
         entry.referenceId = user.id;
         entry.externalId = user.id;
-        entry.email = user.primaryEmail != null ? user.primaryEmail.toLowerCase() : null;
+        entry.email = user.primaryEmail != null ? user.primaryEmail.trim().toLowerCase() : null;
         entry.disabled = user.suspended || false;
         entry.deleted = deleted;
         return entry;

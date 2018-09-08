@@ -146,7 +146,7 @@ export class SyncService {
                 const iu = new ImportDirectoryRequestUser();
                 iu.email = u.email;
                 if (iu.email != null) {
-                    iu.email = iu.email.toLowerCase();
+                    iu.email = iu.email.trim().toLowerCase();
                 }
                 iu.externalId = u.externalId;
                 iu.deleted = u.deleted || (removeDisabled && u.disabled);
