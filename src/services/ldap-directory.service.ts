@@ -113,7 +113,7 @@ export class LdapDirectoryService implements DirectoryService {
         }
 
         if (user.email != null) {
-            user.email = user.email.toLowerCase();
+            user.email = user.email.trim().toLowerCase();
         }
 
         if (!user.deleted && (user.email == null || user.email.trim() === '')) {
@@ -328,7 +328,7 @@ export class LdapDirectoryService implements DirectoryService {
                 ':' + this.dirConfig.port;
 
             this.client = ldap.createClient({
-                url: url.toLowerCase(),
+                url: url.trim().toLowerCase(),
             });
 
             const user = this.dirConfig.username == null || this.dirConfig.username.trim() === '' ? null :

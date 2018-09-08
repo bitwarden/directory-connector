@@ -135,7 +135,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         }
 
         if (entry.email != null) {
-            entry.email = entry.email.toLowerCase();
+            entry.email = entry.email.trim().toLowerCase();
         }
 
         entry.disabled = user.accountEnabled == null ? false : !user.accountEnabled;
