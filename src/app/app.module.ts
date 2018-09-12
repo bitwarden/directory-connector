@@ -50,7 +50,7 @@ import { SearchCiphersPipe } from 'jslib/angular/pipes/search-ciphers.pipe';
                 clearQueryParams: true,
             },
         }),
-        ToasterModule,
+        ToasterModule.forRoot(),
     ],
     declarations: [
         ApiActionDirective,

@@ -1,13 +1,8 @@
 import { JWT } from 'google-auth-library';
 import {
+    admin_directory_v1,
     google,
-    GoogleApis,
 } from 'googleapis';
-import {
-    Admin,
-    Schema$Group,
-    Schema$User,
-} from 'googleapis/build/src/apis/admin/directory_v1';
 
 import { DirectoryType } from '../enums/directoryType';
 
@@ -25,7 +20,7 @@ import { LogService } from 'jslib/abstractions/log.service';
 
 export class GSuiteDirectoryService extends BaseDirectoryService implements DirectoryService {
     private client: JWT;
-    private service: Admin;
+    private service: admin_directory_v1.Admin;
     private authParams: any;
     private dirConfig: GSuiteConfiguration;
     private syncConfig: SyncConfiguration;
@@ -33,7 +28,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
     constructor(private configurationService: ConfigurationService, private logService: LogService,
         private i18nService: I18nService) {
         super();
-        this.service = google.admin<Admin>('directory_v1');
+        this.service = google.admin('directory_v1');
     }
 
     async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
@@ -117,7 +112,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         return entries;
     }
 
-    private buildUser(user: Schema$User, deleted: boolean) {
+    private buildUser(user: admin_directory_v1.Schema$User, deleted: boolean) {
         if ((user.emails == null || user.emails === '') && !deleted) {
             return null;
         }
@@ -151,7 +146,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         return entries;
     }
 
-    private async buildGroup(group: Schema$Group) {
+    private async buildGroup(group: admin_directory_v1.Schema$Group) {
         const entry = new GroupEntry();
         entry.referenceId = group.id;
         entry.externalId = group.id;

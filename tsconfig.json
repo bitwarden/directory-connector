@@ -25,6 +25,9 @@
       ],
       "electron": [
         "node_modules/electron"
+      ],
+      "node": [
+        "node_modules/@types/node"
       ]
     }
   },

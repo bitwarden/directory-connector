@@ -14,12 +14,12 @@
             <strong *ngIf="syncRunning" class="text-success">{{'running' | i18n}}</strong>
             <strong *ngIf="!syncRunning" class="text-danger">{{'stopped' | i18n}}</strong>
         </p>
-        <button #startBtn (click)="start()" [appApiAction]="startPromise" class="btn btn-primary" [disabled]="startBtn.loading">
+        <button #startBtn (click)="start()" [appApiAction]="startPromise" class="btn btn-primary mr-1" [disabled]="startBtn.loading">
             <i class="fa fa-play fa-fw" [hidden]="startBtn.loading"></i>
             <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!startBtn.loading"></i>
             {{'startSync' | i18n}}
         </button>
-        <button (click)="stop()" class="btn btn-primary">
+        <button (click)="stop()" class="btn btn-primary mr-1">
             <i class="fa fa-stop fa-fw"></i>
             {{'stopSync' | i18n}}
         </button>
