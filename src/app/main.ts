@@ -12,4 +12,4 @@ if (!isDev()) {
     enableProdMode();
 }
 
-platformBrowserDynamic().bootstrapModule(AppModule);
+platformBrowserDynamic().bootstrapModule(AppModule, { preserveWhitespaces: true });
