@@ -417,6 +417,21 @@
     "ldapSsl": {
         "message": "This server uses SSL (LDAPS)"
     },
+    "ldapSslUntrustedDesc": {
+        "message": "If your LDAPS server uses an untrusted certificate you can configure certificate options below."
+    },
+    "ldapSslCa": {
+        "message": "Certificate CA Chain (PEM)"
+    },
+    "ldapSslCert": {
+        "message": "Certificate (PEM)"
+    },
+    "ldapSslKey": {
+        "message": "Certificate Private Key (PEM)"
+    },
+    "ldapSslAllowUnauthorized": {
+        "message": "Allow untrusted SSL connections (not recommended)."
+    },
     "ldapAd": {
         "message": "This server uses Active Directory"
     },

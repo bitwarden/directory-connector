@@ -111,7 +111,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         await this.configurationService.saveSync(this.sync);
     }
 
-    async parseKeyFile() {
+    parseKeyFile() {
         const filePicker = (document.getElementById('keyFile') as HTMLInputElement);
         if (filePicker.files == null || filePicker.files.length < 0) {
             return;
@@ -122,7 +122,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         reader.onload = (evt) => {
             this.ngZone.run(async () => {
                 try {
-                    const result = JSON.parse((evt.target as FileReader).result);
+                    const result = JSON.parse((evt.target as FileReader).result as string);
                     if (result.client_email != null && result.private_key != null) {
                         this.gsuite.clientEmail = result.client_email;
                         this.gsuite.privateKey = result.private_key;
@@ -137,5 +137,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
             filePicker.type = 'file';
             filePicker.value = '';
         };
+    }
+
+    setSslPath(id: string) {
+        const filePicker = (document.getElementById(id + '_file') as HTMLInputElement);
+        if (filePicker.files == null || filePicker.files.length < 0) {
+            return;
+        }
+
+        (this.ldap as any)[id] = filePicker.files[0].path;
+        // reset file input
+        // ref: https://stackoverflow.com/a/20552042
+        filePicker.type = '';
+        filePicker.type = 'file';
+        filePicker.value = '';
     }
 }
