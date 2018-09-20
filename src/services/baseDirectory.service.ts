@@ -51,13 +51,13 @@ export abstract class BaseDirectoryService {
 
     protected filterOutResult(setFilter: [boolean, Set<string>], result: string) {
         if (setFilter != null) {
-            result = result.trim().toLowerCase();
+            const cleanResult = result != null ? result.trim().toLowerCase() : '--';
             const excluded = setFilter[0];
             const set = setFilter[1];
 
-            if (excluded && set.has(result)) {
+            if (excluded && set.has(cleanResult)) {
                 return true;
-            } else if (!excluded && !set.has(result)) {
+            } else if (!excluded && !set.has(cleanResult)) {
                 return true;
             }
         }
