@@ -6,13 +6,11 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { ToasterService } from 'angular2-toaster';
-import { Angulartics2 } from 'angulartics2';
-
 import { EnvironmentComponent } from './environment.component';
 
 import { AuthService } from 'jslib/abstractions/auth.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
+import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
 import { StorageService } from 'jslib/abstractions/storage.service';
 
 import { LoginComponent as BaseLoginComponent } from 'jslib/angular/components/login.component';
@@ -26,10 +24,9 @@ export class LoginComponent extends BaseLoginComponent {
     @ViewChild('environment', { read: ViewContainerRef }) environmentModal: ViewContainerRef;
 
     constructor(authService: AuthService, router: Router,
-        analytics: Angulartics2, toasterService: ToasterService,
         i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver,
-        storageService: StorageService) {
-        super(authService, router, analytics, toasterService, i18nService, storageService);
+        storageService: StorageService, platformUtilsService: PlatformUtilsService) {
+        super(authService, router, platformUtilsService, i18nService, storageService);
         super.successRoute = '/tabs/dashboard';
     }
 
