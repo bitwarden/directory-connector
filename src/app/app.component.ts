@@ -1,23 +1,25 @@
 import {
+    BodyOutputType,
+    Toast,
     ToasterConfig,
     ToasterContainerComponent,
+    ToasterService,
 } from 'angular2-toaster';
+import { Angulartics2 } from 'angulartics2';
 import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
 
 import {
     Component,
     ComponentFactoryResolver,
     NgZone,
-    OnDestroy,
     OnInit,
+    SecurityContext,
     Type,
     ViewChild,
     ViewContainerRef,
 } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-
-import { ToasterService } from 'angular2-toaster';
-import { Angulartics2 } from 'angulartics2';
 
 import { ModalComponent } from 'jslib/angular/components/modal.component';
 
@@ -27,13 +29,10 @@ import { ApiService } from 'jslib/abstractions/api.service';
 import { AuthService } from 'jslib/abstractions/auth.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { MessagingService } from 'jslib/abstractions/messaging.service';
-import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
 import { StateService } from 'jslib/abstractions/state.service';
 import { StorageService } from 'jslib/abstractions/storage.service';
 import { TokenService } from 'jslib/abstractions/token.service';
 import { UserService } from 'jslib/abstractions/user.service';
-
-import { ConstantsService } from 'jslib/services/constants.service';
 
 import { ConfigurationService } from '../services/configuration.service';
 import { SyncService } from '../services/sync.service';
@@ -66,12 +65,12 @@ export class AppComponent implements OnInit {
         private tokenService: TokenService, private storageService: StorageService,
         private authService: AuthService, private router: Router, private analytics: Angulartics2,
         private toasterService: ToasterService, private i18nService: I18nService,
-        private platformUtilsService: PlatformUtilsService, private ngZone: NgZone,
+        private sanitizer: DomSanitizer, private ngZone: NgZone,
         private componentFactoryResolver: ComponentFactoryResolver, private messagingService: MessagingService,
         private configurationService: ConfigurationService, private syncService: SyncService,
         private stateService: StateService, private apiService: ApiService) {
-            (window as any).BitwardenToasterService = toasterService;
-        }
+        (window as any).BitwardenToasterService = toasterService;
+    }
 
     ngOnInit() {
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
@@ -125,6 +124,15 @@ export class AppComponent implements OnInit {
 
                         this.messagingService.send('scheduleNextDirSync');
                         break;
+                    case 'showToast':
+                        this.showToast(message);
+                        break;
+                    case 'analyticsEventTrack':
+                        this.analytics.eventTrack.next({
+                            action: message.action,
+                            properties: { label: message.label },
+                        });
+                        break;
                     default:
                 }
             });
@@ -165,5 +173,32 @@ export class AppComponent implements OnInit {
         this.modal.onClosed.subscribe(() => {
             this.modal = null;
         });
+    }
+
+    private showToast(msg: any) {
+        const toast: Toast = {
+            type: msg.type,
+            title: msg.title,
+        };
+        if (typeof (msg.text) === 'string') {
+            toast.body = msg.text;
+        } else if (msg.text.length === 1) {
+            toast.body = msg.text[0];
+        } else {
+            let message = '';
+            msg.text.forEach((t: string) =>
+                message += ('<p>' + this.sanitizer.sanitize(SecurityContext.HTML, t) + '</p>'));
+            toast.body = message;
+            toast.bodyOutputType = BodyOutputType.TrustedHtml;
+        }
+        if (msg.options != null) {
+            if (msg.options.trustedHtml === true) {
+                toast.bodyOutputType = BodyOutputType.TrustedHtml;
+            }
+            if (msg.options.timeout != null && msg.options.timeout > 0) {
+                toast.timeout = msg.options.timeout;
+            }
+        }
+        this.toasterService.popAsync(toast);
     }
 }
