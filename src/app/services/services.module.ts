@@ -83,7 +83,7 @@ export function initFactory(): Function {
     return async () => {
         await environmentService.setUrlsFromStorage();
         await i18nService.init();
-        await authService.init();
+        authService.init();
         const htmlEl = window.document.documentElement;
         htmlEl.classList.add('os_' + platformUtilsService.getDeviceString());
         htmlEl.classList.add('locale_' + i18nService.translationLocale);
