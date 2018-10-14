@@ -11,7 +11,6 @@ import { ElectronLogService } from 'jslib/electron/services/electronLog.service'
 import { ElectronPlatformUtilsService } from 'jslib/electron/services/electronPlatformUtils.service';
 import { ElectronRendererMessagingService } from 'jslib/electron/services/electronRendererMessaging.service';
 import { ElectronRendererSecureStorageService } from 'jslib/electron/services/electronRendererSecureStorage.service';
-import { isDev } from 'jslib/electron/utils';
 
 import { AuthGuardService } from './auth-guard.service';
 import { LaunchGuardService } from './launch-guard.service';
@@ -69,7 +68,7 @@ const apiService = new ApiService(tokenService, platformUtilsService,
     async (expired: boolean) => messagingService.send('logout', { expired: expired }));
 const environmentService = new EnvironmentService(apiService, storageService, null);
 const userService = new UserService(tokenService, storageService);
-const containerService = new ContainerService(cryptoService, platformUtilsService);
+const containerService = new ContainerService(cryptoService);
 const authService = new AuthService(cryptoService, apiService, userService, tokenService, appIdService,
     i18nService, platformUtilsService, messagingService, false);
 const configurationService = new ConfigurationService(storageService, secureStorageService);
