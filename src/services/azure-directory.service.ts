@@ -95,7 +95,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
                         continue;
                     }
                     const entry = this.buildUser(user);
-                    if (this.filterOutUserResult(setFilter, user)) {
+                    if (await this.filterOutUserResult(setFilter, user)) {
                         continue;
                     }
 
@@ -144,9 +144,9 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
             userSetType = UserSetType.IncludeUser;
         } else if (keyword === 'exclude') {
             userSetType = UserSetType.ExcludeUser;
-        } else if (keyword === 'includeGroup') {
+        } else if (keyword === 'includegroup') {
             userSetType = UserSetType.IncludeGroup;
-        } else if (keyword === 'excludeGroup') {
+        } else if (keyword === 'excludegroup') {
             userSetType = UserSetType.ExcludeGroup;
         } else {
             return null;
