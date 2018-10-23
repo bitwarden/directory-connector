@@ -178,16 +178,20 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
                     return false;
                 }
             } else {
-                let memberGroups = await this.client.api(`/users/${user.id}/checkMemberGroups`).post({
-                    groupIds: Array.from(setFilter[1])
-                });
-                if(memberGroups.value.length > 0 && setFilter[0] == UserSetType.IncludeGroup) {
-                    return false;
-                } else if (memberGroups.value.length > 0 && setFilter[0] == UserSetType.ExcludeGroup) {
-                    return true;
-                } else if (memberGroups.value.length == 0 && setFilter[0] == UserSetType.IncludeGroup) {
-                    return true;
-                } else if (memberGroups.value.length == 0 && setFilter[0] == UserSetType.ExcludeGroup) {
+                try {
+                    let memberGroups = await this.client.api(`/users/${user.id}/checkMemberGroups`).post({
+                        groupIds: Array.from(setFilter[1])
+                    });
+                    if (memberGroups.value.length > 0 && setFilter[0] == UserSetType.IncludeGroup) {
+                        return false;
+                    } else if (memberGroups.value.length > 0 && setFilter[0] == UserSetType.ExcludeGroup) {
+                        return true;
+                    } else if (memberGroups.value.length == 0 && setFilter[0] == UserSetType.IncludeGroup) {
+                        return true;
+                    } else if (memberGroups.value.length == 0 && setFilter[0] == UserSetType.ExcludeGroup) {
+                        return false;
+                    }
+                } catch(ex) {
                     return false;
                 }
             }
