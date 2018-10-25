@@ -95,7 +95,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
                         continue;
                     }
                     const entry = this.buildUser(user);
-                    if (await this.filterOutUserResult(setFilter, user)) {
+                    if (await this.filterOutUserResult(setFilter, entry)) {
                         continue;
                     }
 
@@ -161,7 +161,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         return [userSetType, set];
     }
 
-    private async filterOutUserResult(setFilter: [UserSetType, Set<string>], user: graphType.User): Promise<boolean> {
+    private async filterOutUserResult(setFilter: [UserSetType, Set<string>], user: UserEntry): Promise<boolean> {
         if (setFilter != null) {
             let userSetTypeExclude = null;
             if (setFilter[0] === UserSetType.IncludeUser) {
@@ -170,16 +170,10 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
                 userSetTypeExclude = true;
             }
             if (userSetTypeExclude != null) {
-                const entry = this.buildUser(user);
-                if (this.filterOutResult([userSetTypeExclude, setFilter[1]], entry.email)) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
+                return this.filterOutResult([userSetTypeExclude, setFilter[1]], user.email);
             } else {
                 try {
-                    let memberGroups = await this.client.api(`/users/${user.id}/checkMemberGroups`).post({
+                    let memberGroups = await this.client.api(`/users/${user.externalId}/checkMemberGroups`).post({
                         groupIds: Array.from(setFilter[1])
                     });
                     if (memberGroups.value.length > 0 && setFilter[0] == UserSetType.IncludeGroup) {
