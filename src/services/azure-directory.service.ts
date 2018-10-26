@@ -86,7 +86,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
             res = await userReq.get();
         }
 
-        const setFilter = this.createCustomSet(this.syncConfig.userFilter);
+        const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
         while (true) {
             const users: graphType.User[] = res.value;
             if (users != null) {
@@ -95,7 +95,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
                         continue;
                     }
                     const entry = this.buildUser(user);
-                    if (this.filterOutResult(setFilter, entry.email)) {
+                    if (await this.filterOutUserResult(setFilter, entry)) {
                         continue;
                     }
 
@@ -121,6 +121,77 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         }
 
         return entries;
+    }
+
+    private createCustomUserSet(filter: string): [UserSetType, Set<string>] {
+        if (filter == null || filter === '') {
+            return null;
+        }
+
+        const mainParts = filter.split('|');
+        if (mainParts.length < 1 || mainParts[0] == null || mainParts[0].trim() === '') {
+            return null;
+        }
+
+        const parts = mainParts[0].split(':');
+        if (parts.length !== 2) {
+            return null;
+        }
+
+        const keyword = parts[0].trim().toLowerCase();
+        let userSetType = UserSetType.IncludeUser;
+        if (keyword === 'include') {
+            userSetType = UserSetType.IncludeUser;
+        } else if (keyword === 'exclude') {
+            userSetType = UserSetType.ExcludeUser;
+        } else if (keyword === 'includegroup') {
+            userSetType = UserSetType.IncludeGroup;
+        } else if (keyword === 'excludegroup') {
+            userSetType = UserSetType.ExcludeGroup;
+        } else {
+            return null;
+        }
+
+        const set = new Set<string>();
+        const pieces = parts[1].split(',');
+        for (const p of pieces) {
+            set.add(p.trim().toLowerCase());
+        }
+
+        return [userSetType, set];
+    }
+
+    private async filterOutUserResult(setFilter: [UserSetType, Set<string>], user: UserEntry): Promise<boolean> {
+        if (setFilter != null) {
+            let userSetTypeExclude = null;
+            if (setFilter[0] === UserSetType.IncludeUser) {
+                userSetTypeExclude = false;
+            } else if (setFilter[0] === UserSetType.ExcludeUser) {
+                userSetTypeExclude = true;
+            }
+            if (userSetTypeExclude != null) {
+                return this.filterOutResult([userSetTypeExclude, setFilter[1]], user.email);
+            } else {
+                try {
+                    let memberGroups = await this.client.api(`/users/${user.externalId}/checkMemberGroups`).post({
+                        groupIds: Array.from(setFilter[1])
+                    });
+                    if (memberGroups.value.length > 0 && setFilter[0] == UserSetType.IncludeGroup) {
+                        return false;
+                    } else if (memberGroups.value.length > 0 && setFilter[0] == UserSetType.ExcludeGroup) {
+                        return true;
+                    } else if (memberGroups.value.length == 0 && setFilter[0] == UserSetType.IncludeGroup) {
+                        return true;
+                    } else if (memberGroups.value.length == 0 && setFilter[0] == UserSetType.ExcludeGroup) {
+                        return false;
+                    }
+                } catch(ex) {
+                    return false;
+                }
+            }
+        }
+
+        return false;
     }
 
     private buildUser(user: graphType.User): UserEntry {
@@ -277,4 +348,11 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         exp.setSeconds(exp.getSeconds() + expSeconds);
         this.accessTokenExpiration = exp;
     }
+}
+
+enum UserSetType {
+    IncludeUser,
+    ExcludeUser,
+    IncludeGroup,
+    ExcludeGroup
 }
