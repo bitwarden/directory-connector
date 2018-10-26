@@ -21,6 +21,13 @@ const NextLink = '@odata.nextLink';
 const DeltaLink = '@odata.deltaLink';
 const ObjectType = '@odata.type';
 
+enum UserSetType {
+    IncludeUser,
+    ExcludeUser,
+    IncludeGroup,
+    ExcludeGroup,
+}
+
 export class AzureDirectoryService extends BaseDirectoryService implements DirectoryService {
     private client: graph.Client;
     private dirConfig: AzureConfiguration;
@@ -162,34 +169,35 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
     }
 
     private async filterOutUserResult(setFilter: [UserSetType, Set<string>], user: UserEntry): Promise<boolean> {
-        if (setFilter != null) {
-            let userSetTypeExclude = null;
-            if (setFilter[0] === UserSetType.IncludeUser) {
-                userSetTypeExclude = false;
-            } else if (setFilter[0] === UserSetType.ExcludeUser) {
-                userSetTypeExclude = true;
-            }
-            if (userSetTypeExclude != null) {
-                return this.filterOutResult([userSetTypeExclude, setFilter[1]], user.email);
-            } else {
-                try {
-                    let memberGroups = await this.client.api(`/users/${user.externalId}/checkMemberGroups`).post({
-                        groupIds: Array.from(setFilter[1])
-                    });
-                    if (memberGroups.value.length > 0 && setFilter[0] == UserSetType.IncludeGroup) {
-                        return false;
-                    } else if (memberGroups.value.length > 0 && setFilter[0] == UserSetType.ExcludeGroup) {
-                        return true;
-                    } else if (memberGroups.value.length == 0 && setFilter[0] == UserSetType.IncludeGroup) {
-                        return true;
-                    } else if (memberGroups.value.length == 0 && setFilter[0] == UserSetType.ExcludeGroup) {
-                        return false;
-                    }
-                } catch(ex) {
-                    return false;
-                }
-            }
+        if (setFilter == null) {
+            return false;
         }
+
+        let userSetTypeExclude = null;
+        if (setFilter[0] === UserSetType.IncludeUser) {
+            userSetTypeExclude = false;
+        } else if (setFilter[0] === UserSetType.ExcludeUser) {
+            userSetTypeExclude = true;
+        }
+
+        if (userSetTypeExclude != null) {
+            return this.filterOutResult([userSetTypeExclude, setFilter[1]], user.email);
+        }
+
+        try {
+            const memberGroups = await this.client.api(`/users/${user.externalId}/checkMemberGroups`).post({
+                groupIds: Array.from(setFilter[1]),
+            });
+            if (memberGroups.value.length > 0 && setFilter[0] === UserSetType.IncludeGroup) {
+                return false;
+            } else if (memberGroups.value.length > 0 && setFilter[0] === UserSetType.ExcludeGroup) {
+                return true;
+            } else if (memberGroups.value.length === 0 && setFilter[0] === UserSetType.IncludeGroup) {
+                return true;
+            } else if (memberGroups.value.length === 0 && setFilter[0] === UserSetType.ExcludeGroup) {
+                return false;
+            }
+        } catch { }
 
         return false;
     }
@@ -348,11 +356,4 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         exp.setSeconds(exp.getSeconds() + expSeconds);
         this.accessTokenExpiration = exp;
     }
-}
-
-enum UserSetType {
-    IncludeUser,
-    ExcludeUser,
-    IncludeGroup,
-    ExcludeGroup
 }
