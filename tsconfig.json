@@ -46,6 +46,8 @@
     "jslib/src/abstractions/passwordGeneration.service.ts",
     "jslib/src/angular/components/export.component.ts",
     "jslib/src/angular/components/register.component.ts",
+    "jslib/src/angular/components/password-generator.component.ts",
+    "jslib/src/angular/components/password-generator-history.component.ts",
     "jslib/src/angular/pipes/color-password.pipe.ts",
     "jslib/src/importers",
     "dist",
