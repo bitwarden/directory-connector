@@ -51,6 +51,7 @@
     "jslib/src/angular/components/password-generator.component.ts",
     "jslib/src/angular/components/password-generator-history.component.ts",
     "jslib/src/angular/pipes/color-password.pipe.ts",
+    "jslib/src/angular/directives/flex-copy.directive.ts",
     "jslib/src/importers",
     "dist",
     "jslib/dist",
