@@ -12,7 +12,8 @@
                 <div [hidden]="directory != directoryType.Ldap">
                     <div class="form-group">
                         <label for="hostname">{{'serverHostname' | i18n}}</label>
-                        <input type="text" class="form-control" id="hostname" name="Hostname" [(ngModel)]="ldap.hostname">
+                        <input type="text" class="form-control" id="hostname" name="Hostname"
+                            [(ngModel)]="ldap.hostname">
                         <small class="text-muted form-text">{{'ex' | i18n}} ad.company.com</small>
                     </div>
                     <div class="form-group">
@@ -22,7 +23,8 @@
                     </div>
                     <div class="form-group">
                         <label for="rootPath">{{'rootPath' | i18n}}</label>
-                        <input type="text" class="form-control" id="rootPath" name="RootPath" [(ngModel)]="ldap.rootPath">
+                        <input type="text" class="form-control" id="rootPath" name="RootPath"
+                            [(ngModel)]="ldap.rootPath">
                         <small class="text-muted form-text">{{'ex' | i18n}} dc=company,dc=com</small>
                     </div>
                     <div class="form-group">
@@ -41,42 +43,54 @@
                         <p>{{'ldapSslUntrustedDesc' | i18n}}</p>
                         <div class="form-group">
                             <label for="sslCertPath">{{'ldapSslCert' | i18n}}</label>
-                            <input type="file" class="form-control-file mb-2" id="sslCertPath_file" (change)="setSslPath('sslCertPath')">
-                            <input type="text" class="form-control" id="sslCertPath" name="SSLCertPath" [(ngModel)]="ldap.sslCertPath">
+                            <input type="file" class="form-control-file mb-2" id="sslCertPath_file"
+                                (change)="setSslPath('sslCertPath')">
+                            <input type="text" class="form-control" id="sslCertPath" name="SSLCertPath"
+                                [(ngModel)]="ldap.sslCertPath">
                         </div>
                         <div class="form-group">
                             <label for="sslKeyPath">{{'ldapSslKey' | i18n}}</label>
-                            <input type="file" class="form-control-file mb-2" id="sslKeyPath_file" (change)="setSslPath('sslKeyPath')">
-                            <input type="text" class="form-control" id="sslKeyPath" name="SSLKeyPath" [(ngModel)]="ldap.sslKeyPath">
+                            <input type="file" class="form-control-file mb-2" id="sslKeyPath_file"
+                                (change)="setSslPath('sslKeyPath')">
+                            <input type="text" class="form-control" id="sslKeyPath" name="SSLKeyPath"
+                                [(ngModel)]="ldap.sslKeyPath">
                         </div>
                         <div class="form-group">
                             <label for="sslCaPath">{{'ldapSslCa' | i18n}}</label>
-                            <input type="file" class="form-control-file mb-2" id="sslCaPath_file" (change)="setSslPath('sslCaPath')">
-                            <input type="text" class="form-control" id="sslCaPath" name="SSLCaPath" [(ngModel)]="ldap.sslCaPath">
+                            <input type="file" class="form-control-file mb-2" id="sslCaPath_file"
+                                (change)="setSslPath('sslCaPath')">
+                            <input type="text" class="form-control" id="sslCaPath" name="SSLCaPath"
+                                [(ngModel)]="ldap.sslCaPath">
                         </div>
                         <div class="form-group">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="sslAllowUnauthorized" [(ngModel)]="ldap.sslAllowUnauthorized" name="SSLAllowUnauthorized">
-                                <label class="form-check-label" for="sslAllowUnauthorized">{{'ldapSslAllowUnauthorized' | i18n}}</label>
+                                <input class="form-check-input" type="checkbox" id="sslAllowUnauthorized"
+                                    [(ngModel)]="ldap.sslAllowUnauthorized" name="SSLAllowUnauthorized">
+                                <label class="form-check-label"
+                                    for="sslAllowUnauthorized">{{'ldapSslAllowUnauthorized' | i18n}}</label>
                             </div>
                         </div>
                     </div>
                     <div class="form-group" [hidden]="true">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="currentUser" [(ngModel)]="ldap.currentUser" name="CurrentUser">
+                            <input class="form-check-input" type="checkbox" id="currentUser"
+                                [(ngModel)]="ldap.currentUser" name="CurrentUser">
                             <label class="form-check-label" for="currentUser">{{'currentUser' | i18n}}</label>
                         </div>
                     </div>
                     <div [hidden]="ldap.currentUser">
                         <div class="form-group">
                             <label for="username">{{'username' | i18n}}</label>
-                            <input type="text" class="form-control" id="username" name="Username" [(ngModel)]="ldap.username">
+                            <input type="text" class="form-control" id="username" name="Username"
+                                [(ngModel)]="ldap.username">
                             <small class="text-muted form-text" *ngIf="ldap.ad">{{'ex' | i18n}} company\admin</small>
-                            <small class="text-muted form-text" *ngIf="!ldap.ad">{{'ex' | i18n}} cn=admin,dc=company,dc=com</small>
+                            <small class="text-muted form-text" *ngIf="!ldap.ad">{{'ex' | i18n}}
+                                cn=admin,dc=company,dc=com</small>
                         </div>
                         <div class="form-group">
                             <label for="password">{{'password' | i18n}}</label>
-                            <input type="password" class="form-control" id="password" name="Password" [(ngModel)]="ldap.password">
+                            <input type="password" class="form-control" id="password" name="Password"
+                                [(ngModel)]="ldap.password">
                         </div>
                     </div>
                 </div>
@@ -88,7 +102,8 @@
                     </div>
                     <div class="form-group">
                         <label for="applicationId">{{'applicationId' | i18n}}</label>
-                        <input type="text" class="form-control" id="applicationId" name="ApplicationId" [(ngModel)]="azure.applicationId">
+                        <input type="text" class="form-control" id="applicationId" name="ApplicationId"
+                            [(ngModel)]="azure.applicationId">
                     </div>
                     <div class="form-group">
                         <label for="secretKey">{{'secretKey' | i18n}}</label>
@@ -103,7 +118,8 @@
                     </div>
                     <div class="form-group">
                         <label for="oktaToken">{{'token' | i18n}}</label>
-                        <input type="text" class="form-control" id="oktaToken" name="OktaToken" [(ngModel)]="okta.token">
+                        <input type="text" class="form-control" id="oktaToken" name="OktaToken"
+                            [(ngModel)]="okta.token">
                     </div>
                 </div>
                 <div [hidden]="directory != directoryType.GSuite">
@@ -114,26 +130,31 @@
                     </div>
                     <div class="form-group">
                         <label for="adminUser">{{'adminUser' | i18n}}</label>
-                        <input type="text" class="form-control" id="adminUser" name="AdminUser" [(ngModel)]="gsuite.adminUser">
+                        <input type="text" class="form-control" id="adminUser" name="AdminUser"
+                            [(ngModel)]="gsuite.adminUser">
                         <small class="text-muted form-text">{{'ex' | i18n}} admin@company.com</small>
                     </div>
                     <div class="form-group">
                         <label for="customerId">{{'customerId' | i18n}}</label>
-                        <input type="text" class="form-control" id="customerId" name="CustomerId" [(ngModel)]="gsuite.customer">
+                        <input type="text" class="form-control" id="customerId" name="CustomerId"
+                            [(ngModel)]="gsuite.customer">
                         <small class="text-muted form-text">{{'ex' | i18n}} 39204722352</small>
                     </div>
                     <div class="form-group">
                         <label for="keyFile">{{'jsonKeyFile' | i18n}}</label>
-                        <input type="file" class="form-control-file" id="keyFile" accept=".json" (change)="parseKeyFile()">
+                        <input type="file" class="form-control-file" id="keyFile" accept=".json"
+                            (change)="parseKeyFile()">
                         <small class="text-muted form-text">{{'ex' | i18n}} My Project-jksd3jd223.json</small>
                     </div>
                     <div class="form-group" [hidden]="!gsuite.clientEmail">
                         <label for="clientEmail">{{'clientEmail' | i18n}}</label>
-                        <input type="text" class="form-control" id="clientEmail" name="ClientEmail" [(ngModel)]="gsuite.clientEmail">
+                        <input type="text" class="form-control" id="clientEmail" name="ClientEmail"
+                            [(ngModel)]="gsuite.clientEmail">
                     </div>
                     <div class="form-group" [hidden]="!gsuite.privateKey">
                         <label for="privateKey">{{'privateKey' | i18n}}</label>
-                        <textarea class="form-control text-monospace" id="privateKey" name="PrivateKey" [(ngModel)]="gsuite.privateKey">
+                        <textarea class="form-control text-monospace" id="privateKey" name="PrivateKey"
+                            [(ngModel)]="gsuite.privateKey">
                             </textarea>
                     </div>
                 </div>
@@ -158,12 +179,14 @@
             <div class="card-body">
                 <div class="form-group">
                     <label for="interval">{{'interval' | i18n}}</label>
-                    <input type="number" min="5" class="form-control" id="interval" name="Interval" [(ngModel)]="sync.interval">
+                    <input type="number" min="5" class="form-control" id="interval" name="Interval"
+                        [(ngModel)]="sync.interval">
                     <small class="text-muted form-text">{{'intervalMin' | i18n}}</small>
                 </div>
                 <div class="form-group">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="removeDisabled" [(ngModel)]="sync.removeDisabled" name="RemoveDisabled">
+                        <input class="form-check-input" type="checkbox" id="removeDisabled"
+                            [(ngModel)]="sync.removeDisabled" name="RemoveDisabled">
                         <label class="form-check-label" for="removeDisabled">{{'removeDisabled' | i18n}}</label>
                     </div>
                 </div>
@@ -171,36 +194,43 @@
                     <div [hidden]="ldap.ad">
                         <div class="form-group">
                             <label for="memberAttribute">{{'memberAttribute' | i18n}}</label>
-                            <input type="text" class="form-control" id="memberAttribute" name="MemberAttribute" [(ngModel)]="sync.memberAttribute">
+                            <input type="text" class="form-control" id="memberAttribute" name="MemberAttribute"
+                                [(ngModel)]="sync.memberAttribute">
                             <small class="text-muted form-text">{{'ex' | i18n}} uniqueMember</small>
                         </div>
                         <div class="form-group">
                             <label for="creationDateAttribute">{{'creationDateAttribute' | i18n}}</label>
-                            <input type="text" class="form-control" id="creationDateAttribute" name="CreationDateAttribute" [(ngModel)]="sync.creationDateAttribute">
+                            <input type="text" class="form-control" id="creationDateAttribute"
+                                name="CreationDateAttribute" [(ngModel)]="sync.creationDateAttribute">
                             <small class="text-muted form-text">{{'ex' | i18n}} whenCreated</small>
                         </div>
                         <div class="form-group">
                             <label for="revisionDateAttribute">{{'revisionDateAttribute' | i18n}}</label>
-                            <input type="text" class="form-control" id="revisionDateAttribute" name="RevisionDateAttribute" [(ngModel)]="sync.revisionDateAttribute">
+                            <input type="text" class="form-control" id="revisionDateAttribute"
+                                name="RevisionDateAttribute" [(ngModel)]="sync.revisionDateAttribute">
                             <small class="text-muted form-text">{{'ex' | i18n}} whenChanged</small>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="useEmailPrefixSuffix" [(ngModel)]="sync.useEmailPrefixSuffix" name="UseEmailPrefixSuffix">
-                            <label class="form-check-label" for="useEmailPrefixSuffix">{{'useEmailPrefixSuffix' | i18n}}</label>
+                            <input class="form-check-input" type="checkbox" id="useEmailPrefixSuffix"
+                                [(ngModel)]="sync.useEmailPrefixSuffix" name="UseEmailPrefixSuffix">
+                            <label class="form-check-label"
+                                for="useEmailPrefixSuffix">{{'useEmailPrefixSuffix' | i18n}}</label>
                         </div>
                     </div>
                     <div [hidden]="!sync.useEmailPrefixSuffix">
                         <div class="form-group" [hidden]="ldap.ad">
                             <label for="emailPrefixAttribute">{{'emailPrefixAttribute' | i18n}}</label>
-                            <input type="text" class="form-control" id="emailPrefixAttribute" name="EmailPrefixAttribute" [(ngModel)]="sync.emailPrefixAttribute">
+                            <input type="text" class="form-control" id="emailPrefixAttribute"
+                                name="EmailPrefixAttribute" [(ngModel)]="sync.emailPrefixAttribute">
                             <small class="text-muted form-text">{{'ex' | i18n}} accountName</small>
                         </div>
                         <div class="form-group">
                             <label for="emailSuffix">{{'emailSuffix' | i18n}}</label>
-                            <input type="text" class="form-control" id="emailSuffix" name="EmailSuffix" [(ngModel)]="sync.emailSuffix">
+                            <input type="text" class="form-control" id="emailSuffix" name="EmailSuffix"
+                                [(ngModel)]="sync.emailSuffix">
                             <small class="text-muted form-text">{{'ex' | i18n}} @company.com</small>
                         </div>
                     </div>
@@ -208,33 +238,43 @@
 
                 <div class="form-group">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="syncUsers" [(ngModel)]="sync.users" name="SyncUsers">
+                        <input class="form-check-input" type="checkbox" id="syncUsers" [(ngModel)]="sync.users"
+                            name="SyncUsers">
                         <label class="form-check-label" for="syncUsers">{{'syncUsers' | i18n}}</label>
                     </div>
                 </div>
                 <div [hidden]="!sync.users">
                     <div class="form-group">
                         <label for="userFilter">{{'userFilter' | i18n}}</label>
-                        <textarea class="form-control" id="userFilter" name="UserFilter" [(ngModel)]="sync.userFilter"></textarea>
-                        <small class="text-muted form-text" *ngIf="directory === directoryType.Ldap">{{'ex' | i18n}} (&amp;(givenName=John)(|(l=Dallas)(l=Austin)))</small>
-                        <small class="text-muted form-text" *ngIf="directory === directoryType.AzureActiveDirectory">{{'ex' | i18n}} exclude:joe@company.com</small>
-                        <small class="text-muted form-text" *ngIf="directory === directoryType.Okta">{{'ex' | i18n}} exclude:joe@company.com | profile.firstName eq "John"</small>
-                        <small class="text-muted form-text" *ngIf="directory === directoryType.GSuite">{{'ex' | i18n}} exclude:joe@company.com | orgName=Engineering</small>
+                        <textarea class="form-control" id="userFilter" name="UserFilter"
+                            [(ngModel)]="sync.userFilter"></textarea>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.Ldap">{{'ex' | i18n}}
+                            (&amp;(givenName=John)(|(l=Dallas)(l=Austin)))</small>
+                        <small class="text-muted form-text"
+                            *ngIf="directory === directoryType.AzureActiveDirectory">{{'ex' | i18n}}
+                            exclude:joe@company.com</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.Okta">{{'ex' | i18n}}
+                            exclude:joe@company.com | profile.firstName eq "John"</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.GSuite">{{'ex' | i18n}}
+                            exclude:joe@company.com | orgName=Engineering</small>
                     </div>
                     <div class="form-group" [hidden]="directory != directoryType.Ldap">
                         <label for="userPath">{{'userPath' | i18n}}</label>
-                        <input type="text" class="form-control" id="userPath" name="UserPath" [(ngModel)]="sync.userPath">
+                        <input type="text" class="form-control" id="userPath" name="UserPath"
+                            [(ngModel)]="sync.userPath">
                         <small class="text-muted form-text">{{'ex' | i18n}} CN=Users</small>
                     </div>
                     <div [hidden]="directory != directoryType.Ldap || ldap.ad">
                         <div class="form-group">
                             <label for="userObjectClass">{{'userObjectClass' | i18n}}</label>
-                            <input type="text" class="form-control" id="userObjectClass" name="UserObjectClass" [(ngModel)]="sync.userObjectClass">
+                            <input type="text" class="form-control" id="userObjectClass" name="UserObjectClass"
+                                [(ngModel)]="sync.userObjectClass">
                             <small class="text-muted form-text">{{'ex' | i18n}} inetOrgPerson</small>
                         </div>
                         <div class="form-group">
                             <label for="userEmailAttribute">{{'userEmailAttribute' | i18n}}</label>
-                            <input type="text" class="form-control" id="userEmailAttribute" name="UserEmailAttribute" [(ngModel)]="sync.userEmailAttribute">
+                            <input type="text" class="form-control" id="userEmailAttribute" name="UserEmailAttribute"
+                                [(ngModel)]="sync.userEmailAttribute">
                             <small class="text-muted form-text">{{'ex' | i18n}} mail</small>
                         </div>
                     </div>
@@ -242,34 +282,44 @@
 
                 <div class="form-group">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="syncGroups" [(ngModel)]="sync.groups" name="SyncGroups">
+                        <input class="form-check-input" type="checkbox" id="syncGroups" [(ngModel)]="sync.groups"
+                            name="SyncGroups">
                         <label class="form-check-label" for="syncGroups">{{'syncGroups' | i18n}}</label>
                     </div>
                 </div>
                 <div [hidden]="!sync.groups">
                     <div class="form-group">
                         <label for="groupFilter">{{'groupFilter' | i18n}}</label>
-                        <textarea class="form-control" id="groupFilter" name="GroupFilter" [(ngModel)]="sync.groupFilter"></textarea>
-                        <small class="text-muted form-text" *ngIf="directory === directoryType.Ldap">{{'ex' | i18n}} (&amp;!(name=Sales*)!(name=IT*))</small>
-                        <small class="text-muted form-text" *ngIf="directory === directoryType.AzureActiveDirectory">{{'ex' | i18n}} include:Sales,IT</small>
-                        <small class="text-muted form-text" *ngIf="directory === directoryType.Okta">{{'ex' | i18n}} include:Sales,IT | type eq "APP_GROUP"</small>
-                        <small class="text-muted form-text" *ngIf="directory === directoryType.GSuite">{{'ex' | i18n}} include:Sales,IT</small>
+                        <textarea class="form-control" id="groupFilter" name="GroupFilter"
+                            [(ngModel)]="sync.groupFilter"></textarea>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.Ldap">{{'ex' | i18n}}
+                            (&amp;!(name=Sales*)!(name=IT*))</small>
+                        <small class="text-muted form-text"
+                            *ngIf="directory === directoryType.AzureActiveDirectory">{{'ex' | i18n}}
+                            include:Sales,IT</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.Okta">{{'ex' | i18n}}
+                            include:Sales,IT | type eq "APP_GROUP"</small>
+                        <small class="text-muted form-text" *ngIf="directory === directoryType.GSuite">{{'ex' | i18n}}
+                            include:Sales,IT</small>
                     </div>
                     <div class="form-group" [hidden]="directory != directoryType.Ldap">
                         <label for="groupPath">{{'groupPath' | i18n}}</label>
-                        <input type="text" class="form-control" id="groupPath" name="GroupPath" [(ngModel)]="sync.groupPath">
+                        <input type="text" class="form-control" id="groupPath" name="GroupPath"
+                            [(ngModel)]="sync.groupPath">
                         <small class="text-muted form-text" *ngIf="!ldap.ad">{{'ex' | i18n}} CN=Groups</small>
                         <small class="text-muted form-text" *ngIf="ldap.ad">{{'ex' | i18n}} CN=Users</small>
                     </div>
                     <div [hidden]="directory != directoryType.Ldap || ldap.ad">
                         <div class="form-group">
                             <label for="groupObjectClass">{{'groupObjectClass' | i18n}}</label>
-                            <input type="text" class="form-control" id="groupObjectClass" name="GroupObjectClass" [(ngModel)]="sync.groupObjectClass">
+                            <input type="text" class="form-control" id="groupObjectClass" name="GroupObjectClass"
+                                [(ngModel)]="sync.groupObjectClass">
                             <small class="text-muted form-text">{{'ex' | i18n}} groupOfUniqueNames</small>
                         </div>
                         <div class="form-group">
                             <label for="groupNameAttribute">{{'groupNameAttribute' | i18n}}</label>
-                            <input type="text" class="form-control" id="groupNameAttribute" name="GroupNameAttribute" [(ngModel)]="sync.groupNameAttribute">
+                            <input type="text" class="form-control" id="groupNameAttribute" name="GroupNameAttribute"
+                                [(ngModel)]="sync.groupNameAttribute">
                             <small class="text-muted form-text">{{'ex' | i18n}} name</small>
                         </div>
                     </div>
