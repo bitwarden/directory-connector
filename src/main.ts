@@ -5,11 +5,10 @@ import { MenuMain } from './main/menu.main';
 import { MessagingMain } from './main/messaging.main';
 import { I18nService } from './services/i18n.service';
 
-import { LowdbStorageService } from 'jslib/services/lowdbStorage.service';
-
 import { KeytarStorageListener } from 'jslib/electron/keytarStorageListener';
 import { ElectronLogService } from 'jslib/electron/services/electronLog.service';
 import { ElectronMainMessagingService } from 'jslib/electron/services/electronMainMessaging.service';
+import { ElectronStorageService } from 'jslib/electron/services/electronStorage.service';
 import { TrayMain } from 'jslib/electron/tray.main';
 import { UpdaterMain } from 'jslib/electron/updater.main';
 import { WindowMain } from 'jslib/electron/window.main';
@@ -17,7 +16,7 @@ import { WindowMain } from 'jslib/electron/window.main';
 export class Main {
     logService: ElectronLogService;
     i18nService: I18nService;
-    storageService: LowdbStorageService;
+    storageService: ElectronStorageService;
     messagingService: ElectronMainMessagingService;
     keytarStorageListener: KeytarStorageListener;
 
@@ -51,7 +50,7 @@ export class Main {
 
         this.logService = new ElectronLogService(null, app.getPath('userData'));
         this.i18nService = new I18nService('en', './locales/');
-        this.storageService = new LowdbStorageService(null, app.getPath('userData'));
+        this.storageService = new ElectronStorageService(app.getPath('userData'));
 
         this.windowMain = new WindowMain(this.storageService, 800, 600);
         this.menuMain = new MenuMain(this);
@@ -72,7 +71,6 @@ export class Main {
     }
 
     bootstrap() {
-        this.storageService.init();
         this.keytarStorageListener.init();
         this.windowMain.init().then(async () => {
             await this.i18nService.init(app.getLocale());

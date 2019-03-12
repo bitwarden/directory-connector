@@ -41,6 +41,7 @@
     "jslib/src/services/webCryptoFunction.service.ts",
     "jslib/src/services/search.service.ts",
     "jslib/src/services/nodeApi.service.ts",
+    "jslib/src/services/lowdbStorage.service.ts",
     "jslib/src/services/export.service.ts",
     "jslib/src/services/notifications.service.ts",
     "jslib/src/services/passwordGeneration.service.ts",
