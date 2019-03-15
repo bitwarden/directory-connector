@@ -18,7 +18,6 @@ import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 
 const NextLink = '@odata.nextLink';
-const DeltaLink = '@odata.deltaLink';
 const ObjectType = '@odata.type';
 
 enum UserSetType {
@@ -60,7 +59,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
 
         let users: UserEntry[];
         if (this.syncConfig.users) {
-            users = await this.getUsers(force, !test);
+            users = await this.getUsers();
         }
 
         let groups: GroupEntry[];
@@ -73,26 +72,11 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         return [groups, users];
     }
 
-    private async getUsers(force: boolean, saveDelta: boolean): Promise<UserEntry[]> {
+    private async getUsers(): Promise<UserEntry[]> {
         const entryIds = new Set<string>();
         const entries: UserEntry[] = [];
-
-        let res: any = null;
-        const token = await this.configurationService.getUserDeltaToken();
-        if (!force && token != null) {
-            try {
-                const deltaReq = this.client.api(token);
-                res = await deltaReq.get();
-            } catch {
-                res = null;
-            }
-        }
-
-        if (res == null) {
-            const userReq = this.client.api('/users/delta');
-            res = await userReq.get();
-        }
-
+        const userReq = this.client.api('/users');
+        let res = await userReq.get();
         const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
         while (true) {
             const users: graphType.User[] = res.value;
@@ -117,9 +101,6 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
             }
 
             if (res[NextLink] == null) {
-                if (res[DeltaLink] != null && saveDelta) {
-                    await this.configurationService.saveUserDeltaToken(res[DeltaLink]);
-                }
                 break;
             } else {
                 const nextReq = this.client.api(res[NextLink]);
