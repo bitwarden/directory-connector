@@ -57,6 +57,7 @@
     "dist",
     "jslib/dist",
     "build",
+    "build-cli",
     "jslib/spec"
   ]
 }
