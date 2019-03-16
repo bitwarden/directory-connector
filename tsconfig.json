@@ -55,6 +55,7 @@
     "jslib/src/angular/directives/flex-copy.directive.ts",
     "jslib/src/importers",
     "dist",
+    "dist-cli",
     "jslib/dist",
     "build",
     "build-cli",
