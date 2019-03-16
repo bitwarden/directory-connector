@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { LogLevelType } from 'jslib/enums/logLevelType';
+
 import { AuthService } from 'jslib/services/auth.service';
 
 import { ConfigurationService } from './services/configuration.service';
@@ -70,7 +72,8 @@ export class Main {
 
         this.i18nService = new I18nService('en', './locales');
         this.platformUtilsService = new CliPlatformUtilsService('connector', packageJson);
-        this.logService = new ConsoleLogService(this.platformUtilsService.isDev());
+        this.logService = new ConsoleLogService(this.platformUtilsService.isDev(),
+            (level) => level > LogLevelType.Info);
         this.cryptoFunctionService = new NodeCryptoFunctionService();
         this.storageService = new LowdbStorageService(null, p, true);
         this.secureStorageService = new KeytarSecureStorageService(applicationName);
