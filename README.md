@@ -29,7 +29,23 @@ The application is written using Electron with Angular and installs on Windows, 
 
 ```bash
 npm install
+npm reset # Only necessary if you have previously run the CLI app
+npm rebuild
 npm run electron
+```
+
+**Run the CLI**
+
+```bash
+npm install
+npm reset # Only necessary if you have previously run the desktop app
+npm run build:cli:watch
+```
+
+You can then run commands from the `./build-cli` folder:
+
+```bash
+node ./build-cli/bwdc.js --help
 ```
 
 # Contribute
