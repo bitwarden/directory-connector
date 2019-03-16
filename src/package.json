@@ -9,7 +9,7 @@
   "main": "main.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitwarden/desktop"
+    "url": "https://github.com/bitwarden/directory-connector"
   },
   "dependencies": {
     "electron-log": "2.2.17",
