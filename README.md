@@ -29,8 +29,8 @@ The application is written using Electron with Angular and installs on Windows, 
 
 ```bash
 npm install
-npm reset # Only necessary if you have previously run the CLI app
-npm rebuild
+npm run reset # Only necessary if you have previously run the CLI app
+npm run rebuild
 npm run electron
 ```
 
@@ -38,7 +38,7 @@ npm run electron
 
 ```bash
 npm install
-npm reset # Only necessary if you have previously run the desktop app
+npm run reset # Only necessary if you have previously run the desktop app
 npm run build:cli:watch
 ```
 
