@@ -4,6 +4,7 @@ import * as program from 'commander';
 import { Main } from './bwdc';
 
 import { ConfigCommand } from './commands/config.command';
+import { TestCommand } from './commands/test.command';
 
 import { UpdateCommand } from 'jslib/cli/commands/update.command';
 
@@ -57,9 +58,29 @@ export class Program {
         program.on('--help', () => {
             writeLn('\n  Examples:');
             writeLn('');
-            writeLn('    bwdc login');
+            writeLn('    bwdc test');
+            writeLn('    bwdc config server bitwarden.com');
+            writeLn('    bwdc update');
             writeLn('', true);
         });
+
+        program
+            .command('test')
+            .description('Test a simulated sync.')
+            .option('-l, --last', 'Since the last successful sync.')
+            .on('--help', () => {
+                writeLn('\n  Examples:');
+                writeLn('');
+                writeLn('    bwdc test');
+                writeLn('    bwdc test --last');
+                writeLn('', true);
+            })
+            .action(async (cmd) => {
+                await this.exitIfNotAuthed();
+                const command = new TestCommand(this.main.syncService, this.main.i18nService);
+                const response = await command.run(cmd);
+                this.processResponse(response);
+            });
 
         program
             .command('config <setting> <value>')
@@ -185,14 +206,6 @@ export class Program {
             out += message.message;
         }
         return out.trim() === '' ? null : out;
-    }
-
-    private async exitIfLocked() {
-        await this.exitIfNotAuthed();
-        const hasKey = await this.main.cryptoService.hasKey();
-        if (!hasKey) {
-            this.processResponse(Response.error('Vault is locked.'), true);
-        }
     }
 
     private async exitIfAuthed() {
