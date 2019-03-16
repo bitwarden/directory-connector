@@ -129,5 +129,10 @@ export class Main {
     }
 }
 
-const main = new Main();
-main.run();
+if (!(process as any).pkg || fs.existsSync('./keytar.node')) {
+    const main = new Main();
+    main.run();
+} else {
+    // tslint:disable-next-line
+    console.error('The keytar.node dependency must be in the same directory as bwdc.');
+}
