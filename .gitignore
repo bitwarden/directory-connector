@@ -7,6 +7,7 @@ dist/
 css/
 *.crx
 *.pem
+build-cli/
 build/
 yarn-error.log
 .DS_Store
