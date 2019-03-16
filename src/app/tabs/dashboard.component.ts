@@ -12,17 +12,15 @@ import { I18nService } from 'jslib/abstractions/i18n.service';
 import { MessagingService } from 'jslib/abstractions/messaging.service';
 import { StateService } from 'jslib/abstractions/state.service';
 
-import { AzureDirectoryService } from '../../services/azure-directory.service';
-import { GSuiteDirectoryService } from '../../services/gsuite-directory.service';
-import { LdapDirectoryService } from '../../services/ldap-directory.service';
 import { SyncService } from '../../services/sync.service';
 
-import { Entry } from '../../models/entry';
 import { GroupEntry } from '../../models/groupEntry';
 import { UserEntry } from '../../models/userEntry';
 import { ConfigurationService } from '../../services/configuration.service';
 
 import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
+
+import { ConnectorUtils } from '../../utils';
 
 const BroadcasterSubscriptionId = 'DashboardComponent';
 
@@ -105,60 +103,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.simPromise = new Promise(async (resolve, reject) => {
             try {
-                const result = await this.syncService.sync(!this.simSinceLast, true);
-                if (result[0] != null) {
-                    this.simGroups = result[0];
-                }
-                if (result[1] != null) {
-                    this.simUsers = result[1];
-                }
+                const result = await ConnectorUtils.simulate(this.syncService, this.i18nService, this.simSinceLast);
+                this.simGroups = result.groups;
+                this.simUsers = result.users;
+                this.simEnabledUsers = result.enabledUsers;
+                this.simDisabledUsers = result.disabledUsers;
+                this.simDeletedUsers = result.deletedUsers;
             } catch (e) {
                 this.simGroups = null;
                 this.simUsers = null;
-                reject(e || this.i18nService.t('syncError'));
+                reject(e);
                 return;
             }
-
-            const userMap = new Map<string, UserEntry>();
-            this.sort(this.simUsers);
-            for (const u of this.simUsers) {
-                userMap.set(u.externalId, u);
-                if (u.deleted) {
-                    this.simDeletedUsers.push(u);
-                } else if (u.disabled) {
-                    this.simDisabledUsers.push(u);
-                } else {
-                    this.simEnabledUsers.push(u);
-                }
-            }
-
-            this.sort(this.simGroups);
-            for (const g of this.simGroups) {
-                if (g.userMemberExternalIds == null) {
-                    continue;
-                }
-
-                const anyG = (g as any);
-                anyG.users = [];
-                for (const uid of g.userMemberExternalIds) {
-                    if (userMap.has(uid)) {
-                        anyG.users.push(userMap.get(uid));
-                    } else {
-                        anyG.users.push({ displayName: uid });
-                    }
-                }
-
-                this.sort(anyG.users);
-            }
-
             resolve();
-        });
-    }
-
-    private sort(arr: Entry[]) {
-        arr.sort((a, b) => {
-            return this.i18nService.collator ? this.i18nService.collator.compare(a.displayName, b.displayName) :
-                a.displayName.localeCompare(b.displayName);
         });
     }
 
