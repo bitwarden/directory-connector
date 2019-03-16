@@ -4,14 +4,12 @@ import * as program from 'commander';
 import { Main } from './bwdc';
 
 import { ConfigCommand } from './commands/config.command';
+import { SyncCommand } from './commands/sync.command';
 import { TestCommand } from './commands/test.command';
 
 import { UpdateCommand } from 'jslib/cli/commands/update.command';
 
-import { Response } from 'jslib/cli/models/response';
-import { ListResponse } from 'jslib/cli/models/response/listResponse';
-import { MessageResponse } from 'jslib/cli/models/response/messageResponse';
-import { StringResponse } from 'jslib/cli/models/response/stringResponse';
+import { BaseProgram } from 'jslib/cli/baseProgram';
 
 const chalk = chk.default;
 const writeLn = (s: string, finalLine: boolean = false) => {
@@ -22,8 +20,10 @@ const writeLn = (s: string, finalLine: boolean = false) => {
     }
 };
 
-export class Program {
-    constructor(private main: Main) { }
+export class Program extends BaseProgram {
+    constructor(private main: Main) {
+        super(main.userService, writeLn);
+    }
 
     run() {
         program
@@ -59,7 +59,8 @@ export class Program {
             writeLn('\n  Examples:');
             writeLn('');
             writeLn('    bwdc test');
-            writeLn('    bwdc config server bitwarden.com');
+            writeLn('    bwdc sync');
+            writeLn('    bwdc config server https://bw.company.com');
             writeLn('    bwdc update');
             writeLn('', true);
         });
@@ -83,6 +84,22 @@ export class Program {
             });
 
         program
+            .command('sync')
+            .description('Sync the directory.')
+            .on('--help', () => {
+                writeLn('\n  Examples:');
+                writeLn('');
+                writeLn('    bwdc sync');
+                writeLn('', true);
+            })
+            .action(async (cmd) => {
+                await this.exitIfNotAuthed();
+                const command = new SyncCommand(this.main.syncService, this.main.i18nService);
+                const response = await command.run(cmd);
+                this.processResponse(response);
+            });
+
+        program
             .command('config <setting> <value>')
             .description('Configure CLI settings.')
             .on('--help', () => {
@@ -97,7 +114,7 @@ export class Program {
                 writeLn('', true);
             })
             .action(async (setting, value, cmd) => {
-                const command = new ConfigCommand(this.main.environmentService);
+                const command = new ConfigCommand(this.main.environmentService, this.main.i18nService);
                 const response = await command.run(setting, value, cmd);
                 this.processResponse(response);
             });
@@ -129,97 +146,6 @@ export class Program {
 
         if (process.argv.slice(2).length === 0) {
             program.outputHelp();
-        }
-    }
-
-    private processResponse(response: Response, exitImmediately = false) {
-        if (!response.success) {
-            if (process.env.BW_QUIET !== 'true') {
-                if (process.env.BW_RESPONSE === 'true') {
-                    writeLn(this.getJson(response), true);
-                } else {
-                    writeLn(chalk.redBright(response.message), true);
-                }
-            }
-            if (exitImmediately) {
-                process.exit(1);
-            } else {
-                process.exitCode = 1;
-            }
-            return;
-        }
-
-        if (process.env.BW_RESPONSE === 'true') {
-            writeLn(this.getJson(response), true);
-        } else if (response.data != null) {
-            let out: string = null;
-            if (response.data.object === 'string') {
-                const data = (response.data as StringResponse).data;
-                if (data != null) {
-                    out = data;
-                }
-            } else if (response.data.object === 'list') {
-                out = this.getJson((response.data as ListResponse).data);
-            } else if (response.data.object === 'message') {
-                out = this.getMessage(response);
-            } else {
-                out = this.getJson(response.data);
-            }
-
-            if (out != null && process.env.BW_QUIET !== 'true') {
-                writeLn(out, true);
-            }
-        }
-        if (exitImmediately) {
-            process.exit(0);
-        } else {
-            process.exitCode = 0;
-        }
-    }
-
-    private getJson(obj: any): string {
-        if (process.env.BW_PRETTY === 'true') {
-            return JSON.stringify(obj, null, '  ');
-        } else {
-            return JSON.stringify(obj);
-        }
-    }
-
-    private getMessage(response: Response) {
-        const message = (response.data as MessageResponse);
-        if (process.env.BW_RAW === 'true' && message.raw != null) {
-            return message.raw;
-        }
-
-        let out: string = '';
-        if (message.title != null) {
-            if (message.noColor) {
-                out = message.title;
-            } else {
-                out = chalk.greenBright(message.title);
-            }
-        }
-        if (message.message != null) {
-            if (message.title != null) {
-                out += '\n';
-            }
-            out += message.message;
-        }
-        return out.trim() === '' ? null : out;
-    }
-
-    private async exitIfAuthed() {
-        const authed = await this.main.userService.isAuthenticated();
-        if (authed) {
-            const email = await this.main.userService.getEmail();
-            this.processResponse(Response.error('You are already logged in as ' + email + '.'), true);
-        }
-    }
-
-    private async exitIfNotAuthed() {
-        const authed = await this.main.userService.isAuthenticated();
-        if (!authed) {
-            this.processResponse(Response.error('You are not logged in.'), true);
         }
     }
 }

@@ -516,6 +516,9 @@
     "noGroups": {
         "message": "No groups to list."
     },
+    "syncingComplete": {
+        "message": "Syncing complete."
+    },
     "syncingStarted": {
         "message": "Syncing started."
     },
@@ -565,5 +568,14 @@
     },
     "hideToTray": {
         "message": "Hide to Tray"
+    },
+    "savedSetting": {
+        "message": "Saved setting `$SETTING_NAME$`.",
+        "placeholders": {
+            "setting_name": {
+                "content": "$1",
+                "example": "server"
+            }
+        }
     }
 }
