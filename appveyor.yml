@@ -21,6 +21,7 @@ init:
 - sh: sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev rpm
 - ps: |
     if($isWindows) {
+      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
       Install-Product node 10
       $env:PATH = "C:\Program Files (x86)\Resource Hacker;${env:PATH}"
       if(Test-Path -Path $env:WIN_PKG) {
@@ -44,6 +45,34 @@ install:
       cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
       .\make-versioninfo.ps1
     }
+- ps: |
+    if($isWindows) {
+      #$keytarVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).dependencies.keytar
+      $keytarVersion = "4.3.0"
+      $nodeModVersion = node -e "console.log(process.config.variables.node_module_version)"
+      $keytarTar = "keytar-v${keytarVersion}-node-v${nodeModVersion}-{0}-x64.tar"
+      $keytarTarGz = "${keytarTar}.gz"
+      $keytarUrl = "https://github.com/atom/node-keytar/releases/download/v${keytarVersion}/${keytarTarGz}"
+      $keytarOutDir = ".\keytar\{0}"
+
+      New-Item -ItemType directory -Path $($keytarOutDir -f "windows") | Out-Null
+      New-Item -ItemType directory -Path $($keytarOutDir -f "macos") | Out-Null
+      New-Item -ItemType directory -Path $($keytarOutDir -f "linux") | Out-Null
+
+      Invoke-RestMethod -Uri $($keytarUrl -f "darwin") `
+        -OutFile $($($keytarOutDir -f "macos") + "\" + $($keytarTarGz -f "darwin"))
+      Invoke-RestMethod -Uri $($keytarUrl -f "linux") `
+        -OutFile $($($keytarOutDir -f "linux") + "\" + $($keytarTarGz -f "linux"))
+      Invoke-RestMethod -Uri $($keytarUrl -f "win32") `
+        -OutFile $($($keytarOutDir -f "windows") + "\" + $($keytarTarGz -f "win32"))
+
+      7z x -so $($($keytarOutDir -f "macos") + "\" + $($keytarTarGz -f "darwin")) | `
+        7z x -aoa -si -ttar -o"$($keytarOutDir -f "macos")"
+      7z x -so $($($keytarOutDir -f "linux") + "\" + $($keytarTarGz -f "linux")) | `
+        7z x -aoa -si -ttar -o"$($keytarOutDir -f "linux")"
+      7z x -so $($($keytarOutDir -f "windows") + "\" + $($keytarTarGz -f "win32")) | `
+        7z x -aoa -si -ttar -o"$($keytarOutDir -f "windows")"
+    }
 
 before_build:
 - node --version
@@ -62,9 +91,9 @@ build_script:
 - cmd: npm run dist:win:ci
 - cmd: npm run reset
 - cmd: npm run dist:cli
-- cmd: 7z a ./dist-cli/bwdc-windows-%PACKAGE_VERSION%.zip ./dist-cli/windows/bwdc.exe
-- cmd: 7z a ./dist-cli/bwdc-macos-%PACKAGE_VERSION%.zip ./dist-cli/macos/bwdc
-- cmd: 7z a ./dist-cli/bwdc-linux-%PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc
+- cmd: 7z a ./dist-cli/bwdc-windows-%PACKAGE_VERSION%.zip ./dist-cli/windows/bwdc.exe ./keytar/windows/build/Release/keytar.node
+- cmd: 7z a ./dist-cli/bwdc-macos-%PACKAGE_VERSION%.zip ./dist-cli/macos/bwdc ./keytar/macos/build/Release/keytar.node
+- cmd: 7z a ./dist-cli/bwdc-linux-%PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc ./keytar/linux/build/Release/keytar.node
 - ps: |
     if($isWindows) {
       checksum -f="./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" `
