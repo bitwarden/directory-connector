@@ -40,6 +40,7 @@ install:
     if($isWindows) {
       choco install reshack --no-progress
       choco install cloc --no-progress
+      choco install checksum --no-progress
       cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
       .\make-versioninfo.ps1
     }
