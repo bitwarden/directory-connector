@@ -129,6 +129,9 @@ export class Main {
     }
 }
 
+console.log('non pkg: ' + !(process as any).pkg);
+console.log('exists: ' + fs.existsSync('./keytar.node'));
+
 if (!(process as any).pkg || fs.existsSync('./keytar.node')) {
     const main = new Main();
     main.run();
