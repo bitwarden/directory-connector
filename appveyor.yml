@@ -120,7 +120,7 @@ deploy:
   release: $(RELEASE_NAME)
   provider: GitHub
   auth_token: $(GH_TOKEN)
-  artifact: /.*\.zip/,/.*\.txt/
+  artifact: /.*\.(zip|txt)/,
   force_update: true
   on:
     branch: master
