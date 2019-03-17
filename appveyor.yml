@@ -53,17 +53,14 @@ build_script:
     if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
     if defined VER_INFO ResourceHacker -open version-info.rc -save version-info.res -action compile
     if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
-- npm install
-- npm run rebuild
-- ps: |
-    if($isLinux) {
-      npm run dist:lin
-    }
-    else {
-      npm run dist:win:ci
-      npm run reset
-      npm run dist:cli
-    }
+- sh: npm install
+- sh: npm run rebuild
+- sh: npm run dist:lin
+- cmd: npm install
+- cmd: npm run rebuild
+- cmd: npm run dist:win:ci
+- cmd: npm run reset
+- cmd: npm run dist:cli
 - cmd: 7z a ./dist-cli/bwdc-windows-%PACKAGE_VERSION%.zip ./dist-cli/windows/bwdc.exe
 - cmd: 7z a ./dist-cli/bwdc-macos-%PACKAGE_VERSION%.zip ./dist-cli/macos/bwdc
 - cmd: 7z a ./dist-cli/bwdc-linux-%PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc
