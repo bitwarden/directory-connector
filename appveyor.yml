@@ -67,12 +67,12 @@ build_script:
 - cmd: 7z a ./dist-cli/bwdc-linux-%PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc
 - ps: |
     if($isWindows) {
-      checksum -f="./dist/bwdc-windows-${env:PACKAGE_VERSION}.zip" `
-        -t sha256 | Out-File ./dist/bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
-      checksum -f="./dist/bwdc-macos-${env:PACKAGE_VERSION}.zip" `
-        -t sha256 | Out-File ./dist/bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
-      checksum -f="./dist/bwdc-linux-${env:PACKAGE_VERSION}.zip" `
-        -t sha256 | Out-File ./dist/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
+      checksum -f="./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" `
+        -t sha256 | Out-File ./dist-cli/bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
+      checksum -f="./dist-cli/bwdc-macos-${env:PACKAGE_VERSION}.zip" `
+        -t sha256 | Out-File ./dist-cli/bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
+      checksum -f="./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip" `
+        -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
     }
 - ps: |
     if($isLinux) {
@@ -81,12 +81,12 @@ build_script:
     else {
       Push-AppveyorArtifact .\dist\Bitwarden-Connector-Portable-${env:PACKAGE_VERSION}.exe
       Push-AppveyorArtifact .\dist\Bitwarden-Connector-Installer-${env:PACKAGE_VERSION}.exe
-      Push-AppveyorArtifact .\dist\bwdc-windows-${env:PACKAGE_VERSION}.zip
-      Push-AppveyorArtifact .\dist\bwdc-mac-${env:PACKAGE_VERSION}.zip
-      Push-AppveyorArtifact .\dist\bwdc-linux-${env:PACKAGE_VERSION}.zip
-      Push-AppveyorArtifact .\dist\bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
-      Push-AppveyorArtifact .\dist\bwdc-mac-sha256-${env:PACKAGE_VERSION}.txt
-      Push-AppveyorArtifact .\dist\bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
+      Push-AppveyorArtifact .\dist-cli\bwdc-windows-${env:PACKAGE_VERSION}.zip
+      Push-AppveyorArtifact .\dist-cli\bwdc-mac-${env:PACKAGE_VERSION}.zip
+      Push-AppveyorArtifact .\dist-cli\bwdc-linux-${env:PACKAGE_VERSION}.zip
+      Push-AppveyorArtifact .\dist-cli\bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
+      Push-AppveyorArtifact .\dist-cli\bwdc-mac-sha256-${env:PACKAGE_VERSION}.txt
+      Push-AppveyorArtifact .\dist-cli\bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
     }
 
 on_finish:
