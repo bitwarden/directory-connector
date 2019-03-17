@@ -25,6 +25,7 @@ init:
       Install-Product node 10
       $env:PATH = "C:\Program Files (x86)\Resource Hacker;${env:PATH}"
       if(Test-Path -Path $env:WIN_PKG) {
+        echo "THERE IS A WIN_PKG"
         $env:VER_INFO = "true"
       }
     }
@@ -48,10 +49,9 @@ install:
 - ps: |
     if($isWindows) {
       #$keytarVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).dependencies.keytar
-      $keytarVersion = "4.3.0"
+      $keytarVersion = "4.4.1"
       $nodeModVersion = node -e "console.log(process.config.variables.node_module_version)"
-      $keytarTar = "keytar-v${keytarVersion}-node-v${nodeModVersion}-{0}-x64.tar"
-      $keytarTarGz = "${keytarTar}.gz"
+      $keytarTarGz = "keytar-v${keytarVersion}-node-v${nodeModVersion}-{0}-x64.tar.gz"
       $keytarUrl = "https://github.com/atom/node-keytar/releases/download/v${keytarVersion}/${keytarTarGz}"
       $keytarOutDir = ".\keytar\{0}"
 
