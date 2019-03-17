@@ -129,13 +129,5 @@ export class Main {
     }
 }
 
-console.log('non pkg: ' + !(process as any).pkg);
-console.log('exists: ' + fs.existsSync('./keytar.node'));
-
-if (!(process as any).pkg || fs.existsSync('./keytar.node')) {
-    const main = new Main();
-    main.run();
-} else {
-    // tslint:disable-next-line
-    console.error('The keytar.node dependency must be in the same directory as bwdc.');
-}
+const main = new Main();
+main.run();
