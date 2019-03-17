@@ -81,12 +81,12 @@ build_script:
     else {
       Push-AppveyorArtifact .\dist\Bitwarden-Connector-Portable-${env:PACKAGE_VERSION}.exe
       Push-AppveyorArtifact .\dist\Bitwarden-Connector-Installer-${env:PACKAGE_VERSION}.exe
-      Push-AppveyorArtifact .\dist\bwdc-windows-%PACKAGE_VERSION%.zip
-      Push-AppveyorArtifact .\dist\bwdc-mac-%PACKAGE_VERSION%.zip
-      Push-AppveyorArtifact .\dist\bwdc-linux-%PACKAGE_VERSION%.zip
-      Push-AppveyorArtifact .\dist\bwdc-windows-sha256-%PACKAGE_VERSION%.txt
-      Push-AppveyorArtifact .\dist\bwdc-mac-sha256-%PACKAGE_VERSION%.txt
-      Push-AppveyorArtifact .\dist\bwdc-linux-sha256-%PACKAGE_VERSION%.txt
+      Push-AppveyorArtifact .\dist\bwdc-windows-${env:PACKAGE_VERSION}.zip
+      Push-AppveyorArtifact .\dist\bwdc-mac-${env:PACKAGE_VERSION}.zip
+      Push-AppveyorArtifact .\dist\bwdc-linux-${env:PACKAGE_VERSION}.zip
+      Push-AppveyorArtifact .\dist\bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
+      Push-AppveyorArtifact .\dist\bwdc-mac-sha256-${env:PACKAGE_VERSION}.txt
+      Push-AppveyorArtifact .\dist\bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
     }
 
 on_finish:
