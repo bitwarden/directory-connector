@@ -48,7 +48,7 @@ install:
 - ps: |
     if($isWindows) {
       #$keytarVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).dependencies.keytar
-      $keytarVersion = "4.4.1"
+      $keytarVersion = "4.3.0"
       $nodeModVersion = node -e "console.log(process.config.variables.node_module_version)"
       $keytarTar = "keytar-v${keytarVersion}-node-v${nodeModVersion}-{0}-x64.tar"
       $keytarTarGz = "${keytarTar}.gz"
