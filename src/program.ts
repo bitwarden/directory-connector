@@ -150,15 +150,26 @@ export class Program extends BaseProgram {
                 writeLn('\n  Settings:');
                 writeLn('');
                 writeLn('    server - On-premise hosted installation URL.');
+                writeLn('    directory - The type of directory to use.');
+                writeLn('    ldap.password - The password for connection to this LDAP server.');
+                writeLn('    azure.key - The Azure AD secret key.');
+                writeLn('    gsuite.key - The G Suite private key.');
+                writeLn('    okta.token - The Okta token.');
                 writeLn('');
                 writeLn('  Examples:');
                 writeLn('');
                 writeLn('    bwdc config server https://bw.company.com');
                 writeLn('    bwdc config server bitwarden.com');
+                writeLn('    bwdc config directory 1');
+                writeLn('    bwdc config ldap.password <password>');
+                writeLn('    bwdc config azure.key <key>');
+                writeLn('    bwdc config gsuite.key <key>');
+                writeLn('    bwdc config okta.token <token>');
                 writeLn('', true);
             })
             .action(async (setting, value, cmd) => {
-                const command = new ConfigCommand(this.main.environmentService, this.main.i18nService);
+                const command = new ConfigCommand(this.main.environmentService, this.main.i18nService,
+                    this.main.configurationService);
                 const response = await command.run(setting, value, cmd);
                 this.processResponse(response);
             });

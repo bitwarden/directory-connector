@@ -21,6 +21,8 @@ import { LdapConfiguration } from '../../models/ldapConfiguration';
 import { OktaConfiguration } from '../../models/oktaConfiguration';
 import { SyncConfiguration } from '../../models/syncConfiguration';
 
+import { ConnectorUtils } from '../../utils';
+
 @Component({
     selector: 'app-settings',
     templateUrl: 'settings.component.html',
@@ -76,32 +78,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     async submit() {
-        if (this.ldap.ad) {
-            this.sync.creationDateAttribute = 'whenCreated';
-            this.sync.revisionDateAttribute = 'whenChanged';
-            this.sync.emailPrefixAttribute = 'sAMAccountName';
-            this.sync.memberAttribute = 'member';
-            this.sync.userObjectClass = 'person';
-            this.sync.groupObjectClass = 'group';
-            this.sync.userEmailAttribute = 'mail';
-            this.sync.groupNameAttribute = 'name';
-
-            if (this.sync.groupPath == null) {
-                this.sync.groupPath = 'CN=Users';
-            }
-            if (this.sync.userPath == null) {
-                this.sync.userPath = 'CN=Users';
-            }
-        }
-
-        if (this.sync.interval != null) {
-            if (this.sync.interval <= 0) {
-                this.sync.interval = null;
-            } else if (this.sync.interval < 5) {
-                this.sync.interval = 5;
-            }
-        }
-
+        ConnectorUtils.adjustConfigForSave(this.ldap, this.sync);
         await this.configurationService.saveOrganizationId(this.organizationId);
         await this.configurationService.saveDirectoryType(this.directory);
         await this.configurationService.saveDirectory(DirectoryType.Ldap, this.ldap);

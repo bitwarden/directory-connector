@@ -3,7 +3,9 @@ import { I18nService } from 'jslib/abstractions/i18n.service';
 import { SyncService } from './services/sync.service';
 
 import { Entry } from './models/entry';
+import { LdapConfiguration } from './models/ldapConfiguration';
 import { SimResult } from './models/simResult';
+import { SyncConfiguration } from './models/syncConfiguration';
 import { UserEntry } from './models/userEntry';
 
 export class ConnectorUtils {
@@ -59,6 +61,34 @@ export class ConnectorUtils {
 
             resolve(simResult);
         });
+    }
+
+    static adjustConfigForSave(ldap: LdapConfiguration, sync: SyncConfiguration) {
+        if (ldap.ad) {
+            sync.creationDateAttribute = 'whenCreated';
+            sync.revisionDateAttribute = 'whenChanged';
+            sync.emailPrefixAttribute = 'sAMAccountName';
+            sync.memberAttribute = 'member';
+            sync.userObjectClass = 'person';
+            sync.groupObjectClass = 'group';
+            sync.userEmailAttribute = 'mail';
+            sync.groupNameAttribute = 'name';
+
+            if (sync.groupPath == null) {
+                sync.groupPath = 'CN=Users';
+            }
+            if (sync.userPath == null) {
+                sync.userPath = 'CN=Users';
+            }
+        }
+
+        if (sync.interval != null) {
+            if (sync.interval <= 0) {
+                sync.interval = null;
+            } else if (sync.interval < 5) {
+                sync.interval = 5;
+            }
+        }
     }
 
     private static sortEntries(arr: Entry[], i18nService: I18nService) {
