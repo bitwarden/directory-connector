@@ -122,10 +122,10 @@
     }
   },
   "bin": {
-      "bwdc": "./build-cli/bwdc.js"
+    "bwdc": "./build-cli/bwdc.js"
   },
   "pkg": {
-      "assets": "./build-cli/**/*"
+    "assets": "./build-cli/**/*"
   },
   "devDependencies": {
     "@angular/compiler-cli": "^7.2.1",
@@ -137,6 +137,7 @@
     "@types/ldapjs": "^1.0.3",
     "@types/lowdb": "^1.0.5",
     "@types/lunr": "^2.1.6",
+    "@types/node": "^10.9.4",
     "@types/node-fetch": "^2.1.2",
     "@types/node-forge": "^0.7.5",
     "@types/papaparse": "^4.5.3",
