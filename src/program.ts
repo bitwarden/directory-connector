@@ -3,6 +3,7 @@ import * as program from 'commander';
 
 import { Main } from './bwdc';
 
+import { ClearCacheCommand } from './commands/clearCache.command';
 import { ConfigCommand } from './commands/config.command';
 import { SyncCommand } from './commands/sync.command';
 import { TestCommand } from './commands/test.command';
@@ -144,7 +145,7 @@ export class Program extends BaseProgram {
 
         program
             .command('config <setting> <value>')
-            .description('Configure CLI settings.')
+            .description('Configure settings.')
             .on('--help', () => {
                 writeLn('\n  Settings:');
                 writeLn('');
@@ -159,6 +160,21 @@ export class Program extends BaseProgram {
             .action(async (setting, value, cmd) => {
                 const command = new ConfigCommand(this.main.environmentService, this.main.i18nService);
                 const response = await command.run(setting, value, cmd);
+                this.processResponse(response);
+            });
+
+        program
+            .command('clear-cache')
+            .description('Clear the sync cache.')
+            .on('--help', () => {
+                writeLn('\n  Examples:');
+                writeLn('');
+                writeLn('    bwdc clear-cache');
+                writeLn('', true);
+            })
+            .action(async (cmd) => {
+                const command = new ClearCacheCommand(this.main.configurationService, this.main.i18nService);
+                const response = await command.run(cmd);
                 this.processResponse(response);
             });
 
