@@ -7,6 +7,8 @@ import { ConfigCommand } from './commands/config.command';
 import { SyncCommand } from './commands/sync.command';
 import { TestCommand } from './commands/test.command';
 
+import { LoginCommand } from 'jslib/cli/commands/login.command';
+import { LogoutCommand } from 'jslib/cli/commands/logout.command';
 import { UpdateCommand } from 'jslib/cli/commands/update.command';
 
 import { BaseProgram } from 'jslib/cli/baseProgram';
@@ -64,6 +66,47 @@ export class Program extends BaseProgram {
             writeLn('    bwdc update');
             writeLn('', true);
         });
+
+        program
+            .command('login [email] [password]')
+            .description('Log into a user account.')
+            .option('--method <method>', 'Two-step login method.')
+            .option('--code <code>', 'Two-step login code.')
+            .on('--help', () => {
+                writeLn('\n  Notes:');
+                writeLn('');
+                writeLn('    See docs for valid `method` enum values.');
+                writeLn('');
+                writeLn('  Examples:');
+                writeLn('');
+                writeLn('    bw login');
+                writeLn('    bw login john@example.com myPassword321');
+                writeLn('    bw login john@example.com myPassword321 --method 1 --code 249213');
+                writeLn('', true);
+            })
+            .action(async (email: string, password: string, cmd: program.Command) => {
+                await this.exitIfAuthed();
+                const command = new LoginCommand(this.main.authService, this.main.apiService, this.main.i18nService);
+                const response = await command.run(email, password, cmd);
+                this.processResponse(response);
+            });
+
+        program
+            .command('logout')
+            .description('Log out of the current user account.')
+            .on('--help', () => {
+                writeLn('\n  Examples:');
+                writeLn('');
+                writeLn('    bw logout');
+                writeLn('', true);
+            })
+            .action(async (cmd) => {
+                await this.exitIfNotAuthed();
+                const command = new LogoutCommand(this.main.authService, this.main.i18nService,
+                    async () => await this.main.logout());
+                const response = await command.run(cmd);
+                this.processResponse(response);
+            });
 
         program
             .command('test')
@@ -136,7 +179,8 @@ export class Program extends BaseProgram {
                 writeLn('', true);
             })
             .action(async (cmd) => {
-                const command = new UpdateCommand(this.main.platformUtilsService, 'directory-connector', 'bwdc');
+                const command = new UpdateCommand(this.main.platformUtilsService, this.main.i18nService,
+                    'directory-connector', 'bwdc', false);
                 const response = await command.run(cmd);
                 this.processResponse(response);
             });
