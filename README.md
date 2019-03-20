@@ -43,7 +43,7 @@ bwdc config --help
 
 We provide detailed documentation and examples for using the Directory Connector CLI in our help center at https://help.bitwarden.com/article/directory-sync/#command-line-interface.
 
-# Build/Run
+## Build/Run
 
 **Requirements**
 
@@ -73,7 +73,7 @@ You can then run commands from the `./build-cli` folder:
 node ./build-cli/bwdc.js --help
 ```
 
-# Contribute
+## Contribute
 
 Code contributions are welcome! Please commit any pull requests against the `master` branch. Learn more about how to contribute by reading the [`CONTRIBUTING.md`](CONTRIBUTING.md) file.
 
