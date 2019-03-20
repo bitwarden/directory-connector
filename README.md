@@ -18,7 +18,32 @@ The application is written using Electron with Angular and installs on Windows, 
 
 ![Directory Connector](https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/directory-connector-macos.png "Dashboard")
 
-# Build/Run
+## Command-line Interface
+
+A command-line interface tool is also available for the Bitwarden Directory Connector. The Directory Connector CLI (`bwdc`) is written with TypeScript and Node.js and can also be run on Windows, macOS, and Linux distributions.
+
+## CLI Documentation
+
+The Bitwarden Directory Connector CLI is self-documented with `--help` content and examples for every command. You should start exploring the CLI by using the global `--help` option:
+
+```bash
+bwdc --help
+```
+
+This option will list all available commands that you can use with the Directory Connector CLI.
+
+Additionally, you can run the `--help` option on a specific command to learn more about it:
+
+```
+bwdc test --help
+bwdc config --help
+```
+
+**Detailed Documentation**
+
+We provide detailed documentation and examples for using the Directory Connector CLI in our help center at https://help.bitwarden.com/article/directory-sync/#command-line-interface.
+
+## Build/Run
 
 **Requirements**
 
@@ -48,7 +73,7 @@ You can then run commands from the `./build-cli` folder:
 node ./build-cli/bwdc.js --help
 ```
 
-# Contribute
+## Contribute
 
 Code contributions are welcome! Please commit any pull requests against the `master` branch. Learn more about how to contribute by reading the [`CONTRIBUTING.md`](CONTRIBUTING.md) file.
 
