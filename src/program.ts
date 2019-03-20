@@ -1,10 +1,12 @@
 import * as chk from 'chalk';
 import * as program from 'commander';
+import * as path from 'path';
 
 import { Main } from './bwdc';
 
 import { ClearCacheCommand } from './commands/clearCache.command';
 import { ConfigCommand } from './commands/config.command';
+import { LastSyncCommand } from './commands/lastSync.command';
 import { SyncCommand } from './commands/sync.command';
 import { TestCommand } from './commands/test.command';
 
@@ -13,6 +15,9 @@ import { LogoutCommand } from 'jslib/cli/commands/logout.command';
 import { UpdateCommand } from 'jslib/cli/commands/update.command';
 
 import { BaseProgram } from 'jslib/cli/baseProgram';
+
+import { Response } from 'jslib/cli/models/response';
+import { StringResponse } from 'jslib/cli/models/response/stringResponse';
 
 const chalk = chk.default;
 const writeLn = (s: string, finalLine: boolean = false) => {
@@ -61,8 +66,10 @@ export class Program extends BaseProgram {
         program.on('--help', () => {
             writeLn('\n  Examples:');
             writeLn('');
+            writeLn('    bwdc login');
             writeLn('    bwdc test');
             writeLn('    bwdc sync');
+            writeLn('    bwdc last-sync');
             writeLn('    bwdc config server https://bw.company.com');
             writeLn('    bwdc update');
             writeLn('', true);
@@ -144,6 +151,27 @@ export class Program extends BaseProgram {
             });
 
         program
+            .command('last-sync <object>')
+            .description('Get the last successful sync date.')
+            .on('--help', () => {
+                writeLn('\n  Notes:');
+                writeLn('');
+                writeLn('    Returns empty response if no sync has been performed for the given object.');
+                writeLn('');
+                writeLn('  Examples:');
+                writeLn('');
+                writeLn('    bwdc last-sync groups');
+                writeLn('    bwdc last-sync users');
+                writeLn('', true);
+            })
+            .action(async (object: string, cmd: program.Command) => {
+                await this.exitIfNotAuthed();
+                const command = new LastSyncCommand(this.main.configurationService);
+                const response = await command.run(object, cmd);
+                this.processResponse(response);
+            });
+
+        program
             .command('config <setting> <value>')
             .description('Configure settings.')
             .on('--help', () => {
@@ -172,6 +200,20 @@ export class Program extends BaseProgram {
                     this.main.configurationService);
                 const response = await command.run(setting, value, cmd);
                 this.processResponse(response);
+            });
+
+        program
+            .command('data-file')
+            .description('Path to data.json database file.')
+            .on('--help', () => {
+                writeLn('\n  Examples:');
+                writeLn('');
+                writeLn('    bwdc data-file');
+                writeLn('', true);
+            })
+            .action(() => {
+                this.processResponse(
+                    Response.success(new StringResponse(path.join(this.main.dataFilePath, 'data.json'))));
             });
 
         program
