@@ -92,6 +92,14 @@ build_script:
 - cmd: 7z a ./dist-cli/bwdc-linux-%PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc ./keytar/linux/keytar.node
 - ps: |
     if($isWindows) {
+      Expand-Archive -Path "./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
+      $testVersion = Invoke-Expression '& ./test/windows/bwdc.exe -v'
+      if($testVersion -ne $env:PACKAGE_VERSION) {
+        Throw "Version test failed."
+      }
+    }
+- ps: |
+    if($isWindows) {
       checksum -f="./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" `
         -t sha256 | Out-File ./dist-cli/bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
       checksum -f="./dist-cli/bwdc-macos-${env:PACKAGE_VERSION}.zip" `
@@ -112,22 +120,6 @@ build_script:
       Push-AppveyorArtifact .\dist-cli\bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
       Push-AppveyorArtifact .\dist-cli\bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
       Push-AppveyorArtifact .\dist-cli\bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
-    }
-
-test_script:
-- ps: |
-    Expand-Archive -Path "./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
-    Expand-Archive -Path "./dist-cli/bwdc-macos-${env:PACKAGE_VERSION}.zip" -DestinationPath "./test/macos"
-    Expand-Archive -Path "./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip" -DestinationPath "./test/linux"
-    $testVersion = "unset"
-    if($isLinux) {
-      $testVersion = Invoke-Expression '& ./test/linux/bwdc -v'
-    }
-    else {
-      $testVersion = Invoke-Expression '& ./test/windows/bwdc.exe -v'
-    }
-    if($testVersion -ne $env:PACKAGE_VERSION) {
-      Throw "Version test failed."
     }
 
 on_finish:
