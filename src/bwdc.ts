@@ -31,6 +31,7 @@ import { Program } from './program';
 const packageJson = require('./package.json');
 
 export class Main {
+    dataFilePath: string;
     logService: ConsoleLogService;
     messagingService: NoopMessagingService;
     storageService: LowdbStorageService;
@@ -53,21 +54,20 @@ export class Main {
 
     constructor() {
         const applicationName = 'Bitwarden Directory Connector';
-        let p = null;
         if (process.env.BITWARDENCLI_CONNECTOR_APPDATA_DIR) {
-            p = path.resolve(process.env.BITWARDENCLI_CONNECTOR_APPDATA_DIR);
+            this.dataFilePath = path.resolve(process.env.BITWARDENCLI_CONNECTOR_APPDATA_DIR);
         } else if (process.env.BITWARDEN_CONNECTOR_APPDATA_DIR) {
-            p = path.resolve(process.env.BITWARDEN_CONNECTOR_APPDATA_DIR);
+            this.dataFilePath = path.resolve(process.env.BITWARDEN_CONNECTOR_APPDATA_DIR);
         } else if (fs.existsSync(path.join(__dirname, 'bitwarden-connector-appdata'))) {
-            p = path.join(__dirname, 'bitwarden-connector-appdata');
+            this.dataFilePath = path.join(__dirname, 'bitwarden-connector-appdata');
         } else if (process.platform === 'darwin') {
-            p = path.join(process.env.HOME, 'Library/Application Support/' + applicationName);
+            this.dataFilePath = path.join(process.env.HOME, 'Library/Application Support/' + applicationName);
         } else if (process.platform === 'win32') {
-            p = path.join(process.env.APPDATA, applicationName);
+            this.dataFilePath = path.join(process.env.APPDATA, applicationName);
         } else if (process.env.XDG_CONFIG_HOME) {
-            p = path.join(process.env.XDG_CONFIG_HOME, applicationName);
+            this.dataFilePath = path.join(process.env.XDG_CONFIG_HOME, applicationName);
         } else {
-            p = path.join(process.env.HOME, '.config/' + applicationName);
+            this.dataFilePath = path.join(process.env.HOME, '.config/' + applicationName);
         }
 
         this.i18nService = new I18nService('en', './locales');
@@ -75,7 +75,7 @@ export class Main {
         this.logService = new ConsoleLogService(this.platformUtilsService.isDev(),
             (level) => process.env.BWCLI_DEBUG !== 'true' && level <= LogLevelType.Info);
         this.cryptoFunctionService = new NodeCryptoFunctionService();
-        this.storageService = new LowdbStorageService(null, p, true);
+        this.storageService = new LowdbStorageService(null, this.dataFilePath, true);
         this.secureStorageService = new KeytarSecureStorageService(applicationName);
         this.cryptoService = new CryptoService(this.storageService, this.secureStorageService,
             this.cryptoFunctionService);
