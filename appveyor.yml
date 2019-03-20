@@ -47,8 +47,7 @@ install:
     }
 - ps: |
     if($isWindows) {
-      #$keytarVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).dependencies.keytar
-      $keytarVersion = "4.3.0"
+      $keytarVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).dependencies.keytar
       $nodeModVersion = node -e "console.log(process.config.variables.node_module_version)"
       $keytarTar = "keytar-v${keytarVersion}-node-v${nodeModVersion}-{0}-x64.tar"
       $keytarTarGz = "${keytarTar}.gz"
@@ -113,6 +112,22 @@ build_script:
       Push-AppveyorArtifact .\dist-cli\bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
       Push-AppveyorArtifact .\dist-cli\bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
       Push-AppveyorArtifact .\dist-cli\bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
+    }
+
+test_script:
+- ps: |
+    Expand-Archive -Path "./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
+    Expand-Archive -Path "./dist-cli/bwdc-macos-${env:PACKAGE_VERSION}.zip" -DestinationPath "./test/macos"
+    Expand-Archive -Path "./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip" -DestinationPath "./test/linux"
+    $testVersion = "unset"
+    if($isLinux) {
+      $testVersion = Invoke-Expression '& ./test/linux/bwdc -v'
+    }
+    else {
+      $testVersion = Invoke-Expression '& ./test/windows/bwdc.exe -v'
+    }
+    if($testVersion -ne $env:PACKAGE_VERSION) {
+      Throw "Version test failed."
     }
 
 on_finish:
