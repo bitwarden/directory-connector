@@ -28,11 +28,14 @@ init:
         $env:VER_INFO = "true"
       }
     }
+    if($env:APPVEYOR_REPO_TAG -eq "true") {
+      $tagName = $env:APPVEYOR_REPO_TAG_NAME.TrimStart("v")
+      $env:RELEASE_NAME = "Version ${tagName}"
+    }
 
 install:
 - ps: |
     $env:PACKAGE_VERSION = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).version
-    $env:RELEASE_NAME = "Version ${tagName}"
     $env:PROD_DEPLOY = "false"
     if($env:APPVEYOR_REPO_TAG -eq "true" -and $env:APPVEYOR_RE_BUILD -eq "True") {
       $env:PROD_DEPLOY = "true"
