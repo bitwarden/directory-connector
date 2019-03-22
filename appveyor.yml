@@ -9,7 +9,7 @@ branches:
 environment:
   WIN_PKG: C:\Users\appveyor\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
 
-stack: node 10
+stack: node 9
 
 init:
 - ps: |
@@ -22,7 +22,7 @@ init:
 - ps: |
     if($isWindows) {
       [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-      Install-Product node 10
+      Install-Product node 9
       $env:PATH = "C:\Program Files (x86)\Resource Hacker;${env:PATH}"
       if(Test-Path -Path $env:WIN_PKG) {
         $env:VER_INFO = "true"
