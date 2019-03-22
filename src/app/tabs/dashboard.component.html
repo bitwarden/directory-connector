@@ -14,7 +14,8 @@
             <strong *ngIf="syncRunning" class="text-success">{{'running' | i18n}}</strong>
             <strong *ngIf="!syncRunning" class="text-danger">{{'stopped' | i18n}}</strong>
         </p>
-        <button #startBtn (click)="start()" [appApiAction]="startPromise" class="btn btn-primary" [disabled]="startBtn.loading">
+        <button #startBtn (click)="start()" [appApiAction]="startPromise" class="btn btn-primary"
+            [disabled]="startBtn.loading">
             <i class="fa fa-play fa-fw" [hidden]="startBtn.loading"></i>
             <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!startBtn.loading"></i>
             {{'startSync' | i18n}}
@@ -23,7 +24,8 @@
             <i class="fa fa-stop fa-fw"></i>
             {{'stopSync' | i18n}}
         </button>
-        <button #syncBtn (click)="sync()" [appApiAction]="syncPromise" class="btn btn-primary" [disabled]="syncBtn.loading">
+        <button #syncBtn (click)="sync()" [appApiAction]="syncPromise" class="btn btn-primary"
+            [disabled]="syncBtn.loading">
             <i class="fa fa-refresh fa-fw" [ngClass]="{'fa-spin': syncBtn.loading}"></i>
             {{'syncNow' | i18n}}
         </button>
@@ -33,7 +35,8 @@
     <h3 class="card-header">{{'testing' | i18n}}</h3>
     <div class="card-body">
         <p>{{'testingDesc' | i18n}}</p>
-        <button #simBtn (click)="simulate()" [appApiAction]="simPromise" class="btn btn-primary" [disabled]="simBtn.loading">
+        <button #simBtn (click)="simulate()" [appApiAction]="simPromise" class="btn btn-primary"
+            [disabled]="simBtn.loading">
             <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!simBtn.loading"></i>
             <i class="fa fa-bug fa-fw" [hidden]="simBtn.loading"></i>
             {{'testNow' | i18n}}

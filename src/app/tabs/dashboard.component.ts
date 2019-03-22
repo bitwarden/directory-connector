@@ -15,6 +15,7 @@ import { StateService } from 'jslib/abstractions/state.service';
 import { SyncService } from '../../services/sync.service';
 
 import { GroupEntry } from '../../models/groupEntry';
+import { SimResult } from '../../models/simResult';
 import { UserEntry } from '../../models/userEntry';
 import { ConfigurationService } from '../../services/configuration.service';
 
@@ -34,7 +35,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     simEnabledUsers: UserEntry[] = [];
     simDisabledUsers: UserEntry[] = [];
     simDeletedUsers: UserEntry[] = [];
-    simPromise: Promise<any>;
+    simPromise: Promise<SimResult>;
     simSinceLast: boolean = false;
     syncPromise: Promise<[GroupEntry[], UserEntry[]]>;
     startPromise: Promise<any>;
@@ -101,22 +102,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.simDisabledUsers = [];
         this.simDeletedUsers = [];
 
-        this.simPromise = new Promise(async (resolve, reject) => {
-            try {
-                const result = await ConnectorUtils.simulate(this.syncService, this.i18nService, this.simSinceLast);
-                this.simGroups = result.groups;
-                this.simUsers = result.users;
-                this.simEnabledUsers = result.enabledUsers;
-                this.simDisabledUsers = result.disabledUsers;
-                this.simDeletedUsers = result.deletedUsers;
-            } catch (e) {
-                this.simGroups = null;
-                this.simUsers = null;
-                reject(e);
-                return;
-            }
-            resolve();
-        });
+        try {
+            this.simPromise = ConnectorUtils.simulate(this.syncService, this.i18nService, this.simSinceLast);
+            const result = await this.simPromise;
+            this.simGroups = result.groups;
+            this.simUsers = result.users;
+            this.simEnabledUsers = result.enabledUsers;
+            this.simDisabledUsers = result.disabledUsers;
+            this.simDeletedUsers = result.deletedUsers;
+        } catch (e) {
+            this.simGroups = null;
+            this.simUsers = null;
+        }
     }
 
     private async updateLastSync() {
