@@ -24,7 +24,9 @@ init:
       [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
       Install-Product node 10
       $env:PATH = "C:\Program Files (x86)\Resource Hacker;${env:PATH}"
+      echo "testing ver info"
       if(Test-Path -Path $env:WIN_PKG) {
+        echo "do ver info"
         $env:VER_INFO = "true"
       }
     }
@@ -78,6 +80,7 @@ before_build:
 
 build_script:
 - cmd: |
+    if defined VER_INFO echo "Execute ResourceHacker"
     if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
     if defined VER_INFO ResourceHacker -open version-info.rc -save version-info.res -action compile
     if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
@@ -138,17 +141,17 @@ for:
     only:
       - image: Visual Studio 2017
   cache:
-  - '%LOCALAPPDATA%\electron -> appveyor.yml'
-  - '%LOCALAPPDATA%\electron-builder -> appveyor.yml'
-  - 'C:\Users\appveyor\.pkg-cache\ -> package.json'
+  - '%LOCALAPPDATA%\electron'
+  - '%LOCALAPPDATA%\electron-builder'
+  - 'C:\Users\appveyor\.pkg-cache\'
 
 -
   matrix:
     only:
       - image: Ubuntu1804
   cache:
-  - '/home/appveyor/.cache/electron -> appveyor.yml'
-  - '/home/appveyor/.cache/electron-builder -> appveyor.yml'
+  - '/home/appveyor/.cache/electron'
+  - '/home/appveyor/.cache/electron-builder'
 
 deploy:
   tag: $(APPVEYOR_REPO_TAG_NAME)
