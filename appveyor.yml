@@ -78,7 +78,6 @@ before_build:
 
 build_script:
 - cmd: |
-    if defined VER_INFO echo "Execute ResourceHacker"
     if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
     if defined VER_INFO ResourceHacker -open version-info.rc -save version-info.res -action compile
     if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
