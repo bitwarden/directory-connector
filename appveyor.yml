@@ -6,9 +6,6 @@ branches:
   except:
     - l10n_master
 
-environment:
-  WIN_PKG: C:\Users\appveyor\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
-
 stack: node 10
 
 init:
@@ -24,6 +21,7 @@ init:
       [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
       Install-Product node 10
       $env:PATH = "C:\Program Files (x86)\Resource Hacker;${env:PATH}"
+      $env:WIN_PKG = "C:\Users\appveyor\.pkg-cache\v2.5\fetched-v10.4.1-win-x64"
       echo "testing ver info"
       if(Test-Path -Path $env:WIN_PKG) {
         echo "do ver info"
