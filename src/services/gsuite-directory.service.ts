@@ -128,18 +128,29 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
 
     private async getGroups(setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
+        let nextPageToken;
+        let p = Object.assign({});
 
-        this.logService.info('Querying groups.');
-        const res = await this.service.groups.list(this.authParams);
-        if (res.status !== 200) {
-            throw new Error('Group list API failed: ' + res.statusText);
-        }
-        if (res.data.groups != null) {
-            for (const group of res.data.groups) {
-                if (!this.filterOutResult(setFilter, group.name)) {
-                    const entry = await this.buildGroup(group);
-                    entries.push(entry);
+        while(true) {
+            this.logService.info('Querying groups - nextPageToken:' + nextPageToken);
+
+            p = Object.assign({ pageToken: nextPageToken }, this.authParams);
+            const res = await this.service.groups.list(p);
+            nextPageToken = res.data.nextPageToken;
+
+            if (res.status !== 200) {
+                throw new Error('Group list API failed: ' + res.statusText);
+            }
+            if (res.data.groups != null) {
+                for (const group of res.data.groups) {
+                    if (!this.filterOutResult(setFilter, group.name)) {
+                        const entry = await this.buildGroup(group);
+                        entries.push(entry);
+                    }
                 }
+            }
+            if (nextPageToken == null) {
+                break;
             }
         }
 
