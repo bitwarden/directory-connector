@@ -131,16 +131,16 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         let nextPageToken;
         let p = Object.assign({});
 
-        while(true) {
+        while (true) {
             this.logService.info('Querying groups - nextPageToken:' + nextPageToken);
 
             p = Object.assign({ pageToken: nextPageToken }, this.authParams);
             const res = await this.service.groups.list(p);
-            nextPageToken = res.data.nextPageToken;
-
             if (res.status !== 200) {
                 throw new Error('Group list API failed: ' + res.statusText);
             }
+
+            nextPageToken = res.data.nextPageToken;
             if (res.data.groups != null) {
                 for (const group of res.data.groups) {
                     if (!this.filterOutResult(setFilter, group.name)) {
