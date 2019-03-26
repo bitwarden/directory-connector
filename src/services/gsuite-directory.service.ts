@@ -67,9 +67,10 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
     private async getUsers(): Promise<UserEntry[]> {
         const entries: UserEntry[] = [];
         const query = this.createDirectoryQuery(this.syncConfig.userFilter);
-        let nextPageToken;
+        let nextPageToken: string = null;
         let p = Object.assign({});
 
+        const filter = this.createCustomSet(this.syncConfig.userFilter);
         while (true) {
             this.logService.info('Querying users - nextPageToken:' + nextPageToken);
             p = Object.assign({ query: query, pageToken: nextPageToken }, this.authParams);
@@ -78,29 +79,27 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
                 throw new Error('User list API failed: ' + res.statusText);
             }
 
-            const filter = this.createCustomSet(this.syncConfig.userFilter);
             nextPageToken = res.data.nextPageToken;
             if (res.data.users != null) {
                 for (const user of res.data.users) {
                     if (this.filterOutResult(filter, user.primaryEmail)) {
                         continue;
                     }
-
                     const entry = this.buildUser(user, false);
                     if (entry != null) {
                         entries.push(entry);
                     }
                 }
             }
+
             if (nextPageToken == null) {
                 break;
             }
         }
 
         nextPageToken = null;
-
         while (true) {
-            this.logService.info('Querying deleted users  - nextPageToken:' + nextPageToken);
+            this.logService.info('Querying deleted users - nextPageToken:' + nextPageToken);
             p = Object.assign({ showDeleted: true, query: query, pageToken: nextPageToken }, this.authParams);
             const delRes = await this.service.users.list(p);
             if (delRes.status !== 200) {
@@ -113,13 +112,13 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
                     if (this.filterOutResult(filter, user.primaryEmail)) {
                         continue;
                     }
-
                     const entry = this.buildUser(user, true);
                     if (entry != null) {
                         entries.push(entry);
                     }
                 }
             }
+
             if (nextPageToken == null) {
                 break;
             }
@@ -144,12 +143,11 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
 
     private async getGroups(setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
-        let nextPageToken;
+        let nextPageToken: string = null;
         let p = Object.assign({});
 
         while (true) {
             this.logService.info('Querying groups - nextPageToken:' + nextPageToken);
-
             p = Object.assign({ pageToken: nextPageToken }, this.authParams);
             const res = await this.service.groups.list(p);
             if (res.status !== 200) {
@@ -165,6 +163,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
                     }
                 }
             }
+
             if (nextPageToken == null) {
                 break;
             }
