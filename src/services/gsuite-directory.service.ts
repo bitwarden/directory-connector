@@ -68,12 +68,11 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         const entries: UserEntry[] = [];
         const query = this.createDirectoryQuery(this.syncConfig.userFilter);
         let nextPageToken: string = null;
-        let p = Object.assign({});
 
         const filter = this.createCustomSet(this.syncConfig.userFilter);
         while (true) {
             this.logService.info('Querying users - nextPageToken:' + nextPageToken);
-            p = Object.assign({ query: query, pageToken: nextPageToken }, this.authParams);
+            const p = Object.assign({ query: query, pageToken: nextPageToken }, this.authParams);
             const res = await this.service.users.list(p);
             if (res.status !== 200) {
                 throw new Error('User list API failed: ' + res.statusText);
@@ -100,7 +99,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         nextPageToken = null;
         while (true) {
             this.logService.info('Querying deleted users - nextPageToken:' + nextPageToken);
-            p = Object.assign({ showDeleted: true, query: query, pageToken: nextPageToken }, this.authParams);
+            const p = Object.assign({ showDeleted: true, query: query, pageToken: nextPageToken }, this.authParams);
             const delRes = await this.service.users.list(p);
             if (delRes.status !== 200) {
                 throw new Error('Deleted user list API failed: ' + delRes.statusText);
@@ -144,11 +143,10 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
     private async getGroups(setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
         let nextPageToken: string = null;
-        let p = Object.assign({});
 
         while (true) {
             this.logService.info('Querying groups - nextPageToken:' + nextPageToken);
-            p = Object.assign({ pageToken: nextPageToken }, this.authParams);
+            const p = Object.assign({ pageToken: nextPageToken }, this.authParams);
             const res = await this.service.groups.list(p);
             if (res.status !== 200) {
                 throw new Error('Group list API failed: ' + res.statusText);
@@ -173,36 +171,45 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
     }
 
     private async buildGroup(group: admin_directory_v1.Schema$Group) {
+        let nextPageToken: string = null;
+
         const entry = new GroupEntry();
         entry.referenceId = group.id;
         entry.externalId = group.id;
         entry.name = group.name;
 
-        const p = Object.assign({ groupKey: group.id }, this.authParams);
-        const memRes = await this.service.members.list(p);
-        if (memRes.status !== 200) {
-            this.logService.warning('Group member list API failed: ' + memRes.statusText);
-            return entry;
-        }
+        while (true) {
+            const p = Object.assign({ groupKey: group.id, pageToken: nextPageToken }, this.authParams);
+            const memRes = await this.service.members.list(p);
+            if (memRes.status !== 200) {
+                this.logService.warning('Group member list API failed: ' + memRes.statusText);
+                return entry;
+            }
 
-        if (memRes.data.members != null) {
-            for (const member of memRes.data.members) {
-                if (member.type == null) {
-                    continue;
-                }
-                if (member.role == null || member.role.toLowerCase() !== 'member') {
-                    continue;
-                }
-                if (member.status == null || member.status.toLowerCase() !== 'active') {
-                    continue;
-                }
+            nextPageToken = memRes.data.nextPageToken;
+            if (memRes.data.members != null) {
+                for (const member of memRes.data.members) {
+                    if (member.type == null) {
+                        continue;
+                    }
+                    if (member.role == null || member.role.toLowerCase() !== 'member') {
+                        continue;
+                    }
+                    if (member.status == null || member.status.toLowerCase() !== 'active') {
+                        continue;
+                    }
 
-                const type = member.type.toLowerCase();
-                if (type === 'user') {
-                    entry.userMemberExternalIds.add(member.id);
-                } else if (type === 'group') {
-                    entry.groupMemberReferenceIds.add(member.id);
+                    const type = member.type.toLowerCase();
+                    if (type === 'user') {
+                        entry.userMemberExternalIds.add(member.id);
+                    } else if (type === 'group') {
+                        entry.groupMemberReferenceIds.add(member.id);
+                    }
                 }
+            }
+
+            if (nextPageToken == null) {
+                break;
             }
         }
 
