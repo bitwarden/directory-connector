@@ -129,7 +129,7 @@
     "assets": "./build-cli/**/*"
   },
   "devDependencies": {
-    "@angular/compiler-cli": "^7.2.1",
+    "@angular/compiler-cli": "^7.2.11",
     "@microsoft/microsoft-graph-types": "^1.4.0",
     "@ngtools/webpack": "^7.2.2",
     "@types/commander": "^2.12.2",
@@ -166,7 +166,7 @@
     "html-webpack-plugin": "^3.2.0",
     "node-abi": "^2.5.1",
     "node-loader": "^0.6.0",
-    "node-sass": "^4.9.3",
+    "node-sass": "^4.11.0",
     "pkg": "4.3.4",
     "rimraf": "^2.6.2",
     "sass-loader": "^7.1.0",
