@@ -27,6 +27,7 @@ import { MoreComponent } from './tabs/more.component';
 import { SettingsComponent } from './tabs/settings.component';
 import { TabsComponent } from './tabs/tabs.component';
 
+import { A11yTitleDirective } from 'jslib/angular/directives/a11y-title.directive';
 import { ApiActionDirective } from 'jslib/angular/directives/api-action.directive';
 import { AutofocusDirective } from 'jslib/angular/directives/autofocus.directive';
 import { BlurClickDirective } from 'jslib/angular/directives/blur-click.directive';
@@ -53,6 +54,7 @@ import { SearchCiphersPipe } from 'jslib/angular/pipes/search-ciphers.pipe';
         ToasterModule.forRoot(),
     ],
     declarations: [
+        A11yTitleDirective,
         ApiActionDirective,
         AppComponent,
         AutofocusDirective,
