@@ -18,6 +18,7 @@ import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 
 const NextLink = '@odata.nextLink';
+const DeltaLink = '@odata.deltaLink';
 const ObjectType = '@odata.type';
 
 enum UserSetType {
@@ -59,7 +60,9 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
 
         let users: UserEntry[];
         if (this.syncConfig.users) {
-            users = await this.getUsers();
+            users = await this.getCurrentUsers();
+            const deletedUsers = await this.getDeletedUsers(force, !test);
+            users = users.concat(deletedUsers);
         }
 
         let groups: GroupEntry[];
@@ -72,7 +75,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         return [groups, users];
     }
 
-    private async getUsers(): Promise<UserEntry[]> {
+    private async getCurrentUsers(): Promise<UserEntry[]> {
         const entryIds = new Set<string>();
         const entries: UserEntry[] = [];
         const userReq = this.client.api('/users');
@@ -101,6 +104,61 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
             }
 
             if (res[NextLink] == null) {
+                break;
+            } else {
+                const nextReq = this.client.api(res[NextLink]);
+                res = await nextReq.get();
+            }
+        }
+
+        return entries;
+    }
+
+    private async getDeletedUsers(force: boolean, saveDelta: boolean): Promise<UserEntry[]> {
+        const entryIds = new Set<string>();
+        const entries: UserEntry[] = [];
+
+        let res: any = null;
+        const token = await this.configurationService.getUserDeltaToken();
+        if (!force && token != null) {
+            try {
+                const deltaReq = this.client.api(token);
+                res = await deltaReq.get();
+            } catch {
+                res = null;
+            }
+        }
+
+        if (res == null) {
+            const userReq = this.client.api('/users/delta');
+            res = await userReq.get();
+        }
+
+        const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
+        while (true) {
+            const users: graphType.User[] = res.value;
+            if (users != null) {
+                for (const user of users) {
+                    if (user.id == null || entryIds.has(user.id)) {
+                        continue;
+                    }
+                    const entry = this.buildUser(user);
+                    if (!entry.disabled && !entry.deleted) {
+                        continue;
+                    }
+                    if (await this.filterOutUserResult(setFilter, entry)) {
+                        continue;
+                    }
+
+                    entries.push(entry);
+                    entryIds.add(user.id);
+                }
+            }
+
+            if (res[NextLink] == null) {
+                if (res[DeltaLink] != null && saveDelta) {
+                    await this.configurationService.saveUserDeltaToken(res[DeltaLink]);
+                }
                 break;
             } else {
                 const nextReq = this.client.api(res[NextLink]);
