@@ -5,6 +5,7 @@ export class SyncConfiguration {
     userFilter: string;
     groupFilter: string;
     removeDisabled = false;
+    overwriteExisting = false;
     // Ldap properties
     groupObjectClass: string;
     userObjectClass: string;
