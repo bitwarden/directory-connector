@@ -577,5 +577,8 @@
                 "example": "server"
             }
         }
+    },
+    "overwriteExisting": {
+        "message": "Overwrite existing organization users based on current sync settings."
     }
 }

@@ -190,6 +190,13 @@
                         <label class="form-check-label" for="removeDisabled">{{'removeDisabled' | i18n}}</label>
                     </div>
                 </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="overwriteExisting"
+                            [(ngModel)]="sync.overwriteExisting" name="OverwriteExisting">
+                        <label class="form-check-label" for="overwriteExisting">{{'overwriteExisting' | i18n}}</label>
+                    </div>
+                </div>
                 <div [hidden]="directory != directoryType.Ldap">
                     <div [hidden]="ldap.ad">
                         <div class="form-group">

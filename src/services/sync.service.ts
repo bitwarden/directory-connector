@@ -48,7 +48,7 @@ export class SyncService {
 
         this.messagingService.send('dirSyncStarted');
         try {
-            const entries = await directoryService.getEntries(force, test);
+            const entries = await directoryService.getEntries(force || syncConfig.overwriteExisting, test);
             let groups = entries[0];
             let users = entries[1];
 
@@ -65,7 +65,7 @@ export class SyncService {
                 return [groups, users];
             }
 
-            const req = this.buildRequest(groups, users, syncConfig.removeDisabled);
+            const req = this.buildRequest(groups, users, syncConfig.removeDisabled, syncConfig.overwriteExisting);
             const reqJson = JSON.stringify(req);
 
             let hash: string = null;
@@ -128,8 +128,10 @@ export class SyncService {
         }
     }
 
-    private buildRequest(groups: GroupEntry[], users: UserEntry[], removeDisabled: boolean): ImportDirectoryRequest {
+    private buildRequest(groups: GroupEntry[], users: UserEntry[], removeDisabled: boolean,
+        overwriteExisting: boolean): ImportDirectoryRequest {
         const model = new ImportDirectoryRequest();
+        model.overwriteExisting = overwriteExisting;
 
         if (groups != null) {
             for (const g of groups) {
