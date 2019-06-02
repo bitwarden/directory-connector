@@ -569,6 +569,9 @@
     "hideToTray": {
         "message": "Hide to Tray"
     },
+    "hideToMenuBar": {
+        "message": "Hide to Menu Bar"
+    },
     "savedSetting": {
         "message": "Saved setting `$SETTING_NAME$`.",
         "placeholders": {
