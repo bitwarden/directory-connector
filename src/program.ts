@@ -20,11 +20,12 @@ import { Response } from 'jslib/cli/models/response';
 import { StringResponse } from 'jslib/cli/models/response/stringResponse';
 
 const chalk = chk.default;
-const writeLn = (s: string, finalLine: boolean = false) => {
+const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) => {
+    const stream = error ? process.stderr : process.stdout;
     if (finalLine && process.platform === 'win32') {
-        process.stdout.write(s);
+        stream.write(s);
     } else {
-        process.stdout.write(s + '\n');
+        stream.write(s + '\n');
     }
 };
 
@@ -58,8 +59,8 @@ export class Program extends BaseProgram {
         });
 
         program.on('command:*', () => {
-            writeLn(chalk.redBright('Invalid command: ' + program.args.join(' ')));
-            writeLn('See --help for a list of available commands.', true);
+            writeLn(chalk.redBright('Invalid command: ' + program.args.join(' ')), false, true);
+            writeLn('See --help for a list of available commands.', true, true);
             process.exitCode = 1;
         });
 
