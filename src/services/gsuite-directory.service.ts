@@ -224,7 +224,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
 
         this.client = new google.auth.JWT({
             email: this.dirConfig.clientEmail,
-            key: this.dirConfig.privateKey,
+            key: this.dirConfig.privateKey != null ? this.dirConfig.privateKey.trimLeft() : null,
             subject: this.dirConfig.adminUser,
             scopes: [
                 'https://www.googleapis.com/auth/admin.directory.user.readonly',

@@ -86,7 +86,7 @@ export class ConfigCommand {
 
     private async setGSuiteKey(key: string) {
         await this.loadConfig();
-        this.gsuite.privateKey = key;
+        this.gsuite.privateKey = key != null ? key.trimLeft() : null;
         await this.saveConfig();
     }
 
