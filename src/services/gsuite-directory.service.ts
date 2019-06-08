@@ -239,7 +239,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
             auth: this.client,
             domain: this.dirConfig.domain,
         };
-        if (this.dirConfig.customer != null) {
+        if (this.dirConfig.customer != null && this.dirConfig.customer.trim() !== '') {
             this.authParams.customer = this.dirConfig.customer;
         }
     }
