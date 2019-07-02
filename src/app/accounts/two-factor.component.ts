@@ -16,6 +16,8 @@ import { AuthService } from 'jslib/abstractions/auth.service';
 import { EnvironmentService } from 'jslib/abstractions/environment.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
+import { StateService } from 'jslib/abstractions/state.service';
+import { StorageService } from 'jslib/abstractions/storage.service';
 
 import { ModalComponent } from 'jslib/angular/components/modal.component';
 import { TwoFactorComponent as BaseTwoFactorComponent } from 'jslib/angular/components/two-factor.component';
@@ -30,8 +32,10 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     constructor(authService: AuthService, router: Router,
         i18nService: I18nService, apiService: ApiService,
         platformUtilsService: PlatformUtilsService, environmentService: EnvironmentService,
-        private componentFactoryResolver: ComponentFactoryResolver) {
-        super(authService, router, i18nService, apiService, platformUtilsService, window, environmentService);
+        private componentFactoryResolver: ComponentFactoryResolver, stateService: StateService,
+        storageService: StorageService) {
+        super(authService, router, i18nService, apiService, platformUtilsService, window, environmentService,
+            stateService, storageService);
         super.successRoute = '/tabs/dashboard';
     }
 
