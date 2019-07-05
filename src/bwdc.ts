@@ -25,6 +25,8 @@ import { NoopMessagingService } from 'jslib/services/noopMessaging.service';
 import { TokenService } from 'jslib/services/token.service';
 import { UserService } from 'jslib/services/user.service';
 
+import { StorageService as StorageServiceAbstraction } from 'jslib/abstractions/storage.service';
+
 import { Program } from './program';
 
 // tslint:disable-next-line
@@ -35,7 +37,7 @@ export class Main {
     logService: ConsoleLogService;
     messagingService: NoopMessagingService;
     storageService: LowdbStorageService;
-    secureStorageService: KeytarSecureStorageService;
+    secureStorageService: StorageServiceAbstraction;
     i18nService: I18nService;
     platformUtilsService: CliPlatformUtilsService;
     constantsService: ConstantsService;
@@ -70,13 +72,15 @@ export class Main {
             this.dataFilePath = path.join(process.env.HOME, '.config/' + applicationName);
         }
 
+        const plaintextSecrets = process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS === 'true';
         this.i18nService = new I18nService('en', './locales');
         this.platformUtilsService = new CliPlatformUtilsService('connector', packageJson);
         this.logService = new ConsoleLogService(this.platformUtilsService.isDev(),
-            (level) => process.env.BWCLI_DEBUG !== 'true' && level <= LogLevelType.Info);
+            (level) => process.env.BITWARDENCLI_CONNECTOR_DEBUG !== 'true' && level <= LogLevelType.Info);
         this.cryptoFunctionService = new NodeCryptoFunctionService();
         this.storageService = new LowdbStorageService(null, this.dataFilePath, true);
-        this.secureStorageService = new KeytarSecureStorageService(applicationName);
+        this.secureStorageService = plaintextSecrets ?
+            this.storageService : new KeytarSecureStorageService(applicationName);
         this.cryptoService = new CryptoService(this.storageService, this.secureStorageService,
             this.cryptoFunctionService);
         this.appIdService = new AppIdService(this.storageService);
@@ -89,7 +93,8 @@ export class Main {
         this.containerService = new ContainerService(this.cryptoService);
         this.authService = new AuthService(this.cryptoService, this.apiService, this.userService, this.tokenService,
             this.appIdService, this.i18nService, this.platformUtilsService, this.messagingService, true);
-        this.configurationService = new ConfigurationService(this.storageService, this.secureStorageService);
+        this.configurationService = new ConfigurationService(this.storageService, this.secureStorageService,
+            process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== 'true');
         this.syncService = new SyncService(this.configurationService, this.logService, this.cryptoFunctionService,
             this.apiService, this.messagingService, this.i18nService);
         this.program = new Program(this);

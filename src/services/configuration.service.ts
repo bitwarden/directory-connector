@@ -25,7 +25,8 @@ const Keys = {
 };
 
 export class ConfigurationService {
-    constructor(private storageService: StorageService, private secureStorageService: StorageService) { }
+    constructor(private storageService: StorageService, private secureStorageService: StorageService,
+        private useSecureStorageForSecrets = true) { }
 
     async getDirectory<T>(type: DirectoryType): Promise<T> {
         const config = await this.storageService.get<T>(Keys.directoryConfigPrefix + type);
@@ -33,19 +34,21 @@ export class ConfigurationService {
             return config;
         }
 
-        switch (type) {
-            case DirectoryType.Ldap:
-                (config as any).password = await this.secureStorageService.get<string>(Keys.ldap);
-                break;
-            case DirectoryType.AzureActiveDirectory:
-                (config as any).key = await this.secureStorageService.get<string>(Keys.azure);
-                break;
-            case DirectoryType.Okta:
-                (config as any).token = await this.secureStorageService.get<string>(Keys.okta);
-                break;
-            case DirectoryType.GSuite:
-                (config as any).privateKey = await this.secureStorageService.get<string>(Keys.gsuite);
-                break;
+        if (this.useSecureStorageForSecrets) {
+            switch (type) {
+                case DirectoryType.Ldap:
+                    (config as any).password = await this.secureStorageService.get<string>(Keys.ldap);
+                    break;
+                case DirectoryType.AzureActiveDirectory:
+                    (config as any).key = await this.secureStorageService.get<string>(Keys.azure);
+                    break;
+                case DirectoryType.Okta:
+                    (config as any).token = await this.secureStorageService.get<string>(Keys.okta);
+                    break;
+                case DirectoryType.GSuite:
+                    (config as any).privateKey = await this.secureStorageService.get<string>(Keys.gsuite);
+                    break;
+            }
         }
         return config;
     }
@@ -53,41 +56,43 @@ export class ConfigurationService {
     async saveDirectory(type: DirectoryType,
         config: LdapConfiguration | GSuiteConfiguration | AzureConfiguration | OktaConfiguration): Promise<any> {
         const savedConfig: any = Object.assign({}, config);
-        switch (type) {
-            case DirectoryType.Ldap:
-                if (savedConfig.password == null) {
-                    await this.secureStorageService.remove(Keys.ldap);
-                } else {
-                    await this.secureStorageService.save(Keys.ldap, savedConfig.password);
-                    savedConfig.password = StoredSecurely;
-                }
-                break;
-            case DirectoryType.AzureActiveDirectory:
-                if (savedConfig.key == null) {
-                    await this.secureStorageService.remove(Keys.azure);
-                } else {
-                    await this.secureStorageService.save(Keys.azure, savedConfig.key);
-                    savedConfig.key = StoredSecurely;
-                }
-                break;
-            case DirectoryType.Okta:
-                if (savedConfig.token == null) {
-                    await this.secureStorageService.remove(Keys.okta);
-                } else {
-                    await this.secureStorageService.save(Keys.okta, savedConfig.token);
-                    savedConfig.token = StoredSecurely;
-                }
-                break;
-            case DirectoryType.GSuite:
-                if (savedConfig.privateKey == null) {
-                    await this.secureStorageService.remove(Keys.gsuite);
-                } else {
-                    (config as GSuiteConfiguration).privateKey = savedConfig.privateKey =
-                        savedConfig.privateKey.replace(/\\n/g, '\n');
-                    await this.secureStorageService.save(Keys.gsuite, savedConfig.privateKey);
-                    savedConfig.privateKey = StoredSecurely;
-                }
-                break;
+        if (this.useSecureStorageForSecrets) {
+            switch (type) {
+                case DirectoryType.Ldap:
+                    if (savedConfig.password == null) {
+                        await this.secureStorageService.remove(Keys.ldap);
+                    } else {
+                        await this.secureStorageService.save(Keys.ldap, savedConfig.password);
+                        savedConfig.password = StoredSecurely;
+                    }
+                    break;
+                case DirectoryType.AzureActiveDirectory:
+                    if (savedConfig.key == null) {
+                        await this.secureStorageService.remove(Keys.azure);
+                    } else {
+                        await this.secureStorageService.save(Keys.azure, savedConfig.key);
+                        savedConfig.key = StoredSecurely;
+                    }
+                    break;
+                case DirectoryType.Okta:
+                    if (savedConfig.token == null) {
+                        await this.secureStorageService.remove(Keys.okta);
+                    } else {
+                        await this.secureStorageService.save(Keys.okta, savedConfig.token);
+                        savedConfig.token = StoredSecurely;
+                    }
+                    break;
+                case DirectoryType.GSuite:
+                    if (savedConfig.privateKey == null) {
+                        await this.secureStorageService.remove(Keys.gsuite);
+                    } else {
+                        (config as GSuiteConfiguration).privateKey = savedConfig.privateKey =
+                            savedConfig.privateKey.replace(/\\n/g, '\n');
+                        await this.secureStorageService.save(Keys.gsuite, savedConfig.privateKey);
+                        savedConfig.privateKey = StoredSecurely;
+                    }
+                    break;
+            }
         }
         await this.storageService.save(Keys.directoryConfigPrefix + type, savedConfig);
     }
