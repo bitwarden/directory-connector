@@ -67,8 +67,13 @@
       "output": "dist",
       "app": "build"
     },
+    "afterSign": "scripts/notarize.js",
     "mac": {
       "category": "public.app-category.productivity",
+      "gatekeeperAssess": false,
+      "hardenedRuntime": true,
+      "entitlements": "resources/entitlements.mac.plist",
+      "entitlementsInherit": "resources/entitlements.mac.plist",
       "target": [
         "dmg",
         "zip"
@@ -156,6 +161,7 @@
     "del": "^3.0.0",
     "electron": "5.0.8",
     "electron-builder": "21.1.5",
+    "electron-notarize": "^0.1.1",
     "electron-rebuild": "^1.8.5",
     "electron-reload": "^1.4.1",
     "extract-text-webpack-plugin": "next",
@@ -165,7 +171,7 @@
     "gulp-google-webfonts": "^2.0.0",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
-    "node-abi": "^2.5.1",
+    "node-abi": "^2.9.0",
     "node-loader": "^0.6.0",
     "node-sass": "^4.11.0",
     "pkg": "4.3.4",
