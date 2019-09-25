@@ -22,7 +22,7 @@
     "sub:pull": "git submodule foreach git pull origin master",
     "sub:commit": "npm run sub:pull && git commit -am \"update submodule\"",
     "postinstall": "npm run sub:init",
-    "simlink:win": "rm -rf ./jslib && cmd /c mklink /J .\\jslib ..\\jslib",
+    "symlink:win": "rm -rf ./jslib && cmd /c mklink /J .\\jslib ..\\jslib",
     "rebuild": "./node_modules/.bin/electron-rebuild",
     "reset": "rimraf ./node_modules/keytar/* && npm install",
     "lint": "tslint src/**/*.ts || true",
