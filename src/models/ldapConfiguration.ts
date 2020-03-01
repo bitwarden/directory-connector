@@ -1,6 +1,8 @@
 export class LdapConfiguration {
-    ssl = false;
-    sslAllowUnauthorized = false;
+    encrypted = false;
+    encryptionType: string = 'starttls';
+    tlsCaPath: string;
+    certDoNotVerify = false;
     sslCertPath: string;
     sslKeyPath: string;
     sslCaPath: string;
