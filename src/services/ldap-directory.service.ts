@@ -324,7 +324,7 @@ export class LdapDirectoryService implements DirectoryService {
                 reject(this.i18nService.t('dirConfigIncomplete'));
                 return;
             }
-            const protocol = 'ldap' + (this.dirConfig.encrypted && this.dirConfig.encryptionType === 'ssl' ? 's' : '');
+            const protocol = 'ldap' + (this.dirConfig.ssl && !this.dirConfig.starttls ? 's' : '');
             const url = protocol + '://' + this.dirConfig.hostname +
                 ':' + this.dirConfig.port;
             const options: ldap.ClientOptions = {
@@ -332,8 +332,8 @@ export class LdapDirectoryService implements DirectoryService {
             };
 
             const tlsOptions: any = {};
-            if (this.dirConfig.encrypted) {
-                if (this.dirConfig.encryptionType === 'ssl') {
+            if (this.dirConfig.ssl) {
+                if (!this.dirConfig.starttls) {
                     if (this.dirConfig.sslCaPath != null && this.dirConfig.sslCaPath !== '' &&
                         fs.existsSync(this.dirConfig.sslCaPath)) {
                         tlsOptions.ca = [fs.readFileSync(this.dirConfig.sslCaPath)];
@@ -346,14 +346,14 @@ export class LdapDirectoryService implements DirectoryService {
                         fs.existsSync(this.dirConfig.sslKeyPath)) {
                         tlsOptions.key = fs.readFileSync(this.dirConfig.sslKeyPath);
                     }
-                } else if (this.dirConfig.encryptionType === 'starttls') {
+                } else {
                     if (this.dirConfig.tlsCaPath != null && this.dirConfig.tlsCaPath !== '' &&
                         fs.existsSync(this.dirConfig.tlsCaPath)) {
                         tlsOptions.ca = [fs.readFileSync(this.dirConfig.tlsCaPath)];
                     }
                 }
-                if (this.dirConfig.certDoNotVerify != null) {
-                    tlsOptions.rejectUnauthorized = !this.dirConfig.certDoNotVerify;
+                if (this.dirConfig.sslAllowUnauthorized) {
+                    tlsOptions.rejectUnauthorized = !this.dirConfig.sslAllowUnauthorized;
                 }
             }
 
@@ -373,7 +373,7 @@ export class LdapDirectoryService implements DirectoryService {
                 return;
             }
 
-            if (this.dirConfig.encrypted && this.dirConfig.encryptionType === 'starttls') {
+            if (this.dirConfig.starttls && this.dirConfig.ssl) {
                 this.client.starttls(options.tlsOptions, undefined, (err, res) => {
                     if (err != null) {
                         reject(err.message);

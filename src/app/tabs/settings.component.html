@@ -35,22 +35,22 @@
                     </div>
                     <div class="form-group">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="ldapEncrypted" [(ngModel)]="ldap.encrypted" name="Encrypted">
+                            <input class="form-check-input" type="checkbox" id="ldapEncrypted" [(ngModel)]="ldap.ssl" name="Encrypted">
                             <label class="form-check-label" for="ldapEncrypted">{{'ldapEncrypted' | i18n}}</label>
                         </div>
                     </div>
-                    <div class="ml-4" *ngIf="ldap.encrypted">
+                    <div class="ml-4" *ngIf="ldap.ssl">
                         <div class="form-group">
                             <div class="form-radio">
-                                <input class="form-radio-input" type="radio" value="starttls" id="tls" [(ngModel)]="ldap.encryptionType" name="STARTTLS">
-                                <label class="form-radio-label" for="tls">{{'ldapTls' | i18n}}</label>
+                                <input class="form-radio-input" type="radio"  [value]=true id="starttls" [(ngModel)]="ldap.starttls" name="StartTls">
+                                <label class="form-radio-label" for="starttls">{{'ldapTls' | i18n}}</label>
                             </div>
                             <div class="form-radio">
-                                <input class="form-radio-input" type="radio" value="ssl" id="ssl" [(ngModel)]="ldap.encryptionType" name="SSL">
+                                <input class="form-radio-input" type="radio" [value]=false id="ssl" [(ngModel)]="ldap.starttls"  name="SSL">
                                 <label class="form-radio-label" for="ssl">{{'ldapSsl' | i18n}}</label>
                             </div>
                         </div>
-                        <div class="ml-4" *ngIf="ldap.encryptionType=='starttls'">
+                        <div class="ml-4" *ngIf="ldap.starttls">
                             <p>{{'ldapTlsUntrustedDesc' | i18n}}</p>
                             <div class="form-group">
                                 <label for="tlsCaPath">{{'ldapTlsCa' | i18n}}</label>
@@ -59,7 +59,7 @@
                                 <input type="text" class="form-control" id="tlsCaPath" name="TLSCaPath" [(ngModel)]="ldap.tlsCaPath"> 
                             </div>
                         </div>
-                        <div class="ml-4" *ngIf="ldap.encryptionType=='ssl'">
+                        <div class="ml-4" *ngIf="!ldap.starttls">
                             <p>{{'ldapSslUntrustedDesc' | i18n}}</p>
                             <div class="form-group">
                                 <label for="sslCertPath">{{'ldapSslCert' | i18n}}</label>
@@ -81,7 +81,7 @@
                         <div class="form-group">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="certDoNotVerify"
-                                    [(ngModel)]="ldap.certDoNotVerify" name="CertDoNoVerify">
+                                    [(ngModel)]="ldap.sslAllowUnauthorized" name="CertDoNoVerify">
                                 <label class="form-check-label" for="certDoNotVerify">{{'ldapCertDoNotVerify' | i18n}}</label>
                             </div>
                         </div>
