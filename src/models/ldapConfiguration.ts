@@ -1,6 +1,6 @@
 export class LdapConfiguration {
     ssl = false;
-    starttls = true;
+    startTls = false;
     tlsCaPath: string;
     sslAllowUnauthorized = false;
     sslCertPath: string;

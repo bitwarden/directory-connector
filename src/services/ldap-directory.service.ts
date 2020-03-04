@@ -324,7 +324,7 @@ export class LdapDirectoryService implements DirectoryService {
                 reject(this.i18nService.t('dirConfigIncomplete'));
                 return;
             }
-            const protocol = 'ldap' + (this.dirConfig.ssl && !this.dirConfig.starttls ? 's' : '');
+            const protocol = 'ldap' + (this.dirConfig.ssl && !this.dirConfig.startTls ? 's' : '');
             const url = protocol + '://' + this.dirConfig.hostname +
                 ':' + this.dirConfig.port;
             const options: ldap.ClientOptions = {
@@ -333,7 +333,10 @@ export class LdapDirectoryService implements DirectoryService {
 
             const tlsOptions: any = {};
             if (this.dirConfig.ssl) {
-                if (!this.dirConfig.starttls) {
+                if (this.dirConfig.sslAllowUnauthorized) {
+                    tlsOptions.rejectUnauthorized = !this.dirConfig.sslAllowUnauthorized;
+                }
+                if (!this.dirConfig.startTls) {
                     if (this.dirConfig.sslCaPath != null && this.dirConfig.sslCaPath !== '' &&
                         fs.existsSync(this.dirConfig.sslCaPath)) {
                         tlsOptions.ca = [fs.readFileSync(this.dirConfig.sslCaPath)];
@@ -351,9 +354,6 @@ export class LdapDirectoryService implements DirectoryService {
                         fs.existsSync(this.dirConfig.tlsCaPath)) {
                         tlsOptions.ca = [fs.readFileSync(this.dirConfig.tlsCaPath)];
                     }
-                }
-                if (this.dirConfig.sslAllowUnauthorized) {
-                    tlsOptions.rejectUnauthorized = !this.dirConfig.sslAllowUnauthorized;
                 }
             }
 
@@ -373,14 +373,14 @@ export class LdapDirectoryService implements DirectoryService {
                 return;
             }
 
-            if (this.dirConfig.starttls && this.dirConfig.ssl) {
+            if (this.dirConfig.startTls && this.dirConfig.ssl) {
                 this.client.starttls(options.tlsOptions, undefined, (err, res) => {
                     if (err != null) {
                         reject(err.message);
                     } else {
-                        this.client.bind(user, pass, (err) => {
-                            if (err != null) {
-                                reject(err.message);
+                        this.client.bind(user, pass, (err2) => {
+                            if (err2 != null) {
+                                reject(err2.message);
                             } else {
                                 resolve();
                             }
