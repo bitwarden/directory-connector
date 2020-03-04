@@ -15,6 +15,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 
+import { CalloutComponent } from 'jslib/angular/components/callout.component';
 import { IconComponent } from 'jslib/angular/components/icon.component';
 import { ModalComponent } from 'jslib/angular/components/modal.component';
 
@@ -60,6 +61,7 @@ import { SearchCiphersPipe } from 'jslib/angular/pipes/search-ciphers.pipe';
         AutofocusDirective,
         BlurClickDirective,
         BoxRowDirective,
+        CalloutComponent,
         DashboardComponent,
         EnvironmentComponent,
         FallbackSrcDirective,
