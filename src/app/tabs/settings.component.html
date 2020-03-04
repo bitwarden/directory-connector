@@ -35,39 +35,54 @@
                     </div>
                     <div class="form-group">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="ssl" [(ngModel)]="ldap.ssl" name="SSL">
-                            <label class="form-check-label" for="ssl">{{'ldapSsl' | i18n}}</label>
+                            <input class="form-check-input" type="checkbox" id="ldapEncrypted" [(ngModel)]="ldap.ssl" name="Encrypted">
+                            <label class="form-check-label" for="ldapEncrypted">{{'ldapEncrypted' | i18n}}</label>
                         </div>
                     </div>
                     <div class="ml-4" *ngIf="ldap.ssl">
-                        <p>{{'ldapSslUntrustedDesc' | i18n}}</p>
                         <div class="form-group">
-                            <label for="sslCertPath">{{'ldapSslCert' | i18n}}</label>
-                            <input type="file" class="form-control-file mb-2" id="sslCertPath_file"
-                                (change)="setSslPath('sslCertPath')">
-                            <input type="text" class="form-control" id="sslCertPath" name="SSLCertPath"
-                                [(ngModel)]="ldap.sslCertPath">
+                            <div class="form-radio">
+                                <input class="form-radio-input" type="radio"  [value]=true id="starttls" [(ngModel)]="ldap.starttls" name="StartTls">
+                                <label class="form-radio-label" for="starttls">{{'ldapTls' | i18n}}</label>
+                            </div>
+                            <div class="form-radio">
+                                <input class="form-radio-input" type="radio" [value]=false id="ssl" [(ngModel)]="ldap.starttls"  name="SSL">
+                                <label class="form-radio-label" for="ssl">{{'ldapSsl' | i18n}}</label>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="sslKeyPath">{{'ldapSslKey' | i18n}}</label>
-                            <input type="file" class="form-control-file mb-2" id="sslKeyPath_file"
-                                (change)="setSslPath('sslKeyPath')">
-                            <input type="text" class="form-control" id="sslKeyPath" name="SSLKeyPath"
-                                [(ngModel)]="ldap.sslKeyPath">
+                        <div class="ml-4" *ngIf="ldap.starttls">
+                            <p>{{'ldapTlsUntrustedDesc' | i18n}}</p>
+                            <div class="form-group">
+                                <label for="tlsCaPath">{{'ldapTlsCa' | i18n}}</label>
+                                <input type="file" class="form-control-file mb-2" id="tlsCaPath_file"
+                                (change)="setSslPath('tlsCaPath')">
+                                <input type="text" class="form-control" id="tlsCaPath" name="TLSCaPath" [(ngModel)]="ldap.tlsCaPath"> 
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="sslCaPath">{{'ldapSslCa' | i18n}}</label>
-                            <input type="file" class="form-control-file mb-2" id="sslCaPath_file"
-                                (change)="setSslPath('sslCaPath')">
-                            <input type="text" class="form-control" id="sslCaPath" name="SSLCaPath"
-                                [(ngModel)]="ldap.sslCaPath">
+                        <div class="ml-4" *ngIf="!ldap.starttls">
+                            <p>{{'ldapSslUntrustedDesc' | i18n}}</p>
+                            <div class="form-group">
+                                <label for="sslCertPath">{{'ldapSslCert' | i18n}}</label>
+                                <input type="file" class="form-control-file mb-2" id="sslCertPath_file"
+                                    (change)="setSslPath('sslCertPath')">
+                                <input type="text" class="form-control" id="sslCertPath" name="SSLCertPath" [(ngModel)]="ldap.sslCertPath">
+                            </div>
+                            <div class="form-group">
+                                <label for="sslKeyPath">{{'ldapSslKey' | i18n}}</label>
+                                <input type="file" class="form-control-file mb-2" id="sslKeyPath_file" (change)="setSslPath('sslKeyPath')">
+                                <input type="text" class="form-control" id="sslKeyPath" name="SSLKeyPath" [(ngModel)]="ldap.sslKeyPath">
+                            </div>
+                            <div class="form-group">
+                                <label for="sslCaPath">{{'ldapSslCa' | i18n}}</label>
+                                <input type="file" class="form-control-file mb-2" id="sslCaPath_file" (change)="setSslPath('sslCaPath')">
+                                <input type="text" class="form-control" id="sslCaPath" name="SSLCaPath" [(ngModel)]="ldap.sslCaPath">
+                            </div>
                         </div>
                         <div class="form-group">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="sslAllowUnauthorized"
-                                    [(ngModel)]="ldap.sslAllowUnauthorized" name="SSLAllowUnauthorized">
-                                <label class="form-check-label"
-                                    for="sslAllowUnauthorized">{{'ldapSslAllowUnauthorized' | i18n}}</label>
+                                <input class="form-check-input" type="checkbox" id="certDoNotVerify"
+                                    [(ngModel)]="ldap.sslAllowUnauthorized" name="CertDoNoVerify">
+                                <label class="form-check-label" for="certDoNotVerify">{{'ldapCertDoNotVerify' | i18n}}</label>
                             </div>
                         </div>
                     </div>

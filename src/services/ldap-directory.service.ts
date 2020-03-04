@@ -324,32 +324,41 @@ export class LdapDirectoryService implements DirectoryService {
                 reject(this.i18nService.t('dirConfigIncomplete'));
                 return;
             }
-
-            const url = 'ldap' + (this.dirConfig.ssl ? 's' : '') + '://' + this.dirConfig.hostname +
+            const protocol = 'ldap' + (this.dirConfig.ssl && !this.dirConfig.starttls ? 's' : '');
+            const url = protocol + '://' + this.dirConfig.hostname +
                 ':' + this.dirConfig.port;
             const options: ldap.ClientOptions = {
                 url: url.trim().toLowerCase(),
             };
+
+            const tlsOptions: any = {};
             if (this.dirConfig.ssl) {
-                const tlsOptions: any = {};
-                if (this.dirConfig.sslAllowUnauthorized != null) {
+                if (!this.dirConfig.starttls) {
+                    if (this.dirConfig.sslCaPath != null && this.dirConfig.sslCaPath !== '' &&
+                        fs.existsSync(this.dirConfig.sslCaPath)) {
+                        tlsOptions.ca = [fs.readFileSync(this.dirConfig.sslCaPath)];
+                    }
+                    if (this.dirConfig.sslCertPath != null && this.dirConfig.sslCertPath !== '' &&
+                        fs.existsSync(this.dirConfig.sslCertPath)) {
+                        tlsOptions.cert = fs.readFileSync(this.dirConfig.sslCertPath);
+                    }
+                    if (this.dirConfig.sslKeyPath != null && this.dirConfig.sslKeyPath !== '' &&
+                        fs.existsSync(this.dirConfig.sslKeyPath)) {
+                        tlsOptions.key = fs.readFileSync(this.dirConfig.sslKeyPath);
+                    }
+                } else {
+                    if (this.dirConfig.tlsCaPath != null && this.dirConfig.tlsCaPath !== '' &&
+                        fs.existsSync(this.dirConfig.tlsCaPath)) {
+                        tlsOptions.ca = [fs.readFileSync(this.dirConfig.tlsCaPath)];
+                    }
+                }
+                if (this.dirConfig.sslAllowUnauthorized) {
                     tlsOptions.rejectUnauthorized = !this.dirConfig.sslAllowUnauthorized;
                 }
-                if (this.dirConfig.sslCaPath != null && this.dirConfig.sslCaPath !== '' &&
-                    fs.existsSync(this.dirConfig.sslCaPath)) {
-                    tlsOptions.ca = [fs.readFileSync(this.dirConfig.sslCaPath)];
-                }
-                if (this.dirConfig.sslCertPath != null && this.dirConfig.sslCertPath !== '' &&
-                    fs.existsSync(this.dirConfig.sslCertPath)) {
-                    tlsOptions.cert = fs.readFileSync(this.dirConfig.sslCertPath);
-                }
-                if (this.dirConfig.sslKeyPath != null && this.dirConfig.sslKeyPath !== '' &&
-                    fs.existsSync(this.dirConfig.sslKeyPath)) {
-                    tlsOptions.key = fs.readFileSync(this.dirConfig.sslKeyPath);
-                }
-                if (Object.keys(tlsOptions).length > 0) {
-                    options.tlsOptions = tlsOptions;
-                }
+            }
+
+            if (Object.keys(tlsOptions).length > 0) {
+                options.tlsOptions = tlsOptions;
             }
 
             this.client = ldap.createClient(options);
@@ -364,13 +373,29 @@ export class LdapDirectoryService implements DirectoryService {
                 return;
             }
 
-            this.client.bind(user, pass, (err) => {
-                if (err != null) {
-                    reject(err.message);
-                } else {
-                    resolve();
-                }
-            });
+            if (this.dirConfig.starttls && this.dirConfig.ssl) {
+                this.client.starttls(options.tlsOptions, undefined, (err, res) => {
+                    if (err != null) {
+                        reject(err.message);
+                    } else {
+                        this.client.bind(user, pass, (err) => {
+                            if (err != null) {
+                                reject(err.message);
+                            } else {
+                                resolve();
+                            }
+                        });
+                    }
+                });
+            } else {
+                this.client.bind(user, pass, (err) => {
+                    if (err != null) {
+                        reject(err.message);
+                    } else {
+                        resolve();
+                    }
+                });
+            }
         });
     }
 
