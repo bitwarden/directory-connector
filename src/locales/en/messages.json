@@ -414,8 +414,20 @@
     "sync": {
         "message": "Sync"
     },
+    "ldapEncrypted": {
+        "message": "This server uses an encrypted connection"
+    },
+    "ldapTls": {
+        "message": "Use TLS (STARTTLS)"
+    },
+    "ldapTlsCa": {
+        "message": "Certificate CA Chain (PEM)"
+    },
     "ldapSsl": {
-        "message": "This server uses SSL (LDAPS)"
+        "message": "Use SSL (LDAPS)"
+    },
+    "ldapTlsUntrustedDesc": {
+        "message": "If your LDAP server uses a self-signed certificate for STARTTLS, you can configure certificate options below."
     },
     "ldapSslUntrustedDesc": {
         "message": "If your LDAPS server uses an untrusted certificate you can configure certificate options below."
@@ -429,8 +441,8 @@
     "ldapSslKey": {
         "message": "Certificate Private Key (PEM)"
     },
-    "ldapSslAllowUnauthorized": {
-        "message": "Allow untrusted SSL connections (not recommended)."
+    "ldapCertDoNotVerify": {
+        "message": "Do not verify server certificates (not recommended)."
     },
     "ldapAd": {
         "message": "This server uses Active Directory"
