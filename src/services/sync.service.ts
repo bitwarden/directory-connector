@@ -22,6 +22,7 @@ import { DirectoryService } from './directory.service';
 import { GSuiteDirectoryService } from './gsuite-directory.service';
 import { LdapDirectoryService } from './ldap-directory.service';
 import { OktaDirectoryService } from './okta-directory.service';
+import { OneLoginDirectoryService } from './onelogin-directory.service';
 
 export class SyncService {
     private dirType: DirectoryType;
@@ -123,6 +124,8 @@ export class SyncService {
                 return new LdapDirectoryService(this.configurationService, this.logService, this.i18nService);
             case DirectoryType.Okta:
                 return new OktaDirectoryService(this.configurationService, this.logService, this.i18nService);
+            case DirectoryType.OneLogin:
+                return new OneLoginDirectoryService(this.configurationService, this.logService, this.i18nService);
             default:
                 return null;
         }

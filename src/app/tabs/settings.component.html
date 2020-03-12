@@ -147,6 +147,26 @@
                             [(ngModel)]="okta.token">
                     </div>
                 </div>
+                <div [hidden]="directory != directoryType.OneLogin">
+                    <div class="form-group">
+                        <label for="oneLoginClientId">{{'clientId' | i18n}}</label>
+                        <input type="text" class="form-control" id="oneLoginClientId" name="OneLoginClientId"
+                            [(ngModel)]="oneLogin.clientId">
+                    </div>
+                    <div class="form-group">
+                        <label for="oneLoginClientSecret">{{'clientSecret' | i18n}}</label>
+                        <input type="text" class="form-control" id="oneLoginClientSecret" name="OneLoginClientSecret"
+                            [(ngModel)]="oneLogin.clientSecret">
+                    </div>
+                    <div class="form-group">
+                        <label for="oneLoginRegion">{{'region' | i18n}}</label>
+                        <select class="form-control" id="oneLoginRegion" name="OneLoginRegion"
+                            [(ngModel)]="oneLogin.region">
+                            <option value="us">US</option>
+                            <option value="eu">EU</option>
+                        </select>
+                    </div>
+                </div>
                 <div [hidden]="directory != directoryType.GSuite">
                     <div class="form-group">
                         <label for="domain">{{'domain' | i18n}}</label>

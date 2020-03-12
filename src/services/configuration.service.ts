@@ -6,6 +6,7 @@ import { GSuiteConfiguration } from '../models/gsuiteConfiguration';
 import { LdapConfiguration } from '../models/ldapConfiguration';
 import { OktaConfiguration } from '../models/oktaConfiguration';
 import { SyncConfiguration } from '../models/syncConfiguration';
+import { OneLoginConfiguration } from 'src/models/oneLoginConfiguration';
 
 const StoredSecurely = '[STORED SECURELY]';
 const Keys = {
@@ -13,6 +14,7 @@ const Keys = {
     gsuite: 'gsuitePrivateKey',
     azure: 'azureKey',
     okta: 'oktaToken',
+    oneLogin: 'oneLoginClientSecret',
     directoryConfigPrefix: 'directoryConfig_',
     sync: 'syncConfig',
     directoryType: 'directoryType',
@@ -48,13 +50,17 @@ export class ConfigurationService {
                 case DirectoryType.GSuite:
                     (config as any).privateKey = await this.secureStorageService.get<string>(Keys.gsuite);
                     break;
+                case DirectoryType.OneLogin:
+                    (config as any).clientSecret = await this.secureStorageService.get<string>(Keys.oneLogin);
+                    break;
             }
         }
         return config;
     }
 
     async saveDirectory(type: DirectoryType,
-        config: LdapConfiguration | GSuiteConfiguration | AzureConfiguration | OktaConfiguration): Promise<any> {
+        config: LdapConfiguration | GSuiteConfiguration | AzureConfiguration | OktaConfiguration |
+            OneLoginConfiguration): Promise<any> {
         const savedConfig: any = Object.assign({}, config);
         if (this.useSecureStorageForSecrets) {
             switch (type) {
@@ -90,6 +96,14 @@ export class ConfigurationService {
                             savedConfig.privateKey.replace(/\\n/g, '\n');
                         await this.secureStorageService.save(Keys.gsuite, savedConfig.privateKey);
                         savedConfig.privateKey = StoredSecurely;
+                    }
+                    break;
+                case DirectoryType.OneLogin:
+                    if (savedConfig.clientSecret == null) {
+                        await this.secureStorageService.remove(Keys.oneLogin);
+                    } else {
+                        await this.secureStorageService.save(Keys.oneLogin, savedConfig.clientSecret);
+                        savedConfig.clientSecret = StoredSecurely;
                     }
                     break;
             }
