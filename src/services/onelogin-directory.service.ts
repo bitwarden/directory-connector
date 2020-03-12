@@ -85,15 +85,6 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         return Promise.resolve([]);
     }
 
-    private requestInterceptor(): any {
-        return {
-            requestInterceptor: (req: any) => {
-                req.headers.Authorization = 'bearer:' + this.accessToken;
-                return req;
-            },
-        };
-    }
-
     private async getAccessToken() {
         const response = await fetch(`https://api.${this.dirConfig.region}.onelogin.com/auth/oauth2/v2/token`, {
             method: 'POST',
