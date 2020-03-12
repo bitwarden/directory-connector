@@ -19,6 +19,7 @@ import { AzureConfiguration } from '../../models/azureConfiguration';
 import { GSuiteConfiguration } from '../../models/gsuiteConfiguration';
 import { LdapConfiguration } from '../../models/ldapConfiguration';
 import { OktaConfiguration } from '../../models/oktaConfiguration';
+import { OneLoginConfiguration } from '../../models/oneLoginConfiguration';
 import { SyncConfiguration } from '../../models/syncConfiguration';
 
 import { ConnectorUtils } from '../../utils';
@@ -34,6 +35,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     gsuite = new GSuiteConfiguration();
     azure = new AzureConfiguration();
     okta = new OktaConfiguration();
+    oneLogin = new OneLoginConfiguration();
     sync = new SyncConfiguration();
     organizationId: string;
     directoryOptions: any[];
@@ -48,6 +50,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
             { name: 'Azure Active Directory', value: DirectoryType.AzureActiveDirectory },
             { name: 'G Suite (Google)', value: DirectoryType.GSuite },
             { name: 'Okta', value: DirectoryType.Okta },
+            // { name: 'OneLogin', value: DirectoryType.OneLogin },
         ];
     }
 
@@ -70,6 +73,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
             DirectoryType.AzureActiveDirectory)) || this.azure;
         this.okta = (await this.configurationService.getDirectory<OktaConfiguration>(
             DirectoryType.Okta)) || this.okta;
+        this.oneLogin = (await this.configurationService.getDirectory<OneLoginConfiguration>(
+            DirectoryType.OneLogin)) || this.oneLogin;
         this.sync = (await this.configurationService.getSync()) || this.sync;
     }
 
@@ -85,6 +90,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         await this.configurationService.saveDirectory(DirectoryType.GSuite, this.gsuite);
         await this.configurationService.saveDirectory(DirectoryType.AzureActiveDirectory, this.azure);
         await this.configurationService.saveDirectory(DirectoryType.Okta, this.okta);
+        await this.configurationService.saveDirectory(DirectoryType.OneLogin, this.oneLogin);
         await this.configurationService.saveSync(this.sync);
     }
 
