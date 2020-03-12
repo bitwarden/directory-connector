@@ -77,10 +77,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
             }
         });
         */
-        const users = await this.client.apis.users.get_users(
-            {},
-            this.requestInterceptor());
-        const u2 = this.getApi('users');
+        const users = this.getApi('users');
         return Promise.resolve([]);
     }
 
