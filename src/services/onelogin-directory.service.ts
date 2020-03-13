@@ -16,6 +16,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
     private dirConfig: OneLoginConfiguration;
     private syncConfig: SyncConfiguration;
     private accessToken: string;
+    private allUsers: any[] = [];
 
     constructor(private configurationService: ConfigurationService, private logService: LogService,
         private i18nService: I18nService) {
@@ -64,25 +65,58 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
 
     private async getUsers(force: boolean): Promise<UserEntry[]> {
         const entries: UserEntry[] = [];
-        const lastSync = await this.configurationService.getLastUserSyncDate();
-        // const oktaFilter = this.buildOktaFilter(this.syncConfig.userFilter, force, lastSync);
+        const query = this.createDirectoryQuery(this.syncConfig.userFilter);
         const setFilter = this.createCustomSet(this.syncConfig.userFilter);
-
         this.logService.info('Querying users.');
-        /*
-        const usersPromise = this.client.listUsers({ filter: oktaFilter }).each((user: any) => {
+        this.allUsers = await this.apiGetMany('users' + (query != null ? '?' + query : ''));
+        this.allUsers.forEach((user) => {
             const entry = this.buildUser(user);
             if (entry != null && !this.filterOutResult(setFilter, entry.email)) {
                 entries.push(entry);
             }
         });
-        */
-        const users = this.getApi('users');
-        return Promise.resolve([]);
+        return Promise.resolve(entries);
+    }
+
+    private buildUser(user: any) {
+        const entry = new UserEntry();
+        entry.externalId = user.id;
+        entry.referenceId = user.id;
+        entry.email = user.email != null ? user.email.trim().toLowerCase() : null;
+        entry.deleted = false;
+        entry.disabled = user.status === 2;
+        return entry;
     }
 
     private async getGroups(force: boolean, setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
-        return Promise.resolve([]);
+        const entries: GroupEntry[] = [];
+        const query = this.createDirectoryQuery(this.syncConfig.groupFilter);
+        this.logService.info('Querying groups.');
+        const roles = await this.apiGetMany('roles' + (query != null ? '?' + query : ''));
+        roles.forEach((role) => {
+            const entry = this.buildGroup(role);
+            if (entry != null && !this.filterOutResult(setFilter, entry.name)) {
+                entries.push(entry);
+            }
+        });
+        return Promise.resolve(entries);
+    }
+
+    private buildGroup(group: any) {
+        const entry = new GroupEntry();
+        entry.externalId = group.id;
+        entry.referenceId = group.id;
+        entry.name = group.name;
+
+        if (this.allUsers != null) {
+            this.allUsers.forEach((user) => {
+                if (user.role_id != null && user.role_id.indexOf(entry.referenceId) > -1) {
+                    entry.userMemberExternalIds.add(user.id);
+                }
+            });
+        }
+
+        return entry;
     }
 
     private async getAccessToken() {
@@ -106,7 +140,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         return null;
     }
 
-    private async getApi(endpoint: string): Promise<any> {
+    private async apiGetCall(url: string): Promise<any> {
         const req: RequestInit = {
             method: 'GET',
             headers: new Headers({
@@ -115,11 +149,28 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
             }),
         };
         const response = await fetch(
-            new Request(`https://api.${this.dirConfig.region}.onelogin.com/api/1/${endpoint}`, req));
+            new Request(url, req));
         if (response.status === 200) {
             const responseJson = await response.json();
             return responseJson;
         }
         return null;
+    }
+
+    private async apiGetMany(endpoint: string, currentData: any[] = []): Promise<any[]> {
+        const url = endpoint.indexOf('https://') === 0 ? endpoint :
+            `https://api.${this.dirConfig.region}.onelogin.com/api/1/${endpoint}`;
+        const response = await this.apiGetCall(url);
+        if (response == null || response.status == null || response.data == null) {
+            return currentData;
+        }
+        if (response.status.code !== 200) {
+            throw new Error('API call failed.');
+        }
+        currentData = currentData.concat(response.data);
+        if (response.pagination == null || response.pagination.next_link == null) {
+            return currentData;
+        }
+        return this.apiGetMany(response.pagination.next_link, currentData);
     }
 }
