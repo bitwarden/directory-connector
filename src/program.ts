@@ -184,6 +184,7 @@ export class Program extends BaseProgram {
                 writeLn('    azure.key - The Azure AD secret key.');
                 writeLn('    gsuite.key - The G Suite private key.');
                 writeLn('    okta.token - The Okta token.');
+                writeLn('    onelogin.secret - The OneLogin client secret.');
                 writeLn('');
                 writeLn('  Examples:');
                 writeLn('');
@@ -194,6 +195,7 @@ export class Program extends BaseProgram {
                 writeLn('    bwdc config azure.key <key>');
                 writeLn('    bwdc config gsuite.key <key>');
                 writeLn('    bwdc config okta.token <token>');
+                writeLn('    bwdc config onelogin.secret <secret>');
                 writeLn('', true);
             })
             .action(async (setting, value, cmd) => {
