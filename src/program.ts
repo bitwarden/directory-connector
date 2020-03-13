@@ -40,6 +40,7 @@ export class Program extends BaseProgram {
             .option('--raw', 'Return raw output instead of a descriptive message.')
             .option('--response', 'Return a JSON formatted version of response output.')
             .option('--quiet', 'Don\'t return anything to stdout.')
+            .option('--nointeraction', 'Do not prompt for interactive user input.')
             .version(this.main.platformUtilsService.getApplicationVersion(), '-v, --version');
 
         program.on('option:pretty', () => {
@@ -56,6 +57,10 @@ export class Program extends BaseProgram {
 
         program.on('option:response', () => {
             process.env.BW_RESPONSE = 'true';
+        });
+
+        program.on('option:nointeraction', () => {
+            process.env.BW_NOINTERACTION = 'true';
         });
 
         program.on('command:*', () => {
