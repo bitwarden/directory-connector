@@ -50,7 +50,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
             { name: 'Azure Active Directory', value: DirectoryType.AzureActiveDirectory },
             { name: 'G Suite (Google)', value: DirectoryType.GSuite },
             { name: 'Okta', value: DirectoryType.Okta },
-            // { name: 'OneLogin', value: DirectoryType.OneLogin },
+            { name: 'OneLogin', value: DirectoryType.OneLogin },
         ];
     }
 
