@@ -20,6 +20,7 @@ import { LogService } from 'jslib/abstractions/log.service';
 const NextLink = '@odata.nextLink';
 const DeltaLink = '@odata.deltaLink';
 const ObjectType = '@odata.type';
+const UserSelectParams = '?$select=id,mail,userPrincipalName,displayName,accountEnabled';
 
 enum UserSetType {
     IncludeUser,
@@ -78,7 +79,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
     private async getCurrentUsers(): Promise<UserEntry[]> {
         const entryIds = new Set<string>();
         const entries: UserEntry[] = [];
-        const userReq = this.client.api('/users');
+        const userReq = this.client.api('/users' + UserSelectParams);
         let res = await userReq.get();
         const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
         while (true) {
@@ -130,7 +131,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         }
 
         if (res == null) {
-            const userReq = this.client.api('/users/delta');
+            const userReq = this.client.api('/users/delta' + UserSelectParams);
             res = await userReq.get();
         }
 
