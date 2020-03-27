@@ -51,7 +51,7 @@ export class SyncService {
         try {
             const entries = await directoryService.getEntries(force || syncConfig.overwriteExisting, test);
             let groups = entries[0];
-            let users = entries[1];
+            let users = this.filterUnsupportedUsers(entries[1]);
 
             if (groups != null && groups.length > 0) {
                 this.flattenUsersToGroups(groups, groups);
@@ -101,6 +101,10 @@ export class SyncService {
             this.messagingService.send('dirSyncCompleted', { successfully: false });
             throw e;
         }
+    }
+
+    private filterUnsupportedUsers(users: UserEntry[]): UserEntry[] {
+        return users.filter((u) => u.email.length <= 50);
     }
 
     private flattenUsersToGroups(levelGroups: GroupEntry[], allGroups: GroupEntry[]): Set<string> {
