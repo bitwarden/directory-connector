@@ -104,7 +104,7 @@ export class SyncService {
     }
 
     private filterUnsupportedUsers(users: UserEntry[]): UserEntry[] {
-        return users.filter((u) => u.email.length <= 50);
+        return users.filter((u) => u.email == null || u.email.length <= 50);
     }
 
     private flattenUsersToGroups(levelGroups: GroupEntry[], allGroups: GroupEntry[]): Set<string> {
