@@ -33,6 +33,14 @@
                             <label class="form-check-label" for="ad">{{'ldapAd' | i18n}}</label>
                         </div>
                     </div>
+                    <div class="form-group" *ngIf="!ldap.ad">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="pagedSearch"
+                                [(ngModel)]="ldap.pagedSearch" name="PagedSearch">
+                            <label class="form-check-label"
+                                for="pagedSearch">{{'ldapPagedResults' | i18n}}</label>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="ldapEncrypted" [(ngModel)]="ldap.ssl"
