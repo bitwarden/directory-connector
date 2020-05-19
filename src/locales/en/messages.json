@@ -447,6 +447,9 @@
     "ldapAd": {
         "message": "This server uses Active Directory"
     },
+    "ldapPagedResults": {
+        "message": "This server pages search results"
+    },
     "select": {
         "message": "Select"
     },
