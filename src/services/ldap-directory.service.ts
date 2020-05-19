@@ -293,7 +293,7 @@ export class LdapDirectoryService implements DirectoryService {
         const options: ldap.SearchOptions = {
             filter: filter,
             scope: 'sub',
-            paged: false,
+            paged: this.dirConfig.pagedSearch,
         };
         const entries: T[] = [];
         return new Promise<T[]>((resolve, reject) => {
