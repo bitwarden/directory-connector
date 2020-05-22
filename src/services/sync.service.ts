@@ -104,11 +104,14 @@ export class SyncService {
     }
 
     private filterUnsupportedUsers(users: UserEntry[]): UserEntry[] {
-        return users.filter((u) => u.email == null || u.email.length <= 50);
+        return users == null ? null : users.filter((u) => u.email == null || u.email.length <= 50);
     }
 
     private flattenUsersToGroups(levelGroups: GroupEntry[], allGroups: GroupEntry[]): Set<string> {
         let allUsers = new Set<string>();
+        if (allGroups == null) {
+            return allUsers;
+        }
         for (const group of levelGroups) {
             const childGroups = allGroups.filter((g) => group.groupMemberReferenceIds.has(g.referenceId));
             const childUsers = this.flattenUsersToGroups(childGroups, allGroups);
