@@ -231,7 +231,7 @@ export class LdapDirectoryService implements DirectoryService {
     }
 
     private makeSearchPath(pathPrefix: string) {
-        if (this.dirConfig.rootPath.indexOf('dc=') === -1) {
+        if (this.dirConfig.rootPath.toLowerCase().indexOf('dc=') === -1) {
             return pathPrefix;
         }
         if (this.dirConfig.rootPath != null && this.dirConfig.rootPath.trim() !== '') {
