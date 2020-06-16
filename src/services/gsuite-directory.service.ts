@@ -192,9 +192,6 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
                     if (member.type == null) {
                         continue;
                     }
-                    if (member.role == null || member.role.toLowerCase() !== 'member') {
-                        continue;
-                    }
                     if (member.status == null || member.status.toLowerCase() !== 'active') {
                         continue;
                     }
