@@ -88,8 +88,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         entry.deleted = false;
         entry.disabled = user.status === 2;
         entry.email = user.email;
-        const emailInvalid = (ue: UserEntry) => ue.email == null || ue.email === '';
-        if (emailInvalid(entry) && user.username != null && user.username !== '') {
+        if (!this.validEmailAddress(entry.email) && user.username != null && user.username !== '') {
             if (this.validEmailAddress(user.username)) {
                 entry.email = user.username;
             } else if (this.syncConfig.useEmailPrefixSuffix && this.syncConfig.emailSuffix != null) {
@@ -99,7 +98,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         if (entry.email != null) {
             entry.email = entry.email.trim().toLowerCase();
         }
-        if (emailInvalid(entry) || !this.validEmailAddress(entry.email)) {
+        if (!this.validEmailAddress(entry.email)) {
             return null;
         }
         return entry;
@@ -192,6 +191,6 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
     }
 
     private validEmailAddress(email: string) {
-        return ValidEmailRegex.test(email);
+        return email != null && email !== '' && ValidEmailRegex.test(email);
     }
 }
