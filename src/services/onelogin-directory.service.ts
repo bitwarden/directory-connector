@@ -12,8 +12,8 @@ import { DirectoryService } from './directory.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 
-// Basic email validation: something@somthing.something
-const ValidEmailRegex = /\S+@\S+\.\S+/;
+// Basic email validation: something@something.something
+const ValidEmailRegex = /^\S+@\S+\.\S+$/;
 
 export class OneLoginDirectoryService extends BaseDirectoryService implements DirectoryService {
     private dirConfig: OneLoginConfiguration;
@@ -87,7 +87,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         entry.referenceId = user.id;
         entry.deleted = false;
         entry.disabled = user.status === 2;
-        entry.email = user.email != null ? user.email : null;
+        entry.email = user.email;
         const emailInvalid = (ue: UserEntry) => ue.email == null || ue.email === '';
         if (emailInvalid(entry) && user.username != null && user.username !== '') {
             if (this.validEmailAddress(user.username)) {
