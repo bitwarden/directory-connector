@@ -12,6 +12,9 @@ import { DirectoryService } from './directory.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 
+// Basic email validation: something@somthing.something
+const ValidEmailRegex = /\S+@\S+\.\S+/;
+
 export class OneLoginDirectoryService extends BaseDirectoryService implements DirectoryService {
     private dirConfig: OneLoginConfiguration;
     private syncConfig: SyncConfiguration;
@@ -82,9 +85,23 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         const entry = new UserEntry();
         entry.externalId = user.id;
         entry.referenceId = user.id;
-        entry.email = user.email != null ? user.email.trim().toLowerCase() : null;
         entry.deleted = false;
         entry.disabled = user.status === 2;
+        entry.email = user.email != null ? user.email : null;
+        const emailInvalid = (ue: UserEntry) => ue.email == null || ue.email === '';
+        if (emailInvalid(entry) && user.username != null && user.username !== '') {
+            if (this.validEmailAddress(user.username)) {
+                entry.email = user.username;
+            } else if (this.syncConfig.useEmailPrefixSuffix && this.syncConfig.emailSuffix != null) {
+                entry.email = user.username + this.syncConfig.emailSuffix;
+            }
+        }
+        if (entry.email != null) {
+            entry.email = entry.email.trim().toLowerCase();
+        }
+        if (emailInvalid(entry) || !this.validEmailAddress(entry.email)) {
+            return null;
+        }
         return entry;
     }
 
@@ -172,5 +189,9 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
             return currentData;
         }
         return this.apiGetMany(response.pagination.next_link, currentData);
+    }
+
+    private validEmailAddress(email: string) {
+        return ValidEmailRegex.test(email);
     }
 }
