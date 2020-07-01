@@ -1,3 +1,5 @@
+import { SyncConfiguration } from '../models/syncConfiguration';
+
 import { GroupEntry } from '../models/groupEntry';
 import { UserEntry } from '../models/userEntry';
 
@@ -66,13 +68,16 @@ export abstract class BaseDirectoryService {
     }
 
     protected filterUsersFromGroupsSet(users: UserEntry[], groups: GroupEntry[],
-        setFilter: [boolean, Set<string>]): UserEntry[] {
+        setFilter: [boolean, Set<string>], syncConfig: SyncConfiguration): UserEntry[] {
         if (setFilter == null || users == null) {
             return users;
         }
 
         return users.filter((u) => {
-            if (u.disabled || u.deleted) {
+            if (u.deleted) {
+                return true;
+            }
+            if (u.disabled && syncConfig.removeDisabled) {
                 return true;
             }
 
