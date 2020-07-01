@@ -59,7 +59,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
         if (this.syncConfig.groups) {
             const setFilter = this.createCustomSet(this.syncConfig.groupFilter);
             groups = await this.getGroups(this.forceGroup(force, users), setFilter);
-            users = this.filterUsersFromGroupsSet(users, groups, setFilter);
+            users = this.filterUsersFromGroupsSet(users, groups, setFilter, this.syncConfig);
         }
 
         return [groups, users];
