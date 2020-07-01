@@ -70,7 +70,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         if (this.syncConfig.groups) {
             const setFilter = this.createCustomSet(this.syncConfig.groupFilter);
             groups = await this.getGroups(setFilter);
-            users = this.filterUsersFromGroupsSet(users, groups, setFilter);
+            users = this.filterUsersFromGroupsSet(users, groups, setFilter, this.syncConfig);
         }
 
         return [groups, users];
