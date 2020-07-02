@@ -199,7 +199,6 @@
     "@angular/router": "7.2.1",
     "@angular/upgrade": "7.2.1",
     "@microsoft/microsoft-graph-client": "1.2.0",
-    "@okta/okta-sdk-nodejs": "2.0.1",
     "angular2-toaster": "6.1.0",
     "angulartics2": "6.3.0",
     "big-integer": "1.6.36",
