@@ -121,6 +121,8 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
                 if (entry != null && !this.filterOutResult(setFilter, entry.name)) {
                     entries.push(entry);
                 }
+                // throttle some to avoid rate limiting
+                await new Promise((resolve) => setTimeout(resolve, 500));
             }
         });
         return entries;
