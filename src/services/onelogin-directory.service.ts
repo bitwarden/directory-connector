@@ -164,8 +164,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
                 'Accept': 'application/json',
             }),
         };
-        const response = await fetch(
-            new Request(url, req));
+        const response = await fetch(new Request(url, req));
         if (response.status === 200) {
             const responseJson = await response.json();
             return responseJson;
