@@ -202,7 +202,6 @@
     "@types/bent": "^7.0.2",
     "angular2-toaster": "6.1.0",
     "angulartics2": "6.3.0",
-    "bent": "git+https://git@github.com/kspearrin/bent.git",
     "big-integer": "1.6.36",
     "bootstrap": "4.3.1",
     "chalk": "2.4.1",

@@ -12,7 +12,7 @@ import { DirectoryService } from './directory.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 
-import * as bent from 'bent';
+import * as https from 'https';
 
 export class OktaDirectoryService extends BaseDirectoryService implements DirectoryService {
     private dirConfig: OktaConfiguration;
@@ -160,51 +160,50 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
         return filter == null ? '' : encodeURIComponent(filter);
     }
 
-    /*
-    private async apiGetCall(url: string): Promise<[any, fe.Headers]> {
-        const req: fe.RequestInit = {
-            method: 'GET',
-            headers: new fe.Headers({
-                'Authorization': 'SSWS ' + this.dirConfig.token,
-                'Accept': 'application/json',
-            }),
-        };
-        const response = await fe.default(new fe.Request(url, req));
-        if (response.status === 200) {
-            const responseJson = await response.json();
-            return [responseJson, response.headers];
-        }
-        return null;
-    }
-    */
+    private async apiGetCall(url: string): Promise<[any, Map<string, string | string[]>]> {
+        const u = new URL(url);
+        return new Promise((resolve) => {
+            https.get({
+                hostname: u.hostname,
+                path: u.pathname + u.search,
+                port: 443,
+                headers: {
+                    Authorization: 'SSWS ' + this.dirConfig.token,
+                    Accept: 'application/json',
+                },
+            }, (res) => {
+                let body = '';
 
-    private async apiGetCall(url: string): Promise<[any, Map<string, string>]> {
-        let baseUrl: string = null;
-        let endpoint: string = null;
-        if (url.indexOf('https://') > -1) {
-            const parts = url.split('/api/v1/');
-            if (parts.length > 1) {
-                baseUrl = parts[0] + '/api/v1/';
-                endpoint = parts[1];
-            }
-        }
-        const getReq = bent(baseUrl);
-        const response: any = await getReq(endpoint, null, { Authorization: 'SSWS ' + this.dirConfig.token });
-        if (response.status === 200) {
-            const responseJson = await response.json();
-            if (response.headers != null) {
-                const headersMap = new Map<string, string>();
-                for (const key in response.headers) {
-                    if (response.headers.hasOwnProperty(key)) {
-                        const val = response.headers[key];
-                        headersMap.set(key.toLowerCase(), val);
+                res.on('data', (chunk) => {
+                    body += chunk;
+                });
+
+                res.on('end', () => {
+                    if (res.statusCode !== 200) {
+                        resolve(null);
+                        return;
                     }
-                }
-                return [responseJson, headersMap];
-            }
-            return [responseJson, null];
-        }
-        return null;
+
+                    const responseJson = JSON.parse(body);
+                    if (res.headers != null) {
+                        const headersMap = new Map<string, string | string[]>();
+                        for (const key in res.headers) {
+                            if (res.headers.hasOwnProperty(key)) {
+                                const val = res.headers[key];
+                                headersMap.set(key.toLowerCase(), val);
+                            }
+                        }
+                        resolve([responseJson, headersMap]);
+                        return;
+                    }
+                    resolve([responseJson, null]);
+                });
+
+                res.on('error', () => {
+                    resolve(null);
+                });
+            });
+        });
     }
 
     private async apiGetMany(endpoint: string, currentData: any[] = []): Promise<any[]> {
@@ -221,7 +220,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
             return currentData;
         }
         const linkHeader = response[1].get('link');
-        if (linkHeader == null) {
+        if (linkHeader == null || Array.isArray(linkHeader)) {
             return currentData;
         }
         let nextLink: string = null;
