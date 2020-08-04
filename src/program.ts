@@ -86,6 +86,7 @@ export class Program extends BaseProgram {
             .description('Log into a user account.')
             .option('--method <method>', 'Two-step login method.')
             .option('--code <code>', 'Two-step login code.')
+            .option('--sso', 'Log in with Single-Sign On.')
             .on('--help', () => {
                 writeLn('\n  Notes:');
                 writeLn('');
@@ -96,11 +97,14 @@ export class Program extends BaseProgram {
                 writeLn('    bw login');
                 writeLn('    bw login john@example.com myPassword321');
                 writeLn('    bw login john@example.com myPassword321 --method 1 --code 249213');
+                writeLn('    bw login --sso');
                 writeLn('', true);
             })
             .action(async (email: string, password: string, cmd: program.Command) => {
                 await this.exitIfAuthed();
-                const command = new LoginCommand(this.main.authService, this.main.apiService, this.main.i18nService);
+                const command = new LoginCommand(this.main.authService, this.main.apiService, this.main.i18nService,
+                    this.main.environmentService, this.main.passwordGenerationService, this.main.cryptoFunctionService,
+                    'connector');
                 const response = await command.run(email, password, cmd);
                 this.processResponse(response);
             });
