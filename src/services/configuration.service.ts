@@ -5,8 +5,8 @@ import { AzureConfiguration } from '../models/azureConfiguration';
 import { GSuiteConfiguration } from '../models/gsuiteConfiguration';
 import { LdapConfiguration } from '../models/ldapConfiguration';
 import { OktaConfiguration } from '../models/oktaConfiguration';
+import { OneLoginConfiguration } from '../models/oneLoginConfiguration';
 import { SyncConfiguration } from '../models/syncConfiguration';
-import { OneLoginConfiguration } from 'src/models/oneLoginConfiguration';
 
 const StoredSecurely = '[STORED SECURELY]';
 const Keys = {
