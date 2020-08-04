@@ -49,7 +49,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
 
         await this.auth();
 
-        let users: UserEntry[];
+        let users: UserEntry[] = [];
         if (this.syncConfig.users) {
             users = await this.getUsers();
         }
