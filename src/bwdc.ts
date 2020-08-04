@@ -22,6 +22,7 @@ import { LowdbStorageService } from 'jslib/services/lowdbStorage.service';
 import { NodeApiService } from 'jslib/services/nodeApi.service';
 import { NodeCryptoFunctionService } from 'jslib/services/nodeCryptoFunction.service';
 import { NoopMessagingService } from 'jslib/services/noopMessaging.service';
+import { PasswordGenerationService } from 'jslib/services/passwordGeneration.service';
 import { TokenService } from 'jslib/services/token.service';
 import { UserService } from 'jslib/services/user.service';
 
@@ -52,6 +53,7 @@ export class Main {
     authService: AuthService;
     configurationService: ConfigurationService;
     syncService: SyncService;
+    passwordGenerationService: PasswordGenerationService;
     program: Program;
 
     constructor() {
@@ -92,11 +94,12 @@ export class Main {
         this.userService = new UserService(this.tokenService, this.storageService);
         this.containerService = new ContainerService(this.cryptoService);
         this.authService = new AuthService(this.cryptoService, this.apiService, this.userService, this.tokenService,
-            this.appIdService, this.i18nService, this.platformUtilsService, this.messagingService, true);
+            this.appIdService, this.i18nService, this.platformUtilsService, this.messagingService, null, false);
         this.configurationService = new ConfigurationService(this.storageService, this.secureStorageService,
             process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== 'true');
         this.syncService = new SyncService(this.configurationService, this.logService, this.cryptoFunctionService,
             this.apiService, this.messagingService, this.i18nService);
+        this.passwordGenerationService = new PasswordGenerationService(this.cryptoService, this.storageService, null);
         this.program = new Program(this);
     }
 

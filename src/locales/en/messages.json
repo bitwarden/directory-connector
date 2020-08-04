@@ -140,6 +140,9 @@
     "baseUrl": {
         "message": "Server URL"
     },
+    "webVaultUrl": {
+        "message": "Web Vault Server URL"
+    },
     "apiUrl": {
         "message": "API Server URL"
     },

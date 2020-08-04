@@ -160,8 +160,8 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         const req: RequestInit = {
             method: 'GET',
             headers: new Headers({
-                'Authorization': 'bearer:' + this.accessToken,
-                'Accept': 'application/json',
+                Authorization: 'bearer:' + this.accessToken,
+                Accept: 'application/json',
             }),
         };
         const response = await fetch(new Request(url, req));
