@@ -52,7 +52,8 @@ export class Main {
         this.i18nService = new I18nService('en', './locales/');
         this.storageService = new ElectronStorageService(app.getPath('userData'));
 
-        this.windowMain = new WindowMain(this.storageService, false, 800, 600);
+        this.windowMain = new WindowMain(this.storageService, false, 800, 600,
+            (arg) => this.processDeepLink(arg));
         this.menuMain = new MenuMain(this);
         this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain, 'directory-connector', () => {
             this.messagingService.send('checkingForUpdate');
@@ -78,9 +79,30 @@ export class Main {
             this.messagingMain.init();
             await this.updaterMain.init();
             await this.trayMain.init(this.i18nService.t('bitwardenDirectoryConnector'));
+
+            if (!app.isDefaultProtocolClient('bwdc')) {
+                app.setAsDefaultProtocolClient('bwdc');
+            }
+
+            // Process protocol for macOS
+            app.on('open-url', (event, url) => {
+                event.preventDefault();
+                this.processDeepLink([url]);
+            });
         }, (e: any) => {
             // tslint:disable-next-line
             console.error(e);
+        });
+    }
+
+    private processDeepLink(argv: string[]): void {
+        argv.filter((s) => s.indexOf('bwdc://') === 0).forEach((s) => {
+            const url = new URL(s);
+            const code = url.searchParams.get('code');
+            const receivedState = url.searchParams.get('state');
+            if (code != null && receivedState != null) {
+                this.messagingService.send('ssoCallback', { code: code, state: receivedState });
+            }
         });
     }
 }

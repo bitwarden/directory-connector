@@ -8,6 +8,7 @@ import { AuthGuardService } from './services/auth-guard.service';
 import { LaunchGuardService } from './services/launch-guard.service';
 
 import { LoginComponent } from './accounts/login.component';
+import { SsoComponent } from './accounts/sso.component';
 import { TwoFactorComponent } from './accounts/two-factor.component';
 import { DashboardComponent } from './tabs/dashboard.component';
 import { MoreComponent } from './tabs/more.component';
@@ -22,6 +23,7 @@ const routes: Routes = [
         canActivate: [LaunchGuardService],
     },
     { path: '2fa', component: TwoFactorComponent },
+    { path: 'sso', component: SsoComponent },
     {
         path: 'tabs',
         component: TabsComponent,
