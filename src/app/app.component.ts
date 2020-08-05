@@ -133,6 +133,9 @@ export class AppComponent implements OnInit {
                             properties: { label: message.label },
                         });
                         break;
+                    case 'ssoCallback':
+                        this.router.navigate(['sso'], { queryParams: { code: message.code, state: message.state } });
+                        break;
                     default:
                 }
             });
