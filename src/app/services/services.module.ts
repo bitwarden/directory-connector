@@ -62,7 +62,7 @@ const stateService = new StateService();
 const broadcasterService = new BroadcasterService();
 const messagingService = new ElectronRendererMessagingService(broadcasterService);
 const storageService: StorageServiceAbstraction = new ElectronStorageService(remote.app.getPath('userData'));
-const platformUtilsService = new ElectronPlatformUtilsService(i18nService, messagingService, true, storageService);
+const platformUtilsService = new ElectronPlatformUtilsService(i18nService, messagingService, false, storageService);
 const secureStorageService: StorageServiceAbstraction = new ElectronRendererSecureStorageService();
 const cryptoFunctionService: CryptoFunctionServiceAbstraction = new NodeCryptoFunctionService();
 const cryptoService = new CryptoService(storageService, secureStorageService, cryptoFunctionService);
@@ -140,6 +140,7 @@ export function initFactory(): Function {
         { provide: ConfigurationService, useValue: configurationService },
         { provide: SyncService, useValue: syncService },
         { provide: PasswordGenerationServiceAbstraction, useValue: passwordGenerationService },
+        { provide: CryptoFunctionServiceAbstraction, useValue: cryptoFunctionService },
         {
             provide: APP_INITIALIZER,
             useFactory: initFactory,
