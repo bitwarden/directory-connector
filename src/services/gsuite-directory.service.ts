@@ -194,14 +194,14 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
                     }
                     const type = member.type.toLowerCase();
                     if (type === 'user') {
-                        if (member.status.toLowerCase() !== 'active') {
+                        if (member.status == null || member.status.toLowerCase() !== 'active') {
                             continue;
                         }
                         entry.userMemberExternalIds.add(member.id);
                     } else if (type === 'group') {
                         entry.groupMemberReferenceIds.add(member.id);
                     } else if (type === 'customer') {
-                        for(let user of users) {
+                        for (let user of users) {
                             entry.userMemberExternalIds.add(user.externalId);
                         }
                     }
