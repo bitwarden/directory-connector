@@ -49,7 +49,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
 
         await this.auth();
 
-        let users: UserEntry[];
+        let users: UserEntry[] = [];
         if (this.syncConfig.users) {
             users = await this.getUsers();
         }
@@ -57,7 +57,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         let groups: GroupEntry[];
         if (this.syncConfig.groups) {
             const setFilter = this.createCustomSet(this.syncConfig.groupFilter);
-            groups = await this.getGroups(setFilter);
+            groups = await this.getGroups(setFilter, users);
             users = this.filterUsersFromGroupsSet(users, groups, setFilter, this.syncConfig);
         }
 
@@ -140,7 +140,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         return entry;
     }
 
-    private async getGroups(setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
+    private async getGroups(setFilter: [boolean, Set<string>], users: UserEntry[]): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
         let nextPageToken: string = null;
 
@@ -156,7 +156,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
             if (res.data.groups != null) {
                 for (const group of res.data.groups) {
                     if (!this.filterOutResult(setFilter, group.name)) {
-                        const entry = await this.buildGroup(group);
+                        const entry = await this.buildGroup(group, users);
                         entries.push(entry);
                     }
                 }
@@ -170,7 +170,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
         return entries;
     }
 
-    private async buildGroup(group: admin_directory_v1.Schema$Group) {
+    private async buildGroup(group: admin_directory_v1.Schema$Group, users: UserEntry[]) {
         let nextPageToken: string = null;
 
         const entry = new GroupEntry();
@@ -192,15 +192,18 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
                     if (member.type == null) {
                         continue;
                     }
-                    if (member.status == null || member.status.toLowerCase() !== 'active') {
-                        continue;
-                    }
-
                     const type = member.type.toLowerCase();
                     if (type === 'user') {
+                        if (member.status == null || member.status.toLowerCase() !== 'active') {
+                            continue;
+                        }
                         entry.userMemberExternalIds.add(member.id);
                     } else if (type === 'group') {
                         entry.groupMemberReferenceIds.add(member.id);
+                    } else if (type === 'customer') {
+                        for (let user of users) {
+                            entry.userMemberExternalIds.add(user.externalId);
+                        }
                     }
                 }
             }
