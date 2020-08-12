@@ -33,9 +33,4 @@ export class SsoComponent extends BaseSsoComponent {
         this.redirectUri = 'bwdc://sso-callback';
         this.clientId = 'connector';
     }
-
-    async submit() {
-        await super.submit();
-        this.router.navigate(['login']);
-    }
 }

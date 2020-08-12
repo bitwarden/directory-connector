@@ -50,4 +50,8 @@ export class LoginComponent extends BaseLoginComponent {
             modal.close();
         });
     }
+
+    sso() {
+        return super.launchSsoBrowser('connector', 'bwdc://sso-callback');
+    }
 }
