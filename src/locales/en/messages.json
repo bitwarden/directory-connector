@@ -614,5 +614,8 @@
     },
     "region": {
         "message": "Region"
+    },
+    "enterpriseSingleSignOn": {
+        "message": "Enterprise Single Sign-On"
     }
 }
