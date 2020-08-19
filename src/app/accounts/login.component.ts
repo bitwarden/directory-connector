@@ -25,7 +25,7 @@ import { ModalComponent } from 'jslib/angular/components/modal.component';
     templateUrl: 'login.component.html',
 })
 export class LoginComponent extends BaseLoginComponent {
-    @ViewChild('environment', { read: ViewContainerRef }) environmentModal: ViewContainerRef;
+    @ViewChild('environment', { read: ViewContainerRef, static: true }) environmentModal: ViewContainerRef;
 
     constructor(authService: AuthService, router: Router,
         i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver,
