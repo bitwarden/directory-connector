@@ -26,6 +26,7 @@ import { TwoFactorOptionsComponent } from './accounts/two-factor-options.compone
 import { TwoFactorComponent } from './accounts/two-factor.component';
 import { DashboardComponent } from './tabs/dashboard.component';
 import { MoreComponent } from './tabs/more.component';
+import { SetPasswordComponent } from './accounts/set-password.component';
 import { SettingsComponent } from './tabs/settings.component';
 import { TabsComponent } from './tabs/tabs.component';
 
@@ -72,6 +73,7 @@ import { SearchCiphersPipe } from 'jslib/angular/pipes/search-ciphers.pipe';
         ModalComponent,
         MoreComponent,
         SearchCiphersPipe,
+        SetPasswordComponent,
         SettingsComponent,
         SsoComponent,
         StopClickDirective,
