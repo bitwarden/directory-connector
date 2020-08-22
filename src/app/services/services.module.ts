@@ -143,7 +143,7 @@ export function initFactory(): Function {
         { provide: ConfigurationService, useValue: configurationService },
         { provide: SyncService, useValue: syncService },
         { provide: PasswordGenerationServiceAbstraction, useValue: passwordGenerationService },
-        { provide: CryptoFunctionServiceAbstraction, useValue: cryptoFunctionService }, ,
+        { provide: CryptoFunctionServiceAbstraction, useValue: cryptoFunctionService },
         { provide: PolicyServiceAbstraction, useValue: policyService },
         {
             provide: APP_INITIALIZER,
