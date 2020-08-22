@@ -26,6 +26,7 @@ export class SetPasswordComponent extends BaseSetPasswordComponent {
         platformUtilsService: PlatformUtilsService, policyService: PolicyService, router: Router) {
         super(i18nService, cryptoService, messagingService, userService, passwordGenerationService,
             platformUtilsService, policyService, router, apiService);
+        super.successRoute = '/tabs/dashboard';
     }
 
     get masterPasswordScoreWidth() {
