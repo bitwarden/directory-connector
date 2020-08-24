@@ -53,3 +53,68 @@ ul.testing-list {
         text-decoration: line-through;
     }
 }
+
+.callout {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #000000;
+    border-left-width: 5px;
+    border-radius: 3px;
+    border-color: #ddd;
+    background-color: white;
+
+    .callout-heading {
+        margin-top: 0;
+    }
+
+    h3.callout-heading {
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    &.callout-primary {
+        border-left-color: $primary;
+
+        .callout-heading {
+            color: $primary;
+        }
+    }
+
+    &.callout-info {
+        border-left-color: $info;
+
+        .callout-heading {
+            color: $info; 
+        }
+    }
+
+    &.callout-danger {
+        border-left-color: $danger;
+
+        .callout-heading {
+            color: $danger;
+        }
+    }
+
+    &.callout-success {
+        border-left-color: $success;
+
+        .callout-heading {
+            color: $success;
+        }
+    }
+
+    &.callout-warning {
+        border-left-color: $warning;
+
+        .callout-heading {
+            color: $warning;
+        }
+    }
+
+    ul {
+        padding-left: 40px;
+        margin: 0;
+    }
+}
+
