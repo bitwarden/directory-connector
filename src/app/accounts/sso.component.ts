@@ -44,7 +44,7 @@ export class SsoComponent extends BaseSsoComponent {
         this.showMasterPassRedirect = true;
     }
 
-    async launchWebVault() {
+    launchWebVault() {
         const webUrl = this.environmentService.webVaultUrl == null ? 'https://vault.bitwarden.com' :
             this.environmentService.webVaultUrl;
 
