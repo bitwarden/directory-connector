@@ -23,7 +23,7 @@ import { SsoComponent as BaseSsoComponent } from 'jslib/angular/components/sso.c
     templateUrl: 'sso.component.html',
 })
 export class SsoComponent extends BaseSsoComponent {
-    showMasterPassRedirect: boolean = true;
+    showMasterPassRedirect: boolean = false;
 
     constructor(authService: AuthService, router: Router,
         i18nService: I18nService, route: ActivatedRoute,
