@@ -25,7 +25,6 @@ const routes: Routes = [
     },
     { path: '2fa', component: TwoFactorComponent },
     { path: 'sso', component: SsoComponent },
-    { path: 'set-password', component: SetPasswordComponent },
     {
         path: 'tabs',
         component: TabsComponent,
