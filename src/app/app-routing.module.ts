@@ -8,7 +8,6 @@ import { AuthGuardService } from './services/auth-guard.service';
 import { LaunchGuardService } from './services/launch-guard.service';
 
 import { LoginComponent } from './accounts/login.component';
-import { SetPasswordComponent } from './accounts/set-password.component';
 import { SsoComponent } from './accounts/sso.component';
 import { TwoFactorComponent } from './accounts/two-factor.component';
 import { DashboardComponent } from './tabs/dashboard.component';
@@ -25,7 +24,6 @@ const routes: Routes = [
     },
     { path: '2fa', component: TwoFactorComponent },
     { path: 'sso', component: SsoComponent },
-    { path: 'set-password', component: SetPasswordComponent },
     {
         path: 'tabs',
         component: TabsComponent,

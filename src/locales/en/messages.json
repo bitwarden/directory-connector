@@ -716,5 +716,11 @@
     },
     "loading": {
         "message": "Loading"
+    },
+    "setMasterPasswordRedirect": {
+        "message": "In order to log in with SSO from the Directory Connector, you must first log in through the web vault to set your master password."
+    },
+    "launchWebVault": {
+        "message": "Launch Web Vault"
     }
 }
