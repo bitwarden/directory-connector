@@ -36,6 +36,10 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
         storageService: StorageService) {
         super(authService, router, i18nService, apiService, platformUtilsService, window, environmentService,
             stateService, storageService);
+    }
+
+    async ngOnInit() {
+        super.ngOnInit();
         super.successRoute = '/tabs/dashboard';
     }
 
