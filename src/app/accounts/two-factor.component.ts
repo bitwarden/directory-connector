@@ -39,7 +39,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     }
 
     async ngOnInit() {
-        super.ngOnInit();
+        await super.ngOnInit();
         super.successRoute = '/tabs/dashboard';
     }
 
