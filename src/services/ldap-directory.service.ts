@@ -231,7 +231,7 @@ export class LdapDirectoryService implements DirectoryService {
     }
 
     private makeSearchPath(pathPrefix: string) {
-        if (this.dirConfig.rootPath.indexOf('dc=') === -1) {
+        if (this.dirConfig.rootPath.toLowerCase().indexOf('dc=') === -1) {
             return pathPrefix;
         }
         if (this.dirConfig.rootPath != null && this.dirConfig.rootPath.trim() !== '') {
@@ -293,7 +293,7 @@ export class LdapDirectoryService implements DirectoryService {
         const options: ldap.SearchOptions = {
             filter: filter,
             scope: 'sub',
-            paged: true,
+            paged: this.dirConfig.pagedSearch,
         };
         const entries: T[] = [];
         return new Promise<T[]>((resolve, reject) => {

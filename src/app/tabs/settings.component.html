@@ -33,6 +33,14 @@
                             <label class="form-check-label" for="ad">{{'ldapAd' | i18n}}</label>
                         </div>
                     </div>
+                    <div class="form-group" *ngIf="!ldap.ad">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="pagedSearch"
+                                [(ngModel)]="ldap.pagedSearch" name="PagedSearch">
+                            <label class="form-check-label"
+                                for="pagedSearch">{{'ldapPagedResults' | i18n}}</label>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="ldapEncrypted" [(ngModel)]="ldap.ssl"
@@ -263,7 +271,8 @@
                             <small class="text-muted form-text">{{'ex' | i18n}} whenChanged</small>
                         </div>
                     </div>
-
+                </div>
+                <div [hidden]="directory != directoryType.Ldap && directory != directoryType.OneLogin">
                     <div class="form-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="useEmailPrefixSuffix"
@@ -273,7 +282,7 @@
                         </div>
                     </div>
                     <div [hidden]="!sync.useEmailPrefixSuffix">
-                        <div class="form-group" [hidden]="ldap.ad">
+                        <div class="form-group" [hidden]="ldap.ad || directory != directoryType.Ldap">
                             <label for="emailPrefixAttribute">{{'emailPrefixAttribute' | i18n}}</label>
                             <input type="text" class="form-control" id="emailPrefixAttribute"
                                 name="EmailPrefixAttribute" [(ngModel)]="sync.emailPrefixAttribute">

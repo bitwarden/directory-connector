@@ -21,6 +21,7 @@ import { ModalComponent } from 'jslib/angular/components/modal.component';
 
 import { EnvironmentComponent } from './accounts/environment.component';
 import { LoginComponent } from './accounts/login.component';
+import { SsoComponent } from './accounts/sso.component';
 import { TwoFactorOptionsComponent } from './accounts/two-factor-options.component';
 import { TwoFactorComponent } from './accounts/two-factor.component';
 import { DashboardComponent } from './tabs/dashboard.component';
@@ -47,7 +48,7 @@ import { SearchCiphersPipe } from 'jslib/angular/pipes/search-ciphers.pipe';
         FormsModule,
         AppRoutingModule,
         ServicesModule,
-        Angulartics2Module.forRoot([Angulartics2GoogleAnalytics], {
+        Angulartics2Module.forRoot({
             pageTracking: {
                 clearQueryParams: true,
             },
@@ -72,6 +73,7 @@ import { SearchCiphersPipe } from 'jslib/angular/pipes/search-ciphers.pipe';
         MoreComponent,
         SearchCiphersPipe,
         SettingsComponent,
+        SsoComponent,
         StopClickDirective,
         StopPropDirective,
         TabsComponent,

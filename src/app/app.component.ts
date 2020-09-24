@@ -48,7 +48,7 @@ const BroadcasterSubscriptionId = 'AppComponent';
         <router-outlet></router-outlet>`,
 })
 export class AppComponent implements OnInit {
-    @ViewChild('settings', { read: ViewContainerRef }) settingsRef: ViewContainerRef;
+    @ViewChild('settings', { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
 
     toasterConfig: ToasterConfig = new ToasterConfig({
         showCloseButton: true,
@@ -132,6 +132,9 @@ export class AppComponent implements OnInit {
                             action: message.action,
                             properties: { label: message.label },
                         });
+                        break;
+                    case 'ssoCallback':
+                        this.router.navigate(['sso'], { queryParams: { code: message.code, state: message.state } });
                         break;
                     default:
                 }
