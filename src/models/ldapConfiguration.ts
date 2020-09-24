@@ -14,4 +14,5 @@ export class LdapConfiguration {
     username: string;
     password: string;
     ad = true;
+    pagedSearch = true;
 }

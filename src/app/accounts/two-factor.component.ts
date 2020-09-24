@@ -27,7 +27,7 @@ import { TwoFactorComponent as BaseTwoFactorComponent } from 'jslib/angular/comp
     templateUrl: 'two-factor.component.html',
 })
 export class TwoFactorComponent extends BaseTwoFactorComponent {
-    @ViewChild('twoFactorOptions', { read: ViewContainerRef }) twoFactorOptionsModal: ViewContainerRef;
+    @ViewChild('twoFactorOptions', { read: ViewContainerRef, static: true }) twoFactorOptionsModal: ViewContainerRef;
 
     constructor(authService: AuthService, router: Router,
         i18nService: I18nService, apiService: ApiService,
@@ -36,6 +36,10 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
         storageService: StorageService) {
         super(authService, router, i18nService, apiService, platformUtilsService, window, environmentService,
             stateService, storageService);
+    }
+
+    async ngOnInit() {
+        await super.ngOnInit();
         super.successRoute = '/tabs/dashboard';
     }
 

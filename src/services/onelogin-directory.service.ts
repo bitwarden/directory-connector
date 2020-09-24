@@ -12,6 +12,9 @@ import { DirectoryService } from './directory.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 
+// Basic email validation: something@something.something
+const ValidEmailRegex = /^\S+@\S+\.\S+$/;
+
 export class OneLoginDirectoryService extends BaseDirectoryService implements DirectoryService {
     private dirConfig: OneLoginConfiguration;
     private syncConfig: SyncConfiguration;
@@ -57,7 +60,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         if (this.syncConfig.groups) {
             const setFilter = this.createCustomSet(this.syncConfig.groupFilter);
             groups = await this.getGroups(this.forceGroup(force, users), setFilter);
-            users = this.filterUsersFromGroupsSet(users, groups, setFilter);
+            users = this.filterUsersFromGroupsSet(users, groups, setFilter, this.syncConfig);
         }
 
         return [groups, users];
@@ -82,9 +85,22 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         const entry = new UserEntry();
         entry.externalId = user.id;
         entry.referenceId = user.id;
-        entry.email = user.email != null ? user.email.trim().toLowerCase() : null;
         entry.deleted = false;
         entry.disabled = user.status === 2;
+        entry.email = user.email;
+        if (!this.validEmailAddress(entry.email) && user.username != null && user.username !== '') {
+            if (this.validEmailAddress(user.username)) {
+                entry.email = user.username;
+            } else if (this.syncConfig.useEmailPrefixSuffix && this.syncConfig.emailSuffix != null) {
+                entry.email = user.username + this.syncConfig.emailSuffix;
+            }
+        }
+        if (entry.email != null) {
+            entry.email = entry.email.trim().toLowerCase();
+        }
+        if (!this.validEmailAddress(entry.email)) {
+            return null;
+        }
         return entry;
     }
 
@@ -144,12 +160,11 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         const req: RequestInit = {
             method: 'GET',
             headers: new Headers({
-                'Authorization': 'bearer:' + this.accessToken,
-                'Accept': 'application/json',
+                Authorization: 'bearer:' + this.accessToken,
+                Accept: 'application/json',
             }),
         };
-        const response = await fetch(
-            new Request(url, req));
+        const response = await fetch(new Request(url, req));
         if (response.status === 200) {
             const responseJson = await response.json();
             return responseJson;
@@ -172,5 +187,9 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
             return currentData;
         }
         return this.apiGetMany(response.pagination.next_link, currentData);
+    }
+
+    private validEmailAddress(email: string) {
+        return email != null && email !== '' && ValidEmailRegex.test(email);
     }
 }

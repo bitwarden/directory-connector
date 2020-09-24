@@ -9,7 +9,10 @@ import { Router } from '@angular/router';
 import { EnvironmentComponent } from './environment.component';
 
 import { AuthService } from 'jslib/abstractions/auth.service';
+import { CryptoFunctionService } from 'jslib/abstractions/cryptoFunction.service';
+import { EnvironmentService } from 'jslib/abstractions/environment.service';
 import { I18nService } from 'jslib/abstractions/i18n.service';
+import { PasswordGenerationService } from 'jslib/abstractions/passwordGeneration.service';
 import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
 import { StateService } from 'jslib/abstractions/state.service';
 import { StorageService } from 'jslib/abstractions/storage.service';
@@ -22,13 +25,18 @@ import { ModalComponent } from 'jslib/angular/components/modal.component';
     templateUrl: 'login.component.html',
 })
 export class LoginComponent extends BaseLoginComponent {
-    @ViewChild('environment', { read: ViewContainerRef }) environmentModal: ViewContainerRef;
+    @ViewChild('environment', { read: ViewContainerRef, static: true }) environmentModal: ViewContainerRef;
 
     constructor(authService: AuthService, router: Router,
         i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver,
-        storageService: StorageService, platformUtilsService: PlatformUtilsService,
-        stateService: StateService) {
-        super(authService, router, platformUtilsService, i18nService, storageService, stateService);
+        storageService: StorageService, stateService: StateService,
+        platformUtilsService: PlatformUtilsService, environmentService: EnvironmentService,
+        passwordGenerationService: PasswordGenerationService, cryptoFunctionService: CryptoFunctionService) {
+        super(authService, router,
+            platformUtilsService, i18nService,
+            stateService, environmentService,
+            passwordGenerationService, cryptoFunctionService,
+            storageService);
         super.successRoute = '/tabs/dashboard';
     }
 
@@ -41,5 +49,9 @@ export class LoginComponent extends BaseLoginComponent {
         childComponent.onSaved.subscribe(() => {
             modal.close();
         });
+    }
+
+    sso() {
+        return super.launchSsoBrowser('connector', 'bwdc://sso-callback');
     }
 }

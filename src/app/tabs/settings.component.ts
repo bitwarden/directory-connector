@@ -84,6 +84,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     async submit() {
         ConnectorUtils.adjustConfigForSave(this.ldap, this.sync);
+        if (this.ldap != null && this.ldap.ad) {
+            this.ldap.pagedSearch = true;
+        }
         await this.configurationService.saveOrganizationId(this.organizationId);
         await this.configurationService.saveDirectoryType(this.directory);
         await this.configurationService.saveDirectory(DirectoryType.Ldap, this.ldap);

@@ -33,6 +33,8 @@ import { ContainerService } from 'jslib/services/container.service';
 import { CryptoService } from 'jslib/services/crypto.service';
 import { EnvironmentService } from 'jslib/services/environment.service';
 import { NodeCryptoFunctionService } from 'jslib/services/nodeCryptoFunction.service';
+import { PasswordGenerationService } from 'jslib/services/passwordGeneration.service';
+import { PolicyService } from 'jslib/services/policy.service';
 import { StateService } from 'jslib/services/state.service';
 import { TokenService } from 'jslib/services/token.service';
 import { UserService } from 'jslib/services/user.service';
@@ -46,7 +48,11 @@ import { EnvironmentService as EnvironmentServiceAbstraction } from 'jslib/abstr
 import { I18nService as I18nServiceAbstraction } from 'jslib/abstractions/i18n.service';
 import { LogService as LogServiceAbstraction } from 'jslib/abstractions/log.service';
 import { MessagingService as MessagingServiceAbstraction } from 'jslib/abstractions/messaging.service';
+import {
+    PasswordGenerationService as PasswordGenerationServiceAbstraction,
+} from 'jslib/abstractions/passwordGeneration.service';
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from 'jslib/abstractions/platformUtils.service';
+import { PolicyService as PolicyServiceAbstraction } from 'jslib/abstractions/policy.service';
 import { StateService as StateServiceAbstraction } from 'jslib/abstractions/state.service';
 import { StorageService as StorageServiceAbstraction } from 'jslib/abstractions/storage.service';
 import { TokenService as TokenServiceAbstraction } from 'jslib/abstractions/token.service';
@@ -57,8 +63,8 @@ const i18nService = new I18nService(window.navigator.language, './locales');
 const stateService = new StateService();
 const broadcasterService = new BroadcasterService();
 const messagingService = new ElectronRendererMessagingService(broadcasterService);
-const platformUtilsService = new ElectronPlatformUtilsService(i18nService, messagingService, true);
 const storageService: StorageServiceAbstraction = new ElectronStorageService(remote.app.getPath('userData'));
+const platformUtilsService = new ElectronPlatformUtilsService(i18nService, messagingService, false, storageService);
 const secureStorageService: StorageServiceAbstraction = new ElectronRendererSecureStorageService();
 const cryptoFunctionService: CryptoFunctionServiceAbstraction = new NodeCryptoFunctionService();
 const cryptoService = new CryptoService(storageService, secureStorageService, cryptoFunctionService);
@@ -70,10 +76,12 @@ const environmentService = new EnvironmentService(apiService, storageService, nu
 const userService = new UserService(tokenService, storageService);
 const containerService = new ContainerService(cryptoService);
 const authService = new AuthService(cryptoService, apiService, userService, tokenService, appIdService,
-    i18nService, platformUtilsService, messagingService, false);
+    i18nService, platformUtilsService, messagingService, null, false);
 const configurationService = new ConfigurationService(storageService, secureStorageService);
 const syncService = new SyncService(configurationService, logService, cryptoFunctionService, apiService,
     messagingService, i18nService);
+const passwordGenerationService = new PasswordGenerationService(cryptoService, storageService, null);
+const policyService = new PolicyService(userService, storageService);
 
 const analytics = new Analytics(window, () => true, platformUtilsService, storageService, appIdService);
 containerService.attachToWindow(window);
@@ -134,6 +142,9 @@ export function initFactory(): Function {
         { provide: LogServiceAbstraction, useValue: logService },
         { provide: ConfigurationService, useValue: configurationService },
         { provide: SyncService, useValue: syncService },
+        { provide: PasswordGenerationServiceAbstraction, useValue: passwordGenerationService },
+        { provide: CryptoFunctionServiceAbstraction, useValue: cryptoFunctionService },
+        { provide: PolicyServiceAbstraction, useValue: policyService },
         {
             provide: APP_INITIALIZER,
             useFactory: initFactory,

@@ -1,0 +1,30 @@
+<div class="container-fluid">
+    <form #form (ngSubmit)="submit()" [appApiAction]="formPromise">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card" *ngIf="!showMasterPassRedirect">
+                    <div class="card-body">
+                        <i class="fa fa-spinner fa-spin" title="{{'loading' | i18n}}" aria-hidden="true"></i>
+                        {{'loading' | i18n}}
+                    </div>
+                </div>
+                <div class="card" *ngIf="showMasterPassRedirect">
+                    <h5 class="card-header">{{'setMasterPassword' | i18n}}</h5>
+                    <div class="card-body">
+                        <p class="text-center">{{'setMasterPasswordRedirect' | i18n}}</p>
+                        <hr>
+                        <div class="d-flex">
+                            <button type="button" class="btn btn-primary btn-block btn-submit"
+                                (click)="launchWebVault()">
+                                {{'launchWebVault' | i18n}}
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-block ml-2 mt-0" (click)="logOut()">
+                                {{'logOut' | i18n}}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

@@ -18,6 +18,11 @@
                 <h4>{{'customEnvironment' | i18n}}</h4>
                 <p>{{'customEnvironmentFooter' | i18n}}</p>
                 <div class="form-group">
+                    <label for="webVaultUrl">{{'webVaultUrl' | i18n}}</label>
+                    <input id="webVaultUrl" type="text" name="WebVaultUrl" [(ngModel)]="webVaultUrl"
+                        class="form-control">
+                </div>
+                <div class="form-group">
                     <label for="apiUrl">{{'apiUrl' | i18n}}</label>
                     <input id="apiUrl" type="text" name="ApiUrl" [(ngModel)]="apiUrl" class="form-control">
                 </div>
