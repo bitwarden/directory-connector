@@ -201,7 +201,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements Dire
                     } else if (type === 'group') {
                         entry.groupMemberReferenceIds.add(member.id);
                     } else if (type === 'customer') {
-                        for (let user of users) {
+                        for (const user of users) {
                             entry.userMemberExternalIds.add(user.externalId);
                         }
                     }
