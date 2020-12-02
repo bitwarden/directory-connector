@@ -84,7 +84,7 @@ export class Main {
         this.secureStorageService = plaintextSecrets ?
             this.storageService : new KeytarSecureStorageService(applicationName);
         this.cryptoService = new CryptoService(this.storageService, this.secureStorageService,
-            this.cryptoFunctionService);
+            this.cryptoFunctionService, this.platformUtilsService);
         this.appIdService = new AppIdService(this.storageService);
         this.tokenService = new TokenService(this.storageService);
         this.messagingService = new NoopMessagingService();
