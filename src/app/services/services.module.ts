@@ -67,7 +67,8 @@ const storageService: StorageServiceAbstraction = new ElectronStorageService(rem
 const platformUtilsService = new ElectronPlatformUtilsService(i18nService, messagingService, false, storageService);
 const secureStorageService: StorageServiceAbstraction = new ElectronRendererSecureStorageService();
 const cryptoFunctionService: CryptoFunctionServiceAbstraction = new NodeCryptoFunctionService();
-const cryptoService = new CryptoService(storageService, secureStorageService, cryptoFunctionService);
+const cryptoService = new CryptoService(storageService, secureStorageService, cryptoFunctionService,
+    platformUtilsService);
 const appIdService = new AppIdService(storageService);
 const tokenService = new TokenService(storageService);
 const apiService = new ApiService(tokenService, platformUtilsService,
