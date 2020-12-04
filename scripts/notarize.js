@@ -6,12 +6,13 @@ exports.default = async function notarizing(context) {
     if (electronPlatformName !== 'darwin') {
         return;
     }
-    const appleId = process.env.APPLEID;
+    const appleId = process.env.APPLE_ID_USERNAME || process.env.APPLEID;
+    const appleIdPassword = process.env.APPLE_ID_PASSWORD || `@keychain:AC_PASSWORD`;
     const appName = context.packager.appInfo.productFilename;
     return await notarize({
         appBundleId: 'com.bitwarden.directory-connector',
         appPath: `${appOutDir}/${appName}.app`,
         appleId: appleId,
-        appleIdPassword: `@keychain:AC_PASSWORD`,
+        appleIdPassword: appleIdPassword,
     });
 };
