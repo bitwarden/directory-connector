@@ -68,7 +68,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
 
         let groups: GroupEntry[];
         if (this.syncConfig.groups) {
-            const setFilter = await this.createAADCustomSet(this.syncConfig.groupFilter);
+            const setFilter = await this.createAadCustomSet(this.syncConfig.groupFilter);
             groups = await this.getGroups(setFilter);
             users = this.filterUsersFromGroupsSet(users, groups, setFilter, this.syncConfig);
         }
@@ -170,7 +170,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         return entries;
     }
 
-    protected async createAADCustomSet(filter: string): Promise<[boolean, Set<string>]> {
+    private async createAadCustomSet(filter: string): Promise<[boolean, Set<string>]> {
         if (filter == null || filter === '') {
             return null;
         }
