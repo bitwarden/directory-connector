@@ -68,7 +68,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
 
         let groups: GroupEntry[];
         if (this.syncConfig.groups) {
-            const setFilter = this.createCustomSet(this.syncConfig.groupFilter);
+            const setFilter = await this.createAadCustomSet(this.syncConfig.groupFilter);
             groups = await this.getGroups(setFilter);
             users = this.filterUsersFromGroupsSet(users, groups, setFilter, this.syncConfig);
         }
@@ -168,6 +168,54 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         }
 
         return entries;
+    }
+
+    private async createAadCustomSet(filter: string): Promise<[boolean, Set<string>]> {
+        if (filter == null || filter === '') {
+            return null;
+        }
+
+        const mainParts = filter.split('|');
+        if (mainParts.length < 1 || mainParts[0] == null || mainParts[0].trim() === '') {
+            return null;
+        }
+
+        const parts = mainParts[0].split(':');
+        if (parts.length !== 2) {
+            return null;
+        }
+
+        const keyword = parts[0].trim().toLowerCase();
+        let exclude = true;
+        if (keyword === 'include') {
+            exclude = false;
+        } else if (keyword === 'exclude') {
+            exclude = true;
+        } else if (keyword === 'excludeadministrativeunit') {
+            exclude = true;
+        } else if (keyword === 'includeadministrativeunit') {
+            exclude = false;
+        } else {
+            return null;
+        }
+
+        const set = new Set<string>();
+        const pieces = parts[1].split(',');
+        if (keyword === 'excludeadministrativeunit' || keyword === 'includeadministrativeunit') {
+            for (const p of pieces) {
+                const auMembers = await this.client.api(`https://graph.microsoft.com/beta/administrativeUnits/${p}/members`).get();
+                for (const auMember of auMembers.value) {
+                    if (auMember['@odata.type'] === '#microsoft.graph.group') {
+                        set.add(auMember.displayName.toLowerCase());
+                    }
+                }
+            }
+        } else {
+            for (const p of pieces) {
+                set.add(p.trim().toLowerCase());
+            }
+        }
+        return [exclude, set];
     }
 
     private createCustomUserSet(filter: string): [UserSetType, Set<string>] {
