@@ -87,6 +87,8 @@ export class Program extends BaseProgram {
             .option('--method <method>', 'Two-step login method.')
             .option('--code <code>', 'Two-step login code.')
             .option('--sso', 'Log in with Single-Sign On.')
+            .option('--passwordenv <variable-name>', 'Read password from the named environment variable.')
+            .option('--passwordfile <filename>', 'Read password from first line of the named file.')
             .on('--help', () => {
                 writeLn('\n  Notes:');
                 writeLn('');
@@ -94,10 +96,12 @@ export class Program extends BaseProgram {
                 writeLn('');
                 writeLn('  Examples:');
                 writeLn('');
-                writeLn('    bw login');
-                writeLn('    bw login john@example.com myPassword321');
-                writeLn('    bw login john@example.com myPassword321 --method 1 --code 249213');
-                writeLn('    bw login --sso');
+                writeLn('    bwdc login');
+                writeLn('    bwdc login john@example.com myPassword321');
+                writeLn('    bwdc login john@example.com myPassword321 --method 1 --code 249213');
+                writeLn('    bwdc login john@example.com --passwordfile passwd.txt --method 1 --code 249213');
+                writeLn('    bwdc login john@example.com --passwordenv MY_PASSWD --method 1 --code 249213');
+                writeLn('    bwdc login --sso');
                 writeLn('', true);
             })
             .action(async (email: string, password: string, cmd: program.Command) => {
@@ -115,7 +119,7 @@ export class Program extends BaseProgram {
             .on('--help', () => {
                 writeLn('\n  Examples:');
                 writeLn('');
-                writeLn('    bw logout');
+                writeLn('    bwdc logout');
                 writeLn('', true);
             })
             .action(async (cmd) => {
@@ -182,8 +186,10 @@ export class Program extends BaseProgram {
             });
 
         program
-            .command('config <setting> <value>')
+            .command('config <setting> [value]')
             .description('Configure settings.')
+            .option('--secretenv <variable-name>', 'Read secret from the named environment variable.')
+            .option('--secretfile <filename>', 'Read secret from first line of the named file.')
             .on('--help', () => {
                 writeLn('\n  Settings:');
                 writeLn('');
@@ -201,6 +207,7 @@ export class Program extends BaseProgram {
                 writeLn('    bwdc config server bitwarden.com');
                 writeLn('    bwdc config directory 1');
                 writeLn('    bwdc config ldap.password <password>');
+                writeLn('    bwdc config ldap.password --secretenv LDAP_PWD');
                 writeLn('    bwdc config azure.key <key>');
                 writeLn('    bwdc config gsuite.key <key>');
                 writeLn('    bwdc config okta.token <token>');
