@@ -19,6 +19,8 @@ import { SyncConfiguration } from '../models/syncConfiguration';
 
 import { ConnectorUtils } from '../utils';
 
+import { NodeUtils } from 'jslib/misc/nodeUtils';
+
 export class ConfigCommand {
     private directory: DirectoryType;
     private ldap = new LdapConfiguration();
@@ -33,6 +35,13 @@ export class ConfigCommand {
 
     async run(setting: string, value: string, cmd: program.Command): Promise<Response> {
         setting = setting.toLowerCase();
+        if (value == null || value === '') {
+            if (cmd.secretfile) {
+                value = await NodeUtils.readFirstLine(cmd.secretfile);
+            } else if (cmd.secretenv && process.env[cmd.secretenv]) {
+                value = process.env[cmd.secretenv];
+            }
+        }
         try {
             switch (setting) {
                 case 'server':
