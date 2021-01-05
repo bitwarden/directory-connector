@@ -53,7 +53,7 @@ export class Main {
         this.storageService = new ElectronStorageService(app.getPath('userData'));
 
         this.windowMain = new WindowMain(this.storageService, false, 800, 600,
-            (arg) => this.processDeepLink(arg));
+            (arg) => this.processDeepLink(arg), null);
         this.menuMain = new MenuMain(this);
         this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain, 'directory-connector', () => {
             this.messagingService.send('checkingForUpdate');

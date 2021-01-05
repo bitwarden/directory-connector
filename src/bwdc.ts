@@ -84,7 +84,7 @@ export class Main {
         this.secureStorageService = plaintextSecrets ?
             this.storageService : new KeytarSecureStorageService(applicationName);
         this.cryptoService = new CryptoService(this.storageService, this.secureStorageService,
-            this.cryptoFunctionService, this.platformUtilsService);
+            this.cryptoFunctionService, this.platformUtilsService, this.logService);
         this.appIdService = new AppIdService(this.storageService);
         this.tokenService = new TokenService(this.storageService);
         this.messagingService = new NoopMessagingService();
@@ -94,7 +94,8 @@ export class Main {
         this.userService = new UserService(this.tokenService, this.storageService);
         this.containerService = new ContainerService(this.cryptoService);
         this.authService = new AuthService(this.cryptoService, this.apiService, this.userService, this.tokenService,
-            this.appIdService, this.i18nService, this.platformUtilsService, this.messagingService, null, false);
+            this.appIdService, this.i18nService, this.platformUtilsService, this.messagingService, null,
+            this.logService, false);
         this.configurationService = new ConfigurationService(this.storageService, this.secureStorageService,
             process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== 'true');
         this.syncService = new SyncService(this.configurationService, this.logService, this.cryptoFunctionService,

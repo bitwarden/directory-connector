@@ -68,7 +68,7 @@ const platformUtilsService = new ElectronPlatformUtilsService(i18nService, messa
 const secureStorageService: StorageServiceAbstraction = new ElectronRendererSecureStorageService();
 const cryptoFunctionService: CryptoFunctionServiceAbstraction = new NodeCryptoFunctionService();
 const cryptoService = new CryptoService(storageService, secureStorageService, cryptoFunctionService,
-    platformUtilsService);
+    platformUtilsService, logService);
 const appIdService = new AppIdService(storageService);
 const tokenService = new TokenService(storageService);
 const apiService = new ApiService(tokenService, platformUtilsService,
@@ -77,7 +77,7 @@ const environmentService = new EnvironmentService(apiService, storageService, nu
 const userService = new UserService(tokenService, storageService);
 const containerService = new ContainerService(cryptoService);
 const authService = new AuthService(cryptoService, apiService, userService, tokenService, appIdService,
-    i18nService, platformUtilsService, messagingService, null, false);
+    i18nService, platformUtilsService, messagingService, null, logService, false);
 const configurationService = new ConfigurationService(storageService, secureStorageService);
 const syncService = new SyncService(configurationService, logService, cryptoFunctionService, apiService,
     messagingService, i18nService);
