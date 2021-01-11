@@ -44,6 +44,7 @@ jobs:
           Invoke-WebRequest -Uri http://www.angusj.com/resourcehacker/resource_hacker.zip -OutFile "resource_hacker.zip"
           Expand-Archive -Path resource_hacker.zip -DestinationPath scripts/resource_hacker
           echo "D:\a\cli\cli\scripts\resource_hacker" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
       - name: Set PACKAGE_VERSION & VER_INFO
         run: |
           $env:pkgVersion = (Get-Content -Raw -Path .\package.json | ConvertFrom-Json).version
@@ -54,7 +55,6 @@ jobs:
           if(Test-Path -Path $env:WIN_PKG) {
             echo "VER_INFO=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           }
-          .\scripts\make-versioninfo.ps1
         env:
           WIN_PKG: C:\Users\appveyor\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
 
@@ -82,6 +82,10 @@ jobs:
           7z e ".\keytar\macos\$($keytarTar -f "darwin")" -o".\keytar\macos"
           7z e ".\keytar\linux\$($keytarTar -f "linux")" -o".\keytar\linux"
           7z e ".\keytar\windows\$($keytarTar -f "win32")" -o".\keytar\windows"
+
+      - name: Setup Version Info
+        shell: pwsh
+        run: .\scripts\make-versioninfo.ps1
 
       - name: Resource Hacker
         shell: cmd
@@ -148,44 +152,44 @@ jobs:
           name: bwdc-windows-${env:PACKAGE_VERSION}.zip
           path: ./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip
 
-      - name: Publish windows zip to GitHub
+      - name: Publish mac zip to GitHub
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-macos-${env:PACKAGE_VERSION}.zip
           path: ./dist-cli/bwdc-macos-${env:PACKAGE_VERSION}.zip
 
-      - name: Publish windows zip to GitHub
+      - name: Publish linux zip to GitHub
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-linux-${env:PACKAGE_VERSION}.zip
           path: ./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip
 
-      - name: Publish windows zip to GitHub
+      - name: Publish windows checksum to GitHub
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
           path: ./dist-cli/bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
 
-      - name: Publish windows zip to GitHub
+      - name: Publish mac checksum to GitHub
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
           path: ./dist-cli/bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
 
-      - name: Publish windows zip to GitHub
+      - name: Publish linux checksum to GitHub
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
           path: ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
 
-      - name: Publish windows zip to GitHub
+      - name: Publish Portable Exe to GitHub
         if: false
         uses: actions/upload-artifact@v2
         with:
           name: Bitwarden-Connector-Portable-${env:PACKAGE_VERSION}.exe
           path: ./dist/Bitwarden-Connector-Portable-${env:PACKAGE_VERSION}.exe
 
-      - name: Publish windows zip to GitHub
+      - name: Publish Installer Exe to GitHub
         if: false
         uses: actions/upload-artifact@v2
         with:
