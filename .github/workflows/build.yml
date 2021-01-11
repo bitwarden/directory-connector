@@ -101,24 +101,15 @@ jobs:
       - name: npm rebuild
         run: npm run rebuild
 
-      - name: npm build
-        run: npm run build
-
-      - name: Package for Windows
-        run: electron-builder --win --x64 --ia32 -p never
+      - name: Package Windows
+        run: npm run dist:win:ci
 
       # I think this should be moved to another job
       - name: NPM reset
         run: npm run reset
 
-      - name: Build CLI
-        run: npm build:cli:prod
-
       - name: Package CLI
-        run: |
-          pkg . --targets win-x64 --output ./dist-cli/windows/bwdc.exe
-          pkg . --targets macos-x64 --output ./dist/cli/macos/bwdc
-          pkg . --targets linux-x64 --output ./dist/cli/linux/bwdc
+        run: npm run dist:cli
 
       - name: Zip
         shell: cmd
