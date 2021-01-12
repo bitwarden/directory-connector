@@ -102,11 +102,15 @@ jobs:
         run: npm run rebuild
 
       - name: Package Windows
+        if: false
         run: npm run dist:win:ci
 
       # I think this should be moved to another job
       - name: NPM reset
         run: npm run reset
+
+      - name: Debugging pck-fetched
+        run: dir C:\Users\runneradmin\.pkg-cache\v2.5\
 
       - name: Package CLI
         run: npm run dist:cli
