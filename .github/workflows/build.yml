@@ -110,7 +110,10 @@ jobs:
         run: npm run reset
 
       - name: Debugging pck-fetched
-        run: dir C:\Users\runneradmin\.pkg-cache\v2.5\
+        run: |
+          dir C:\Users\runneradmin
+          dir C:\Users\runneradmin\.pkg-cache
+          dir C:\Users\runneradmin\.pkg-cache\v2.5
 
       - name: Package CLI
         run: npm run dist:cli
