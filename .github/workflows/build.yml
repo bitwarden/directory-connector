@@ -147,50 +147,50 @@ jobs:
       - name: Publish windows zip to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: bwdc-windows-${env:PACKAGE_VERSION}.zip
-          path: ./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip
+          name: bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
+          path: ./dist-cli/bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Publish mac zip to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: bwdc-macos-${env:PACKAGE_VERSION}.zip
-          path: ./dist-cli/bwdc-macos-${env:PACKAGE_VERSION}.zip
+          name: bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
+          path: ./dist-cli/bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Publish linux zip to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: bwdc-linux-${env:PACKAGE_VERSION}.zip
-          path: ./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip
+          name: bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
+          path: ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Publish windows checksum to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
-          path: ./dist-cli/bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
+          name: bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
+          path: ./dist-cli/bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
 
       - name: Publish mac checksum to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
-          path: ./dist-cli/bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
+          name: bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
+          path: ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
 
       - name: Publish linux checksum to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
-          path: ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
+          name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
+          path: ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
 
       - name: Publish Portable Exe to GitHub
         if: false
         uses: actions/upload-artifact@v2
         with:
-          name: Bitwarden-Connector-Portable-${env:PACKAGE_VERSION}.exe
-          path: ./dist/Bitwarden-Connector-Portable-${env:PACKAGE_VERSION}.exe
+          name: Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
+          path: ./dist/Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
 
       - name: Publish Installer Exe to GitHub
         if: false
         uses: actions/upload-artifact@v2
         with:
-          name: Bitwarden-Connector-Installer-${env:PACKAGE_VERSION}.exe
-          path: ./dist/Bitwarden-Connector-Installer-${env:PACKAGE_VERSION}.exe
+          name: Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
+          path: ./dist/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
 
