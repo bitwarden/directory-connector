@@ -139,10 +139,10 @@ jobs:
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
 
       - name: Debugging file paths - dist
-        run: ls -alht ./dist
+        run: dir ./dist
 
       - name: Debugging file paths - dist
-        run: ls -alht ./dist-cli
+        run: dir ./dist-cli
 
       - name: Publish windows zip to GitHub
         uses: actions/upload-artifact@v2
