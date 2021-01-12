@@ -26,7 +26,6 @@ jobs:
 
   windows:
     runs-on: windows-latest
-    if: false
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
