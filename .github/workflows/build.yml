@@ -63,7 +63,7 @@ jobs:
             echo "VER_INFO=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           }
         env:
-          WIN_PKG: C:\Users\appveyor\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
+          WIN_PKG: C:\Users\runneradmin\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
 
       - name: Keytar
         shell: pwsh
@@ -109,19 +109,11 @@ jobs:
         run: npm run rebuild
 
       - name: Package Windows
-        if: false
         run: npm run dist:win:ci
 
       # I think this should be moved to another job
       - name: NPM reset
         run: npm run reset
-
-      - name: Debugging pck-fetched
-        if: false
-        run: |
-          dir C:\Users\runneradmin
-          dir C:\Users\runneradmin\.pkg-cache
-          dir C:\Users\runneradmin\.pkg-cache\v2.5
 
       - name: Package CLI
         run: npm run dist:cli
@@ -151,12 +143,6 @@ jobs:
             -t sha256 | Out-File ./dist-cli/bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
           checksum -f="./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip" `
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
-
-      - name: Debugging file paths - dist
-        run: dir ./dist
-
-      - name: Debugging file paths - dist
-        run: dir ./dist-cli
 
       - name: Publish windows zip to GitHub
         uses: actions/upload-artifact@v2
