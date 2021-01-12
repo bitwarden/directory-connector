@@ -24,8 +24,9 @@ jobs:
         run: cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
 
 
-  build:
+  windows:
     runs-on: windows-latest
+    if: false
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -194,3 +195,43 @@ jobs:
           name: Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
 
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+
+      - name: Set Node options
+        run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
+
+      - name: Set up environment
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev rpm
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set PACKAGE_VERSION
+        run: |
+          $env:pkgVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).version
+          echo "PACKAGE_VERSION=$env:pkgVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "version: $env:pkgVersion"
+
+      - name: npm install
+        run: npm install
+
+      - name: npm rebuild
+        run: npm run rebuild
+
+      - name: npm package
+        run: npm run dist:lin
+
+      - name: Publish AppImage
+        uses: actions/upload-artifact@v2
+        with:
+          name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
+          path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
