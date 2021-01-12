@@ -38,6 +38,9 @@ jobs:
         with:
           node-version: '10.x'
 
+      - name: Install pkg-fetch
+        run: npm install -g pkg-fetch
+
       - name: Download & Install RH
         shell: pwsh
         run: |
@@ -96,10 +99,7 @@ jobs:
           if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
 
       - name: Install
-        run: |
-          npm install
-          npm install -g pkg-fetch
-
+        run: npm install
 
       - name: npm rebuild
         run: npm run rebuild
