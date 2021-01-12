@@ -101,6 +101,7 @@ jobs:
       - name: npm rebuild
         run: npm run rebuild
 
+      # Currently not being signed, need the HSM backed Azure Key Vault
       - name: Package Windows
         run: npm run dist:win:ci
 
@@ -136,6 +137,12 @@ jobs:
             -t sha256 | Out-File ./dist-cli/bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
           checksum -f="./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip" `
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
+
+      - name: Debugging file paths - dist
+        run: ls -alht ./dist
+
+      - name: Debugging file paths - dist
+        run: ls -alht ./dist-cli
 
       - name: Publish windows zip to GitHub
         uses: actions/upload-artifact@v2
