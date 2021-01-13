@@ -26,6 +26,7 @@ jobs:
 
   windows:
     runs-on: windows-latest
+    if: false
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -104,16 +105,6 @@ jobs:
 
       - name: Install
         run: npm install
-
-      - name: npm rebuild
-        run: npm run rebuild
-
-      - name: Package Windows
-        run: npm run dist:win:ci
-
-      # I think this should be moved to another job
-      - name: NPM reset
-        run: npm run reset
 
       - name: Package CLI
         run: npm run dist:cli
@@ -195,6 +186,7 @@ jobs:
 
   linux:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - name: Set up Node
         uses: actions/setup-node@v1
