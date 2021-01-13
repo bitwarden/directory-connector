@@ -26,7 +26,6 @@ jobs:
 
   windows:
     runs-on: windows-latest
-    if: false
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -136,36 +135,42 @@ jobs:
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
 
       - name: Publish windows zip to GitHub
+        if: github.ref == 'refs/heads/master' || github.event_name == 'release'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Publish mac zip to GitHub
+        if: github.ref == 'refs/heads/master' || github.event_name == 'release'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Publish linux zip to GitHub
+        if: github.ref == 'refs/heads/master' || github.event_name == 'release'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Publish windows checksum to GitHub
+        if: github.ref == 'refs/heads/master' || github.event_name == 'release'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
 
       - name: Publish mac checksum to GitHub
+        if: github.ref == 'refs/heads/master' || github.event_name == 'release'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
 
       - name: Publish linux checksum to GitHub
+        if: github.ref == 'refs/heads/master' || github.event_name == 'release'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
@@ -174,7 +179,6 @@ jobs:
 
   linux:
     runs-on: ubuntu-latest
-    if: false
     steps:
       - name: Set up Node
         uses: actions/setup-node@v1
