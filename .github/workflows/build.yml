@@ -171,18 +171,6 @@ jobs:
           name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
 
-      - name: Publish Portable Exe to GitHub
-        uses: actions/upload-artifact@v2
-        with:
-          name: Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
-          path: ./dist/Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
-
-      - name: Publish Installer Exe to GitHub
-        uses: actions/upload-artifact@v2
-        with:
-          name: Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
-          path: ./dist/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
-
 
   linux:
     runs-on: ubuntu-latest
