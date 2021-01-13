@@ -56,9 +56,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Load package version
-        run: ./.github/scripts/load-version.ps1
-        shell: pwsh
+      - name: Set PACKAGE_VERSION & VER_INFO
+        run: |
+          $env:pkgVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).version
+          echo "PACKAGE_VERSION=$env:pkgVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "WIN_PKG=$env:WIN_PKG" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "version: $env:pkgVersion"
 
       - name: Install Node dependencies
         run: npm install
