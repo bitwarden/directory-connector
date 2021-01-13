@@ -214,6 +214,7 @@ jobs:
         run: npm run dist:lin
 
       - name: Publish AppImage
+        if: github.ref == 'refs/heads/master' || github.event_name == 'release'
         uses: actions/upload-artifact@v2
         with:
           name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
