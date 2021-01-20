@@ -281,7 +281,7 @@ jobs:
             $env:RELEASE_TAG_NAME
         shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           RELEASE_TAG_NAME: ${{ github.event.release.tag_name }}
 
 
