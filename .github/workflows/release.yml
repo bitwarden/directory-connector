@@ -1,9 +1,11 @@
-name: Build
+name: Release
 
 on:
-  push:
-    branches-ignore:
-      - 'l10n_master'
+  workflow_dispatch:
+    inputs:
+      release_tag_name:
+        description: "Release Tag Name (vX.X.X)"
+        required: true
 
 
 jobs:
@@ -132,42 +134,36 @@ jobs:
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
 
       - name: Publish windows zip to GitHub
-        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Publish mac zip to GitHub
-        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Publish linux zip to GitHub
-        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Publish windows checksum to GitHub
-        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
 
       - name: Publish mac checksum to GitHub
-        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
 
       - name: Publish linux checksum to GitHub
-        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
@@ -255,18 +251,28 @@ jobs:
         run: dir ./dist
 
       - name: Publish Portable Exe to GitHub
-        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
 
       - name: Publish Installer Exe to GitHub
-        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
+
+      - name: Upload release assets
+        run: |
+          hub release edit `
+            -a ./dist/Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe `
+            -a ./dist/nsis-web/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe `
+            -m "$($env:RELEASE_TAG_NAME.TrimStart('v'))" `
+            $env:RELEASE_TAG_NAME
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          RELEASE_TAG_NAME: ${{ github.event.release.tag_name }}
 
 
   linux:
@@ -306,7 +312,6 @@ jobs:
         run: npm run dist:lin
 
       - name: Publish AppImage
-        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
