@@ -85,7 +85,8 @@
       "target": [
         "portable",
         "nsis"
-      ]
+      ],
+      "sign": "./sign.js"
     },
     "linux": {
       "category": "Utility",
