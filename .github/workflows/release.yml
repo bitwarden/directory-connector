@@ -237,8 +237,7 @@ jobs:
       - name: Build & Sign
         run: |
           npm run rebuild
-          npm run build
-          npm run pack:win
+          npm publish:win
         env:
           ELECTRON_BUILDER_SIGN: 1
           SIGNING_VAULT_URL: ${{ secrets.SIGNING_VAULT_URL }}
@@ -272,7 +271,7 @@ jobs:
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          RELEASE_TAG_NAME: ${{ github.event.release.tag_name }}
+          RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
 
 
   linux:
