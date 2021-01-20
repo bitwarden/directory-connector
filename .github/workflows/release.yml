@@ -237,7 +237,7 @@ jobs:
       - name: Build & Sign
         run: |
           npm run rebuild
-          npm publish:win
+          npm run publish:win
         env:
           ELECTRON_BUILDER_SIGN: 1
           SIGNING_VAULT_URL: ${{ secrets.SIGNING_VAULT_URL }}
