@@ -2,14 +2,14 @@
   "name": "bitwarden-directory-connector",
   "productName": "Bitwarden Directory Connector",
   "description": "Sync your user directory to your Bitwarden organization.",
-  "version": "2.8.2",
+  "version": "2.8.3-alpha",
   "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
   "homepage": "https://bitwarden.com",
   "license": "GPL-3.0",
   "main": "main.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitwarden/directory-connector"
+    "url": "https://github.com/joseph-flinn/directory-connector"
   },
   "dependencies": {
     "electron-log": "2.2.17",
