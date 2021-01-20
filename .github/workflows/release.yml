@@ -266,7 +266,7 @@ jobs:
         run: |
           hub release edit `
             -a ./dist/Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe `
-            -a ./dist/nsis-web/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe `
+            -a ./dist/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe `
             -m "$($env:RELEASE_TAG_NAME.TrimStart('v'))" `
             $env:RELEASE_TAG_NAME
         shell: pwsh
