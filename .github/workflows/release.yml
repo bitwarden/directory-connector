@@ -71,7 +71,6 @@ jobs:
 
   windows-cli:
     runs-on: windows-latest
-    if: false
     needs: setup
     steps:
       - name: Checkout repo
@@ -334,7 +333,6 @@ jobs:
 
   linux:
     runs-on: ubuntu-latest
-    if: false
     needs: setup
     steps:
       - name: Set up Node
