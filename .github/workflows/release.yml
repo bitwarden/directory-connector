@@ -185,7 +185,7 @@ jobs:
           name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
 
-	  - name: Upload release assets
+      - name: Upload release assets
         shell: pwsh
         run: |
           hub release edit `
