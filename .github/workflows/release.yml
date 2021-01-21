@@ -200,7 +200,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
-      	
+
 
   windows_gui:
     runs-on: windows-latest
