@@ -34,8 +34,6 @@ jobs:
           hub release create -d \
           -m ${RELEASE_TAG_NAME:1} \
           $RELEASE_TAG_NAME
-
-          exit 1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
