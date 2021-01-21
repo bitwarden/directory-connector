@@ -31,15 +31,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
+      - name: Create Release Name
+        run: |
+          echo "RELEASE_NAME=${$RELEASE_TAG_NAME:1}" >> $GITHUB_ENV
+        env:
+          RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
+
       - name: Create Draft Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
         with:
           tag_name: ${{ github.event.inputs.release_tag_name }}
-          release_name: ${$RELEASE_TAG_NAM:1}
+          release_name: $RELEASE_NAME
           draft: true
           prerelease: false
 
