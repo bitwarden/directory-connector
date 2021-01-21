@@ -333,6 +333,8 @@ jobs:
 
       - name: npm package
         run: npm run publish:lin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Publish AppImage
         uses: actions/upload-artifact@v2
