@@ -144,7 +144,7 @@ jobs:
       - name: Resource Hacker
         shell: cmd
         run: |
-          echo Package Version: %WIN_PKG%
+          echo VER_INFO: %VER_INFO%
           if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
           if defined VER_INFO ResourceHacker -open version-info.rc -save version-info.res -action compile
           if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
@@ -171,7 +171,6 @@ jobs:
           if($testVersion -ne $env:PACKAGE_VERSION) {
             Throw "Version test failed."
           }
-      # Requires Fixing
 
       - name: Create checksums
         run: |
@@ -182,7 +181,7 @@ jobs:
           checksum -f="./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip" `
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
 
-      - name: upload windows zip release assest
+      - name: upload windows zip release asset
         id: upload-windows-zip
         uses: actions/upload-release-asset@v1
         env:
@@ -317,13 +316,6 @@ jobs:
       - name: npm rebuild
         run: npm run rebuild
 
-      - name: Get release
-        shell: pwsh
-        run: hub release show $env:RELEASE_TAG_NAME
-        env:
-          RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
       - name: Build & Sign
         run: |
           npm run publish:win
@@ -374,12 +366,6 @@ jobs:
 
       - name: npm rebuild
         run: npm run rebuild
-
-      - name: Get release
-        run: hub release show $RELEASE_TAG_NAME
-        env:
-          RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: npm package
         run: npm run publish:lin
