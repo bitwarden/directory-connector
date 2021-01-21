@@ -209,7 +209,7 @@ jobs:
           -a ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip `
           -a ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt `
           -m "$($env:RELEASE_TAG_NAME.TrimStart('v'))" `
-          $env:RELEASE_TAG_NAME
+          "$($env:RELEASE_TAG_NAME)"
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
