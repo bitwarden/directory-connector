@@ -49,26 +49,6 @@ jobs:
           prerelease: false
 
 
-  release-test:
-    runs-on: ubuntu-latest
-    if: false
-    needs: setup
-    steps:
-      - name: create test file
-        run: echo "this is a test" > test.txt
-
-      - name: test upload release asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.setup.outputs.release_upload_url }}
-          asset_path: ./test.txt
-          asset_name: test.txt
-          asset_content_type: text/plain
-
-
-
   windows-cli:
     runs-on: windows-latest
     needs: setup
@@ -222,7 +202,7 @@ jobs:
           uplaod_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_path: ./dist-cli/bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
           asset_name: bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
-          asset_content_type: application/zip
+          asset_content_type: text/plain
 
       - name: Upload macos checksum release asset
         id: upload-macos-checksum
@@ -233,7 +213,7 @@ jobs:
           uplaod_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_path: ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
           asset_name: bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
-          asset_content_type: application/zip
+          asset_content_type: text/plain
 
       - name: Upload linux checksum release asset
         id: upload-linux-checksum
@@ -244,7 +224,7 @@ jobs:
           uplaod_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_path: ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
           asset_name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
-          asset_content_type: application/zip
+          asset_content_type: text/plain
 
 
   windows-gui:
