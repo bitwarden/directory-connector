@@ -196,7 +196,7 @@ jobs:
           -a ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt `
           -a ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip `
           -a ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt `
-          -m $($env:RELEASE_TAG_NAME.TrimStart('v'))" `
+          -m "$($env:RELEASE_TAG_NAME.TrimStart('v'))" `
           $env:RELEASE_TAG_NAME
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -341,3 +341,12 @@ jobs:
         with:
           name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
           path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
+
+
+  macos:
+    runs-on: macos-latest
+    needs: setup
+    if: false
+    steps:
+      - name: place holder
+        run: exit 0
