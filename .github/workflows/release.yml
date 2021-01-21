@@ -26,6 +26,9 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
       - name: setup_draft_release
         run: |
           hub release create -d \
