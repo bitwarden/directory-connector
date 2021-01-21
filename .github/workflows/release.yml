@@ -39,8 +39,8 @@ jobs:
 
       - name: setup_draft_release
         run: |
-          git tag $RELEASE_TAG_NAME
-          git push origin $RELEASE_TAG_NAME
+          #git tag $RELEASE_TAG_NAME
+          #git push origin $RELEASE_TAG_NAME
 
           hub release create -d \
           -m ${RELEASE_TAG_NAME:1} \
