@@ -29,6 +29,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
+      - name: Check Tags
+        run: |
+          if ( "$(git tag | grep $RELEASE_TAG_NAME)" -eq "$RELEASE_TAG_NAME" ); then
+            echo "[!] ERROR: Release tag already exists"
+            exit 1
+          fi
+          # Could automate handling this by deleting the tag?
+
       - name: setup_draft_release
         run: |
           git tag $RELEASE_TAG_NAME
@@ -275,6 +283,12 @@ jobs:
       - name: npm rebuild
         run: npm run rebuild
 
+      - name: Get release
+        shell: pwsh
+        run: hub release show $env:RELEASE_TAG_NAME
+        env:
+          RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
+
       - name: Build & Sign
         run: |
           npm run publish:win
@@ -350,6 +364,11 @@ jobs:
 
       - name: npm rebuild
         run: npm run rebuild
+
+      - name: Get release
+        run: hub release show $RELEASE_TAG_NAME
+        env:
+          RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
 
       - name: npm package
         run: npm run publish:lin
