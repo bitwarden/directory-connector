@@ -166,7 +166,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          uplaod_url: ${{ needs.setup.outputs.release_upload_url }}
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_path: ./dist-cli/bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
           asset_name: bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
           asset_content_type: application/zip
@@ -177,7 +177,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          uplaod_url: ${{ needs.setup.outputs.release_upload_url }}
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_path: ./dist-cli/bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
           asset_name: bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
           asset_content_type: application/zip
@@ -188,7 +188,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          uplaod_url: ${{ needs.setup.outputs.release_upload_url }}
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_path: ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
           asset_name: bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
           asset_content_type: application/zip
@@ -199,7 +199,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          uplaod_url: ${{ needs.setup.outputs.release_upload_url }}
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_path: ./dist-cli/bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
           asset_name: bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
           asset_content_type: text/plain
@@ -210,7 +210,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          uplaod_url: ${{ needs.setup.outputs.release_upload_url }}
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_path: ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
           asset_name: bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
           asset_content_type: text/plain
@@ -221,7 +221,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          uplaod_url: ${{ needs.setup.outputs.release_upload_url }}
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_path: ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
           asset_name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
           asset_content_type: text/plain
