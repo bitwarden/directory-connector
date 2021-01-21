@@ -31,6 +31,9 @@ jobs:
 
       - name: setup_draft_release
         run: |
+          git tag $RELEASE_TAG_NAME
+          git push origin $RELEASE_TAG_NAME
+
           hub release create -d \
           -m ${RELEASE_TAG_NAME:1} \
           $RELEASE_TAG_NAME
@@ -274,7 +277,7 @@ jobs:
 
       - name: Build & Sign
         run: |
-          npm run dist:win
+          npm run publish:win
         env:
           ELECTRON_BUILDER_SIGN: 1
           SIGNING_VAULT_URL: ${{ secrets.SIGNING_VAULT_URL }}
@@ -300,6 +303,7 @@ jobs:
           path: ./dist/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
 
       - name: Upload release assets
+        if: false
         shell: pwsh
         run: |
           hub release edit `
@@ -348,7 +352,7 @@ jobs:
         run: npm run rebuild
 
       - name: npm package
-        run: npm run dist:lin
+        run: npm run publish:lin
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -359,6 +363,7 @@ jobs:
           path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
 
       - name: Upload release assets
+        if: false
         shell: pwsh
         run: |
           hub release edit `
