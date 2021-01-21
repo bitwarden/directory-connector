@@ -33,7 +33,7 @@ jobs:
 
       - name: Create Release Name
         run: |
-          echo "RELEASE_NAME=${$RELEASE_TAG_NAME:1}" >> $GITHUB_ENV
+          echo "RELEASE_NAME=${RELEASE_TAG_NAME:1}" >> $GITHUB_ENV
         env:
           RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
 
