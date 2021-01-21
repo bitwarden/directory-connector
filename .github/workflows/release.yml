@@ -262,18 +262,6 @@ jobs:
           name: Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
 
-      #- name: Upload release assets
-      #  run: |
-      #    hub release edit `
-      #      -a ./dist/Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe `
-      #      -a ./dist/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe `
-      #      -m "$($env:RELEASE_TAG_NAME.TrimStart('v'))" `
-      #      $env:RELEASE_TAG_NAME
-      #  shell: pwsh
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      #    RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
-
 
   linux:
     runs-on: ubuntu-latest
