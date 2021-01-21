@@ -369,6 +369,7 @@ jobs:
         run: hub release show $RELEASE_TAG_NAME
         env:
           RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: npm package
         run: npm run publish:lin
