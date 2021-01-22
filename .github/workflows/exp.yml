@@ -23,8 +23,7 @@ jobs:
         run: |
           dir "C:\Program Files (x86)\Resource Hacker"
           echo ""
-          path
-          
+          set PATH="%PATH%;C:\Program Files (x86)\Resource Hacker"
 
       - name: test reshack
         shell: cmd
