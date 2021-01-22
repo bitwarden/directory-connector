@@ -7,7 +7,7 @@ on:
 
 
 jobs:
-  windows_cli:
+  exp_windows_cli:
     runs-on: windows-latest
     steps:
       - name: Checkout repo
@@ -19,7 +19,9 @@ jobs:
           choco install reshack --no-progress
 
       - name: test reshack
-        run: ResourceHacker -version
+        run: |
+          ResourceHacker.exe -help
+          exit 1
 
       - name: Set up Node
         uses: actions/setup-node@v1
