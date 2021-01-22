@@ -22,7 +22,7 @@ jobs:
         run: |
           dir "C:\Program Files (x86)\Resource Hacker"
           echo ""
-          for /F %%a in (%PATH%) do echo %%a
+          echo %PATH%
           
 
       - name: test reshack
