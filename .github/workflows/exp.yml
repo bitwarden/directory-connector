@@ -19,10 +19,11 @@ jobs:
           choco install reshack --no-progress
 
       - name: List RH
+        shell: cmd
         run: |
           dir "C:\Program Files (x86)\Resource Hacker"
           echo ""
-          echo %PATH%
+          path
           
 
       - name: test reshack
