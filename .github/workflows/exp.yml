@@ -22,13 +22,15 @@ jobs:
         shell: cmd
         run: |
           dir "C:\Program Files (x86)\Resource Hacker"
-          echo ""
+          echo
           set PATH="%PATH%;C:\Program Files (x86)\Resource Hacker"
+
+          path
 
       - name: test reshack
         shell: cmd
         run: |
-          ResourceHacker -help
+          ResourceHacker.exe -help
           exit 1
 
       - name: Set up Node
