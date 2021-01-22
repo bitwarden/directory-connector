@@ -19,7 +19,7 @@ jobs:
           choco install reshack --no-progress
 
       - name: test reshack
-        shell: pwsh
+        shell: cmd
         run: |
           ResourceHacker -help
           exit 1
