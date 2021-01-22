@@ -51,6 +51,7 @@ jobs:
 
   windows-cli:
     runs-on: windows-latest
+    if: false
     needs: setup
     steps:
       - name: Checkout repo
@@ -80,6 +81,12 @@ jobs:
       
       - name: Install RH
         run: choco install reshack
+
+      - name: test RH
+        run: |
+          reshack -version
+          exit 1
+
 
       - name: Set PACKAGE_VERSION & VER_INFO
         run: |
@@ -228,6 +235,7 @@ jobs:
 
   windows-gui:
     runs-on: windows-latest
+    if: false
     needs: setup
     environment: prod 
     steps:
