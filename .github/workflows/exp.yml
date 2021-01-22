@@ -19,8 +19,9 @@ jobs:
           choco install reshack --no-progress
 
       - name: test reshack
+        shell: pwsh
         run: |
-          ResourceHacker.exe -help
+          ResourceHacker -help
           exit 1
 
       - name: Set up Node
