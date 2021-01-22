@@ -18,6 +18,9 @@ jobs:
           choco install checksum --no-progress
           choco install reshack --no-progress
 
+      - name: List RH
+        run: dir C:\Program Files (x86)\Resource Hacker\
+
       - name: test reshack
         shell: cmd
         run: |
@@ -76,7 +79,6 @@ jobs:
       - name: Resource Hacker
         shell: cmd
         run: |
-          echo Package Version: %WIN_PKG%
           if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
           if defined VER_INFO ResourceHacker -open version-info.rc -save version-info.res -action compile
           if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
