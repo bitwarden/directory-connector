@@ -203,19 +203,21 @@ jobs:
         shell: pwsh
         run: |
           cd $HOME
+
           git clone https://github.com/vcsjones/AzureSignTool.git
           cd AzureSignTool
           $latest_head = $(git rev-parse HEAD)[0..9] -join ""
           $latest_version = "0.0.0-g$latest_head"
+
           Write-Host "--------"
           Write-Host "git commit - $(git rev-parse HEAD)"
           Write-Host "latest_head - $latest_head"
           Write-Host "PACKAGE VERSION TO BUILD - $latest_version"
           Write-Host "--------"
+
           dotnet restore
           dotnet pack --output ./nupkg
           dotnet tool install --global --ignore-failed-sources --add-source ./nupkg --version $latest_version azuresigntool
-          cd $HOME
 
       - name: Checkout repo
         uses: actions/checkout@v2
