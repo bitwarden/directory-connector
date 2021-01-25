@@ -81,9 +81,6 @@ jobs:
           ResourceHacker -open version-info.rc -save version-info.res -action compile
           ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
 
-      - name: stop gap
-        run: exit 1
-
       - name: Install
         run: npm install
 
