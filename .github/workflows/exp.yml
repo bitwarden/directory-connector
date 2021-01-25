@@ -30,6 +30,8 @@ jobs:
       - name: test reshack
         shell: cmd
         run: |
+          path
+
           ResourceHacker -help
           exit 1
 
