@@ -94,7 +94,7 @@ jobs:
       - name: Resource Hacker
         shell: cmd
         run: |
-          echo Package Version: %WIN_PKG%
+          echo Package Version Flag: %VER_INFO%
           set PATH=%PATH%;C:\Program Files (x86)\Resource Hacker
           if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
           if defined VER_INFO ResourceHacker -open version-info.rc -save version-info.res -action compile
