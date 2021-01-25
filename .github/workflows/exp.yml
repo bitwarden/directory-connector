@@ -30,7 +30,7 @@ jobs:
       - name: test reshack
         shell: cmd
         run: |
-          & ResourceHacker.exe -help
+          ResourceHacker -help
           exit 1
 
       - name: Set up Node
