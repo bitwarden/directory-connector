@@ -80,7 +80,11 @@ jobs:
           echo "WIN_PKG=$env:WIN_PKG" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "version: $env:pkgVersion"
 
-          echo "VER_INFO=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          if(Test-Path -Path $env:WIN_PKG) {
+            echo "VER_INFO=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+        env:
+          WIN_PKG: C:\Users\runneradmin\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
 
       - name: Keytar
         shell: pwsh
@@ -115,6 +119,7 @@ jobs:
         shell: cmd
         run: |
           echo VER_INFO: %VER_INFO%
+          set PATH=%PATH%;C:\Program Files (x86)\Resource Hacker
           if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
           if defined VER_INFO ResourceHacker -open version-info.rc -save version-info.res -action compile
           if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
@@ -268,14 +273,7 @@ jobs:
         run: |
           $env:pkgVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).version
           echo "PACKAGE_VERSION=$env:pkgVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "WIN_PKG=$env:WIN_PKG" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "version: $env:pkgVersion"
-
-          if(Test-Path -Path $env:WIN_PKG) {
-            echo "VER_INFO=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          }
-        env:
-          WIN_PKG: C:\Users\runneradmin\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
 
       - name: Install Node dependencies
         run: npm install
@@ -296,7 +294,7 @@ jobs:
           SIGNING_TENANT_ID: ${{ secrets.SIGNING_TENANT_ID }}
           SIGNING_CLIENT_SECRET: ${{ secrets.SIGNING_CLIENT_SECRET }}
           SIGNING_CERT_NAME: ${{ secrets.SIGNING_CERT_NAME }}
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: List Dist
         run: dir ./dist

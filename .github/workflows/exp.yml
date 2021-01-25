@@ -25,7 +25,6 @@ jobs:
 
           ResourceHacker -help commandline
 
-
       - name: stop gap
         run: exit 1
 
