@@ -7,20 +7,6 @@ on:
 
 
 jobs:
-  cloc:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Set up cloc
-        run: |
-          sudo apt update
-          sudo apt -y install cloc
-      - name: Print lines of code
-        run: cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
-
-
   windows_cli:
     runs-on: windows-latest
     steps:
@@ -37,30 +23,30 @@ jobs:
         with:
           node-version: '10.x'
 
-      - name: Install pkg-fetch
-        shell: pwsh
-        run: |
-          cd $HOME
-          $fetchedUrl = "https://github.com/vercel/pkg-fetch/releases/download/v2.5/uploaded-v2.5-node-v10.4.1-win-x64"
-
-          New-Item -ItemType directory -Path .\.pkg-cache
-          New-Item -ItemType directory -Path .\.pkg-cache\v2.5
-          Invoke-RestMethod -Uri $fetchedUrl -OutFile ".\.pkg-cache\v2.5\fetched-v10.4.1-win-x64"
-
       - name: Set PACKAGE_VERSION & VER_INFO
         run: |
           $env:pkgVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).version
           echo "PACKAGE_VERSION=$env:pkgVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "WIN_PKG=$env:WIN_PKG" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "version: $env:pkgVersion"
-
-          dir .pkg-cache
-
-          if(Test-Path -Path $env:WIN_PKG) {
-            echo "VER_INFO=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          }
         env:
           WIN_PKG: D:\a\directory-connector\directory-connector\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
+
+      - name: get pkg-fetch
+        shell: pwsh
+        run: |
+          cd $HOME
+          pwd
+          $fetchedUrl = "https://github.com/vercel/pkg-fetch/releases/download/v2.5/uploaded-v2.5-node-v10.4.1-win-x64"
+
+          New-Item -ItemType directory -Path .\.pkg-cache
+          New-Item -ItemType directory -Path .\.pkg-cache\v2.5
+          Invoke-RestMethod -Uri $fetchedUrl -OutFile $WIN_PKG
+        env:
+          WIN_PKG: D:\a\directory-connector\directory-connector\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
+
+      - name: stop gap
+        run: exit 1
 
       - name: Keytar
         shell: pwsh
@@ -94,11 +80,10 @@ jobs:
       - name: Resource Hacker
         shell: cmd
         run: |
-          echo Package Version Flag: %VER_INFO%
           set PATH=%PATH%;C:\Program Files (x86)\Resource Hacker
-          if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
-          if defined VER_INFO ResourceHacker -open version-info.rc -save version-info.res -action compile
-          if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
+          ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
+          ResourceHacker -open version-info.rc -save version-info.res -action compile
+          ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
 
       - name: Install
         run: npm install
@@ -173,136 +158,3 @@ jobs:
         with:
           name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
-
-
-  windows_gui:
-    runs-on: windows-latest
-    if: false
-    environment: prod 
-    steps:
-      - name: Set up dotnet
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: "3.1.x"
-
-      - name: Set up Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
-
-      - name: Set Node options
-        run: echo "NODE_OPTIONS=--max_old_space_size=4096" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        shell: pwsh
-
-      - name: Print environment
-        run: |
-          node --version
-          npm --version
-          dotnet --version
-
-      - name: Install AST
-        shell: pwsh
-        run: |
-          cd $HOME
-
-          git clone https://github.com/vcsjones/AzureSignTool.git
-          cd AzureSignTool
-          $latest_head = $(git rev-parse HEAD)[0..9] -join ""
-          $latest_version = "0.0.0-g$latest_head"
-
-          Write-Host "--------"
-          Write-Host "git commit - $(git rev-parse HEAD)"
-          Write-Host "latest_head - $latest_head"
-          Write-Host "PACKAGE VERSION TO BUILD - $latest_version"
-          Write-Host "--------"
-
-          dotnet restore
-          dotnet pack --output ./nupkg
-          dotnet tool install --global --ignore-failed-sources --add-source ./nupkg --version $latest_version azuresigntool
-
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Set PACKAGE_VERSION
-        run: |
-          $env:pkgVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).version
-          echo "PACKAGE_VERSION=$env:pkgVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "version: $env:pkgVersion"
-
-      - name: Install Node dependencies
-        run: npm install
-
-      - name: Run linter
-        run: npm run lint
-
-      - name: Build & Sign
-        run: npm run dist:win
-        env:
-          ELECTRON_BUILDER_SIGN: 1
-          SIGNING_VAULT_URL: ${{ secrets.SIGNING_VAULT_URL }}
-          SIGNING_CLIENT_ID: ${{ secrets.SIGNING_CLIENT_ID }}
-          SIGNING_TENANT_ID: ${{ secrets.SIGNING_TENANT_ID }}
-          SIGNING_CLIENT_SECRET: ${{ secrets.SIGNING_CLIENT_SECRET }}
-          SIGNING_CERT_NAME: ${{ secrets.SIGNING_CERT_NAME }}
-
-      - name: List Dist
-        run: dir ./dist
-
-      - name: Publish Portable Exe to GitHub
-        if: github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v2
-        with:
-          name: Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
-          path: ./dist/Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
-
-      - name: Publish Installer Exe to GitHub
-        if: github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v2
-        with:
-          name: Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
-          path: ./dist/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
-
-
-  linux:
-    runs-on: ubuntu-latest
-    if: false
-    steps:
-      - name: Set up Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
-
-      - name: Set Node options
-        run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
-
-      - name: Set up environment
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev 
-          sudo apt-get -y install rpm
-
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Set PACKAGE_VERSION
-        shell: pwsh
-        run: |
-          $env:pkgVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).version
-          echo "PACKAGE_VERSION=$env:pkgVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "version: $env:pkgVersion"
-
-      - name: npm install
-        run: npm install
-
-      - name: npm rebuild
-        run: npm run rebuild
-
-      - name: npm package
-        run: npm run dist:lin
-
-      - name: Publish AppImage
-        if: github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v2
-        with:
-          name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
-          path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
