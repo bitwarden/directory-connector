@@ -23,7 +23,7 @@ jobs:
         run: |
           dir "C:\Program Files (x86)\Resource Hacker"
           echo
-          set PATH=%PATH%;C:\Program Files (x86)\Resource Hacker
+          setx path "%path%;C:\Program Files (x86)\Resource Hacker"
 
           path
 
