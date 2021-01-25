@@ -21,15 +21,13 @@ jobs:
       - name: test reshack
         shell: cmd
         run: |
-          dir "C:\Program Files (x86)\Resource Hacker"
-          echo
           set PATH=%PATH%;C:\Program Files (x86)\Resource Hacker
 
-          path
+          ResourceHacker -help commandline
 
-          ResourceHacker -help
 
-          exit 1
+      - name: stop gap
+        run: exit 1
 
       - name: Set up Node
         uses: actions/setup-node@v1
