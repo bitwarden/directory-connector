@@ -132,42 +132,42 @@ jobs:
           checksum -f="./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip" `
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
 
-      - name: Publish windows zip to GitHub
+      - name: Upload windows zip to GitHub
         if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
 
-      - name: Publish mac zip to GitHub
+      - name: Upload mac zip to GitHub
         if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
 
-      - name: Publish linux zip to GitHub
+      - name: Upload linux zip to GitHub
         if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
 
-      - name: Publish windows checksum to GitHub
+      - name: Upload windows checksum to GitHub
         if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
 
-      - name: Publish mac checksum to GitHub
+      - name: Upload mac checksum to GitHub
         if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
 
-      - name: Publish linux checksum to GitHub
+      - name: Upload linux checksum to GitHub
         if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
