@@ -233,10 +233,7 @@ jobs:
         run: npm run lint
 
       - name: Build & Sign
-        run: |
-          npm run rebuild
-          npm run build
-          npm run pack:win
+        run: npm run dist:win
         env:
           ELECTRON_BUILDER_SIGN: 1
           SIGNING_VAULT_URL: ${{ secrets.SIGNING_VAULT_URL }}
@@ -244,7 +241,6 @@ jobs:
           SIGNING_TENANT_ID: ${{ secrets.SIGNING_TENANT_ID }}
           SIGNING_CLIENT_SECRET: ${{ secrets.SIGNING_CLIENT_SECRET }}
           SIGNING_CERT_NAME: ${{ secrets.SIGNING_CERT_NAME }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: List Dist
         run: dir ./dist
