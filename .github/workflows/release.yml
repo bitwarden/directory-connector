@@ -46,7 +46,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.RELEASE_TAG_NAME }}
           release_name: ${{ env.RELEASE_NAME }}
@@ -461,5 +461,5 @@ jobs:
             -m "$($env:RELEASE_TAG_NAME.TrimStart('v'))" `
             $env:RELEASE_TAG_NAME
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG_NAME: ${{ needs.setup.outputs.release_tag_name }}
