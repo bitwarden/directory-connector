@@ -347,7 +347,7 @@ jobs:
         shell: pwsh
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          DESKTOP_KEY_PASSWORD: ${{ secrets.DESKTOP_KEY_PASSWORD }}
+          CONNECTOR_KEY_PASSWORD: ${{ secrets.CONNECTOR_KEY_PASSWORD }}
           DEVID_CERT_PASSWORD: ${{ secrets.DEVID_CERT_PASSWORD }}
           APPSTORE_CERT_PASSWORD: ${{ secrets.APPSTORE_CERT_PASSWORD }}
           MACDEV_CERT_PASSWORD: ${{ secrets.MACDEV_CERT_PASSWORD }}
