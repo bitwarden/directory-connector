@@ -1,9 +1,14 @@
 name: Exp
 
 on:
-  push:
-    branches-ignore:
-      - 'l10n_master'
+  #push:
+  #  branches-ignore:
+  #    - 'l10n_master'
+  workflow_dispatch:
+    inputs:
+      release_tag_name_input:
+        description: "Release Tag Name <X.X.X>"
+        required: true
 
 
 jobs:
