@@ -22,11 +22,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Create Release Name
+      - name: Clean Inputs
         id: create_tags
         run: |
           echo "Release prefix: ${RELEASE_TAG_NAME_INPUT:1}"
-          case "${RELEASE_TAG_NAME_INPUT:1}" in
+          case "${RELEASE_TAG_NAME_INPUT:0:1}" in
             'v')
               echo "RELEASE_NAME=${RELEASE_TAG_NAME_INPUT:1}" >> $GITHUB_ENV
               echo "RELEASE_TAG_NAME=$RELEASE_TAG_NAME_INPUT" >> $GITHUB_ENV
