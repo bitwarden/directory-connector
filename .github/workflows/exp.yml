@@ -7,6 +7,52 @@ on:
 
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_name: ${{ steps.create_tags.outputs.release_name }}
+      release_tag_name: ${{ steps.create_tags.outputs.release_tag_name }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Create Release Name
+        id: create_tags
+        run: |
+          echo "Release prefix: ${RELEASE_TAG_NAME_INPUT:1}"
+          case "${RELEASE_TAG_NAME_INPUT:1}" in
+            'v')
+              echo "RELEASE_NAME=${RELEASE_TAG_NAME_INPUT:1}" >> $GITHUB_ENV
+              echo "RELEASE_TAG_NAME=$RELEASE_TAG_NAME_INPUT" >> $GITHUB_ENV
+              echo "::set-output name=release_name::${RELEASE_TAG_NAME_INPUT:1}"
+              echo "::set-output name=release_tag_name::$RELEASE_TAG_NAME_INPUT"
+              ;;
+            *[0-9]*)
+              echo "RELEASE_NAME=$RELEASE_TAG_NAME_INPUT" >> $GITHUB_ENV
+              echo "RELEASE_TAG_NAME=v$RELEASE_TAG_NAME_INPUT" >> $GITHUB_ENV
+              echo "::set-output name=release_name::$RELEASE_TAG_NAME_INPUT"
+              echo "::set-output name=release_tag_name::v$RELEASE_TAG_NAME_INPUT"
+              ;;
+            *)
+              exit 1
+              ;;
+          esac
+        env:
+          RELEASE_TAG_NAME_INPUT: ${{ github.event.inputs.release_tag_name_input }}
+
+      - name: Create Draft Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RELEASE_TAG_NAME }}
+          release_name: ${{ env.RELEASE_NAME }}
+          draft: true
+          prerelease: false
+
+
   windows_cli:
     runs-on: windows-latest
     steps:

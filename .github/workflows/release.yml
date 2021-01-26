@@ -19,11 +19,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Create Release Name
+      - name: Create Release Vars
         id: create_tags
         run: |
+          echo "Release prefix: ${RELEASE_TAG_NAME_INPUT:1}"
           case "${RELEASE_TAG_NAME_INPUT:1}" in
-            'v')
+            v)
               echo "RELEASE_NAME=${RELEASE_TAG_NAME_INPUT:1}" >> $GITHUB_ENV
               echo "RELEASE_TAG_NAME=$RELEASE_TAG_NAME_INPUT" >> $GITHUB_ENV
               echo "::set-output name=release_name::${RELEASE_TAG_NAME_INPUT:1}"
@@ -56,6 +57,7 @@ jobs:
 
   windows-cli:
     runs-on: windows-latest
+    if: false
     needs: setup
     steps:
       - name: Checkout repo
