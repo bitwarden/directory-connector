@@ -57,7 +57,6 @@ jobs:
 
   windows-cli:
     runs-on: windows-latest
-    if: false
     needs: setup
     steps:
       - name: Checkout repo
