@@ -172,7 +172,6 @@ jobs:
 
   windows_gui:
     runs-on: windows-latest
-    environment: prod 
     steps:
       - name: Set up dotnet
         uses: actions/setup-dotnet@v1
