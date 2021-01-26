@@ -12,6 +12,7 @@
     "url": "https://github.com/bitwarden/directory-connector"
   },
   "dependencies": {
+    "browser-hrtime": "^1.1.8",
     "electron-log": "4.3.0",
     "electron-store": "6.0.1",
     "electron-updater": "4.3.5",

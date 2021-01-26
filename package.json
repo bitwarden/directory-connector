@@ -203,6 +203,7 @@
     "angulartics2": "9.1.0",
     "big-integer": "1.6.36",
     "bootstrap": "4.3.1",
+    "browser-hrtime": "^1.1.8",
     "chalk": "2.4.1",
     "commander": "2.18.0",
     "core-js": "2.6.2",
