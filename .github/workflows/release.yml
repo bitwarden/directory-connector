@@ -3,39 +3,44 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      release_tag_name:
-        description: "Release Tag Name (vX.X.X)"
+      release_tag_name_input:
+        description: "Release Tag Name <X.X.X>"
         required: true
 
 
 jobs:
-  cloc:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Set up cloc
-        run: |
-          sudo apt update
-          sudo apt -y install cloc
-      - name: Print lines of code
-        run: cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
-
-
   setup:
     runs-on: ubuntu-latest
     outputs:
       release_upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_name: ${{ steps.create_tags.outputs.release_name }}
+      release_tag_name: ${{ steps.create_tags.outputs.release_tag_name }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
 
       - name: Create Release Name
+        id: create_tags
         run: |
-          echo "RELEASE_NAME=${RELEASE_TAG_NAME:1}" >> $GITHUB_ENV
+          case "${RELEASE_TAG_NAME_INPUT:1}" in
+            'v')
+              echo "RELEASE_NAME=${RELEASE_TAG_NAME_INPUT:1}" >> $GITHUB_ENV
+              echo "RELEASE_TAG_NAME=$RELEASE_TAG_NAME_INPUT" >> $GITHUB_ENV
+              echo "::set-output name=release_name::${RELEASE_TAG_NAME_INPUT:1}"
+              echo "::set-output name=release_tag_name::$RELEASE_TAG_NAME_INPUT"
+              ;;
+            *[0-9]*)
+              echo "RELEASE_NAME=$RELEASE_TAG_NAME_INPUT" >> $GITHUB_ENV
+              echo "RELEASE_TAG_NAME=v$RELEASE_TAG_NAME_INPUT" >> $GITHUB_ENV
+              echo "::set-output name=release_name::$RELEASE_TAG_NAME_INPUT"
+              echo "::set-output name=release_tag_name::v$RELEASE_TAG_NAME_INPUT"
+              ;;
+            *)
+              exit 1
+              ;;
+          esac
         env:
-          RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
+          RELEASE_TAG_NAME_INPUT: ${{ github.event.inputs.release_tag_name_input }}
 
       - name: Create Draft Release
         id: create_release
@@ -43,7 +48,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
-          tag_name: ${{ github.event.inputs.release_tag_name }}
+          tag_name: ${{ env.RELEASE_TAG_NAME }}
           release_name: ${{ env.RELEASE_NAME }}
           draft: true
           prerelease: false
@@ -66,23 +71,24 @@ jobs:
         with:
           node-version: '10.x'
 
-      - name: Install pkg-fetch
-        run: |
-          $fetchedUrl = "https://github.com/vercel/pkg-fetch/releases/download/v2.5/uploaded-v2.5-node-v10.4.1-win-x64"
-
-          New-Item -ItemType directory -Path .\.pkg-cache
-          Invoke-RestMethod -Uri $fetchedUrl -OutFile ".\.pkg-cache\fetched-v10.4.1-win-x64"
-
       - name: Set PACKAGE_VERSION & VER_INFO
         run: |
           $env:pkgVersion = (Get-Content -Raw -Path .\src\package.json | ConvertFrom-Json).version
           echo "PACKAGE_VERSION=$env:pkgVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "WIN_PKG=$env:WIN_PKG" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "version: $env:pkgVersion"
+        env:
+          WIN_PKG: C:\Users\runneradmin\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
 
-          if(Test-Path -Path $env:WIN_PKG) {
-            echo "VER_INFO=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          }
+      - name: get pkg-fetch
+        shell: pwsh
+        run: |
+          cd $HOME
+          $fetchedUrl = "https://github.com/vercel/pkg-fetch/releases/download/v2.5/uploaded-v2.5-node-v10.4.1-win-x64"
+
+          New-Item -ItemType directory -Path .\.pkg-cache
+          New-Item -ItemType directory -Path .\.pkg-cache\v2.5
+          Invoke-RestMethod -Uri $fetchedUrl -OutFile ".\.pkg-cache\v2.5\fetched-v10.4.1-win-x64"
         env:
           WIN_PKG: C:\Users\runneradmin\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
 
@@ -118,11 +124,10 @@ jobs:
       - name: Resource Hacker
         shell: cmd
         run: |
-          echo VER_INFO: %VER_INFO%
           set PATH=%PATH%;C:\Program Files (x86)\Resource Hacker
-          if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
-          if defined VER_INFO ResourceHacker -open version-info.rc -save version-info.res -action compile
-          if defined VER_INFO ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
+          ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
+          ResourceHacker -open version-info.rc -save version-info.res -action compile
+          ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
 
       - name: Install
         run: npm install
@@ -296,9 +301,6 @@ jobs:
           SIGNING_CERT_NAME: ${{ secrets.SIGNING_CERT_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: List Dist
-        run: dir ./dist
-
 
   linux:
     runs-on: ubuntu-latest
@@ -337,7 +339,7 @@ jobs:
       - name: npm package
         run: npm run publish:lin
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
   macos:
@@ -460,4 +462,4 @@ jobs:
             $env:RELEASE_TAG_NAME
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
+          RELEASE_TAG_NAME: ${{ needs.setup.outputs.release_tag_name }}
