@@ -305,9 +305,6 @@ jobs:
     needs: setup
     if: false
     steps:
-      - name: place holder
-        run: exit 0
-
       - name: Set up Node
         uses: actions/setup-node@v1
         with:
@@ -331,6 +328,10 @@ jobs:
         uses: actions/checkout@v2
 
       # Requires Fixing
+      #
+      # desktop specific: 
+      #   - bitwarden-desktop-key.p12.gpg => bitwarden-connector-key.p12.gpg
+      #   - bitwarden_desktop_appstore.provisionprofile.gpg => bitwarden_connector_appstore.provisionprofile.gpg
       - name: Decrypt secrets
         run: ./.github/scripts/macos/decrypt-secrets.ps1
         shell: pwsh
@@ -338,6 +339,9 @@ jobs:
           DECRYPT_FILE_PASSWORD: ${{ secrets.DECRYPT_FILE_PASSWORD }}
 
       # Requires Fixing
+      #
+      # desktop specific:
+      #   - DESKTOP_KEY_PASSWORD => CONNECTOR_KEY_PASSWORD
       - name: Set up keychain
         run: ./.github/scripts/macos/setup-keychain.ps1
         shell: pwsh
@@ -349,12 +353,14 @@ jobs:
           MACDEV_CERT_PASSWORD: ${{ secrets.MACDEV_CERT_PASSWORD }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
-      # Requires Fixing?
+      # Requires Fixing
+      #
+      # desktop specific:
+      #   - $pprofile = "bitwarden_desktop_appstore.provisionprofile" => "bitwarden_connector_appstore.provisionprofile"
       - name: Set up provisioning profiles
         run: ./.github/scripts/macos/setup-profiles.ps1
         shell: pwsh
 
-      # Requires Fixing?
       - name: Increment version
         run: ./.github/scripts/macos/increment-version.ps1
         shell: pwsh
@@ -369,55 +375,48 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-      # Requires Fixing
+      - name: Build application (dev)
+        if: github.ref != 'refs/heads/master'
+        run: npm run build
+
+      # Requires Fixing - missing keychain - see above task
+      # Need the APPLE_ID_USERNAME & APPLE_ID_PASSWORD
       - name: Build application (dist)
+        if: github.ref == 'refs/heads/master'
         run: npm run dist:mac
         env:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
-      # Requires Fixing
+      # Requires Fixing - name and path need confirmed
       - name: Upload .zip artifact
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
-          name: Bitwarden-${{ env.PACKAGE_VERSION }}-mac.zip
-          path: ./dist/Bitwarden-${{ env.PACKAGE_VERSION }}-mac.zip
+          name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
+          path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
 
-      # Requires Fixing
+      # Requires Fixing - name and path need confirmed
       - name: Upload .dmg artifact
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
-          name: Bitwarden-${{ env.PACKAGE_VERSION }}.dmg
-          path: ./dist/Bitwarden-${{ env.PACKAGE_VERSION }}.dmg
+          name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
+          path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
 
-      # Requires Fixing
+      # Requires Fixing - name and path need confirmed
+      # Need the APPLE_ID_USERNAME & APPLE_ID_PASSWORD
       - name: Build application for App Store
+        if: github.ref == 'refs/heads/master'
         run: npm run dist:mac:mas
         env:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
-      # Requires Fixing
+      # Requires Fixing - name and path need confirmed
       - name: Upload .pkg artifact
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
-          name: Bitwarden-${{ env.PACKAGE_VERSION }}.pkg
-          path: ./dist/mas/Bitwarden-${{ env.PACKAGE_VERSION }}.pkg
-
-      # Requires Fixing
-      - name: Deploy to App Store
-        run: npm run upload:mas
-        env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-
-      - name: Upload release assets
-        shell: pwsh
-        run: |
-          hub release edit `
-            -a ./dist/mas/Bitwarden-${{ env.PACKAGE_VERSION }}.pkg `
-            -m "$($env:RELEASE_TAG_NAME.TrimStart('v'))" `
-            $env:RELEASE_TAG_NAME
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          RELEASE_TAG_NAME: ${{ github.event.inputs.release_tag_name }}
+          name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.pkg
+          path: ./dist/mas/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.pkg
