@@ -4,6 +4,8 @@ on:
   push:
     branches-ignore:
       - 'l10n_master'
+  workflow_dispatch:
+    inputs:
 
 
 jobs:
