@@ -23,6 +23,7 @@ jobs:
 
   windows_cli:
     runs-on: windows-latest
+    if: false
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -172,6 +173,7 @@ jobs:
 
   windows_gui:
     runs-on: windows-latest
+    if: false
     steps:
       - name: Set up dotnet
         uses: actions/setup-dotnet@v1
@@ -258,6 +260,7 @@ jobs:
 
   linux:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - name: Set up Node
         uses: actions/setup-node@v1
@@ -303,7 +306,6 @@ jobs:
   macos:
     runs-on: macos-latest
     needs: setup
-    if: false
     steps:
       - name: Set up Node
         uses: actions/setup-node@v1

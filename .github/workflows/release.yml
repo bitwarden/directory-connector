@@ -51,6 +51,7 @@ jobs:
   windows-cli:
     runs-on: windows-latest
     needs: setup
+    if: false
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -219,6 +220,7 @@ jobs:
   windows-gui:
     runs-on: windows-latest
     needs: setup
+    if: false
     steps:
       - name: Set up dotnet
         uses: actions/setup-dotnet@v1
@@ -292,6 +294,7 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     needs: setup
+    if: false
     steps:
       - name: Set up Node
         uses: actions/setup-node@v1
@@ -332,7 +335,6 @@ jobs:
   macos:
     runs-on: macos-latest
     needs: setup
-    if: false
     steps:
       - name: place holder
         run: exit 0
