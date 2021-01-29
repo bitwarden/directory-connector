@@ -156,7 +156,6 @@ jobs:
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
 
       - name: upload windows zip release asset
-        id: upload-windows-zip
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -167,7 +166,6 @@ jobs:
           asset_content_type: application/zip
 
       - name: upload macos zip release asset
-        id: upload-macos-zip
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -178,7 +176,6 @@ jobs:
           asset_content_type: application/zip
 
       - name: upload linux zip release asset
-        id: upload-linux-zip
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -189,7 +186,6 @@ jobs:
           asset_content_type: application/zip
 
       - name: Upload windows checksum release asset
-        id: upload-windows-checksum
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -200,7 +196,6 @@ jobs:
           asset_content_type: text/plain
 
       - name: Upload macos checksum release asset
-        id: upload-macos-checksum
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -211,7 +206,6 @@ jobs:
           asset_content_type: text/plain
 
       - name: Upload linux checksum release asset
-        id: upload-linux-checksum
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -366,6 +360,10 @@ jobs:
         uses: actions/checkout@v2
 
       # Requires Fixing
+      #
+      # desktop specific: 
+      #   - bitwarden-desktop-key.p12.gpg => bitwarden-connector-key.p12.gpg
+      #   - bitwarden_desktop_appstore.provisionprofile.gpg => bitwarden_connector_appstore.provisionprofile.gpg
       - name: Decrypt secrets
         run: ./.github/scripts/macos/decrypt-secrets.ps1
         shell: pwsh
@@ -373,6 +371,9 @@ jobs:
           DECRYPT_FILE_PASSWORD: ${{ secrets.DECRYPT_FILE_PASSWORD }}
 
       # Requires Fixing
+      #
+      # desktop specific:
+      #   - DESKTOP_KEY_PASSWORD => CONNECTOR_KEY_PASSWORD
       - name: Set up keychain
         run: ./.github/scripts/macos/setup-keychain.ps1
         shell: pwsh
@@ -384,12 +385,6 @@ jobs:
           MACDEV_CERT_PASSWORD: ${{ secrets.MACDEV_CERT_PASSWORD }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
-      # Requires Fixing?
-      - name: Set up provisioning profiles
-        run: ./.github/scripts/macos/setup-profiles.ps1
-        shell: pwsh
-
-      # Requires Fixing?
       - name: Increment version
         run: ./.github/scripts/macos/increment-version.ps1
         shell: pwsh
@@ -424,36 +419,3 @@ jobs:
         with:
           name: Bitwarden-${{ env.PACKAGE_VERSION }}.dmg
           path: ./dist/Bitwarden-${{ env.PACKAGE_VERSION }}.dmg
-
-      # Requires Fixing
-      - name: Build application for App Store
-        run: npm run dist:mac:mas
-        env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-
-      # Requires Fixing
-      - name: Upload .pkg artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: Bitwarden-${{ env.PACKAGE_VERSION }}.pkg
-          path: ./dist/mas/Bitwarden-${{ env.PACKAGE_VERSION }}.pkg
-
-      # Requires Fixing
-      - name: Deploy to App Store
-        run: npm run upload:mas
-        env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-
-      # Requires changing the Action native
-      - name: Upload release assets
-        shell: pwsh
-        run: |
-          hub release edit `
-            -a ./dist/mas/Bitwarden-${{ env.PACKAGE_VERSION }}.pkg `
-            -m "$($env:RELEASE_TAG_NAME.TrimStart('v'))" `
-            $env:RELEASE_TAG_NAME
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG_NAME: ${{ needs.setup.outputs.release_tag_name }}

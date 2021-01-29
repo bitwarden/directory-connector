@@ -349,17 +349,8 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           CONNECTOR_KEY_PASSWORD: ${{ secrets.CONNECTOR_KEY_PASSWORD }}
           DEVID_CERT_PASSWORD: ${{ secrets.DEVID_CERT_PASSWORD }}
-          APPSTORE_CERT_PASSWORD: ${{ secrets.APPSTORE_CERT_PASSWORD }}
           MACDEV_CERT_PASSWORD: ${{ secrets.MACDEV_CERT_PASSWORD }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-
-      # Requires Fixing
-      #
-      # desktop specific:
-      #   - $pprofile = "bitwarden_desktop_appstore.provisionprofile" => "bitwarden_connector_appstore.provisionprofile"
-      - name: Set up provisioning profiles
-        run: ./.github/scripts/macos/setup-profiles.ps1
-        shell: pwsh
 
       - name: Increment version
         run: ./.github/scripts/macos/increment-version.ps1
@@ -403,20 +394,3 @@ jobs:
         with:
           name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
           path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
-
-      # Requires Fixing - name and path need confirmed
-      # Need the APPLE_ID_USERNAME & APPLE_ID_PASSWORD
-      - name: Build application for App Store
-        if: github.ref == 'refs/heads/master'
-        run: npm run dist:mac:mas
-        env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-
-      # Requires Fixing - name and path need confirmed
-      - name: Upload .pkg artifact
-        if: github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v2
-        with:
-          name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.pkg
-          path: ./dist/mas/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.pkg
