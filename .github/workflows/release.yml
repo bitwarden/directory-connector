@@ -400,7 +400,7 @@ jobs:
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
       - name: test dist
-        run: ls -atlh
+        run: ls -atlh dist
 
       - name: Upload macos zip release artifact
         uses: actions/upload-release-asset@v1
