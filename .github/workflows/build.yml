@@ -1,9 +1,9 @@
 name: Build
 
 on:
-  push:
-    branches-ignore:
-      - 'l10n_master'
+  #push:
+  #  branches-ignore:
+  #    - 'l10n_master'
   workflow_dispatch:
     inputs:
 
