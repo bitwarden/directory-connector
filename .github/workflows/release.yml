@@ -399,8 +399,9 @@ jobs:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
-      - name: test dist
-        run: ls -atlh dist
+      - name: Rename mac zip
+        run: |
+          mv ./dist/Bitwarden\ Directory\ Connector-${{ env.PACKAGE_VERSION }}-mac.zip ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
 
       - name: Upload macos zip release artifact
         uses: actions/upload-release-asset@v1
