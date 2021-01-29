@@ -391,14 +391,14 @@ jobs:
         run: npm run lint
 
       - name: Build application (dist)
-        run: npm run dist:mac
+        run: npm run publish:mac
         env:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
       - name: Rename mac zip
         run: |
-          mv ./dist/Bitwarden\ Directory\ Connector-${{ env.PACKAGE_VERSION }}-mac.zip ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
+          mv ./dist/Bitwarden\ Directory\ Connector-${{ env.PACKAGE_VERSION }}-mac.zip ./dist/Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
 
       - name: Upload macos zip release artifact
         uses: actions/upload-release-asset@v1
