@@ -348,10 +348,6 @@ jobs:
           DEVID_CERT_PASSWORD: ${{ secrets.DEVID_CERT_PASSWORD }}
           MACDEV_CERT_PASSWORD: ${{ secrets.MACDEV_CERT_PASSWORD }}
 
-      - name: Increment version
-        run: ./.github/scripts/macos/increment-version.ps1
-        shell: pwsh
-
       - name: Load package version
         run: ./.github/scripts/load-version.ps1
         shell: pwsh
@@ -371,9 +367,9 @@ jobs:
       - name: Build application (dist)
         if: github.ref == 'refs/heads/master'
         run: npm run dist:mac
-        #env:
-        #  APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-        #  APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+        env:
+          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
       # Requires Fixing - name and path need confirmed
       - name: Upload .zip artifact
