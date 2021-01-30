@@ -407,8 +407,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.setup.outputs.release_upload_url }}
-          asset_name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
-          asset_path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
+          asset_name: Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
+          asset_path: ./dist/Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
           asset_content_type: application/zip
 
       - name: Upload macos dmg release artifact
