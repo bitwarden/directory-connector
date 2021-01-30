@@ -161,7 +161,8 @@ jobs:
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
 
       - name: debug dist-cli
-        run: ls -atlh dist-cli
+        shell: pwsh
+        run: ls dist-cli
 
       - name: upload windows zip release asset
         uses: actions/upload-release-asset@v1
