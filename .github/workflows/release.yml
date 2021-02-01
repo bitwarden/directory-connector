@@ -419,5 +419,5 @@ jobs:
         with:
           upload_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_name: Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
-          asset_path: ./dist/Bitwarden\ Directory\ Connector-${{ env.PACKAGE_VERSION }}-mac.zip
-          asset_content_type: application
+          asset_path: ./dist/Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
+          asset_content_type: application/zip
