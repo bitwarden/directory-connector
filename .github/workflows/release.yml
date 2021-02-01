@@ -409,7 +409,7 @@ jobs:
           upload_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_name: Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
           asset_path: ./dist/Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
-          asset_content_type: application/zip
+          asset_content_type: application
 
       - name: Upload macos dmg release artifact
         uses: actions/upload-release-asset@v1
@@ -419,4 +419,4 @@ jobs:
           upload_url: ${{ needs.setup.outputs.release_upload_url }}
           asset_name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
           asset_path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
-          asset_content_type: application/zip
+          asset_content_type: application
