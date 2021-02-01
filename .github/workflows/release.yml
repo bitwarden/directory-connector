@@ -402,22 +402,22 @@ jobs:
           mv ./dist/Bitwarden\ Directory\ Connector-${{ env.PACKAGE_VERSION }}-mac.zip ./dist/Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
           ls -atlh dist
 
-      - name: Upload macos dmg release artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.setup.outputs.release_upload_url }}
-          asset_name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
-          asset_path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
-          asset_content_type: application
+      #- name: Upload macos dmg release artifact
+      #  uses: actions/upload-release-asset@v1
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  with:
+      #    upload_url: ${{ needs.setup.outputs.release_upload_url }}
+      #    asset_name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
+      #    asset_path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
+      #    asset_content_type: application
 
-      - name: Upload macos zip release artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.setup.outputs.release_upload_url }}
-          asset_name: Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
-          asset_path: ./dist/Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
-          asset_content_type: application/zip
+      #- name: Upload macos zip release artifact
+      #  uses: actions/upload-release-asset@v1
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  with:
+      #    upload_url: ${{ needs.setup.outputs.release_upload_url }}
+      #    asset_name: Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
+      #    asset_path: ./dist/Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
+      #    asset_content_type: application/zip
