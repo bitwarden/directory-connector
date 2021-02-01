@@ -13,7 +13,7 @@
   "homepage": "https://bitwarden.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/joseph-flinn/directory-connector"
+    "url": "https://github.com/bitwarden/directory-connector"
   },
   "license": "GPL-3.0",
   "scripts": {
