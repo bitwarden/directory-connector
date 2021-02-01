@@ -212,7 +212,7 @@
     "electron-updater": "4.2.0",
     "form-data": "2.3.2",
     "googleapis": "43.0.0",
-    "https-proxy-agent": "4.0.0",
+    "https-proxy-agent": "5.0.0",
     "inquirer": "6.2.0",
     "keytar": "4.13.0",
     "ldapjs": "git+https://git@github.com/kspearrin/node-ldapjs.git",
