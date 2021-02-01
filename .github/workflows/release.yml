@@ -398,7 +398,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Rename mac zip
-        run: ls -atlh dist
+        run: |
+          mv ./dist/Bitwarden\ Directory\ Connector-${{ env.PACKAGE_VERSION }}-mac.zip ./dist/Bitwarden-Directory-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
+          ls -atlh dist
 
       - name: Upload macos dmg release artifact
         uses: actions/upload-release-asset@v1
