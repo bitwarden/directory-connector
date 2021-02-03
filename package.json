@@ -46,9 +46,9 @@
     "pack:win": "npm run clean:dist && electron-builder --win --x64 --ia32 -p never -c.win.certificateSubjectName=\"8bit Solutions LLC\"",
     "pack:win:ci": "npm run clean:dist && electron-builder --win --x64 --ia32 -p never",
     "pack:cli": "npm run pack:cli:win | npm run pack:cli:mac | npm run pack:cli:lin",
-    "pack:cli:win": "pkg . --targets win-x64 --output ./dist-cli/windows/bwdc.exe",
-    "pack:cli:mac": "pkg . --targets macos-x64 --output ./dist-cli/macos/bwdc",
-    "pack:cli:lin": "pkg . --targets linux-x64 --output ./dist-cli/linux/bwdc",
+    "pack:cli:win": "pkg ./src-cli --targets win-x64 --output ./dist-cli/windows/bwdc.exe",
+    "pack:cli:mac": "pkg ./src-cli --targets macos-x64 --output ./dist-cli/macos/bwdc",
+    "pack:cli:lin": "pkg ./src-cli --targets linux-x64 --output ./dist-cli/linux/bwdc",
     "dist:lin": "npm run build:dist && npm run pack:lin",
     "dist:mac": "npm run build:dist && npm run pack:mac",
     "dist:win": "npm run build:dist && npm run pack:win",
@@ -130,12 +130,6 @@
     "appImage": {
       "artifactName": "Bitwarden-Connector-${version}-${arch}.${ext}"
     }
-  },
-  "bin": {
-    "bwdc": "./build-cli/bwdc.js"
-  },
-  "pkg": {
-    "assets": "./build-cli/**/*"
   },
   "devDependencies": {
     "@angular/compiler-cli": "^9.1.12",

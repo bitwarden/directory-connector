@@ -16,6 +16,6 @@
     "electron-log": "4.3.0",
     "electron-store": "6.0.1",
     "electron-updater": "4.3.5",
-    "keytar": "4.13.0"
+    "keytar": "7.3.0"
   }
 }
