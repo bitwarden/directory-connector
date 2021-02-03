@@ -216,7 +216,7 @@
     "googleapis": "43.0.0",
     "https-proxy-agent": "5.0.0",
     "inquirer": "6.2.0",
-    "keytar": "4.13.0",
+    "keytar": "7.3.0",
     "ldapjs": "git+https://git@github.com/kspearrin/node-ldapjs.git",
     "lowdb": "1.0.0",
     "lunr": "2.3.3",
