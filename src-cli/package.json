@@ -1,25 +1,24 @@
 {
-    "name": "bitwarden-directory-connector",
-    "productName": "Bitwarden Directory Connector",
-    "description": "Sync your user directory to your Bitwarden organization.",
-    "version": "2.9.0",
-    "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
-    "homepage": "https://bitwarden.com",
-    "license": "GPL-3.0",
-    "main": "main.js",
-    "repository": {
+  "name": "bitwarden-directory-connector",
+  "productName": "Bitwarden Directory Connector",
+  "description": "Sync your user directory to your Bitwarden organization.",
+  "version": "2.9.0",
+  "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
+  "homepage": "https://bitwarden.com",
+  "license": "GPL-3.0",
+  "main": "main.js",
+  "repository": {
       "type": "git",
       "url": "https://github.com/bitwarden/directory-connector"
-    },
-    "bin": {
+  },
+  "bin": {
       "bwdc": "../build-cli/bwdc.js"
-    },
-    "pkg": {
+  },
+  "pkg": {
       "assets": "../build-cli/**/*"
-    },
-    "dependencies": {
+  },
+  "dependencies": {
       "browser-hrtime": "^1.1.8",
       "keytar": "7.3.0"
-    }
+  }
 }
-  
