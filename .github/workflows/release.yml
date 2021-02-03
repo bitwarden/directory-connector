@@ -1,0 +1,392 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag_name_input:
+        description: "Release Tag Name <X.X.X>"
+        required: true
+
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      package_version: ${{ steps.create_tags.outputs.package_version }}
+      tag_version: ${{ steps.create_tags.outputs.tag_version }}
+      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Create Release Vars
+        id: create_tags
+        run: |
+          case "${RELEASE_TAG_NAME_INPUT:0:1}" in
+            v)
+              echo "RELEASE_NAME=${RELEASE_TAG_NAME_INPUT:1}" >> $GITHUB_ENV
+              echo "RELEASE_TAG_NAME=$RELEASE_TAG_NAME_INPUT" >> $GITHUB_ENV
+              echo "::set-output name=package_version::${RELEASE_TAG_NAME_INPUT:1}"
+              echo "::set-output name=tag_version::$RELEASE_TAG_NAME_INPUT"
+              ;;
+            [0-9])
+              echo "RELEASE_NAME=$RELEASE_TAG_NAME_INPUT" >> $GITHUB_ENV
+              echo "RELEASE_TAG_NAME=v$RELEASE_TAG_NAME_INPUT" >> $GITHUB_ENV
+              echo "::set-output name=package_version::$RELEASE_TAG_NAME_INPUT"
+              echo "::set-output name=tag_version::v$RELEASE_TAG_NAME_INPUT"
+              ;;
+            *)
+              exit 1
+              ;;
+          esac
+        env:
+          RELEASE_TAG_NAME_INPUT: ${{ github.event.inputs.release_tag_name_input }}
+
+      - name: Create Draft Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RELEASE_TAG_NAME }}
+          release_name: ${{ env.RELEASE_NAME }}
+          draft: true
+          prerelease: false
+
+
+  cli:
+    runs-on: windows-latest
+    needs: setup
+    env:
+      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Setup Windows builder
+        run: |
+          choco install checksum --no-progress
+          choco install reshack --no-progress
+
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+
+      - name: Set VER_INFO
+        run: |
+          echo "WIN_PKG=$env:WIN_PKG" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        env:
+          WIN_PKG: C:\Users\runneradmin\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
+
+      - name: get pkg-fetch
+        shell: pwsh
+        run: |
+          cd $HOME
+          $fetchedUrl = "https://github.com/vercel/pkg-fetch/releases/download/v2.5/uploaded-v2.5-node-v10.4.1-win-x64"
+
+          New-Item -ItemType directory -Path ./.pkg-cache
+          New-Item -ItemType directory -Path ./.pkg-cache/v2.5
+          Invoke-RestMethod -Uri $fetchedUrl -OutFile "./.pkg-cache/v2.5/fetched-v10.4.1-win-x64"
+        env:
+          WIN_PKG: C:\Users\runneradmin\.pkg-cache\v2.5\fetched-v10.4.1-win-x64
+
+      - name: Keytar
+        shell: pwsh
+        run: |
+          $keytarVersion = (Get-Content -Raw -Path ./src/package.json | ConvertFrom-Json).dependencies.keytar
+          $nodeModVersion = node -e "console.log(process.config.variables.node_module_version)"
+          $keytarTar = "keytar-v${keytarVersion}-node-v${nodeModVersion}-{0}-x64.tar"
+          $keytarTarGz = "${keytarTar}.gz"
+          $keytarUrl = "https://github.com/atom/node-keytar/releases/download/v${keytarVersion}/${keytarTarGz}"
+
+          New-Item -ItemType directory -Path ./keytar/macos | Out-Null
+          New-Item -ItemType directory -Path ./keytar/linux | Out-Null
+          New-Item -ItemType directory -Path ./keytar/windows | Out-Null
+
+          Invoke-RestMethod -Uri $($keytarUrl -f "darwin") -OutFile "./keytar/macos/$($keytarTarGz -f "darwin")"
+          Invoke-RestMethod -Uri $($keytarUrl -f "linux") -OutFile "./keytar/linux/$($keytarTarGz -f "linux")"
+          Invoke-RestMethod -Uri $($keytarUrl -f "win32") -OutFile "./keytar/windows/$($keytarTarGz -f "win32")"
+
+          7z e "./keytar/macos/$($keytarTarGz -f "darwin")" -o"./keytar/macos"
+          7z e "./keytar/linux/$($keytarTarGz -f "linux")" -o"./keytar/linux"
+          7z e "./keytar/windows/$($keytarTarGz -f "win32")" -o"./keytar/windows"
+
+          7z e "./keytar/macos/$($keytarTar -f "darwin")" -o"./keytar/macos"
+          7z e "./keytar/linux/$($keytarTar -f "linux")" -o"./keytar/linux"
+          7z e "./keytar/windows/$($keytarTar -f "win32")" -o"./keytar/windows"
+
+      - name: Setup Version Info
+        shell: pwsh
+        run: ./scripts/make-versioninfo.ps1
+
+      - name: Resource Hacker
+        shell: cmd
+        run: |
+          set PATH=%PATH%;C:\Program Files (x86)\Resource Hacker
+          ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
+          ResourceHacker -open version-info.rc -save version-info.res -action compile
+          ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
+
+      - name: Install
+        run: npm install
+
+      - name: Package CLI
+        run: npm run dist:cli
+
+      - name: Zip
+        shell: cmd
+        run: |
+          7z a ./dist-cli/bwdc-windows-%PACKAGE_VERSION%.zip ./dist-cli/windows/bwdc.exe ./keytar/windows/keytar.node
+          7z a ./dist-cli/bwdc-macos-%PACKAGE_VERSION%.zip ./dist-cli/macos/bwdc ./keytar/macos/keytar.node
+          7z a ./dist-cli/bwdc-linux-%PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc ./keytar/linux/keytar.node
+
+      - name: Version Test
+        run: |
+          Expand-Archive -Path "./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
+          $testVersion = Invoke-Expression '& ./test/windows/bwdc.exe -v'
+          echo "version: $env:PACKAGE_VERSION"
+          echo "testVersion: $testVersion"
+          if($testVersion -ne $env:PACKAGE_VERSION) {
+            Throw "Version test failed."
+          }
+
+      - name: Create checksums
+        run: |
+          checksum -f="./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" `
+            -t sha256 | Out-File ./dist-cli/bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
+          checksum -f="./dist-cli/bwdc-macos-${env:PACKAGE_VERSION}.zip" `
+            -t sha256 | Out-File ./dist-cli/bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
+          checksum -f="./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip" `
+            -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
+
+      - name: upload windows zip release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
+          asset_path: ./dist-cli/bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
+          asset_name: bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
+          asset_content_type: application/zip
+
+      - name: upload macos zip release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
+          asset_path: ./dist-cli/bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
+          asset_name: bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
+          asset_content_type: application/zip
+
+      - name: upload linux zip release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
+          asset_path: ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
+          asset_name: bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
+          asset_content_type: application/zip
+
+      - name: upload windows checksum release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
+          asset_path: ./dist-cli/bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
+          asset_name: bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
+          asset_content_type: text/plain
+
+      - name: upload macos checksum release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
+          asset_path: ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
+          asset_name: bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
+          asset_content_type: text/plain
+
+      - name: upload linux checksum release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.setup.outputs.release_upload_url }}
+          asset_path: ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
+          asset_name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
+          asset_content_type: text/plain
+
+
+  windows-gui:
+    runs-on: windows-latest
+    needs: setup
+    env:
+      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Set up dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "3.1.x"
+
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+
+      - name: Set Node options
+        run: echo "NODE_OPTIONS=--max_old_space_size=4096" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        shell: pwsh
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+          dotnet --version
+
+      - name: Install AST
+        shell: pwsh
+        run: |
+          cd $HOME
+          git clone https://github.com/vcsjones/AzureSignTool.git
+          cd AzureSignTool
+          $latest_head = $(git rev-parse HEAD)[0..9] -join ""
+          $latest_version = "0.0.0-g$latest_head"
+          Write-Host "--------"
+          Write-Host "git commit - $(git rev-parse HEAD)"
+          Write-Host "latest_head - $latest_head"
+          Write-Host "PACKAGE VERSION TO BUILD - $latest_version"
+          Write-Host "--------"
+          dotnet restore
+          dotnet pack --output ./nupkg
+          dotnet tool install --global --ignore-failed-sources --add-source ./nupkg --version $latest_version azuresigntool
+          cd $HOME
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: npm rebuild
+        run: npm run rebuild
+
+      - name: Build & Sign
+        run: |
+          npm run publish:win
+        env:
+          ELECTRON_BUILDER_SIGN: 1
+          SIGNING_VAULT_URL: ${{ secrets.SIGNING_VAULT_URL }}
+          SIGNING_CLIENT_ID: ${{ secrets.SIGNING_CLIENT_ID }}
+          SIGNING_TENANT_ID: ${{ secrets.SIGNING_TENANT_ID }}
+          SIGNING_CLIENT_SECRET: ${{ secrets.SIGNING_CLIENT_SECRET }}
+          SIGNING_CERT_NAME: ${{ secrets.SIGNING_CERT_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  linux:
+    runs-on: ubuntu-latest
+    needs: setup
+    env:
+      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+
+      - name: Set Node options
+        run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
+
+      - name: Set up environment
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev 
+          sudo apt-get -y install rpm
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set PACKAGE_VERSION
+        shell: pwsh
+        run: |
+          $env:pkgVersion = (Get-Content -Raw -Path ./src/package.json | ConvertFrom-Json).version
+          echo "PACKAGE_VERSION=$env:pkgVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "version: $env:pkgVersion"
+
+      - name: npm install
+        run: npm install
+
+      - name: npm rebuild
+        run: npm run rebuild
+
+      - name: npm package
+        run: npm run publish:lin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  macos:
+    runs-on: macos-latest
+    needs: setup
+    env:
+      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+
+      - name: Set Node options
+        run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+          Write-Output "GitHub ref: $env:GITHUB_REF"
+          Write-Output "GitHub event: $env:GITHUB_EVENT"
+        shell: pwsh
+        env:
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_EVENT: ${{ github.event_name }}
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Decrypt secrets
+        run: ./.github/scripts/macos/decrypt-secrets.ps1
+        shell: pwsh
+        env:
+          DECRYPT_FILE_PASSWORD: ${{ secrets.DECRYPT_FILE_PASSWORD }}
+
+      - name: Set up keychain
+        run: ./.github/scripts/macos/setup-keychain.ps1
+        shell: pwsh
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          DEVID_CERT_PASSWORD: ${{ secrets.DEVID_CERT_PASSWORD }}
+          MACDEV_CERT_PASSWORD: ${{ secrets.MACDEV_CERT_PASSWORD }}
+
+      - name: Load package version
+        run: ./.github/scripts/load-version.ps1
+        shell: pwsh
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Build application (dist)
+        run: npm run publish:mac
+        env:
+          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

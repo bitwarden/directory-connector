@@ -85,7 +85,8 @@
       "target": [
         "portable",
         "nsis"
-      ]
+      ],
+      "sign": "scripts/sign.js"
     },
     "linux": {
       "category": "Utility",
@@ -213,7 +214,7 @@
     "electron-updater": "4.3.5",
     "form-data": "2.3.2",
     "googleapis": "43.0.0",
-    "https-proxy-agent": "4.0.0",
+    "https-proxy-agent": "5.0.0",
     "inquirer": "6.2.0",
     "keytar": "4.13.0",
     "ldapjs": "git+https://git@github.com/kspearrin/node-ldapjs.git",
