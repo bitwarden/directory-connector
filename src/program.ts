@@ -104,12 +104,12 @@ export class Program extends BaseProgram {
                 writeLn('    bwdc login --sso');
                 writeLn('', true);
             })
-            .action(async (email: string, password: string, cmd: program.Command) => {
+            .action(async (email: string, password: string, options: program.OptionValues) => {
                 await this.exitIfAuthed();
                 const command = new LoginCommand(this.main.authService, this.main.apiService, this.main.i18nService,
                     this.main.environmentService, this.main.passwordGenerationService, this.main.cryptoFunctionService,
                     this.main.platformUtilsService, 'connector');
-                const response = await command.run(email, password, cmd);
+                const response = await command.run(email, password, options);
                 this.processResponse(response);
             });
 
@@ -122,11 +122,11 @@ export class Program extends BaseProgram {
                 writeLn('    bwdc logout');
                 writeLn('', true);
             })
-            .action(async (cmd) => {
+            .action(async () => {
                 await this.exitIfNotAuthed();
                 const command = new LogoutCommand(this.main.authService, this.main.i18nService,
                     async () => await this.main.logout());
-                const response = await command.run(cmd);
+                const response = await command.run();
                 this.processResponse(response);
             });
 
@@ -141,10 +141,10 @@ export class Program extends BaseProgram {
                 writeLn('    bwdc test --last');
                 writeLn('', true);
             })
-            .action(async (cmd) => {
+            .action(async (options: program.OptionValues) => {
                 await this.exitIfNotAuthed();
                 const command = new TestCommand(this.main.syncService, this.main.i18nService);
-                const response = await command.run(cmd);
+                const response = await command.run(options);
                 this.processResponse(response);
             });
 
@@ -157,10 +157,10 @@ export class Program extends BaseProgram {
                 writeLn('    bwdc sync');
                 writeLn('', true);
             })
-            .action(async (cmd) => {
+            .action(async () => {
                 await this.exitIfNotAuthed();
                 const command = new SyncCommand(this.main.syncService, this.main.i18nService);
-                const response = await command.run(cmd);
+                const response = await command.run();
                 this.processResponse(response);
             });
 
@@ -178,10 +178,10 @@ export class Program extends BaseProgram {
                 writeLn('    bwdc last-sync users');
                 writeLn('', true);
             })
-            .action(async (object: string, cmd: program.Command) => {
+            .action(async (object: string) => {
                 await this.exitIfNotAuthed();
                 const command = new LastSyncCommand(this.main.configurationService);
-                const response = await command.run(object, cmd);
+                const response = await command.run(object);
                 this.processResponse(response);
             });
 
@@ -214,10 +214,10 @@ export class Program extends BaseProgram {
                 writeLn('    bwdc config onelogin.secret <secret>');
                 writeLn('', true);
             })
-            .action(async (setting, value, cmd) => {
+            .action(async (setting: string, value: string, options: program.OptionValues) => {
                 const command = new ConfigCommand(this.main.environmentService, this.main.i18nService,
                     this.main.configurationService);
-                const response = await command.run(setting, value, cmd);
+                const response = await command.run(setting, value, options);
                 this.processResponse(response);
             });
 
@@ -244,9 +244,9 @@ export class Program extends BaseProgram {
                 writeLn('    bwdc clear-cache');
                 writeLn('', true);
             })
-            .action(async (cmd) => {
+            .action(async (options: program.OptionValues) => {
                 const command = new ClearCacheCommand(this.main.configurationService, this.main.i18nService);
-                const response = await command.run(cmd);
+                const response = await command.run(options);
                 this.processResponse(response);
             });
 
@@ -266,10 +266,10 @@ export class Program extends BaseProgram {
                 writeLn('    bwdc update --raw');
                 writeLn('', true);
             })
-            .action(async (cmd) => {
+            .action(async () => {
                 const command = new UpdateCommand(this.main.platformUtilsService, this.main.i18nService,
                     'directory-connector', 'bwdc', false);
-                const response = await command.run(cmd);
+                const response = await command.run();
                 this.processResponse(response);
             });
 

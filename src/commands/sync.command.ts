@@ -10,7 +10,7 @@ import { MessageResponse } from 'jslib/cli/models/response/messageResponse';
 export class SyncCommand {
     constructor(private syncService: SyncService, private i18nService: I18nService) { }
 
-    async run(cmd: program.Command): Promise<Response> {
+    async run(): Promise<Response> {
         try {
             const result = await this.syncService.sync(false, false);
             const groupCount = result[0] != null ? result[0].length : 0;

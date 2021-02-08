@@ -8,7 +8,7 @@ import { StringResponse } from 'jslib/cli/models/response/stringResponse';
 export class LastSyncCommand {
     constructor(private configurationService: ConfigurationService) { }
 
-    async run(object: string, cmd: program.Command): Promise<Response> {
+    async run(object: string): Promise<Response> {
         try {
             switch (object.toLowerCase()) {
                 case 'groups':

@@ -10,7 +10,7 @@ import { MessageResponse } from 'jslib/cli/models/response/messageResponse';
 export class ClearCacheCommand {
     constructor(private configurationService: ConfigurationService, private i18nService: I18nService) { }
 
-    async run(cmd: program.Command): Promise<Response> {
+    async run(cmd: program.OptionValues): Promise<Response> {
         try {
             await this.configurationService.clearStatefulSettings(true);
             const res = new MessageResponse(this.i18nService.t('syncCacheCleared'), null);

@@ -33,13 +33,13 @@ export class ConfigCommand {
     constructor(private environmentService: EnvironmentService, private i18nService: I18nService,
         private configurationService: ConfigurationService) { }
 
-    async run(setting: string, value: string, cmd: program.Command): Promise<Response> {
+    async run(setting: string, value: string, options: program.OptionValues): Promise<Response> {
         setting = setting.toLowerCase();
         if (value == null || value === '') {
-            if (cmd.secretfile) {
-                value = await NodeUtils.readFirstLine(cmd.secretfile);
-            } else if (cmd.secretenv && process.env[cmd.secretenv]) {
-                value = process.env[cmd.secretenv];
+            if (options.secretfile) {
+                value = await NodeUtils.readFirstLine(options.secretfile);
+            } else if (options.secretenv && process.env[options.secretenv]) {
+                value = process.env[options.secretenv];
             }
         }
         try {
