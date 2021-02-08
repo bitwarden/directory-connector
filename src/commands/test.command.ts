@@ -12,7 +12,7 @@ import { TestResponse } from '../models/response/testResponse';
 export class TestCommand {
     constructor(private syncService: SyncService, private i18nService: I18nService) { }
 
-    async run(cmd: program.Command): Promise<Response> {
+    async run(cmd: program.OptionValues): Promise<Response> {
         try {
             const result = await ConnectorUtils.simulate(this.syncService, this.i18nService, cmd.last || false);
             const res = new TestResponse(result);

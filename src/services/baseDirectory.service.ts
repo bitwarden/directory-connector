@@ -73,7 +73,7 @@ export abstract class BaseDirectoryService {
             return users;
         }
 
-        return users.filter((u) => {
+        return users.filter(u => {
             if (u.deleted) {
                 return true;
             }
@@ -81,11 +81,11 @@ export abstract class BaseDirectoryService {
                 return true;
             }
 
-            return groups.filter((g) => g.userMemberExternalIds.has(u.externalId)).length > 0;
+            return groups.filter(g => g.userMemberExternalIds.has(u.externalId)).length > 0;
         });
     }
 
     protected forceGroup(force: boolean, users: UserEntry[]): boolean {
-        return force || (users != null && users.filter((u) => !u.deleted && !u.disabled).length > 0);
+        return force || (users != null && users.filter(u => !u.deleted && !u.disabled).length > 0);
     }
 }
