@@ -53,7 +53,7 @@ export class LdapDirectoryService implements DirectoryService {
         if (this.syncConfig.groups) {
             let groupForce = force;
             if (!groupForce && users != null) {
-                const activeUsers = users.filter((u) => !u.deleted && !u.disabled);
+                const activeUsers = users.filter(u => !u.deleted && !u.disabled);
                 groupForce = activeUsers.length > 0;
             }
             groups = await this.getGroups(groupForce);
@@ -303,18 +303,18 @@ export class LdapDirectoryService implements DirectoryService {
                     return;
                 }
 
-                res.on('error', (resErr) => {
+                res.on('error', resErr => {
                     reject(resErr);
                 });
 
-                res.on('searchEntry', (entry) => {
+                res.on('searchEntry', entry => {
                     const e = processEntry(entry);
                     if (e != null) {
                         entries.push(e);
                     }
                 });
 
-                res.on('end', (result) => {
+                res.on('end', result => {
                     resolve(entries);
                 });
             });
@@ -381,7 +381,7 @@ export class LdapDirectoryService implements DirectoryService {
                     if (err != null) {
                         reject(err.message);
                     } else {
-                        this.client.bind(user, pass, (err2) => {
+                        this.client.bind(user, pass, err2 => {
                             if (err2 != null) {
                                 reject(err2.message);
                             } else {
@@ -391,7 +391,7 @@ export class LdapDirectoryService implements DirectoryService {
                     }
                 });
             } else {
-                this.client.bind(user, pass, (err) => {
+                this.client.bind(user, pass, err => {
                     if (err != null) {
                         reject(err.message);
                     } else {
@@ -404,7 +404,7 @@ export class LdapDirectoryService implements DirectoryService {
 
     private async unbind(): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.client.unbind((err) => {
+            this.client.unbind(err => {
                 if (err != null) {
                     reject(err);
                 } else {

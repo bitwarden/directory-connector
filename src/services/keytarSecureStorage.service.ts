@@ -10,7 +10,7 @@ export class KeytarSecureStorageService implements StorageService {
     constructor(private serviceName: string) { }
 
     get<T>(key: string): Promise<T> {
-        return getPassword(this.serviceName, key).then((val) => {
+        return getPassword(this.serviceName, key).then(val => {
             return JSON.parse(val) as T;
         });
     }

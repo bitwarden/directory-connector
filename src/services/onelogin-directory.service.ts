@@ -72,7 +72,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         const setFilter = this.createCustomSet(this.syncConfig.userFilter);
         this.logService.info('Querying users.');
         this.allUsers = await this.apiGetMany('users' + (query != null ? '?' + query : ''));
-        this.allUsers.forEach((user) => {
+        this.allUsers.forEach(user => {
             const entry = this.buildUser(user);
             if (entry != null && !this.filterOutResult(setFilter, entry.email)) {
                 entries.push(entry);
@@ -109,7 +109,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         const query = this.createDirectoryQuery(this.syncConfig.groupFilter);
         this.logService.info('Querying groups.');
         const roles = await this.apiGetMany('roles' + (query != null ? '?' + query : ''));
-        roles.forEach((role) => {
+        roles.forEach(role => {
             const entry = this.buildGroup(role);
             if (entry != null && !this.filterOutResult(setFilter, entry.name)) {
                 entries.push(entry);
@@ -125,7 +125,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements Di
         entry.name = group.name;
 
         if (this.allUsers != null) {
-            this.allUsers.forEach((user) => {
+            this.allUsers.forEach(user => {
                 if (user.role_id != null && user.role_id.indexOf(entry.referenceId) > -1) {
                     entry.userMemberExternalIds.add(user.id);
                 }

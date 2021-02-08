@@ -377,7 +377,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
 
     private init() {
         this.client = graph.Client.init({
-            authProvider: (done) => {
+            authProvider: done => {
                 if (this.dirConfig.applicationId == null || this.dirConfig.key == null ||
                     this.dirConfig.tenant == null) {
                     done(this.i18nService.t('dirConfigIncomplete'), null);
@@ -407,7 +407,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'Content-Length': Buffer.byteLength(data),
                     },
-                }, (res) => {
+                }, res => {
                     res.setEncoding('utf8');
                     res.on('data', (chunk: string) => {
                         const d = JSON.parse(chunk);
@@ -420,7 +420,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
                             done('Unknown error (' + res.statusCode + ').', null);
                         }
                     });
-                }).on('error', (err) => {
+                }).on('error', err => {
                     done(err, null);
                 });
 

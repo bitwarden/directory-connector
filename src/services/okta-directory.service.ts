@@ -122,7 +122,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
                     entries.push(entry);
                 }
                 // throttle some to avoid rate limiting
-                await new Promise((resolve) => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
         });
         return entries;
@@ -164,7 +164,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
 
     private async apiGetCall(url: string): Promise<[any, Map<string, string | string[]>]> {
         const u = new URL(url);
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             https.get({
                 hostname: u.hostname,
                 path: u.pathname + u.search,
@@ -173,10 +173,10 @@ export class OktaDirectoryService extends BaseDirectoryService implements Direct
                     Authorization: 'SSWS ' + this.dirConfig.token,
                     Accept: 'application/json',
                 },
-            }, (res) => {
+            }, res => {
                 let body = '';
 
-                res.on('data', (chunk) => {
+                res.on('data', chunk => {
                     body += chunk;
                 });
 
