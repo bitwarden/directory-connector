@@ -7,14 +7,14 @@ import { UserEntry } from '../models/userEntry';
 
 import { BaseDirectoryService } from './baseDirectory.service';
 import { ConfigurationService } from './configuration.service';
-import { DirectoryService } from './directory.service';
+import { IDirectoryService } from './directory.service';
 
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 
 import * as https from 'https';
 
-export class OktaDirectoryService extends BaseDirectoryService implements DirectoryService {
+export class OktaDirectoryService extends BaseDirectoryService implements IDirectoryService {
     private dirConfig: OktaConfiguration;
     private syncConfig: SyncConfiguration;
 

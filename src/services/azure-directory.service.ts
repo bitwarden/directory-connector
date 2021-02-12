@@ -12,7 +12,7 @@ import { UserEntry } from '../models/userEntry';
 
 import { BaseDirectoryService } from './baseDirectory.service';
 import { ConfigurationService } from './configuration.service';
-import { DirectoryService } from './directory.service';
+import { IDirectoryService } from './directory.service';
 
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
@@ -29,7 +29,7 @@ enum UserSetType {
     ExcludeGroup,
 }
 
-export class AzureDirectoryService extends BaseDirectoryService implements DirectoryService {
+export class AzureDirectoryService extends BaseDirectoryService implements IDirectoryService {
     private client: graph.Client;
     private dirConfig: AzureConfiguration;
     private syncConfig: SyncConfiguration;
@@ -203,7 +203,8 @@ export class AzureDirectoryService extends BaseDirectoryService implements Direc
         const pieces = parts[1].split(',');
         if (keyword === 'excludeadministrativeunit' || keyword === 'includeadministrativeunit') {
             for (const p of pieces) {
-                const auMembers = await this.client.api(`https://graph.microsoft.com/beta/administrativeUnits/${p}/members`).get();
+                const auMembers = await this.client
+                    .api(`https://graph.microsoft.com/beta/administrativeUnits/${p}/members`).get();
                 for (const auMember of auMembers.value) {
                     if (auMember['@odata.type'] === '#microsoft.graph.group') {
                         set.add(auMember.displayName.toLowerCase());
