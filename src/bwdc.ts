@@ -80,7 +80,7 @@ export class Main {
         this.logService = new ConsoleLogService(this.platformUtilsService.isDev(),
             (level) => process.env.BITWARDENCLI_CONNECTOR_DEBUG !== 'true' && level <= LogLevelType.Info);
         this.cryptoFunctionService = new NodeCryptoFunctionService();
-        this.storageService = new LowdbStorageService(this.logService, null, this.dataFilePath, true);
+        this.storageService = new LowdbStorageService(this.logService, null, this.dataFilePath, false, true);
         this.secureStorageService = plaintextSecrets ?
             this.storageService : new KeytarSecureStorageService(applicationName);
         this.cryptoService = new CryptoService(this.storageService, this.secureStorageService,
