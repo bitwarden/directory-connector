@@ -8,6 +8,7 @@ import { AuthService } from 'jslib/services/auth.service';
 import { ConfigurationService } from './services/configuration.service';
 import { I18nService } from './services/i18n.service';
 import { KeytarSecureStorageService } from './services/keytarSecureStorage.service';
+import { LowdbStorageService } from './services/lowdbStorage.service';
 import { SyncService } from './services/sync.service';
 
 import { CliPlatformUtilsService } from 'jslib/cli/services/cliPlatformUtils.service';
@@ -18,7 +19,6 @@ import { ConstantsService } from 'jslib/services/constants.service';
 import { ContainerService } from 'jslib/services/container.service';
 import { CryptoService } from 'jslib/services/crypto.service';
 import { EnvironmentService } from 'jslib/services/environment.service';
-import { LowdbStorageService } from 'jslib/services/lowdbStorage.service';
 import { NodeApiService } from 'jslib/services/nodeApi.service';
 import { NodeCryptoFunctionService } from 'jslib/services/nodeCryptoFunction.service';
 import { NoopMessagingService } from 'jslib/services/noopMessaging.service';
@@ -117,7 +117,7 @@ export class Main {
     }
 
     private async init() {
-        this.storageService.init();
+        await this.storageService.init();
         this.containerService.attachToWindow(global);
         await this.environmentService.setUrlsFromStorage();
         // Dev Server URLs. Comment out the line above.
