@@ -23,7 +23,18 @@
           "port": 9223,
           "webRoot": "${workspaceFolder}/build",
           "sourceMaps": true
-      }
+    },
+    {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug CLI",
+        "protocol": "inspector",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build-cli/bwdc.js",
+        "args": [
+            "sync"
+        ]
+    }
   ],
   "compounds": [
       {

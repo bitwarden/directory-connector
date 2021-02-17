@@ -18,7 +18,7 @@ import { Utils } from 'jslib/misc/utils';
 
 import { AzureDirectoryService } from './azure-directory.service';
 import { ConfigurationService } from './configuration.service';
-import { DirectoryService } from './directory.service';
+import { IDirectoryService } from './directory.service';
 import { GSuiteDirectoryService } from './gsuite-directory.service';
 import { LdapDirectoryService } from './ldap-directory.service';
 import { OktaDirectoryService } from './okta-directory.service';
@@ -121,7 +121,7 @@ export class SyncService {
         return allUsers;
     }
 
-    private getDirectoryService(): DirectoryService {
+    private getDirectoryService(): IDirectoryService {
         switch (this.dirType) {
             case DirectoryType.GSuite:
                 return new GSuiteDirectoryService(this.configurationService, this.logService, this.i18nService);

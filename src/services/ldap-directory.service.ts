@@ -9,7 +9,7 @@ import { SyncConfiguration } from '../models/syncConfiguration';
 import { UserEntry } from '../models/userEntry';
 
 import { ConfigurationService } from './configuration.service';
-import { DirectoryService } from './directory.service';
+import { IDirectoryService } from './directory.service';
 
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
@@ -18,7 +18,7 @@ import { Utils } from 'jslib/misc/utils';
 
 const UserControlAccountDisabled = 2;
 
-export class LdapDirectoryService implements DirectoryService {
+export class LdapDirectoryService implements IDirectoryService {
     private client: ldap.Client;
     private dirConfig: LdapConfiguration;
     private syncConfig: SyncConfiguration;
