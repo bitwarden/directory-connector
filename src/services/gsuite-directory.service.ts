@@ -13,12 +13,12 @@ import { UserEntry } from '../models/userEntry';
 
 import { BaseDirectoryService } from './baseDirectory.service';
 import { ConfigurationService } from './configuration.service';
-import { DirectoryService } from './directory.service';
+import { IDirectoryService } from './directory.service';
 
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
 
-export class GSuiteDirectoryService extends BaseDirectoryService implements DirectoryService {
+export class GSuiteDirectoryService extends BaseDirectoryService implements IDirectoryService {
     private client: JWT;
     private service: admin_directory_v1.Admin;
     private authParams: any;

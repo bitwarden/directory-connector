@@ -7,7 +7,7 @@ import { UserEntry } from '../models/userEntry';
 
 import { BaseDirectoryService } from './baseDirectory.service';
 import { ConfigurationService } from './configuration.service';
-import { DirectoryService } from './directory.service';
+import { IDirectoryService } from './directory.service';
 
 import { I18nService } from 'jslib/abstractions/i18n.service';
 import { LogService } from 'jslib/abstractions/log.service';
@@ -15,7 +15,7 @@ import { LogService } from 'jslib/abstractions/log.service';
 // Basic email validation: something@something.something
 const ValidEmailRegex = /^\S+@\S+\.\S+$/;
 
-export class OneLoginDirectoryService extends BaseDirectoryService implements DirectoryService {
+export class OneLoginDirectoryService extends BaseDirectoryService implements IDirectoryService {
     private dirConfig: OneLoginConfiguration;
     private syncConfig: SyncConfiguration;
     private accessToken: string;

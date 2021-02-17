@@ -105,7 +105,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
         const reader = new FileReader();
         reader.readAsText(filePicker.files[0], 'utf-8');
-        reader.onload = (evt) => {
+        reader.onload = evt => {
             this.ngZone.run(async () => {
                 try {
                     const result = JSON.parse((evt.target as FileReader).result as string);
