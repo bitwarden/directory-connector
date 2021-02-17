@@ -1,4 +1,4 @@
-[![Build](https://github.com/bitwarden/directory-connector/workflows/Build/badge.svg)
+![Build](https://github.com/bitwarden/directory-connector/workflows/Build/badge.svg)
 [![Join the chat at https://gitter.im/bitwarden/Lobby](https://badges.gitter.im/bitwarden/Lobby.svg)](https://gitter.im/bitwarden/Lobby)
 
 # Bitwarden Directory Connector
