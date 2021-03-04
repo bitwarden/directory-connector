@@ -147,42 +147,42 @@ jobs:
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
 
       - name: Upload windows zip to GitHub
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Upload mac zip to GitHub
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Upload linux zip to GitHub
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
 
       - name: Upload windows checksum to GitHub
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
 
       - name: Upload mac checksum to GitHub
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
 
       - name: Upload linux checksum to GitHub
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@v2
         with:
           name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
@@ -258,14 +258,14 @@ jobs:
         run: dir ./dist
 
       - name: Publish Portable Exe to GitHub
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@v2
         with:
           name: Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
 
       - name: Publish Installer Exe to GitHub
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@v2
         with:
           name: Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
@@ -305,7 +305,7 @@ jobs:
         run: npm run dist:lin
 
       - name: Publish AppImage
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@v2
         with:
           name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
@@ -369,21 +369,21 @@ jobs:
         run: npm run build
 
       - name: Build application (dist)
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         run: npm run dist:mac
         env:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
       - name: Upload .zip artifact
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@v2
         with:
           name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
           path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
 
       - name: Upload .dmg artifact
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@v2
         with:
           name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
