@@ -90,7 +90,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                         continue;
                     }
                     const entry = this.buildUser(user);
-                    if (await this.filterOutUserResult(setFilter, entry)) {
+                    if (await this.filterOutUserResult(setFilter, entry, true)) {
                         continue;
                     }
 
@@ -147,7 +147,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                     if (!entry.disabled && !entry.deleted) {
                         continue;
                     }
-                    if (await this.filterOutUserResult(setFilter, entry)) {
+                    if (await this.filterOutUserResult(setFilter, entry, false)) {
                         continue;
                     }
 
@@ -257,7 +257,8 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
         return [userSetType, set];
     }
 
-    private async filterOutUserResult(setFilter: [UserSetType, Set<string>], user: UserEntry): Promise<boolean> {
+    private async filterOutUserResult(setFilter: [UserSetType, Set<string>], user: UserEntry,
+        checkGroupsFilter: boolean): Promise<boolean> {
         if (setFilter == null) {
             return false;
         }
@@ -273,6 +274,10 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
             return this.filterOutResult([userSetTypeExclude, setFilter[1]], user.email);
         }
 
+        // We need to *not* call the /checkMemberGroups method for deleted users, it will always fail
+        if (!checkGroupsFilter) {
+            return false;
+        }
         const memberGroups = await this.client.api(`/users/${user.externalId}/checkMemberGroups`).post({
             groupIds: Array.from(setFilter[1]),
         });
