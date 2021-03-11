@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as ldap from 'ldapjs';
 
+import { checkServerIdentity, PeerCertificate } from 'tls';
+
 import { DirectoryType } from '../enums/directoryType';
 
 import { GroupEntry } from '../models/groupEntry';
@@ -360,9 +362,8 @@ export class LdapDirectoryService implements IDirectoryService {
                 }
             }
 
-            if (Object.keys(tlsOptions).length > 0) {
-                options.tlsOptions = tlsOptions;
-            }
+            tlsOptions.checkServerIdentity = this.checkServerIdentityAltNames;
+            options.tlsOptions = tlsOptions;
 
             this.client = ldap.createClient(options);
 
@@ -424,5 +425,24 @@ export class LdapDirectoryService implements IDirectoryService {
         const guid = Utils.fromBufferToHex(p1) + '-' + Utils.fromBufferToHex(p2) + '-' + Utils.fromBufferToHex(p3) +
             '-' + Utils.fromBufferToHex(p4) + '-' + Utils.fromBufferToHex(p5);
         return guid.toLowerCase();
+    }
+
+    private checkServerIdentityAltNames(host: string, cert: PeerCertificate) {
+        // Fixes the cert representation when subject is empty and altNames are present
+        // Required for node versions < 12.14.1 (which could be used for bwdc cli)
+        // Adapted from: https://github.com/auth0/ad-ldap-connector/commit/1f4dd2be6ed93dda591dd31ed5483a9b452a8d2a
+        // See https://github.com/nodejs/node/issues/11771 for details
+        if (cert && cert.subject == null && /(IP|DNS|URL)/.test(cert.subjectaltname)) {
+            cert.subject = {
+                C: null,
+                ST: null,
+                L: null,
+                O: null,
+                OU: null,
+                CN: null
+            }
+        }
+
+        return checkServerIdentity(host, cert);
     }
 }
