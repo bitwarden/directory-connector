@@ -57,7 +57,8 @@ export class SyncService {
                 this.flattenUsersToGroups(groups, groups);
             }
 
-            if (test || ((groups == null || groups.length === 0) && (users == null || users.length === 0))) {
+            if (test || (!syncConfig.overwriteExisting &&
+                        (groups == null || groups.length === 0) && (users == null || users.length === 0))) {
                 if (!test) {
                     await this.saveSyncTimes(syncConfig, now);
                 }
