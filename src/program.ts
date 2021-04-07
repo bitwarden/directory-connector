@@ -34,14 +34,14 @@ export class Program extends BaseProgram {
         super(main.userService, writeLn);
     }
 
-    run() {
+    async run() {
         program
             .option('--pretty', 'Format output. JSON is tabbed with two spaces.')
             .option('--raw', 'Return raw output instead of a descriptive message.')
             .option('--response', 'Return a JSON formatted version of response output.')
             .option('--quiet', 'Don\'t return anything to stdout.')
             .option('--nointeraction', 'Do not prompt for interactive user input.')
-            .version(this.main.platformUtilsService.getApplicationVersion(), '-v, --version');
+            .version(await this.main.platformUtilsService.getApplicationVersion(), '-v, --version');
 
         program.on('option:pretty', () => {
             process.env.BW_PRETTY = 'true';

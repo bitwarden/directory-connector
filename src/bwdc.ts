@@ -131,7 +131,7 @@ export class Main {
         this.authService.init();
 
         const installedVersion = await this.storageService.get<string>(ConstantsService.installedVersionKey);
-        const currentVersion = this.platformUtilsService.getApplicationVersion();
+        const currentVersion = await this.platformUtilsService.getApplicationVersion();
         if (installedVersion == null || installedVersion !== currentVersion) {
             await this.storageService.save(ConstantsService.installedVersionKey, currentVersion);
         }

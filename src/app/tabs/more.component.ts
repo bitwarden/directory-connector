@@ -32,7 +32,7 @@ export class MoreComponent implements OnInit {
         private toasterService: ToasterService, private broadcasterService: BroadcasterService,
         private ngZone: NgZone, private changeDetectorRef: ChangeDetectorRef) { }
 
-    ngOnInit() {
+    async ngOnInit() {
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
             this.ngZone.run(async () => {
                 switch (message.command) {
@@ -51,7 +51,7 @@ export class MoreComponent implements OnInit {
         });
 
         this.year = new Date().getFullYear().toString();
-        this.version = this.platformUtilsService.getApplicationVersion();
+        this.version = await this.platformUtilsService.getApplicationVersion();
     }
 
     ngOnDestroy() {

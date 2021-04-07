@@ -1,5 +1,3 @@
-import { remote } from 'electron';
-
 import {
     APP_INITIALIZER,
     NgModule,
@@ -11,7 +9,7 @@ import { ElectronLogService } from 'jslib/electron/services/electronLog.service'
 import { ElectronPlatformUtilsService } from 'jslib/electron/services/electronPlatformUtils.service';
 import { ElectronRendererMessagingService } from 'jslib/electron/services/electronRendererMessaging.service';
 import { ElectronRendererSecureStorageService } from 'jslib/electron/services/electronRendererSecureStorage.service';
-import { ElectronStorageService } from 'jslib/electron/services/electronStorage.service';
+import { ElectronRendererStorageService } from 'jslib/electron/services/electronRendererStorage.service';
 
 import { AuthGuardService } from './auth-guard.service';
 import { LaunchGuardService } from './launch-guard.service';
@@ -40,7 +38,6 @@ import { TokenService } from 'jslib/services/token.service';
 import { UserService } from 'jslib/services/user.service';
 
 import { ApiService as ApiServiceAbstraction } from 'jslib/abstractions/api.service';
-import { AppIdService as AppIdServiceAbstraction } from 'jslib/abstractions/appId.service';
 import { AuthService as AuthServiceAbstraction } from 'jslib/abstractions/auth.service';
 import { CryptoService as CryptoServiceAbstraction } from 'jslib/abstractions/crypto.service';
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from 'jslib/abstractions/cryptoFunction.service';
@@ -63,7 +60,7 @@ const i18nService = new I18nService(window.navigator.language, './locales');
 const stateService = new StateService();
 const broadcasterService = new BroadcasterService();
 const messagingService = new ElectronRendererMessagingService(broadcasterService);
-const storageService: StorageServiceAbstraction = new ElectronStorageService(remote.app.getPath('userData'));
+const storageService: StorageServiceAbstraction = new ElectronRendererStorageService();
 const platformUtilsService = new ElectronPlatformUtilsService(i18nService, messagingService, false, storageService);
 const secureStorageService: StorageServiceAbstraction = new ElectronRendererSecureStorageService();
 const cryptoFunctionService: CryptoFunctionServiceAbstraction = new NodeCryptoFunctionService();
@@ -99,7 +96,7 @@ export function initFactory(): Function {
 
         let installAction = null;
         const installedVersion = await storageService.get<string>(ConstantsService.installedVersionKey);
-        const currentVersion = platformUtilsService.getApplicationVersion();
+        const currentVersion = await platformUtilsService.getApplicationVersion();
         if (installedVersion == null) {
             installAction = 'install';
         } else if (installedVersion !== currentVersion) {

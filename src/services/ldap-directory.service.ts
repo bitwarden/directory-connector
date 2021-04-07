@@ -439,8 +439,8 @@ export class LdapDirectoryService implements IDirectoryService {
                 L: null,
                 O: null,
                 OU: null,
-                CN: null
-            }
+                CN: null,
+            };
         }
 
         return checkServerIdentity(host, cert);
