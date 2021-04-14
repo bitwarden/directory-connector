@@ -21,8 +21,6 @@ import { SyncService } from '../../services/sync.service';
 import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
 import { ValidationService } from 'jslib/angular/services/validation.service';
 
-import { Analytics } from 'jslib/misc/analytics';
-
 import { ApiService } from 'jslib/services/api.service';
 import { AppIdService } from 'jslib/services/appId.service';
 import { AuthService } from 'jslib/services/auth.service';
@@ -81,7 +79,6 @@ const syncService = new SyncService(configurationService, logService, cryptoFunc
 const passwordGenerationService = new PasswordGenerationService(cryptoService, storageService, null);
 const policyService = new PolicyService(userService, storageService);
 
-const analytics = new Analytics(window, () => true, platformUtilsService, storageService, appIdService);
 containerService.attachToWindow(window);
 
 export function initFactory(): Function {
