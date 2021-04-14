@@ -5,8 +5,6 @@ import {
     ToasterContainerComponent,
     ToasterService,
 } from 'angular2-toaster';
-import { Angulartics2 } from 'angulartics2';
-import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
 
 import {
     Component,
@@ -60,10 +58,9 @@ export class AppComponent implements OnInit {
     private lastActivity: number = null;
     private modal: ModalComponent = null;
 
-    constructor(private angulartics2GoogleAnalytics: Angulartics2GoogleAnalytics,
-        private broadcasterService: BroadcasterService, private userService: UserService,
+    constructor(private broadcasterService: BroadcasterService, private userService: UserService,
         private tokenService: TokenService, private storageService: StorageService,
-        private authService: AuthService, private router: Router, private analytics: Angulartics2,
+        private authService: AuthService, private router: Router,
         private toasterService: ToasterService, private i18nService: I18nService,
         private sanitizer: DomSanitizer, private ngZone: NgZone,
         private componentFactoryResolver: ComponentFactoryResolver, private messagingService: MessagingService,
@@ -127,12 +124,6 @@ export class AppComponent implements OnInit {
                     case 'showToast':
                         this.showToast(message);
                         break;
-                    case 'analyticsEventTrack':
-                        this.analytics.eventTrack.next({
-                            action: message.action,
-                            properties: { label: message.label },
-                        });
-                        break;
                     case 'ssoCallback':
                         this.router.navigate(['sso'], { queryParams: { code: message.code, state: message.state } });
                         break;
@@ -155,7 +146,6 @@ export class AppComponent implements OnInit {
         ]);
 
         this.authService.logOut(async () => {
-            this.analytics.eventTrack.next({ action: 'Logged Out' });
             if (expired) {
                 this.toasterService.popAsync('warning', this.i18nService.t('loggedOut'),
                     this.i18nService.t('loginExpired'));
