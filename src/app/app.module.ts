@@ -2,8 +2,6 @@ import 'core-js';
 import 'zone.js/dist/zone';
 
 import { ToasterModule } from 'angular2-toaster';
-import { Angulartics2Module } from 'angulartics2';
-import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
 
 import { AppRoutingModule } from './app-routing.module';
 import { ServicesModule } from './services/services.module';
@@ -48,11 +46,6 @@ import { SearchCiphersPipe } from 'jslib/angular/pipes/search-ciphers.pipe';
         FormsModule,
         AppRoutingModule,
         ServicesModule,
-        Angulartics2Module.forRoot({
-            pageTracking: {
-                clearQueryParams: true,
-            },
-        }),
         ToasterModule.forRoot(),
     ],
     declarations: [
