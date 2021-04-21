@@ -138,7 +138,7 @@
     "@types/commander": "^2.12.2",
     "@types/form-data": "^2.2.1",
     "@types/inquirer": "^0.0.43",
-    "@types/ldapjs": "^1.0.3",
+    "@types/ldapjs": "^1.0.10",
     "@types/lowdb": "^1.0.5",
     "@types/lunr": "^2.3.3",
     "@types/node": "^10.17.28",
