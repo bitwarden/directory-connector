@@ -324,7 +324,7 @@ export class LdapDirectoryService implements IDirectoryService {
     }
 
     private async bind(): Promise<any> {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             if (this.dirConfig.hostname == null || this.dirConfig.port == null) {
                 reject(this.i18nService.t('dirConfigIncomplete'));
                 return;
@@ -403,7 +403,7 @@ export class LdapDirectoryService implements IDirectoryService {
         });
     }
 
-    private async unbind(): Promise<any> {
+    private async unbind(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.client.unbind(err => {
                 if (err != null) {

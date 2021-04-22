@@ -1,4 +1,4 @@
-import 'core-js';
+import 'core-js/stable';
 import 'zone.js/dist/zone';
 
 import { ToasterModule } from 'angular2-toaster';
