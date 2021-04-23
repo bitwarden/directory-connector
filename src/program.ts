@@ -1,4 +1,4 @@
-import * as chk from 'chalk';
+import * as chalk from 'chalk';
 import * as program from 'commander';
 import * as path from 'path';
 
@@ -19,7 +19,6 @@ import { BaseProgram } from 'jslib/cli/baseProgram';
 import { Response } from 'jslib/cli/models/response';
 import { StringResponse } from 'jslib/cli/models/response/stringResponse';
 
-const chalk = chk.default;
 const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) => {
     const stream = error ? process.stderr : process.stdout;
     if (finalLine && process.platform === 'win32') {
