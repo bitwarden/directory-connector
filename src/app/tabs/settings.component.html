@@ -345,12 +345,14 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="syncGroups" [(ngModel)]="sync.groups"
                             name="SyncGroups">
-                        <label class="form-check-label" for="syncGroups">{{'syncGroups' | i18n}}</label>
+                        <label class="form-check-label" for="syncGroups">{{(directory !== directoryType.OneLogin ?
+                            'syncGroups' : 'syncGroupsOneLogin') | i18n}}</label>
                     </div>
                 </div>
                 <div [hidden]="!sync.groups">
                     <div class="form-group">
-                        <label for="groupFilter">{{'groupFilter' | i18n}}</label>
+                        <label for="groupFilter">{{(directory !== directoryType.OneLogin ? 'groupFilter' :
+                            'groupFilterOneLogin') | i18n}}</label>
                         <textarea class="form-control" id="groupFilter" name="GroupFilter"
                             [(ngModel)]="sync.groupFilter"></textarea>
                         <small class="text-muted form-text" *ngIf="directory === directoryType.Ldap">{{'ex' | i18n}}

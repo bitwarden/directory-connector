@@ -402,6 +402,12 @@
     "groupFilter": {
         "message": "Group Filter"
     },
+    "syncGroupsOneLogin": {
+        "message": "Sync roles"
+    },
+    "groupFilterOneLogin": {
+        "message": "Role Filter"
+    },
     "groupObjectClass": {
         "message": "Group Object Class"
     },
@@ -602,6 +608,9 @@
                 "example": "server"
             }
         }
+    },
+    "largeImport": {
+        "message": "More than 2000 users or groups are expected to sync."
     },
     "overwriteExisting": {
         "message": "Overwrite existing organization users based on current sync settings."
