@@ -73,12 +73,6 @@ export class AppComponent implements OnInit {
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
             this.ngZone.run(async () => {
                 switch (message.command) {
-                    case 'loggedIn':
-                        if (await this.userService.isAuthenticated()) {
-                            const profile = await this.apiService.getProfile();
-                            this.stateService.save('profileOrganizations', profile.organizations);
-                        }
-                        break;
                     case 'syncScheduleStarted':
                     case 'syncScheduleStopped':
                         this.stateService.save('syncingDir', message.command === 'syncScheduleStarted');

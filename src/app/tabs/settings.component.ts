@@ -37,9 +37,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     okta = new OktaConfiguration();
     oneLogin = new OneLoginConfiguration();
     sync = new SyncConfiguration();
-    organizationId: string;
     directoryOptions: any[];
-    organizationOptions: any[];
 
     constructor(private i18nService: I18nService, private configurationService: ConfigurationService,
         private changeDetectorRef: ChangeDetectorRef, private ngZone: NgZone,
@@ -55,15 +53,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
-        this.organizationOptions = [{ name: this.i18nService.t('select'), value: null }];
-        const orgs = await this.stateService.get<ProfileOrganizationResponse[]>('profileOrganizations');
-        if (orgs != null) {
-            for (const org of orgs) {
-                this.organizationOptions.push({ name: org.name, value: org.id });
-            }
-        }
-
-        this.organizationId = await this.configurationService.getOrganizationId();
         this.directory = await this.configurationService.getDirectoryType();
         this.ldap = (await this.configurationService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)) ||
             this.ldap;
@@ -87,7 +76,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         if (this.ldap != null && this.ldap.ad) {
             this.ldap.pagedSearch = true;
         }
-        await this.configurationService.saveOrganizationId(this.organizationId);
         await this.configurationService.saveDirectoryType(this.directory);
         await this.configurationService.saveDirectory(DirectoryType.Ldap, this.ldap);
         await this.configurationService.saveDirectory(DirectoryType.GSuite, this.gsuite);
