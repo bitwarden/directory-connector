@@ -7,11 +7,11 @@ import {
 import { AuthGuardService } from './services/auth-guard.service';
 import { LaunchGuardService } from './services/launch-guard.service';
 
+import { ApiKeyComponent } from './accounts/apiKey.component';
 import { DashboardComponent } from './tabs/dashboard.component';
 import { MoreComponent } from './tabs/more.component';
 import { SettingsComponent } from './tabs/settings.component';
 import { TabsComponent } from './tabs/tabs.component';
-import { ApiKeyComponent } from './accounts/apiKey.component';
 
 const routes: Routes = [
     { path: '', redirectTo: '/login', pathMatch: 'full' },

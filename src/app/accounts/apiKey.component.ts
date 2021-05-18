@@ -15,8 +15,8 @@ import { I18nService } from 'jslib/abstractions/i18n.service';
 import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
 
 import { ModalComponent } from 'jslib/angular/components/modal.component';
-import { ConfigurationService } from '../../services/configuration.service';
 import { Utils } from 'jslib/misc/utils';
+import { ConfigurationService } from '../../services/configuration.service';
 
 @Component({
     selector: 'app-apiKey',
@@ -52,7 +52,7 @@ export class ApiKeyComponent {
         }
         const idParts = this.clientId.split('.');
 
-        if (idParts.length != 2 || idParts[0] != 'organization' || !Utils.isGuid(idParts[1])) {
+        if (idParts.length !== 2 || idParts[0] !== 'organization' || !Utils.isGuid(idParts[1])) {
             this.platformUtilsService.showToast('error', this.i18nService.t('errorOccurred'),
                 this.i18nService.t('invalidClientId'));
             return;
