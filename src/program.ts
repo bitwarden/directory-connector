@@ -16,6 +16,7 @@ import { UpdateCommand } from 'jslib/cli/commands/update.command';
 
 import { BaseProgram } from 'jslib/cli/baseProgram';
 
+import { ApiKeyService } from 'jslib/abstractions/apiKey.service';
 import { Response } from 'jslib/cli/models/response';
 import { StringResponse } from 'jslib/cli/models/response/stringResponse';
 
@@ -29,8 +30,11 @@ const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) 
 };
 
 export class Program extends BaseProgram {
+    private apiKeyService: ApiKeyService;
+
     constructor(private main: Main) {
         super(main.userService, writeLn);
+        this.apiKeyService = main.apiKeyService;
     }
 
     async run() {
@@ -86,33 +90,14 @@ export class Program extends BaseProgram {
         });
 
         program
-            .command('login [email] [password]')
-            .description('Log into a user account.')
-            .option('--method <method>', 'Two-step login method.')
-            .option('--code <code>', 'Two-step login code.')
-            .option('--sso', 'Log in with Single-Sign On.')
-            .option('--passwordenv <variable-name>', 'Read password from the named environment variable.')
-            .option('--passwordfile <filename>', 'Read password from first line of the named file.')
-            .on('--help', () => {
-                writeLn('\n  Notes:');
-                writeLn('');
-                writeLn('    See docs for valid `method` enum values.');
-                writeLn('');
-                writeLn('  Examples:');
-                writeLn('');
-                writeLn('    bwdc login');
-                writeLn('    bwdc login john@example.com myPassword321');
-                writeLn('    bwdc login john@example.com myPassword321 --method 1 --code 249213');
-                writeLn('    bwdc login john@example.com --passwordfile passwd.txt --method 1 --code 249213');
-                writeLn('    bwdc login john@example.com --passwordenv MY_PASSWD --method 1 --code 249213');
-                writeLn('    bwdc login --sso');
-                writeLn('', true);
-            })
+            .command('login')
+            .description('Log into an organization account.')
             .action(async (email: string, password: string, options: program.OptionValues) => {
                 await this.exitIfAuthed();
                 const command = new LoginCommand(this.main.authService, this.main.apiService, this.main.i18nService,
                     this.main.environmentService, this.main.passwordGenerationService, this.main.cryptoFunctionService,
                     this.main.platformUtilsService, 'connector');
+                options = Object.assign(options ?? {}, { apikey: true }); // force apikey use
                 const response = await command.run(email, password, options);
                 this.processResponse(response);
             });
@@ -282,6 +267,22 @@ export class Program extends BaseProgram {
 
         if (process.argv.slice(2).length === 0) {
             program.outputHelp();
+        }
+    }
+
+    async exitIfAuthed() {
+        const authed = await this.apiKeyService.isAuthenticated();
+        if (authed) {
+            const type = await this.apiKeyService.getEntityType();
+            const id = await this.apiKeyService.getEntityId();
+            this.processResponse(Response.error('You are already logged in as ' + type + '.' + id + '.'), true);
+        }
+    }
+
+    async exitIfNotAuthed() {
+        const authed = await this.apiKeyService.isAuthenticated();
+        if (!authed) {
+            this.processResponse(Response.error('You are not logged in.'), true);
         }
     }
 }

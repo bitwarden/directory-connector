@@ -3,7 +3,7 @@ import * as path from 'path';
 
 import { LogLevelType } from 'jslib/enums/logLevelType';
 
-import { AuthService } from 'jslib/services/auth.service';
+import { AuthService } from './services/auth.service';
 
 import { ConfigurationService } from './services/configuration.service';
 import { I18nService } from './services/i18n.service';
@@ -14,6 +14,7 @@ import { SyncService } from './services/sync.service';
 import { CliPlatformUtilsService } from 'jslib/cli/services/cliPlatformUtils.service';
 import { ConsoleLogService } from 'jslib/cli/services/consoleLog.service';
 
+import { ApiKeyService } from 'jslib/services/apiKey.service';
 import { AppIdService } from 'jslib/services/appId.service';
 import { ConstantsService } from 'jslib/services/constants.service';
 import { ContainerService } from 'jslib/services/container.service';
@@ -47,6 +48,7 @@ export class Main {
     appIdService: AppIdService;
     apiService: NodeApiService;
     environmentService: EnvironmentService;
+    apiKeyService: ApiKeyService;
     userService: UserService;
     containerService: ContainerService;
     cryptoFunctionService: NodeCryptoFunctionService;
@@ -91,11 +93,12 @@ export class Main {
         this.apiService = new NodeApiService(this.tokenService, this.platformUtilsService,
             async (expired: boolean) => await this.logout());
         this.environmentService = new EnvironmentService(this.apiService, this.storageService, null);
+        this.apiKeyService = new ApiKeyService(this.tokenService, this.storageService);
         this.userService = new UserService(this.tokenService, this.storageService);
         this.containerService = new ContainerService(this.cryptoService);
         this.authService = new AuthService(this.cryptoService, this.apiService, this.userService, this.tokenService,
             this.appIdService, this.i18nService, this.platformUtilsService, this.messagingService, null,
-            this.logService, false);
+            this.logService, this.apiKeyService, false);
         this.configurationService = new ConfigurationService(this.storageService, this.secureStorageService,
             process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== 'true');
         this.syncService = new SyncService(this.configurationService, this.logService, this.cryptoFunctionService,
@@ -110,10 +113,8 @@ export class Main {
     }
 
     async logout() {
-        await Promise.all([
-            this.tokenService.clearToken(),
-            this.userService.clear(),
-        ]);
+        await this.tokenService.clearToken()
+            .then(async v => this.apiKeyService.clear());
     }
 
     private async init() {
