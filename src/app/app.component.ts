@@ -134,8 +134,8 @@ export class AppComponent implements OnInit {
     private async logOut(expired: boolean) {
         const userId = await this.userService.getUserId();
 
-        await this.tokenService.clearToken()
-            .then(async v => await this.userService.clear());
+        await this.tokenService.clearToken();
+        await this.userService.clear();
 
         this.authService.logOut(async () => {
             if (expired) {

@@ -113,8 +113,8 @@ export class Main {
     }
 
     async logout() {
-        await this.tokenService.clearToken()
-            .then(async v => this.apiKeyService.clear());
+        await this.tokenService.clearToken();
+        await this.apiKeyService.clear();
     }
 
     private async init() {
