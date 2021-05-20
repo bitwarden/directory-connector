@@ -75,14 +75,20 @@ export class SyncService {
                 throw new Error('Organization not set.');
             }
 
+            // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
+            let hashLegacy: string = null;
+            const hashBuffLegacy = await this.cryptoFunctionService.hash(this.apiService.apiBaseUrl + reqJson, 'sha256');
+            if (hashBuffLegacy != null) {
+                hashLegacy = Utils.fromBufferToB64(hashBuffLegacy);
+            }
             let hash: string = null;
-            const hashBuf = await this.cryptoFunctionService.hash(this.apiService.apiBaseUrl + orgId + reqJson, 'sha256');
-            if (hashBuf != null) {
-                hash = Utils.fromBufferToB64(hashBuf);
+            const hashBuff = await this.cryptoFunctionService.hash(this.apiService.apiBaseUrl + orgId + reqJson, 'sha256');
+            if (hashBuff != null) {
+                hash = Utils.fromBufferToB64(hashBuff);
             }
             const lastHash = await this.configurationService.getLastSyncHash();
 
-            if (lastHash == null || hash !== lastHash) {
+            if (lastHash == null || hash !== lastHash || hashLegacy !== lastHash) {
                 await this.apiService.postImportDirectory(orgId, req);
                 await this.configurationService.saveLastSyncHash(hash);
             } else {
