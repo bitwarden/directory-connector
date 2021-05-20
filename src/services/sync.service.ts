@@ -67,22 +67,28 @@ export class SyncService {
                 return [groups, users];
             }
 
-            const req = this.buildRequest(groups, users, syncConfig.removeDisabled, syncConfig.overwriteExisting);
+            const req = this.buildRequest(groups, users, syncConfig.removeDisabled, syncConfig.overwriteExisting, syncConfig.largeImport);
             const reqJson = JSON.stringify(req);
 
+            const orgId = await this.configurationService.getOrganizationId();
+            if (orgId == null) {
+                throw new Error('Organization not set.');
+            }
+
+            // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
+            let hashLegacy: string = null;
+            const hashBuffLegacy = await this.cryptoFunctionService.hash(this.apiService.apiBaseUrl + reqJson, 'sha256');
+            if (hashBuffLegacy != null) {
+                hashLegacy = Utils.fromBufferToB64(hashBuffLegacy);
+            }
             let hash: string = null;
-            const hashBuf = await this.cryptoFunctionService.hash(this.apiService.apiBaseUrl + reqJson, 'sha256');
-            if (hashBuf != null) {
-                hash = Utils.fromBufferToB64(hashBuf);
+            const hashBuff = await this.cryptoFunctionService.hash(this.apiService.apiBaseUrl + orgId + reqJson, 'sha256');
+            if (hashBuff != null) {
+                hash = Utils.fromBufferToB64(hashBuff);
             }
             const lastHash = await this.configurationService.getLastSyncHash();
 
-            if (lastHash == null || hash !== lastHash) {
-                const orgId = await this.configurationService.getOrganizationId();
-                if (orgId == null) {
-                    throw new Error('Organization not set.');
-                }
-
+            if (lastHash == null || (hash !== lastHash && hashLegacy !== lastHash)) {
                 await this.apiService.postImportDirectory(orgId, req);
                 await this.configurationService.saveLastSyncHash(hash);
             } else {
@@ -140,9 +146,10 @@ export class SyncService {
     }
 
     private buildRequest(groups: GroupEntry[], users: UserEntry[], removeDisabled: boolean,
-        overwriteExisting: boolean): ImportDirectoryRequest {
+        overwriteExisting: boolean, largeImport: boolean): ImportDirectoryRequest {
         const model = new ImportDirectoryRequest();
         model.overwriteExisting = overwriteExisting;
+        model.largeImport = largeImport;
 
         if (groups != null) {
             for (const g of groups) {
