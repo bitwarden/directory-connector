@@ -37,8 +37,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="pagedSearch"
                                 [(ngModel)]="ldap.pagedSearch" name="PagedSearch">
-                            <label class="form-check-label"
-                                for="pagedSearch">{{'ldapPagedResults' | i18n}}</label>
+                            <label class="form-check-label" for="pagedSearch">{{'ldapPagedResults' | i18n}}</label>
                         </div>
                     </div>
                     <div class="form-group">
@@ -99,8 +98,8 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="certDoNotVerify"
                                     [(ngModel)]="ldap.sslAllowUnauthorized" name="CertDoNoVerify">
-                                <label class="form-check-label"
-                                    for="certDoNotVerify">{{'ldapCertDoNotVerify' | i18n}}</label>
+                                <label class="form-check-label" for="certDoNotVerify">{{'ldapCertDoNotVerify' |
+                                    i18n}}</label>
                             </div>
                         </div>
                     </div>
@@ -248,6 +247,13 @@
                         <input class="form-check-input" type="checkbox" id="overwriteExisting"
                             [(ngModel)]="sync.overwriteExisting" name="OverwriteExisting">
                         <label class="form-check-label" for="overwriteExisting">{{'overwriteExisting' | i18n}}</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="largeImport" [(ngModel)]="sync.largeImport"
+                            name="LargeImport">
+                        <label class="form-check-label" for="largeImport">{{'largeImport' | i18n}}</label>
                     </div>
                 </div>
                 <div [hidden]="directory != directoryType.Ldap">

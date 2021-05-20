@@ -1,5 +1,3 @@
-import * as program from 'commander';
-
 import { I18nService } from 'jslib/abstractions/i18n.service';
 
 import { SyncService } from '../services/sync.service';
