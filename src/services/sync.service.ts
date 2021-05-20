@@ -88,7 +88,7 @@ export class SyncService {
             }
             const lastHash = await this.configurationService.getLastSyncHash();
 
-            if (lastHash == null || hash !== lastHash || hashLegacy !== lastHash) {
+            if (lastHash == null || (hash !== lastHash && hashLegacy !== lastHash)) {
                 await this.apiService.postImportDirectory(orgId, req);
                 await this.configurationService.saveLastSyncHash(hash);
             } else {
