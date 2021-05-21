@@ -593,7 +593,7 @@
         "message": "Welcome to the Bitwarden Directory Connector"
     },
     "logInDesc": {
-        "message": "Log in as an organization admin user below."
+        "message": "Log in with an organization API key below."
     },
     "dirConfigIncomplete": {
         "message": "Directory configuration incomplete."

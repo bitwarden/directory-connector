@@ -8,14 +8,14 @@
                     <h5 class="card-header">{{'logIn' | i18n}}</h5>
                     <div class="card-body">
                         <div class="form-group">
-                            <label for="client_id">Client ID</label>
-                            <input id="client_id" type="password" name="Client Id" [(ngModel)]="clientId"
+                            <label for="client_id">{{'clientId' | i18n}}</label>
+                            <input id="client_id" type="password" name="ClientId" [(ngModel)]="clientId"
                                 class="form-control">
                         </div>
                         <div class="form-group">
                             <div class="row-main">
-                                <label for="client_secret">Client Secret</label>
-                                <input id="client_secret" type="password" name="Client Secret"
+                                <label for="client_secret">{{'clientSecret' | i18n}}</label>
+                                <input id="client_secret" type="password" name="ClientSecret"
                                     [(ngModel)]="clientSecret" class="form-control">
                             </div>
                         </div>
@@ -24,7 +24,7 @@
                                 <button type="submit" class="btn btn-primary" [disabled]="form.loading">
                                     <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!form.loading"></i>
                                     <i class="fa fa-sign-in fa-fw" [hidden]="form.loading"></i>
-                                    {{'save' | i18n}}
+                                    {{'logIn' | i18n}}
                                 </button>
                             </div>
                             <button type="button" class="btn btn-link ml-auto" (click)="settings()">
