@@ -139,7 +139,7 @@
                     </div>
                     <div class="form-group">
                         <label for="secretKey">{{'secretKey' | i18n}}</label>
-                        <input type="text" class="form-control" id="secretKey" name="SecretKey" [(ngModel)]="azure.key">
+                        <input type="password" class="form-control" id="secretKey" name="SecretKey" [(ngModel)]="azure.key">
                     </div>
                 </div>
                 <div [hidden]="directory != directoryType.Okta">
