@@ -204,7 +204,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
         if (keyword === 'excludeadministrativeunit' || keyword === 'includeadministrativeunit') {
             for (const p of pieces) {
                 const auMembers = await this.client
-                    .api(`https://graph.microsoft.com/beta/administrativeUnits/${p}/members`).get();
+                    .api(`https://graph.microsoft.com/v1.0/directory/administrativeUnits/${p}/members`).get();
                 for (const auMember of auMembers.value) {
                     if (auMember['@odata.type'] === '#microsoft.graph.group') {
                         set.add(auMember.displayName.toLowerCase());
