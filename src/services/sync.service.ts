@@ -4,9 +4,7 @@ import { GroupEntry } from '../models/groupEntry';
 import { SyncConfiguration } from '../models/syncConfiguration';
 import { UserEntry } from '../models/userEntry';
 
-import { ImportDirectoryRequest } from 'jslib/models/request/importDirectoryRequest';
-import { ImportDirectoryRequestGroup } from 'jslib/models/request/importDirectoryRequestGroup';
-import { ImportDirectoryRequestUser } from 'jslib/models/request/importDirectoryRequestUser';
+import { OrganizationImportRequest } from 'jslib/models/request/organizationImportRequest';
 
 import { ApiService } from 'jslib/abstractions/api.service';
 import { CryptoFunctionService } from 'jslib/abstractions/cryptoFunction.service';
@@ -58,7 +56,7 @@ export class SyncService {
             }
 
             if (test || (!syncConfig.overwriteExisting &&
-                        (groups == null || groups.length === 0) && (users == null || users.length === 0))) {
+                (groups == null || groups.length === 0) && (users == null || users.length === 0))) {
                 if (!test) {
                     await this.saveSyncTimes(syncConfig, now);
                 }
@@ -89,7 +87,7 @@ export class SyncService {
             const lastHash = await this.configurationService.getLastSyncHash();
 
             if (lastHash == null || (hash !== lastHash && hashLegacy !== lastHash)) {
-                await this.apiService.postImportDirectory(orgId, req);
+                await this.apiService.postPublicImportDirectory(req);
                 await this.configurationService.saveLastSyncHash(hash);
             } else {
                 groups = null;
@@ -145,36 +143,26 @@ export class SyncService {
         }
     }
 
-    private buildRequest(groups: GroupEntry[], users: UserEntry[], removeDisabled: boolean,
-        overwriteExisting: boolean, largeImport: boolean): ImportDirectoryRequest {
-        const model = new ImportDirectoryRequest();
-        model.overwriteExisting = overwriteExisting;
-        model.largeImport = largeImport;
-
-        if (groups != null) {
-            for (const g of groups) {
-                const ig = new ImportDirectoryRequestGroup();
-                ig.name = g.name;
-                ig.externalId = g.externalId;
-                ig.users = Array.from(g.userMemberExternalIds);
-                model.groups.push(ig);
-            }
-        }
-
-        if (users != null) {
-            for (const u of users) {
-                const iu = new ImportDirectoryRequestUser();
-                iu.email = u.email;
-                if (iu.email != null) {
-                    iu.email = iu.email.trim().toLowerCase();
-                }
-                iu.externalId = u.externalId;
-                iu.deleted = u.deleted || (removeDisabled && u.disabled);
-                model.users.push(iu);
-            }
-        }
-
-        return model;
+    private buildRequest(groups: GroupEntry[], users: UserEntry[], removeDisabled: boolean, overwriteExisting: boolean,
+        largeImport: boolean = false) {
+        return new OrganizationImportRequest({
+            groups: (groups ?? []).map(g => {
+                return {
+                    name: g.name,
+                    externalId: g.externalId,
+                    memberExternalIds: Array.from(g.userMemberExternalIds),
+                };
+            }),
+            users: (users ?? []).map(u => {
+                return {
+                    email: u.email,
+                    externalId: u.externalId,
+                    deleted: u.deleted || (removeDisabled && u.disabled),
+                };
+            }),
+            overwriteExisting: overwriteExisting,
+            largeImport: largeImport,
+        });
     }
 
     private async saveSyncTimes(syncConfig: SyncConfiguration, time: Date) {
