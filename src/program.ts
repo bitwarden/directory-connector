@@ -20,6 +20,8 @@ import { ApiKeyService } from 'jslib/abstractions/apiKey.service';
 import { Response } from 'jslib/cli/models/response';
 import { StringResponse } from 'jslib/cli/models/response/stringResponse';
 
+import { Utils } from 'jslib/misc/utils';
+
 const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) => {
     const stream = error ? process.stderr : process.stdout;
     if (finalLine && process.platform === 'win32') {
@@ -90,15 +92,26 @@ export class Program extends BaseProgram {
         });
 
         program
-            .command('login')
-            .description('Log into an organization account.')
-            .action(async (email: string, password: string, options: program.OptionValues) => {
+            .command('login [clientId] [clientSecret]')
+            .description('Log into an organization account.', {
+                clientId: 'Client_id part of your organization\'s API key',
+                clientSecret: 'Client_secret part of your organization\'s API key',
+            })
+            .action(async (clientId: string, clientSecret: string, options: program.OptionValues) => {
                 await this.exitIfAuthed();
                 const command = new LoginCommand(this.main.authService, this.main.apiService, this.main.i18nService,
                     this.main.environmentService, this.main.passwordGenerationService, this.main.cryptoFunctionService,
                     this.main.platformUtilsService, 'connector');
+
+                if (!Utils.isNullOrWhitespace(clientId)) {
+                    process.env.BW_CLIENTID = clientId;
+                }
+                if (!Utils.isNullOrWhitespace(clientSecret)) {
+                    process.env.BW_CLIENTSECRET = clientSecret;
+                }
+
                 options = Object.assign(options ?? {}, { apikey: true }); // force apikey use
-                const response = await command.run(email, password, options);
+                const response = await command.run(null, null, options);
                 this.processResponse(response);
             });
 

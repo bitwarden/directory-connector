@@ -54,7 +54,7 @@ import { StorageService as StorageServiceAbstraction } from 'jslib/abstractions/
 import { TokenService as TokenServiceAbstraction } from 'jslib/abstractions/token.service';
 import { UserService as UserServiceAbstraction } from 'jslib/abstractions/user.service';
 
-import { AuthService } from '../..//services/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 const logService = new ElectronLogService();
 const i18nService = new I18nService(window.navigator.language, './locales');
