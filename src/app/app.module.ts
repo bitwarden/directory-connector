@@ -17,11 +17,8 @@ import { CalloutComponent } from 'jslib/angular/components/callout.component';
 import { IconComponent } from 'jslib/angular/components/icon.component';
 import { ModalComponent } from 'jslib/angular/components/modal.component';
 
+import { ApiKeyComponent } from './accounts/apiKey.component';
 import { EnvironmentComponent } from './accounts/environment.component';
-import { LoginComponent } from './accounts/login.component';
-import { SsoComponent } from './accounts/sso.component';
-import { TwoFactorOptionsComponent } from './accounts/two-factor-options.component';
-import { TwoFactorComponent } from './accounts/two-factor.component';
 import { DashboardComponent } from './tabs/dashboard.component';
 import { MoreComponent } from './tabs/more.component';
 import { SettingsComponent } from './tabs/settings.component';
@@ -51,6 +48,7 @@ import { SearchCiphersPipe } from 'jslib/angular/pipes/search-ciphers.pipe';
     declarations: [
         A11yTitleDirective,
         ApiActionDirective,
+        ApiKeyComponent,
         AppComponent,
         AutofocusDirective,
         BlurClickDirective,
@@ -61,22 +59,17 @@ import { SearchCiphersPipe } from 'jslib/angular/pipes/search-ciphers.pipe';
         FallbackSrcDirective,
         I18nPipe,
         IconComponent,
-        LoginComponent,
         ModalComponent,
         MoreComponent,
         SearchCiphersPipe,
         SettingsComponent,
-        SsoComponent,
         StopClickDirective,
         StopPropDirective,
         TabsComponent,
-        TwoFactorComponent,
-        TwoFactorOptionsComponent,
     ],
     entryComponents: [
         EnvironmentComponent,
         ModalComponent,
-        TwoFactorOptionsComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

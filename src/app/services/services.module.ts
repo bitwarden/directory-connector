@@ -22,8 +22,8 @@ import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
 import { ValidationService } from 'jslib/angular/services/validation.service';
 
 import { ApiService } from 'jslib/services/api.service';
+import { ApiKeyService } from 'jslib/services/apiKey.service';
 import { AppIdService } from 'jslib/services/appId.service';
-import { AuthService } from 'jslib/services/auth.service';
 import { ConstantsService } from 'jslib/services/constants.service';
 import { ContainerService } from 'jslib/services/container.service';
 import { CryptoService } from 'jslib/services/crypto.service';
@@ -36,6 +36,7 @@ import { TokenService } from 'jslib/services/token.service';
 import { UserService } from 'jslib/services/user.service';
 
 import { ApiService as ApiServiceAbstraction } from 'jslib/abstractions/api.service';
+import { ApiKeyService as ApiKeyServiceAbstraction } from 'jslib/abstractions/apiKey.service';
 import { AuthService as AuthServiceAbstraction } from 'jslib/abstractions/auth.service';
 import { CryptoService as CryptoServiceAbstraction } from 'jslib/abstractions/crypto.service';
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from 'jslib/abstractions/cryptoFunction.service';
@@ -52,6 +53,8 @@ import { StateService as StateServiceAbstraction } from 'jslib/abstractions/stat
 import { StorageService as StorageServiceAbstraction } from 'jslib/abstractions/storage.service';
 import { TokenService as TokenServiceAbstraction } from 'jslib/abstractions/token.service';
 import { UserService as UserServiceAbstraction } from 'jslib/abstractions/user.service';
+
+import { AuthService } from '../../services/auth.service';
 
 const logService = new ElectronLogService();
 const i18nService = new I18nService(window.navigator.language, './locales');
@@ -70,9 +73,10 @@ const apiService = new ApiService(tokenService, platformUtilsService,
     async (expired: boolean) => messagingService.send('logout', { expired: expired }));
 const environmentService = new EnvironmentService(apiService, storageService, null);
 const userService = new UserService(tokenService, storageService);
+const apiKeyService = new ApiKeyService(tokenService, storageService);
 const containerService = new ContainerService(cryptoService);
 const authService = new AuthService(cryptoService, apiService, userService, tokenService, appIdService,
-    i18nService, platformUtilsService, messagingService, null, logService, false);
+    i18nService, platformUtilsService, messagingService, null, logService, apiKeyService, false);
 const configurationService = new ConfigurationService(storageService, secureStorageService);
 const syncService = new SyncService(configurationService, logService, cryptoFunctionService, apiService,
     messagingService, i18nService);
@@ -130,6 +134,7 @@ export function initFactory(): Function {
         { provide: PlatformUtilsServiceAbstraction, useValue: platformUtilsService },
         { provide: ApiServiceAbstraction, useValue: apiService },
         { provide: UserServiceAbstraction, useValue: userService },
+        { provide: ApiKeyServiceAbstraction, useValue: apiKeyService },
         { provide: MessagingServiceAbstraction, useValue: messagingService },
         { provide: BroadcasterService, useValue: broadcasterService },
         { provide: StorageServiceAbstraction, useValue: storageService },

@@ -20,11 +20,29 @@
     "emailRequired": {
         "message": "Email address is required."
     },
+    "clientIdRequired": {
+        "message": "Client Id is required."
+    },
+    "invalidClientId": {
+        "message": "Invalid Client Id provided."
+    },
+    "clientSecretRequired": {
+        "message": "Client Secret is required."
+    },
+    "orgApiKeyRequired": {
+        "message": "Api Key must belong to an Organization"
+    },
+    "failedToSaveCredentials": {
+        "message": "Failed to save credentials"
+    },
     "invalidEmail": {
         "message": "Invalid email address."
     },
     "masterPassRequired": {
         "message": "Master password is required."
+    },
+    "missingRequiredInput": {
+        "message": "Missing required input."
     },
     "unexpectedError": {
         "message": "An unexpected error has occurred."
@@ -575,7 +593,7 @@
         "message": "Welcome to the Bitwarden Directory Connector"
     },
     "logInDesc": {
-        "message": "Log in as an organization admin user below."
+        "message": "Log in with an organization API key below."
     },
     "dirConfigIncomplete": {
         "message": "Directory configuration incomplete."
