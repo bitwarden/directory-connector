@@ -25,7 +25,7 @@
     "symlink:win": "rm -rf ./jslib && cmd /c mklink /J .\\jslib ..\\jslib",
     "symlink:mac": "npm run symlink:lin",
     "symlink:lin": "rm -rf ./jslib && ln -s ../jslib ./jslib",
-    "rebuild": "./node_modules/.bin/electron-rebuild",
+    "rebuild": "electron-rebuild",
     "reset": "rimraf ./node_modules/keytar/* && npm install",
     "lint": "tslint 'src/**/*.ts' || true",
     "lint:fix": "tslint 'src/**/*.ts' --fix",
