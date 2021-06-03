@@ -15,52 +15,24 @@
       "tldjs": [
         "jslib/src/misc/tldjs.noop"
       ],
-      "jslib/*": [
-        "jslib/src/*"
+      "jslib-common/*": [
+        "jslib/common/src/*"
       ],
-      "@angular/*": [
-        "node_modules/@angular/*"
+      "jslib-angular/*": [
+        "jslib/angular/src/*"
       ],
-      "electron": [
-        "node_modules/electron"
+      "jslib-electron/*": [
+        "jslib/electron/src/*"
       ],
-      "node": [
-        "node_modules/@types/node"
-      ],
-      "duo_web_sdk": [
-        "node_modules/duo_web_sdk"
+      "jslib-node/*": [
+        "jslib/node/src/*"
       ]
     }
   },
   "angularCompilerOptions": {
     "preserveWhitespaces": true
   },
-  "exclude": [
-    "node_modules",
-    "jslib/node_modules",
-    "jslib/src/services/index.ts",
-    "jslib/src/services/webCryptoFunction.service.ts",
-    "jslib/src/services/search.service.ts",
-    "jslib/src/services/nodeApi.service.ts",
-    "jslib/src/services/lowdbStorage.service.ts",
-    "jslib/src/services/export.service.ts",
-    "jslib/src/services/notifications.service.ts",
-    "jslib/src/services/passwordGeneration.service.ts",
-    "jslib/src/abstractions/index.ts",
-    "jslib/src/abstractions/passwordGeneration.service.ts",
-    "jslib/src/angular/components/export.component.ts",
-    "jslib/src/angular/components/register.component.ts",
-    "jslib/src/angular/components/add-edit.component.ts",
-    "jslib/src/angular/components/password-generator.component.ts",
-    "jslib/src/angular/components/password-generator-history.component.ts",
-    "jslib/src/angular/pipes/color-password.pipe.ts",
-    "jslib/src/angular/directives/select-copy.directive.ts",
-    "jslib/src/importers",
-    "dist",
-    "dist-cli",
-    "jslib/dist",
-    "build",
-    "build-cli",
-    "jslib/spec"
+  "include": [
+    "src"
   ]
 }

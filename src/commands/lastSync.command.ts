@@ -2,8 +2,8 @@ import * as program from 'commander';
 
 import { ConfigurationService } from '../services/configuration.service';
 
-import { Response } from 'jslib/cli/models/response';
-import { StringResponse } from 'jslib/cli/models/response/stringResponse';
+import { Response } from 'jslib-node/cli/models/response';
+import { StringResponse } from 'jslib-node/cli/models/response/stringResponse';
 
 export class LastSyncCommand {
     constructor(private configurationService: ConfigurationService) { }

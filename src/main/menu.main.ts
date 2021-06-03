@@ -6,7 +6,7 @@ import {
 
 import { Main } from '../main';
 
-import { BaseMenu } from 'jslib/electron/baseMenu';
+import { BaseMenu } from 'jslib-electron/baseMenu';
 
 export class MenuMain extends BaseMenu {
     menu: Menu;

@@ -10,17 +10,17 @@ import { LastSyncCommand } from './commands/lastSync.command';
 import { SyncCommand } from './commands/sync.command';
 import { TestCommand } from './commands/test.command';
 
-import { LoginCommand } from 'jslib/cli/commands/login.command';
-import { LogoutCommand } from 'jslib/cli/commands/logout.command';
-import { UpdateCommand } from 'jslib/cli/commands/update.command';
+import { LoginCommand } from 'jslib-node/cli/commands/login.command';
+import { LogoutCommand } from 'jslib-node/cli/commands/logout.command';
+import { UpdateCommand } from 'jslib-node/cli/commands/update.command';
 
-import { BaseProgram } from 'jslib/cli/baseProgram';
+import { BaseProgram } from 'jslib-node/cli/baseProgram';
 
-import { ApiKeyService } from 'jslib/abstractions/apiKey.service';
-import { Response } from 'jslib/cli/models/response';
-import { StringResponse } from 'jslib/cli/models/response/stringResponse';
+import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
+import { Response } from 'jslib-node/cli/models/response';
+import { StringResponse } from 'jslib-node/cli/models/response/stringResponse';
 
-import { Utils } from 'jslib/misc/utils';
+import { Utils } from 'jslib-common/misc/utils';
 
 const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) => {
     const stream = error ? process.stderr : process.stdout;

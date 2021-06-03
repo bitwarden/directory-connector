@@ -1,21 +1,21 @@
-import { ApiService } from 'jslib/abstractions/api.service';
-import { ApiKeyService } from 'jslib/abstractions/apiKey.service';
-import { AppIdService } from 'jslib/abstractions/appId.service';
-import { CryptoService } from 'jslib/abstractions/crypto.service';
-import { I18nService } from 'jslib/abstractions/i18n.service';
-import { LogService } from 'jslib/abstractions/log.service';
-import { MessagingService } from 'jslib/abstractions/messaging.service';
-import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
-import { TokenService } from 'jslib/abstractions/token.service';
-import { UserService } from 'jslib/abstractions/user.service';
-import { VaultTimeoutService } from 'jslib/abstractions/vaultTimeout.service';
+import { ApiService } from 'jslib-common/abstractions/api.service';
+import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
+import { AppIdService } from 'jslib-common/abstractions/appId.service';
+import { CryptoService } from 'jslib-common/abstractions/crypto.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { LogService } from 'jslib-common/abstractions/log.service';
+import { MessagingService } from 'jslib-common/abstractions/messaging.service';
+import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
+import { TokenService } from 'jslib-common/abstractions/token.service';
+import { UserService } from 'jslib-common/abstractions/user.service';
+import { VaultTimeoutService } from 'jslib-common/abstractions/vaultTimeout.service';
 
-import { AuthService as AuthServiceBase } from 'jslib/services/auth.service';
+import { AuthService as AuthServiceBase } from 'jslib-common/services/auth.service';
 
-import { AuthResult } from 'jslib/models/domain';
-import { DeviceRequest } from 'jslib/models/request/deviceRequest';
-import { TokenRequest } from 'jslib/models/request/tokenRequest';
-import { IdentityTokenResponse } from 'jslib/models/response/identityTokenResponse';
+import { AuthResult } from 'jslib-common/models/domain';
+import { DeviceRequest } from 'jslib-common/models/request/deviceRequest';
+import { TokenRequest } from 'jslib-common/models/request/tokenRequest';
+import { IdentityTokenResponse } from 'jslib-common/models/response/identityTokenResponse';
 
 export class AuthService extends AuthServiceBase {
 

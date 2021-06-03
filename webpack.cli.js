@@ -60,7 +60,8 @@ const config = {
     resolve: {
         extensions: ['.ts', '.js', '.json'],
         alias: {
-            jslib: path.join(__dirname, 'jslib/src'),
+            "jslib-common": path.join(__dirname, 'jslib/common/src'),
+            "jslib-node": path.join(__dirname, 'jslib/node/src'),
             tldjs: path.join(__dirname, 'jslib/src/misc/tldjs.noop'),
             // ref: https://github.com/bitinn/node-fetch/issues/493
             'node-fetch$': 'node-fetch/lib/index.js',

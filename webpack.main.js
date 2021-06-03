@@ -23,7 +23,8 @@ const common = {
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
         alias: {
-            jslib: path.join(__dirname, 'jslib/src'),
+            "jslib-common": path.join(__dirname, 'jslib/common/src'),
+            "jslib-electron": path.join(__dirname, 'jslib/electron/src'),
             tldjs: path.join(__dirname, 'jslib/src/misc/tldjs.noop'),
         },
     },

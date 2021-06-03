@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { LogLevelType } from 'jslib/enums/logLevelType';
+import { LogLevelType } from 'jslib-common/enums/logLevelType';
 
 import { AuthService } from './services/auth.service';
 
@@ -11,23 +11,23 @@ import { KeytarSecureStorageService } from './services/keytarSecureStorage.servi
 import { LowdbStorageService } from './services/lowdbStorage.service';
 import { SyncService } from './services/sync.service';
 
-import { CliPlatformUtilsService } from 'jslib/cli/services/cliPlatformUtils.service';
-import { ConsoleLogService } from 'jslib/cli/services/consoleLog.service';
+import { CliPlatformUtilsService } from 'jslib-node/cli/services/cliPlatformUtils.service';
+import { ConsoleLogService } from 'jslib-node/cli/services/consoleLog.service';
 
-import { ApiKeyService } from 'jslib/services/apiKey.service';
-import { AppIdService } from 'jslib/services/appId.service';
-import { ConstantsService } from 'jslib/services/constants.service';
-import { ContainerService } from 'jslib/services/container.service';
-import { CryptoService } from 'jslib/services/crypto.service';
-import { EnvironmentService } from 'jslib/services/environment.service';
-import { NodeApiService } from 'jslib/services/nodeApi.service';
-import { NodeCryptoFunctionService } from 'jslib/services/nodeCryptoFunction.service';
-import { NoopMessagingService } from 'jslib/services/noopMessaging.service';
-import { PasswordGenerationService } from 'jslib/services/passwordGeneration.service';
-import { TokenService } from 'jslib/services/token.service';
-import { UserService } from 'jslib/services/user.service';
+import { ApiKeyService } from 'jslib-common/services/apiKey.service';
+import { AppIdService } from 'jslib-common/services/appId.service';
+import { ConstantsService } from 'jslib-common/services/constants.service';
+import { ContainerService } from 'jslib-common/services/container.service';
+import { CryptoService } from 'jslib-common/services/crypto.service';
+import { EnvironmentService } from 'jslib-common/services/environment.service';
+import { NodeApiService } from 'jslib-node/services/nodeApi.service';
+import { NodeCryptoFunctionService } from 'jslib-common/services/nodeCryptoFunction.service';
+import { NoopMessagingService } from 'jslib-common/services/noopMessaging.service';
+import { PasswordGenerationService } from 'jslib-common/services/passwordGeneration.service';
+import { TokenService } from 'jslib-common/services/token.service';
+import { UserService } from 'jslib-common/services/user.service';
 
-import { StorageService as StorageServiceAbstraction } from 'jslib/abstractions/storage.service';
+import { StorageService as StorageServiceAbstraction } from 'jslib-common/abstractions/storage.service';
 
 import { Program } from './program';
 
