@@ -360,6 +360,9 @@
                         <small class="text-muted form-text" *ngIf="directory === directoryType.GSuite">{{'ex' | i18n}}
                             include:Sales,IT</small>
                     </div>
+                    <label for="groupPrefix" [hidden]="directory != directoryType.AzureActiveDirectory">{{'groupPrefix' | i18n}}</label>
+                    <input type="text" class="form-control" id="groupPrefix" name="GroupPrefix"
+                           [(ngModel)]="sync.groupPrefix" [hidden]="directory != directoryType.AzureActiveDirectory">
                     <div class="form-group" [hidden]="directory != directoryType.Ldap">
                         <label for="groupPath">{{'groupPath' | i18n}}</label>
                         <input type="text" class="form-control" id="groupPath" name="GroupPath"
