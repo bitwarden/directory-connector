@@ -38,6 +38,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     oneLogin = new OneLoginConfiguration();
     sync = new SyncConfiguration();
     directoryOptions: any[];
+    showLdapPassword: boolean = false;
+    showAzureKey: boolean = false;
+    showOktaKey: boolean = false;
+    showOneLoginSecret: boolean = false;
 
     constructor(private i18nService: I18nService, private configurationService: ConfigurationService,
         private changeDetectorRef: ChangeDetectorRef, private ngZone: NgZone,
@@ -125,5 +129,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
         filePicker.type = '';
         filePicker.type = 'file';
         filePicker.value = '';
+    }
+    toggleLdapPassword() {
+        this.showLdapPassword = !this.showLdapPassword;
+        document.getElementById('masterPassword').focus();
+    }
+    toggleAzureKey() {
+        this.showAzureKey = !this.showAzureKey;
+        document.getElementById('masterPassword').focus();
+    }
+    toggleOktaKey() {
+        this.showOktaKey = !this.showOktaKey;
+        document.getElementById('masterPassword').focus();
+    }
+    toggleOneLoginSecret() {
+        this.showOneLoginSecret = !this.showOneLoginSecret;
+        document.getElementById('masterPassword').focus();
     }
 }

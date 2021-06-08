@@ -15,8 +15,15 @@
                         <div class="form-group">
                             <div class="row-main">
                                 <label for="client_secret">{{'clientSecret' | i18n}}</label>
-                                <input id="client_secret" name="ClientSecret"
+                                <div class="input-group">
+                                    <input type="{{showSecret ? 'text' : 'password'}}" id="client_secret" name="ClientSecret"
                                     [(ngModel)]="clientSecret" class="form-control">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-primary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleSecret()">
+                                            <i class="fa fa-lg" aria-hidden="true"[ngClass]="{'fa-eye': !showSecret, 'fa-eye-slash': showSecret}"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="d-flex">
