@@ -118,17 +118,13 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
         const oktaFilter = this.buildOktaFilter(this.syncConfig.groupFilter, force, lastSync);
 
         this.logService.info('Querying groups.');
-        console.time('initial API')
         await this.apiGetMany('groups?filter=' + this.encodeUrlParameter(oktaFilter)).then(async (groups: any[]) => {
-            console.timeEnd('initial API');
-            console.time('get groups specifics');
             for (const group of groups.filter(g => !this.filterOutResult(setFilter, g.profile.name))) {
                 const entry = await this.buildGroup(group);
                 if (entry != null) {
                     entries.push(entry);
                 }
             }
-            console.timeEnd('get groups specifics');
         });
         return entries;
     }
