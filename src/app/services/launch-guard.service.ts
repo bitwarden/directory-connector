@@ -4,7 +4,7 @@ import {
     Router,
 } from '@angular/router';
 
-import { ApiKeyService } from 'jslib/abstractions/apiKey.service';
+import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
 
 @Injectable()
 export class LaunchGuardService implements CanActivate {

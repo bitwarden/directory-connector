@@ -9,8 +9,8 @@ import { BaseDirectoryService } from './baseDirectory.service';
 import { ConfigurationService } from './configuration.service';
 import { IDirectoryService } from './directory.service';
 
-import { I18nService } from 'jslib/abstractions/i18n.service';
-import { LogService } from 'jslib/abstractions/log.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { LogService } from 'jslib-common/abstractions/log.service';
 
 import * as https from 'https';
 

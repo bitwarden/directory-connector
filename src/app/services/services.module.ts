@@ -5,11 +5,11 @@ import {
 
 import { ToasterModule } from 'angular2-toaster';
 
-import { ElectronLogService } from 'jslib/electron/services/electronLog.service';
-import { ElectronPlatformUtilsService } from 'jslib/electron/services/electronPlatformUtils.service';
-import { ElectronRendererMessagingService } from 'jslib/electron/services/electronRendererMessaging.service';
-import { ElectronRendererSecureStorageService } from 'jslib/electron/services/electronRendererSecureStorage.service';
-import { ElectronRendererStorageService } from 'jslib/electron/services/electronRendererStorage.service';
+import { ElectronLogService } from 'jslib-electron/services/electronLog.service';
+import { ElectronPlatformUtilsService } from 'jslib-electron/services/electronPlatformUtils.service';
+import { ElectronRendererMessagingService } from 'jslib-electron/services/electronRendererMessaging.service';
+import { ElectronRendererSecureStorageService } from 'jslib-electron/services/electronRendererSecureStorage.service';
+import { ElectronRendererStorageService } from 'jslib-electron/services/electronRendererStorage.service';
 
 import { AuthGuardService } from './auth-guard.service';
 import { LaunchGuardService } from './launch-guard.service';
@@ -18,41 +18,42 @@ import { ConfigurationService } from '../../services/configuration.service';
 import { I18nService } from '../../services/i18n.service';
 import { SyncService } from '../../services/sync.service';
 
-import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
-import { ValidationService } from 'jslib/angular/services/validation.service';
+import { BroadcasterService } from 'jslib-angular/services/broadcaster.service';
+import { ValidationService } from 'jslib-angular/services/validation.service';
 
-import { ApiService } from 'jslib/services/api.service';
-import { ApiKeyService } from 'jslib/services/apiKey.service';
-import { AppIdService } from 'jslib/services/appId.service';
-import { ConstantsService } from 'jslib/services/constants.service';
-import { ContainerService } from 'jslib/services/container.service';
-import { CryptoService } from 'jslib/services/crypto.service';
-import { EnvironmentService } from 'jslib/services/environment.service';
-import { NodeCryptoFunctionService } from 'jslib/services/nodeCryptoFunction.service';
-import { PasswordGenerationService } from 'jslib/services/passwordGeneration.service';
-import { PolicyService } from 'jslib/services/policy.service';
-import { StateService } from 'jslib/services/state.service';
-import { TokenService } from 'jslib/services/token.service';
-import { UserService } from 'jslib/services/user.service';
+import { ApiService } from 'jslib-common/services/api.service';
+import { ApiKeyService } from 'jslib-common/services/apiKey.service';
+import { AppIdService } from 'jslib-common/services/appId.service';
+import { ConstantsService } from 'jslib-common/services/constants.service';
+import { ContainerService } from 'jslib-common/services/container.service';
+import { CryptoService } from 'jslib-common/services/crypto.service';
+import { EnvironmentService } from 'jslib-common/services/environment.service';
+import { PasswordGenerationService } from 'jslib-common/services/passwordGeneration.service';
+import { PolicyService } from 'jslib-common/services/policy.service';
+import { StateService } from 'jslib-common/services/state.service';
+import { TokenService } from 'jslib-common/services/token.service';
+import { UserService } from 'jslib-common/services/user.service';
 
-import { ApiService as ApiServiceAbstraction } from 'jslib/abstractions/api.service';
-import { ApiKeyService as ApiKeyServiceAbstraction } from 'jslib/abstractions/apiKey.service';
-import { AuthService as AuthServiceAbstraction } from 'jslib/abstractions/auth.service';
-import { CryptoService as CryptoServiceAbstraction } from 'jslib/abstractions/crypto.service';
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from 'jslib/abstractions/cryptoFunction.service';
-import { EnvironmentService as EnvironmentServiceAbstraction } from 'jslib/abstractions/environment.service';
-import { I18nService as I18nServiceAbstraction } from 'jslib/abstractions/i18n.service';
-import { LogService as LogServiceAbstraction } from 'jslib/abstractions/log.service';
-import { MessagingService as MessagingServiceAbstraction } from 'jslib/abstractions/messaging.service';
+import { NodeCryptoFunctionService } from 'jslib-node/services/nodeCryptoFunction.service';
+
+import { ApiService as ApiServiceAbstraction } from 'jslib-common/abstractions/api.service';
+import { ApiKeyService as ApiKeyServiceAbstraction } from 'jslib-common/abstractions/apiKey.service';
+import { AuthService as AuthServiceAbstraction } from 'jslib-common/abstractions/auth.service';
+import { CryptoService as CryptoServiceAbstraction } from 'jslib-common/abstractions/crypto.service';
+import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from 'jslib-common/abstractions/cryptoFunction.service';
+import { EnvironmentService as EnvironmentServiceAbstraction } from 'jslib-common/abstractions/environment.service';
+import { I18nService as I18nServiceAbstraction } from 'jslib-common/abstractions/i18n.service';
+import { LogService as LogServiceAbstraction } from 'jslib-common/abstractions/log.service';
+import { MessagingService as MessagingServiceAbstraction } from 'jslib-common/abstractions/messaging.service';
 import {
     PasswordGenerationService as PasswordGenerationServiceAbstraction,
-} from 'jslib/abstractions/passwordGeneration.service';
-import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from 'jslib/abstractions/platformUtils.service';
-import { PolicyService as PolicyServiceAbstraction } from 'jslib/abstractions/policy.service';
-import { StateService as StateServiceAbstraction } from 'jslib/abstractions/state.service';
-import { StorageService as StorageServiceAbstraction } from 'jslib/abstractions/storage.service';
-import { TokenService as TokenServiceAbstraction } from 'jslib/abstractions/token.service';
-import { UserService as UserServiceAbstraction } from 'jslib/abstractions/user.service';
+} from 'jslib-common/abstractions/passwordGeneration.service';
+import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from 'jslib-common/abstractions/platformUtils.service';
+import { PolicyService as PolicyServiceAbstraction } from 'jslib-common/abstractions/policy.service';
+import { StateService as StateServiceAbstraction } from 'jslib-common/abstractions/state.service';
+import { StorageService as StorageServiceAbstraction } from 'jslib-common/abstractions/storage.service';
+import { TokenService as TokenServiceAbstraction } from 'jslib-common/abstractions/token.service';
+import { UserService as UserServiceAbstraction } from 'jslib-common/abstractions/user.service';
 
 import { AuthService } from '../../services/auth.service';
 
