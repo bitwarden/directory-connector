@@ -28,12 +28,13 @@ import { ConstantsService } from 'jslib-common/services/constants.service';
 import { ContainerService } from 'jslib-common/services/container.service';
 import { CryptoService } from 'jslib-common/services/crypto.service';
 import { EnvironmentService } from 'jslib-common/services/environment.service';
-import { NodeCryptoFunctionService } from 'jslib-common/services/nodeCryptoFunction.service';
 import { PasswordGenerationService } from 'jslib-common/services/passwordGeneration.service';
 import { PolicyService } from 'jslib-common/services/policy.service';
 import { StateService } from 'jslib-common/services/state.service';
 import { TokenService } from 'jslib-common/services/token.service';
 import { UserService } from 'jslib-common/services/user.service';
+
+import { NodeCryptoFunctionService } from 'jslib-node/services/nodeCryptoFunction.service';
 
 import { ApiService as ApiServiceAbstraction } from 'jslib-common/abstractions/api.service';
 import { ApiKeyService as ApiKeyServiceAbstraction } from 'jslib-common/abstractions/apiKey.service';

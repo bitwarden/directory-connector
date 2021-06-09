@@ -33,6 +33,7 @@
     "preserveWhitespaces": true
   },
   "include": [
-    "src"
+    "src",
+    "src-cli"
   ]
 }

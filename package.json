@@ -162,6 +162,7 @@
     "sass-loader": "^10.1.1",
     "tapable": "^1.1.3",
     "ts-loader": "^8.1.0",
+    "tsconfig-paths-webpack-plugin": "^3.5.1",
     "tslint": "~6.1.0",
     "tslint-loader": "^3.5.4",
     "typescript": "4.1.5",
