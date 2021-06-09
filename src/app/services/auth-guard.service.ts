@@ -3,9 +3,9 @@ import {
     CanActivate,
     Router,
 } from '@angular/router';
-import { ApiKeyService } from 'jslib/abstractions/apiKey.service';
+import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
 
-import { MessagingService } from 'jslib/abstractions/messaging.service';
+import { MessagingService } from 'jslib-common/abstractions/messaging.service';
 
 @Injectable()
 export class AuthGuardService implements CanActivate {

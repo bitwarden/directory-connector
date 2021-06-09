@@ -1,11 +1,10 @@
-import * as fs from 'fs';
 import * as lock from 'proper-lockfile';
 
-import { LogService } from 'jslib/abstractions/log.service';
+import { LogService } from 'jslib-common/abstractions/log.service';
 
-import { LowdbStorageService as LowdbStorageServiceBase } from 'jslib/services/lowdbStorage.service';
+import { LowdbStorageService as LowdbStorageServiceBase } from 'jslib-node/services/lowdbStorage.service';
 
-import { Utils } from 'jslib/misc/utils';
+import { Utils } from 'jslib-common/misc/utils';
 
 export class LowdbStorageService extends LowdbStorageServiceBase {
     constructor(logService: LogService, defaults?: any, dir?: string, allowCache = false, private requireLock = false) {

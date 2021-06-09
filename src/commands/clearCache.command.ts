@@ -1,11 +1,11 @@
 import * as program from 'commander';
 
-import { I18nService } from 'jslib/abstractions/i18n.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
 
 import { ConfigurationService } from '../services/configuration.service';
 
-import { Response } from 'jslib/cli/models/response';
-import { MessageResponse } from 'jslib/cli/models/response/messageResponse';
+import { Response } from 'jslib-node/cli/models/response';
+import { MessageResponse } from 'jslib-node/cli/models/response/messageResponse';
 
 export class ClearCacheCommand {
     constructor(private configurationService: ConfigurationService, private i18nService: I18nService) { }

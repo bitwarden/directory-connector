@@ -19,18 +19,18 @@ import {
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
-import { ModalComponent } from 'jslib/angular/components/modal.component';
+import { ModalComponent } from 'jslib-angular/components/modal.component';
 
-import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
+import { BroadcasterService } from 'jslib-angular/services/broadcaster.service';
 
-import { ApiService } from 'jslib/abstractions/api.service';
-import { AuthService } from 'jslib/abstractions/auth.service';
-import { I18nService } from 'jslib/abstractions/i18n.service';
-import { MessagingService } from 'jslib/abstractions/messaging.service';
-import { StateService } from 'jslib/abstractions/state.service';
-import { StorageService } from 'jslib/abstractions/storage.service';
-import { TokenService } from 'jslib/abstractions/token.service';
-import { UserService } from 'jslib/abstractions/user.service';
+import { ApiService } from 'jslib-common/abstractions/api.service';
+import { AuthService } from 'jslib-common/abstractions/auth.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { MessagingService } from 'jslib-common/abstractions/messaging.service';
+import { StateService } from 'jslib-common/abstractions/state.service';
+import { StorageService } from 'jslib-common/abstractions/storage.service';
+import { TokenService } from 'jslib-common/abstractions/token.service';
+import { UserService } from 'jslib-common/abstractions/user.service';
 
 import { ConfigurationService } from '../services/configuration.service';
 import { SyncService } from '../services/sync.service';

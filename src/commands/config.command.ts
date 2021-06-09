@@ -1,14 +1,14 @@
 import * as program from 'commander';
 
-import { EnvironmentService } from 'jslib/abstractions/environment.service';
-import { I18nService } from 'jslib/abstractions/i18n.service';
+import { EnvironmentService } from 'jslib-common/abstractions/environment.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
 
 import { ConfigurationService } from '../services/configuration.service';
 
 import { DirectoryType } from '../enums/directoryType';
 
-import { Response } from 'jslib/cli/models/response';
-import { MessageResponse } from 'jslib/cli/models/response/messageResponse';
+import { Response } from 'jslib-node/cli/models/response';
+import { MessageResponse } from 'jslib-node/cli/models/response/messageResponse';
 
 import { AzureConfiguration } from '../models/azureConfiguration';
 import { GSuiteConfiguration } from '../models/gsuiteConfiguration';
@@ -19,7 +19,7 @@ import { SyncConfiguration } from '../models/syncConfiguration';
 
 import { ConnectorUtils } from '../utils';
 
-import { NodeUtils } from 'jslib/misc/nodeUtils';
+import { NodeUtils } from 'jslib-common/misc/nodeUtils';
 
 export class ConfigCommand {
     private directory: DirectoryType;

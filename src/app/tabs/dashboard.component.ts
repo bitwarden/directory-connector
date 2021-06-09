@@ -8,9 +8,9 @@ import {
 
 import { ToasterService } from 'angular2-toaster';
 
-import { I18nService } from 'jslib/abstractions/i18n.service';
-import { MessagingService } from 'jslib/abstractions/messaging.service';
-import { StateService } from 'jslib/abstractions/state.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { MessagingService } from 'jslib-common/abstractions/messaging.service';
+import { StateService } from 'jslib-common/abstractions/state.service';
 
 import { SyncService } from '../../services/sync.service';
 
@@ -19,7 +19,7 @@ import { SimResult } from '../../models/simResult';
 import { UserEntry } from '../../models/userEntry';
 import { ConfigurationService } from '../../services/configuration.service';
 
-import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
+import { BroadcasterService } from 'jslib-angular/services/broadcaster.service';
 
 import { ConnectorUtils } from '../../utils';
 

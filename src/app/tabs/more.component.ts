@@ -8,11 +8,11 @@ import {
 
 import { ToasterService } from 'angular2-toaster';
 
-import { BroadcasterService } from 'jslib/angular/services/broadcaster.service';
+import { BroadcasterService } from 'jslib-angular/services/broadcaster.service';
 
-import { I18nService } from 'jslib/abstractions/i18n.service';
-import { MessagingService } from 'jslib/abstractions/messaging.service';
-import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { MessagingService } from 'jslib-common/abstractions/messaging.service';
+import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
 
 import { ConfigurationService } from '../../services/configuration.service';
 
