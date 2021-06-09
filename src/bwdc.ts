@@ -11,9 +11,9 @@ import { KeytarSecureStorageService } from './services/keytarSecureStorage.servi
 import { LowdbStorageService } from './services/lowdbStorage.service';
 import { SyncService } from './services/sync.service';
 
-import { NodeCryptoFunctionService } from 'jslib-node/services/nodeCryptoFunction.service';
 import { CliPlatformUtilsService } from 'jslib-node/cli/services/cliPlatformUtils.service';
 import { ConsoleLogService } from 'jslib-node/cli/services/consoleLog.service';
+import { NodeCryptoFunctionService } from 'jslib-node/services/nodeCryptoFunction.service';
 
 import { ApiKeyService } from 'jslib-common/services/apiKey.service';
 import { AppIdService } from 'jslib-common/services/appId.service';
@@ -21,11 +21,11 @@ import { ConstantsService } from 'jslib-common/services/constants.service';
 import { ContainerService } from 'jslib-common/services/container.service';
 import { CryptoService } from 'jslib-common/services/crypto.service';
 import { EnvironmentService } from 'jslib-common/services/environment.service';
-import { NodeApiService } from 'jslib-node/services/nodeApi.service';
 import { NoopMessagingService } from 'jslib-common/services/noopMessaging.service';
 import { PasswordGenerationService } from 'jslib-common/services/passwordGeneration.service';
 import { TokenService } from 'jslib-common/services/token.service';
 import { UserService } from 'jslib-common/services/user.service';
+import { NodeApiService } from 'jslib-node/services/nodeApi.service';
 
 import { StorageService as StorageServiceAbstraction } from 'jslib-common/abstractions/storage.service';
 

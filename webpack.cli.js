@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 if (process.env.NODE_ENV == null) {
     process.env.NODE_ENV = 'development';
@@ -59,13 +60,7 @@ const config = {
     },
     resolve: {
         extensions: ['.ts', '.js', '.json'],
-        alias: {
-            "jslib-common": path.join(__dirname, 'jslib/common/src'),
-            "jslib-node": path.join(__dirname, 'jslib/node/src'),
-            tldjs: path.join(__dirname, 'jslib/src/misc/tldjs.noop'),
-            // ref: https://github.com/bitinn/node-fetch/issues/493
-            'node-fetch$': 'node-fetch/lib/index.js',
-        },
+        plugins: [new TsconfigPathsPlugin({ configFile: './tsconfig.json' })],
         symlinks: false,
         modules: [path.resolve('node_modules')],
     },
