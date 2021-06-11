@@ -14,9 +14,12 @@ import { LogService } from 'jslib-common/abstractions/log.service';
 
 import * as https from 'https';
 
+const DelayBetweenBuildGroupCallsInMilliseconds = 500;
+
 export class OktaDirectoryService extends BaseDirectoryService implements IDirectoryService {
     private dirConfig: OktaConfiguration;
     private syncConfig: SyncConfiguration;
+    private lastBuildGroupCall: number;
 
     constructor(private configurationService: ConfigurationService, private logService: LogService,
         private i18nService: I18nService) {
@@ -116,13 +119,11 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
 
         this.logService.info('Querying groups.');
         await this.apiGetMany('groups?filter=' + this.encodeUrlParameter(oktaFilter)).then(async (groups: any[]) => {
-            for (const group of groups) {
+            for (const group of groups.filter(g => !this.filterOutResult(setFilter, g.profile.name))) {
                 const entry = await this.buildGroup(group);
-                if (entry != null && !this.filterOutResult(setFilter, entry.name)) {
+                if (entry != null) {
                     entries.push(entry);
                 }
-                // throttle some to avoid rate limiting
-                await new Promise(resolve => setTimeout(resolve, 500));
             }
         });
         return entries;
@@ -133,6 +134,14 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
         entry.externalId = group.id;
         entry.referenceId = group.id;
         entry.name = group.profile.name;
+
+        // throttle some to avoid rate limiting
+        const neededDelay = DelayBetweenBuildGroupCallsInMilliseconds - (Date.now() - this.lastBuildGroupCall);
+        if (neededDelay > 0) {
+            await new Promise(resolve =>
+                setTimeout(resolve, neededDelay));
+        }
+        this.lastBuildGroupCall = Date.now();
 
         await this.apiGetMany('groups/' + group.id + '/users').then((users: any[]) => {
             for (const user of users) {
