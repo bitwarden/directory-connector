@@ -68,7 +68,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
         const setFilter = this.createCustomSet(this.syncConfig.userFilter);
 
         this.logService.info('Querying users.');
-        const usersPromise = this.apiGetMany('users?filter=' + this.encodeUrlParameter(oktaFilter))
+        const usersPromise = this.apiGetMany('users?search=' + this.encodeUrlParameter(oktaFilter))
             .then((users: any[]) => {
                 for (const user of users) {
                     const entry = this.buildUser(user);
@@ -85,7 +85,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
             if (oktaFilter != null) {
                 deactOktaFilter = '(' + oktaFilter + ') and ' + deactOktaFilter;
             }
-            deactUsersPromise = this.apiGetMany('users?filter=' + this.encodeUrlParameter(deactOktaFilter))
+            deactUsersPromise = this.apiGetMany('users?search=' + this.encodeUrlParameter(deactOktaFilter))
                 .then((users: any[]) => {
                     for (const user of users) {
                         const entry = this.buildUser(user);
@@ -118,7 +118,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
         const oktaFilter = this.buildOktaFilter(this.syncConfig.groupFilter, force, lastSync);
 
         this.logService.info('Querying groups.');
-        await this.apiGetMany('groups?filter=' + this.encodeUrlParameter(oktaFilter)).then(async (groups: any[]) => {
+        await this.apiGetMany('groups?search=' + this.encodeUrlParameter(oktaFilter)).then(async (groups: any[]) => {
             for (const group of groups.filter(g => !this.filterOutResult(setFilter, g.profile.name))) {
                 const entry = await this.buildGroup(group);
                 if (entry != null) {
