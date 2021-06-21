@@ -9,6 +9,7 @@ import { ConfigurationService } from './services/configuration.service';
 import { I18nService } from './services/i18n.service';
 import { KeytarSecureStorageService } from './services/keytarSecureStorage.service';
 import { LowdbStorageService } from './services/lowdbStorage.service';
+import { NodeApiService } from './services/nodeApi.service';
 import { SyncService } from './services/sync.service';
 
 import { CliPlatformUtilsService } from 'jslib-node/cli/services/cliPlatformUtils.service';
@@ -25,11 +26,11 @@ import { NoopMessagingService } from 'jslib-common/services/noopMessaging.servic
 import { PasswordGenerationService } from 'jslib-common/services/passwordGeneration.service';
 import { TokenService } from 'jslib-common/services/token.service';
 import { UserService } from 'jslib-common/services/user.service';
-import { NodeApiService } from 'jslib-node/services/nodeApi.service';
 
 import { StorageService as StorageServiceAbstraction } from 'jslib-common/abstractions/storage.service';
 
 import { Program } from './program';
+import { refreshToken } from './services/api.service';
 
 // tslint:disable-next-line
 const packageJson = require('./package.json');
@@ -90,7 +91,7 @@ export class Main {
         this.appIdService = new AppIdService(this.storageService);
         this.tokenService = new TokenService(this.storageService);
         this.messagingService = new NoopMessagingService();
-        this.apiService = new NodeApiService(this.tokenService, this.platformUtilsService,
+        this.apiService = new NodeApiService(this.tokenService, this.platformUtilsService, this.refreshTokenCallback,
             async (expired: boolean) => await this.logout());
         this.environmentService = new EnvironmentService(this.apiService, this.storageService, null);
         this.apiKeyService = new ApiKeyService(this.tokenService, this.storageService);
@@ -115,6 +116,10 @@ export class Main {
     async logout() {
         await this.tokenService.clearToken();
         await this.apiKeyService.clear();
+    }
+
+    refreshTokenCallback() {
+        return refreshToken(this.apiKeyService, this.authService);
     }
 
     private async init() {
