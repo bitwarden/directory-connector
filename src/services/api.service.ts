@@ -2,6 +2,7 @@ import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
 import { AuthService } from 'jslib-common/abstractions/auth.service';
 import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
 import { TokenService } from 'jslib-common/abstractions/token.service';
+
 import { ApiService as ApiServiceBase } from 'jslib-common/services/api.service';
 
 export async function refreshToken(apiKeyService: ApiKeyService, authService: AuthService) {
