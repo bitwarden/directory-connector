@@ -36,6 +36,11 @@ export class AuthService extends AuthServiceBase {
         return await super.logInApiKey(clientId, clientSecret);
     }
 
+    async logOut(callback: Function) {
+        this.apiKeyService.clear();
+        super.logOut(callback);
+    }
+
     private async organizationLogInHelper(clientId: string, clientSecret: string) {
         const appId = await this.appIdService.getAppId();
         const deviceRequest = new DeviceRequest(appId, this.platformUtilsService);
@@ -49,7 +54,7 @@ export class AuthService extends AuthServiceBase {
         const tokenResponse = response as IdentityTokenResponse;
         result.resetMasterPassword = tokenResponse.resetMasterPassword;
         await this.tokenService.setToken(tokenResponse.accessToken);
-        await this.apiKeyService.setInformation(clientId);
+        await this.apiKeyService.setInformation(clientId, clientSecret);
 
         return result;
     }
