@@ -19,7 +19,7 @@
                                     <input type="{{showSecret ? 'text' : 'password'}}" id="client_secret" name="ClientSecret"
                                     [(ngModel)]="clientSecret" class="form-control">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-primary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleSecret()">
+                                        <button type="button" class="ml-1 btn btn-link" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleSecret()">
                                             <i class="fa fa-lg" aria-hidden="true"[ngClass]="{'fa-eye': !showSecret, 'fa-eye-slash': showSecret}"></i>
                                         </button>
                                     </div>
