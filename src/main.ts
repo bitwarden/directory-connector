@@ -67,7 +67,7 @@ export class Main {
             this.messagingMain.onMessage(message);
         });
 
-        this.keytarStorageListener = new KeytarStorageListener('Bitwarden Directory Connector');
+        this.keytarStorageListener = new KeytarStorageListener('Bitwarden Directory Connector', null);
     }
 
     bootstrap() {
