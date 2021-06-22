@@ -15,6 +15,10 @@ export class KeytarSecureStorageService implements StorageService {
         });
     }
 
+    async has(key: string): Promise<boolean> {
+        return (await this.get(key)) != null;
+    }
+
     save(key: string, obj: any): Promise<any> {
         return setPassword(this.serviceName, key, JSON.stringify(obj));
     }

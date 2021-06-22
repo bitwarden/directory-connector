@@ -21,7 +21,6 @@ import { SyncService } from '../../services/sync.service';
 import { BroadcasterService } from 'jslib-angular/services/broadcaster.service';
 import { ValidationService } from 'jslib-angular/services/validation.service';
 
-import { ApiService } from 'jslib-common/services/api.service';
 import { ApiKeyService } from 'jslib-common/services/apiKey.service';
 import { AppIdService } from 'jslib-common/services/appId.service';
 import { ConstantsService } from 'jslib-common/services/constants.service';
@@ -55,6 +54,7 @@ import { StorageService as StorageServiceAbstraction } from 'jslib-common/abstra
 import { TokenService as TokenServiceAbstraction } from 'jslib-common/abstractions/token.service';
 import { UserService as UserServiceAbstraction } from 'jslib-common/abstractions/user.service';
 
+import { ApiService, refreshToken } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 
 const logService = new ElectronLogService();
@@ -70,7 +70,7 @@ const cryptoService = new CryptoService(storageService, secureStorageService, cr
     platformUtilsService, logService);
 const appIdService = new AppIdService(storageService);
 const tokenService = new TokenService(storageService);
-const apiService = new ApiService(tokenService, platformUtilsService,
+const apiService = new ApiService(tokenService, platformUtilsService, refreshTokenCallback,
     async (expired: boolean) => messagingService.send('logout', { expired: expired }));
 const environmentService = new EnvironmentService(apiService, storageService, null);
 const userService = new UserService(tokenService, storageService);
@@ -85,6 +85,10 @@ const passwordGenerationService = new PasswordGenerationService(cryptoService, s
 const policyService = new PolicyService(userService, storageService);
 
 containerService.attachToWindow(window);
+
+function refreshTokenCallback(): Promise<any> {
+    return refreshToken(apiKeyService, authService);
+}
 
 export function initFactory(): Function {
     return async () => {
