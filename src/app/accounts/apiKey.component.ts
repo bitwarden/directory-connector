@@ -80,6 +80,6 @@ export class ApiKeyComponent {
     }
     toggleSecret() {
         this.showSecret = !this.showSecret;
-        document.getElementById('clientSecret').focus();
+        document.getElementById('client_secret').focus();
     }
 }

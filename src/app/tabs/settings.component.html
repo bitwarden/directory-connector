@@ -125,7 +125,7 @@
                                 <input type="{{showLdapPassword ? 'text' : 'password'}}" class="form-control" id="password" name="Password"
                                 [(ngModel)]="ldap.password">
                                 <div class="input-group-append">
-                                    <button type="button" class="btn btn-outline-primary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleLdapPassword()">
+                                    <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleLdapPassword()">
                                         <i class="fa fa-lg" aria-hidden="true"[ngClass]="{'fa-eye': !showLdapPassword, 'fa-eye-slash': showLdapPassword}"></i>
                                     </button>
                                 </div>
@@ -150,7 +150,7 @@
                             <input type="{{showAzureKey ? 'text' : 'password'}}" class="form-control" id="secretKey" name="SecretKey"
                             [(ngModel)]="azure.key">
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-outline-primary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleAzureKey()">
+                                <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleAzureKey()">
                                     <i class="fa fa-lg" aria-hidden="true"[ngClass]="{'fa-eye': !showAzureKey, 'fa-eye-slash': showAzureKey}"></i>
                                 </button>
                             </div>
@@ -169,7 +169,7 @@
                             <input type="{{showOktaKey ? 'text' : 'password'}}" class="form-control" id="oktaToken" name="OktaToken"
                             [(ngModel)]="okta.token">
                             <div class="input-group-append"> 
-                                <button type="button" class="btn btn-outline-primary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleOktaKey()">
+                                <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleOktaKey()">
                                     <i class="fa fa-lg" aria-hidden="true"[ngClass]="{'fa-eye': !showOktaKey, 'fa-eye-slash': showOktaKey}"></i>
                                 </button>
                             </div>
@@ -188,7 +188,7 @@
                             <input type="{{showOneLoginSecret ? 'text' : 'password'}}" class="form-control" id="oneLoginClientSecret" name="OneLoginClientSecret"
                             [(ngModel)]="oneLogin.clientSecret">
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-outline-primary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleOneLoginSecret()">
+                                <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleOneLoginSecret()">
                                     <i class="fa fa-lg" aria-hidden="true"[ngClass]="{'fa-eye': !showOneLoginSecret, 'fa-eye-slash': showOneLoginSecret}"></i>
                                 </button>
                             </div>

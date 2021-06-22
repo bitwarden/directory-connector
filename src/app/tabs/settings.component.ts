@@ -132,18 +132,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
     toggleLdapPassword() {
         this.showLdapPassword = !this.showLdapPassword;
-        document.getElementById('masterPassword').focus();
+        document.getElementById('password').focus();
     }
     toggleAzureKey() {
         this.showAzureKey = !this.showAzureKey;
-        document.getElementById('masterPassword').focus();
+        document.getElementById('secretKey').focus();
     }
     toggleOktaKey() {
         this.showOktaKey = !this.showOktaKey;
-        document.getElementById('masterPassword').focus();
+        document.getElementById('oktaToken').focus();
     }
     toggleOneLoginSecret() {
         this.showOneLoginSecret = !this.showOneLoginSecret;
-        document.getElementById('masterPassword').focus();
+        document.getElementById('oneLoginClientSecret').focus();
     }
 }
