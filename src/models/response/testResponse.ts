@@ -3,7 +3,7 @@ import { UserResponse } from './userResponse';
 
 import { SimResult } from '../simResult';
 
-import { BaseResponse } from 'jslib/cli/models/response/baseResponse';
+import { BaseResponse } from 'jslib-node/cli/models/response/baseResponse';
 
 export class TestResponse implements BaseResponse {
     object: string;

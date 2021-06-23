@@ -9,13 +9,13 @@ import { Router } from '@angular/router';
 
 import { EnvironmentComponent } from './environment.component';
 
-import { ApiKeyService } from 'jslib/abstractions/apiKey.service';
-import { AuthService } from 'jslib/abstractions/auth.service';
-import { I18nService } from 'jslib/abstractions/i18n.service';
-import { PlatformUtilsService } from 'jslib/abstractions/platformUtils.service';
+import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
+import { AuthService } from 'jslib-common/abstractions/auth.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
 
-import { ModalComponent } from 'jslib/angular/components/modal.component';
-import { Utils } from 'jslib/misc/utils';
+import { ModalComponent } from 'jslib-angular/components/modal.component';
+import { Utils } from 'jslib-common/misc/utils';
 import { ConfigurationService } from '../../services/configuration.service';
 
 @Component({

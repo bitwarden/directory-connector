@@ -4,7 +4,7 @@ import {
     setPassword,
 } from 'keytar';
 
-import { StorageService } from 'jslib/abstractions/storage.service';
+import { StorageService } from 'jslib-common/abstractions/storage.service';
 
 export class KeytarSecureStorageService implements StorageService {
     constructor(private serviceName: string) { }
@@ -13,6 +13,10 @@ export class KeytarSecureStorageService implements StorageService {
         return getPassword(this.serviceName, key).then(val => {
             return JSON.parse(val) as T;
         });
+    }
+
+    async has(key: string): Promise<boolean> {
+        return (await this.get(key)) != null;
     }
 
     save(key: string, obj: any): Promise<any> {

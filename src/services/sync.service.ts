@@ -4,15 +4,15 @@ import { GroupEntry } from '../models/groupEntry';
 import { SyncConfiguration } from '../models/syncConfiguration';
 import { UserEntry } from '../models/userEntry';
 
-import { OrganizationImportRequest } from 'jslib/models/request/organizationImportRequest';
+import { OrganizationImportRequest } from 'jslib-common/models/request/organizationImportRequest';
 
-import { ApiService } from 'jslib/abstractions/api.service';
-import { CryptoFunctionService } from 'jslib/abstractions/cryptoFunction.service';
-import { I18nService } from 'jslib/abstractions/i18n.service';
-import { LogService } from 'jslib/abstractions/log.service';
-import { MessagingService } from 'jslib/abstractions/messaging.service';
+import { ApiService } from 'jslib-common/abstractions/api.service';
+import { CryptoFunctionService } from 'jslib-common/abstractions/cryptoFunction.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { LogService } from 'jslib-common/abstractions/log.service';
+import { MessagingService } from 'jslib-common/abstractions/messaging.service';
 
-import { Utils } from 'jslib/misc/utils';
+import { Utils } from 'jslib-common/misc/utils';
 
 import { AzureDirectoryService } from './azure-directory.service';
 import { ConfigurationService } from './configuration.service';

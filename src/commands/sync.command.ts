@@ -1,9 +1,9 @@
-import { I18nService } from 'jslib/abstractions/i18n.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
 
 import { SyncService } from '../services/sync.service';
 
-import { Response } from 'jslib/cli/models/response';
-import { MessageResponse } from 'jslib/cli/models/response/messageResponse';
+import { Response } from 'jslib-node/cli/models/response';
+import { MessageResponse } from 'jslib-node/cli/models/response/messageResponse';
 
 export class SyncCommand {
     constructor(private syncService: SyncService, private i18nService: I18nService) { }
