@@ -1,6 +1,6 @@
 import { DirectoryType } from '../enums/directoryType';
 
-import { StorageService } from 'jslib/abstractions/storage.service';
+import { StorageService } from 'jslib-common/abstractions/storage.service';
 import { AzureConfiguration } from '../models/azureConfiguration';
 import { GSuiteConfiguration } from '../models/gsuiteConfiguration';
 import { LdapConfiguration } from '../models/ldapConfiguration';

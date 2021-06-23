@@ -1,12 +1,12 @@
 import * as program from 'commander';
 
-import { I18nService } from 'jslib/abstractions/i18n.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
 
 import { SyncService } from '../services/sync.service';
 
 import { ConnectorUtils } from '../utils';
 
-import { Response } from 'jslib/cli/models/response';
+import { Response } from 'jslib-node/cli/models/response';
 import { TestResponse } from '../models/response/testResponse';
 
 export class TestCommand {

@@ -4,6 +4,7 @@ const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const AngularCompilerPlugin = require('@ngtools/webpack').AngularCompilerPlugin;
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const common = {
     module: {
@@ -33,9 +34,7 @@ const common = {
     plugins: [],
     resolve: {
         extensions: ['.tsx', '.ts', '.js', '.json'],
-        alias: {
-            jslib: path.join(__dirname, 'jslib/src'),
-        },
+        plugins: [new TsconfigPathsPlugin({ configFile: './tsconfig.json' })],
         symlinks: false,
         modules: [path.resolve('node_modules')],
     },

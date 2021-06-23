@@ -13,10 +13,10 @@ import { UserEntry } from '../models/userEntry';
 import { ConfigurationService } from './configuration.service';
 import { IDirectoryService } from './directory.service';
 
-import { I18nService } from 'jslib/abstractions/i18n.service';
-import { LogService } from 'jslib/abstractions/log.service';
+import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { LogService } from 'jslib-common/abstractions/log.service';
 
-import { Utils } from 'jslib/misc/utils';
+import { Utils } from 'jslib-common/misc/utils';
 
 const UserControlAccountDisabled = 2;
 
