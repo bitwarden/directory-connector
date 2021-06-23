@@ -121,8 +121,15 @@
                         </div>
                         <div class="form-group">
                             <label for="password">{{'password' | i18n}}</label>
-                            <input type="password" class="form-control" id="password" name="Password"
+                            <div class="input-group">                          
+                                <input type="{{showLdapPassword ? 'text' : 'password'}}" class="form-control" id="password" name="Password"
                                 [(ngModel)]="ldap.password">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleLdapPassword()">
+                                        <i class="fa fa-lg" aria-hidden="true"[ngClass]="showLdapPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -139,7 +146,15 @@
                     </div>
                     <div class="form-group">
                         <label for="secretKey">{{'secretKey' | i18n}}</label>
-                        <input type="text" class="form-control" id="secretKey" name="SecretKey" [(ngModel)]="azure.key">
+                        <div class="input-group">
+                            <input type="{{showAzureKey ? 'text' : 'password'}}" class="form-control" id="secretKey" name="SecretKey"
+                            [(ngModel)]="azure.key">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleAzureKey()">
+                                    <i class="fa fa-lg" aria-hidden="true"[ngClass]="showAzureKey ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                </button>
+                            </div>
+                        </div>  
                     </div>
                 </div>
                 <div [hidden]="directory != directoryType.Okta">
@@ -150,8 +165,15 @@
                     </div>
                     <div class="form-group">
                         <label for="oktaToken">{{'token' | i18n}}</label>
-                        <input type="text" class="form-control" id="oktaToken" name="OktaToken"
+                        <div class="input-group">
+                            <input type="{{showOktaKey ? 'text' : 'password'}}" class="form-control" id="oktaToken" name="OktaToken"
                             [(ngModel)]="okta.token">
+                            <div class="input-group-append"> 
+                                <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleOktaKey()">
+                                    <i class="fa fa-lg" aria-hidden="true"[ngClass]="showOktaKey ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div [hidden]="directory != directoryType.OneLogin">
@@ -162,8 +184,15 @@
                     </div>
                     <div class="form-group">
                         <label for="oneLoginClientSecret">{{'clientSecret' | i18n}}</label>
-                        <input type="text" class="form-control" id="oneLoginClientSecret" name="OneLoginClientSecret"
+                        <div class="input-group">
+                            <input type="{{showOneLoginSecret ? 'text' : 'password'}}" class="form-control" id="oneLoginClientSecret" name="OneLoginClientSecret"
                             [(ngModel)]="oneLogin.clientSecret">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleOneLoginSecret()">
+                                    <i class="fa fa-lg" aria-hidden="true"[ngClass]="showOneLoginSecret ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="oneLoginRegion">{{'region' | i18n}}</label>

@@ -118,3 +118,27 @@ ul.testing-list {
     }
 }
 
+.btn[class*="btn-outline-"] {
+    &:not(:hover) {
+        border-color: $secondary;
+        background-color: #fbfbfb;
+    }
+}
+
+.btn-outline-secondary {
+    color: $text-muted;
+
+    &:hover:not(:disabled) {
+        color: $body-color;
+    }
+
+    &:disabled {
+        opacity: 1;
+    }
+
+    &:focus,
+    &.focus {
+        box-shadow: 0 0 0 $btn-focus-width rgba(mix(color-yiq($primary), $primary, 15%), .5);
+    }
+}
+

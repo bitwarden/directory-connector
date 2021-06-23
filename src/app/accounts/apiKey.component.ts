@@ -29,6 +29,7 @@ export class ApiKeyComponent {
 
     formPromise: Promise<any>;
     successRoute = '/tabs/dashboard';
+    showSecret: boolean = false;
 
     constructor(private authService: AuthService, private apiKeyService: ApiKeyService, private router: Router,
         private i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver,
@@ -76,5 +77,9 @@ export class ApiKeyComponent {
         childComponent.onSaved.subscribe(() => {
             modal.close();
         });
+    }
+    toggleSecret() {
+        this.showSecret = !this.showSecret;
+        document.getElementById('client_secret').focus();
     }
 }
