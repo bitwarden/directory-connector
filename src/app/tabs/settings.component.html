@@ -126,7 +126,7 @@
                                 [(ngModel)]="ldap.password">
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleLdapPassword()">
-                                        <i class="fa fa-lg" aria-hidden="true"[ngClass]="{'fa-eye': !showLdapPassword, 'fa-eye-slash': showLdapPassword}"></i>
+                                        <i class="fa fa-lg" aria-hidden="true"[ngClass]="showLdapPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                                     </button>
                                 </div>
                             </div>
@@ -151,7 +151,7 @@
                             [(ngModel)]="azure.key">
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleAzureKey()">
-                                    <i class="fa fa-lg" aria-hidden="true"[ngClass]="{'fa-eye': !showAzureKey, 'fa-eye-slash': showAzureKey}"></i>
+                                    <i class="fa fa-lg" aria-hidden="true"[ngClass]="showAzureKey ? 'fa-eye-slash' : 'fa-eye'"></i>
                                 </button>
                             </div>
                         </div>  
@@ -170,7 +170,7 @@
                             [(ngModel)]="okta.token">
                             <div class="input-group-append"> 
                                 <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleOktaKey()">
-                                    <i class="fa fa-lg" aria-hidden="true"[ngClass]="{'fa-eye': !showOktaKey, 'fa-eye-slash': showOktaKey}"></i>
+                                    <i class="fa fa-lg" aria-hidden="true"[ngClass]="showOktaKey ? 'fa-eye-slash' : 'fa-eye'"></i>
                                 </button>
                             </div>
                         </div>
@@ -189,7 +189,7 @@
                             [(ngModel)]="oneLogin.clientSecret">
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-outline-secondary" appA11yTitle="{{'toggleVisibility' | i18n}}" (click)="toggleOneLoginSecret()">
-                                    <i class="fa fa-lg" aria-hidden="true"[ngClass]="{'fa-eye': !showOneLoginSecret, 'fa-eye-slash': showOneLoginSecret}"></i>
+                                    <i class="fa fa-lg" aria-hidden="true"[ngClass]="showOneLoginSecret ? 'fa-eye-slash' : 'fa-eye'"></i>
                                 </button>
                             </div>
                         </div>
