@@ -130,18 +130,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
         filePicker.type = 'file';
         filePicker.value = '';
     }
+
     toggleLdapPassword() {
         this.showLdapPassword = !this.showLdapPassword;
         document.getElementById('password').focus();
     }
+
     toggleAzureKey() {
         this.showAzureKey = !this.showAzureKey;
         document.getElementById('secretKey').focus();
     }
+
     toggleOktaKey() {
         this.showOktaKey = !this.showOktaKey;
         document.getElementById('oktaToken').focus();
     }
+
     toggleOneLoginSecret() {
         this.showOneLoginSecret = !this.showOneLoginSecret;
         document.getElementById('oneLoginClientSecret').focus();
