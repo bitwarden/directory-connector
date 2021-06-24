@@ -445,6 +445,15 @@
         "message": "Emails must be unique. Multiple entries pulled with the following emails:",
         "desription": "Error message displayed when duplicate email addresses are synced. Followed by a list of duplicate emails."
     },
+    "andMore": {
+        "message": "and $NUMBER$ more...",
+        "placeholders": {
+            "NUMBER": {
+                "content": "$1",
+                "example": "10"
+            }
+        }
+    },
     "ldapEncrypted": {
         "message": "This server uses an encrypted connection"
     },

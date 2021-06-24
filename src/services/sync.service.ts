@@ -57,7 +57,10 @@ export class SyncService {
 
             const duplicateEmails = this.findDuplicateUserEmails(users);
             if (duplicateEmails.length > 0) {
-                throw new Error(this.i18nService.t('duplicateEmails') + '\n' + duplicateEmails.join('\n'));
+                const emailsMessage = duplicateEmails.length < 4 ?
+                    duplicateEmails.join('\n') :
+                    duplicateEmails.slice(0, 3).join('\n') + '\n' + this.i18nService.t('andMore', `${duplicateEmails.length - 3}`);
+                throw new Error(this.i18nService.t('duplicateEmails') + '\n' + emailsMessage);
             }
 
             if (test || (!syncConfig.overwriteExisting &&
