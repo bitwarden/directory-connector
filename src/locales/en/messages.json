@@ -441,6 +441,10 @@
     "sync": {
         "message": "Sync"
     },
+    "duplicateEmails": {
+        "message": "Emails must be unique. Multiple entries pulled with the following emails:",
+        "desription": "Error message displayed when duplicate email addresses are synced. Followed by a list of duplicate emails."
+    },
     "ldapEncrypted": {
         "message": "This server uses an encrypted connection"
     },

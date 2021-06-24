@@ -55,6 +55,11 @@ export class SyncService {
                 this.flattenUsersToGroups(groups, groups);
             }
 
+            const duplicateEmails = this.findDuplicateUserEmails(users);
+            if (duplicateEmails.length > 0) {
+                throw new Error(this.i18nService.t('duplicateEmails') + '\n' + duplicateEmails.join('\n'));
+            }
+
             if (test || (!syncConfig.overwriteExisting &&
                 (groups == null || groups.length === 0) && (users == null || users.length === 0))) {
                 if (!test) {
@@ -106,6 +111,19 @@ export class SyncService {
             this.messagingService.send('dirSyncCompleted', { successfully: false });
             throw e;
         }
+    }
+
+    private findDuplicateUserEmails(users: UserEntry[]) {
+        const duplicatedEmails = new Array<string>();
+        users.reduce((agg, user) => {
+            if (agg.includes(user.email) && !duplicatedEmails.includes(user.email)) {
+                duplicatedEmails.push(user.email);
+            } else {
+                agg.push(user.email);
+            }
+            return agg;
+        }, new Array<string>());
+        return duplicatedEmails;
     }
 
     private filterUnsupportedUsers(users: UserEntry[]): UserEntry[] {
