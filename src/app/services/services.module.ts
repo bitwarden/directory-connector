@@ -70,9 +70,9 @@ const cryptoService = new CryptoService(storageService, secureStorageService, cr
     platformUtilsService, logService);
 const appIdService = new AppIdService(storageService);
 const tokenService = new TokenService(storageService);
-const apiService = new ApiService(tokenService, platformUtilsService, refreshTokenCallback,
+const environmentService = new EnvironmentService(storageService);
+const apiService = new ApiService(tokenService, platformUtilsService, environmentService, refreshTokenCallback,
     async (expired: boolean) => messagingService.send('logout', { expired: expired }));
-const environmentService = new EnvironmentService(apiService, storageService, null);
 const userService = new UserService(tokenService, storageService);
 const apiKeyService = new ApiKeyService(tokenService, storageService);
 const containerService = new ContainerService(cryptoService);
@@ -80,7 +80,7 @@ const authService = new AuthService(cryptoService, apiService, userService, toke
     i18nService, platformUtilsService, messagingService, null, logService, apiKeyService, false);
 const configurationService = new ConfigurationService(storageService, secureStorageService);
 const syncService = new SyncService(configurationService, logService, cryptoFunctionService, apiService,
-    messagingService, i18nService);
+    messagingService, i18nService, environmentService);
 const passwordGenerationService = new PasswordGenerationService(cryptoService, storageService, null);
 const policyService = new PolicyService(userService, storageService);
 
