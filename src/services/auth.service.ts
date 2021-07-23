@@ -45,7 +45,7 @@ export class AuthService extends AuthServiceBase {
         const appId = await this.appIdService.getAppId();
         const deviceRequest = new DeviceRequest(appId, this.platformUtilsService);
         const request = new TokenRequest(null, null, [clientId, clientSecret], null,
-            null, false, deviceRequest);
+            null, false, null, deviceRequest);
 
         const response = await this.apiService.postIdentityToken(request);
         const result = new AuthResult();

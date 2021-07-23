@@ -8,6 +8,7 @@ import { OrganizationImportRequest } from 'jslib-common/models/request/organizat
 
 import { ApiService } from 'jslib-common/abstractions/api.service';
 import { CryptoFunctionService } from 'jslib-common/abstractions/cryptoFunction.service';
+import { EnvironmentService } from 'jslib-common/abstractions/environment.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { LogService } from 'jslib-common/abstractions/log.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
@@ -27,7 +28,8 @@ export class SyncService {
 
     constructor(private configurationService: ConfigurationService, private logService: LogService,
         private cryptoFunctionService: CryptoFunctionService, private apiService: ApiService,
-        private messagingService: MessagingService, private i18nService: I18nService) { }
+        private messagingService: MessagingService, private i18nService: I18nService,
+        private environmentService: EnvironmentService) { }
 
     async sync(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
         this.dirType = await this.configurationService.getDirectoryType();
@@ -83,12 +85,12 @@ export class SyncService {
 
             // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
             let hashLegacy: string = null;
-            const hashBuffLegacy = await this.cryptoFunctionService.hash(this.apiService.apiBaseUrl + reqJson, 'sha256');
+            const hashBuffLegacy = await this.cryptoFunctionService.hash(this.environmentService.getApiUrl() + reqJson, 'sha256');
             if (hashBuffLegacy != null) {
                 hashLegacy = Utils.fromBufferToB64(hashBuffLegacy);
             }
             let hash: string = null;
-            const hashBuff = await this.cryptoFunctionService.hash(this.apiService.apiBaseUrl + orgId + reqJson, 'sha256');
+            const hashBuff = await this.cryptoFunctionService.hash(this.environmentService.getApiUrl() + orgId + reqJson, 'sha256');
             if (hashBuff != null) {
                 hash = Utils.fromBufferToB64(hashBuff);
             }
