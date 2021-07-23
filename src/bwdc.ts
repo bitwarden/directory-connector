@@ -91,9 +91,9 @@ export class Main {
         this.appIdService = new AppIdService(this.storageService);
         this.tokenService = new TokenService(this.storageService);
         this.messagingService = new NoopMessagingService();
-        this.apiService = new NodeApiService(this.tokenService, this.platformUtilsService, this.refreshTokenCallback,
-            async (expired: boolean) => await this.logout());
-        this.environmentService = new EnvironmentService(this.apiService, this.storageService, null);
+        this.environmentService = new EnvironmentService(this.storageService);
+        this.apiService = new NodeApiService(this.tokenService, this.platformUtilsService, this.environmentService,
+            this.refreshTokenCallback, async (expired: boolean) => await this.logout());
         this.apiKeyService = new ApiKeyService(this.tokenService, this.storageService);
         this.userService = new UserService(this.tokenService, this.storageService);
         this.containerService = new ContainerService(this.cryptoService);
@@ -103,7 +103,7 @@ export class Main {
         this.configurationService = new ConfigurationService(this.storageService, this.secureStorageService,
             process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== 'true');
         this.syncService = new SyncService(this.configurationService, this.logService, this.cryptoFunctionService,
-            this.apiService, this.messagingService, this.i18nService);
+            this.apiService, this.messagingService, this.i18nService, this.environmentService);
         this.passwordGenerationService = new PasswordGenerationService(this.cryptoService, this.storageService, null);
         this.program = new Program(this);
     }

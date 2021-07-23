@@ -1,5 +1,6 @@
 import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
 import { AuthService } from 'jslib-common/abstractions/auth.service';
+import { EnvironmentService } from 'jslib-common/abstractions/environment.service';
 import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
 import { TokenService } from 'jslib-common/abstractions/token.service';
 
@@ -18,10 +19,10 @@ export async function refreshToken(apiKeyService: ApiKeyService, authService: Au
 }
 
 export class ApiService extends ApiServiceBase {
-    constructor(tokenService: TokenService, platformUtilsService: PlatformUtilsService,
+    constructor(tokenService: TokenService, platformUtilsService: PlatformUtilsService, environmentService: EnvironmentService,
         private refreshTokenCallback: () => Promise<void>, logoutCallback: (expired: boolean) => Promise<void>,
         customUserAgent: string = null) {
-        super(tokenService, platformUtilsService, logoutCallback, customUserAgent);
+        super(tokenService, platformUtilsService, environmentService, logoutCallback, customUserAgent);
     }
 
     doRefreshToken(): Promise<void> {
