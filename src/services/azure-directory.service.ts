@@ -386,7 +386,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
             authProvider: done => {
                 if (this.dirConfig.applicationId == null || this.dirConfig.key == null ||
                     this.dirConfig.tenant == null) {
-                    done(this.i18nService.t('dirConfigIncomplete'), null);
+                    done(new Error(this.i18nService.t('dirConfigIncomplete')), null);
                     return;
                 }
 
@@ -421,9 +421,14 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                             this.setAccessTokenExpiration(d.access_token, d.expires_in);
                             done(null, d.access_token);
                         } else if (d.error != null && d.error_description != null) {
-                            done(d.error + ' (' + res.statusCode + '): ' + d.error_description, null);
+                            const shortError = d.error_description?.split('\n', 1)[0];
+                            const err = new Error(d.error + ' (' + res.statusCode + '): ' + shortError);
+                            // tslint: disable-next-line
+                            console.error(d.error_description);
+                            done(err, null);
                         } else {
-                            done('Unknown error (' + res.statusCode + ').', null);
+                            const err = new Error('Unknown error (' + res.statusCode + ').')
+                            done(err, null);
                         }
                     });
                 }).on('error', err => {
