@@ -36,14 +36,16 @@ jobs:
         shell: pwsh
         run: |
           $env:pkgVersion = (Get-Content -Raw -Path ./src/package.json | ConvertFrom-Json).version
-          echo "::set-output name=PACKAGE_VERSION::$env:pkgVersion" 
+          echo "::set-output name=pacakge_version::$env:pkgVersion" 
 
 
   cli:
     runs-on: windows-latest
     needs: setup
     env:
-      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _WIN_PKG_FETCH_VERSION: 14.17.0
+      _WIN_PKG_VERSION: 3.1
     steps:
       - name: Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
@@ -75,13 +77,11 @@ jobs:
         shell: pwsh
         run: |
           cd $HOME
-          $fetchedUrl = "https://github.com/vercel/pkg-fetch/releases/download/v3.0/node-v14.16.1-win-x64"
+          $fetchedUrl = "https://github.com/vercel/pkg-fetch/releases/download/v$env:_WIN_PKG_VERSION/node-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
 
           New-Item -ItemType directory -Path ./.pkg-cache
-          New-Item -ItemType directory -Path ./.pkg-cache/v3.0
-          Invoke-RestMethod -Uri $fetchedUrl -OutFile "./.pkg-cache/v3.0/fetched-v14.16.1-win-x64"
-        env:
-          WIN_PKG: C:\Users\runneradmin\.pkg-cache\v3.0\fetched-v14.16.1-win-x64
+          New-Item -ItemType directory -Path ./.pkg-cache/v$env:_WIN_PKG_VERSION
+          Invoke-RestMethod -Uri $fetchedUrl -OutFile "./.pkg-cache/v$env:_WIN_PKG_VERSION/fetched-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
 
       - name: Keytar
         shell: pwsh
@@ -129,77 +129,71 @@ jobs:
       - name: Zip
         shell: cmd
         run: |
-          7z a ./dist-cli/bwdc-windows-%PACKAGE_VERSION%.zip ./dist-cli/windows/bwdc.exe ./keytar/windows/keytar.node
-          7z a ./dist-cli/bwdc-macos-%PACKAGE_VERSION%.zip ./dist-cli/macos/bwdc ./keytar/macos/keytar.node
-          7z a ./dist-cli/bwdc-linux-%PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc ./keytar/linux/keytar.node
+          7z a ./dist-cli/bwdc-windows-%_PACKAGE_VERSION%.zip ./dist-cli/windows/bwdc.exe ./keytar/windows/keytar.node
+          7z a ./dist-cli/bwdc-macos-%_PACKAGE_VERSION%.zip ./dist-cli/macos/bwdc ./keytar/macos/keytar.node
+          7z a ./dist-cli/bwdc-linux-%_PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc ./keytar/linux/keytar.node
 
       - name: Version Test
         run: |
-          Expand-Archive -Path "./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
+          Expand-Archive -Path "./dist-cli/bwdc-windows-${env:_PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
           $testVersion = Invoke-Expression '& ./test/windows/bwdc.exe -v'
-          echo "version: $env:PACKAGE_VERSION"
+          echo "version: $env:_PACKAGE_VERSION"
           echo "testVersion: $testVersion"
-          if($testVersion -ne $env:PACKAGE_VERSION) {
+          if($testVersion -ne $env:_PACKAGE_VERSION) {
             Throw "Version test failed."
           }
 
       - name: Create checksums
         run: |
-          checksum -f="./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File ./dist-cli/bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
-          checksum -f="./dist-cli/bwdc-macos-${env:PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File ./dist-cli/bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
-          checksum -f="./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
+          checksum -f="./dist-cli/bwdc-windows-${env:_PACKAGE_VERSION}.zip" `
+            -t sha256 | Out-File ./dist-cli/bwdc-windows-sha256-${env:_PACKAGE_VERSION}.txt
+          checksum -f="./dist-cli/bwdc-macos-${env:_PACKAGE_VERSION}.zip" `
+            -t sha256 | Out-File ./dist-cli/bwdc-macos-sha256-${env:_PACKAGE_VERSION}.txt
+          checksum -f="./dist-cli/bwdc-linux-${env:_PACKAGE_VERSION}.zip" `
+            -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:_PACKAGE_VERSION}.txt
 
       - name: Upload windows zip to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
         with:
-          name: bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
-          path: ./dist-cli/bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
+          name: bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
+          path: ./dist-cli/bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
 
       - name: Upload mac zip to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
         with:
-          name: bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
-          path: ./dist-cli/bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
+          name: bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
+          path: ./dist-cli/bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
 
       - name: Upload linux zip to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
         with:
-          name: bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
-          path: ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
+          name: bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
+          path: ./dist-cli/bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
 
       - name: Upload windows checksum to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
         with:
-          name: bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
-          path: ./dist-cli/bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
+          name: bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
+          path: ./dist-cli/bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
 
       - name: Upload mac checksum to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
         with:
-          name: bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
-          path: ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
+          name: bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
+          path: ./dist-cli/bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
 
       - name: Upload linux checksum to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
         with:
-          name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
-          path: ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
+          name: bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
+          path: ./dist-cli/bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
 
 
   windows_gui:
     runs-on: windows-latest
     needs: setup
     env:
-      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Set up dotnet
         uses: actions/setup-dotnet@a71d1eb2c86af85faa8c772c03fb365e377e45ea
@@ -270,25 +264,23 @@ jobs:
         run: dir ./dist
 
       - name: Publish Portable Exe to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
         with:
-          name: Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
-          path: ./dist/Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
+          name: Bitwarden-Connector-Portable-${{ env._PACKAGE_VERSION }}.exe
+          path: ./dist/Bitwarden-Connector-Portable-${{ env._PACKAGE_VERSION }}.exe
 
       - name: Publish Installer Exe to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
         with:
-          name: Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
-          path: ./dist/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
+          name: Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe
+          path: ./dist/Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe
 
 
   linux:
     runs-on: ubuntu-latest
     needs: setup
     env:
-      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Set up Node
         uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
@@ -323,18 +315,17 @@ jobs:
         run: npm run dist:lin
 
       - name: Publish AppImage
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
         with:
-          name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
-          path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
+          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
 
 
   macos:
     runs-on: macos-latest
     needs: setup
     env:
-      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Set up Node
         uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
@@ -400,15 +391,13 @@ jobs:
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
       - name: Upload .zip artifact
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
         with:
-          name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
-          path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
+          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip
+          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip
 
       - name: Upload .dmg artifact
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
         with:
-          name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
-          path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
+          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg
+          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg
