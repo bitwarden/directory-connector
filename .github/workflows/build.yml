@@ -36,7 +36,7 @@ jobs:
         shell: pwsh
         run: |
           $env:pkgVersion = (Get-Content -Raw -Path ./src/package.json | ConvertFrom-Json).version
-          echo "::set-output name=pacakge_version::$env:pkgVersion" 
+          echo "::set-output name=package_version::$env:pkgVersion" 
 
 
   cli:
