@@ -109,8 +109,8 @@ jobs:
         shell: cmd
         run: |
           set PATH=%PATH%;C:\Program Files (x86)\Resource Hacker
-          set WIN_PKG=C:\Users\runneradmin\.pkg-cache\v%WIN_PKG_VERSION%\fetched-v%WIN_PKG_FETCH_VERSION%-win-x64
-          set WIN_PKG_BUILT=C:\Users\runneradmin\.pkg-cache\v%WIN_PKG_VERSION%\built-v%WIN_PKG_FETCH_VERSION%-win-x64
+          set WIN_PKG=C:\Users\runneradmin\.pkg-cache\v%_WIN_PKG_VERSION%\fetched-v%_WIN_PKG_FETCH_VERSION%-win-x64
+          set WIN_PKG_BUILT=C:\Users\runneradmin\.pkg-cache\v%_WIN_PKG_VERSION%\built-v%_WIN_PKG_FETCH_VERSION%-win-x64
 
           ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
           ResourceHacker -open version-info.rc -save version-info.res -action compile
