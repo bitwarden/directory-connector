@@ -4,39 +4,43 @@ on:
   push:
     branches-ignore:
       - 'l10n_master'
-  workflow_dispatch:
-    inputs:
 
 
 jobs:
   cloc:
+    name: CLOC
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2.3.4
 
-      - name: Set up cloc
+      - name: Set up CLOC
         run: |
           sudo apt update
           sudo apt -y install cloc
+
       - name: Print lines of code
         run: cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
 
 
   setup:
+    name: Setup
     runs-on: ubuntu-latest
     outputs:
       package_version: ${{ steps.get_version.outputs.package_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2.3.4
 
       - name: Get Package Version
         id: get_version
-        shell: pwsh
         run: |
-          $env:pkgVersion = (Get-Content -Raw -Path ./src/package.json | ConvertFrom-Json).version
-          echo "::set-output name=PACKAGE_VERSION::$env:pkgVersion" 
+          PKG_VERSION=$(jq .version src/package.json)
+          echo "::set-output name=PACKAGE_VERSION::$PKG_VERSION"
+
+      - name: TEST output
+        run: |
+          echo "${{ steps.get_version.outputs.package_version}}"
 
 
   cli:
@@ -46,7 +50,7 @@ jobs:
       PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2.3.4
 
       - name: Setup Windows builder
         run: |
@@ -56,7 +60,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
         with:
-          node-version: '14.x'
+          node-version: '14'
 
       - name: Update NPM
         run: |
@@ -71,7 +75,7 @@ jobs:
         env:
           WIN_PKG: C:\Users\runneradmin\.pkg-cache\v3.0\fetched-v14.16.1-win-x64
 
-      - name: get pkg-fetch
+      - name: Get pkg-fetch
         shell: pwsh
         run: |
           cd $HOME
@@ -152,44 +156,44 @@ jobs:
           checksum -f="./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip" `
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
 
-      - name: Upload windows zip to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
+      - name: Upload Windows zip to GitHub
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700 # v2.2.4
         with:
           name: bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
 
-      - name: Upload mac zip to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
+      - name: Upload Mac zip to GitHub
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700 # v2.2.4
         with:
           name: bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
 
-      - name: Upload linux zip to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
+      - name: Upload Linux zip to GitHub
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700 # v2.2.4
         with:
           name: bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
 
-      - name: Upload windows checksum to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
+      - name: Upload Windows checksum to GitHub
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700 # v2.2.4
         with:
           name: bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
 
-      - name: Upload mac checksum to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
+      - name: Upload Mac checksum to GitHub
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700 # v2.2.4
         with:
           name: bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
 
-      - name: Upload linux checksum to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
+      - name: Upload Linux checksum to GitHub
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700 # v2.2.4
         with:
           name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
@@ -201,7 +205,7 @@ jobs:
     env:
       PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
-      - name: Set up dotnet
+      - name: Set up .NET
         uses: actions/setup-dotnet@a71d1eb2c86af85faa8c772c03fb365e377e45ea
         with:
           dotnet-version: "3.1.x"
@@ -209,7 +213,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
         with:
-          node-version: '14.x'
+          node-version: '14'
 
       - name: Update NPM
         run: |
@@ -248,7 +252,7 @@ jobs:
           dotnet tool install --global --ignore-failed-sources --add-source ./nupkg --version $latest_version azuresigntool
 
       - name: Checkout repo
-        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2.3.4
 
       - name: Install Node dependencies
         run: npm install
@@ -270,15 +274,15 @@ jobs:
         run: dir ./dist
 
       - name: Publish Portable Exe to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700 # v2.2.4
         with:
           name: Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Portable-${{ env.PACKAGE_VERSION }}.exe
 
       - name: Publish Installer Exe to GitHub
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700 # v2.2.4
         with:
           name: Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Installer-${{ env.PACKAGE_VERSION }}.exe
@@ -293,7 +297,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
         with:
-          node-version: '14.x'
+          node-version: '14'
 
       - name: Update NPM
         run: |
@@ -311,20 +315,20 @@ jobs:
           sudo apt-get -y install rpm
 
       - name: Checkout repo
-        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2.3.4
 
-      - name: npm install
+      - name: NPM Install
         run: npm install
 
-      - name: npm rebuild
+      - name: NPM Rebuild
         run: npm run rebuild
 
-      - name: npm package
+      - name: NPM Package
         run: npm run dist:lin
 
       - name: Publish AppImage
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700 # v2.2.4
         with:
           name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
           path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-x86_64.AppImage
@@ -339,7 +343,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
         with:
-          node-version: '14.x'
+          node-version: '14'
 
       - name: Update NPM
         run: |
@@ -357,12 +361,9 @@ jobs:
           Write-Output "GitHub ref: $env:GITHUB_REF"
           Write-Output "GitHub event: $env:GITHUB_EVENT"
         shell: pwsh
-        env:
-          GITHUB_REF: ${{ github.ref }}
-          GITHUB_EVENT: ${{ github.event_name }}
 
       - name: Checkout repo
-        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2.3.4
 
       - name: Decrypt secrets
         run: ./.github/scripts/macos/decrypt-secrets.ps1
@@ -400,15 +401,15 @@ jobs:
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
       - name: Upload .zip artifact
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700 # v2.2.4
         with:
           name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
           path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}-mac.zip
 
       - name: Upload .dmg artifact
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700 # v2.2.4
         with:
           name: Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg
           path: ./dist/Bitwarden-Connector-${{ env.PACKAGE_VERSION }}.dmg

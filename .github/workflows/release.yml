@@ -9,6 +9,33 @@ on:
 
 
 jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      connector-version: ${{ steps.retrieve-connector-version.outputs.connector_version }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2.3.4
+        with:
+          ref: rc
+
+      - name: Retrieve Directory Connector release version
+        id: retrieve-connector-version
+        run: |
+          ver=sdflksdjdflkj
+          echo "::set-output name=connector_version::${ver}"
+
+      - name: Create Draft Release
+        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.retrieve-connector-version.outputs.connector_version }}
+          release_name: Version ${{ steps.retrieve-connector-version.outputs.connector_version }}
+          draft: true
+          prerelease: false
+
   setup:
     runs-on: ubuntu-latest
     outputs:
