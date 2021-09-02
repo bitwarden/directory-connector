@@ -1,3 +1,4 @@
+---
 name: Release
 
 on:
@@ -10,6 +11,7 @@ on:
 
 jobs:
   setup:
+    name: Setup
     runs-on: ubuntu-latest
     outputs:
       package_version: ${{ steps.create_tags.outputs.package_version }}
@@ -63,6 +65,7 @@ jobs:
           prerelease: false
 
   cli:
+    name: CLI
     runs-on: windows-latest
     needs: setup
     env:
@@ -89,7 +92,7 @@ jobs:
           npm install -g node-gyp
           node-gyp install $(node -v)
 
-      - name: get pkg-fetch
+      - name: Get pkg-fetch
         shell: pwsh
         run: |
           cd $HOME
@@ -171,7 +174,7 @@ jobs:
           checksum -f="./dist-cli/bwdc-linux-${env:_PACKAGE_VERSION}.zip" `
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:_PACKAGE_VERSION}.txt
 
-      - name: upload windows zip release asset
+      - name: Upload Windows zip release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -181,7 +184,7 @@ jobs:
           asset_name: bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
           asset_content_type: application/zip
 
-      - name: upload macos zip release asset
+      - name: Upload MacOS zip release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -191,7 +194,7 @@ jobs:
           asset_name: bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
           asset_content_type: application/zip
 
-      - name: upload linux zip release asset
+      - name: Upload Linux zip release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -201,7 +204,7 @@ jobs:
           asset_name: bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
           asset_content_type: application/zip
 
-      - name: upload windows checksum release asset
+      - name: Upload Windows checksum release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -211,7 +214,7 @@ jobs:
           asset_name: bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
           asset_content_type: text/plain
 
-      - name: upload macos checksum release asset
+      - name: Upload MacOS checksum release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -221,7 +224,7 @@ jobs:
           asset_name: bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
           asset_content_type: text/plain
 
-      - name: upload linux checksum release asset
+      - name: Upload Linux checksum release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -233,6 +236,7 @@ jobs:
 
 
   windows-gui:
+    name: Windows GUI
     runs-on: windows-latest
     needs: setup
     env:
@@ -291,7 +295,7 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-      - name: npm rebuild
+      - name: NPM rebuild
         run: npm run rebuild
 
       - name: Build & Sign
@@ -308,6 +312,7 @@ jobs:
 
 
   linux:
+    name: Linux
     runs-on: ubuntu-latest
     needs: setup
     env:
@@ -330,7 +335,7 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev 
+          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev
           sudo apt-get -y install rpm
 
       - name: Checkout repo
@@ -343,19 +348,20 @@ jobs:
           echo "_PACKAGE_VERSION=$env:pkgVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "version: $env:pkgVersion"
 
-      - name: npm install
+      - name: NPM install
         run: npm install
 
-      - name: npm rebuild
+      - name: NPM rebuild
         run: npm run rebuild
 
-      - name: npm package
+      - name: NPM package
         run: npm run publish:lin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
   macos:
+    name: MacOS
     runs-on: macos-latest
     needs: setup
     env:
