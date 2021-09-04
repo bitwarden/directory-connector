@@ -93,7 +93,7 @@ export class Main {
         this.messagingService = new NoopMessagingService();
         this.environmentService = new EnvironmentService(this.storageService);
         this.apiService = new NodeApiService(this.tokenService, this.platformUtilsService, this.environmentService,
-            this.refreshTokenCallback, async (expired: boolean) => await this.logout());
+            () => refreshToken(this.apiKeyService, this.authService), async (expired: boolean) => await this.logout());
         this.apiKeyService = new ApiKeyService(this.tokenService, this.storageService);
         this.userService = new UserService(this.tokenService, this.storageService);
         this.containerService = new ContainerService(this.cryptoService);
@@ -116,10 +116,6 @@ export class Main {
     async logout() {
         await this.tokenService.clearToken();
         await this.apiKeyService.clear();
-    }
-
-    refreshTokenCallback() {
-        return refreshToken(this.apiKeyService, this.authService);
     }
 
     private async init() {
