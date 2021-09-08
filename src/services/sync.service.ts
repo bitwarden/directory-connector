@@ -121,7 +121,7 @@ export class SyncService {
         // UserEntrys with the same email but different externalIds will throw an error
         users.forEach(u => {
             if (processedUsers.has(u.email)) {
-                if (processedUsers.get(u.email) != u.externalId) {
+                if (processedUsers.get(u.email) != u.externalId || u.externalId == null) {
                     duplicateEmails.push(u.email);
                 }
             } else {
