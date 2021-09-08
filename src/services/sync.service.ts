@@ -57,13 +57,7 @@ export class SyncService {
                 this.flattenUsersToGroups(groups, groups);
             }
 
-            const duplicateEmails = this.findDuplicateUserEmails(users);
-            if (duplicateEmails.length > 0) {
-                const emailsMessage = duplicateEmails.length < 4 ?
-                    duplicateEmails.join('\n') :
-                    duplicateEmails.slice(0, 3).join('\n') + '\n' + this.i18nService.t('andMore', `${duplicateEmails.length - 3}`);
-                throw new Error(this.i18nService.t('duplicateEmails') + '\n' + emailsMessage);
-            }
+            users = this.removeDuplicateUsers(users);
 
             if (test || (!syncConfig.overwriteExisting &&
                 (groups == null || groups.length === 0) && (users == null || users.length === 0))) {
@@ -118,17 +112,32 @@ export class SyncService {
         }
     }
 
-    private findDuplicateUserEmails(users: UserEntry[]) {
-        const duplicatedEmails = new Array<string>();
-        users.reduce((agg, user) => {
-            if (agg.includes(user.email) && !duplicatedEmails.includes(user.email)) {
-                duplicatedEmails.push(user.email);
+    private removeDuplicateUsers(users: UserEntry[]) {
+        const uniqueUsers = new Array<UserEntry>();
+        const processedUsers = new Map<string, string>();
+        const duplicateEmails = new Array<string>();
+
+        // UserEntrys with the same email and externalId are removed but otherwise ignored
+        // UserEntrys with the same email but different externalIds will throw an error
+        users.forEach(u => {
+            if (processedUsers.has(u.email)) {
+                if (processedUsers.get(u.email) != u.externalId) {
+                    duplicateEmails.push(u.email);
+                }
             } else {
-                agg.push(user.email);
+                uniqueUsers.push(u);
+                processedUsers.set(u.email, u.externalId);
             }
-            return agg;
-        }, new Array<string>());
-        return duplicatedEmails;
+        });
+
+        if (duplicateEmails.length > 0) {
+            const emailsMessage = duplicateEmails.length < 4 ?
+                duplicateEmails.join('\n') :
+                duplicateEmails.slice(0, 3).join('\n') + '\n' + this.i18nService.t('andMore', `${duplicateEmails.length - 3}`);
+            throw new Error(this.i18nService.t('duplicateEmails') + '\n' + emailsMessage);
+        }
+
+        return uniqueUsers;
     }
 
     private filterUnsupportedUsers(users: UserEntry[]): UserEntry[] {
