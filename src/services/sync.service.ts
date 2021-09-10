@@ -117,16 +117,16 @@ export class SyncService {
         const processedUsers = new Map<string, string>();
         const duplicateEmails = new Array<string>();
 
-        // UserEntrys with the same email and externalId are removed but otherwise ignored
-        // UserEntrys with the same email but different externalIds will throw an error
+        // UserEntrys with the same email are ignored if their properties are the same
+        // UserEntrys with the same email but different properties will throw an error
         users.forEach(u => {
             if (processedUsers.has(u.email)) {
-                if (u.externalId == null || processedUsers.get(u.email) != u.externalId) {
+                if (processedUsers.get(u.email) != JSON.stringify(u)) {
                     duplicateEmails.push(u.email);
                 }
             } else {
                 uniqueUsers.push(u);
-                processedUsers.set(u.email, u.externalId);
+                processedUsers.set(u.email, JSON.stringify(u));
             }
         });
 
