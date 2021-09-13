@@ -144,7 +144,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                         continue;
                     }
                     const entry = this.buildUser(user);
-                    if (!entry.disabled && !entry.deleted) {
+                    if (!entry.deleted) {
                         continue;
                     }
                     if (await this.filterOutUserResult(setFilter, entry, false)) {
