@@ -12,7 +12,7 @@ on:
 jobs:
   cloc:
     name: CLOC
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
@@ -27,7 +27,7 @@ jobs:
 
   setup:
     name: Setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       package_version: ${{ steps.get_version.outputs.package_version }}
     steps:
@@ -44,7 +44,7 @@ jobs:
 
   cli:
     name: CLI
-    runs-on: windows-latest
+    runs-on: windows-2019
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -191,7 +191,7 @@ jobs:
 
   windows_gui:
     name: Windows GUI
-    runs-on: windows-latest
+    runs-on: windows-2019
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -257,7 +257,7 @@ jobs:
 
   linux:
     name: Linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -303,7 +303,7 @@ jobs:
 
   macos:
     name: MacOS
-    runs-on: macos-latest
+    runs-on: macos-11
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
