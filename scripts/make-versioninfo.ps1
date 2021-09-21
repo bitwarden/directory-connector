@@ -1,4 +1,4 @@
-$major,$minor,$patch = $env:PACKAGE_VERSION.split('.')
+$major,$minor,$patch = $env:_PACKAGE_VERSION.split('.')
 
 $versionInfo = @"
 

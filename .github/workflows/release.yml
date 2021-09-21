@@ -1,3 +1,4 @@
+---
 name: Release
 
 on:
@@ -37,7 +38,8 @@ jobs:
           prerelease: false
 
   setup:
-    runs-on: ubuntu-latest
+    name: Setup
+    runs-on: ubuntu-20.04
     outputs:
       package_version: ${{ steps.create_tags.outputs.package_version }}
       tag_version: ${{ steps.create_tags.outputs.tag_version }}
@@ -89,12 +91,14 @@ jobs:
           draft: true
           prerelease: false
 
-
   cli:
-    runs-on: windows-latest
+    name: CLI
+    runs-on: windows-2019
     needs: setup
     env:
-      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _WIN_PKG_FETCH_VERSION: 14.17.0
+      _WIN_PKG_VERSION: 3.1
     steps:
       - name: Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
@@ -115,23 +119,15 @@ jobs:
           npm install -g node-gyp
           node-gyp install $(node -v)
 
-      - name: Set VER_INFO
-        run: |
-          echo "WIN_PKG=$env:WIN_PKG" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        env:
-          WIN_PKG: C:\Users\runneradmin\.pkg-cache\v3.0\fetched-v14.16.1-win-x64
-
-      - name: get pkg-fetch
+      - name: Get pkg-fetch
         shell: pwsh
         run: |
           cd $HOME
-          $fetchedUrl = "https://github.com/vercel/pkg-fetch/releases/download/v3.0/node-v14.16.1-win-x64"
+          $fetchedUrl = "https://github.com/vercel/pkg-fetch/releases/download/v$env:_WIN_PKG_VERSION/node-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
 
           New-Item -ItemType directory -Path ./.pkg-cache
-          New-Item -ItemType directory -Path ./.pkg-cache/v3.0
-          Invoke-RestMethod -Uri $fetchedUrl -OutFile "./.pkg-cache/v3.0/fetched-v14.16.1-win-x64"
-        env:
-          WIN_PKG: C:\Users\runneradmin\.pkg-cache\v3.0\fetched-v14.16.1-win-x64
+          New-Item -ItemType directory -Path ./.pkg-cache/v$env:_WIN_PKG_VERSION
+          Invoke-RestMethod -Uri $fetchedUrl -OutFile "./.pkg-cache/v$env:_WIN_PKG_VERSION/fetched-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
 
       - name: Keytar
         shell: pwsh
@@ -166,6 +162,9 @@ jobs:
         shell: cmd
         run: |
           set PATH=%PATH%;C:\Program Files (x86)\Resource Hacker
+          set WIN_PKG=C:\Users\runneradmin\.pkg-cache\v%_WIN_PKG_VERSION%\fetched-v%_WIN_PKG_FETCH_VERSION%-win-x64
+          set WIN_PKG_BUILT=C:\Users\runneradmin\.pkg-cache\v%_WIN_PKG_VERSION%\built-v%_WIN_PKG_FETCH_VERSION%-win-x64
+
           ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
           ResourceHacker -open version-info.rc -save version-info.res -action compile
           ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
@@ -179,101 +178,97 @@ jobs:
       - name: Zip
         shell: cmd
         run: |
-          7z a ./dist-cli/bwdc-windows-%PACKAGE_VERSION%.zip ./dist-cli/windows/bwdc.exe ./keytar/windows/keytar.node
-          7z a ./dist-cli/bwdc-macos-%PACKAGE_VERSION%.zip ./dist-cli/macos/bwdc ./keytar/macos/keytar.node
-          7z a ./dist-cli/bwdc-linux-%PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc ./keytar/linux/keytar.node
+          7z a ./dist-cli/bwdc-windows-%_PACKAGE_VERSION%.zip ./dist-cli/windows/bwdc.exe ./keytar/windows/keytar.node
+          7z a ./dist-cli/bwdc-macos-%_PACKAGE_VERSION%.zip ./dist-cli/macos/bwdc ./keytar/macos/keytar.node
+          7z a ./dist-cli/bwdc-linux-%_PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc ./keytar/linux/keytar.node
 
       - name: Version Test
         run: |
-          Expand-Archive -Path "./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
+          Expand-Archive -Path "./dist-cli/bwdc-windows-${env:_PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
           $testVersion = Invoke-Expression '& ./test/windows/bwdc.exe -v'
-          echo "version: $env:PACKAGE_VERSION"
+          echo "version: $env:_PACKAGE_VERSION"
           echo "testVersion: $testVersion"
-          if($testVersion -ne $env:PACKAGE_VERSION) {
+          if($testVersion -ne $env:_PACKAGE_VERSION) {
             Throw "Version test failed."
           }
 
       - name: Create checksums
         run: |
-          checksum -f="./dist-cli/bwdc-windows-${env:PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File ./dist-cli/bwdc-windows-sha256-${env:PACKAGE_VERSION}.txt
-          checksum -f="./dist-cli/bwdc-macos-${env:PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File ./dist-cli/bwdc-macos-sha256-${env:PACKAGE_VERSION}.txt
-          checksum -f="./dist-cli/bwdc-linux-${env:PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:PACKAGE_VERSION}.txt
+          checksum -f="./dist-cli/bwdc-windows-${env:_PACKAGE_VERSION}.zip" `
+            -t sha256 | Out-File ./dist-cli/bwdc-windows-sha256-${env:_PACKAGE_VERSION}.txt
+          checksum -f="./dist-cli/bwdc-macos-${env:_PACKAGE_VERSION}.zip" `
+            -t sha256 | Out-File ./dist-cli/bwdc-macos-sha256-${env:_PACKAGE_VERSION}.txt
+          checksum -f="./dist-cli/bwdc-linux-${env:_PACKAGE_VERSION}.zip" `
+            -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:_PACKAGE_VERSION}.txt
 
-      - name: upload windows zip release asset
+      - name: Upload Windows zip release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.setup.outputs.release_upload_url }}
-          asset_path: ./dist-cli/bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
-          asset_name: bwdc-windows-${{ env.PACKAGE_VERSION }}.zip
+          asset_path: ./dist-cli/bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
+          asset_name: bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
           asset_content_type: application/zip
 
-      - name: upload macos zip release asset
+      - name: Upload MacOS zip release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.setup.outputs.release_upload_url }}
-          asset_path: ./dist-cli/bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
-          asset_name: bwdc-macos-${{ env.PACKAGE_VERSION }}.zip
+          asset_path: ./dist-cli/bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
+          asset_name: bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
           asset_content_type: application/zip
 
-      - name: upload linux zip release asset
+      - name: Upload Linux zip release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.setup.outputs.release_upload_url }}
-          asset_path: ./dist-cli/bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
-          asset_name: bwdc-linux-${{ env.PACKAGE_VERSION }}.zip
+          asset_path: ./dist-cli/bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
+          asset_name: bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
           asset_content_type: application/zip
 
-      - name: upload windows checksum release asset
+      - name: Upload Windows checksum release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.setup.outputs.release_upload_url }}
-          asset_path: ./dist-cli/bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
-          asset_name: bwdc-windows-sha256-${{ env.PACKAGE_VERSION }}.txt
+          asset_path: ./dist-cli/bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
+          asset_name: bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
           asset_content_type: text/plain
 
-      - name: upload macos checksum release asset
+      - name: Upload MacOS checksum release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.setup.outputs.release_upload_url }}
-          asset_path: ./dist-cli/bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
-          asset_name: bwdc-macos-sha256-${{ env.PACKAGE_VERSION }}.txt
+          asset_path: ./dist-cli/bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
+          asset_name: bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
           asset_content_type: text/plain
 
-      - name: upload linux checksum release asset
+      - name: Upload Linux checksum release asset
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.setup.outputs.release_upload_url }}
-          asset_path: ./dist-cli/bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
-          asset_name: bwdc-linux-sha256-${{ env.PACKAGE_VERSION }}.txt
+          asset_path: ./dist-cli/bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
+          asset_name: bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
           asset_content_type: text/plain
 
 
   windows-gui:
-    runs-on: windows-latest
+    name: Windows GUI
+    runs-on: windows-2019
     needs: setup
     env:
-      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
-      - name: Set up dotnet
-        uses: actions/setup-dotnet@a71d1eb2c86af85faa8c772c03fb365e377e45ea
-        with:
-          dotnet-version: "3.1.x"
-
       - name: Set up Node
         uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
         with:
@@ -296,22 +291,7 @@ jobs:
           dotnet --version
 
       - name: Install AST
-        shell: pwsh
-        run: |
-          cd $HOME
-          git clone https://github.com/vcsjones/AzureSignTool.git
-          cd AzureSignTool
-          $latest_head = $(git rev-parse HEAD)[0..9] -join ""
-          $latest_version = "0.0.0-g$latest_head"
-          Write-Host "--------"
-          Write-Host "git commit - $(git rev-parse HEAD)"
-          Write-Host "latest_head - $latest_head"
-          Write-Host "PACKAGE VERSION TO BUILD - $latest_version"
-          Write-Host "--------"
-          dotnet restore
-          dotnet pack --output ./nupkg
-          dotnet tool install --global --ignore-failed-sources --add-source ./nupkg --version $latest_version azuresigntool
-          cd $HOME
+        uses: bitwarden/gh-actions/install-ast@f135c42c8596cb535c5bcb7523c0b2eef89709ac
 
       - name: Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
@@ -322,7 +302,7 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-      - name: npm rebuild
+      - name: NPM rebuild
         run: npm run rebuild
 
       - name: Build & Sign
@@ -339,10 +319,11 @@ jobs:
 
 
   linux:
-    runs-on: ubuntu-latest
+    name: Linux
+    runs-on: ubuntu-20.04
     needs: setup
     env:
-      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Set up Node
         uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
@@ -361,36 +342,37 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev 
+          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev
           sudo apt-get -y install rpm
 
       - name: Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
 
-      - name: Set PACKAGE_VERSION
+      - name: Set Package version
         shell: pwsh
         run: |
           $env:pkgVersion = (Get-Content -Raw -Path ./src/package.json | ConvertFrom-Json).version
-          echo "PACKAGE_VERSION=$env:pkgVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "_PACKAGE_VERSION=$env:pkgVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "version: $env:pkgVersion"
 
-      - name: npm install
+      - name: NPM install
         run: npm install
 
-      - name: npm rebuild
+      - name: NPM rebuild
         run: npm run rebuild
 
-      - name: npm package
+      - name: NPM package
         run: npm run publish:lin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
   macos:
-    runs-on: macos-latest
+    name: MacOS
+    runs-on: macos-11
     needs: setup
     env:
-      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Set up Node
         uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
