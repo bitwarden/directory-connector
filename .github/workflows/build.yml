@@ -36,7 +36,7 @@ jobs:
       - name: Get Package Version
         id: get_version
         run: |
-          PKG_VERSION=$(jq .version src/package.json)
+          PKG_VERSION=$(jq -r .version src/package.json)
           echo "::set-output name=PACKAGE_VERSION::$PKG_VERSION"
 
       - name: TEST output
