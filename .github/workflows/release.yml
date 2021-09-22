@@ -80,52 +80,6 @@ jobs:
           workflow: build.yml
           workflow_conclusion: success
           branch: rc
-          name: bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
-          path: ./dist-cli
-
-      - name: Download latest Mac zip artifact
-        uses: dawidd6/action-download-artifact@b9571484721e8187f1fd08147b497129f8972c74  # v2.14.0
-        with:
-          workflow: build.yml
-          workflow_conclusion: success
-          branch: rc
-          name: bwdc-mac-${{ env._PACKAGE_VERSION }}.zip
-          path: ./dist-cli
-
-      - name: Download latest Linux zip artifact
-        uses: dawidd6/action-download-artifact@b9571484721e8187f1fd08147b497129f8972c74  # v2.14.0
-        with:
-          workflow: build.yml
-          workflow_conclusion: success
-          branch: rc
-          name: bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
-          path: ./dist-cli
-
-      - name: Download latest Windows checksum
-        uses: dawidd6/action-download-artifact@b9571484721e8187f1fd08147b497129f8972c74  # v2.14.0
-        with:
-          workflow: build.yml
-          workflow_conclusion: success
-          branch: rc
-          name: bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: ./dist-cli
-
-      - name: Download latest Mac checksum
-        uses: dawidd6/action-download-artifact@b9571484721e8187f1fd08147b497129f8972c74  # v2.14.0
-        with:
-          workflow: build.yml
-          workflow_conclusion: success
-          branch: rc
-          name: bwdc-mac-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: ./dist-cli
-
-      - name: Download latest Linux checksum
-        uses: dawidd6/action-download-artifact@b9571484721e8187f1fd08147b497129f8972c74  # v2.14.0
-        with:
-          workflow: build.yml
-          workflow_conclusion: success
-          branch: rc
-          name: bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
           path: ./dist-cli
 
       - name: Upload Windows zip release asset
