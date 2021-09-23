@@ -1,4 +1,4 @@
-$major,$minor,$patch = $env:_PACKAGE_VERSION.split('.')
+$major, $minor, $patch = $env:_PACKAGE_VERSION.split('.')
 
 $versionInfo = @"
 
@@ -15,8 +15,8 @@ BLOCK "StringFileInfo"
 		VALUE "CompanyName", "Bitwarden Inc."
 		VALUE "ProductName", "Bitwarden"
 		VALUE "FileDescription", "Bitwarden Directory Connector CLI"
-		VALUE "FileVersion", "$env:PACKAGE_VERSION"
-		VALUE "ProductVersion", "$env:PACKAGE_VERSION"
+		VALUE "FileVersion", "$env:_PACKAGE_VERSION"
+		VALUE "ProductVersion", "$env:_PACKAGE_VERSION"
 		VALUE "OriginalFilename", "bwdc.exe"
 		VALUE "InternalName", "bwdc"
 		VALUE "LegalCopyright", "Copyright Bitwarden Inc."
