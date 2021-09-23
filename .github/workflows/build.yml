@@ -391,6 +391,12 @@ jobs:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
+      - name: Test step
+        run: |
+          ls -alh
+          ls -alh dist/
+        shell: bash
+
       - name: Upload .zip artifact
         # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.4
