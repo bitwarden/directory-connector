@@ -401,7 +401,7 @@ jobs:
         # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.4
         with:
-          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip
+          name: Bitwarden Directory Connector-${{ env._PACKAGE_VERSION }}-mac.zip
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip
 
       - name: Upload .dmg artifact
