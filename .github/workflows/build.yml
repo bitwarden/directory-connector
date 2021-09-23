@@ -349,9 +349,9 @@ jobs:
         run: |
           node --version
           npm --version
-          Write-Output "GitHub ref: $env:GITHUB_REF"
-          Write-Output "GitHub event: $env:GITHUB_EVENT"
-        shell: pwsh
+          echo "GitHub ref: $GITHUB_REF"
+          echo "GitHub event: $GITHUB_EVENT"
+        shell: bash
 
       - name: Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f  # v2.3.4
@@ -380,12 +380,12 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-      - name: Build application (dev)
-        if: github.ref != 'refs/heads/master'
-        run: npm run build
+      # - name: Build application (dev)
+      #   if: github.ref != 'refs/heads/master'
+      #   run: npm run build
 
       - name: Build application (dist)
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc'
         run: npm run dist:mac
         env:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
