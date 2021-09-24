@@ -200,7 +200,7 @@ jobs:
           if-no-files-found: error
 
 
-  windows_gui:
+  windows-gui:
     name: Windows GUI
     runs-on: windows-2019
     needs: setup
