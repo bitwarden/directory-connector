@@ -427,7 +427,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                             console.error(d.error_description);
                             done(err, null);
                         } else {
-                            const err = new Error('Unknown error (' + res.statusCode + ').')
+                            const err = new Error('Unknown error (' + res.statusCode + ').');
                             done(err, null);
                         }
                     });
