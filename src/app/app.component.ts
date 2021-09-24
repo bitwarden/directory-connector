@@ -19,8 +19,6 @@ import {
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
-import { ModalComponent } from 'jslib-angular/components/modal.component';
-
 import { BroadcasterService } from 'jslib-angular/services/broadcaster.service';
 
 import { ApiService } from 'jslib-common/abstractions/api.service';
@@ -56,7 +54,6 @@ export class AppComponent implements OnInit {
     });
 
     private lastActivity: number = null;
-    private modal: ModalComponent = null;
 
     constructor(private broadcasterService: BroadcasterService, private userService: UserService,
         private tokenService: TokenService, private storageService: StorageService,
@@ -143,20 +140,6 @@ export class AppComponent implements OnInit {
                     this.i18nService.t('loginExpired'));
             }
             this.router.navigate(['login']);
-        });
-    }
-
-    private openModal<T>(type: Type<T>, ref: ViewContainerRef) {
-        if (this.modal != null) {
-            this.modal.close();
-        }
-
-        const factory = this.componentFactoryResolver.resolveComponentFactory(ModalComponent);
-        this.modal = ref.createComponent(factory).instance;
-        const childComponent = this.modal.show<T>(type, ref);
-
-        this.modal.onClosed.subscribe(() => {
-            this.modal = null;
         });
     }
 
