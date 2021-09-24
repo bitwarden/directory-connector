@@ -7,8 +7,8 @@ import { NodeApiService as NodeApiServiceBase } from 'jslib-node/services/nodeAp
 export class NodeApiService extends NodeApiServiceBase {
     constructor(tokenService: TokenService, platformUtilsService: PlatformUtilsService, environmentService: EnvironmentService,
         private refreshTokenCallback: () => Promise<void>, logoutCallback: (expired: boolean) => Promise<void>,
-        customUserAgent: string = null) {
-        super(tokenService, platformUtilsService, environmentService, logoutCallback, customUserAgent);
+        customUserAgent: string = null, apiKeyRefresh: (clientId: string, clientSecret: string) => Promise<any>) {
+        super(tokenService, platformUtilsService, environmentService, logoutCallback, customUserAgent, apiKeyRefresh);
     }
 
     doRefreshToken(): Promise<void> {
