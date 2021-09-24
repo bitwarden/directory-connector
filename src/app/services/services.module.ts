@@ -19,6 +19,7 @@ import { I18nService } from '../../services/i18n.service';
 import { SyncService } from '../../services/sync.service';
 
 import { BroadcasterService } from 'jslib-angular/services/broadcaster.service';
+import { ModalService } from 'jslib-angular/services/modal.service';
 import { ValidationService } from 'jslib-angular/services/validation.service';
 
 import { ApiKeyService } from 'jslib-common/services/apiKey.service';
@@ -131,6 +132,7 @@ export function initFactory(): Function {
         ValidationService,
         AuthGuardService,
         LaunchGuardService,
+        ModalService,
         { provide: AuthServiceAbstraction, useValue: authService },
         { provide: EnvironmentServiceAbstraction, useValue: environmentService },
         { provide: TokenServiceAbstraction, useValue: tokenService },

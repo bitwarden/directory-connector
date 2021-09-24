@@ -14,7 +14,8 @@ import { AuthService } from 'jslib-common/abstractions/auth.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
 
-import { ModalComponent } from 'jslib-angular/components/modal.component';
+import { ModalService } from 'jslib-angular/services/modal.service';
+
 import { Utils } from 'jslib-common/misc/utils';
 import { ConfigurationService } from '../../services/configuration.service';
 
@@ -33,7 +34,8 @@ export class ApiKeyComponent {
 
     constructor(private authService: AuthService, private apiKeyService: ApiKeyService, private router: Router,
         private i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver,
-        private configurationService: ConfigurationService, private platformUtilsService: PlatformUtilsService) { }
+        private configurationService: ConfigurationService, private platformUtilsService: PlatformUtilsService,
+        private modalService: ModalService) { }
 
     async submit() {
         if (this.clientId == null || this.clientId === '') {
@@ -68,14 +70,11 @@ export class ApiKeyComponent {
         } catch { }
     }
 
-    settings() {
-        const factory = this.componentFactoryResolver.resolveComponentFactory(ModalComponent);
-        const modal = this.environmentModal.createComponent(factory).instance;
-        const childComponent = modal.show<EnvironmentComponent>(EnvironmentComponent,
-            this.environmentModal);
+    async settings() {
+        const [modalRef, childComponent] = await this.modalService.openViewRef(EnvironmentComponent, this.environmentModal);
 
         childComponent.onSaved.subscribe(() => {
-            modal.close();
+            modalRef.close();
         });
     }
     toggleSecret() {

@@ -12,7 +12,7 @@ import { VaultTimeoutService } from 'jslib-common/abstractions/vaultTimeout.serv
 
 import { AuthService as AuthServiceBase } from 'jslib-common/services/auth.service';
 
-import { AuthResult } from 'jslib-common/models/domain';
+import { AuthResult } from 'jslib-common/models/domain/authResult';
 import { DeviceRequest } from 'jslib-common/models/request/deviceRequest';
 import { TokenRequest } from 'jslib-common/models/request/tokenRequest';
 import { IdentityTokenResponse } from 'jslib-common/models/response/identityTokenResponse';

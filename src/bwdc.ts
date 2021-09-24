@@ -93,7 +93,10 @@ export class Main {
         this.messagingService = new NoopMessagingService();
         this.environmentService = new EnvironmentService(this.storageService);
         this.apiService = new NodeApiService(this.tokenService, this.platformUtilsService, this.environmentService,
-            () => refreshToken(this.apiKeyService, this.authService), async (expired: boolean) => await this.logout());
+            () => refreshToken(this.apiKeyService, this.authService), async (expired: boolean) => await this.logout(),
+            'Bitwarden_DC/' + this.platformUtilsService.getApplicationVersion() +
+            ' (' + this.platformUtilsService.getDeviceString().toUpperCase() + ')', (clientId, clientSecret) =>
+            this.authService.logInApiKey(clientId, clientSecret));
         this.apiKeyService = new ApiKeyService(this.tokenService, this.storageService);
         this.userService = new UserService(this.tokenService, this.storageService);
         this.containerService = new ContainerService(this.cryptoService);
