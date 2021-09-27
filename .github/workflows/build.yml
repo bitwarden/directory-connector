@@ -83,7 +83,8 @@ jobs:
 
           New-Item -ItemType directory -Path ./.pkg-cache
           New-Item -ItemType directory -Path ./.pkg-cache/v$env:_WIN_PKG_VERSION
-          Invoke-RestMethod -Uri $fetchedUrl -OutFile "./.pkg-cache/v$env:_WIN_PKG_VERSION/fetched-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
+          Invoke-RestMethod -Uri $fetchedUrl `
+            -OutFile "./.pkg-cache/v$env:_WIN_PKG_VERSION/fetched-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
 
       - name: Keytar
         shell: pwsh
@@ -140,7 +141,7 @@ jobs:
 
           BLOCK "VarFileInfo"
           {
-            VALUE "Translation", 0x0409 0x04B0  
+            VALUE "Translation", 0x0409 0x04B0
           }
           }
           "@
@@ -415,9 +416,12 @@ jobs:
           security default-keychain -s build.keychain
           security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security set-keychain-settings -lut 1200 build.keychain
-          security import "$HOME/secrets/devid-app-cert.p12" -k build.keychain -P $DEVID_CERT_PASSWORD -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-          security import "$HOME/secrets/devid-installer-cert.p12" -k build.keychain -P $DEVID_CERT_PASSWORD -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-          security import "$HOME/secrets/macdev-cert.p12" -k build.keychain -P $MACDEV_CERT_PASSWORD -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+          security import "$HOME/secrets/devid-app-cert.p12" -k build.keychain -P $DEVID_CERT_PASSWORD \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+          security import "$HOME/secrets/devid-installer-cert.p12" -k build.keychain -P $DEVID_CERT_PASSWORD \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+          security import "$HOME/secrets/macdev-cert.p12" -k build.keychain -P $MACDEV_CERT_PASSWORD \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
       - name: Load package version
