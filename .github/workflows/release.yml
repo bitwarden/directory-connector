@@ -8,8 +8,6 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-20.04
-    outputs:
-      package_version: ${{ steps.retrieve-connector-version.outputs.connector_version }}
     steps:
       - name: Branch check
         run: |
@@ -26,10 +24,10 @@ jobs:
           ref: rc
 
       - name: Retrieve Directory Connector release version
-        id: retrieve-connector-version
+        id: retrieve-version
         run: |
           PKG_VERSION=$(jq -r .version src/package.json)
-          echo "::set-output name=connector_version::$PKG_VERSION"
+          echo "::set-output name=package_version::$PKG_VERSION"
 
       - name: Check to make sure Mobile release version has been bumped
         env:
@@ -38,7 +36,7 @@ jobs:
           latest_ver=$(hub release -L 1 -f '%T')
           latest_ver=${latest_ver:1}
           echo "Latest version: $latest_ver"
-          ver=${{ steps.retrieve-connector-version.outputs.connector_version }}
+          ver=${{ steps.retrieve-version.outputs.package_version }}
           echo "Version: $ver"
           if [ "$latest_ver" = "$ver" ]; then
             echo "Version has not been bumped!"
@@ -47,7 +45,7 @@ jobs:
         shell: bash
 
       - name: Download all artifacts
-        uses: dawidd6/action-download-artifact@b9571484721e8187f1fd08147b497129f8972c74  # v2.14.0
+        uses: bitwarden/gh-actions/download-artifacts@23433be15ed6fd046ce12b6889c5184a8d9c8783
         with:
           workflow: build.yml
           workflow_conclusion: success
@@ -56,22 +54,22 @@ jobs:
       - name: Create release
         uses: ncipollo/release-action@95215a3cb6e6a1908b3c44e00b4fdb15548b1e09  # v2.8.5
         env:
-          PKG_VERSION: ${{ steps.retrieve-connector-version.outputs.connector_version }}
+          PKG_VERSION: ${{ steps.retrieve-version.outputs.package_version }}
         with:
-          artifacts: "./bwdc-windows-${{ env.PKG_VERSION }}.zip/bwdc-windows-${{ env.PKG_VERSION }}.zip,
-                      ./bwdc-macos-${{ env.PKG_VERSION }}.zip/bwdc-macos-${{ env.PKG_VERSION }}.zip,
-                      ./bwdc-linux-${{ env.PKG_VERSION }}.zip/bwdc-linux-${{ env.PKG_VERSION }}.zip,
-                      ./bwdc-windows-sha256-${{ env.PKG_VERSION }}.txt/bwdc-windows-sha256-${{ env.PKG_VERSION }}.txt,
-                      ./bwdc-macos-sha256-${{ env.PKG_VERSION }}.txt/bwdc-macos-sha256-${{ env.PKG_VERSION }}.txt,
-                      ./bwdc-linux-sha256-${{ env.PKG_VERSION }}.txt/bwdc-linux-sha256-${{ env.PKG_VERSION }}.txt,
-                      ./Bitwarden-Connector-Portable-${{ env.PKG_VERSION }}.exe/Bitwarden-Connector-Portable-${{ env.PKG_VERSION }}.exe,
-                      ./Bitwarden-Connector-Installer-${{ env.PKG_VERSION }}.exe/Bitwarden-Connector-Installer-${{ env.PKG_VERSION }}.exe,
-                      ./Bitwarden-Connector-${{ env.PKG_VERSION }}-x86_64.AppImage/Bitwarden-Connector-${{ env.PKG_VERSION }}-x86_64.AppImage,
-                      ./Bitwarden-Connector-${{ env.PKG_VERSION }}-mac.zip/Bitwarden-Connector-${{ env.PKG_VERSION }}-mac.zip,
-                      ./Bitwarden-Connector-${{ env.PKG_VERSION }}.dmg/Bitwarden-Connector-${{ env.PKG_VERSION }}.dmg"
+          artifacts: "./bwdc-windows-${{ env.PKG_VERSION }}.zip,
+                      ./bwdc-macos-${{ env.PKG_VERSION }}.zip,
+                      ./bwdc-linux-${{ env.PKG_VERSION }}.zip,
+                      ./bwdc-windows-sha256-${{ env.PKG_VERSION }}.txt,
+                      ./bwdc-macos-sha256-${{ env.PKG_VERSION }}.txt,
+                      ./bwdc-linux-sha256-${{ env.PKG_VERSION }}.txt,
+                      ./Bitwarden-Connector-Portable-${{ env.PKG_VERSION }}.exe,
+                      ./Bitwarden-Connector-Installer-${{ env.PKG_VERSION }}.exe,
+                      ./Bitwarden-Connector-${{ env.PKG_VERSION }}-x86_64.AppImage,
+                      ./Bitwarden-Connector-${{ env.PKG_VERSION }}-mac.zip,
+                      ./Bitwarden-Connector-${{ env.PKG_VERSION }}.dmg"
           commit: ${{ github.sha }}
           tag: v${{ env.PKG_VERSION }}
-          name: Test Version ${{ env.PKG_VERSION }}
+          name: Version ${{ env.PKG_VERSION }}
           body: "<insert release notes here>"
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
