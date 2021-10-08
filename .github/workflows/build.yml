@@ -28,16 +28,16 @@ jobs:
     name: Setup
     runs-on: ubuntu-20.04
     outputs:
-      package_version: ${{ steps.get_version.outputs.package_version }}
+      package_version: ${{ steps.retrieve-version.outputs.package_version }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f  # v2.3.4
 
       - name: Get Package Version
-        id: get_version
+        id: retrieve-version
         run: |
           PKG_VERSION=$(jq -r .version src/package.json)
-          echo "::set-output name=PACKAGE_VERSION::$PKG_VERSION"
+          echo "::set-output name=package_version::$PKG_VERSION"
 
 
   cli:
