@@ -23,9 +23,6 @@ jobs:
       - name: Print lines of code
         run: cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
 
-      - name: TEST FAILURE
-        run: exit 1
-
 
   setup:
     name: Setup
@@ -495,9 +492,9 @@ jobs:
           elif [ "$LINUX_STATUS" = "failure" ]; then
               exit 1
           elif [ "$MACOS_STATUS" = "failure" ]; then
-              exit 1    
+              exit 1
           fi
-          
+
       - name: Login to Azure - Prod Subscription
         uses: Azure/login@77f1b2e3fb80c0e8645114159d17008b8a2e475a
         if: failure()
