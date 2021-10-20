@@ -1,5 +1,5 @@
 import { ApiService } from 'jslib-common/abstractions/api.service';
-import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
+import { AccountsManagementService } from 'jslib-common/abstractions/accountsManagement.service';
 import { AppIdService } from 'jslib-common/abstractions/appId.service';
 import { CryptoService } from 'jslib-common/abstractions/crypto.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
@@ -7,7 +7,6 @@ import { LogService } from 'jslib-common/abstractions/log.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
 import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
 import { TokenService } from 'jslib-common/abstractions/token.service';
-import { UserService } from 'jslib-common/abstractions/user.service';
 import { VaultTimeoutService } from 'jslib-common/abstractions/vaultTimeout.service';
 
 import { AuthService as AuthServiceBase } from 'jslib-common/services/auth.service';
@@ -16,16 +15,20 @@ import { AuthResult } from 'jslib-common/models/domain/authResult';
 import { DeviceRequest } from 'jslib-common/models/request/deviceRequest';
 import { TokenRequest } from 'jslib-common/models/request/tokenRequest';
 import { IdentityTokenResponse } from 'jslib-common/models/response/identityTokenResponse';
+import { ActiveAccountService } from 'jslib-common/abstractions/activeAccount.service';
+import { Account } from 'jslib-common/models/domain/account';
 
 export class AuthService extends AuthServiceBase {
 
-    constructor(cryptoService: CryptoService, apiService: ApiService, userService: UserService,
-        tokenService: TokenService, appIdService: AppIdService, i18nService: I18nService,
-        platformUtilsService: PlatformUtilsService, messagingService: MessagingService,
-        vaultTimeoutService: VaultTimeoutService, logService: LogService, private apiKeyService: ApiKeyService,
-        setCryptoKeys = true) {
-        super(cryptoService, apiService, userService, tokenService, appIdService, i18nService, platformUtilsService,
-            messagingService, vaultTimeoutService, logService, setCryptoKeys);
+    constructor(cryptoService: CryptoService, apiService: ApiService, 
+        tokenService: TokenService, appIdService: AppIdService,
+        i18nService: I18nService, platformUtilsService: PlatformUtilsService,
+        messagingService: MessagingService, vaultTimeoutService: VaultTimeoutService,
+        logService: LogService,  accountsManagementService: AccountsManagementService,
+        activeAccount: ActiveAccountService, setCryptoKeys = true) {
+        super(cryptoService, apiService, tokenService, appIdService,
+            i18nService, platformUtilsService, messagingService, vaultTimeoutService,
+            logService, activeAccount, accountsManagementService, setCryptoKeys);
     }
 
     async logInApiKey(clientId: string, clientSecret: string): Promise<AuthResult> {
@@ -37,7 +40,7 @@ export class AuthService extends AuthServiceBase {
     }
 
     async logOut(callback: Function) {
-        this.apiKeyService.clear();
+        this.accountsManagementService.remove(this.activeAccount.userId);
         super.logOut(callback);
     }
 
@@ -54,7 +57,11 @@ export class AuthService extends AuthServiceBase {
         const tokenResponse = response as IdentityTokenResponse;
         result.resetMasterPassword = tokenResponse.resetMasterPassword;
         await this.tokenService.setToken(tokenResponse.accessToken);
-        await this.apiKeyService.setInformation(clientId, clientSecret);
+        const accountInformation = await this.tokenService.decodeToken(tokenResponse.accessToken);
+        await this.accountsManagementService.add(new Account(
+            accountInformation.client_id, accountInformation.email,
+            tokenResponse.kdf, tokenResponse.kdfIterations,
+            clientId, clientSecret, tokenResponse.accessToken, tokenResponse.refreshToken));
 
         return result;
     }

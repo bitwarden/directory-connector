@@ -1,20 +1,16 @@
 import { Injectable } from '@angular/core';
-import {
-    CanActivate,
-    Router,
-} from '@angular/router';
-import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
+import { CanActivate } from '@angular/router';
 
+import { ActiveAccountService } from 'jslib-common/abstractions/activeAccount.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
 
 @Injectable()
 export class AuthGuardService implements CanActivate {
-    constructor(private apiKeyService: ApiKeyService, private router: Router,
-        private messagingService: MessagingService) { }
+    constructor(private activeAccount: ActiveAccountService, private messagingService: MessagingService) { }
 
     async canActivate() {
-        const isAuthed = await this.apiKeyService.isAuthenticated();
-        if (!isAuthed) {
+        if (!this.activeAccount.isAuthenticated) {
+            console.log('logging out');
             this.messagingService.send('logout');
             return false;
         }

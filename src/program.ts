@@ -16,11 +16,11 @@ import { UpdateCommand } from 'jslib-node/cli/commands/update.command';
 
 import { BaseProgram } from 'jslib-node/cli/baseProgram';
 
-import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
 import { Response } from 'jslib-node/cli/models/response';
 import { StringResponse } from 'jslib-node/cli/models/response/stringResponse';
 
 import { Utils } from 'jslib-common/misc/utils';
+import { StorageKey } from 'jslib-common/enums/storageKey';
 
 const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) => {
     const stream = error ? process.stderr : process.stdout;
@@ -32,11 +32,8 @@ const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) 
 };
 
 export class Program extends BaseProgram {
-    private apiKeyService: ApiKeyService;
-
     constructor(private main: Main) {
-        super(main.userService, writeLn);
-        this.apiKeyService = main.apiKeyService;
+        super(main.activeAccount, writeLn);
     }
 
     async run() {
@@ -101,7 +98,8 @@ export class Program extends BaseProgram {
                 await this.exitIfAuthed();
                 const command = new LoginCommand(this.main.authService, this.main.apiService, this.main.i18nService,
                     this.main.environmentService, this.main.passwordGenerationService, this.main.cryptoFunctionService,
-                    this.main.platformUtilsService, 'connector');
+                    this.main.platformUtilsService, this.main.activeAccount, this.main.cryptoService, this.main.policyService,
+                    'connector', null);
 
                 if (!Utils.isNullOrWhitespace(clientId)) {
                     process.env.BW_CLIENTID = clientId;
@@ -284,17 +282,15 @@ export class Program extends BaseProgram {
     }
 
     async exitIfAuthed() {
-        const authed = await this.apiKeyService.isAuthenticated();
-        if (authed) {
-            const type = await this.apiKeyService.getEntityType();
-            const id = await this.apiKeyService.getEntityId();
+        if (this.main.activeAccount.isAuthenticated) {
+            const type = await this.main.activeAccount.getInformation<string>(StorageKey.EntityType);
+            const id = await this.main.activeAccount.getInformation<string>(StorageKey.EntityId);
             this.processResponse(Response.error('You are already logged in as ' + type + '.' + id + '.'), true);
         }
     }
 
     async exitIfNotAuthed() {
-        const authed = await this.apiKeyService.isAuthenticated();
-        if (!authed) {
+        if (!this.main.activeAccount.isAuthenticated) {
             this.processResponse(Response.error('You are not logged in.'), true);
         }
     }

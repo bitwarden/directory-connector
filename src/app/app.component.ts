@@ -2,17 +2,14 @@ import {
     BodyOutputType,
     Toast,
     ToasterConfig,
-    ToasterContainerComponent,
     ToasterService,
 } from 'angular2-toaster';
 
 import {
     Component,
-    ComponentFactoryResolver,
     NgZone,
     OnInit,
     SecurityContext,
-    Type,
     ViewChild,
     ViewContainerRef,
 } from '@angular/core';
@@ -21,14 +18,11 @@ import { Router } from '@angular/router';
 
 import { BroadcasterService } from 'jslib-angular/services/broadcaster.service';
 
-import { ApiService } from 'jslib-common/abstractions/api.service';
 import { AuthService } from 'jslib-common/abstractions/auth.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
 import { StateService } from 'jslib-common/abstractions/state.service';
-import { StorageService } from 'jslib-common/abstractions/storage.service';
 import { TokenService } from 'jslib-common/abstractions/token.service';
-import { UserService } from 'jslib-common/abstractions/user.service';
 
 import { ConfigurationService } from '../services/configuration.service';
 import { SyncService } from '../services/sync.service';
@@ -53,16 +47,12 @@ export class AppComponent implements OnInit {
         limit: 5,
     });
 
-    private lastActivity: number = null;
-
-    constructor(private broadcasterService: BroadcasterService, private userService: UserService,
-        private tokenService: TokenService, private storageService: StorageService,
+    constructor(private broadcasterService: BroadcasterService, private tokenService: TokenService,
         private authService: AuthService, private router: Router,
         private toasterService: ToasterService, private i18nService: I18nService,
         private sanitizer: DomSanitizer, private ngZone: NgZone,
-        private componentFactoryResolver: ComponentFactoryResolver, private messagingService: MessagingService,
-        private configurationService: ConfigurationService, private syncService: SyncService,
-        private stateService: StateService, private apiService: ApiService) {
+        private messagingService: MessagingService, private configurationService: ConfigurationService,
+        private syncService: SyncService, private stateService: StateService) {
         (window as any).BitwardenToasterService = toasterService;
     }
 
@@ -129,11 +119,7 @@ export class AppComponent implements OnInit {
     }
 
     private async logOut(expired: boolean) {
-        const userId = await this.userService.getUserId();
-
         await this.tokenService.clearToken();
-        await this.userService.clear();
-
         this.authService.logOut(async () => {
             if (expired) {
                 this.toasterService.popAsync('warning', this.i18nService.t('loggedOut'),
