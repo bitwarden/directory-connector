@@ -11,9 +11,9 @@ jobs:
     steps:
       - name: Branch check
         run: |
-          if [[ "$GITHUB_REF" != "refs/heads/rc" ]]; then
+          if [[ "$GITHUB_REF" != "refs/heads/release" ]] || [[ "$GITHUB_REF" != "refs/heads/master" ]]; then
             echo "==================================="
-            echo "[!] Can only release from rc branch"
+            echo "[!] Can only release from the 'release' or 'master' branches"
             echo "==================================="
             exit 1
           fi
@@ -21,7 +21,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
         with:
-          ref: rc
+          ref: release
 
       - name: Retrieve Directory Connector release version
         id: retrieve-version
@@ -49,7 +49,7 @@ jobs:
         with:
           workflow: build.yml
           workflow_conclusion: success
-          branch: rc
+          branch: release
 
       - name: Create release
         uses: ncipollo/release-action@95215a3cb6e6a1908b3c44e00b4fdb15548b1e09  # v2.8.5
