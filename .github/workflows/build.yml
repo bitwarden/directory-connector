@@ -447,10 +447,7 @@ jobs:
 
       - name: Rename Zip Artifact
         run: |
-          pwd
-          ls -alh
           cd dist
-          ls -alh
           mv "Bitwarden Directory Connector-${{ env._PACKAGE_VERSION }}-mac.zip" \
              "Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip"
 
