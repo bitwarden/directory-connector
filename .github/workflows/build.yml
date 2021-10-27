@@ -446,8 +446,13 @@ jobs:
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
       - name: Rename Zip Artifact
-        run: mv "./dist/Bitwarden Directory Connector-${{ env._PACKAGE_VERSION }}-mac.zip" \
-                "./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip"
+        run: |
+          pwd
+          ls -alh
+          cd dist
+          ls -alh
+          mv "Bitwarden Directory Connector-${{ env._PACKAGE_VERSION }}-mac.zip" \
+             "Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip"
 
       - name: Upload .zip artifact
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.4
