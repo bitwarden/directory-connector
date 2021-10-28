@@ -191,6 +191,14 @@ jobs:
           checksum -f="./dist-cli/bwdc-linux-${env:_PACKAGE_VERSION}.zip" `
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:_PACKAGE_VERSION}.txt
 
+      - name: Test Step
+        shell: bash
+        run: |
+          pwd
+          ls -alh
+          echo "dist-cli"
+          ls -alh dist-cli
+
       - name: Upload Windows Zip to GitHub
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
         with:
