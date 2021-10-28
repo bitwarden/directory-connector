@@ -191,18 +191,6 @@ jobs:
           checksum -f="./dist-cli/bwdc-linux-${env:_PACKAGE_VERSION}.zip" `
             -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:_PACKAGE_VERSION}.txt
 
-      - name: Test Step
-        shell: bash
-        run: |
-          pwd
-          ls -alh
-          echo "dist-cli"
-          ls -alh dist-cli
-          echo "dist-cli/windows"
-          ls -alh dist-cli/windows
-          echo "dist-cli/macos"
-          ls -alh dist-cli/macos
-
       - name: Upload Windows Zip to GitHub
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
         with:
@@ -301,9 +289,6 @@ jobs:
           SIGNING_CLIENT_SECRET: ${{ secrets.SIGNING_CLIENT_SECRET }}
           SIGNING_CERT_NAME: ${{ secrets.SIGNING_CERT_NAME }}
 
-      - name: List Dist
-        run: dir ./dist
-
       - name: Upload Portable Executable to GitHub
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
         with:
@@ -316,6 +301,13 @@ jobs:
         with:
           name: Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe
+          if-no-files-found: error
+
+      - name: Upload Installer Executable Blockmap to GitHub
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
+        with:
+          name: Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe.blockmap
+          path: ./dist/Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe.blockmap
           if-no-files-found: error
 
       - name: Upload latest auto-update artifact
@@ -489,6 +481,13 @@ jobs:
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg
+          if-no-files-found: error
+
+      - name: Upload .dmg Blockmap artifact
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
+        with:
+          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg.blockmap
+          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg.blockmap
           if-no-files-found: error
 
       - name: Upload latest auto-update artifact
