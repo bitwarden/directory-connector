@@ -64,9 +64,11 @@ jobs:
                       ./bwdc-linux-sha256-${{ env.PKG_VERSION }}.txt,
                       ./Bitwarden-Connector-Portable-${{ env.PKG_VERSION }}.exe,
                       ./Bitwarden-Connector-Installer-${{ env.PKG_VERSION }}.exe,
+                      ./Bitwarden-Connector-Installer-${{ env.PKG_VERSION }}.exe.blockmap,
                       ./Bitwarden-Connector-${{ env.PKG_VERSION }}-x86_64.AppImage,
                       ./Bitwarden-Connector-${{ env.PKG_VERSION }}-mac.zip,
                       ./Bitwarden-Connector-${{ env.PKG_VERSION }}.dmg,
+                      ./Bitwarden-Connector-${{ env.PKG_VERSION }}.dmg.blockmap,
                       ./latest-linux.yml,
                       ./latest-mac.yml,
                       ./latest.yml"
