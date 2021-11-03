@@ -94,19 +94,25 @@ jobs:
         run: |
           zip -j ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip ./dist-cli/linux/bwdc ./keytar/linux/build/Release/keytar.node
 
-      #- name: Version Test
-      #  run: |
-      #    Expand-Archive -Path "./dist-cli/bwdc-windows-${env:_PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
-      #    $testVersion = Invoke-Expression '& ./test/windows/bwdc.exe -v'
-      #    echo "version: $env:_PACKAGE_VERSION"
-      #    echo "testVersion: $testVersion"
-      #    if($testVersion -ne $env:_PACKAGE_VERSION) {
-      #      Throw "Version test failed."
-      #    }
-
       - name: Create checksums
         run: |
           sha256sum ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip | cut -d " " -f 1 > ./dist-cli/bwdc-linux-sha256-$_PACKAGE_VERSION.txt
+
+      - name: Version Test
+        run: |
+          apt install libsecret-1-0
+
+          mkdir -p test/linux
+          unzip ./dist-cli/bwdc-linux-$_PACKAGE_VERSOIN.zip -d ./test/linux
+
+          testVersion=$(./test/linux/bwdc -v)
+
+          echo "version: $_PACKAGE_VERSION"
+          echo "testVersion: $testVersion"
+
+          if ($testVersion -ne $_PACKAGE_VERSION) {
+            Throw "Version test failed."
+          }
 
       - name: Upload Linux Zip to GitHub
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
