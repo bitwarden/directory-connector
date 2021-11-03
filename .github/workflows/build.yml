@@ -219,7 +219,7 @@ jobs:
 
 
   windows-cli:
-    name: Build Windows
+    name: Build Windows CLI
     runs-on: windows-2019
     needs: setup
     env:
