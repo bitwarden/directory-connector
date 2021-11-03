@@ -100,7 +100,7 @@ jobs:
 
       - name: Version Test
         run: |
-          apt install libsecret-1-0
+          sudo apt install libsecret-1-0
 
           mkdir -p test/linux
           unzip ./dist-cli/bwdc-linux-$_PACKAGE_VERSOIN.zip -d ./test/linux
