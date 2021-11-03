@@ -106,8 +106,7 @@ jobs:
 
       - name: Create checksums
         run: |
-          checksum -f="./dist-cli/bwdc-linux-${env:_PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:_PACKAGE_VERSION}.txt
+          sha256sum ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip | cut -d " " -f 1 > ./dist-cli/bwdc-linux-sha256-$_PACKAGE_VERSION.txt
 
       - name: Upload Linux Zip to GitHub
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
