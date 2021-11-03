@@ -132,11 +132,12 @@ jobs:
 
   mac-cli:
     name: Build Mac CLI
-    if: false
     runs-on: macos-11
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PKG_FETCH_NODE_VERSION: 14.17.6
+      _PKG_FETCH_VERSION: 3.2
     steps:
       - name: Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f  # v2.3.4
@@ -153,78 +154,67 @@ jobs:
           node-gyp install $(node -v)
 
       - name: Get pkg-fetch
-        shell: pwsh
         run: |
           cd $HOME
-          $fetchedUrl = "https://github.com/vercel/pkg-fetch/releases/download/v$env:_WIN_PKG_VERSION/node-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
+          fetchedUrl="https://github.com/vercel/pkg-fetch/releases/download/v$_PKG_FETCH_VERSION/node-v$_PKG_FETCH_NODE_VERSION-macos-x64"
 
-          New-Item -ItemType directory -Path ./.pkg-cache
-          New-Item -ItemType directory -Path ./.pkg-cache/v$env:_WIN_PKG_VERSION
-          Invoke-RestMethod -Uri $fetchedUrl `
-            -OutFile "./.pkg-cache/v$env:_WIN_PKG_VERSION/fetched-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
+          mkdir -p .pkg-cache/v$_PKG_FETCH_VERSION
+          wget $fetchedUrl -O "./.pkg-cache/v$_PKG_FETCH_VERSION/fetched-v$_PKG_FETCH_NODE_VERSION-macos-x64"
 
       - name: Keytar
-        shell: pwsh
         run: |
-          $keytarVersion = (Get-Content -Raw -Path ./src/package.json | ConvertFrom-Json).dependencies.keytar
-          $nodeModVersion = node -e "console.log(process.config.variables.node_module_version)"
-          $keytarTar = "keytar-v${keytarVersion}-node-v${nodeModVersion}-{0}-x64.tar"
-          $keytarTarGz = "${keytarTar}.gz"
-          $keytarUrl = "https://github.com/atom/node-keytar/releases/download/v${keytarVersion}/${keytarTarGz}"
+          keytarVersion=$(cat src/package.json | jq -r '.dependencies.keytar')
+          nodeModVersion=$(node -e "console.log(process.config.variables.node_module_version)")
+          keytarTar="keytar-v$keytarVersion-node-v$nodeModVersion-macos-x64.tar"
 
-          New-Item -ItemType directory -Path ./keytar/macos | Out-Null
-          New-Item -ItemType directory -Path ./keytar/linux | Out-Null
-          New-Item -ItemType directory -Path ./keytar/windows | Out-Null
+          keytarTarGz="$keytarTar.gz"
+          keytarUrl="https://github.com/atom/node-keytar/releases/download/v$keytarVersion/$keytarTarGz"
 
-          Invoke-RestMethod -Uri $($keytarUrl -f "darwin") -OutFile "./keytar/macos/$($keytarTarGz -f "darwin")"
-          Invoke-RestMethod -Uri $($keytarUrl -f "linux") -OutFile "./keytar/linux/$($keytarTarGz -f "linux")"
-          Invoke-RestMethod -Uri $($keytarUrl -f "win32") -OutFile "./keytar/windows/$($keytarTarGz -f "win32")"
-
-          7z e "./keytar/macos/$($keytarTarGz -f "darwin")" -o"./keytar/macos"
-          7z e "./keytar/linux/$($keytarTarGz -f "linux")" -o"./keytar/linux"
-          7z e "./keytar/windows/$($keytarTarGz -f "win32")" -o"./keytar/windows"
-
-          7z e "./keytar/macos/$($keytarTar -f "darwin")" -o"./keytar/macos"
-          7z e "./keytar/linux/$($keytarTar -f "linux")" -o"./keytar/linux"
-          7z e "./keytar/windows/$($keytarTar -f "win32")" -o"./keytar/windows"
+          mkdir -p ./keytar/macos
+          wget $keytarUrl -O ./keytar/macos/$keytarTarGz
+          tar -xvf ./keytar/macos/$keytarTarGz -C ./keytar/macos
 
       - name: Install
         run: npm install
 
       - name: Package CLI
-        run: npm run dist:cli:lin
+        run: npm run dist:cli:mac
 
       - name: Zip
         run: |
-          zip -r ./dist-cli/bwdc-linux-%_PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc ./keytar/linux/keytar.node
-
-      - name: Version Test
-        run: |
-          Expand-Archive -Path "./dist-cli/bwdc-windows-${env:_PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
-          $testVersion = Invoke-Expression '& ./test/windows/bwdc.exe -v'
-          echo "version: $env:_PACKAGE_VERSION"
-          echo "testVersion: $testVersion"
-          if($testVersion -ne $env:_PACKAGE_VERSION) {
-            Throw "Version test failed."
-          }
+          zip -j ./dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip ./dist-cli/macos/bwdc ./keytar/macos/build/Release/keytar.node
 
       - name: Create checksums
         run: |
-          checksum -f="./dist-cli/bwdc-linux-${env:_PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:_PACKAGE_VERSION}.txt
+          sha256sum ./dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip | cut -d " " -f 1 > ./dist-cli/bwdc-macos-sha256-$_PACKAGE_VERSION.txt
 
-      - name: Upload Linux Zip to GitHub
+      - name: Version Test
+        run: |
+          mkdir -p test/macos
+          unzip ./dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip -d ./test/macos
+
+          testVersion=$(./test/macos/bwdc -v)
+
+          echo "version: $_PACKAGE_VERSION"
+          echo "testVersion: $testVersion"
+
+          if [ "$testVersion" != "$_PACKAGE_VERSION" ]; then 
+            echo "Version test failed."
+            exit 1
+          fi
+
+      - name: Upload Mac Zip to GitHub
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
         with:
-          name: bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
-          path: ./dist-cli/bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
+          name: bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
+          path: ./dist-cli/bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
-      - name: Upload Linux checksum to GitHub
+      - name: Upload Mac checksum to GitHub
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
         with:
-          name: bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: ./dist-cli/bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
+          name: bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
+          path: ./dist-cli/bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
           if-no-files-found: error
 
 
