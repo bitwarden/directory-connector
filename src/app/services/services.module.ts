@@ -96,6 +96,7 @@ export function initFactory(): Function {
         await environmentService.setUrlsFromStorage();
         await i18nService.init();
         authService.init();
+        apiKeyService.migrateApiKeyStorage();
         const htmlEl = window.document.documentElement;
         htmlEl.classList.add('os_' + platformUtilsService.getDeviceString());
         htmlEl.classList.add('locale_' + i18nService.translationLocale);

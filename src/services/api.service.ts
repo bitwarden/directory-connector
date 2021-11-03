@@ -23,6 +23,7 @@ export class ApiService extends ApiServiceBase {
         private refreshTokenCallback: () => Promise<void>, logoutCallback: (expired: boolean) => Promise<void>,
         customUserAgent: string = null) {
         super(tokenService, platformUtilsService, environmentService, logoutCallback, customUserAgent);
+        this.apiKeyRefresh = (clientId: string, clientSecret: string) => this.doRefreshToken();
     }
 
     doRefreshToken(): Promise<void> {

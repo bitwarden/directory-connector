@@ -123,6 +123,7 @@ export class Main {
 
     private async init() {
         await this.storageService.init();
+        await this.apiKeyService.migrateApiKeyStorage();
         this.containerService.attachToWindow(global);
         await this.environmentService.setUrlsFromStorage();
         // Dev Server URLs. Comment out the line above.
