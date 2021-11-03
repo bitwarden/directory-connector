@@ -46,7 +46,7 @@ jobs:
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _PKG_FETCH_uODE_VERSION: 14.17.6
+      _PKG_FETCH_NODE_VERSION: 14.17.6
       _PKG_FETCH_VERSION: 3.2
     steps:
       - name: Checkout repo
