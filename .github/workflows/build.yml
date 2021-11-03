@@ -326,7 +326,7 @@ jobs:
         run: npm install
 
       - name: Package CLI
-        run: npm run dist:cli
+        run: npm run dist:cli:win
 
       - name: Zip
         shell: cmd
