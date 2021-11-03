@@ -24,6 +24,7 @@ import { CryptoService } from 'jslib-common/services/crypto.service';
 import { EnvironmentService } from 'jslib-common/services/environment.service';
 import { NoopMessagingService } from 'jslib-common/services/noopMessaging.service';
 import { PasswordGenerationService } from 'jslib-common/services/passwordGeneration.service';
+import { PolicyService } from 'jslib-common/services/policy.service';
 import { TokenService } from 'jslib-common/services/token.service';
 import { UserService } from 'jslib-common/services/user.service';
 
@@ -57,6 +58,7 @@ export class Main {
     configurationService: ConfigurationService;
     syncService: SyncService;
     passwordGenerationService: PasswordGenerationService;
+    policyService: PolicyService;
     program: Program;
 
     constructor() {
@@ -108,6 +110,7 @@ export class Main {
         this.syncService = new SyncService(this.configurationService, this.logService, this.cryptoFunctionService,
             this.apiService, this.messagingService, this.i18nService, this.environmentService);
         this.passwordGenerationService = new PasswordGenerationService(this.cryptoService, this.storageService, null);
+        this.policyService = new PolicyService(this.userService, this.storageService, this.apiService);
         this.program = new Program(this);
     }
 

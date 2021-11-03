@@ -83,7 +83,7 @@ const configurationService = new ConfigurationService(storageService, secureStor
 const syncService = new SyncService(configurationService, logService, cryptoFunctionService, apiService,
     messagingService, i18nService, environmentService);
 const passwordGenerationService = new PasswordGenerationService(cryptoService, storageService, null);
-const policyService = new PolicyService(userService, storageService);
+const policyService = new PolicyService(userService, storageService, apiService);
 
 containerService.attachToWindow(window);
 
