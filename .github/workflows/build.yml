@@ -110,7 +110,7 @@ jobs:
           echo "version: $_PACKAGE_VERSION"
           echo "testVersion: $testVersion"
 
-          if ($testVersion -ne $_PACKAGE_VERSION); then 
+          if [ "$testVersion" != "$_PACKAGE_VERSION" ]; then 
             echo "Version test failed."
             exit 1
           fi
@@ -131,9 +131,9 @@ jobs:
 
 
   mac-cli:
-    name: Build Linux CLI
+    name: Build Mac CLI
     if: false
-    runs-on: ubuntu-20.04
+    runs-on: macos-11
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
