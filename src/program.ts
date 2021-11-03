@@ -101,7 +101,8 @@ export class Program extends BaseProgram {
                 await this.exitIfAuthed();
                 const command = new LoginCommand(this.main.authService, this.main.apiService, this.main.i18nService,
                     this.main.environmentService, this.main.passwordGenerationService, this.main.cryptoFunctionService,
-                    this.main.platformUtilsService, 'connector');
+                    this.main.platformUtilsService, this.main.userService, this.main.cryptoService,
+                    this.main.policyService, 'connector', this.main.syncService);
 
                 if (!Utils.isNullOrWhitespace(clientId)) {
                     process.env.BW_CLIENTID = clientId;
