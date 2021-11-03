@@ -110,9 +110,10 @@ jobs:
           echo "version: $_PACKAGE_VERSION"
           echo "testVersion: $testVersion"
 
-          if ($testVersion -ne $_PACKAGE_VERSION) {
-            Throw "Version test failed."
-          }
+          if ($testVersion -ne $_PACKAGE_VERSION); then 
+            echo "Version test failed."
+            exit 1
+          fi
 
       - name: Upload Linux Zip to GitHub
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
