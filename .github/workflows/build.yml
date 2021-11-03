@@ -92,7 +92,7 @@ jobs:
 
       - name: Zip
         run: |
-          zip -r ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip ./dist-cli/linux/bwdc ./keytar/linux/keytar.node
+          zip -j ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip ./dist-cli/linux/bwdc ./keytar/linux/build/Release/keytar.node
 
       #- name: Version Test
       #  run: |
