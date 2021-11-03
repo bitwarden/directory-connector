@@ -165,7 +165,7 @@ jobs:
         run: |
           keytarVersion=$(cat src/package.json | jq -r '.dependencies.keytar')
           nodeModVersion=$(node -e "console.log(process.config.variables.node_module_version)")
-          keytarTar="keytar-v$keytarVersion-node-v$nodeModVersion-macos-x64.tar"
+          keytarTar="keytar-v$keytarVersion-node-v$nodeModVersion-darwin-x64.tar"
 
           keytarTarGz="$keytarTar.gz"
           keytarUrl="https://github.com/atom/node-keytar/releases/download/v$keytarVersion/$keytarTarGz"
