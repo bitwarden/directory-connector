@@ -40,8 +40,186 @@ jobs:
           echo "::set-output name=package_version::$PKG_VERSION"
 
 
-  cli:
-    name: CLI
+  linux-cli:
+    name: Build Linux CLI
+    runs-on: ubuntu-20.04
+    needs: setup
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PKG_FETCH_NODE_VERSION: 14.17.6
+      _PKG_FETCH_VERSION: 3.2
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f  # v2.3.4
+
+      - name: Set up Node
+        uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
+        with:
+          node-version: '14'
+
+      - name: Update NPM
+        run: |
+          npm install -g npm@7
+          npm install -g node-gyp
+          node-gyp install $(node -v)
+
+      - name: Get pkg-fetch
+        run: |
+          cd $HOME
+          fetchedUrl="https://github.com/vercel/pkg-fetch/releases/download/v$_PKG_FETCH_VERSION/node-v$_PKG_FETCH_NODE_VERSION-linux-x64"
+
+          mkdir -p .pkg-cache/v$_PKG_FETCH_VERSION
+          wget $fetchedUrl -O "./.pkg-cache/v$_PKG_FETCH_VERSION/fetched-v$_PKG_FETCH_NODE_VERSION-linux-x64"
+
+      - name: Keytar
+        run: |
+          keytarVersion=$(cat src/package.json | jq -r '.dependencies.keytar')
+          nodeModVersion=$(node -e "console.log(process.config.variables.node_module_version)")
+          keytarTar="keytar-v$keytarVersion-node-v$nodeModVersion-linux-x64.tar"
+
+          keytarTarGz="$keytarTar.gz"
+          keytarUrl="https://github.com/atom/node-keytar/releases/download/v$keytarVersion/$keytarTarGz"
+
+          mkdir -p ./keytar/linux
+          wget $keytarUrl -O ./keytar/linux/$keytarTarGz
+          tar -xvf ./keytar/linux/$keytarTarGz -C ./keytar/linux
+
+      - name: Install
+        run: npm install
+
+      - name: Package CLI
+        run: npm run dist:cli:lin
+
+      - name: Zip
+        run: |
+          zip -j ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip ./dist-cli/linux/bwdc ./keytar/linux/build/Release/keytar.node
+
+      - name: Create checksums
+        run: |
+          sha256sum ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip | cut -d " " -f 1 > ./dist-cli/bwdc-linux-sha256-$_PACKAGE_VERSION.txt
+
+      - name: Version Test
+        run: |
+          sudo apt install libsecret-1-0
+
+          mkdir -p test/linux
+          unzip ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip -d ./test/linux
+
+          testVersion=$(./test/linux/bwdc -v)
+
+          echo "version: $_PACKAGE_VERSION"
+          echo "testVersion: $testVersion"
+
+          if [ "$testVersion" != "$_PACKAGE_VERSION" ]; then 
+            echo "Version test failed."
+            exit 1
+          fi
+
+      - name: Upload Linux Zip to GitHub
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
+        with:
+          name: bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
+          path: ./dist-cli/bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
+          if-no-files-found: error
+
+      - name: Upload Linux checksum to GitHub
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
+        with:
+          name: bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
+          path: ./dist-cli/bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
+          if-no-files-found: error
+
+
+  macos-cli:
+    name: Build Mac CLI
+    runs-on: macos-11
+    needs: setup
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PKG_FETCH_NODE_VERSION: 14.17.6
+      _PKG_FETCH_VERSION: 3.2
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f  # v2.3.4
+
+      - name: Set up Node
+        uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
+        with:
+          node-version: '14'
+
+      - name: Update NPM
+        run: |
+          npm install -g npm@7
+          npm install -g node-gyp
+          node-gyp install $(node -v)
+
+      - name: Get pkg-fetch
+        run: |
+          cd $HOME
+          fetchedUrl="https://github.com/vercel/pkg-fetch/releases/download/v$_PKG_FETCH_VERSION/node-v$_PKG_FETCH_NODE_VERSION-macos-x64"
+
+          mkdir -p .pkg-cache/v$_PKG_FETCH_VERSION
+          wget $fetchedUrl -O "./.pkg-cache/v$_PKG_FETCH_VERSION/fetched-v$_PKG_FETCH_NODE_VERSION-macos-x64"
+
+      - name: Keytar
+        run: |
+          keytarVersion=$(cat src/package.json | jq -r '.dependencies.keytar')
+          nodeModVersion=$(node -e "console.log(process.config.variables.node_module_version)")
+          keytarTar="keytar-v$keytarVersion-node-v$nodeModVersion-darwin-x64.tar"
+
+          keytarTarGz="$keytarTar.gz"
+          keytarUrl="https://github.com/atom/node-keytar/releases/download/v$keytarVersion/$keytarTarGz"
+
+          mkdir -p ./keytar/macos
+          wget $keytarUrl -O ./keytar/macos/$keytarTarGz
+          tar -xvf ./keytar/macos/$keytarTarGz -C ./keytar/macos
+
+      - name: Install
+        run: npm install
+
+      - name: Package CLI
+        run: npm run dist:cli:mac
+
+      - name: Zip
+        run: |
+          zip -j ./dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip ./dist-cli/macos/bwdc ./keytar/macos/build/Release/keytar.node
+
+      - name: Create checksums
+        run: |
+          sha256sum ./dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip | cut -d " " -f 1 > ./dist-cli/bwdc-macos-sha256-$_PACKAGE_VERSION.txt
+
+      - name: Version Test
+        run: |
+          mkdir -p test/macos
+          unzip ./dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip -d ./test/macos
+
+          testVersion=$(./test/macos/bwdc -v)
+
+          echo "version: $_PACKAGE_VERSION"
+          echo "testVersion: $testVersion"
+
+          if [ "$testVersion" != "$_PACKAGE_VERSION" ]; then 
+            echo "Version test failed."
+            exit 1
+          fi
+
+      - name: Upload Mac Zip to GitHub
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
+        with:
+          name: bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
+          path: ./dist-cli/bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
+          if-no-files-found: error
+
+      - name: Upload Mac checksum to GitHub
+        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
+        with:
+          name: bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
+          path: ./dist-cli/bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
+          if-no-files-found: error
+
+
+  windows-cli:
+    name: Build Windows CLI
     runs-on: windows-2019
     needs: setup
     env:
@@ -68,13 +246,6 @@ jobs:
           npm install -g node-gyp
           node-gyp install $(node -v)
 
-      - name: Setting WIN_PKG
-        run: |
-          echo "WIN_PKG=$env:WIN_PKG" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "version: $env:pkgVersion"
-        env:
-          WIN_PKG: C:\Users\runneradmin\.pkg-cache\v3.0\fetched-v14.16.1-win-x64
-
       - name: Get pkg-fetch
         shell: pwsh
         run: |
@@ -95,20 +266,12 @@ jobs:
           $keytarTarGz = "${keytarTar}.gz"
           $keytarUrl = "https://github.com/atom/node-keytar/releases/download/v${keytarVersion}/${keytarTarGz}"
 
-          New-Item -ItemType directory -Path ./keytar/macos | Out-Null
-          New-Item -ItemType directory -Path ./keytar/linux | Out-Null
           New-Item -ItemType directory -Path ./keytar/windows | Out-Null
 
-          Invoke-RestMethod -Uri $($keytarUrl -f "darwin") -OutFile "./keytar/macos/$($keytarTarGz -f "darwin")"
-          Invoke-RestMethod -Uri $($keytarUrl -f "linux") -OutFile "./keytar/linux/$($keytarTarGz -f "linux")"
           Invoke-RestMethod -Uri $($keytarUrl -f "win32") -OutFile "./keytar/windows/$($keytarTarGz -f "win32")"
 
-          7z e "./keytar/macos/$($keytarTarGz -f "darwin")" -o"./keytar/macos"
-          7z e "./keytar/linux/$($keytarTarGz -f "linux")" -o"./keytar/linux"
           7z e "./keytar/windows/$($keytarTarGz -f "win32")" -o"./keytar/windows"
 
-          7z e "./keytar/macos/$($keytarTar -f "darwin")" -o"./keytar/macos"
-          7z e "./keytar/linux/$($keytarTar -f "linux")" -o"./keytar/linux"
           7z e "./keytar/windows/$($keytarTar -f "win32")" -o"./keytar/windows"
 
       - name: Setup Version Info
@@ -163,14 +326,12 @@ jobs:
         run: npm install
 
       - name: Package CLI
-        run: npm run dist:cli
+        run: npm run dist:cli:win
 
       - name: Zip
         shell: cmd
         run: |
           7z a ./dist-cli/bwdc-windows-%_PACKAGE_VERSION%.zip ./dist-cli/windows/bwdc.exe ./keytar/windows/keytar.node
-          7z a ./dist-cli/bwdc-macos-%_PACKAGE_VERSION%.zip ./dist-cli/macos/bwdc ./keytar/macos/keytar.node
-          7z a ./dist-cli/bwdc-linux-%_PACKAGE_VERSION%.zip ./dist-cli/linux/bwdc ./keytar/linux/keytar.node
 
       - name: Version Test
         run: |
@@ -186,30 +347,12 @@ jobs:
         run: |
           checksum -f="./dist-cli/bwdc-windows-${env:_PACKAGE_VERSION}.zip" `
             -t sha256 | Out-File ./dist-cli/bwdc-windows-sha256-${env:_PACKAGE_VERSION}.txt
-          checksum -f="./dist-cli/bwdc-macos-${env:_PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File ./dist-cli/bwdc-macos-sha256-${env:_PACKAGE_VERSION}.txt
-          checksum -f="./dist-cli/bwdc-linux-${env:_PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File ./dist-cli/bwdc-linux-sha256-${env:_PACKAGE_VERSION}.txt
 
       - name: Upload Windows Zip to GitHub
         uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
         with:
           name: bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
-          if-no-files-found: error
-
-      - name: Upload Mac Zip to GitHub
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
-        with:
-          name: bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
-          path: ./dist-cli/bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
-          if-no-files-found: error
-
-      - name: Upload Linux Zip to GitHub
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
-        with:
-          name: bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
-          path: ./dist-cli/bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
       - name: Upload Windows checksum to GitHub
@@ -219,23 +362,9 @@ jobs:
           path: ./dist-cli/bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
           if-no-files-found: error
 
-      - name: Upload Mac checksum to GitHub
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
-        with:
-          name: bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: ./dist-cli/bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
-          if-no-files-found: error
-
-      - name: Upload Linux checksum to GitHub
-        uses: actions/upload-artifact@ee69f02b3dfdecd58bb31b4d133da38ba6fe3700  # v2.2.3
-        with:
-          name: bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: ./dist-cli/bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
-          if-no-files-found: error
-
 
   windows-gui:
-    name: Windows GUI
+    name: Build Windows GUI
     runs-on: windows-2019
     needs: setup
     env:
@@ -314,8 +443,8 @@ jobs:
           if-no-files-found: error
 
 
-  linux:
-    name: Linux
+  linux-gui:
+    name: Build Linux GUI
     runs-on: ubuntu-20.04
     needs: setup
     env:
@@ -368,8 +497,8 @@ jobs:
           if-no-files-found: error
 
 
-  macos:
-    name: MacOS
+  macos-gui:
+    name: Build MacOS GUI
     runs-on: macos-11
     needs: setup
     env:
@@ -489,37 +618,44 @@ jobs:
 
   check-failures:
     name: Check for failures
-    if: always()
     runs-on: ubuntu-20.04
     needs:
       - cloc
       - setup
-      - cli
+      - linux-cli
+      - macos-cli
+      - windows-cli
       - windows-gui
-      - linux
-      - macos
+      - linux-gui
+      - macos-gui
     steps:
       - name: Check if any job failed
         if: ${{ (github.ref == 'refs/heads/master') || (github.ref == 'refs/heads/rc') }}
         env:
           CLOC_STATUS: ${{ needs.cloc.result }}
           SETUP_STATUS: ${{ needs.setup.result }}
-          CLI_STATUS: ${{ needs.cli.result }}
+          LINUX_CLI_STATUS: ${{ needs.linux-cli.result }}
+          MACOS_CLI_STATUS: ${{ needs.macos-cli.result }}
+          WINDOWS_CLI_STATUS: ${{ needs.windows-cli.result }}
           WINDOWS_GUI_STATUS: ${{ needs.windows-gui.result }}
-          LINUX_STATUS: ${{ needs.linux.result }}
-          MACOS_STATUS: ${{ needs.macos.result }}
+          LINUX_GUI_STATUS: ${{ needs.linux-gui.result }}
+          MACOS_GUI_STATUS: ${{ needs.macos-gui.result }}
         run: |
           if [ "$CLOC_STATUS" = "failure" ]; then
               exit 1
           elif [ "$SETUP_STATUS" = "failure" ]; then
               exit 1
-          elif [ "$CLI_STATUS" = "failure" ]; then
+          elif [ "$LINUX_CLI_STATUS" = "failure" ]; then
+              exit 1
+          elif [ "$MACOS_CLI_STATUS" = "failure" ]; then
+              exit 1
+          elif [ "$WINDOWS_CLI_STATUS" = "failure" ]; then
               exit 1
           elif [ "$WINDOWS_GUI_STATUS" = "failure" ]; then
               exit 1
-          elif [ "$LINUX_STATUS" = "failure" ]; then
+          elif [ "$LINUX_GUI_STATUS" = "failure" ]; then
               exit 1
-          elif [ "$MACOS_STATUS" = "failure" ]; then
+          elif [ "$MACOS_GUI_STATUS" = "failure" ]; then
               exit 1
           fi
 
