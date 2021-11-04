@@ -18,13 +18,21 @@ import { NodeCryptoFunctionService } from 'jslib-node/services/nodeCryptoFunctio
 
 import { ApiKeyService } from 'jslib-common/services/apiKey.service';
 import { AppIdService } from 'jslib-common/services/appId.service';
+import { CipherService } from 'jslib-common/services/cipher.service';
+import { CollectionService } from 'jslib-common/services/collection.service';
 import { ConstantsService } from 'jslib-common/services/constants.service';
 import { ContainerService } from 'jslib-common/services/container.service';
 import { CryptoService } from 'jslib-common/services/crypto.service';
 import { EnvironmentService } from 'jslib-common/services/environment.service';
+import { FileUploadService } from 'jslib-common/services/fileUpload.service';
+import { FolderService } from 'jslib-common/services/folder.service';
 import { NoopMessagingService } from 'jslib-common/services/noopMessaging.service';
 import { PasswordGenerationService } from 'jslib-common/services/passwordGeneration.service';
 import { PolicyService } from 'jslib-common/services/policy.service';
+import { SearchService } from 'jslib-common/services/search.service';
+import { SendService } from 'jslib-common/services/send.service';
+import { SettingsService } from 'jslib-common/services/settings.service';
+import { SyncService as LoginSyncService } from 'jslib-common/services/sync.service';
 import { TokenService } from 'jslib-common/services/token.service';
 import { UserService } from 'jslib-common/services/user.service';
 
@@ -36,6 +44,7 @@ import { refreshToken } from './services/api.service';
 // tslint:disable-next-line
 const packageJson = require('./package.json');
 
+export let searchService: SearchService = null;
 export class Main {
     dataFilePath: string;
     logService: ConsoleLogService;
@@ -56,9 +65,17 @@ export class Main {
     cryptoFunctionService: NodeCryptoFunctionService;
     authService: AuthService;
     configurationService: ConfigurationService;
+    collectionService: CollectionService;
+    cipherService: CipherService;
+    fileUploadService: FileUploadService;
+    folderService: FolderService;
+    searchService: SearchService;
+    sendService: SendService;
+    settingsService: SettingsService;
     syncService: SyncService;
     passwordGenerationService: PasswordGenerationService;
     policyService: PolicyService;
+    loginSyncService: LoginSyncService;
     program: Program;
 
     constructor() {
@@ -111,6 +128,24 @@ export class Main {
             this.apiService, this.messagingService, this.i18nService, this.environmentService);
         this.passwordGenerationService = new PasswordGenerationService(this.cryptoService, this.storageService, null);
         this.policyService = new PolicyService(this.userService, this.storageService, this.apiService);
+        this.settingsService = new SettingsService(this.userService, this.storageService);
+        this.fileUploadService = new FileUploadService(this.logService, this.apiService);
+        this.cipherService = new CipherService(this.cryptoService, this.userService, this.settingsService,
+            this.apiService, this.fileUploadService, this.storageService, this.i18nService, () => searchService,
+            this.logService);
+        this.searchService = new SearchService(this.cipherService, this.logService, this.i18nService);
+        this.folderService = new FolderService(this.cryptoService, this.userService, this.apiService,
+            this.storageService, this.i18nService, this.cipherService);
+        this.collectionService = new CollectionService(this.cryptoService, this.userService, this.storageService,
+            this.i18nService);
+        this.sendService = new SendService(this.cryptoService, this.userService, this.apiService, this.fileUploadService, this.storageService,
+            this.i18nService, this.cryptoFunctionService);
+
+        this.loginSyncService = new LoginSyncService(this.userService, this.apiService, this.settingsService,
+            this.folderService, this.cipherService, this.cryptoService, this.collectionService, this.storageService,
+            this.messagingService, this.policyService, this.sendService, this.logService,
+            async (expired: boolean) => this.messagingService.send('logout', { expired: expired }));
+
         this.program = new Program(this);
     }
 
