@@ -110,7 +110,7 @@ jobs:
           echo "version: $_PACKAGE_VERSION"
           echo "testVersion: $testVersion"
 
-          if [ "$testVersion" != "$_PACKAGE_VERSION" ]; then 
+          if [ "$testVersion" != "$_PACKAGE_VERSION" ]; then
             echo "Version test failed."
             exit 1
           fi
@@ -198,7 +198,7 @@ jobs:
           echo "version: $_PACKAGE_VERSION"
           echo "testVersion: $testVersion"
 
-          if [ "$testVersion" != "$_PACKAGE_VERSION" ]; then 
+          if [ "$testVersion" != "$_PACKAGE_VERSION" ]; then
             echo "Version test failed."
             exit 1
           fi
