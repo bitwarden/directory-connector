@@ -78,7 +78,7 @@ const userService = new UserService(tokenService, storageService);
 const apiKeyService = new ApiKeyService(tokenService, storageService);
 const containerService = new ContainerService(cryptoService);
 const authService = new AuthService(cryptoService, apiService, userService, tokenService, appIdService,
-    i18nService, platformUtilsService, messagingService, null, logService, apiKeyService, false);
+    i18nService, platformUtilsService, messagingService, null, logService, apiKeyService, cryptoFunctionService, false);
 const configurationService = new ConfigurationService(storageService, secureStorageService);
 const syncService = new SyncService(configurationService, logService, cryptoFunctionService, apiService,
     messagingService, i18nService, environmentService);
