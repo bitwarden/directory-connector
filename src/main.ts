@@ -52,7 +52,7 @@ export class Main {
         this.i18nService = new I18nService('en', './locales/');
         this.storageService = new ElectronStorageService(app.getPath('userData'));
 
-        this.windowMain = new WindowMain(this.storageService, false, 800, 600, arg => this.processDeepLink(arg), null);
+        this.windowMain = new WindowMain(this.storageService, this.logService, false, 800, 600, arg => this.processDeepLink(arg), null);
         this.menuMain = new MenuMain(this);
         this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain, 'directory-connector', () => {
             this.messagingService.send('checkingForUpdate');

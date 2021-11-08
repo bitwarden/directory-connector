@@ -24,6 +24,7 @@ import { BroadcasterService } from 'jslib-angular/services/broadcaster.service';
 import { ApiService } from 'jslib-common/abstractions/api.service';
 import { AuthService } from 'jslib-common/abstractions/auth.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { LogService } from 'jslib-common/abstractions/log.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
 import { StateService } from 'jslib-common/abstractions/state.service';
 import { StorageService } from 'jslib-common/abstractions/storage.service';
@@ -62,7 +63,7 @@ export class AppComponent implements OnInit {
         private sanitizer: DomSanitizer, private ngZone: NgZone,
         private componentFactoryResolver: ComponentFactoryResolver, private messagingService: MessagingService,
         private configurationService: ConfigurationService, private syncService: SyncService,
-        private stateService: StateService, private apiService: ApiService) {
+        private stateService: StateService, private apiService: ApiService, private logService: LogService) {
         (window as any).BitwardenToasterService = toasterService;
     }
 
@@ -108,7 +109,9 @@ export class AppComponent implements OnInit {
                             if (lastSyncAgo >= syncInterval) {
                                 await this.syncService.sync(false, false);
                             }
-                        } catch { }
+                        } catch (e) {
+                            this.logService.error(e);
+                        }
 
                         this.messagingService.send('scheduleNextDirSync');
                         break;
