@@ -284,7 +284,9 @@ export class LdapDirectoryService implements IDirectoryService {
                 const control = parseInt(c, null);
                 // tslint:disable-next-line
                 return (control & UserControlAccountDisabled) === UserControlAccountDisabled;
-            } catch { }
+            } catch (e) {
+                this.logService.error(e);
+            }
         }
 
         return false;

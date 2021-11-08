@@ -12,6 +12,7 @@ import { EnvironmentComponent } from './environment.component';
 import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
 import { AuthService } from 'jslib-common/abstractions/auth.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { LogService } from 'jslib-common/abstractions/log.service';
 import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
 
 import { ModalService } from 'jslib-angular/services/modal.service';
@@ -35,7 +36,7 @@ export class ApiKeyComponent {
     constructor(private authService: AuthService, private apiKeyService: ApiKeyService, private router: Router,
         private i18nService: I18nService, private componentFactoryResolver: ComponentFactoryResolver,
         private configurationService: ConfigurationService, private platformUtilsService: PlatformUtilsService,
-        private modalService: ModalService) { }
+        private modalService: ModalService, private logService: LogService) { }
 
     async submit() {
         if (this.clientId == null || this.clientId === '') {
@@ -67,7 +68,9 @@ export class ApiKeyComponent {
             const organizationId = await this.apiKeyService.getEntityId();
             await this.configurationService.saveOrganizationId(organizationId);
             this.router.navigate([this.successRoute]);
-        } catch { }
+        } catch (e) {
+            this.logService.error(e);
+        }
     }
 
     async settings() {

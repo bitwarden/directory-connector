@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { LogService } from 'jslib-common/abstractions/log.service';
 import { StateService } from 'jslib-common/abstractions/state.service';
 
 import { ProfileOrganizationResponse } from 'jslib-common/models/response/profileOrganizationResponse';
@@ -45,7 +46,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     constructor(private i18nService: I18nService, private configurationService: ConfigurationService,
         private changeDetectorRef: ChangeDetectorRef, private ngZone: NgZone,
-        private stateService: StateService) {
+        private stateService: StateService, private logService: LogService) {
         this.directoryOptions = [
             { name: i18nService.t('select'), value: null },
             { name: 'Active Directory / LDAP', value: DirectoryType.Ldap },
@@ -105,7 +106,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
                         this.gsuite.clientEmail = result.client_email;
                         this.gsuite.privateKey = result.private_key;
                     }
-                } catch { }
+                } catch (e) {
+                    this.logService.error(e);
+                }
                 this.changeDetectorRef.detectChanges();
             });
 
