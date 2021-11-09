@@ -121,7 +121,7 @@ export class Main {
         this.containerService = new ContainerService(this.cryptoService);
         this.authService = new AuthService(this.cryptoService, this.apiService, this.userService, this.tokenService,
             this.appIdService, this.i18nService, this.platformUtilsService, this.messagingService, null,
-            this.logService, this.apiKeyService, false);
+            this.logService, this.apiKeyService, this.cryptoFunctionService, false);
         this.configurationService = new ConfigurationService(this.storageService, this.secureStorageService,
             process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== 'true');
         this.syncService = new SyncService(this.configurationService, this.logService, this.cryptoFunctionService,
