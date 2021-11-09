@@ -423,7 +423,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                         } else if (d.error != null && d.error_description != null) {
                             const shortError = d.error_description?.split('\n', 1)[0];
                             const err = new Error(d.error + ' (' + res.statusCode + '): ' + shortError);
-                            // tslint: disable-next-line
+                            // tslint:disable-next-line
                             console.error(d.error_description);
                             done(err, null);
                         } else {
