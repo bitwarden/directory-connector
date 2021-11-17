@@ -18,6 +18,7 @@ import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { LogService } from 'jslib-common/abstractions/log.service';
 
 const AzurePublicIdentityAuhtority = 'login.microsoftonline.com';
+const AzureGovermentIdentityAuhtority = 'login.microsoftonline.us';
 
 const NextLink = '@odata.nextLink';
 const DeltaLink = '@odata.deltaLink';
@@ -393,6 +394,10 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                 }
 
                 const identityAuthority = this.dirConfig.identityAuthority != null ? this.dirConfig.identityAuthority : AzurePublicIdentityAuhtority;
+                if (identityAuthority !== AzurePublicIdentityAuhtority && identityAuthority !== AzureGovermentIdentityAuhtority) {
+                    done(new Error(this.i18nService.t('dirConfigIncomplete')), null);
+                    return;
+                }
 
                 if (!this.accessTokenIsExpired()) {
                     done(null, this.accessToken);
