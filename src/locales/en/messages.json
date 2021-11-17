@@ -354,6 +354,9 @@
     "rootPath": {
         "message": "Root Path"
     },
+    "identityAuthority": {
+        "message": "Identity Authority"
+    },
     "tenant": {
         "message": "Tenant"
     },

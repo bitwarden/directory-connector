@@ -385,7 +385,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
         this.client = graph.Client.init({
             authProvider: done => {
                 if (this.dirConfig.applicationId == null || this.dirConfig.key == null ||
-                    this.dirConfig.tenant == null) {
+                    this.dirConfig.tenant == null || this.dirConfig.identityAuthority == null) {
                     done(new Error(this.i18nService.t('dirConfigIncomplete')), null);
                     return;
                 }
@@ -406,7 +406,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                 });
 
                 const req = https.request({
-                    host: 'login.microsoftonline.com',
+                    host: this.dirConfig.identityAuthority,
                     path: '/' + this.dirConfig.tenant + '/oauth2/v2.0/token',
                     method: 'POST',
                     headers: {
