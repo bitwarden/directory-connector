@@ -17,6 +17,8 @@ import { IDirectoryService } from './directory.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { LogService } from 'jslib-common/abstractions/log.service';
 
+const AzurePublicIdentityAuhtority = 'login.microsoftonline.com';
+
 const NextLink = '@odata.nextLink';
 const DeltaLink = '@odata.deltaLink';
 const ObjectType = '@odata.type';
@@ -385,10 +387,12 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
         this.client = graph.Client.init({
             authProvider: done => {
                 if (this.dirConfig.applicationId == null || this.dirConfig.key == null ||
-                    this.dirConfig.tenant == null || this.dirConfig.identityAuthority == null) {
+                    this.dirConfig.tenant == null) {
                     done(new Error(this.i18nService.t('dirConfigIncomplete')), null);
                     return;
                 }
+
+                const identityAuthority = this.dirConfig.identityAuthority != null ? this.dirConfig.identityAuthority : AzurePublicIdentityAuhtority;
 
                 if (!this.accessTokenIsExpired()) {
                     done(null, this.accessToken);
@@ -406,7 +410,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                 });
 
                 const req = https.request({
-                    host: this.dirConfig.identityAuthority,
+                    host: identityAuthority,
                     path: '/' + this.dirConfig.tenant + '/oauth2/v2.0/token',
                     method: 'POST',
                     headers: {
