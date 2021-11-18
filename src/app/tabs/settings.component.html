@@ -135,6 +135,14 @@
                 </div>
                 <div [hidden]="directory != directoryType.AzureActiveDirectory">
                     <div class="form-group">
+                        <label for="identityAuthority">{{'identityAuthority' | i18n}}</label>
+                        <select class="form-control" id="identityAuthority" name="IdentityAuthority"
+                            [(ngModel)]="azure.identityAuthority">
+                            <option value="login.microsoftonline.com">Azure AD Public</option>
+                            <option value="login.microsoftonline.us">Azure AD Government</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="tenant">{{'tenant' | i18n}}</label>
                         <input type="text" class="form-control" id="tenant" name="Tenant" [(ngModel)]="azure.tenant">
                         <small class="text-muted form-text">{{'ex' | i18n}} companyad.onmicrosoft.com</small>
