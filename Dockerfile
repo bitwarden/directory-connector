@@ -1,15 +1,9 @@
-FROM ubuntu:20.04
+FROM alpine:latest
 
 LABEL com.bitwarden.product="bitwarden"
 
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        gosu \
-        curl \
-        jq \ 
-        libsecret-1-0 \
-    && rm -rf /var/lib/apt/lists/*
+RUN 
 
 
 
