@@ -27,10 +27,9 @@ useradd -o -u $LUID -g $GROUPNAME -s /bin/false $USERNAME >/dev/null 2>&1 ||
 usermod -o -u $LUID -g $GROUPNAME -s /bin/false $USERNAME >/dev/null 2>&1
 mkhomedir_helper $USERNAME
 
-# The rest...
 
-mkdir -p /etc/bitwarden/bwdc/config/0           # reserved folder
-mkdir -p /etc/bitwarden/bwdc/appdata/0          
+export BITWARDENCLI_CONNECTOR_APPDATA_DIR=${BITWARDENCLI_CONNECTOR_APPDATA_DIR:-'/bwdc-data/syncprofile_1'}
+mkdir -p $BITWARDENCLI_CONNECTOR_APPDATA_DIR     # Default folder
 chown -R $USERNAME:$GROUPNAME /etc/bitwarden
 
-#$BITWARDENCLI_CONNECTOR_APPDATA_DIR=
+gosu $USERNAME:$GROUPNAME /bin/sh -c "/bwdc-sync-profiles.sh loop >/dev/null 2>&1 &"
