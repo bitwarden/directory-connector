@@ -47,6 +47,7 @@ currInterval=$(jq .syncConfig.interval data.json)
 
 echo "currInterval (ignored for now):" $currInterval
 
+echo "Starting sync for: ${BWDC_PROFILENAME}"
 bwdc sync
 
 # Print relevant info
