@@ -36,4 +36,5 @@ chown -R $USERNAME:$GROUPNAME /etc/bitwarden
 chown -R $USERNAME:$GROUPNAME /app
 
 echo "Over to scan-profiles.sh loop"
-gosu $USERNAME:$GROUPNAME /bin/bash -c "scan-profiles.sh loop >/dev/null 2>&1 &"
+gosu $USERNAME:$GROUPNAME /bin/bash -c "scan-profiles.sh loop"
+

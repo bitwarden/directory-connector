@@ -1,14 +1,15 @@
 #!/bin/bash
 #read pipedin
 
-set -e
+# Do not exit on error on a single profile
+set +e
 
 # Synopsis: Wrapper for Bitwarden Directory Connector to facilitate multiple sync profiles.
 
 # Passed parameter overrides the sys-wide definition.
 [ -n "$1" ] && export BITWARDENCLI_CONNECTOR_APPDATA_DIR="$1"
 
-echo "Processing profile: ${BITWARDENCLI_CONNECTOR_APPDATA_DIR}"
+echo "Processing profile in: ${BITWARDENCLI_CONNECTOR_APPDATA_DIR}"
 cd $BITWARDENCLI_CONNECTOR_APPDATA_DIR
 
 # Profile Name = Name of Current Directory
@@ -18,7 +19,6 @@ BWDC_PROFILENAME=${PWD##*/}
 # Syntax: BWDC_CONF__<PROFILENAME>__<VARNAME>=<VALUE>
 # Example: BWDC_CONF__syncprofile_1__BW_CLIENTID=VALUE
 ProfileConfPrefix=${ProfileConfPrefix:-"BWDC_CONF__${BWDC_PROFILENAME}_"}
-echo $ProfileConfPrefix
 
 tmp=${ProfileConfPrefix}_BW_CLIENTID
 [ -n "${!tmp}" ] && export BW_CLIENTID="${!tmp}"
@@ -28,12 +28,10 @@ tmp=${ProfileConfPrefix}_BW_CLIENTSECRET
 # The last two lines can be repeated (ideally within a 'for each' syntax) to cater for more variables
 echo "Debug: All BW Variables in this session: ${!BW*}"
 
-
-
 # Print relevant info
-echo "bwdc config-file: " bwdc config-file
-echo "bwdc last-sync groups: " bwdc last-sync groups
-echo "bwdc last-sync users: " bwdc last-sync users
+echo "bwdc config-file: $(bwdc config-file)"
+echo "bwdc last-sync groups: $(bwdc last-sync groups)"
+echo "bwdc last-sync users: $(bwdc last-sync users)"
 
 # Note:
 # if (timeNow-lastSync)>interval: bwdc sync

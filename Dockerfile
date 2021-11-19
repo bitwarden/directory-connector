@@ -5,7 +5,8 @@ FROM node:gallium-bullseye-slim
 LABEL com.bitwarden.product="bitwarden"
 
 # Default syncprofile/folder for bwdc
-ENV BITWARDENCLI_CONNECTOR_APPDATA_DIR='/bwdc-profiles/syncprofile_1'
+ENV BWDC_PROFILES_DIR='/data/bwdc-profiles/'
+ENV BITWARDENCLI_CONNECTOR_APPDATA_DIR="${BWDC_PROFILES_DIR}syncprofile_1"
 
 ENV BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS=true
 
@@ -37,5 +38,7 @@ COPY --chown=1000:1000 dockerfiles/ .
 RUN chmod -R +x /app
 
 RUN mv entrypoint.sh /
+
+ENV BITWARDENCLI_CONNECTOR_DEBUG=true
 
 ENTRYPOINT ["/entrypoint.sh"]

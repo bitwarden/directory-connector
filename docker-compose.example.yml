@@ -5,7 +5,7 @@ services:
     container_name: bitwarden-bwdc
     image: bitwarden/directory-connector:2.9.8-containerise_v1.1
     volumes:
-      - ./data/bwdc-profiles:/bwdc-profiles
+      - ./data/bwdc-profiles:/data/bwdc-profiles
     # environment:
     #   - BITWARDENCLI_CONNECTOR_APPDATA_DIR='/bwdc-profiles/syncprofile_1'
     #   - BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS=true
@@ -24,3 +24,4 @@ services:
     #   - BWDC_SYNC_INTERVAL_MIN
     #   - BWDC_SCAN_SLEEP_DUR
     #   - BWDC_CONF__syncprofile_1__BW_CLIENTID=VALUE
+    #   - BWDC_CONF__syncprofile_1__BW_CLIENTSECRET=VALUE
