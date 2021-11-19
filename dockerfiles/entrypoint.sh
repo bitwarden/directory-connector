@@ -28,8 +28,13 @@ usermod -o -u $LUID -g $GROUPNAME -s /bin/false $USERNAME >/dev/null 2>&1
 mkhomedir_helper $USERNAME
 
 
-export BITWARDENCLI_CONNECTOR_APPDATA_DIR=${BITWARDENCLI_CONNECTOR_APPDATA_DIR:-'/bwdc-data/syncprofile_1'}
-mkdir -p $BITWARDENCLI_CONNECTOR_APPDATA_DIR     # Default folder
+mkdir -p $BITWARDENCLI_CONNECTOR_APPDATA_DIR        # Default folder, declared container wide
+chown -R $USERNAME:$GROUPNAME /bwdc-profiles
+
+mkdir -p /etc/bitwarden                             # Placeholder to mimic most of the other Bitwarden images
 chown -R $USERNAME:$GROUPNAME /etc/bitwarden
 
-gosu $USERNAME:$GROUPNAME /bin/sh -c "/bwdc-sync-profiles.sh loop >/dev/null 2>&1 &"
+chown -R $USERNAME:$GROUPNAME /app
+
+
+gosu $USERNAME:$GROUPNAME /bin/bash -c "scan-profiles.sh loop >/dev/null 2>&1 &"

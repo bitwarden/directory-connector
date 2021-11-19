@@ -2,13 +2,18 @@ FROM node:gallium-bullseye-slim
 # Gallium: v16 and lts
 # bullseye: Debian Stable
 
-ARG BWDC_VERSION=2.9.8
-ENV BWDC_VERSION=${BWDC_VERSION}
-
-
 LABEL com.bitwarden.product="bitwarden"
 
-WORKDIR /dockerbuild
+# Default syncprofile/folder for bwdc
+ENV BITWARDENCLI_CONNECTOR_APPDATA_DIR='/bwdc-profiles/syncprofile_1'
+
+ENV BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS=true
+
+WORKDIR /app
+ENV PATH="/app:${PATH}"
+
+ARG BWDC_VERSION=2.9.8
+ENV BWDC_VERSION=${BWDC_VERSION}
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -26,11 +31,11 @@ RUN curl -Lo bwdc-linux.zip \
     && unzip bwdc-linux.zip \
     && rm bwdc-linux.zip \
     && chmod 700 bwdc && chmod 700 keytar.node \
-    && mv bwdc /bin/ && mv keytar.node /bin/ \
     && echo "Bitwarden Directory Connector Version: " bwdc --version
 
-COPY dockerfiles/ /
+COPY --chown=1000:1000 dockerfiles/ .
+RUN chmod -R +x /app
 
-RUN chmod +x /entrypoint.sh
+RUN mv entrypoint.sh /
 
 ENTRYPOINT ["/entrypoint.sh"]
