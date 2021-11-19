@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 services:
   bwdc:
@@ -9,7 +9,18 @@ services:
     # environment:
     #   - BITWARDENCLI_CONNECTOR_APPDATA_DIR='/bwdc-profiles/syncprofile_1'
     #   - BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS=true
+    #   - BITWARDENCLI_CONNECTOR_DEBUG
+    #   - BW_QUIET
+    #   - BW_RESPONSE
+    #   - BW_CLEANEXIT
+    #   - BW_PRETTY
+    #   - BW_RAW
+    #   - BW_NOINTERACTION
+    #   - BW_CLIENTID
+    #   - BW_CLIENTSECRET
+    #   - BWCLI_ENV
     #   - BWDC_PROFILES_DIR
     #   - BWDC_SYNC_PARALLEL_MAX
     #   - BWDC_SYNC_INTERVAL_MIN
     #   - BWDC_SCAN_SLEEP_DUR
+    #   - BWDC_CONF__syncprofile_1__BW_CLIENTID=VALUE

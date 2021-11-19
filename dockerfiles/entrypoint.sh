@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Setup
+echo "Setting up the container"
 
 GROUPNAME="bitwarden"
 USERNAME="bitwarden"
@@ -19,8 +19,7 @@ then
     LGID=65534
 fi
 
-# Create user and group
-
+echo "Setup non root U/GID"
 groupadd -o -g $LGID $GROUPNAME >/dev/null 2>&1 ||
 groupmod -o -g $LGID $GROUPNAME >/dev/null 2>&1
 useradd -o -u $LUID -g $GROUPNAME -s /bin/false $USERNAME >/dev/null 2>&1 ||

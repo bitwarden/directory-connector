@@ -27,7 +27,7 @@ RUN apt-get update \
 
 # Download and Install BWDC
 RUN curl -Lo bwdc-linux.zip \
-'https://github.com/bitwarden/directory-connector/releases/download/v${BWDC_VERSION}/bwdc-linux-${BWDC_VERSION}.zip' \
+"https://github.com/bitwarden/directory-connector/releases/download/v${BWDC_VERSION}/bwdc-linux-${BWDC_VERSION}.zip" \
     && unzip bwdc-linux.zip \
     && rm bwdc-linux.zip \
     && chmod 700 bwdc && chmod 700 keytar.node \
