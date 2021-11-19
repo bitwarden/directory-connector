@@ -20,7 +20,7 @@ BWDC_PROFILENAME=${PWD##*/}
 # Example: BWDC_CONF__syncprofile_1__BW_CLIENTID=VALUE
 ProfileConfPrefix=${ProfileConfPrefix:-"BWDC_CONF__${BWDC_PROFILENAME}__"}
 eval 'vars=(${!'"$ProfileConfPrefix"'@})'
-echo "Found ${#vars[@]} environment variables to declare in this profile. Export below:"
+echo "Found ${#vars[@]} environment variables specific to this profile."
 for i in "${vars[@]}"; do
     ActualVarName=${i/"$ProfileConfPrefix"/}
     # echo "$i corresponds to $ActualVarName"

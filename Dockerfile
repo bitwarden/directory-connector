@@ -39,6 +39,4 @@ RUN chmod -R +x /app
 
 RUN mv entrypoint.sh /
 
-ENV BITWARDENCLI_CONNECTOR_DEBUG=true
-
 ENTRYPOINT ["/entrypoint.sh"]

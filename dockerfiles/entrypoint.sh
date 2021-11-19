@@ -19,12 +19,14 @@ then
     LGID=65534
 fi
 
-echo "Setup non root U/GID $LUID:$LGID ($USERNAME:$GROUPNAME)"
+echo "Attempting to setup non root U/GID $LUID:$LGID ($USERNAME:$GROUPNAME)"
 groupadd -o -g $LGID $GROUPNAME >/dev/null 2>&1 ||
 groupmod -o -g $LGID $GROUPNAME >/dev/null 2>&1
 useradd -o -u $LUID -g $GROUPNAME -s /bin/false $USERNAME >/dev/null 2>&1 ||
 usermod -o -u $LUID -g $GROUPNAME -s /bin/false $USERNAME >/dev/null 2>&1
 mkhomedir_helper $USERNAME
+gosu $USERNAME:$GROUPNAME /bin/bash -c "echo id: $(id); echo HOME: $HOME"
+
 
 echo "mkdir && chown directories to the above users."
 mkdir -p $BITWARDENCLI_CONNECTOR_APPDATA_DIR        # Default folder, declared container wide

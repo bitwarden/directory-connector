@@ -6,10 +6,12 @@ services:
     image: bitwarden/directory-connector:2.9.8-containerise_v1.1
     volumes:
       - ./data/bwdc-profiles:/data/bwdc-profiles
-    # environment:
+    environment:
+      - LOCAL_UID=1000
+      - LOCAL_GID=1000
     #   - BITWARDENCLI_CONNECTOR_APPDATA_DIR='/bwdc-profiles/syncprofile_1'
     #   - BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS=true
-    #   - BITWARDENCLI_CONNECTOR_DEBUG
+    #   - BITWARDENCLI_CONNECTOR_DEBUG=true
     #   - BW_QUIET
     #   - BW_RESPONSE
     #   - BW_CLEANEXIT

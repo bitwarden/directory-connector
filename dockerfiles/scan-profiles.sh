@@ -11,9 +11,8 @@ do
   
   echo "Scan the profiles directory and send it off for sync."
   # % below is the BITWARDENCLI_CONNECTOR_APPDATA_DIR for each profile.
-  find $BWDC_PROFILES_DIR -mindepth 1 -maxdepth 1 -type d -not -iname '.*' -print0 | xargs -0 -I % -n 1 -P $BWDC_SYNC_PARALLEL_MAX -r ./sync-profile.sh %
+  find $BWDC_PROFILES_DIR -mindepth 1 -maxdepth 1 -type d -not -iname '.*' -print0 | xargs -0 -I % --max-args=1 --max-procs=${BWDC_SYNC_PARALLEL_MAX} -r ./sync-profile.sh %
 
-  
   [ "$1" != "loop" ] && break
   
   echo "Wait ${BWDC_SCAN_SLEEP_DUR} before scanning to sync again."
