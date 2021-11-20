@@ -1,4 +1,4 @@
-FROM node:gallium-bullseye-slim	
+FROM ubuntu:20.04
 # Gallium: v16 and lts
 # bullseye: Debian Stable
 

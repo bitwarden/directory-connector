@@ -3,7 +3,7 @@ version: '3.3'
 services:
   bwdc:
     container_name: bitwarden-bwdc
-    image: bitwarden/directory-connector:2.9.8-containerise_v1.1
+    image: ${BUILD_TAG}
     volumes:
       - ./data/bwdc-profiles:/data/bwdc-profiles
     environment:
