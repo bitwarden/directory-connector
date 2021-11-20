@@ -25,12 +25,12 @@ groupmod -o -g $LGID $GROUPNAME >/dev/null 2>&1
 useradd -o -u $LUID -g $GROUPNAME -s /bin/false $USERNAME >/dev/null 2>&1 ||
 usermod -o -u $LUID -g $GROUPNAME -s /bin/false $USERNAME >/dev/null 2>&1
 mkhomedir_helper $USERNAME
-gosu $USERNAME:$GROUPNAME /bin/bash -c "echo id: $(id); echo HOME: $HOME"
+gosu $USERNAME:$GROUPNAME /bin/bash -c 'echo id: $(id) HOME: $HOME'
 
 
 echo "mkdir && chown directories to the above users."
 mkdir -p $BITWARDENCLI_CONNECTOR_APPDATA_DIR        # Default folder, declared container wide
-chown -R $USERNAME:$GROUPNAME /bwdc-profiles
+chown -R $USERNAME:$GROUPNAME /data
 
 mkdir -p /etc/bitwarden                             # Placeholder to mimic most of the other Bitwarden images
 chown -R $USERNAME:$GROUPNAME /etc/bitwarden
