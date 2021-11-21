@@ -28,7 +28,7 @@ mkhomedir_helper $USERNAME
 gosu $USERNAME:$GROUPNAME /bin/bash -c 'echo id: $(id) HOME: $HOME'
 
 
-echo "mkdir && chown directories to the above users."
+echo "mkdir && chown directories to the above user/group."
 mkdir -p $BITWARDENCLI_CONNECTOR_APPDATA_DIR        # Default folder, declared container wide
 chown -R $USERNAME:$GROUPNAME /data
 

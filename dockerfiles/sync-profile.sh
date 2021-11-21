@@ -14,25 +14,26 @@ cd $BITWARDENCLI_CONNECTOR_APPDATA_DIR
 
 # Profile Name = Name of Current Directory
 BWDC_PROFILENAME=${PWD##*/}
+echo "Pofile name: ${BWDC_PROFILENAME}"
 
 # Allow users to specify conf per profile with Variables
 # Syntax: BWDC_CONF__<PROFILENAME>__<VARNAME>=<VALUE>
 # Example: BWDC_CONF__syncprofile_1__BW_CLIENTID=VALUE
 ProfileConfPrefix=${ProfileConfPrefix:-"BWDC_CONF__${BWDC_PROFILENAME}__"}
 eval 'vars=(${!'"$ProfileConfPrefix"'@})'
-echo "Found ${#vars[@]} environment variables specific to this profile."
+echo "${BWDC_PROFILENAME}: Found ${#vars[@]} environment variables specific to this profile."
 for i in "${vars[@]}"; do
     ActualVarName=${i/"$ProfileConfPrefix"/}
     # echo "$i corresponds to $ActualVarName"
     echo "$ActualVarName=${!i}"
     export $ActualVarName=${!i}
 done
-echo "Debug: All BW Variables in this session: ${!BW*}"
+echo "${BWDC_PROFILENAME}: Debug: All BW Variables in this session: ${!BW*}"
 
 # Print relevant info
-echo "bwdc config-file: $(bwdc data-file)"
-echo "bwdc last-sync users: $(bwdc last-sync users)"
-echo "bwdc last-sync groups: $(bwdc last-sync groups)"
+echo "${BWDC_PROFILENAME}: bwdc config-file: $(bwdc data-file)"
+echo "${BWDC_PROFILENAME}: bwdc last-sync users: $(bwdc last-sync users)"
+echo "${BWDC_PROFILENAME}: bwdc last-sync groups: $(bwdc last-sync groups)"
 
 # Note:
 # if (timeNow-lastSync)>interval: bwdc sync
@@ -47,10 +48,10 @@ echo "bwdc last-sync groups: $(bwdc last-sync groups)"
 
 #echo "currInterval (ignored for now):" $currInterval
 
-echo "Starting sync for: ${BWDC_PROFILENAME}"
+echo "${BWDC_PROFILENAME}: Starting sync"
 bwdc sync
 
 # Print relevant info
-echo "bwdc last-sync users: $(bwdc last-sync users)"
-echo "bwdc last-sync groups: $(bwdc last-sync groups)"
+echo "${BWDC_PROFILENAME}: bwdc last-sync users: $(bwdc last-sync users)"
+echo "${BWDC_PROFILENAME}: bwdc last-sync groups: $(bwdc last-sync groups)"
 
