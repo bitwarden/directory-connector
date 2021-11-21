@@ -40,7 +40,7 @@ services:
 networks:
   bitwardenprod:
     external:
-      name: bitwardenprod_default
+      name: docker_default  # Replace with the name of the bitwarden network
   default:
     internal: false
     
