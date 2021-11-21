@@ -2,13 +2,15 @@ version: '3.3'
 
 services:
   bwdc:
-    container_name: bitwarden-bwdc
+    container_name: ${COMPOSE_PROJECT_NAME:-bitwarden}-bwdc
     image: ${BUILD_TAG}
     volumes:
       - ./data/bwdc-profiles:/data/bwdc-profiles
     environment:
       - LOCAL_UID=1000
       - LOCAL_GID=1000
+    # Some of the optional environment variables within bwdc-cli.
+    # These are available for each sync profile (applies to all profiles if set without prefix):
     #   - BITWARDENCLI_CONNECTOR_APPDATA_DIR='/bwdc-profiles/syncprofile_1'
     #   - BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS=true
     #   - BITWARDENCLI_CONNECTOR_DEBUG=true
@@ -20,10 +22,27 @@ services:
     #   - BW_NOINTERACTION
     #   - BW_CLIENTID
     #   - BW_CLIENTSECRET
-    #   - BWCLI_ENV
+
+    # Example use of the above variables on a per profile basis (profile specific variables overrides the globals above):
+    #   - BWDC_CONF__syncprofile_1__BW_CLIENTID=VALUE
+    #   - BWDC_CONF__syncprofile_1__BW_CLIENTSECRET=VALUE
+    # Note: 'syncprofile_1' above is the name of the profile a.k.a directory where data.json is located.
+
+    # Some of the optional environment variables available for the container
     #   - BWDC_PROFILES_DIR
     #   - BWDC_SYNC_PARALLEL_MAX
     #   - BWDC_SYNC_INTERVAL_MIN
     #   - BWDC_SCAN_SLEEP_DUR
-    #   - BWDC_CONF__syncprofile_1__BW_CLIENTID=VALUE
-    #   - BWDC_CONF__syncprofile_1__BW_CLIENTSECRET=VALUE
+    networks:
+      - bitwardenprod # For connection to the bitwarden api server within the docker network
+      - default       # For connection to external directory services
+
+networks:
+  bitwardenprod:
+    external:
+      name: bitwardenprod_default
+  default:
+    internal: false
+    
+
+# Note: above comments are to be documented in the Bitwarden Help Centre
