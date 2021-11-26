@@ -3,6 +3,7 @@ import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
 import { AppIdService } from 'jslib-common/abstractions/appId.service';
 import { CryptoService } from 'jslib-common/abstractions/crypto.service';
 import { CryptoFunctionService } from 'jslib-common/abstractions/cryptoFunction.service';
+import { EnvironmentService } from 'jslib-common/abstractions/environment.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { LogService } from 'jslib-common/abstractions/log.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
@@ -13,6 +14,7 @@ import { VaultTimeoutService } from 'jslib-common/abstractions/vaultTimeout.serv
 
 import { AuthService as AuthServiceBase } from 'jslib-common/services/auth.service';
 
+import { KeyConnectorService } from 'jslib-common/abstractions/keyConnector.service';
 import { AuthResult } from 'jslib-common/models/domain/authResult';
 import { DeviceRequest } from 'jslib-common/models/request/deviceRequest';
 import { TokenRequest } from 'jslib-common/models/request/tokenRequest';
@@ -24,9 +26,11 @@ export class AuthService extends AuthServiceBase {
         tokenService: TokenService, appIdService: AppIdService, i18nService: I18nService,
         platformUtilsService: PlatformUtilsService, messagingService: MessagingService,
         vaultTimeoutService: VaultTimeoutService, logService: LogService, private apiKeyService: ApiKeyService,
-        cryptoFunctionService: CryptoFunctionService, setCryptoKeys = true) {
+        cryptoFunctionService: CryptoFunctionService, environmentService: EnvironmentService,
+        keyConnectorService: KeyConnectorService) {
         super(cryptoService, apiService, userService, tokenService, appIdService, i18nService, platformUtilsService,
-            messagingService, vaultTimeoutService, logService, cryptoFunctionService, setCryptoKeys);
+            messagingService, vaultTimeoutService, logService, cryptoFunctionService, environmentService,
+            keyConnectorService, false);
     }
 
     async logInApiKey(clientId: string, clientSecret: string): Promise<AuthResult> {

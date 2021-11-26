@@ -26,6 +26,7 @@ import { CryptoService } from 'jslib-common/services/crypto.service';
 import { EnvironmentService } from 'jslib-common/services/environment.service';
 import { FileUploadService } from 'jslib-common/services/fileUpload.service';
 import { FolderService } from 'jslib-common/services/folder.service';
+import { KeyConnectorService } from 'jslib-common/services/keyConnector.service';
 import { NoopMessagingService } from 'jslib-common/services/noopMessaging.service';
 import { PasswordGenerationService } from 'jslib-common/services/passwordGeneration.service';
 import { PolicyService } from 'jslib-common/services/policy.service';
@@ -76,6 +77,7 @@ export class Main {
     passwordGenerationService: PasswordGenerationService;
     policyService: PolicyService;
     loginSyncService: LoginSyncService;
+    keyConnectorService: KeyConnectorService;
     program: Program;
 
     constructor() {
@@ -119,9 +121,11 @@ export class Main {
         this.apiKeyService = new ApiKeyService(this.tokenService, this.storageService);
         this.userService = new UserService(this.tokenService, this.storageService);
         this.containerService = new ContainerService(this.cryptoService);
+        this.keyConnectorService = new KeyConnectorService(this.storageService, this.userService, this.cryptoService,
+            this.apiService, this.tokenService, this.logService);
         this.authService = new AuthService(this.cryptoService, this.apiService, this.userService, this.tokenService,
             this.appIdService, this.i18nService, this.platformUtilsService, this.messagingService, null,
-            this.logService, this.apiKeyService, this.cryptoFunctionService, false);
+            this.logService, this.apiKeyService, this.cryptoFunctionService, this.environmentService, this.keyConnectorService);
         this.configurationService = new ConfigurationService(this.storageService, this.secureStorageService,
             process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== 'true');
         this.syncService = new SyncService(this.configurationService, this.logService, this.cryptoFunctionService,
@@ -143,8 +147,8 @@ export class Main {
 
         this.loginSyncService = new LoginSyncService(this.userService, this.apiService, this.settingsService,
             this.folderService, this.cipherService, this.cryptoService, this.collectionService, this.storageService,
-            this.messagingService, this.policyService, this.sendService, this.logService,
-            async (expired: boolean) => this.messagingService.send('logout', { expired: expired }));
+            this.messagingService, this.policyService, this.sendService, this.logService, this.tokenService,
+            this.keyConnectorService, async (expired: boolean) => this.messagingService.send('logout', { expired: expired }));
 
         this.program = new Program(this);
     }

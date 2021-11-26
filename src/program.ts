@@ -102,7 +102,7 @@ export class Program extends BaseProgram {
                 const command = new LoginCommand(this.main.authService, this.main.apiService, this.main.i18nService,
                     this.main.environmentService, this.main.passwordGenerationService, this.main.cryptoFunctionService,
                     this.main.platformUtilsService, this.main.userService, this.main.cryptoService,
-                    this.main.policyService, 'connector', this.main.loginSyncService);
+                    this.main.policyService, 'connector', this.main.loginSyncService, this.main.keyConnectorService);
 
                 if (!Utils.isNullOrWhitespace(clientId)) {
                     process.env.BW_CLIENTID = clientId;

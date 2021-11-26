@@ -121,7 +121,7 @@ export class SyncService {
         // UserEntrys with the same email but different properties will throw an error
         users.forEach(u => {
             if (processedUsers.has(u.email)) {
-                if (processedUsers.get(u.email) != JSON.stringify(u)) {
+                if (processedUsers.get(u.email) !== JSON.stringify(u)) {
                     duplicateEmails.push(u.email);
                 }
             } else {
