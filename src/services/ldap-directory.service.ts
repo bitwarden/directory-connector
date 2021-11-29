@@ -79,7 +79,7 @@ export class LdapDirectoryService implements IDirectoryService {
         }
 
         try {
-            let deletedFilter = this.buildBaseFilter(this.syncConfig.userObjectClass, '(isDeleted=TRUE)');
+            let deletedFilter = this.buildBaseFilter(this.syncConfig.userObjectClass, '(isDeleted=TRUE)' + this.syncConfig.userFilter);
             deletedFilter = this.buildRevisionFilter(deletedFilter, force, lastSync);
 
             const deletedPath = this.makeSearchPath('CN=Deleted Objects');
@@ -107,10 +107,15 @@ export class LdapDirectoryService implements IDirectoryService {
         user.externalId = this.getExternalId(searchEntry, user.referenceId);
         user.disabled = this.entryDisabled(searchEntry);
         user.email = this.getAttr(searchEntry, this.syncConfig.userEmailAttribute);
+        console.log(user.email);
+        if (user.email == null) {
+            console.log(this.syncConfig.useEmailPrefixSuffix, this.syncConfig.emailPrefixAttribute, this.syncConfig.emailSuffix)
+        }
         if (user.email == null && this.syncConfig.useEmailPrefixSuffix &&
             this.syncConfig.emailPrefixAttribute != null && this.syncConfig.emailSuffix != null) {
             const prefixAttr = this.getAttr(searchEntry, this.syncConfig.emailPrefixAttribute);
             if (prefixAttr != null) {
+                console.log('Building email', prefixAttr);
                 user.email = prefixAttr + this.syncConfig.emailSuffix;
             }
         }
