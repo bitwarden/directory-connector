@@ -122,7 +122,9 @@ export class SyncService {
         users.forEach(u => {
             if (processedUsers.has(u.email)) {
                 if (processedUsers.get(u.email) != JSON.stringify(u)) {
-                    duplicateEmails.push(u.email);
+                    if (!u.deleted) {
+                        duplicateEmails.push(u.email);
+                    }
                 }
             } else {
                 uniqueUsers.push(u);
