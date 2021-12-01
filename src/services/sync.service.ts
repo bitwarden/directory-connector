@@ -127,7 +127,7 @@ export class SyncService {
                 }
             } else {
                 if (!u.deleted) {
-                    // UserEntrys that are not deleted but there's a deleted entry with same email error
+                    // Check that active UserEntry does not conflict with a deleted UserEntry
                     if (processedDeletedUsers.has(u.email)) {
                         duplicateEmails.push(u.email);
                     } else {
