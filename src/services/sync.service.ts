@@ -135,7 +135,7 @@ export class SyncService {
                         uniqueUsers.push(u);
                     }
                 } else {
-                    // UserEntrys with the same email but are all deleted are ignored but tracked
+                    // UserEntrys with duplicate email will not throw an error if they are all deleted. They will be synced.
                     processedDeletedUsers.set(u.email, JSON.stringify(u));
                     uniqueUsers.push(u);
                 }
