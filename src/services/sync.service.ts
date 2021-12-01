@@ -119,7 +119,7 @@ export class SyncService {
         const duplicateEmails = new Array<string>();
 
         // UserEntrys with the same email are ignored if their properties are the same
-        // UserEntrys with the same email but different properties will throw an error 
+        // UserEntrys with the same email but different properties will throw an error, unless they are all in a deleted state.
         users.forEach(u => {
             if (processedActiveUsers.has(u.email)) {
                 if (processedActiveUsers.get(u.email) !== JSON.stringify(u)) {
