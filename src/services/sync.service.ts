@@ -114,19 +114,31 @@ export class SyncService {
 
     private removeDuplicateUsers(users: UserEntry[]) {
         const uniqueUsers = new Array<UserEntry>();
-        const processedUsers = new Map<string, string>();
+        const processedActiveUsers = new Map<string, string>();
+        const processedDeletedUsers = new Map<string, string>();
         const duplicateEmails = new Array<string>();
 
         // UserEntrys with the same email are ignored if their properties are the same
-        // UserEntrys with the same email but different properties will throw an error
+        // UserEntrys with the same email but different properties will throw an error, unless they are all in a deleted state.
         users.forEach(u => {
-            if (processedUsers.has(u.email)) {
-                if (processedUsers.get(u.email) !== JSON.stringify(u)) {
+            if (processedActiveUsers.has(u.email)) {
+                if (processedActiveUsers.get(u.email) !== JSON.stringify(u)) {
                     duplicateEmails.push(u.email);
                 }
             } else {
-                uniqueUsers.push(u);
-                processedUsers.set(u.email, JSON.stringify(u));
+                if (!u.deleted) {
+                    // Check that active UserEntry does not conflict with a deleted UserEntry
+                    if (processedDeletedUsers.has(u.email)) {
+                        duplicateEmails.push(u.email);
+                    } else {
+                        processedActiveUsers.set(u.email, JSON.stringify(u));
+                        uniqueUsers.push(u);
+                    }
+                } else {
+                    // UserEntrys with duplicate email will not throw an error if they are all deleted. They will be synced.
+                    processedDeletedUsers.set(u.email, JSON.stringify(u));
+                    uniqueUsers.push(u);
+                }
             }
         });
 

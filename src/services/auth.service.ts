@@ -5,6 +5,7 @@ import { CryptoService } from 'jslib-common/abstractions/crypto.service';
 import { CryptoFunctionService } from 'jslib-common/abstractions/cryptoFunction.service';
 import { EnvironmentService } from 'jslib-common/abstractions/environment.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { KeyConnectorService } from 'jslib-common/abstractions/keyConnector.service';
 import { LogService } from 'jslib-common/abstractions/log.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
 import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
@@ -14,7 +15,6 @@ import { VaultTimeoutService } from 'jslib-common/abstractions/vaultTimeout.serv
 
 import { AuthService as AuthServiceBase } from 'jslib-common/services/auth.service';
 
-import { KeyConnectorService } from 'jslib-common/abstractions/keyConnector.service';
 import { AuthResult } from 'jslib-common/models/domain/authResult';
 import { DeviceRequest } from 'jslib-common/models/request/deviceRequest';
 import { TokenRequest } from 'jslib-common/models/request/tokenRequest';
