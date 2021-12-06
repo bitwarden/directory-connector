@@ -8,6 +8,7 @@ import {
 
 import { ToasterService } from 'angular2-toaster';
 
+import { BroadcasterService } from 'jslib-common/abstractions/broadcaster.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
 import { StateService } from 'jslib-common/abstractions/state.service';
@@ -18,8 +19,6 @@ import { GroupEntry } from '../../models/groupEntry';
 import { SimResult } from '../../models/simResult';
 import { UserEntry } from '../../models/userEntry';
 import { ConfigurationService } from '../../services/configuration.service';
-
-import { BroadcasterService } from 'jslib-angular/services/broadcaster.service';
 
 import { ConnectorUtils } from '../../utils';
 
