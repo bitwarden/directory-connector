@@ -176,7 +176,6 @@
     "@bitwarden/jslib-electron": "file:jslib/electron",
     "@bitwarden/jslib-node": "file:jslib/node",
     "@microsoft/microsoft-graph-client": "^2.2.1",
-    "angular2-toaster": "^11.0.1",
     "bootstrap": "^4.6.0",
     "chalk": "^4.1.1",
     "commander": "^7.2.0",
@@ -187,6 +186,7 @@
     "inquirer": "8.0.0",
     "ldapjs": "git+https://git@github.com/kspearrin/node-ldapjs.git",
     "lunr": "^2.3.9",
+    "ngx-toastr": "^13.2.1",
     "open": "^8.0.6",
     "proper-lockfile": "^4.1.2"
   },

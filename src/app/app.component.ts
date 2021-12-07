@@ -1,34 +1,27 @@
 import {
-    BodyOutputType,
-    Toast,
-    ToasterConfig,
-    ToasterContainerComponent,
-    ToasterService,
-} from 'angular2-toaster';
-
-import {
     Component,
-    ComponentFactoryResolver,
     NgZone,
     OnInit,
     SecurityContext,
-    Type,
     ViewChild,
     ViewContainerRef,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import {
+    IndividualConfig,
+    ToastrService,
+} from 'ngx-toastr';
 
-import { ApiService } from 'jslib-common/abstractions/api.service';
 import { AuthService } from 'jslib-common/abstractions/auth.service';
 import { BroadcasterService } from 'jslib-common/abstractions/broadcaster.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { LogService } from 'jslib-common/abstractions/log.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
 import { StateService } from 'jslib-common/abstractions/state.service';
-import { StorageService } from 'jslib-common/abstractions/storage.service';
 import { TokenService } from 'jslib-common/abstractions/token.service';
 import { UserService } from 'jslib-common/abstractions/user.service';
+import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
 
 import { ConfigurationService } from '../services/configuration.service';
 import { SyncService } from '../services/sync.service';
@@ -39,31 +32,24 @@ const BroadcasterSubscriptionId = 'AppComponent';
     selector: 'app-root',
     styles: [],
     template: `
-        <toaster-container [toasterconfig]="toasterConfig"></toaster-container>
         <ng-template #settings></ng-template>
         <router-outlet></router-outlet>`,
 })
 export class AppComponent implements OnInit {
     @ViewChild('settings', { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
 
-    toasterConfig: ToasterConfig = new ToasterConfig({
-        showCloseButton: true,
-        mouseoverTimerStop: true,
-        animation: 'flyRight',
-        limit: 5,
-    });
-
-    private lastActivity: number = null;
+    toasterConfig: Partial<IndividualConfig> = {
+        closeButton: true,
+    };
 
     constructor(private broadcasterService: BroadcasterService, private userService: UserService,
-        private tokenService: TokenService, private storageService: StorageService,
+        private tokenService: TokenService,
         private authService: AuthService, private router: Router,
-        private toasterService: ToasterService, private i18nService: I18nService,
+        private toastrService: ToastrService, private i18nService: I18nService,
         private sanitizer: DomSanitizer, private ngZone: NgZone,
-        private componentFactoryResolver: ComponentFactoryResolver, private messagingService: MessagingService,
+        private platformUtilsService: PlatformUtilsService, private messagingService: MessagingService,
         private configurationService: ConfigurationService, private syncService: SyncService,
-        private stateService: StateService, private apiService: ApiService, private logService: LogService) {
-        (window as any).BitwardenToasterService = toasterService;
+        private stateService: StateService, private logService: LogService) {
     }
 
     ngOnInit() {
@@ -138,7 +124,7 @@ export class AppComponent implements OnInit {
 
         this.authService.logOut(async () => {
             if (expired) {
-                this.toasterService.popAsync('warning', this.i18nService.t('loggedOut'),
+                this.platformUtilsService.showToast('warning', this.i18nService.t('loggedOut'),
                     this.i18nService.t('loginExpired'));
             }
             this.router.navigate(['login']);
@@ -146,29 +132,28 @@ export class AppComponent implements OnInit {
     }
 
     private showToast(msg: any) {
-        const toast: Toast = {
-            type: msg.type,
-            title: msg.title,
-        };
+        let message = '';
+
+        const options = Object.assign({}, this.toasterConfig);
+
         if (typeof (msg.text) === 'string') {
-            toast.body = msg.text;
+            message = msg.text;
         } else if (msg.text.length === 1) {
-            toast.body = msg.text[0];
+            message = msg.text[0];
         } else {
-            let message = '';
             msg.text.forEach((t: string) =>
                 message += ('<p>' + this.sanitizer.sanitize(SecurityContext.HTML, t) + '</p>'));
-            toast.body = message;
-            toast.bodyOutputType = BodyOutputType.TrustedHtml;
+            options.enableHtml = true;
         }
         if (msg.options != null) {
             if (msg.options.trustedHtml === true) {
-                toast.bodyOutputType = BodyOutputType.TrustedHtml;
+                options.enableHtml = true;
             }
             if (msg.options.timeout != null && msg.options.timeout > 0) {
-                toast.timeout = msg.options.timeout;
+                options.timeOut = msg.options.timeout;
             }
         }
-        this.toasterService.popAsync(toast);
+
+        this.toastrService.show(message, msg.title, options, 'toast-' + msg.type);
     }
 }
