@@ -6,8 +6,6 @@ import {
     OnInit,
 } from '@angular/core';
 
-import { ToasterService } from 'angular2-toaster';
-
 import { BroadcasterService } from 'jslib-common/abstractions/broadcaster.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
@@ -28,7 +26,7 @@ export class MoreComponent implements OnInit {
 
     constructor(private platformUtilsService: PlatformUtilsService, private i18nService: I18nService,
         private messagingService: MessagingService, private configurationService: ConfigurationService,
-        private toasterService: ToasterService, private broadcasterService: BroadcasterService,
+        private broadcasterService: BroadcasterService,
         private ngZone: NgZone, private changeDetectorRef: ChangeDetectorRef) { }
 
     async ngOnInit() {
@@ -72,6 +70,6 @@ export class MoreComponent implements OnInit {
 
     async clearCache() {
         await this.configurationService.clearStatefulSettings(true);
-        this.toasterService.popAsync('success', null, this.i18nService.t('syncCacheCleared'));
+        this.platformUtilsService.showToast('success', null, this.i18nService.t('syncCacheCleared'));
     }
 }
