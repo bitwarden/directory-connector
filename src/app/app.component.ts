@@ -38,10 +38,6 @@ const BroadcasterSubscriptionId = 'AppComponent';
 export class AppComponent implements OnInit {
     @ViewChild('settings', { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
 
-    toasterConfig: Partial<IndividualConfig> = {
-        closeButton: true,
-    };
-
     constructor(private broadcasterService: BroadcasterService, private userService: UserService,
         private tokenService: TokenService,
         private authService: AuthService, private router: Router,
@@ -134,7 +130,7 @@ export class AppComponent implements OnInit {
     private showToast(msg: any) {
         let message = '';
 
-        const options = Object.assign({}, this.toasterConfig);
+        const options: Partial<IndividualConfig> = {};
 
         if (typeof (msg.text) === 'string') {
             message = msg.text;

@@ -44,6 +44,7 @@ import { SearchCiphersPipe } from 'jslib-angular/pipes/search-ciphers.pipe';
         BitwardenToastModule.forRoot({
             maxOpened: 5,
             autoDismiss: true,
+            closeButton: true,
         }),
     ],
     declarations: [
