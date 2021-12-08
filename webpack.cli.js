@@ -18,7 +18,7 @@ const moduleRules = [
     },
     {
         test: /\.ts$/,
-        loaders: ['ts-loader'],
+        use: 'ts-loader',
         exclude: path.resolve(__dirname, 'node_modules'),
     },
     {
@@ -41,7 +41,9 @@ const plugins = [
         banner: '#!/usr/bin/env node',
         raw: true
     }),
-    new webpack.IgnorePlugin(/^encoding$/, /node-fetch/),
+    new webpack.IgnorePlugin({
+        resourceRegExp: /(^encoding$|node-fetch)/,
+    }),
 ];
 
 const config = {

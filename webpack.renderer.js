@@ -3,7 +3,7 @@ const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const AngularCompilerPlugin = require('@ngtools/webpack').AngularCompilerPlugin;
+const AngularWebpackPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const common = {
@@ -21,13 +21,10 @@ const common = {
             {
                 test: /\.(jpe?g|png|gif|svg)$/i,
                 exclude: /.*(fontawesome-webfont)\.svg/,
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        name: '[name].[ext]',
-                        outputPath: 'images/',
-                    },
-                }],
+                generator: {
+                    filename: 'images/[name].[ext]',
+                },
+                type: 'asset/resource',
             },
         ],
     },
@@ -77,13 +74,10 @@ const renderer = {
             {
                 test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
                 exclude: /loading.svg/,
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        name: '[name].[ext]',
-                        outputPath: 'fonts/',
-                    },
-                }],
+                generator: {
+                    filename: 'fonts/[name].[ext]',
+                },
+                type: 'asset/resource',
             },
             {
                 test: /\.scss$/,
@@ -106,7 +100,7 @@ const renderer = {
         ],
     },
     plugins: [
-        new AngularCompilerPlugin({
+        new AngularWebpackPlugin({
             tsConfigPath: 'tsconfig.json',
             entryModule: 'src/app/app.module#AppModule',
             sourceMap: true,
@@ -117,10 +111,10 @@ const renderer = {
         new HtmlWebpackPlugin({
             template: './src/index.html',
             filename: 'index.html',
-            chunks: ['app/vendor', 'app/main']
+            chunks: ['app/vendor', 'app/main'],
         }),
         new webpack.SourceMapDevToolPlugin({
-            include: ['app/main.js']
+            include: ['app/main.js'],
         }),
         new webpack.DefinePlugin({ 'global.GENTLY': false }),
         new MiniCssExtractPlugin({
