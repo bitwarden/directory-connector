@@ -9,8 +9,8 @@ import {
 import { BroadcasterService } from 'jslib-common/abstractions/broadcaster.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
-import { StateService } from 'jslib-common/abstractions/state.service';
 import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
+import { StateService } from 'jslib-common/abstractions/state.service';
 
 import { SyncService } from '../../services/sync.service';
 
