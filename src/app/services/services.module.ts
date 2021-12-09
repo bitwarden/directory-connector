@@ -53,6 +53,7 @@ import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from 'jslib-com
 
 import { ApiService, refreshToken } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { NodeApiService } from 'jslib-node/services/nodeApi.service';
 
 function refreshTokenCallback(injector: Injector) {
     return () => {
@@ -65,11 +66,12 @@ function refreshTokenCallback(injector: Injector) {
 export function initFactory(environmentService: EnvironmentServiceAbstraction,
     i18nService: I18nService, authService: AuthService, platformUtilsService: PlatformUtilsServiceAbstraction,
     storageService: StorageServiceAbstraction, userService: UserServiceAbstraction, apiService: ApiServiceAbstraction,
-    stateService: StateServiceAbstraction, cryptoService: CryptoServiceAbstraction): Function {
+    stateService: StateServiceAbstraction, cryptoService: CryptoServiceAbstraction, apiKeyService: ApiKeyServiceAbstraction): Function {
     return async () => {
         await environmentService.setUrlsFromStorage();
         await i18nService.init();
         authService.init();
+        await apiKeyService.migrateApiKeyStorage();
         const htmlEl = window.document.documentElement;
         htmlEl.classList.add('os_' + platformUtilsService.getDeviceString());
         htmlEl.classList.add('locale_' + i18nService.translationLocale);
@@ -119,6 +121,7 @@ export function initFactory(environmentService: EnvironmentServiceAbstraction,
                 ApiServiceAbstraction,
                 StateServiceAbstraction,
                 CryptoServiceAbstraction,
+                ApiKeyServiceAbstraction
             ],
             multi: true,
         },
@@ -152,8 +155,11 @@ export function initFactory(environmentService: EnvironmentServiceAbstraction,
             useFactory: (tokenService: TokenServiceAbstraction, platformUtilsService: PlatformUtilsServiceAbstraction,
                 environmentService: EnvironmentServiceAbstraction, messagingService: MessagingServiceAbstraction,
                 injector: Injector) =>
-                new ApiService(tokenService, platformUtilsService, environmentService, refreshTokenCallback(injector),
-                    async (expired: boolean) => messagingService.send('logout', { expired: expired })),
+                new NodeApiService(tokenService, platformUtilsService, environmentService,
+                    async (expired: boolean) => messagingService.send('logout', { expired: expired }),
+                    'Bitwarden_DC/' + platformUtilsService.getApplicationVersion() +
+                    ' (' + platformUtilsService.getDeviceString().toUpperCase() + ')',
+                    refreshTokenCallback(injector)),
             deps: [
                 TokenServiceAbstraction,
                 PlatformUtilsServiceAbstraction,

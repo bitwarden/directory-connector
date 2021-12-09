@@ -9,7 +9,6 @@ import { ConfigurationService } from './services/configuration.service';
 import { I18nService } from './services/i18n.service';
 import { KeytarSecureStorageService } from './services/keytarSecureStorage.service';
 import { LowdbStorageService } from './services/lowdbStorage.service';
-import { NodeApiService } from './services/nodeApi.service';
 import { SyncService } from './services/sync.service';
 
 import { CliPlatformUtilsService } from 'jslib-node/cli/services/cliPlatformUtils.service';
@@ -41,6 +40,7 @@ import { StorageService as StorageServiceAbstraction } from 'jslib-common/abstra
 
 import { Program } from './program';
 import { refreshToken } from './services/api.service';
+import { NodeApiService } from 'jslib-node/services/nodeApi.service';
 
 // tslint:disable-next-line
 const packageJson = require('./package.json');
@@ -114,7 +114,7 @@ export class Main {
         this.messagingService = new NoopMessagingService();
         this.environmentService = new EnvironmentService(this.storageService);
         this.apiService = new NodeApiService(this.tokenService, this.platformUtilsService, this.environmentService,
-            () => refreshToken(this.apiKeyService, this.authService), async (expired: boolean) => await this.logout(),
+            async (expired: boolean) => await this.logout(),
             'Bitwarden_DC/' + this.platformUtilsService.getApplicationVersion() +
             ' (' + this.platformUtilsService.getDeviceString().toUpperCase() + ')', (clientId, clientSecret) =>
             this.authService.logInApiKey(clientId, clientSecret));
