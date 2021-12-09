@@ -3,7 +3,7 @@ const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const AngularWebpackPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
+const { AngularWebpackPlugin } = require('@ngtools/webpack');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const common = {
@@ -118,8 +118,8 @@ const renderer = {
         }),
         new webpack.DefinePlugin({ 'global.GENTLY': false }),
         new MiniCssExtractPlugin({
-            filename: '[name].[hash].css',
-            chunkFilename: '[id].[hash].css',
+            filename: '[name].[contenthash].css',
+            chunkFilename: '[id].[contenthash].css',
         }),
     ],
 };

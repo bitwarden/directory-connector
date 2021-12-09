@@ -193,7 +193,7 @@
     "inquirer": "8.0.0",
     "ldapjs": "git+https://git@github.com/kspearrin/node-ldapjs.git",
     "lunr": "^2.3.9",
-    "ngx-toastr": "^13.2.1",
+    "ngx-toastr": "14.1.4",
     "open": "^8.0.6",
     "proper-lockfile": "^4.1.2",
     "rxjs": "^7.4.0"
