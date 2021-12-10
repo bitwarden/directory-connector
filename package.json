@@ -152,7 +152,7 @@
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.4.5",
     "node-loader": "^2.0.0",
-    "pkg": "^5.1.0",
+    "pkg": "^5.5.1",
     "prebuild-install": "^5.0.0",
     "rimraf": "^3.0.2",
     "sass": "^1.32.11",
