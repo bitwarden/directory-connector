@@ -1,8 +1,6 @@
 import 'core-js/stable';
 import 'zone.js/dist/zone';
 
-import { ToasterModule } from 'angular2-toaster';
-
 import { AppRoutingModule } from './app-routing.module';
 import { ServicesModule } from './services/services.module';
 
@@ -15,6 +13,7 @@ import { AppComponent } from './app.component';
 
 import { CalloutComponent } from 'jslib-angular/components/callout.component';
 import { IconComponent } from 'jslib-angular/components/icon.component';
+import { BitwardenToastModule } from 'jslib-angular/components/toastr.component';
 
 import { ApiKeyComponent } from './accounts/apiKey.component';
 import { EnvironmentComponent } from './accounts/environment.component';
@@ -42,7 +41,11 @@ import { SearchCiphersPipe } from 'jslib-angular/pipes/search-ciphers.pipe';
         FormsModule,
         AppRoutingModule,
         ServicesModule,
-        ToasterModule.forRoot(),
+        BitwardenToastModule.forRoot({
+            maxOpened: 5,
+            autoDismiss: true,
+            closeButton: true,
+        }),
     ],
     declarations: [
         A11yTitleDirective,

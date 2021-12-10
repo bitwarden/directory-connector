@@ -6,11 +6,10 @@ import {
     OnInit,
 } from '@angular/core';
 
-import { ToasterService } from 'angular2-toaster';
-
 import { BroadcasterService } from 'jslib-common/abstractions/broadcaster.service';
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
+import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
 import { StateService } from 'jslib-common/abstractions/state.service';
 
 import { SyncService } from '../../services/sync.service';
@@ -45,7 +44,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     constructor(private i18nService: I18nService, private syncService: SyncService,
         private configurationService: ConfigurationService, private broadcasterService: BroadcasterService,
         private ngZone: NgZone, private messagingService: MessagingService,
-        private toasterService: ToasterService, private changeDetectorRef: ChangeDetectorRef,
+        private platformUtilsService: PlatformUtilsService, private changeDetectorRef: ChangeDetectorRef,
         private stateService: StateService) { }
 
     async ngOnInit() {
@@ -76,13 +75,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         await this.startPromise;
         this.messagingService.send('scheduleNextDirSync');
         this.syncRunning = true;
-        this.toasterService.popAsync('success', null, this.i18nService.t('syncingStarted'));
+        this.platformUtilsService.showToast('success', null, this.i18nService.t('syncingStarted'));
     }
 
     async stop() {
         this.messagingService.send('cancelDirSync');
         this.syncRunning = false;
-        this.toasterService.popAsync('success', null, this.i18nService.t('syncingStopped'));
+        this.platformUtilsService.showToast('success', null, this.i18nService.t('syncingStopped'));
     }
 
     async sync() {
@@ -90,7 +89,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const result = await this.syncPromise;
         const groupCount = result[0] != null ? result[0].length : 0;
         const userCount = result[1] != null ? result[1].length : 0;
-        this.toasterService.popAsync('success', null,
+        this.platformUtilsService.showToast('success', null,
             this.i18nService.t('syncCounts', groupCount.toString(), userCount.toString()));
     }
 
