@@ -136,7 +136,7 @@
     "@microsoft/microsoft-graph-types": "^1.4.0",
     "@ngtools/webpack": "^12.2.13",
     "@types/ldapjs": "^1.0.10",
-    "@types/node": "^14.14.43",
+    "@types/node": "^16.11.12",
     "@types/proper-lockfile": "^4.1.1",
     "clean-webpack-plugin": "^4.0.0",
     "concurrently": "^6.0.2",
