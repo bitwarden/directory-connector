@@ -51,9 +51,9 @@ import { TokenService as TokenServiceAbstraction } from 'jslib-common/abstractio
 import { UserService as UserServiceAbstraction } from 'jslib-common/abstractions/user.service';
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from 'jslib-common/abstractions/vaultTimeout.service';
 
+import { NodeApiService } from 'jslib-node/services/nodeApi.service';
 import { ApiService, refreshToken } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
-import { NodeApiService } from 'jslib-node/services/nodeApi.service';
 
 function refreshTokenCallback(injector: Injector) {
     return () => {
@@ -121,7 +121,7 @@ export function initFactory(environmentService: EnvironmentServiceAbstraction,
                 ApiServiceAbstraction,
                 StateServiceAbstraction,
                 CryptoServiceAbstraction,
-                ApiKeyServiceAbstraction
+                ApiKeyServiceAbstraction,
             ],
             multi: true,
         },

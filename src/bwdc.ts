@@ -38,9 +38,9 @@ import { UserService } from 'jslib-common/services/user.service';
 
 import { StorageService as StorageServiceAbstraction } from 'jslib-common/abstractions/storage.service';
 
+import { NodeApiService } from 'jslib-node/services/nodeApi.service';
 import { Program } from './program';
 import { refreshToken } from './services/api.service';
-import { NodeApiService } from 'jslib-node/services/nodeApi.service';
 
 // tslint:disable-next-line
 const packageJson = require('./package.json');
