@@ -74,8 +74,7 @@ jobs:
       - name: Keytar
         run: |
           keytarVersion=$(cat src/package.json | jq -r '.dependencies.keytar')
-          nodeModVersion=$(node -e "console.log(process.config.variables.node_module_version)")
-          keytarTar="keytar-v$keytarVersion-node-v$nodeModVersion-linux-x64.tar"
+          keytarTar="keytar-v$keytarVersion-napi-v3-linux-x64.tar"
 
           keytarTarGz="$keytarTar.gz"
           keytarUrl="https://github.com/atom/node-keytar/releases/download/v$keytarVersion/$keytarTarGz"
