@@ -19,6 +19,6 @@
   },
   "dependencies": {
     "browser-hrtime": "^1.1.8",
-    "keytar": "7.6.0"
+    "keytar": "^7.7.0"
   }
 }
