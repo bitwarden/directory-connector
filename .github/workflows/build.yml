@@ -163,8 +163,7 @@ jobs:
       - name: Keytar
         run: |
           keytarVersion=$(cat src/package.json | jq -r '.dependencies.keytar')
-          nodeModVersion=$(node -e "console.log(process.config.variables.node_module_version)")
-          keytarTar="keytar-v$keytarVersion-node-v$nodeModVersion-darwin-x64.tar"
+          keytarTar="keytar-v$keytarVersion-napi-v3-darwin-x64.tar"
 
           keytarTarGz="$keytarTar.gz"
           keytarUrl="https://github.com/atom/node-keytar/releases/download/v$keytarVersion/$keytarTarGz"
@@ -260,8 +259,7 @@ jobs:
         shell: pwsh
         run: |
           $keytarVersion = (Get-Content -Raw -Path ./src/package.json | ConvertFrom-Json).dependencies.keytar
-          $nodeModVersion = node -e "console.log(process.config.variables.node_module_version)"
-          $keytarTar = "keytar-v${keytarVersion}-node-v${nodeModVersion}-{0}-x64.tar"
+          $keytarTar = "keytar-v${keytarVersion}-napi-v3-{0}-x64.tar"
           $keytarTarGz = "${keytarTar}.gz"
           $keytarUrl = "https://github.com/atom/node-keytar/releases/download/v${keytarVersion}/${keytarTarGz}"
 
