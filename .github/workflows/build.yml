@@ -47,7 +47,7 @@ jobs:
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _PKG_FETCH_NODE_VERSION: 16.13.0
-      _PKG_FETCH_VERSION: 3.2.5
+      _PKG_FETCH_VERSION: 3.2
     steps:
       - name: Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f  # v2.3.4
@@ -137,7 +137,7 @@ jobs:
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _PKG_FETCH_NODE_VERSION: 16.13.0
-      _PKG_FETCH_VERSION: 3.2.5
+      _PKG_FETCH_VERSION: 3.2
     steps:
       - name: Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f  # v2.3.4
@@ -224,7 +224,7 @@ jobs:
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _WIN_PKG_FETCH_VERSION: 16.13.1
+      _WIN_PKG_FETCH_VERSION: 16.13.0
       _WIN_PKG_VERSION: 3.2
     steps:
       - name: Checkout repo
