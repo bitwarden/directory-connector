@@ -59,7 +59,6 @@ jobs:
 
       - name: Update NPM
         run: |
-          npm install -g npm@8
           npm install -g node-gyp
           node-gyp install $(node -v)
 
@@ -148,7 +147,6 @@ jobs:
 
       - name: Update NPM
         run: |
-          npm install -g npm@8
           npm install -g node-gyp
           node-gyp install $(node -v)
 
@@ -240,7 +238,6 @@ jobs:
 
       - name: Update NPM
         run: |
-          npm install -g npm@8
           npm install -g node-gyp
           node-gyp install $(node -v)
 
@@ -379,7 +376,6 @@ jobs:
 
       - name: Update NPM
         run: |
-          npm install -g npm@8
           npm install -g node-gyp
           node-gyp install $(node -v)
 
@@ -458,7 +454,6 @@ jobs:
 
       - name: Update NPM
         run: |
-          npm install -g npm@8
           npm install -g node-gyp
           node-gyp install $(node -v)
 
@@ -512,7 +507,6 @@ jobs:
 
       - name: Update NPM
         run: |
-          npm install -g npm@8
           npm install -g node-gyp
           node-gyp install $(node -v)
 
