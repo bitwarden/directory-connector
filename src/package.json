@@ -13,9 +13,9 @@
   },
   "dependencies": {
     "browser-hrtime": "^1.1.8",
-    "electron-log": "4.3.5",
-    "electron-store": "8.0.0",
-    "electron-updater": "4.3.9",
+    "electron-log": "4.4.1",
+    "electron-store": "8.0.1",
+    "electron-updater": "4.6.1",
     "keytar": "7.7.0"
   }
 }
