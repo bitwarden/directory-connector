@@ -2,7 +2,6 @@ import {
     ChangeDetectorRef,
     Component,
     NgZone,
-    OnDestroy,
     OnInit,
 } from '@angular/core';
 

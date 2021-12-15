@@ -1,6 +1,6 @@
+import { IConfiguration } from 'src/models/IConfiguration';
 import { DirectoryType } from '../enums/directoryType';
 
-import { StorageService } from 'jslib-common/abstractions/storage.service';
 import { AzureConfiguration } from '../models/azureConfiguration';
 import { GSuiteConfiguration } from '../models/gsuiteConfiguration';
 import { LdapConfiguration } from '../models/ldapConfiguration';
@@ -8,54 +8,43 @@ import { OktaConfiguration } from '../models/oktaConfiguration';
 import { OneLoginConfiguration } from '../models/oneLoginConfiguration';
 import { SyncConfiguration } from '../models/syncConfiguration';
 
+import { StateService } from './state.service';
+
 const StoredSecurely = '[STORED SECURELY]';
-const Keys = {
-    ldap: 'ldapPassword',
-    gsuite: 'gsuitePrivateKey',
-    azure: 'azureKey',
-    okta: 'oktaToken',
-    oneLogin: 'oneLoginClientSecret',
-    directoryConfigPrefix: 'directoryConfig_',
-    sync: 'syncConfig',
-    directoryType: 'directoryType',
-    userDelta: 'userDeltaToken',
-    groupDelta: 'groupDeltaToken',
-    lastUserSync: 'lastUserSync',
-    lastGroupSync: 'lastGroupSync',
-    lastSyncHash: 'lastSyncHash',
-    organizationId: 'organizationId',
-};
 
 export class ConfigurationService {
-    constructor(private storageService: StorageService, private secureStorageService: StorageService,
-        private useSecureStorageForSecrets = true) { }
+    constructor(
+        private stateService: StateService,
+        private useSecureStorageForSecrets = true
+    ) { }
 
-    async getDirectory<T>(type: DirectoryType): Promise<T> {
-        const config = await this.storageService.get<T>(Keys.directoryConfigPrefix + type);
+    // TODO this type arguement and the type parameter passed in have an interdependency we need to refactor out
+    async getDirectory<T extends IConfiguration>(type: DirectoryType): Promise<T> {
+        const config = await this.stateService.getConfiguration(type);
         if (config == null) {
-            return config;
+            return config as T;
         }
 
         if (this.useSecureStorageForSecrets) {
             switch (type) {
                 case DirectoryType.Ldap:
-                    (config as any).password = await this.secureStorageService.get<string>(Keys.ldap);
+                    (config as any).password = await this.stateService.getLdapKey();
                     break;
                 case DirectoryType.AzureActiveDirectory:
-                    (config as any).key = await this.secureStorageService.get<string>(Keys.azure);
+                    (config as any).key = await this.stateService.getAzureKey();
                     break;
                 case DirectoryType.Okta:
-                    (config as any).token = await this.secureStorageService.get<string>(Keys.okta);
+                    (config as any).token = await this.stateService.getOktaKey();
                     break;
                 case DirectoryType.GSuite:
-                    (config as any).privateKey = await this.secureStorageService.get<string>(Keys.gsuite);
+                    (config as any).privateKey = await this.stateService.getGsuiteKey();
                     break;
                 case DirectoryType.OneLogin:
-                    (config as any).clientSecret = await this.secureStorageService.get<string>(Keys.oneLogin);
+                    (config as any).clientSecret = await this.stateService.getOneLoginKey();
                     break;
             }
         }
-        return config;
+        return config as T;
     }
 
     async saveDirectory(type: DirectoryType,
@@ -66,154 +55,150 @@ export class ConfigurationService {
             switch (type) {
                 case DirectoryType.Ldap:
                     if (savedConfig.password == null) {
-                        await this.secureStorageService.remove(Keys.ldap);
+                        await this.stateService.setLdapKey(null);
                     } else {
-                        await this.secureStorageService.save(Keys.ldap, savedConfig.password);
+                        await this.stateService.setLdapKey(savedConfig.password);
                         savedConfig.password = StoredSecurely;
                     }
+                    await this.stateService.setLdapConfiguration(savedConfig);
                     break;
                 case DirectoryType.AzureActiveDirectory:
                     if (savedConfig.key == null) {
-                        await this.secureStorageService.remove(Keys.azure);
+                        await this.stateService.setAzureKey(null);
                     } else {
-                        await this.secureStorageService.save(Keys.azure, savedConfig.key);
+                        await this.stateService.setAzureKey(savedConfig.key);
                         savedConfig.key = StoredSecurely;
                     }
+                    await this.stateService.setAzureConfiguration(savedConfig);
                     break;
                 case DirectoryType.Okta:
                     if (savedConfig.token == null) {
-                        await this.secureStorageService.remove(Keys.okta);
+                        await this.stateService.setOktaKey(null);
                     } else {
-                        await this.secureStorageService.save(Keys.okta, savedConfig.token);
+                        await this.stateService.setOktaKey(savedConfig.token);
                         savedConfig.token = StoredSecurely;
                     }
+                    await this.stateService.setOktaConfiguration(savedConfig);
                     break;
                 case DirectoryType.GSuite:
                     if (savedConfig.privateKey == null) {
-                        await this.secureStorageService.remove(Keys.gsuite);
+                        await this.stateService.setGsuiteKey(null);
                     } else {
                         (config as GSuiteConfiguration).privateKey = savedConfig.privateKey =
                             savedConfig.privateKey.replace(/\\n/g, '\n');
-                        await this.secureStorageService.save(Keys.gsuite, savedConfig.privateKey);
+                        await this.stateService.setGsuiteKey(savedConfig.privateKey);
                         savedConfig.privateKey = StoredSecurely;
                     }
+                    await this.stateService.setGsuiteConfiguration(savedConfig);
                     break;
                 case DirectoryType.OneLogin:
                     if (savedConfig.clientSecret == null) {
-                        await this.secureStorageService.remove(Keys.oneLogin);
+                        await this.stateService.setOneLoginKey(null);
                     } else {
-                        await this.secureStorageService.save(Keys.oneLogin, savedConfig.clientSecret);
+                        await this.stateService.setOneLoginKey(savedConfig.clientSecret);
                         savedConfig.clientSecret = StoredSecurely;
                     }
+                    await this.stateService.setOneLoginConfiguration(savedConfig);
                     break;
             }
         }
-        await this.storageService.save(Keys.directoryConfigPrefix + type, savedConfig);
     }
 
-    getSync(): Promise<SyncConfiguration> {
-        return this.storageService.get<SyncConfiguration>(Keys.sync);
+    async getSync(): Promise<SyncConfiguration> {
+        return await this.stateService.getSync();
     }
 
-    saveSync(config: SyncConfiguration) {
-        return this.storageService.save(Keys.sync, config);
+    async saveSync(config: SyncConfiguration): Promise<void> {
+        return await this.stateService.setSync(config);
     }
 
-    getDirectoryType(): Promise<DirectoryType> {
-        return this.storageService.get<DirectoryType>(Keys.directoryType);
+    async getDirectoryType(): Promise<DirectoryType> {
+        return await this.stateService.getDirectoryType();
     }
 
-    async saveDirectoryType(type: DirectoryType) {
+    async saveDirectoryType(type: DirectoryType): Promise<void> {
         const currentType = await this.getDirectoryType();
         if (type !== currentType) {
             await this.clearStatefulSettings();
         }
 
-        return this.storageService.save(Keys.directoryType, type);
+        return await this.stateService.setDirectoryType(type);
     }
 
-    getUserDeltaToken(): Promise<string> {
-        return this.storageService.get<string>(Keys.userDelta);
+    async getUserDeltaToken(): Promise<string> {
+        return await this.stateService.getUserDelta();
     }
 
-    saveUserDeltaToken(token: string) {
+    async saveUserDeltaToken(token: string): Promise<void> {
         if (token == null) {
-            return this.storageService.remove(Keys.userDelta);
+            return this.stateService.setUserDelta(null);
         } else {
-            return this.storageService.save(Keys.userDelta, token);
+            return this.stateService.setUserDelta(token);
         }
     }
 
-    getGroupDeltaToken(): Promise<string> {
-        return this.storageService.get<string>(Keys.groupDelta);
+    async getGroupDeltaToken(): Promise<string> {
+        return await this.stateService.getGroupDelta();
     }
 
-    saveGroupDeltaToken(token: string) {
+    async saveGroupDeltaToken(token: string): Promise<void> {
         if (token == null) {
-            return this.storageService.remove(Keys.groupDelta);
+            await this.stateService.setGroupDelta(null);
         } else {
-            return this.storageService.save(Keys.groupDelta, token);
+            await this.stateService.setGroupDelta(token);
         }
     }
 
     async getLastUserSyncDate(): Promise<Date> {
-        const dateString = await this.storageService.get<string>(Keys.lastUserSync);
-        if (dateString == null) {
-            return null;
-        }
-        return new Date(dateString);
+        return await this.stateService.getLastUserSync();
     }
 
-    saveLastUserSyncDate(date: Date) {
+    async saveLastUserSyncDate(date: Date): Promise<void> {
         if (date == null) {
-            return this.storageService.remove(Keys.lastUserSync);
+            return await this.stateService.setLastUserSync(null);
         } else {
-            return this.storageService.save(Keys.lastUserSync, date);
+            return await this.stateService.setLastUserSync(date);
         }
     }
 
     async getLastGroupSyncDate(): Promise<Date> {
-        const dateString = await this.storageService.get<string>(Keys.lastGroupSync);
-        if (dateString == null) {
-            return null;
-        }
-        return new Date(dateString);
+        return await this.stateService.getLastGroupSync();
     }
 
-    saveLastGroupSyncDate(date: Date) {
+    async saveLastGroupSyncDate(date: Date): Promise<void> {
         if (date == null) {
-            return this.storageService.remove(Keys.lastGroupSync);
+            await this.stateService.setLastGroupSync(null);
         } else {
-            return this.storageService.save(Keys.lastGroupSync, date);
+            await this.stateService.setLastGroupSync(date);
         }
     }
 
-    getLastSyncHash(): Promise<string> {
-        return this.storageService.get<string>(Keys.lastSyncHash);
+    async getLastSyncHash(): Promise<string> {
+        return await this.stateService.getLastSyncHash();
     }
 
-    saveLastSyncHash(hash: string) {
+    async saveLastSyncHash(hash: string): Promise<void> {
         if (hash == null) {
-            return this.storageService.remove(Keys.lastSyncHash);
+            await this.stateService.setLastSyncHash(null);
         } else {
-            return this.storageService.save(Keys.lastSyncHash, hash);
+            await this.stateService.setLastSyncHash(hash);
         }
     }
 
-    getOrganizationId(): Promise<string> {
-        return this.storageService.get<string>(Keys.organizationId);
+    async getOrganizationId(): Promise<string> {
+        return await this.stateService.getOrganizationId();
     }
 
-    async saveOrganizationId(id: string) {
+    async saveOrganizationId(id: string): Promise<void> {
         const currentId = await this.getOrganizationId();
         if (currentId !== id) {
             await this.clearStatefulSettings();
         }
 
         if (id == null) {
-            return this.storageService.remove(Keys.organizationId);
+            await this.stateService.setOrganizationId(null);
         } else {
-            return this.storageService.save(Keys.organizationId, id);
+            await this.stateService.setOrganizationId(id);
         }
     }
 

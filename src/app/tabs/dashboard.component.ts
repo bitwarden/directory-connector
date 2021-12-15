@@ -10,7 +10,6 @@ import { BroadcasterService } from 'jslib-common/abstractions/broadcaster.servic
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
 import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
-import { StateService } from 'jslib-common/abstractions/state.service';
 
 import { SyncService } from '../../services/sync.service';
 
@@ -20,6 +19,8 @@ import { UserEntry } from '../../models/userEntry';
 import { ConfigurationService } from '../../services/configuration.service';
 
 import { ConnectorUtils } from '../../utils';
+
+import { StateService } from '../../abstractions/state.service';
 
 const BroadcasterSubscriptionId = 'DashboardComponent';
 
@@ -41,11 +42,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     lastUserSync: Date;
     syncRunning: boolean;
 
-    constructor(private i18nService: I18nService, private syncService: SyncService,
-        private configurationService: ConfigurationService, private broadcasterService: BroadcasterService,
-        private ngZone: NgZone, private messagingService: MessagingService,
-        private platformUtilsService: PlatformUtilsService, private changeDetectorRef: ChangeDetectorRef,
-        private stateService: StateService) { }
+    constructor(
+        private i18nService: I18nService,
+        private syncService: SyncService,
+        private configurationService: ConfigurationService,
+        private broadcasterService: BroadcasterService,
+        private ngZone: NgZone,
+        private messagingService: MessagingService,
+        private platformUtilsService: PlatformUtilsService,
+        private changeDetectorRef: ChangeDetectorRef,
+        private stateService: StateService
+    ) { }
 
     async ngOnInit() {
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
@@ -62,7 +69,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
         });
 
-        this.syncRunning = !!(await this.stateService.get('syncingDir'));
+        this.syncRunning = !!(await this.stateService.getSyncingDir());
         this.updateLastSync();
     }
 

@@ -13,12 +13,15 @@ import { TrayMain } from 'jslib-electron/tray.main';
 import { UpdaterMain } from 'jslib-electron/updater.main';
 import { WindowMain } from 'jslib-electron/window.main';
 
+import { StateService } from './services/state.service';
+
 export class Main {
     logService: ElectronLogService;
     i18nService: I18nService;
     storageService: ElectronStorageService;
     messagingService: ElectronMainMessagingService;
     keytarStorageListener: KeytarStorageListener;
+    stateService: StateService;
 
     windowMain: WindowMain;
     messagingMain: MessagingMain;
@@ -51,8 +54,18 @@ export class Main {
         this.logService = new ElectronLogService(null, app.getPath('userData'));
         this.i18nService = new I18nService('en', './locales/');
         this.storageService = new ElectronStorageService(app.getPath('userData'));
+        this.stateService = new StateService(this.storageService, null, this.logService, null);
 
-        this.windowMain = new WindowMain(this.storageService, this.logService, false, 800, 600, arg => this.processDeepLink(arg), null);
+        this.windowMain = new WindowMain(
+            this.stateService,
+            this.logService,
+            false,
+            800,
+            600,
+            arg => this.processDeepLink(arg),
+            null,
+        );
+
         this.menuMain = new MenuMain(this);
         this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain, 'directory-connector', () => {
             this.messagingService.send('checkingForUpdate');
@@ -61,7 +74,13 @@ export class Main {
         }, () => {
             this.messagingService.send('doneCheckingForUpdate');
         }, 'bitwardenDirectoryConnector');
-        this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.storageService);
+
+        this.trayMain = new TrayMain(
+            this.windowMain,
+            this.i18nService,
+            this.stateService,
+        );
+
         this.messagingMain = new MessagingMain(this.windowMain, this.menuMain, this.updaterMain, this.trayMain);
         this.messagingService = new ElectronMainMessagingService(this.windowMain, message => {
             this.messagingMain.onMessage(message);

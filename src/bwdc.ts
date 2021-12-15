@@ -10,17 +10,17 @@ import { I18nService } from './services/i18n.service';
 import { KeytarSecureStorageService } from './services/keytarSecureStorage.service';
 import { LowdbStorageService } from './services/lowdbStorage.service';
 import { NodeApiService } from './services/nodeApi.service';
+import { StateService } from './services/state.service';
+import { StateMigrationService } from './services/stateMigration.service';
 import { SyncService } from './services/sync.service';
 
 import { CliPlatformUtilsService } from 'jslib-node/cli/services/cliPlatformUtils.service';
 import { ConsoleLogService } from 'jslib-node/cli/services/consoleLog.service';
 import { NodeCryptoFunctionService } from 'jslib-node/services/nodeCryptoFunction.service';
 
-import { ApiKeyService } from 'jslib-common/services/apiKey.service';
 import { AppIdService } from 'jslib-common/services/appId.service';
 import { CipherService } from 'jslib-common/services/cipher.service';
 import { CollectionService } from 'jslib-common/services/collection.service';
-import { ConstantsService } from 'jslib-common/services/constants.service';
 import { ContainerService } from 'jslib-common/services/container.service';
 import { CryptoService } from 'jslib-common/services/crypto.service';
 import { EnvironmentService } from 'jslib-common/services/environment.service';
@@ -28,14 +28,15 @@ import { FileUploadService } from 'jslib-common/services/fileUpload.service';
 import { FolderService } from 'jslib-common/services/folder.service';
 import { KeyConnectorService } from 'jslib-common/services/keyConnector.service';
 import { NoopMessagingService } from 'jslib-common/services/noopMessaging.service';
+import { OrganizationService } from 'jslib-common/services/organization.service';
 import { PasswordGenerationService } from 'jslib-common/services/passwordGeneration.service';
 import { PolicyService } from 'jslib-common/services/policy.service';
+import { ProviderService } from 'jslib-common/services/provider.service';
 import { SearchService } from 'jslib-common/services/search.service';
 import { SendService } from 'jslib-common/services/send.service';
 import { SettingsService } from 'jslib-common/services/settings.service';
 import { SyncService as LoginSyncService } from 'jslib-common/services/sync.service';
 import { TokenService } from 'jslib-common/services/token.service';
-import { UserService } from 'jslib-common/services/user.service';
 
 import { StorageService as StorageServiceAbstraction } from 'jslib-common/abstractions/storage.service';
 
@@ -54,14 +55,11 @@ export class Main {
     secureStorageService: StorageServiceAbstraction;
     i18nService: I18nService;
     platformUtilsService: CliPlatformUtilsService;
-    constantsService: ConstantsService;
     cryptoService: CryptoService;
     tokenService: TokenService;
     appIdService: AppIdService;
     apiService: NodeApiService;
     environmentService: EnvironmentService;
-    apiKeyService: ApiKeyService;
-    userService: UserService;
     containerService: ContainerService;
     cryptoFunctionService: NodeCryptoFunctionService;
     authService: AuthService;
@@ -79,6 +77,10 @@ export class Main {
     loginSyncService: LoginSyncService;
     keyConnectorService: KeyConnectorService;
     program: Program;
+    stateService: StateService;
+    stateMigrationService: StateMigrationService;
+    organizationService: OrganizationService;
+    providerService: ProviderService;
 
     constructor() {
         const applicationName = 'Bitwarden Directory Connector';
@@ -107,48 +109,141 @@ export class Main {
         this.storageService = new LowdbStorageService(this.logService, null, this.dataFilePath, false, true);
         this.secureStorageService = plaintextSecrets ?
             this.storageService : new KeytarSecureStorageService(applicationName);
-        this.cryptoService = new CryptoService(this.storageService, this.secureStorageService,
-            this.cryptoFunctionService, this.platformUtilsService, this.logService);
+
+        this.stateMigrationService = new StateMigrationService(
+            this.storageService,
+            this.secureStorageService,
+        );
+
+        this.stateService = new StateService(
+            this.storageService,
+            this.secureStorageService,
+            this.logService,
+            this.stateMigrationService,
+        );
+
+        this.cryptoService = new CryptoService(
+            this.cryptoFunctionService,
+            this.platformUtilsService,
+            this.logService,
+            this.stateService,
+        );
+
         this.appIdService = new AppIdService(this.storageService);
-        this.tokenService = new TokenService(this.storageService);
+        this.tokenService = new TokenService(this.stateService);
         this.messagingService = new NoopMessagingService();
-        this.environmentService = new EnvironmentService(this.storageService);
+        this.environmentService = new EnvironmentService(this.stateService);
         this.apiService = new NodeApiService(this.tokenService, this.platformUtilsService, this.environmentService,
-            () => refreshToken(this.apiKeyService, this.authService), async (expired: boolean) => await this.logout(),
+            () => refreshToken(this.stateService, this.authService), async (expired: boolean) => await this.logout(),
             'Bitwarden_DC/' + this.platformUtilsService.getApplicationVersion() +
             ' (' + this.platformUtilsService.getDeviceString().toUpperCase() + ')', (clientId, clientSecret) =>
             this.authService.logInApiKey(clientId, clientSecret));
-        this.apiKeyService = new ApiKeyService(this.tokenService, this.storageService);
-        this.userService = new UserService(this.tokenService, this.storageService);
         this.containerService = new ContainerService(this.cryptoService);
-        this.keyConnectorService = new KeyConnectorService(this.storageService, this.userService, this.cryptoService,
-            this.apiService, this.tokenService, this.logService);
-        this.authService = new AuthService(this.cryptoService, this.apiService, this.userService, this.tokenService,
-            this.appIdService, this.i18nService, this.platformUtilsService, this.messagingService, null,
-            this.logService, this.apiKeyService, this.cryptoFunctionService, this.environmentService, this.keyConnectorService);
-        this.configurationService = new ConfigurationService(this.storageService, this.secureStorageService,
+
+
+        this.organizationService = new OrganizationService(this.stateService);
+
+        this.keyConnectorService = new KeyConnectorService(
+            this.stateService,
+            this.cryptoService,
+            this.apiService,
+            this.tokenService,
+            this.logService,
+            this.organizationService,
+        );
+
+        this.authService = new AuthService(
+            this.cryptoService,
+            this.apiService,
+            this.tokenService,
+            this.appIdService,
+            this.i18nService,
+            this.platformUtilsService,
+            this.messagingService,
+            null,
+            this.logService,
+            this.cryptoFunctionService,
+            this.environmentService,
+            this.keyConnectorService,
+            this.stateService,
+        );
+
+        this.configurationService = new ConfigurationService(this.stateService,
             process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== 'true');
         this.syncService = new SyncService(this.configurationService, this.logService, this.cryptoFunctionService,
             this.apiService, this.messagingService, this.i18nService, this.environmentService);
-        this.passwordGenerationService = new PasswordGenerationService(this.cryptoService, this.storageService, null);
-        this.policyService = new PolicyService(this.userService, this.storageService, this.apiService);
-        this.settingsService = new SettingsService(this.userService, this.storageService);
-        this.fileUploadService = new FileUploadService(this.logService, this.apiService);
-        this.cipherService = new CipherService(this.cryptoService, this.userService, this.settingsService,
-            this.apiService, this.fileUploadService, this.storageService, this.i18nService, () => searchService,
-            this.logService);
-        this.searchService = new SearchService(this.cipherService, this.logService, this.i18nService);
-        this.folderService = new FolderService(this.cryptoService, this.userService, this.apiService,
-            this.storageService, this.i18nService, this.cipherService);
-        this.collectionService = new CollectionService(this.cryptoService, this.userService, this.storageService,
-            this.i18nService);
-        this.sendService = new SendService(this.cryptoService, this.userService, this.apiService, this.fileUploadService, this.storageService,
-            this.i18nService, this.cryptoFunctionService);
 
-        this.loginSyncService = new LoginSyncService(this.userService, this.apiService, this.settingsService,
-            this.folderService, this.cipherService, this.cryptoService, this.collectionService, this.storageService,
-            this.messagingService, this.policyService, this.sendService, this.logService, this.tokenService,
-            this.keyConnectorService, async (expired: boolean) => this.messagingService.send('logout', { expired: expired }));
+        this.policyService = new PolicyService(
+            this.stateService,
+            this.organizationService,
+            this.apiService
+        );
+
+        this.passwordGenerationService = new PasswordGenerationService(
+            this.cryptoService,
+            this.policyService,
+            this.stateService,
+        );
+
+        this.settingsService = new SettingsService(this.stateService);
+
+        this.fileUploadService = new FileUploadService(this.logService, this.apiService);
+
+        this.cipherService = new CipherService(
+            this.cryptoService,
+            this.settingsService,
+            this.apiService,
+            this.fileUploadService,
+            this.i18nService,
+            () => searchService,
+            this.logService,
+            this.stateService,
+        );
+
+        this.searchService = new SearchService(this.cipherService, this.logService, this.i18nService);
+
+        this.folderService = new FolderService(
+            this.cryptoService,
+            this.apiService,
+            this.i18nService,
+            this.cipherService,
+            this.stateService,
+        );
+
+        this.collectionService = new CollectionService(
+            this.cryptoService,
+            this.i18nService,
+            this.stateService,
+        );
+
+        this.sendService = new SendService(
+            this.cryptoService,
+            this.apiService,
+            this.fileUploadService,
+            this.i18nService,
+            this.cryptoFunctionService,
+            this.stateService,
+        );
+
+        this.providerService = new ProviderService(this.stateService);
+
+        this.loginSyncService = new LoginSyncService(
+            this.apiService,
+            this.settingsService,
+            this.folderService,
+            this.cipherService,
+            this.cryptoService,
+            this.collectionService,
+            this.messagingService,
+            this.policyService,
+            this.sendService,
+            this.logService,
+            this.keyConnectorService,
+            this.stateService,
+            this.organizationService,
+            this.providerService,
+            async (expired: boolean) => this.messagingService.send('logout', { expired: expired })
+        );
 
         this.program = new Program(this);
     }
@@ -160,11 +255,12 @@ export class Main {
 
     async logout() {
         await this.tokenService.clearToken();
-        await this.apiKeyService.clear();
+        await this.stateService.clean();
     }
 
     private async init() {
         await this.storageService.init();
+        await this.stateService.init();
         this.containerService.attachToWindow(global);
         await this.environmentService.setUrlsFromStorage();
         // Dev Server URLs. Comment out the line above.
@@ -173,14 +269,14 @@ export class Main {
         //     api: 'http://localhost:4000',
         //     identity: 'http://localhost:33656',
         // });
-        const locale = await this.storageService.get<string>(ConstantsService.localeKey);
+        const locale = await this.stateService.getLocale();
         await this.i18nService.init(locale);
         this.authService.init();
 
-        const installedVersion = await this.storageService.get<string>(ConstantsService.installedVersionKey);
+        const installedVersion = await this.stateService.getInstalledVersion();
         const currentVersion = await this.platformUtilsService.getApplicationVersion();
         if (installedVersion == null || installedVersion !== currentVersion) {
-            await this.storageService.save(ConstantsService.installedVersionKey, currentVersion);
+            await this.stateService.setInstalledVersion(currentVersion);
         }
     }
 }

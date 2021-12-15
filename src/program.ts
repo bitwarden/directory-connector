@@ -16,7 +16,6 @@ import { UpdateCommand } from 'jslib-node/cli/commands/update.command';
 
 import { BaseProgram } from 'jslib-node/cli/baseProgram';
 
-import { ApiKeyService } from 'jslib-common/abstractions/apiKey.service';
 import { Response } from 'jslib-node/cli/models/response';
 import { StringResponse } from 'jslib-node/cli/models/response/stringResponse';
 
@@ -32,11 +31,8 @@ const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) 
 };
 
 export class Program extends BaseProgram {
-    private apiKeyService: ApiKeyService;
-
     constructor(private main: Main) {
-        super(main.userService, writeLn);
-        this.apiKeyService = main.apiKeyService;
+        super(main.stateService, writeLn);
     }
 
     async run() {
@@ -99,10 +95,21 @@ export class Program extends BaseProgram {
             })
             .action(async (clientId: string, clientSecret: string, options: program.OptionValues) => {
                 await this.exitIfAuthed();
-                const command = new LoginCommand(this.main.authService, this.main.apiService, this.main.i18nService,
-                    this.main.environmentService, this.main.passwordGenerationService, this.main.cryptoFunctionService,
-                    this.main.platformUtilsService, this.main.userService, this.main.cryptoService,
-                    this.main.policyService, 'connector', this.main.loginSyncService, this.main.keyConnectorService);
+                const command = new LoginCommand(
+                    this.main.authService,
+                    this.main.apiService,
+                    this.main.i18nService,
+                    this.main.environmentService,
+                    this.main.passwordGenerationService,
+                    this.main.cryptoFunctionService,
+                    this.main.platformUtilsService,
+                    this.main.stateService,
+                    this.main.cryptoService,
+                    this.main.policyService,
+                    'connector',
+                    this.main.loginSyncService,
+                    this.main.keyConnectorService,
+                );
 
                 if (!Utils.isNullOrWhitespace(clientId)) {
                     process.env.BW_CLIENTID = clientId;
@@ -285,16 +292,16 @@ export class Program extends BaseProgram {
     }
 
     async exitIfAuthed() {
-        const authed = await this.apiKeyService.isAuthenticated();
+        const authed = await this.stateService.getIsAuthenticated();
         if (authed) {
-            const type = await this.apiKeyService.getEntityType();
-            const id = await this.apiKeyService.getEntityId();
+            const type = await this.stateService.getEntityType();
+            const id = await this.stateService.getEntityId();
             this.processResponse(Response.error('You are already logged in as ' + type + '.' + id + '.'), true);
         }
     }
 
     async exitIfNotAuthed() {
-        const authed = await this.apiKeyService.isAuthenticated();
+        const authed = await this.stateService.getIsAuthenticated();
         if (!authed) {
             this.processResponse(Response.error('You are not logged in.'), true);
         }

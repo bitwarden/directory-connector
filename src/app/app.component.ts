@@ -19,12 +19,12 @@ import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { LogService } from 'jslib-common/abstractions/log.service';
 import { MessagingService } from 'jslib-common/abstractions/messaging.service';
 import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
-import { StateService } from 'jslib-common/abstractions/state.service';
 import { TokenService } from 'jslib-common/abstractions/token.service';
-import { UserService } from 'jslib-common/abstractions/user.service';
 
 import { ConfigurationService } from '../services/configuration.service';
 import { SyncService } from '../services/sync.service';
+
+import { StateService } from '../abstractions/state.service';
 
 const BroadcasterSubscriptionId = 'AppComponent';
 
@@ -38,14 +38,22 @@ const BroadcasterSubscriptionId = 'AppComponent';
 export class AppComponent implements OnInit {
     @ViewChild('settings', { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
 
-    constructor(private broadcasterService: BroadcasterService, private userService: UserService,
+    constructor(
+        private broadcasterService: BroadcasterService,
         private tokenService: TokenService,
-        private authService: AuthService, private router: Router,
-        private toastrService: ToastrService, private i18nService: I18nService,
-        private sanitizer: DomSanitizer, private ngZone: NgZone,
-        private platformUtilsService: PlatformUtilsService, private messagingService: MessagingService,
-        private configurationService: ConfigurationService, private syncService: SyncService,
-        private stateService: StateService, private logService: LogService) {
+        private authService: AuthService,
+        private router: Router,
+        private toastrService: ToastrService,
+        private i18nService: I18nService,
+        private sanitizer: DomSanitizer,
+        private ngZone: NgZone,
+        private platformUtilsService: PlatformUtilsService,
+        private messagingService: MessagingService,
+        private configurationService: ConfigurationService,
+        private syncService: SyncService,
+        private stateService: StateService,
+        private logService: LogService
+    ) {
     }
 
     ngOnInit() {
@@ -54,7 +62,7 @@ export class AppComponent implements OnInit {
                 switch (message.command) {
                     case 'syncScheduleStarted':
                     case 'syncScheduleStopped':
-                        this.stateService.save('syncingDir', message.command === 'syncScheduleStarted');
+                        this.stateService.setSyncingDir(message.command === 'syncScheduleStarted');
                         break;
                     case 'logout':
                         this.logOut(!!message.expired);
@@ -113,10 +121,8 @@ export class AppComponent implements OnInit {
     }
 
     private async logOut(expired: boolean) {
-        const userId = await this.userService.getUserId();
-
         await this.tokenService.clearToken();
-        await this.userService.clear();
+        await this.stateService.clean();
 
         this.authService.logOut(async () => {
             if (expired) {

@@ -1,4 +1,6 @@
-export class LdapConfiguration {
+import { IConfiguration } from './IConfiguration';
+
+export class LdapConfiguration implements IConfiguration {
     ssl = false;
     startTls = false;
     tlsCaPath: string;

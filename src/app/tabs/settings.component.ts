@@ -8,9 +8,6 @@ import {
 
 import { I18nService } from 'jslib-common/abstractions/i18n.service';
 import { LogService } from 'jslib-common/abstractions/log.service';
-import { StateService } from 'jslib-common/abstractions/state.service';
-
-import { ProfileOrganizationResponse } from 'jslib-common/models/response/profileOrganizationResponse';
 
 import { ConfigurationService } from '../../services/configuration.service';
 
@@ -44,11 +41,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
     showOktaKey: boolean = false;
     showOneLoginSecret: boolean = false;
 
-    constructor(private i18nService: I18nService, private configurationService: ConfigurationService,
-        private changeDetectorRef: ChangeDetectorRef, private ngZone: NgZone,
-        private stateService: StateService, private logService: LogService) {
+    constructor(
+        private i18nService: I18nService,
+        private configurationService: ConfigurationService,
+        private changeDetectorRef: ChangeDetectorRef,
+        private ngZone: NgZone,
+        private logService: LogService
+    ) {
         this.directoryOptions = [
-            { name: i18nService.t('select'), value: null },
+            { name: this.i18nService.t('select'), value: null },
             { name: 'Active Directory / LDAP', value: DirectoryType.Ldap },
             { name: 'Azure Active Directory', value: DirectoryType.AzureActiveDirectory },
             { name: 'G Suite (Google)', value: DirectoryType.GSuite },
