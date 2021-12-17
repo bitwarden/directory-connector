@@ -20,6 +20,7 @@ import { Response } from 'jslib-node/cli/models/response';
 import { StringResponse } from 'jslib-node/cli/models/response/stringResponse';
 
 import { Utils } from 'jslib-common/misc/utils';
+import { HtmlStorageLocation } from 'jslib-common/enums/htmlStorageLocation';
 
 const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) => {
     const stream = error ? process.stderr : process.stdout;
@@ -294,8 +295,8 @@ export class Program extends BaseProgram {
     async exitIfAuthed() {
         const authed = await this.stateService.getIsAuthenticated();
         if (authed) {
-            const type = await this.stateService.getEntityType();
-            const id = await this.stateService.getEntityId();
+            const type = await this.stateService.getEntityType({htmlStorageLocation: HtmlStorageLocation.Local});
+            const id = await this.stateService.getEntityId({htmlStorageLocation: HtmlStorageLocation.Local});
             this.processResponse(Response.error('You are already logged in as ' + type + '.' + id + '.'), true);
         }
     }
