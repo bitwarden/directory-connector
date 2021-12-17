@@ -51,7 +51,7 @@ export class StateMigrationService extends BaseStateMigrationService {
         switch (currentStateVersion) {
             case 1:
                 await this.migrateClientKeys();
-                await this.migrateState();
+                await this.migrateStateFrom1To2();
                 break;
         }
         currentStateVersion += 1;
@@ -74,7 +74,7 @@ export class StateMigrationService extends BaseStateMigrationService {
         }
     }
 
-    protected async migrateState(
+    protected async migrateStateFrom1To2(
         useSecureStorageForSecrets: boolean = true
     ): Promise<void> {
         await super.migrateStateFrom1To2();
