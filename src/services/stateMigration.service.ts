@@ -138,7 +138,7 @@ export class StateMigrationService extends BaseStateMigrationService {
                         `${userId}_${Keys[key]}`,
                         await this.secureStorageService.get(Keys[key])
                     );
-                  // await this.secureStorageService.remove(Keys[key]);
+                    await this.secureStorageService.remove(Keys[key]);
                 }
             }
         }
