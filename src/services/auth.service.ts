@@ -83,6 +83,7 @@ export class AuthService extends AuthServiceBase {
 
     private async organizationLogInHelper(clientId: string, clientSecret: string) {
         const appId = await this.appIdService.getAppId();
+        const entityId = clientId.split('organization.')[1];
         const deviceRequest = new DeviceRequest(appId, this.platformUtilsService);
         const request = new TokenRequest(null, null, [clientId, clientSecret], null,
             null, false, null, deviceRequest);
@@ -99,6 +100,7 @@ export class AuthService extends AuthServiceBase {
                 ...{
                     userId: clientId,
                     apiKeyClientId: clientId,
+                    entityId: entityId
                 },
             },
             tokens: {

@@ -97,6 +97,9 @@ export class StateMigrationService extends BaseStateMigrationService {
                     lastSyncHash: await this.storageService.get<string>('string'),
                     syncingDir: await this.storageService.get<boolean>('syncingDir'),
                     sync: await this.storageService.get<SyncConfiguration>('syncConfig')
+                },
+                profile: {
+                    entityId: await this.storageService.get<string>('entityId')
                 }
             });
         }

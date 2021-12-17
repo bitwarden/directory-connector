@@ -19,6 +19,7 @@ import { ModalService } from 'jslib-angular/services/modal.service';
 
 import { Utils } from 'jslib-common/misc/utils';
 import { ConfigurationService } from '../../services/configuration.service';
+import { HtmlStorageLocation } from 'jslib-common/enums/htmlStorageLocation';
 
 @Component({
     selector: 'app-apiKey',
@@ -71,7 +72,7 @@ export class ApiKeyComponent {
         try {
             this.formPromise = this.authService.logInApiKey(this.clientId, this.clientSecret);
             await this.formPromise;
-            const organizationId = await this.stateService.getEntityId();
+            const organizationId = await this.stateService.getEntityId({htmlStorageLocation: HtmlStorageLocation.Local});
             await this.configurationService.saveOrganizationId(organizationId);
             this.router.navigate([this.successRoute]);
         } catch (e) {
