@@ -36,7 +36,6 @@ const ClientKeys = {
 
 export class StateMigrationService extends BaseStateMigrationService {
     async needsMigration(): Promise<boolean> {
-        console.log('migrate? dc');
         const currentStateVersion = (
         await this.storageService.get<State<Account>>("state", {
             htmlStorageLocation: HtmlStorageLocation.Local,
@@ -95,7 +94,8 @@ export class StateMigrationService extends BaseStateMigrationService {
                 },
                 profile: {
                     entityId: await this.storageService.get<string>('entityId')
-                }
+                },
+                directoryConfigurations: new DirectoryConfigurations()
             });
         }
 

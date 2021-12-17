@@ -72,7 +72,7 @@ export class ApiKeyComponent {
         try {
             this.formPromise = this.authService.logInApiKey(this.clientId, this.clientSecret);
             await this.formPromise;
-            const organizationId = await this.stateService.getEntityId({htmlStorageLocation: HtmlStorageLocation.Local});
+            const organizationId = await this.stateService.getEntityId();
             await this.configurationService.saveOrganizationId(organizationId);
             this.router.navigate([this.successRoute]);
         } catch (e) {

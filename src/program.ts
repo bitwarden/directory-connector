@@ -295,8 +295,8 @@ export class Program extends BaseProgram {
     async exitIfAuthed() {
         const authed = await this.stateService.getIsAuthenticated();
         if (authed) {
-            const type = await this.stateService.getEntityType({htmlStorageLocation: HtmlStorageLocation.Local});
-            const id = await this.stateService.getEntityId({htmlStorageLocation: HtmlStorageLocation.Local});
+            const type = await this.stateService.getEntityType();
+            const id = await this.stateService.getEntityId();
             this.processResponse(Response.error('You are already logged in as ' + type + '.' + id + '.'), true);
         }
     }
