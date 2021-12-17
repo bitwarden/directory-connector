@@ -21,6 +21,11 @@ const SecureStorageKeys = {
     azure: 'azureKey',
     okta: 'oktaToken',
     oneLogin: 'oneLoginClientSecret',
+    userDelta: 'userDeltaToken',
+    groupDelta: 'groupDeltaToken',
+    lastUserSync: 'lastUserSync',
+    lastGroupSync: 'lastGroupSync',
+    lastSyncHash: 'lastSyncHash',
 };
 
 export class StateService extends BaseStateService<Account> implements StateServiceAbstraction {
@@ -37,7 +42,7 @@ export class StateService extends BaseStateService<Account> implements StateServ
         if (options?.userId == null) {
             return null;
         }
-        return await this.secureStorageService.get<string>(`${options.userId}_${SecureStorageKeys.ldap}'`);
+        return await this.secureStorageService.get<string>(`${options.userId}_${SecureStorageKeys.ldap}`);
     }
 
     async setLdapKey(value: string, options?: StorageOptions): Promise<void> {
@@ -110,6 +115,38 @@ export class StateService extends BaseStateService<Account> implements StateServ
             return;
         }
         await this.secureStorageService.save(`${options.userId}_${SecureStorageKeys.oneLogin}`, value, options);
+    }
+
+    async getUserDelta(options?: StorageOptions): Promise<string> {
+        options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
+        if (options?.userId == null) {
+            return null;
+        }
+        return await this.secureStorageService.get<string>(`${options.userId}_${SecureStorageKeys.userDelta}`);
+    }
+
+    async setUserDelta(value: string, options?: StorageOptions): Promise<void> {
+        options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
+        if (options?.userId == null) {
+            return;
+        }
+        await this.secureStorageService.save(`${options.userId}_${SecureStorageKeys.userDelta}`, value, options);
+    }
+
+    async getGroupDelta(options?: StorageOptions): Promise<string> {
+        options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
+        if (options?.userId == null) {
+            return null;
+        }
+        return await this.secureStorageService.get<string>(`${options.userId}_${SecureStorageKeys.groupDelta}`);
+    }
+
+    async setGroupDelta(value: string, options?: StorageOptions): Promise<void> {
+        options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
+        if (options?.userId == null) {
+            return;
+        }
+        await this.secureStorageService.save(`${options.userId}_${SecureStorageKeys.groupDelta}`, value, options);
     }
 
     async getConfiguration(type: DirectoryType): Promise<IConfiguration> {
@@ -215,17 +252,6 @@ export class StateService extends BaseStateService<Account> implements StateServ
         await this.saveAccount(account, this.reconcileOptions(options, await this.defaultOnDiskOptions()));
     }
 
-    async getUserDelta(options?: StorageOptions): Promise<string> {
-        return (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-            ?.directorySettings?.userDelta;
-    }
-
-    async setUserDelta(value: string, options?: StorageOptions): Promise<void> {
-        const account = await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()));
-        account.directorySettings.userDelta = value;
-        await this.saveAccount(account, this.reconcileOptions(options, await this.defaultOnDiskOptions()));
-    }
-
     async getLastUserSync(options?: StorageOptions): Promise<Date> {
         return (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
             ?.directorySettings?.lastUserSync;
@@ -245,17 +271,6 @@ export class StateService extends BaseStateService<Account> implements StateServ
     async setLastGroupSync(value: Date, options?: StorageOptions): Promise<void> {
         const account = await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()));
         account.directorySettings.lastGroupSync = value;
-        await this.saveAccount(account, this.reconcileOptions(options, await this.defaultOnDiskOptions()));
-    }
-
-    async getGroupDelta(options?: StorageOptions): Promise<string> {
-        return (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-            ?.directorySettings?.groupDelta;
-    }
-
-    async setGroupDelta(value: string, options?: StorageOptions): Promise<void> {
-        const account = await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()));
-        account.directorySettings.groupDelta = value;
         await this.saveAccount(account, this.reconcileOptions(options, await this.defaultOnDiskOptions()));
     }
 

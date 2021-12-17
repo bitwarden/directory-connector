@@ -24,9 +24,6 @@ const Keys = {
     directoryType: 'directoryType',
     userDelta: 'userDeltaToken',
     groupDelta: 'groupDeltaToken',
-    lastUserSync: 'lastUserSync',
-    lastGroupSync: 'lastGroupSync',
-    lastSyncHash: 'lastSyncHash',
     organizationId: 'organizationId',
 };
 
@@ -90,11 +87,9 @@ export class StateMigrationService extends BaseStateMigrationService {
                 directorySettings: {
                     directoryType: await this.storageService.get<DirectoryType>('directoryType'),
                     organizationId: await this.storageService.get<string>('organizationId'),
-                    userDelta: await this.storageService.get<string>('userDelta'),
-                    groupDelta: await this.storageService.get<string>('groupDelta'),
                     lastUserSync: await this.storageService.get<Date>('lastUserSync'),
                     lastGroupSync: await this.storageService.get<Date>('lastGroupSync'),
-                    lastSyncHash: await this.storageService.get<string>('string'),
+                    lastSyncHash: await this.storageService.get<string>('lastSyncHash'),
                     syncingDir: await this.storageService.get<boolean>('syncingDir'),
                     sync: await this.storageService.get<SyncConfiguration>('syncConfig')
                 },
@@ -138,12 +133,12 @@ export class StateMigrationService extends BaseStateMigrationService {
 
         if (useSecureStorageForSecrets) {
             for (const key in Keys) {
-                if (await this.secureStorageService.has(key)) {
+                if (await this.secureStorageService.has(Keys[key])) {
                     await this.secureStorageService.save(
-                        `${userId}_${key}`,
-                        await this.secureStorageService.get(key)
+                        `${userId}_${Keys[key]}`,
+                        await this.secureStorageService.get(Keys[key])
                     );
-                    await this.secureStorageService.remove(key);
+                  await this.secureStorageService.remove(Keys[key]);
                 }
             }
         }
