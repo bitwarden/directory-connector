@@ -100,7 +100,7 @@ export class AuthService extends AuthServiceBase {
                 ...{
                     userId: clientId,
                     apiKeyClientId: clientId,
-                    entityId: entityId
+                    entityId: entityId,
                 },
             },
             tokens: {

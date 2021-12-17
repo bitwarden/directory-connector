@@ -28,16 +28,16 @@ const Keys = {
 };
 
 const ClientKeys = {
-    clientIdOld: 'clientId', 
+    clientIdOld: 'clientId',
     clientId: 'apikey_clientId',
-    clientSecretOld: 'clientSecret', 
+    clientSecretOld: 'clientSecret',
     clientSecret: 'apikey_clientSecret',
-}
+};
 
 export class StateMigrationService extends BaseStateMigrationService {
     async needsMigration(): Promise<boolean> {
         const currentStateVersion = (
-        await this.storageService.get<State<Account>>("state", {
+        await this.storageService.get<State<Account>>('state', {
             htmlStorageLocation: HtmlStorageLocation.Local,
         })
         )?.globals?.stateVersion;
@@ -46,13 +46,13 @@ export class StateMigrationService extends BaseStateMigrationService {
 
     async migrate(): Promise<void> {
         let currentStateVersion =
-            (await this.storageService.get<State<Account>>("state"))?.globals?.stateVersion ?? 1;
+            (await this.storageService.get<State<Account>>('state'))?.globals?.stateVersion ?? 1;
         while (currentStateVersion < this.latestVersion) {
         switch (currentStateVersion) {
             case 1:
                 await this.migrateClientKeys();
                 await this.migrateState();
-            break;
+                break;
         }
         currentStateVersion += 1;
         }
@@ -90,12 +90,12 @@ export class StateMigrationService extends BaseStateMigrationService {
                     lastGroupSync: await this.storageService.get<Date>('lastGroupSync'),
                     lastSyncHash: await this.storageService.get<string>('lastSyncHash'),
                     syncingDir: await this.storageService.get<boolean>('syncingDir'),
-                    sync: await this.storageService.get<SyncConfiguration>('syncConfig')
+                    sync: await this.storageService.get<SyncConfiguration>('syncConfig'),
                 },
                 profile: {
-                    entityId: await this.storageService.get<string>('entityId')
+                    entityId: await this.storageService.get<string>('entityId'),
                 },
-                directoryConfigurations: new DirectoryConfigurations()
+                directoryConfigurations: new DirectoryConfigurations(),
             });
         }
 
@@ -138,7 +138,7 @@ export class StateMigrationService extends BaseStateMigrationService {
                         `${userId}_${Keys[key]}`,
                         await this.secureStorageService.get(Keys[key])
                     );
-                  await this.secureStorageService.remove(Keys[key]);
+                  // await this.secureStorageService.remove(Keys[key]);
                 }
             }
         }
