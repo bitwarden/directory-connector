@@ -1,6 +1,7 @@
 export class SyncConfiguration {
     users = false;
     groups = false;
+    groupPrefix: string;
     interval = 5;
     userFilter: string;
     groupFilter: string;

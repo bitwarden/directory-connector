@@ -423,6 +423,9 @@
     "groupFilter": {
         "message": "Group Filter"
     },
+    "groupPrefix": {
+        "message": "Remove group prefix"
+    },
     "syncGroupsOneLogin": {
         "message": "Sync roles"
     },
