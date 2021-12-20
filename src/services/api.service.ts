@@ -4,7 +4,7 @@ import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.se
 import { StateService } from 'jslib-common/abstractions/state.service';
 import { TokenService } from 'jslib-common/abstractions/token.service';
 
-import { ApiService as ApiServiceBase } from 'jslib-common/services/api.service';
+import { ApiService as ApiServiceBase } from "jslib-common/services/api.service";
 
 export async function refreshToken(stateService: StateService, authService: AuthService) {
     try {
@@ -19,13 +19,18 @@ export async function refreshToken(stateService: StateService, authService: Auth
 }
 
 export class ApiService extends ApiServiceBase {
-    constructor(tokenService: TokenService, platformUtilsService: PlatformUtilsService, environmentService: EnvironmentService,
-        private refreshTokenCallback: () => Promise<void>, logoutCallback: (expired: boolean) => Promise<void>,
-        customUserAgent: string = null) {
-        super(tokenService, platformUtilsService, environmentService, logoutCallback, customUserAgent);
-    }
+  constructor(
+    tokenService: TokenService,
+    platformUtilsService: PlatformUtilsService,
+    environmentService: EnvironmentService,
+    private refreshTokenCallback: () => Promise<void>,
+    logoutCallback: (expired: boolean) => Promise<void>,
+    customUserAgent: string = null
+  ) {
+    super(tokenService, platformUtilsService, environmentService, logoutCallback, customUserAgent);
+  }
 
-    doRefreshToken(): Promise<void> {
-        return this.refreshTokenCallback();
-    }
+  doRefreshToken(): Promise<void> {
+    return this.refreshTokenCallback();
+  }
 }

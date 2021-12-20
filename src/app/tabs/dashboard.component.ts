@@ -126,3 +126,4 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.lastUserSync = await this.configurationService.getLastUserSyncDate();
     }
 }
+

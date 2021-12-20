@@ -1,127 +1,128 @@
 $fa-font-path: "~font-awesome/fonts";
 @import "~font-awesome/scss/font-awesome.scss";
-@import '~ngx-toastr/toastr';
+@import "~ngx-toastr/toastr";
 
 @import "~bootstrap/scss/_variables.scss";
 
 .toast-container {
+  .toast-close-button {
+    font-size: 18px;
+    margin-right: 4px;
+  }
+
+  .ngx-toastr {
+    align-items: center;
+    background-image: none !important;
+    border-radius: $border-radius;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
+    display: flex;
+    padding: 15px;
+
     .toast-close-button {
-        font-size: 18px;
-        margin-right: 4px;
+      position: absolute;
+      right: 5px;
+      top: 0;
     }
 
-    .ngx-toastr {
-        align-items: center;
-        background-image: none !important;
-        border-radius: $border-radius;
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
-        display: flex;
-        padding: 15px;
-
-        .toast-close-button {
-            position: absolute;
-            right: 5px;
-            top: 0;
-        }
-
-        &:hover {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-        }
-
-        .icon i::before {
-            float: left;
-            font-style: normal;
-            font-family: FontAwesome;
-            font-size: 25px;
-            line-height: 20px;
-            padding-right: 15px;
-        }
-
-        .toast-message {
-            p {
-                margin-bottom: 0.5rem;
-
-                &:last-child {
-                    margin-bottom: 0;
-                }
-            }
-        }
-
-        &.toast-danger, &.toast-error {
-            background-color: $danger;
-
-            .icon i::before {
-                content: "\f0e7";
-            }
-        }
-
-        &.toast-warning {
-            background-color: $warning;
-
-            .icon i::before {
-                content: "\f071";
-            }
-        }
-
-        &.toast-info {
-            background-color: $info;
-
-            .icon i:before {
-                content: "\f05a";
-            }
-        }
-
-        &.toast-success {
-            background-color: $success;
-
-            .icon i:before {
-                content: "\f00C";
-            }
-        }
+    &:hover {
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
     }
+
+    .icon i::before {
+      float: left;
+      font-style: normal;
+      font-family: FontAwesome;
+      font-size: 25px;
+      line-height: 20px;
+      padding-right: 15px;
+    }
+
+    .toast-message {
+      p {
+        margin-bottom: 0.5rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    &.toast-danger,
+    &.toast-error {
+      background-color: $danger;
+
+      .icon i::before {
+        content: "\f0e7";
+      }
+    }
+
+    &.toast-warning {
+      background-color: $warning;
+
+      .icon i::before {
+        content: "\f071";
+      }
+    }
+
+    &.toast-info {
+      background-color: $info;
+
+      .icon i:before {
+        content: "\f05a";
+      }
+    }
+
+    &.toast-success {
+      background-color: $success;
+
+      .icon i:before {
+        content: "\f00C";
+      }
+    }
+  }
 }
 
 @keyframes modalshow {
-    0% {
-        opacity: 0;
-        transform: translate(0, -25%);
-    }
+  0% {
+    opacity: 0;
+    transform: translate(0, -25%);
+  }
 
-    100% {
-        opacity: 1;
-        transform: translate(0, 0);
-    }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
 }
 
 @keyframes backdropshow {
-    0% {
-        opacity: 0;
-    }
+  0% {
+    opacity: 0;
+  }
 
-    100% {
-        opacity: $modal-backdrop-opacity;
-    }
+  100% {
+    opacity: $modal-backdrop-opacity;
+  }
 }
 
 .modal {
-    display: block !important;
-    opacity: 1 !important;
+  display: block !important;
+  opacity: 1 !important;
 }
 
 .modal-dialog {
-    .modal.fade & {
-        transform: initial !important;
-        animation: modalshow 0.3s ease-in;
-    }
-    .modal.show & {
-        transform: initial !important;
-    }
-    transform: translate(0, 0);
+  .modal.fade & {
+    transform: initial !important;
+    animation: modalshow 0.3s ease-in;
+  }
+  .modal.show & {
+    transform: initial !important;
+  }
+  transform: translate(0, 0);
 }
 
 .modal-backdrop {
-    &.fade {
-        animation: backdropshow 0.1s ease-in;
-    }
-    opacity: $modal-backdrop-opacity !important;
+  &.fade {
+    animation: backdropshow 0.1s ease-in;
+  }
+  opacity: $modal-backdrop-opacity !important;
 }
