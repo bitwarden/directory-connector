@@ -1,4 +1,4 @@
 export class OktaConfiguration {
-    orgUrl: string;
-    token: string;
+  orgUrl: string;
+  token: string;
 }

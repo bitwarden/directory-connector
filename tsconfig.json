@@ -12,28 +12,15 @@
     "types": [],
     "baseUrl": ".",
     "paths": {
-      "tldjs": [
-        "jslib/src/misc/tldjs.noop"
-      ],
-      "jslib-common/*": [
-        "jslib/common/src/*"
-      ],
-      "jslib-angular/*": [
-        "jslib/angular/src/*"
-      ],
-      "jslib-electron/*": [
-        "jslib/electron/src/*"
-      ],
-      "jslib-node/*": [
-        "jslib/node/src/*"
-      ]
+      "tldjs": ["jslib/src/misc/tldjs.noop"],
+      "jslib-common/*": ["jslib/common/src/*"],
+      "jslib-angular/*": ["jslib/angular/src/*"],
+      "jslib-electron/*": ["jslib/electron/src/*"],
+      "jslib-node/*": ["jslib/node/src/*"]
     }
   },
   "angularCompilerOptions": {
     "preserveWhitespaces": true
   },
-  "include": [
-    "src",
-    "src-cli"
-  ]
+  "include": ["src", "src-cli"]
 }
