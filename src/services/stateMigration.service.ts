@@ -13,7 +13,7 @@ import { OktaConfiguration } from 'src/models/oktaConfiguration';
 import { OneLoginConfiguration } from 'src/models/oneLoginConfiguration';
 import { SyncConfiguration } from 'src/models/syncConfiguration';
 
-const Keys = {
+const Keys : { [key: string]: any } = {
     ldap: 'ldapPassword',
     gsuite: 'gsuitePrivateKey',
     azure: 'azureKey',
@@ -27,7 +27,7 @@ const Keys = {
     organizationId: 'organizationId',
 };
 
-const ClientKeys = {
+const ClientKeys : { [key: string]: any } = {
     clientIdOld: 'clientId',
     clientId: 'apikey_clientId',
     clientSecretOld: 'clientSecret',
