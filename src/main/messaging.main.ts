@@ -9,60 +9,60 @@ import { MenuMain } from "./menu.main";
 const SyncCheckInterval = 60 * 1000; // 1 minute
 
 export class MessagingMain {
-    private syncTimeout: NodeJS.Timer;
+  private syncTimeout: NodeJS.Timer;
 
-    constructor(
-        private windowMain: WindowMain,
-        private menuMain: MenuMain,
-        private updaterMain: UpdaterMain,
-        private trayMain: TrayMain
-    ) {}
+  constructor(
+    private windowMain: WindowMain,
+    private menuMain: MenuMain,
+    private updaterMain: UpdaterMain,
+    private trayMain: TrayMain
+  ) {}
 
-    init() {
-        ipcMain.on("messagingService", async (event: any, message: any) => this.onMessage(message));
-    }
+  init() {
+    ipcMain.on("messagingService", async (event: any, message: any) => this.onMessage(message));
+  }
 
-    onMessage(message: any) {
-        switch (message.command) {
-            case "checkForUpdate":
-                this.updaterMain.checkForUpdate(true);
-                break;
-            case "scheduleNextDirSync":
-                this.scheduleNextSync();
-                break;
-            case "cancelDirSync":
-                this.windowMain.win.webContents.send("messagingService", {
-                    command: "syncScheduleStopped",
-                });
-                if (this.syncTimeout) {
-                    global.clearTimeout(this.syncTimeout);
-                }
-                break;
-            case "hideToTray":
-                this.trayMain.hideToTray();
-                break;
-            default:
-                break;
-        }
-    }
-
-    private scheduleNextSync() {
+  onMessage(message: any) {
+    switch (message.command) {
+      case "checkForUpdate":
+        this.updaterMain.checkForUpdate(true);
+        break;
+      case "scheduleNextDirSync":
+        this.scheduleNextSync();
+        break;
+      case "cancelDirSync":
         this.windowMain.win.webContents.send("messagingService", {
-            command: "syncScheduleStarted",
+          command: "syncScheduleStopped",
         });
-
         if (this.syncTimeout) {
-            global.clearTimeout(this.syncTimeout);
+          global.clearTimeout(this.syncTimeout);
         }
-
-        this.syncTimeout = global.setTimeout(() => {
-            if (this.windowMain.win == null) {
-                return;
-            }
-
-            this.windowMain.win.webContents.send("messagingService", {
-                command: "checkDirSync",
-            });
-        }, SyncCheckInterval);
+        break;
+      case "hideToTray":
+        this.trayMain.hideToTray();
+        break;
+      default:
+        break;
     }
+  }
+
+  private scheduleNextSync() {
+    this.windowMain.win.webContents.send("messagingService", {
+      command: "syncScheduleStarted",
+    });
+
+    if (this.syncTimeout) {
+      global.clearTimeout(this.syncTimeout);
+    }
+
+    this.syncTimeout = global.setTimeout(() => {
+      if (this.windowMain.win == null) {
+        return;
+      }
+
+      this.windowMain.win.webContents.send("messagingService", {
+        command: "checkDirSync",
+      });
+    }, SyncCheckInterval);
+  }
 }

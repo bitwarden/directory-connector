@@ -1,67 +1,61 @@
 <div class="modal fade">
-    <div class="modal-dialog">
-        <form class="modal-content" (ngSubmit)="submit()">
-            <div class="modal-header">
-                <h3 class="modal-title">{{ "settings" | i18n }}</h3>
-                <button type="button" class="close" data-dismiss="modal" title="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <h4>{{ "selfHostedEnvironment" | i18n }}</h4>
-                <p>{{ "selfHostedEnvironmentFooter" | i18n }}</p>
-                <div class="form-group">
-                    <label for="baseUrl">{{ "baseUrl" | i18n }}</label>
-                    <input
-                        id="baseUrl"
-                        type="text"
-                        name="BaseUrl"
-                        [(ngModel)]="baseUrl"
-                        class="form-control"
-                    />
-                    <small class="text-muted form-text"
-                        >{{ "ex" | i18n }} https://bitwarden.company.com</small
-                    >
-                </div>
-                <h4>{{ "customEnvironment" | i18n }}</h4>
-                <p>{{ "customEnvironmentFooter" | i18n }}</p>
-                <div class="form-group">
-                    <label for="webVaultUrl">{{ "webVaultUrl" | i18n }}</label>
-                    <input
-                        id="webVaultUrl"
-                        type="text"
-                        name="WebVaultUrl"
-                        [(ngModel)]="webVaultUrl"
-                        class="form-control"
-                    />
-                </div>
-                <div class="form-group">
-                    <label for="apiUrl">{{ "apiUrl" | i18n }}</label>
-                    <input
-                        id="apiUrl"
-                        type="text"
-                        name="ApiUrl"
-                        [(ngModel)]="apiUrl"
-                        class="form-control"
-                    />
-                </div>
-                <div class="form-group">
-                    <label for="identityUrl">{{ "identityUrl" | i18n }}</label>
-                    <input
-                        id="identityUrl"
-                        type="text"
-                        name="IdentityUrl"
-                        [(ngModel)]="identityUrl"
-                        class="form-control"
-                    />
-                </div>
-            </div>
-            <div class="modal-footer justify-content-start">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-save fa-fw"></i>
-                    {{ "save" | i18n }}
-                </button>
-            </div>
-        </form>
-    </div>
+  <div class="modal-dialog">
+    <form class="modal-content" (ngSubmit)="submit()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ "settings" | i18n }}</h3>
+        <button type="button" class="close" data-dismiss="modal" title="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h4>{{ "selfHostedEnvironment" | i18n }}</h4>
+        <p>{{ "selfHostedEnvironmentFooter" | i18n }}</p>
+        <div class="form-group">
+          <label for="baseUrl">{{ "baseUrl" | i18n }}</label>
+          <input
+            id="baseUrl"
+            type="text"
+            name="BaseUrl"
+            [(ngModel)]="baseUrl"
+            class="form-control"
+          />
+          <small class="text-muted form-text"
+            >{{ "ex" | i18n }} https://bitwarden.company.com</small
+          >
+        </div>
+        <h4>{{ "customEnvironment" | i18n }}</h4>
+        <p>{{ "customEnvironmentFooter" | i18n }}</p>
+        <div class="form-group">
+          <label for="webVaultUrl">{{ "webVaultUrl" | i18n }}</label>
+          <input
+            id="webVaultUrl"
+            type="text"
+            name="WebVaultUrl"
+            [(ngModel)]="webVaultUrl"
+            class="form-control"
+          />
+        </div>
+        <div class="form-group">
+          <label for="apiUrl">{{ "apiUrl" | i18n }}</label>
+          <input id="apiUrl" type="text" name="ApiUrl" [(ngModel)]="apiUrl" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="identityUrl">{{ "identityUrl" | i18n }}</label>
+          <input
+            id="identityUrl"
+            type="text"
+            name="IdentityUrl"
+            [(ngModel)]="identityUrl"
+            class="form-control"
+          />
+        </div>
+      </div>
+      <div class="modal-footer justify-content-start">
+        <button type="submit" class="btn btn-primary">
+          <i class="fa fa-save fa-fw"></i>
+          {{ "save" | i18n }}
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

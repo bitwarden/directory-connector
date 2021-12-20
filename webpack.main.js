@@ -6,63 +6,63 @@ const nodeExternals = require("webpack-node-externals");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 const common = {
-    module: {
-        rules: [
-            {
-                test: /\.ts$/,
-                enforce: "pre",
-                loader: "tslint-loader",
-            },
-            {
-                test: /\.tsx?$/,
-                use: "ts-loader",
-                exclude: /node_modules\/(?!(@bitwarden)\/).*/,
-            },
-        ],
-    },
-    plugins: [],
-    resolve: {
-        extensions: [".tsx", ".ts", ".js"],
-        plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
-    },
-    output: {
-        filename: "[name].js",
-        path: path.resolve(__dirname, "build"),
-    },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        enforce: "pre",
+        loader: "tslint-loader",
+      },
+      {
+        test: /\.tsx?$/,
+        use: "ts-loader",
+        exclude: /node_modules\/(?!(@bitwarden)\/).*/,
+      },
+    ],
+  },
+  plugins: [],
+  resolve: {
+    extensions: [".tsx", ".ts", ".js"],
+    plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
+  },
+  output: {
+    filename: "[name].js",
+    path: path.resolve(__dirname, "build"),
+  },
 };
 
 const main = {
-    mode: "production",
-    target: "electron-main",
-    node: {
-        __dirname: false,
-        __filename: false,
-    },
-    entry: {
-        main: "./src/main.ts",
-    },
-    optimization: {
-        minimize: false,
-    },
-    module: {
-        rules: [
-            {
-                test: /\.node$/,
-                loader: "node-loader",
-            },
-        ],
-    },
-    plugins: [
-        new CleanWebpackPlugin(),
-        new CopyWebpackPlugin({
-            patterns: [
-                "./src/package.json",
-                { from: "./src/images", to: "images" },
-                { from: "./src/locales", to: "locales" },
-            ],
-        }),
+  mode: "production",
+  target: "electron-main",
+  node: {
+    __dirname: false,
+    __filename: false,
+  },
+  entry: {
+    main: "./src/main.ts",
+  },
+  optimization: {
+    minimize: false,
+  },
+  module: {
+    rules: [
+      {
+        test: /\.node$/,
+        loader: "node-loader",
+      },
     ],
-    externals: [nodeExternals()],
+  },
+  plugins: [
+    new CleanWebpackPlugin(),
+    new CopyWebpackPlugin({
+      patterns: [
+        "./src/package.json",
+        { from: "./src/images", to: "images" },
+        { from: "./src/locales", to: "locales" },
+      ],
+    }),
+  ],
+  externals: [nodeExternals()],
 };
 
 module.exports = merge(common, main);

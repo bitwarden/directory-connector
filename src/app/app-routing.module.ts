@@ -11,47 +11,47 @@ import { SettingsComponent } from "./tabs/settings.component";
 import { TabsComponent } from "./tabs/tabs.component";
 
 const routes: Routes = [
-    { path: "", redirectTo: "/login", pathMatch: "full" },
-    {
-        path: "login",
-        component: ApiKeyComponent,
-        canActivate: [LaunchGuardService],
-    },
-    {
-        path: "tabs",
-        component: TabsComponent,
-        children: [
-            {
-                path: "",
-                redirectTo: "/tabs/dashboard",
-                pathMatch: "full",
-            },
-            {
-                path: "dashboard",
-                component: DashboardComponent,
-                canActivate: [AuthGuardService],
-            },
-            {
-                path: "settings",
-                component: SettingsComponent,
-                canActivate: [AuthGuardService],
-            },
-            {
-                path: "more",
-                component: MoreComponent,
-                canActivate: [AuthGuardService],
-            },
-        ],
-    },
+  { path: "", redirectTo: "/login", pathMatch: "full" },
+  {
+    path: "login",
+    component: ApiKeyComponent,
+    canActivate: [LaunchGuardService],
+  },
+  {
+    path: "tabs",
+    component: TabsComponent,
+    children: [
+      {
+        path: "",
+        redirectTo: "/tabs/dashboard",
+        pathMatch: "full",
+      },
+      {
+        path: "dashboard",
+        component: DashboardComponent,
+        canActivate: [AuthGuardService],
+      },
+      {
+        path: "settings",
+        component: SettingsComponent,
+        canActivate: [AuthGuardService],
+      },
+      {
+        path: "more",
+        component: MoreComponent,
+        canActivate: [AuthGuardService],
+      },
+    ],
+  },
 ];
 
 @NgModule({
-    imports: [
-        RouterModule.forRoot(routes, {
-            useHash: true,
-            /*enableTracing: true,*/
-        }),
-    ],
-    exports: [RouterModule],
+  imports: [
+    RouterModule.forRoot(routes, {
+      useHash: true,
+      /*enableTracing: true,*/
+    }),
+  ],
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}

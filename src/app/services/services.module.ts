@@ -49,183 +49,174 @@ import { ApiService, refreshToken } from "../../services/api.service";
 import { AuthService } from "../../services/auth.service";
 
 function refreshTokenCallback(injector: Injector) {
-    return () => {
-        const apiKeyService = injector.get(ApiKeyServiceAbstraction);
-        const authService = injector.get(AuthServiceAbstraction);
-        return refreshToken(apiKeyService, authService);
-    };
+  return () => {
+    const apiKeyService = injector.get(ApiKeyServiceAbstraction);
+    const authService = injector.get(AuthServiceAbstraction);
+    return refreshToken(apiKeyService, authService);
+  };
 }
 
 export function initFactory(
-    environmentService: EnvironmentServiceAbstraction,
-    i18nService: I18nService,
-    authService: AuthService,
-    platformUtilsService: PlatformUtilsServiceAbstraction,
-    storageService: StorageServiceAbstraction,
-    userService: UserServiceAbstraction,
-    apiService: ApiServiceAbstraction,
-    stateService: StateServiceAbstraction,
-    cryptoService: CryptoServiceAbstraction
+  environmentService: EnvironmentServiceAbstraction,
+  i18nService: I18nService,
+  authService: AuthService,
+  platformUtilsService: PlatformUtilsServiceAbstraction,
+  storageService: StorageServiceAbstraction,
+  userService: UserServiceAbstraction,
+  apiService: ApiServiceAbstraction,
+  stateService: StateServiceAbstraction,
+  cryptoService: CryptoServiceAbstraction
 ): Function {
-    return async () => {
-        await environmentService.setUrlsFromStorage();
-        await i18nService.init();
-        authService.init();
-        const htmlEl = window.document.documentElement;
-        htmlEl.classList.add("os_" + platformUtilsService.getDeviceString());
-        htmlEl.classList.add("locale_" + i18nService.translationLocale);
-        window.document.title = i18nService.t("bitwardenDirectoryConnector");
+  return async () => {
+    await environmentService.setUrlsFromStorage();
+    await i18nService.init();
+    authService.init();
+    const htmlEl = window.document.documentElement;
+    htmlEl.classList.add("os_" + platformUtilsService.getDeviceString());
+    htmlEl.classList.add("locale_" + i18nService.translationLocale);
+    window.document.title = i18nService.t("bitwardenDirectoryConnector");
 
-        let installAction = null;
-        const installedVersion = await storageService.get<string>(
-            ConstantsService.installedVersionKey
-        );
-        const currentVersion = await platformUtilsService.getApplicationVersion();
-        if (installedVersion == null) {
-            installAction = "install";
-        } else if (installedVersion !== currentVersion) {
-            installAction = "update";
-        }
+    let installAction = null;
+    const installedVersion = await storageService.get<string>(ConstantsService.installedVersionKey);
+    const currentVersion = await platformUtilsService.getApplicationVersion();
+    if (installedVersion == null) {
+      installAction = "install";
+    } else if (installedVersion !== currentVersion) {
+      installAction = "update";
+    }
 
-        if (installAction != null) {
-            await storageService.save(ConstantsService.installedVersionKey, currentVersion);
-        }
+    if (installAction != null) {
+      await storageService.save(ConstantsService.installedVersionKey, currentVersion);
+    }
 
-        window.setTimeout(async () => {
-            if (await userService.isAuthenticated()) {
-                const profile = await apiService.getProfile();
-                stateService.save("profileOrganizations", profile.organizations);
-            }
-        }, 500);
+    window.setTimeout(async () => {
+      if (await userService.isAuthenticated()) {
+        const profile = await apiService.getProfile();
+        stateService.save("profileOrganizations", profile.organizations);
+      }
+    }, 500);
 
-        const containerService = new ContainerService(cryptoService);
-        containerService.attachToWindow(window);
-    };
+    const containerService = new ContainerService(cryptoService);
+    containerService.attachToWindow(window);
+  };
 }
 
 @NgModule({
-    imports: [JslibServicesModule],
-    declarations: [],
-    providers: [
-        {
-            provide: APP_INITIALIZER,
-            useFactory: initFactory,
-            deps: [
-                EnvironmentServiceAbstraction,
-                I18nServiceAbstraction,
-                AuthServiceAbstraction,
-                PlatformUtilsServiceAbstraction,
-                StorageServiceAbstraction,
-                UserServiceAbstraction,
-                ApiServiceAbstraction,
-                StateServiceAbstraction,
-                CryptoServiceAbstraction,
-            ],
-            multi: true,
-        },
-        { provide: LogServiceAbstraction, useClass: ElectronLogService, deps: [] },
-        {
-            provide: I18nServiceAbstraction,
-            useFactory: (window: Window) => new I18nService(window.navigator.language, "./locales"),
-            deps: ["WINDOW"],
-        },
-        {
-            provide: MessagingServiceAbstraction,
-            useClass: ElectronRendererMessagingService,
-            deps: [BroadcasterServiceAbstraction],
-        },
-        { provide: StorageServiceAbstraction, useClass: ElectronRendererStorageService },
-        { provide: "SECURE_STORAGE", useClass: ElectronRendererSecureStorageService },
-        {
-            provide: PlatformUtilsServiceAbstraction,
-            useFactory: (
-                i18nService: I18nServiceAbstraction,
-                messagingService: MessagingServiceAbstraction,
-                storageService: StorageServiceAbstraction
-            ) =>
-                new ElectronPlatformUtilsService(
-                    i18nService,
-                    messagingService,
-                    true,
-                    storageService
-                ),
-            deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StorageServiceAbstraction],
-        },
-        {
-            provide: CryptoFunctionServiceAbstraction,
-            useClass: NodeCryptoFunctionService,
-            deps: [],
-        },
-        {
-            provide: ApiServiceAbstraction,
-            useFactory: (
-                tokenService: TokenServiceAbstraction,
-                platformUtilsService: PlatformUtilsServiceAbstraction,
-                environmentService: EnvironmentServiceAbstraction,
-                messagingService: MessagingServiceAbstraction,
-                injector: Injector
-            ) =>
-                new ApiService(
-                    tokenService,
-                    platformUtilsService,
-                    environmentService,
-                    refreshTokenCallback(injector),
-                    async (expired: boolean) =>
-                        messagingService.send("logout", { expired: expired })
-                ),
-            deps: [
-                TokenServiceAbstraction,
-                PlatformUtilsServiceAbstraction,
-                EnvironmentServiceAbstraction,
-                MessagingServiceAbstraction,
-                Injector,
-            ],
-        },
-        {
-            provide: ApiKeyServiceAbstraction,
-            useClass: ApiKeyService,
-            deps: [TokenServiceAbstraction, StorageServiceAbstraction],
-        },
-        {
-            provide: AuthServiceAbstraction,
-            useClass: AuthService,
-            deps: [
-                CryptoServiceAbstraction,
-                ApiServiceAbstraction,
-                UserServiceAbstraction,
-                TokenServiceAbstraction,
-                AppIdServiceAbstraction,
-                I18nServiceAbstraction,
-                PlatformUtilsServiceAbstraction,
-                MessagingServiceAbstraction,
-                VaultTimeoutServiceAbstraction,
-                LogServiceAbstraction,
-                ApiKeyServiceAbstraction,
-                CryptoFunctionServiceAbstraction,
-                EnvironmentServiceAbstraction,
-                KeyConnectorServiceAbstraction,
-            ],
-        },
-        {
-            provide: ConfigurationService,
-            useClass: ConfigurationService,
-            deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
-        },
-        {
-            provide: SyncService,
-            useClass: SyncService,
-            deps: [
-                ConfigurationService,
-                LogServiceAbstraction,
-                CryptoFunctionServiceAbstraction,
-                ApiServiceAbstraction,
-                MessagingServiceAbstraction,
-                I18nServiceAbstraction,
-                EnvironmentServiceAbstraction,
-            ],
-        },
-        AuthGuardService,
-        LaunchGuardService,
-    ],
+  imports: [JslibServicesModule],
+  declarations: [],
+  providers: [
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initFactory,
+      deps: [
+        EnvironmentServiceAbstraction,
+        I18nServiceAbstraction,
+        AuthServiceAbstraction,
+        PlatformUtilsServiceAbstraction,
+        StorageServiceAbstraction,
+        UserServiceAbstraction,
+        ApiServiceAbstraction,
+        StateServiceAbstraction,
+        CryptoServiceAbstraction,
+      ],
+      multi: true,
+    },
+    { provide: LogServiceAbstraction, useClass: ElectronLogService, deps: [] },
+    {
+      provide: I18nServiceAbstraction,
+      useFactory: (window: Window) => new I18nService(window.navigator.language, "./locales"),
+      deps: ["WINDOW"],
+    },
+    {
+      provide: MessagingServiceAbstraction,
+      useClass: ElectronRendererMessagingService,
+      deps: [BroadcasterServiceAbstraction],
+    },
+    { provide: StorageServiceAbstraction, useClass: ElectronRendererStorageService },
+    { provide: "SECURE_STORAGE", useClass: ElectronRendererSecureStorageService },
+    {
+      provide: PlatformUtilsServiceAbstraction,
+      useFactory: (
+        i18nService: I18nServiceAbstraction,
+        messagingService: MessagingServiceAbstraction,
+        storageService: StorageServiceAbstraction
+      ) => new ElectronPlatformUtilsService(i18nService, messagingService, true, storageService),
+      deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StorageServiceAbstraction],
+    },
+    {
+      provide: CryptoFunctionServiceAbstraction,
+      useClass: NodeCryptoFunctionService,
+      deps: [],
+    },
+    {
+      provide: ApiServiceAbstraction,
+      useFactory: (
+        tokenService: TokenServiceAbstraction,
+        platformUtilsService: PlatformUtilsServiceAbstraction,
+        environmentService: EnvironmentServiceAbstraction,
+        messagingService: MessagingServiceAbstraction,
+        injector: Injector
+      ) =>
+        new ApiService(
+          tokenService,
+          platformUtilsService,
+          environmentService,
+          refreshTokenCallback(injector),
+          async (expired: boolean) => messagingService.send("logout", { expired: expired })
+        ),
+      deps: [
+        TokenServiceAbstraction,
+        PlatformUtilsServiceAbstraction,
+        EnvironmentServiceAbstraction,
+        MessagingServiceAbstraction,
+        Injector,
+      ],
+    },
+    {
+      provide: ApiKeyServiceAbstraction,
+      useClass: ApiKeyService,
+      deps: [TokenServiceAbstraction, StorageServiceAbstraction],
+    },
+    {
+      provide: AuthServiceAbstraction,
+      useClass: AuthService,
+      deps: [
+        CryptoServiceAbstraction,
+        ApiServiceAbstraction,
+        UserServiceAbstraction,
+        TokenServiceAbstraction,
+        AppIdServiceAbstraction,
+        I18nServiceAbstraction,
+        PlatformUtilsServiceAbstraction,
+        MessagingServiceAbstraction,
+        VaultTimeoutServiceAbstraction,
+        LogServiceAbstraction,
+        ApiKeyServiceAbstraction,
+        CryptoFunctionServiceAbstraction,
+        EnvironmentServiceAbstraction,
+        KeyConnectorServiceAbstraction,
+      ],
+    },
+    {
+      provide: ConfigurationService,
+      useClass: ConfigurationService,
+      deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
+    },
+    {
+      provide: SyncService,
+      useClass: SyncService,
+      deps: [
+        ConfigurationService,
+        LogServiceAbstraction,
+        CryptoFunctionServiceAbstraction,
+        ApiServiceAbstraction,
+        MessagingServiceAbstraction,
+        I18nServiceAbstraction,
+        EnvironmentServiceAbstraction,
+      ],
+    },
+    AuthGuardService,
+    LaunchGuardService,
+  ],
 })
 export class ServicesModule {}

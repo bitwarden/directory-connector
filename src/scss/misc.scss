@@ -1,143 +1,143 @@
 @import "~bootstrap/scss/_variables.scss";
 
 body {
-    padding: 10px 0 20px 0;
+  padding: 10px 0 20px 0;
 }
 
 h1 {
-    border-bottom: 1px solid $border-color;
-    margin-bottom: 20px;
+  border-bottom: 1px solid $border-color;
+  margin-bottom: 20px;
 
-    small {
-        color: $text-muted;
-        font-size: $h1-font-size * 0.5;
-    }
+  small {
+    color: $text-muted;
+    font-size: $h1-font-size * 0.5;
+  }
 }
 
 h2 {
-    text-transform: uppercase;
-    font-weight: bold;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
 h3 {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
 
 h4 {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 #duo-frame {
-    background: url("../images/loading.svg") 0 0 no-repeat;
-    height: 380px;
+  background: url("../images/loading.svg") 0 0 no-repeat;
+  height: 380px;
 
-    iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-    }
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
 }
 
 app-root > #loading {
-    text-align: center;
-    margin-top: 20px;
-    color: $text-muted;
+  text-align: center;
+  margin-top: 20px;
+  color: $text-muted;
 }
 
 ul.testing-list {
-    ul {
-        padding-left: 18px;
-    }
+  ul {
+    padding-left: 18px;
+  }
 
-    li.deleted {
-        text-decoration: line-through;
-    }
+  li.deleted {
+    text-decoration: line-through;
+  }
 }
 
 .callout {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #000000;
-    border-left-width: 5px;
-    border-radius: 3px;
-    border-color: #ddd;
-    background-color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #000000;
+  border-left-width: 5px;
+  border-radius: 3px;
+  border-color: #ddd;
+  background-color: white;
+
+  .callout-heading {
+    margin-top: 0;
+  }
+
+  h3.callout-heading {
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  &.callout-primary {
+    border-left-color: $primary;
 
     .callout-heading {
-        margin-top: 0;
+      color: $primary;
     }
+  }
 
-    h3.callout-heading {
-        font-weight: bold;
-        text-transform: uppercase;
+  &.callout-info {
+    border-left-color: $info;
+
+    .callout-heading {
+      color: $info;
     }
+  }
 
-    &.callout-primary {
-        border-left-color: $primary;
+  &.callout-danger {
+    border-left-color: $danger;
 
-        .callout-heading {
-            color: $primary;
-        }
+    .callout-heading {
+      color: $danger;
     }
+  }
 
-    &.callout-info {
-        border-left-color: $info;
+  &.callout-success {
+    border-left-color: $success;
 
-        .callout-heading {
-            color: $info;
-        }
+    .callout-heading {
+      color: $success;
     }
+  }
 
-    &.callout-danger {
-        border-left-color: $danger;
+  &.callout-warning {
+    border-left-color: $warning;
 
-        .callout-heading {
-            color: $danger;
-        }
+    .callout-heading {
+      color: $warning;
     }
+  }
 
-    &.callout-success {
-        border-left-color: $success;
-
-        .callout-heading {
-            color: $success;
-        }
-    }
-
-    &.callout-warning {
-        border-left-color: $warning;
-
-        .callout-heading {
-            color: $warning;
-        }
-    }
-
-    ul {
-        padding-left: 40px;
-        margin: 0;
-    }
+  ul {
+    padding-left: 40px;
+    margin: 0;
+  }
 }
 
 .btn[class*="btn-outline-"] {
-    &:not(:hover) {
-        border-color: $secondary;
-        background-color: #fbfbfb;
-    }
+  &:not(:hover) {
+    border-color: $secondary;
+    background-color: #fbfbfb;
+  }
 }
 
 .btn-outline-secondary {
-    color: $text-muted;
+  color: $text-muted;
 
-    &:hover:not(:disabled) {
-        color: $body-color;
-    }
+  &:hover:not(:disabled) {
+    color: $body-color;
+  }
 
-    &:disabled {
-        opacity: 1;
-    }
+  &:disabled {
+    opacity: 1;
+  }
 
-    &:focus,
-    &.focus {
-        box-shadow: 0 0 0 $btn-focus-width rgba(mix(color-yiq($primary), $primary, 15%), 0.5);
-    }
+  &:focus,
+  &.focus {
+    box-shadow: 0 0 0 $btn-focus-width rgba(mix(color-yiq($primary), $primary, 15%), 0.5);
+  }
 }
