@@ -1,6 +1,6 @@
-import { IConfiguration } from './IConfiguration';
+import { IConfiguration } from "./IConfiguration";
 
 export class OktaConfiguration implements IConfiguration {
-    orgUrl: string;
-    token: string;
+  orgUrl: string;
+  token: string;
 }

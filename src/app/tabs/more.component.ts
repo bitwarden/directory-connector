@@ -1,9 +1,4 @@
-import {
-    ChangeDetectorRef,
-    Component,
-    NgZone,
-    OnInit,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from "@angular/core";
 
 import { BroadcasterService } from "jslib-common/abstractions/broadcaster.service";
 import { I18nService } from "jslib-common/abstractions/i18n.service";
