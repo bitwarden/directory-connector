@@ -100,7 +100,7 @@ jobs:
         run: |
           sudo apt install libsecret-1-0
           
-          dbus-launch --sh-syntax
+          sudo systemctl start dbus
 
           mkdir -p test/linux
           unzip ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip -d ./test/linux
