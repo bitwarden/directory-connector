@@ -1,4 +1,4 @@
-import { Entry } from './entry';
+import { Entry } from "./entry";
 
 export class UserEntry extends Entry {
     email: string;

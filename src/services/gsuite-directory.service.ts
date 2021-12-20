@@ -1,22 +1,19 @@
-import { JWT } from 'google-auth-library';
-import {
-    admin_directory_v1,
-    google,
-} from 'googleapis';
+import { JWT } from "google-auth-library";
+import { admin_directory_v1, google } from "googleapis";
 
-import { DirectoryType } from '../enums/directoryType';
+import { DirectoryType } from "../enums/directoryType";
 
-import { GroupEntry } from '../models/groupEntry';
-import { GSuiteConfiguration } from '../models/gsuiteConfiguration';
-import { SyncConfiguration } from '../models/syncConfiguration';
-import { UserEntry } from '../models/userEntry';
+import { GroupEntry } from "../models/groupEntry";
+import { GSuiteConfiguration } from "../models/gsuiteConfiguration";
+import { SyncConfiguration } from "../models/syncConfiguration";
+import { UserEntry } from "../models/userEntry";
 
-import { BaseDirectoryService } from './baseDirectory.service';
-import { ConfigurationService } from './configuration.service';
-import { IDirectoryService } from './directory.service';
+import { BaseDirectoryService } from "./baseDirectory.service";
+import { ConfigurationService } from "./configuration.service";
+import { IDirectoryService } from "./directory.service";
 
-import { I18nService } from 'jslib-common/abstractions/i18n.service';
-import { LogService } from 'jslib-common/abstractions/log.service';
+import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { LogService } from "jslib-common/abstractions/log.service";
 
 export class GSuiteDirectoryService extends BaseDirectoryService implements IDirectoryService {
     private client: JWT;
@@ -25,10 +22,13 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     private dirConfig: GSuiteConfiguration;
     private syncConfig: SyncConfiguration;
 
-    constructor(private configurationService: ConfigurationService, private logService: LogService,
-        private i18nService: I18nService) {
+    constructor(
+        private configurationService: ConfigurationService,
+        private logService: LogService,
+        private i18nService: I18nService
+    ) {
         super();
-        this.service = google.admin('directory_v1');
+        this.service = google.admin("directory_v1");
     }
 
     async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
@@ -37,7 +37,9 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
             return;
         }
 
-        this.dirConfig = await this.configurationService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+        this.dirConfig = await this.configurationService.getDirectory<GSuiteConfiguration>(
+            DirectoryType.GSuite
+        );
         if (this.dirConfig == null) {
             return;
         }
@@ -71,11 +73,11 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
 
         const filter = this.createCustomSet(this.syncConfig.userFilter);
         while (true) {
-            this.logService.info('Querying users - nextPageToken:' + nextPageToken);
+            this.logService.info("Querying users - nextPageToken:" + nextPageToken);
             const p = Object.assign({ query: query, pageToken: nextPageToken }, this.authParams);
             const res = await this.service.users.list(p);
             if (res.status !== 200) {
-                throw new Error('User list API failed: ' + res.statusText);
+                throw new Error("User list API failed: " + res.statusText);
             }
 
             nextPageToken = res.data.nextPageToken;
@@ -98,11 +100,14 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
 
         nextPageToken = null;
         while (true) {
-            this.logService.info('Querying deleted users - nextPageToken:' + nextPageToken);
-            const p = Object.assign({ showDeleted: true, query: query, pageToken: nextPageToken }, this.authParams);
+            this.logService.info("Querying deleted users - nextPageToken:" + nextPageToken);
+            const p = Object.assign(
+                { showDeleted: true, query: query, pageToken: nextPageToken },
+                this.authParams
+            );
             const delRes = await this.service.users.list(p);
             if (delRes.status !== 200) {
-                throw new Error('Deleted user list API failed: ' + delRes.statusText);
+                throw new Error("Deleted user list API failed: " + delRes.statusText);
             }
 
             nextPageToken = delRes.data.nextPageToken;
@@ -127,7 +132,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     }
 
     private buildUser(user: admin_directory_v1.Schema$User, deleted: boolean) {
-        if ((user.emails == null || user.emails === '') && !deleted) {
+        if ((user.emails == null || user.emails === "") && !deleted) {
             return null;
         }
 
@@ -140,16 +145,19 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
         return entry;
     }
 
-    private async getGroups(setFilter: [boolean, Set<string>], users: UserEntry[]): Promise<GroupEntry[]> {
+    private async getGroups(
+        setFilter: [boolean, Set<string>],
+        users: UserEntry[]
+    ): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
         let nextPageToken: string = null;
 
         while (true) {
-            this.logService.info('Querying groups - nextPageToken:' + nextPageToken);
+            this.logService.info("Querying groups - nextPageToken:" + nextPageToken);
             const p = Object.assign({ pageToken: nextPageToken }, this.authParams);
             const res = await this.service.groups.list(p);
             if (res.status !== 200) {
-                throw new Error('Group list API failed: ' + res.statusText);
+                throw new Error("Group list API failed: " + res.statusText);
             }
 
             nextPageToken = res.data.nextPageToken;
@@ -179,10 +187,13 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
         entry.name = group.name;
 
         while (true) {
-            const p = Object.assign({ groupKey: group.id, pageToken: nextPageToken }, this.authParams);
+            const p = Object.assign(
+                { groupKey: group.id, pageToken: nextPageToken },
+                this.authParams
+            );
             const memRes = await this.service.members.list(p);
             if (memRes.status !== 200) {
-                this.logService.warning('Group member list API failed: ' + memRes.statusText);
+                this.logService.warning("Group member list API failed: " + memRes.statusText);
                 return entry;
             }
 
@@ -193,14 +204,14 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
                         continue;
                     }
                     const type = member.type.toLowerCase();
-                    if (type === 'user') {
-                        if (member.status == null || member.status.toLowerCase() !== 'active') {
+                    if (type === "user") {
+                        if (member.status == null || member.status.toLowerCase() !== "active") {
                             continue;
                         }
                         entry.userMemberExternalIds.add(member.id);
-                    } else if (type === 'group') {
+                    } else if (type === "group") {
                         entry.groupMemberReferenceIds.add(member.id);
-                    } else if (type === 'customer') {
+                    } else if (type === "customer") {
                         for (const user of users) {
                             entry.userMemberExternalIds.add(user.externalId);
                         }
@@ -217,9 +228,13 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     }
 
     private async auth() {
-        if (this.dirConfig.clientEmail == null || this.dirConfig.privateKey == null ||
-            this.dirConfig.adminUser == null || this.dirConfig.domain == null) {
-            throw new Error(this.i18nService.t('dirConfigIncomplete'));
+        if (
+            this.dirConfig.clientEmail == null ||
+            this.dirConfig.privateKey == null ||
+            this.dirConfig.adminUser == null ||
+            this.dirConfig.domain == null
+        ) {
+            throw new Error(this.i18nService.t("dirConfigIncomplete"));
         }
 
         this.client = new google.auth.JWT({
@@ -227,9 +242,9 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
             key: this.dirConfig.privateKey != null ? this.dirConfig.privateKey.trimLeft() : null,
             subject: this.dirConfig.adminUser,
             scopes: [
-                'https://www.googleapis.com/auth/admin.directory.user.readonly',
-                'https://www.googleapis.com/auth/admin.directory.group.readonly',
-                'https://www.googleapis.com/auth/admin.directory.group.member.readonly',
+                "https://www.googleapis.com/auth/admin.directory.user.readonly",
+                "https://www.googleapis.com/auth/admin.directory.group.readonly",
+                "https://www.googleapis.com/auth/admin.directory.group.member.readonly",
             ],
         });
 
@@ -238,10 +253,10 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
         this.authParams = {
             auth: this.client,
         };
-        if (this.dirConfig.domain != null && this.dirConfig.domain.trim() !== '') {
+        if (this.dirConfig.domain != null && this.dirConfig.domain.trim() !== "") {
             this.authParams.domain = this.dirConfig.domain;
         }
-        if (this.dirConfig.customer != null && this.dirConfig.customer.trim() !== '') {
+        if (this.dirConfig.customer != null && this.dirConfig.customer.trim() !== "") {
             this.authParams.customer = this.dirConfig.customer;
         }
     }

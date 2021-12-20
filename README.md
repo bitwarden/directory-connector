@@ -6,6 +6,7 @@
 The Bitwarden Directory Connector is a a desktop application used to sync your Bitwarden enterprise organization to an existing directory of users and groups.
 
 Supported directories:
+
 - Active Directory
 - Any other LDAP-based directory
 - Azure Active Directory

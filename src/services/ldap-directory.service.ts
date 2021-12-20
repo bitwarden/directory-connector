@@ -1,22 +1,22 @@
-import * as fs from 'fs';
-import * as ldap from 'ldapjs';
+import * as fs from "fs";
+import * as ldap from "ldapjs";
 
-import { checkServerIdentity, PeerCertificate } from 'tls';
+import { checkServerIdentity, PeerCertificate } from "tls";
 
-import { DirectoryType } from '../enums/directoryType';
+import { DirectoryType } from "../enums/directoryType";
 
-import { GroupEntry } from '../models/groupEntry';
-import { LdapConfiguration } from '../models/ldapConfiguration';
-import { SyncConfiguration } from '../models/syncConfiguration';
-import { UserEntry } from '../models/userEntry';
+import { GroupEntry } from "../models/groupEntry";
+import { LdapConfiguration } from "../models/ldapConfiguration";
+import { SyncConfiguration } from "../models/syncConfiguration";
+import { UserEntry } from "../models/userEntry";
 
-import { ConfigurationService } from './configuration.service';
-import { IDirectoryService } from './directory.service';
+import { ConfigurationService } from "./configuration.service";
+import { IDirectoryService } from "./directory.service";
 
-import { I18nService } from 'jslib-common/abstractions/i18n.service';
-import { LogService } from 'jslib-common/abstractions/log.service';
+import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { LogService } from "jslib-common/abstractions/log.service";
 
-import { Utils } from 'jslib-common/misc/utils';
+import { Utils } from "jslib-common/misc/utils";
 
 const UserControlAccountDisabled = 2;
 
@@ -25,8 +25,11 @@ export class LdapDirectoryService implements IDirectoryService {
     private dirConfig: LdapConfiguration;
     private syncConfig: SyncConfiguration;
 
-    constructor(private configurationService: ConfigurationService, private logService: LogService,
-        private i18nService: I18nService) { }
+    constructor(
+        private configurationService: ConfigurationService,
+        private logService: LogService,
+        private i18nService: I18nService
+    ) {}
 
     async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
         const type = await this.configurationService.getDirectoryType();
@@ -34,7 +37,9 @@ export class LdapDirectoryService implements IDirectoryService {
             return;
         }
 
-        this.dirConfig = await this.configurationService.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
+        this.dirConfig = await this.configurationService.getDirectory<LdapConfiguration>(
+            DirectoryType.Ldap
+        );
         if (this.dirConfig == null) {
             return;
         }
@@ -55,7 +60,7 @@ export class LdapDirectoryService implements IDirectoryService {
         if (this.syncConfig.groups) {
             let groupForce = force;
             if (!groupForce && users != null) {
-                const activeUsers = users.filter(u => !u.deleted && !u.disabled);
+                const activeUsers = users.filter((u) => !u.deleted && !u.disabled);
                 groupForce = activeUsers.length > 0;
             }
             groups = await this.getGroups(groupForce);
@@ -67,30 +72,45 @@ export class LdapDirectoryService implements IDirectoryService {
 
     private async getUsers(force: boolean): Promise<UserEntry[]> {
         const lastSync = await this.configurationService.getLastUserSyncDate();
-        let filter = this.buildBaseFilter(this.syncConfig.userObjectClass, this.syncConfig.userFilter);
+        let filter = this.buildBaseFilter(
+            this.syncConfig.userObjectClass,
+            this.syncConfig.userFilter
+        );
         filter = this.buildRevisionFilter(filter, force, lastSync);
 
         const path = this.makeSearchPath(this.syncConfig.userPath);
-        this.logService.info('User search: ' + path + ' => ' + filter);
+        this.logService.info("User search: " + path + " => " + filter);
 
-        const regularUsers = await this.search<UserEntry>(path, filter, (se: any) => this.buildUser(se, false));
+        const regularUsers = await this.search<UserEntry>(path, filter, (se: any) =>
+            this.buildUser(se, false)
+        );
         if (!this.dirConfig.ad) {
             return regularUsers;
         }
 
         try {
-            let deletedFilter = this.buildBaseFilter(this.syncConfig.userObjectClass, '(isDeleted=TRUE)');
+            let deletedFilter = this.buildBaseFilter(
+                this.syncConfig.userObjectClass,
+                "(isDeleted=TRUE)"
+            );
             deletedFilter = this.buildRevisionFilter(deletedFilter, force, lastSync);
 
-            const deletedPath = this.makeSearchPath('CN=Deleted Objects');
-            this.logService.info('Deleted user search: ' + deletedPath + ' => ' + deletedFilter);
+            const deletedPath = this.makeSearchPath("CN=Deleted Objects");
+            this.logService.info("Deleted user search: " + deletedPath + " => " + deletedFilter);
 
-            const delControl = new (ldap as any).Control({ type: '1.2.840.113556.1.4.417', criticality: true });
-            const deletedUsers = await this.search<UserEntry>(deletedPath, deletedFilter,
-                (se: any) => this.buildUser(se, true), [delControl]);
+            const delControl = new (ldap as any).Control({
+                type: "1.2.840.113556.1.4.417",
+                criticality: true,
+            });
+            const deletedUsers = await this.search<UserEntry>(
+                deletedPath,
+                deletedFilter,
+                (se: any) => this.buildUser(se, true),
+                [delControl]
+            );
             return regularUsers.concat(deletedUsers);
         } catch (e) {
-            this.logService.warning('Cannot query deleted users.');
+            this.logService.warning("Cannot query deleted users.");
             return regularUsers;
         }
     }
@@ -107,8 +127,12 @@ export class LdapDirectoryService implements IDirectoryService {
         user.externalId = this.getExternalId(searchEntry, user.referenceId);
         user.disabled = this.entryDisabled(searchEntry);
         user.email = this.getAttr(searchEntry, this.syncConfig.userEmailAttribute);
-        if (user.email == null && this.syncConfig.useEmailPrefixSuffix &&
-            this.syncConfig.emailPrefixAttribute != null && this.syncConfig.emailSuffix != null) {
+        if (
+            user.email == null &&
+            this.syncConfig.useEmailPrefixSuffix &&
+            this.syncConfig.emailPrefixAttribute != null &&
+            this.syncConfig.emailSuffix != null
+        ) {
             const prefixAttr = this.getAttr(searchEntry, this.syncConfig.emailPrefixAttribute);
             if (prefixAttr != null) {
                 user.email = prefixAttr + this.syncConfig.emailSuffix;
@@ -119,7 +143,7 @@ export class LdapDirectoryService implements IDirectoryService {
             user.email = user.email.trim().toLowerCase();
         }
 
-        if (!user.deleted && (user.email == null || user.email.trim() === '')) {
+        if (!user.deleted && (user.email == null || user.email.trim() === "")) {
             return null;
         }
 
@@ -130,14 +154,17 @@ export class LdapDirectoryService implements IDirectoryService {
         const entries: GroupEntry[] = [];
 
         const lastSync = await this.configurationService.getLastUserSyncDate();
-        const originalFilter = this.buildBaseFilter(this.syncConfig.groupObjectClass, this.syncConfig.groupFilter);
+        const originalFilter = this.buildBaseFilter(
+            this.syncConfig.groupObjectClass,
+            this.syncConfig.groupFilter
+        );
         let filter = originalFilter;
         const revisionFilter = this.buildRevisionFilter(filter, force, lastSync);
         const searchSinceRevision = filter !== revisionFilter;
         filter = revisionFilter;
 
         const path = this.makeSearchPath(this.syncConfig.groupPath);
-        this.logService.info('Group search: ' + path + ' => ' + filter);
+        this.logService.info("Group search: " + path + " => " + filter);
 
         let groupSearchEntries: any[] = [];
         const initialSearchGroupIds = await this.search<string>(path, filter, (se: any) => {
@@ -151,7 +178,10 @@ export class LdapDirectoryService implements IDirectoryService {
             groupSearchEntries = await this.search<string>(path, originalFilter, (se: any) => se);
         }
 
-        const userFilter = this.buildBaseFilter(this.syncConfig.userObjectClass, this.syncConfig.userFilter);
+        const userFilter = this.buildBaseFilter(
+            this.syncConfig.userObjectClass,
+            this.syncConfig.userFilter
+        );
         const userPath = this.makeSearchPath(this.syncConfig.userPath);
         const userIdMap = new Map<string, string>();
         await this.search<string>(userPath, userFilter, (se: any) => {
@@ -180,7 +210,7 @@ export class LdapDirectoryService implements IDirectoryService {
 
         group.name = this.getAttr(searchEntry, this.syncConfig.groupNameAttribute);
         if (group.name == null) {
-            group.name = this.getAttr(searchEntry, 'cn');
+            group.name = this.getAttr(searchEntry, "cn");
         }
 
         if (group.name == null) {
@@ -202,7 +232,7 @@ export class LdapDirectoryService implements IDirectoryService {
     }
 
     private getExternalId(searchEntry: any, referenceId: string) {
-        const attrObj = this.getAttrObj(searchEntry, 'objectGUID');
+        const attrObj = this.getAttrObj(searchEntry, "objectGUID");
         if (attrObj != null && attrObj._vals != null && attrObj._vals.length > 0) {
             return this.bufToGuid(attrObj._vals[0]);
         } else {
@@ -212,35 +242,41 @@ export class LdapDirectoryService implements IDirectoryService {
 
     private buildBaseFilter(objectClass: string, subFilter: string): string {
         let filter = this.buildObjectClassFilter(objectClass);
-        if (subFilter != null && subFilter.trim() !== '') {
-            filter = '(&' + filter + subFilter + ')';
+        if (subFilter != null && subFilter.trim() !== "") {
+            filter = "(&" + filter + subFilter + ")";
         }
         return filter;
     }
 
     private buildObjectClassFilter(objectClass: string): string {
-        return '(&(objectClass=' + objectClass + '))';
+        return "(&(objectClass=" + objectClass + "))";
     }
 
     private buildRevisionFilter(baseFilter: string, force: boolean, lastRevisionDate: Date) {
         const revisionAttr = this.syncConfig.revisionDateAttribute;
-        if (!force && lastRevisionDate != null && revisionAttr != null && revisionAttr.trim() !== '') {
-            const dateString = lastRevisionDate.toISOString().replace(/[-:T]/g, '').substr(0, 16) + 'Z';
-            baseFilter = '(&' + baseFilter + '(' + revisionAttr + '>=' + dateString + '))';
+        if (
+            !force &&
+            lastRevisionDate != null &&
+            revisionAttr != null &&
+            revisionAttr.trim() !== ""
+        ) {
+            const dateString =
+                lastRevisionDate.toISOString().replace(/[-:T]/g, "").substr(0, 16) + "Z";
+            baseFilter = "(&" + baseFilter + "(" + revisionAttr + ">=" + dateString + "))";
         }
 
         return baseFilter;
     }
 
     private makeSearchPath(pathPrefix: string) {
-        if (this.dirConfig.rootPath.toLowerCase().indexOf('dc=') === -1) {
+        if (this.dirConfig.rootPath.toLowerCase().indexOf("dc=") === -1) {
             return pathPrefix;
         }
-        if (this.dirConfig.rootPath != null && this.dirConfig.rootPath.trim() !== '') {
+        if (this.dirConfig.rootPath != null && this.dirConfig.rootPath.trim() !== "") {
             const trimmedRootPath = this.dirConfig.rootPath.trim().toLowerCase();
-            let path = trimmedRootPath.substr(trimmedRootPath.indexOf('dc='));
-            if (pathPrefix != null && pathPrefix.trim() !== '') {
-                path = pathPrefix.trim() + ',' + path;
+            let path = trimmedRootPath.substr(trimmedRootPath.indexOf("dc="));
+            if (pathPrefix != null && pathPrefix.trim() !== "") {
+                path = pathPrefix.trim() + "," + path;
             }
             return path;
         }
@@ -254,7 +290,12 @@ export class LdapDirectoryService implements IDirectoryService {
         }
 
         const attrs = searchEntry.attributes.filter((a: any) => a.type === attr);
-        if (attrs == null || attrs.length === 0 || attrs[0].vals == null || attrs[0].vals.length === 0) {
+        if (
+            attrs == null ||
+            attrs.length === 0 ||
+            attrs[0].vals == null ||
+            attrs[0].vals.length === 0
+        ) {
             return null;
         }
 
@@ -278,7 +319,7 @@ export class LdapDirectoryService implements IDirectoryService {
     }
 
     private entryDisabled(searchEntry: any): boolean {
-        const c = this.getAttr(searchEntry, 'userAccountControl');
+        const c = this.getAttr(searchEntry, "userAccountControl");
         if (c != null) {
             try {
                 const control = parseInt(c, null);
@@ -292,11 +333,15 @@ export class LdapDirectoryService implements IDirectoryService {
         return false;
     }
 
-    private async search<T>(path: string, filter: string, processEntry: (searchEntry: any) => T,
-        controls: ldap.Control[] = []): Promise<T[]> {
+    private async search<T>(
+        path: string,
+        filter: string,
+        processEntry: (searchEntry: any) => T,
+        controls: ldap.Control[] = []
+    ): Promise<T[]> {
         const options: ldap.SearchOptions = {
             filter: filter,
-            scope: 'sub',
+            scope: "sub",
             paged: this.dirConfig.pagedSearch,
         };
         const entries: T[] = [];
@@ -307,18 +352,18 @@ export class LdapDirectoryService implements IDirectoryService {
                     return;
                 }
 
-                res.on('error', resErr => {
+                res.on("error", (resErr) => {
                     reject(resErr);
                 });
 
-                res.on('searchEntry', entry => {
+                res.on("searchEntry", (entry) => {
                     const e = processEntry(entry);
                     if (e != null) {
                         entries.push(e);
                     }
                 });
 
-                res.on('end', result => {
+                res.on("end", (result) => {
                     resolve(entries);
                 });
             });
@@ -328,12 +373,11 @@ export class LdapDirectoryService implements IDirectoryService {
     private async bind(): Promise<any> {
         return new Promise<void>((resolve, reject) => {
             if (this.dirConfig.hostname == null || this.dirConfig.port == null) {
-                reject(this.i18nService.t('dirConfigIncomplete'));
+                reject(this.i18nService.t("dirConfigIncomplete"));
                 return;
             }
-            const protocol = 'ldap' + (this.dirConfig.ssl && !this.dirConfig.startTls ? 's' : '');
-            const url = protocol + '://' + this.dirConfig.hostname +
-                ':' + this.dirConfig.port;
+            const protocol = "ldap" + (this.dirConfig.ssl && !this.dirConfig.startTls ? "s" : "");
+            const url = protocol + "://" + this.dirConfig.hostname + ":" + this.dirConfig.port;
             const options: ldap.ClientOptions = {
                 url: url.trim().toLowerCase(),
             };
@@ -344,21 +388,33 @@ export class LdapDirectoryService implements IDirectoryService {
                     tlsOptions.rejectUnauthorized = !this.dirConfig.sslAllowUnauthorized;
                 }
                 if (!this.dirConfig.startTls) {
-                    if (this.dirConfig.sslCaPath != null && this.dirConfig.sslCaPath !== '' &&
-                        fs.existsSync(this.dirConfig.sslCaPath)) {
+                    if (
+                        this.dirConfig.sslCaPath != null &&
+                        this.dirConfig.sslCaPath !== "" &&
+                        fs.existsSync(this.dirConfig.sslCaPath)
+                    ) {
                         tlsOptions.ca = [fs.readFileSync(this.dirConfig.sslCaPath)];
                     }
-                    if (this.dirConfig.sslCertPath != null && this.dirConfig.sslCertPath !== '' &&
-                        fs.existsSync(this.dirConfig.sslCertPath)) {
+                    if (
+                        this.dirConfig.sslCertPath != null &&
+                        this.dirConfig.sslCertPath !== "" &&
+                        fs.existsSync(this.dirConfig.sslCertPath)
+                    ) {
                         tlsOptions.cert = fs.readFileSync(this.dirConfig.sslCertPath);
                     }
-                    if (this.dirConfig.sslKeyPath != null && this.dirConfig.sslKeyPath !== '' &&
-                        fs.existsSync(this.dirConfig.sslKeyPath)) {
+                    if (
+                        this.dirConfig.sslKeyPath != null &&
+                        this.dirConfig.sslKeyPath !== "" &&
+                        fs.existsSync(this.dirConfig.sslKeyPath)
+                    ) {
                         tlsOptions.key = fs.readFileSync(this.dirConfig.sslKeyPath);
                     }
                 } else {
-                    if (this.dirConfig.tlsCaPath != null && this.dirConfig.tlsCaPath !== '' &&
-                        fs.existsSync(this.dirConfig.tlsCaPath)) {
+                    if (
+                        this.dirConfig.tlsCaPath != null &&
+                        this.dirConfig.tlsCaPath !== "" &&
+                        fs.existsSync(this.dirConfig.tlsCaPath)
+                    ) {
                         tlsOptions.ca = [fs.readFileSync(this.dirConfig.tlsCaPath)];
                     }
                 }
@@ -369,13 +425,17 @@ export class LdapDirectoryService implements IDirectoryService {
 
             this.client = ldap.createClient(options);
 
-            const user = this.dirConfig.username == null || this.dirConfig.username.trim() === '' ? null :
-                this.dirConfig.username;
-            const pass = this.dirConfig.password == null || this.dirConfig.password.trim() === '' ? null :
-                this.dirConfig.password;
+            const user =
+                this.dirConfig.username == null || this.dirConfig.username.trim() === ""
+                    ? null
+                    : this.dirConfig.username;
+            const pass =
+                this.dirConfig.password == null || this.dirConfig.password.trim() === ""
+                    ? null
+                    : this.dirConfig.password;
 
             if (user == null || pass == null) {
-                reject(this.i18nService.t('usernamePasswordNotConfigured'));
+                reject(this.i18nService.t("usernamePasswordNotConfigured"));
                 return;
             }
 
@@ -384,7 +444,7 @@ export class LdapDirectoryService implements IDirectoryService {
                     if (err != null) {
                         reject(err.message);
                     } else {
-                        this.client.bind(user, pass, err2 => {
+                        this.client.bind(user, pass, (err2) => {
                             if (err2 != null) {
                                 reject(err2.message);
                             } else {
@@ -394,7 +454,7 @@ export class LdapDirectoryService implements IDirectoryService {
                     }
                 });
             } else {
-                this.client.bind(user, pass, err => {
+                this.client.bind(user, pass, (err) => {
                     if (err != null) {
                         reject(err.message);
                     } else {
@@ -407,7 +467,7 @@ export class LdapDirectoryService implements IDirectoryService {
 
     private async unbind(): Promise<void> {
         return new Promise((resolve, reject) => {
-            this.client.unbind(err => {
+            this.client.unbind((err) => {
                 if (err != null) {
                     reject(err);
                 } else {
@@ -424,8 +484,16 @@ export class LdapDirectoryService implements IDirectoryService {
         const p3 = arr.slice(6, 8).reverse().buffer;
         const p4 = arr.slice(8, 10).buffer;
         const p5 = arr.slice(10).buffer;
-        const guid = Utils.fromBufferToHex(p1) + '-' + Utils.fromBufferToHex(p2) + '-' + Utils.fromBufferToHex(p3) +
-            '-' + Utils.fromBufferToHex(p4) + '-' + Utils.fromBufferToHex(p5);
+        const guid =
+            Utils.fromBufferToHex(p1) +
+            "-" +
+            Utils.fromBufferToHex(p2) +
+            "-" +
+            Utils.fromBufferToHex(p3) +
+            "-" +
+            Utils.fromBufferToHex(p4) +
+            "-" +
+            Utils.fromBufferToHex(p5);
         return guid.toLowerCase();
     }
 

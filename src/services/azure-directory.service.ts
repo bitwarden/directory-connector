@@ -1,29 +1,29 @@
-import * as graph from '@microsoft/microsoft-graph-client';
-import * as graphType from '@microsoft/microsoft-graph-types';
-import * as https from 'https';
-import * as querystring from 'querystring';
+import * as graph from "@microsoft/microsoft-graph-client";
+import * as graphType from "@microsoft/microsoft-graph-types";
+import * as https from "https";
+import * as querystring from "querystring";
 
-import { DirectoryType } from '../enums/directoryType';
+import { DirectoryType } from "../enums/directoryType";
 
-import { AzureConfiguration } from '../models/azureConfiguration';
-import { GroupEntry } from '../models/groupEntry';
-import { SyncConfiguration } from '../models/syncConfiguration';
-import { UserEntry } from '../models/userEntry';
+import { AzureConfiguration } from "../models/azureConfiguration";
+import { GroupEntry } from "../models/groupEntry";
+import { SyncConfiguration } from "../models/syncConfiguration";
+import { UserEntry } from "../models/userEntry";
 
-import { BaseDirectoryService } from './baseDirectory.service';
-import { ConfigurationService } from './configuration.service';
-import { IDirectoryService } from './directory.service';
+import { BaseDirectoryService } from "./baseDirectory.service";
+import { ConfigurationService } from "./configuration.service";
+import { IDirectoryService } from "./directory.service";
 
-import { I18nService } from 'jslib-common/abstractions/i18n.service';
-import { LogService } from 'jslib-common/abstractions/log.service';
+import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { LogService } from "jslib-common/abstractions/log.service";
 
-const AzurePublicIdentityAuhtority = 'login.microsoftonline.com';
-const AzureGovermentIdentityAuhtority = 'login.microsoftonline.us';
+const AzurePublicIdentityAuhtority = "login.microsoftonline.com";
+const AzureGovermentIdentityAuhtority = "login.microsoftonline.us";
 
-const NextLink = '@odata.nextLink';
-const DeltaLink = '@odata.deltaLink';
-const ObjectType = '@odata.type';
-const UserSelectParams = '?$select=id,mail,userPrincipalName,displayName,accountEnabled';
+const NextLink = "@odata.nextLink";
+const DeltaLink = "@odata.deltaLink";
+const ObjectType = "@odata.type";
+const UserSelectParams = "?$select=id,mail,userPrincipalName,displayName,accountEnabled";
 
 enum UserSetType {
     IncludeUser,
@@ -39,8 +39,11 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     private accessToken: string;
     private accessTokenExpiration: Date;
 
-    constructor(private configurationService: ConfigurationService, private logService: LogService,
-        private i18nService: I18nService) {
+    constructor(
+        private configurationService: ConfigurationService,
+        private logService: LogService,
+        private i18nService: I18nService
+    ) {
         super();
         this.init();
     }
@@ -52,7 +55,8 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
         }
 
         this.dirConfig = await this.configurationService.getDirectory<AzureConfiguration>(
-            DirectoryType.AzureActiveDirectory);
+            DirectoryType.AzureActiveDirectory
+        );
         if (this.dirConfig == null) {
             return;
         }
@@ -82,7 +86,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     private async getCurrentUsers(): Promise<UserEntry[]> {
         const entryIds = new Set<string>();
         const entries: UserEntry[] = [];
-        const userReq = this.client.api('/users' + UserSelectParams);
+        const userReq = this.client.api("/users" + UserSelectParams);
         let res = await userReq.get();
         const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
         while (true) {
@@ -97,8 +101,11 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                         continue;
                     }
 
-                    if (!entry.disabled && !entry.deleted &&
-                        (entry.email == null || entry.email.indexOf('#') > -1)) {
+                    if (
+                        !entry.disabled &&
+                        !entry.deleted &&
+                        (entry.email == null || entry.email.indexOf("#") > -1)
+                    ) {
                         continue;
                     }
 
@@ -134,7 +141,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
         }
 
         if (res == null) {
-            const userReq = this.client.api('/users/delta' + UserSelectParams);
+            const userReq = this.client.api("/users/delta" + UserSelectParams);
             res = await userReq.get();
         }
 
@@ -174,42 +181,45 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     }
 
     private async createAadCustomSet(filter: string): Promise<[boolean, Set<string>]> {
-        if (filter == null || filter === '') {
+        if (filter == null || filter === "") {
             return null;
         }
 
-        const mainParts = filter.split('|');
-        if (mainParts.length < 1 || mainParts[0] == null || mainParts[0].trim() === '') {
+        const mainParts = filter.split("|");
+        if (mainParts.length < 1 || mainParts[0] == null || mainParts[0].trim() === "") {
             return null;
         }
 
-        const parts = mainParts[0].split(':');
+        const parts = mainParts[0].split(":");
         if (parts.length !== 2) {
             return null;
         }
 
         const keyword = parts[0].trim().toLowerCase();
         let exclude = true;
-        if (keyword === 'include') {
+        if (keyword === "include") {
             exclude = false;
-        } else if (keyword === 'exclude') {
+        } else if (keyword === "exclude") {
             exclude = true;
-        } else if (keyword === 'excludeadministrativeunit') {
+        } else if (keyword === "excludeadministrativeunit") {
             exclude = true;
-        } else if (keyword === 'includeadministrativeunit') {
+        } else if (keyword === "includeadministrativeunit") {
             exclude = false;
         } else {
             return null;
         }
 
         const set = new Set<string>();
-        const pieces = parts[1].split(',');
-        if (keyword === 'excludeadministrativeunit' || keyword === 'includeadministrativeunit') {
+        const pieces = parts[1].split(",");
+        if (keyword === "excludeadministrativeunit" || keyword === "includeadministrativeunit") {
             for (const p of pieces) {
                 const auMembers = await this.client
-                    .api(`https://graph.microsoft.com/v1.0/directory/administrativeUnits/${p}/members`).get();
+                    .api(
+                        `https://graph.microsoft.com/v1.0/directory/administrativeUnits/${p}/members`
+                    )
+                    .get();
                 for (const auMember of auMembers.value) {
-                    if (auMember['@odata.type'] === '#microsoft.graph.group') {
+                    if (auMember["@odata.type"] === "#microsoft.graph.group") {
                         set.add(auMember.displayName.toLowerCase());
                     }
                 }
@@ -223,36 +233,36 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     }
 
     private createCustomUserSet(filter: string): [UserSetType, Set<string>] {
-        if (filter == null || filter === '') {
+        if (filter == null || filter === "") {
             return null;
         }
 
-        const mainParts = filter.split('|');
-        if (mainParts.length < 1 || mainParts[0] == null || mainParts[0].trim() === '') {
+        const mainParts = filter.split("|");
+        if (mainParts.length < 1 || mainParts[0] == null || mainParts[0].trim() === "") {
             return null;
         }
 
-        const parts = mainParts[0].split(':');
+        const parts = mainParts[0].split(":");
         if (parts.length !== 2) {
             return null;
         }
 
         const keyword = parts[0].trim().toLowerCase();
         let userSetType = UserSetType.IncludeUser;
-        if (keyword === 'include') {
+        if (keyword === "include") {
             userSetType = UserSetType.IncludeUser;
-        } else if (keyword === 'exclude') {
+        } else if (keyword === "exclude") {
             userSetType = UserSetType.ExcludeUser;
-        } else if (keyword === 'includegroup') {
+        } else if (keyword === "includegroup") {
             userSetType = UserSetType.IncludeGroup;
-        } else if (keyword === 'excludegroup') {
+        } else if (keyword === "excludegroup") {
             userSetType = UserSetType.ExcludeGroup;
         } else {
             return null;
         }
 
         const set = new Set<string>();
-        const pieces = parts[1].split(',');
+        const pieces = parts[1].split(",");
         for (const p of pieces) {
             set.add(p.trim().toLowerCase());
         }
@@ -260,8 +270,11 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
         return [userSetType, set];
     }
 
-    private async filterOutUserResult(setFilter: [UserSetType, Set<string>], user: UserEntry,
-        checkGroupsFilter: boolean): Promise<boolean> {
+    private async filterOutUserResult(
+        setFilter: [UserSetType, Set<string>],
+        user: UserEntry,
+        checkGroupsFilter: boolean
+    ): Promise<boolean> {
         if (setFilter == null) {
             return false;
         }
@@ -281,9 +294,11 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
         if (!checkGroupsFilter) {
             return false;
         }
-        const memberGroups = await this.client.api(`/users/${user.externalId}/checkMemberGroups`).post({
-            groupIds: Array.from(setFilter[1]),
-        });
+        const memberGroups = await this.client
+            .api(`/users/${user.externalId}/checkMemberGroups`)
+            .post({
+                groupIds: Array.from(setFilter[1]),
+            });
         if (memberGroups.value.length > 0 && setFilter[0] === UserSetType.IncludeGroup) {
             return false;
         } else if (memberGroups.value.length > 0 && setFilter[0] === UserSetType.ExcludeGroup) {
@@ -303,8 +318,12 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
         entry.externalId = user.id;
         entry.email = user.mail;
 
-        if (user.userPrincipalName && (entry.email == null || entry.email === '' ||
-            entry.email.indexOf('onmicrosoft.com') > -1)) {
+        if (
+            user.userPrincipalName &&
+            (entry.email == null ||
+                entry.email === "" ||
+                entry.email.indexOf("onmicrosoft.com") > -1)
+        ) {
             entry.email = user.userPrincipalName;
         }
 
@@ -314,7 +333,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
         entry.disabled = user.accountEnabled == null ? false : !user.accountEnabled;
 
-        if ((user as any)['@removed'] != null && (user as any)['@removed'].reason === 'changed') {
+        if ((user as any)["@removed"] != null && (user as any)["@removed"].reason === "changed") {
             entry.deleted = true;
         }
 
@@ -324,7 +343,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     private async getGroups(setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
         const entryIds = new Set<string>();
         const entries: GroupEntry[] = [];
-        const groupsReq = this.client.api('/groups');
+        const groupsReq = this.client.api("/groups");
         let res = await groupsReq.get();
         while (true) {
             const groups: graphType.Group[] = res.value;
@@ -360,15 +379,15 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
         entry.externalId = group.id;
         entry.name = group.displayName;
 
-        const memReq = this.client.api('/groups/' + group.id + '/members');
+        const memReq = this.client.api("/groups/" + group.id + "/members");
         let memRes = await memReq.get();
         while (true) {
             const members: any = memRes.value;
             if (members != null) {
                 for (const member of members) {
-                    if (member[ObjectType] === '#microsoft.graph.group') {
+                    if (member[ObjectType] === "#microsoft.graph.group") {
                         entry.groupMemberReferenceIds.add((member as graphType.Group).id);
-                    } else if (member[ObjectType] === '#microsoft.graph.user') {
+                    } else if (member[ObjectType] === "#microsoft.graph.user") {
                         entry.userMemberExternalIds.add((member as graphType.User).id);
                     }
                 }
@@ -386,16 +405,25 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
     private init() {
         this.client = graph.Client.init({
-            authProvider: done => {
-                if (this.dirConfig.applicationId == null || this.dirConfig.key == null ||
-                    this.dirConfig.tenant == null) {
-                    done(new Error(this.i18nService.t('dirConfigIncomplete')), null);
+            authProvider: (done) => {
+                if (
+                    this.dirConfig.applicationId == null ||
+                    this.dirConfig.key == null ||
+                    this.dirConfig.tenant == null
+                ) {
+                    done(new Error(this.i18nService.t("dirConfigIncomplete")), null);
                     return;
                 }
 
-                const identityAuthority = this.dirConfig.identityAuthority != null ? this.dirConfig.identityAuthority : AzurePublicIdentityAuhtority;
-                if (identityAuthority !== AzurePublicIdentityAuhtority && identityAuthority !== AzureGovermentIdentityAuhtority) {
-                    done(new Error(this.i18nService.t('dirConfigIncomplete')), null);
+                const identityAuthority =
+                    this.dirConfig.identityAuthority != null
+                        ? this.dirConfig.identityAuthority
+                        : AzurePublicIdentityAuhtority;
+                if (
+                    identityAuthority !== AzurePublicIdentityAuhtority &&
+                    identityAuthority !== AzureGovermentIdentityAuhtority
+                ) {
+                    done(new Error(this.i18nService.t("dirConfigIncomplete")), null);
                     return;
                 }
 
@@ -410,39 +438,48 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                 const data = querystring.stringify({
                     client_id: this.dirConfig.applicationId,
                     client_secret: this.dirConfig.key,
-                    grant_type: 'client_credentials',
-                    scope: 'https://graph.microsoft.com/.default',
+                    grant_type: "client_credentials",
+                    scope: "https://graph.microsoft.com/.default",
                 });
 
-                const req = https.request({
-                    host: identityAuthority,
-                    path: '/' + this.dirConfig.tenant + '/oauth2/v2.0/token',
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Content-Length': Buffer.byteLength(data),
-                    },
-                }, res => {
-                    res.setEncoding('utf8');
-                    res.on('data', (chunk: string) => {
-                        const d = JSON.parse(chunk);
-                        if (res.statusCode === 200 && d.access_token != null) {
-                            this.setAccessTokenExpiration(d.access_token, d.expires_in);
-                            done(null, d.access_token);
-                        } else if (d.error != null && d.error_description != null) {
-                            const shortError = d.error_description?.split('\n', 1)[0];
-                            const err = new Error(d.error + ' (' + res.statusCode + '): ' + shortError);
-                            // tslint:disable-next-line
-                            console.error(d.error_description);
-                            done(err, null);
-                        } else {
-                            const err = new Error('Unknown error (' + res.statusCode + ').');
-                            done(err, null);
+                const req = https
+                    .request(
+                        {
+                            host: identityAuthority,
+                            path: "/" + this.dirConfig.tenant + "/oauth2/v2.0/token",
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/x-www-form-urlencoded",
+                                "Content-Length": Buffer.byteLength(data),
+                            },
+                        },
+                        (res) => {
+                            res.setEncoding("utf8");
+                            res.on("data", (chunk: string) => {
+                                const d = JSON.parse(chunk);
+                                if (res.statusCode === 200 && d.access_token != null) {
+                                    this.setAccessTokenExpiration(d.access_token, d.expires_in);
+                                    done(null, d.access_token);
+                                } else if (d.error != null && d.error_description != null) {
+                                    const shortError = d.error_description?.split("\n", 1)[0];
+                                    const err = new Error(
+                                        d.error + " (" + res.statusCode + "): " + shortError
+                                    );
+                                    // tslint:disable-next-line
+                                    console.error(d.error_description);
+                                    done(err, null);
+                                } else {
+                                    const err = new Error(
+                                        "Unknown error (" + res.statusCode + ")."
+                                    );
+                                    done(err, null);
+                                }
+                            });
                         }
+                    )
+                    .on("error", (err) => {
+                        done(err, null);
                     });
-                }).on('error', err => {
-                    done(err, null);
-                });
 
                 req.write(data);
                 req.end();

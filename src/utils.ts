@@ -1,15 +1,19 @@
-import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { I18nService } from "jslib-common/abstractions/i18n.service";
 
-import { SyncService } from './services/sync.service';
+import { SyncService } from "./services/sync.service";
 
-import { Entry } from './models/entry';
-import { LdapConfiguration } from './models/ldapConfiguration';
-import { SimResult } from './models/simResult';
-import { SyncConfiguration } from './models/syncConfiguration';
-import { UserEntry } from './models/userEntry';
+import { Entry } from "./models/entry";
+import { LdapConfiguration } from "./models/ldapConfiguration";
+import { SimResult } from "./models/simResult";
+import { SyncConfiguration } from "./models/syncConfiguration";
+import { UserEntry } from "./models/userEntry";
 
 export class ConnectorUtils {
-    static async simulate(syncService: SyncService, i18nService: I18nService, sinceLast: boolean): Promise<SimResult> {
+    static async simulate(
+        syncService: SyncService,
+        i18nService: I18nService,
+        sinceLast: boolean
+    ): Promise<SimResult> {
         return new Promise(async (resolve, reject) => {
             const simResult = new SimResult();
             try {
@@ -23,7 +27,7 @@ export class ConnectorUtils {
             } catch (e) {
                 simResult.groups = null;
                 simResult.users = null;
-                reject(e || i18nService.t('syncError'));
+                reject(e || i18nService.t("syncError"));
                 return;
             }
 
@@ -46,7 +50,7 @@ export class ConnectorUtils {
                     continue;
                 }
 
-                const anyG = (g as any);
+                const anyG = g as any;
                 anyG.users = [];
                 for (const uid of g.userMemberExternalIds) {
                     if (userMap.has(uid)) {
@@ -65,20 +69,20 @@ export class ConnectorUtils {
 
     static adjustConfigForSave(ldap: LdapConfiguration, sync: SyncConfiguration) {
         if (ldap.ad) {
-            sync.creationDateAttribute = 'whenCreated';
-            sync.revisionDateAttribute = 'whenChanged';
-            sync.emailPrefixAttribute = 'sAMAccountName';
-            sync.memberAttribute = 'member';
-            sync.userObjectClass = 'person';
-            sync.groupObjectClass = 'group';
-            sync.userEmailAttribute = 'mail';
-            sync.groupNameAttribute = 'name';
+            sync.creationDateAttribute = "whenCreated";
+            sync.revisionDateAttribute = "whenChanged";
+            sync.emailPrefixAttribute = "sAMAccountName";
+            sync.memberAttribute = "member";
+            sync.userObjectClass = "person";
+            sync.groupObjectClass = "group";
+            sync.userEmailAttribute = "mail";
+            sync.groupNameAttribute = "name";
 
             if (sync.groupPath == null) {
-                sync.groupPath = 'CN=Users';
+                sync.groupPath = "CN=Users";
             }
             if (sync.userPath == null) {
-                sync.userPath = 'CN=Users';
+                sync.userPath = "CN=Users";
             }
         }
 
@@ -93,8 +97,9 @@ export class ConnectorUtils {
 
     private static sortEntries(arr: Entry[], i18nService: I18nService) {
         arr.sort((a, b) => {
-            return i18nService.collator ? i18nService.collator.compare(a.displayName, b.displayName) :
-                a.displayName.localeCompare(b.displayName);
+            return i18nService.collator
+                ? i18nService.collator.compare(a.displayName, b.displayName)
+                : a.displayName.localeCompare(b.displayName);
         });
     }
 }

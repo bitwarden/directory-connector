@@ -1,34 +1,37 @@
-import { DirectoryType } from '../enums/directoryType';
+import { DirectoryType } from "../enums/directoryType";
 
-import { StorageService } from 'jslib-common/abstractions/storage.service';
-import { AzureConfiguration } from '../models/azureConfiguration';
-import { GSuiteConfiguration } from '../models/gsuiteConfiguration';
-import { LdapConfiguration } from '../models/ldapConfiguration';
-import { OktaConfiguration } from '../models/oktaConfiguration';
-import { OneLoginConfiguration } from '../models/oneLoginConfiguration';
-import { SyncConfiguration } from '../models/syncConfiguration';
+import { StorageService } from "jslib-common/abstractions/storage.service";
+import { AzureConfiguration } from "../models/azureConfiguration";
+import { GSuiteConfiguration } from "../models/gsuiteConfiguration";
+import { LdapConfiguration } from "../models/ldapConfiguration";
+import { OktaConfiguration } from "../models/oktaConfiguration";
+import { OneLoginConfiguration } from "../models/oneLoginConfiguration";
+import { SyncConfiguration } from "../models/syncConfiguration";
 
-const StoredSecurely = '[STORED SECURELY]';
+const StoredSecurely = "[STORED SECURELY]";
 const Keys = {
-    ldap: 'ldapPassword',
-    gsuite: 'gsuitePrivateKey',
-    azure: 'azureKey',
-    okta: 'oktaToken',
-    oneLogin: 'oneLoginClientSecret',
-    directoryConfigPrefix: 'directoryConfig_',
-    sync: 'syncConfig',
-    directoryType: 'directoryType',
-    userDelta: 'userDeltaToken',
-    groupDelta: 'groupDeltaToken',
-    lastUserSync: 'lastUserSync',
-    lastGroupSync: 'lastGroupSync',
-    lastSyncHash: 'lastSyncHash',
-    organizationId: 'organizationId',
+    ldap: "ldapPassword",
+    gsuite: "gsuitePrivateKey",
+    azure: "azureKey",
+    okta: "oktaToken",
+    oneLogin: "oneLoginClientSecret",
+    directoryConfigPrefix: "directoryConfig_",
+    sync: "syncConfig",
+    directoryType: "directoryType",
+    userDelta: "userDeltaToken",
+    groupDelta: "groupDeltaToken",
+    lastUserSync: "lastUserSync",
+    lastGroupSync: "lastGroupSync",
+    lastSyncHash: "lastSyncHash",
+    organizationId: "organizationId",
 };
 
 export class ConfigurationService {
-    constructor(private storageService: StorageService, private secureStorageService: StorageService,
-        private useSecureStorageForSecrets = true) { }
+    constructor(
+        private storageService: StorageService,
+        private secureStorageService: StorageService,
+        private useSecureStorageForSecrets = true
+    ) {}
 
     async getDirectory<T>(type: DirectoryType): Promise<T> {
         const config = await this.storageService.get<T>(Keys.directoryConfigPrefix + type);
@@ -39,7 +42,9 @@ export class ConfigurationService {
         if (this.useSecureStorageForSecrets) {
             switch (type) {
                 case DirectoryType.Ldap:
-                    (config as any).password = await this.secureStorageService.get<string>(Keys.ldap);
+                    (config as any).password = await this.secureStorageService.get<string>(
+                        Keys.ldap
+                    );
                     break;
                 case DirectoryType.AzureActiveDirectory:
                     (config as any).key = await this.secureStorageService.get<string>(Keys.azure);
@@ -48,19 +53,29 @@ export class ConfigurationService {
                     (config as any).token = await this.secureStorageService.get<string>(Keys.okta);
                     break;
                 case DirectoryType.GSuite:
-                    (config as any).privateKey = await this.secureStorageService.get<string>(Keys.gsuite);
+                    (config as any).privateKey = await this.secureStorageService.get<string>(
+                        Keys.gsuite
+                    );
                     break;
                 case DirectoryType.OneLogin:
-                    (config as any).clientSecret = await this.secureStorageService.get<string>(Keys.oneLogin);
+                    (config as any).clientSecret = await this.secureStorageService.get<string>(
+                        Keys.oneLogin
+                    );
                     break;
             }
         }
         return config;
     }
 
-    async saveDirectory(type: DirectoryType,
-        config: LdapConfiguration | GSuiteConfiguration | AzureConfiguration | OktaConfiguration |
-            OneLoginConfiguration): Promise<any> {
+    async saveDirectory(
+        type: DirectoryType,
+        config:
+            | LdapConfiguration
+            | GSuiteConfiguration
+            | AzureConfiguration
+            | OktaConfiguration
+            | OneLoginConfiguration
+    ): Promise<any> {
         const savedConfig: any = Object.assign({}, config);
         if (this.useSecureStorageForSecrets) {
             switch (type) {
@@ -93,7 +108,7 @@ export class ConfigurationService {
                         await this.secureStorageService.remove(Keys.gsuite);
                     } else {
                         (config as GSuiteConfiguration).privateKey = savedConfig.privateKey =
-                            savedConfig.privateKey.replace(/\\n/g, '\n');
+                            savedConfig.privateKey.replace(/\\n/g, "\n");
                         await this.secureStorageService.save(Keys.gsuite, savedConfig.privateKey);
                         savedConfig.privateKey = StoredSecurely;
                     }
@@ -102,7 +117,10 @@ export class ConfigurationService {
                     if (savedConfig.clientSecret == null) {
                         await this.secureStorageService.remove(Keys.oneLogin);
                     } else {
-                        await this.secureStorageService.save(Keys.oneLogin, savedConfig.clientSecret);
+                        await this.secureStorageService.save(
+                            Keys.oneLogin,
+                            savedConfig.clientSecret
+                        );
                         savedConfig.clientSecret = StoredSecurely;
                     }
                     break;

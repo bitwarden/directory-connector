@@ -1,55 +1,55 @@
-const path = require('path');
-const webpack = require('webpack');
-const { merge } = require('webpack-merge');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { AngularWebpackPlugin } = require('@ngtools/webpack');
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const path = require("path");
+const webpack = require("webpack");
+const { merge } = require("webpack-merge");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { AngularWebpackPlugin } = require("@ngtools/webpack");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 const common = {
     module: {
         rules: [
             {
                 test: /\.ts$/,
-                enforce: 'pre',
-                loader: 'tslint-loader',
+                enforce: "pre",
+                loader: "tslint-loader",
             },
             {
                 test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
-                loader: '@ngtools/webpack',
+                loader: "@ngtools/webpack",
             },
             {
                 test: /\.(jpe?g|png|gif|svg)$/i,
                 exclude: /.*(fontawesome-webfont)\.svg/,
                 generator: {
-                    filename: 'images/[name].[ext]',
+                    filename: "images/[name].[ext]",
                 },
-                type: 'asset/resource',
+                type: "asset/resource",
             },
         ],
     },
     plugins: [],
     resolve: {
-        extensions: ['.tsx', '.ts', '.js', '.json'],
-        plugins: [new TsconfigPathsPlugin({ configFile: './tsconfig.json' })],
+        extensions: [".tsx", ".ts", ".js", ".json"],
+        plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
         symlinks: false,
-        modules: [path.resolve('node_modules')],
+        modules: [path.resolve("node_modules")],
     },
     output: {
-        filename: '[name].js',
-        path: path.resolve(__dirname, 'build'),
+        filename: "[name].js",
+        path: path.resolve(__dirname, "build"),
     },
 };
 
 const renderer = {
-    mode: 'production',
+    mode: "production",
     devtool: false,
-    target: 'electron-renderer',
+    target: "electron-renderer",
     node: {
         __dirname: false,
     },
     entry: {
-        'app/main': './src/app/main.ts',
+        "app/main": "./src/app/main.ts",
     },
     optimization: {
         minimize: false,
@@ -57,9 +57,9 @@ const renderer = {
             cacheGroups: {
                 commons: {
                     test: /[\\/]node_modules[\\/]/,
-                    name: 'app/vendor',
+                    name: "app/vendor",
                     chunks: (chunk) => {
-                        return chunk.name === 'app/main';
+                        return chunk.name === "app/main";
                     },
                 },
             },
@@ -69,15 +69,15 @@ const renderer = {
         rules: [
             {
                 test: /\.(html)$/,
-                loader: 'html-loader',
+                loader: "html-loader",
             },
             {
                 test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
                 exclude: /loading.svg/,
                 generator: {
-                    filename: 'fonts/[name].[ext]',
+                    filename: "fonts/[name].[ext]",
                 },
-                type: 'asset/resource',
+                type: "asset/resource",
             },
             {
                 test: /\.scss$/,
@@ -85,11 +85,11 @@ const renderer = {
                     {
                         loader: MiniCssExtractPlugin.loader,
                         options: {
-                            publicPath: '../',
+                            publicPath: "../",
                         },
                     },
-                    'css-loader',
-                    'sass-loader',
+                    "css-loader",
+                    "sass-loader",
                 ],
             },
             // Hide System.import warnings. ref: https://github.com/angular/angular/issues/21560
@@ -101,25 +101,27 @@ const renderer = {
     },
     plugins: [
         new AngularWebpackPlugin({
-            tsConfigPath: 'tsconfig.json',
-            entryModule: 'src/app/app.module#AppModule',
+            tsConfigPath: "tsconfig.json",
+            entryModule: "src/app/app.module#AppModule",
             sourceMap: true,
         }),
         // ref: https://github.com/angular/angular/issues/20357
-        new webpack.ContextReplacementPlugin(/\@angular(\\|\/)core(\\|\/)fesm5/,
-            path.resolve(__dirname, './src')),
+        new webpack.ContextReplacementPlugin(
+            /\@angular(\\|\/)core(\\|\/)fesm5/,
+            path.resolve(__dirname, "./src")
+        ),
         new HtmlWebpackPlugin({
-            template: './src/index.html',
-            filename: 'index.html',
-            chunks: ['app/vendor', 'app/main'],
+            template: "./src/index.html",
+            filename: "index.html",
+            chunks: ["app/vendor", "app/main"],
         }),
         new webpack.SourceMapDevToolPlugin({
-            include: ['app/main.js'],
+            include: ["app/main.js"],
         }),
-        new webpack.DefinePlugin({ 'global.GENTLY': false }),
+        new webpack.DefinePlugin({ "global.GENTLY": false }),
         new MiniCssExtractPlugin({
-            filename: '[name].[contenthash].css',
-            chunkFilename: '[id].[contenthash].css',
+            filename: "[name].[contenthash].css",
+            chunkFilename: "[id].[contenthash].css",
         }),
     ],
 };

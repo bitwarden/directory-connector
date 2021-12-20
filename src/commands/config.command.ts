@@ -1,25 +1,25 @@
-import * as program from 'commander';
+import * as program from "commander";
 
-import { EnvironmentService } from 'jslib-common/abstractions/environment.service';
-import { I18nService } from 'jslib-common/abstractions/i18n.service';
+import { EnvironmentService } from "jslib-common/abstractions/environment.service";
+import { I18nService } from "jslib-common/abstractions/i18n.service";
 
-import { ConfigurationService } from '../services/configuration.service';
+import { ConfigurationService } from "../services/configuration.service";
 
-import { DirectoryType } from '../enums/directoryType';
+import { DirectoryType } from "../enums/directoryType";
 
-import { Response } from 'jslib-node/cli/models/response';
-import { MessageResponse } from 'jslib-node/cli/models/response/messageResponse';
+import { Response } from "jslib-node/cli/models/response";
+import { MessageResponse } from "jslib-node/cli/models/response/messageResponse";
 
-import { AzureConfiguration } from '../models/azureConfiguration';
-import { GSuiteConfiguration } from '../models/gsuiteConfiguration';
-import { LdapConfiguration } from '../models/ldapConfiguration';
-import { OktaConfiguration } from '../models/oktaConfiguration';
-import { OneLoginConfiguration } from '../models/oneLoginConfiguration';
-import { SyncConfiguration } from '../models/syncConfiguration';
+import { AzureConfiguration } from "../models/azureConfiguration";
+import { GSuiteConfiguration } from "../models/gsuiteConfiguration";
+import { LdapConfiguration } from "../models/ldapConfiguration";
+import { OktaConfiguration } from "../models/oktaConfiguration";
+import { OneLoginConfiguration } from "../models/oneLoginConfiguration";
+import { SyncConfiguration } from "../models/syncConfiguration";
 
-import { ConnectorUtils } from '../utils';
+import { ConnectorUtils } from "../utils";
 
-import { NodeUtils } from 'jslib-common/misc/nodeUtils';
+import { NodeUtils } from "jslib-common/misc/nodeUtils";
 
 export class ConfigCommand {
     private directory: DirectoryType;
@@ -30,12 +30,15 @@ export class ConfigCommand {
     private oneLogin = new OneLoginConfiguration();
     private sync = new SyncConfiguration();
 
-    constructor(private environmentService: EnvironmentService, private i18nService: I18nService,
-        private configurationService: ConfigurationService) { }
+    constructor(
+        private environmentService: EnvironmentService,
+        private i18nService: I18nService,
+        private configurationService: ConfigurationService
+    ) {}
 
     async run(setting: string, value: string, options: program.OptionValues): Promise<Response> {
         setting = setting.toLowerCase();
-        if (value == null || value === '') {
+        if (value == null || value === "") {
             if (options.secretfile) {
                 value = await NodeUtils.readFirstLine(options.secretfile);
             } else if (options.secretenv && process.env[options.secretenv]) {
@@ -44,39 +47,42 @@ export class ConfigCommand {
         }
         try {
             switch (setting) {
-                case 'server':
+                case "server":
                     await this.setServer(value);
                     break;
-                case 'directory':
+                case "directory":
                     await this.setDirectory(value);
                     break;
-                case 'ldap.password':
+                case "ldap.password":
                     await this.setLdapPassword(value);
                     break;
-                case 'gsuite.key':
+                case "gsuite.key":
                     await this.setGSuiteKey(value);
                     break;
-                case 'azure.key':
+                case "azure.key":
                     await this.setAzureKey(value);
                     break;
-                case 'okta.token':
+                case "okta.token":
                     await this.setOktaToken(value);
                     break;
-                case 'onelogin.secret':
+                case "onelogin.secret":
                     await this.setOneLoginSecret(value);
                     break;
                 default:
-                    return Response.badRequest('Unknown setting.');
+                    return Response.badRequest("Unknown setting.");
             }
         } catch (e) {
             return Response.error(e);
         }
-        const res = new MessageResponse(this.i18nService.t('savedSetting', setting), null);
+        const res = new MessageResponse(this.i18nService.t("savedSetting", setting), null);
         return Response.success(res);
     }
 
     private async setServer(url: string) {
-        url = (url === 'null' || url === 'bitwarden.com' || url === 'https://bitwarden.com' ? null : url);
+        url =
+            url === "null" || url === "bitwarden.com" || url === "https://bitwarden.com"
+                ? null
+                : url;
         await this.environmentService.setUrls({
             base: url,
         });
@@ -85,7 +91,7 @@ export class ConfigCommand {
     private async setDirectory(type: string) {
         const dir = parseInt(type, null);
         if (dir < DirectoryType.Ldap || dir > DirectoryType.OneLogin) {
-            throw new Error('Invalid directory type value.');
+            throw new Error("Invalid directory type value.");
         }
         await this.loadConfig();
         this.directory = dir;
@@ -124,16 +130,24 @@ export class ConfigCommand {
 
     private async loadConfig() {
         this.directory = await this.configurationService.getDirectoryType();
-        this.ldap = (await this.configurationService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)) ||
+        this.ldap =
+            (await this.configurationService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)) ||
             this.ldap;
-        this.gsuite = (await this.configurationService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite)) ||
-            this.gsuite;
-        this.azure = (await this.configurationService.getDirectory<AzureConfiguration>(
-            DirectoryType.AzureActiveDirectory)) || this.azure;
-        this.okta = (await this.configurationService.getDirectory<OktaConfiguration>(
-            DirectoryType.Okta)) || this.okta;
-        this.oneLogin = (await this.configurationService.getDirectory<OneLoginConfiguration>(
-            DirectoryType.OneLogin)) || this.oneLogin;
+        this.gsuite =
+            (await this.configurationService.getDirectory<GSuiteConfiguration>(
+                DirectoryType.GSuite
+            )) || this.gsuite;
+        this.azure =
+            (await this.configurationService.getDirectory<AzureConfiguration>(
+                DirectoryType.AzureActiveDirectory
+            )) || this.azure;
+        this.okta =
+            (await this.configurationService.getDirectory<OktaConfiguration>(DirectoryType.Okta)) ||
+            this.okta;
+        this.oneLogin =
+            (await this.configurationService.getDirectory<OneLoginConfiguration>(
+                DirectoryType.OneLogin
+            )) || this.oneLogin;
         this.sync = (await this.configurationService.getSync()) || this.sync;
     }
 
@@ -142,7 +156,10 @@ export class ConfigCommand {
         await this.configurationService.saveDirectoryType(this.directory);
         await this.configurationService.saveDirectory(DirectoryType.Ldap, this.ldap);
         await this.configurationService.saveDirectory(DirectoryType.GSuite, this.gsuite);
-        await this.configurationService.saveDirectory(DirectoryType.AzureActiveDirectory, this.azure);
+        await this.configurationService.saveDirectory(
+            DirectoryType.AzureActiveDirectory,
+            this.azure
+        );
         await this.configurationService.saveDirectory(DirectoryType.Okta, this.okta);
         await this.configurationService.saveDirectory(DirectoryType.OneLogin, this.oneLogin);
         await this.configurationService.saveSync(this.sync);

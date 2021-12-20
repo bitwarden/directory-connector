@@ -1,4 +1,4 @@
-import { UserEntry } from '../userEntry';
+import { UserEntry } from "../userEntry";
 
 export class UserResponse {
     externalId: string;

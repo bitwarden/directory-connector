@@ -1,43 +1,44 @@
-import {
-    app,
-    ipcMain,
-} from 'electron';
+import { app, ipcMain } from "electron";
 
-import { TrayMain } from 'jslib-electron/tray.main';
-import { UpdaterMain } from 'jslib-electron/updater.main';
-import { WindowMain } from 'jslib-electron/window.main';
+import { TrayMain } from "jslib-electron/tray.main";
+import { UpdaterMain } from "jslib-electron/updater.main";
+import { WindowMain } from "jslib-electron/window.main";
 
-import { MenuMain } from './menu.main';
+import { MenuMain } from "./menu.main";
 
 const SyncCheckInterval = 60 * 1000; // 1 minute
 
 export class MessagingMain {
     private syncTimeout: NodeJS.Timer;
 
-    constructor(private windowMain: WindowMain, private menuMain: MenuMain,
-        private updaterMain: UpdaterMain, private trayMain: TrayMain) { }
+    constructor(
+        private windowMain: WindowMain,
+        private menuMain: MenuMain,
+        private updaterMain: UpdaterMain,
+        private trayMain: TrayMain
+    ) {}
 
     init() {
-        ipcMain.on('messagingService', async (event: any, message: any) => this.onMessage(message));
+        ipcMain.on("messagingService", async (event: any, message: any) => this.onMessage(message));
     }
 
     onMessage(message: any) {
         switch (message.command) {
-            case 'checkForUpdate':
+            case "checkForUpdate":
                 this.updaterMain.checkForUpdate(true);
                 break;
-            case 'scheduleNextDirSync':
+            case "scheduleNextDirSync":
                 this.scheduleNextSync();
                 break;
-            case 'cancelDirSync':
-                this.windowMain.win.webContents.send('messagingService', {
-                    command: 'syncScheduleStopped',
+            case "cancelDirSync":
+                this.windowMain.win.webContents.send("messagingService", {
+                    command: "syncScheduleStopped",
                 });
                 if (this.syncTimeout) {
                     global.clearTimeout(this.syncTimeout);
                 }
                 break;
-            case 'hideToTray':
+            case "hideToTray":
                 this.trayMain.hideToTray();
                 break;
             default:
@@ -46,8 +47,8 @@ export class MessagingMain {
     }
 
     private scheduleNextSync() {
-        this.windowMain.win.webContents.send('messagingService', {
-            command: 'syncScheduleStarted',
+        this.windowMain.win.webContents.send("messagingService", {
+            command: "syncScheduleStarted",
         });
 
         if (this.syncTimeout) {
@@ -59,8 +60,8 @@ export class MessagingMain {
                 return;
             }
 
-            this.windowMain.win.webContents.send('messagingService', {
-                command: 'checkDirSync',
+            this.windowMain.win.webContents.send("messagingService", {
+                command: "checkDirSync",
             });
         }, SyncCheckInterval);
     }

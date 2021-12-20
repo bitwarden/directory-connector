@@ -1,4 +1,4 @@
-import { GroupEntry } from '../groupEntry';
+import { GroupEntry } from "../groupEntry";
 
 export class GroupResponse {
     externalId: string;

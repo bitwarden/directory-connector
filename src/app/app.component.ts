@@ -5,61 +5,68 @@ import {
     SecurityContext,
     ViewChild,
     ViewContainerRef,
-} from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
-import { Router } from '@angular/router';
-import {
-    IndividualConfig,
-    ToastrService,
-} from 'ngx-toastr';
+} from "@angular/core";
+import { DomSanitizer } from "@angular/platform-browser";
+import { Router } from "@angular/router";
+import { IndividualConfig, ToastrService } from "ngx-toastr";
 
-import { AuthService } from 'jslib-common/abstractions/auth.service';
-import { BroadcasterService } from 'jslib-common/abstractions/broadcaster.service';
-import { I18nService } from 'jslib-common/abstractions/i18n.service';
-import { LogService } from 'jslib-common/abstractions/log.service';
-import { MessagingService } from 'jslib-common/abstractions/messaging.service';
-import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
-import { StateService } from 'jslib-common/abstractions/state.service';
-import { TokenService } from 'jslib-common/abstractions/token.service';
-import { UserService } from 'jslib-common/abstractions/user.service';
+import { AuthService } from "jslib-common/abstractions/auth.service";
+import { BroadcasterService } from "jslib-common/abstractions/broadcaster.service";
+import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { LogService } from "jslib-common/abstractions/log.service";
+import { MessagingService } from "jslib-common/abstractions/messaging.service";
+import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
+import { StateService } from "jslib-common/abstractions/state.service";
+import { TokenService } from "jslib-common/abstractions/token.service";
+import { UserService } from "jslib-common/abstractions/user.service";
 
-import { ConfigurationService } from '../services/configuration.service';
-import { SyncService } from '../services/sync.service';
+import { ConfigurationService } from "../services/configuration.service";
+import { SyncService } from "../services/sync.service";
 
-const BroadcasterSubscriptionId = 'AppComponent';
+const BroadcasterSubscriptionId = "AppComponent";
 
 @Component({
-    selector: 'app-root',
+    selector: "app-root",
     styles: [],
-    template: `
-        <ng-template #settings></ng-template>
+    template: ` <ng-template #settings></ng-template>
         <router-outlet></router-outlet>`,
 })
 export class AppComponent implements OnInit {
-    @ViewChild('settings', { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
+    @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
 
-    constructor(private broadcasterService: BroadcasterService, private userService: UserService,
+    constructor(
+        private broadcasterService: BroadcasterService,
+        private userService: UserService,
         private tokenService: TokenService,
-        private authService: AuthService, private router: Router,
-        private toastrService: ToastrService, private i18nService: I18nService,
-        private sanitizer: DomSanitizer, private ngZone: NgZone,
-        private platformUtilsService: PlatformUtilsService, private messagingService: MessagingService,
-        private configurationService: ConfigurationService, private syncService: SyncService,
-        private stateService: StateService, private logService: LogService) {
-    }
+        private authService: AuthService,
+        private router: Router,
+        private toastrService: ToastrService,
+        private i18nService: I18nService,
+        private sanitizer: DomSanitizer,
+        private ngZone: NgZone,
+        private platformUtilsService: PlatformUtilsService,
+        private messagingService: MessagingService,
+        private configurationService: ConfigurationService,
+        private syncService: SyncService,
+        private stateService: StateService,
+        private logService: LogService
+    ) {}
 
     ngOnInit() {
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
             this.ngZone.run(async () => {
                 switch (message.command) {
-                    case 'syncScheduleStarted':
-                    case 'syncScheduleStopped':
-                        this.stateService.save('syncingDir', message.command === 'syncScheduleStarted');
+                    case "syncScheduleStarted":
+                    case "syncScheduleStopped":
+                        this.stateService.save(
+                            "syncingDir",
+                            message.command === "syncScheduleStarted"
+                        );
                         break;
-                    case 'logout':
+                    case "logout":
                         this.logOut(!!message.expired);
                         break;
-                    case 'checkDirSync':
+                    case "checkDirSync":
                         try {
                             const syncConfig = await this.configurationService.getSync();
                             if (syncConfig.interval == null || syncConfig.interval < 5) {
@@ -67,8 +74,10 @@ export class AppComponent implements OnInit {
                             }
 
                             const syncInterval = syncConfig.interval * 60000;
-                            const lastGroupSync = await this.configurationService.getLastGroupSyncDate();
-                            const lastUserSync = await this.configurationService.getLastUserSyncDate();
+                            const lastGroupSync =
+                                await this.configurationService.getLastGroupSyncDate();
+                            const lastUserSync =
+                                await this.configurationService.getLastUserSyncDate();
                             let lastSync: Date = null;
                             if (lastGroupSync != null && lastUserSync == null) {
                                 lastSync = lastGroupSync;
@@ -94,13 +103,15 @@ export class AppComponent implements OnInit {
                             this.logService.error(e);
                         }
 
-                        this.messagingService.send('scheduleNextDirSync');
+                        this.messagingService.send("scheduleNextDirSync");
                         break;
-                    case 'showToast':
+                    case "showToast":
                         this.showToast(message);
                         break;
-                    case 'ssoCallback':
-                        this.router.navigate(['sso'], { queryParams: { code: message.code, state: message.state } });
+                    case "ssoCallback":
+                        this.router.navigate(["sso"], {
+                            queryParams: { code: message.code, state: message.state },
+                        });
                         break;
                     default:
                 }
@@ -120,25 +131,30 @@ export class AppComponent implements OnInit {
 
         this.authService.logOut(async () => {
             if (expired) {
-                this.platformUtilsService.showToast('warning', this.i18nService.t('loggedOut'),
-                    this.i18nService.t('loginExpired'));
+                this.platformUtilsService.showToast(
+                    "warning",
+                    this.i18nService.t("loggedOut"),
+                    this.i18nService.t("loginExpired")
+                );
             }
-            this.router.navigate(['login']);
+            this.router.navigate(["login"]);
         });
     }
 
     private showToast(msg: any) {
-        let message = '';
+        let message = "";
 
         const options: Partial<IndividualConfig> = {};
 
-        if (typeof (msg.text) === 'string') {
+        if (typeof msg.text === "string") {
             message = msg.text;
         } else if (msg.text.length === 1) {
             message = msg.text[0];
         } else {
-            msg.text.forEach((t: string) =>
-                message += ('<p>' + this.sanitizer.sanitize(SecurityContext.HTML, t) + '</p>'));
+            msg.text.forEach(
+                (t: string) =>
+                    (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>")
+            );
             options.enableHtml = true;
         }
         if (msg.options != null) {
@@ -150,6 +166,6 @@ export class AppComponent implements OnInit {
             }
         }
 
-        this.toastrService.show(message, msg.title, options, 'toast-' + msg.type);
+        this.toastrService.show(message, msg.title, options, "toast-" + msg.type);
     }
 }

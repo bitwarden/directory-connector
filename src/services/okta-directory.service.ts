@@ -1,18 +1,18 @@
-import { DirectoryType } from '../enums/directoryType';
+import { DirectoryType } from "../enums/directoryType";
 
-import { GroupEntry } from '../models/groupEntry';
-import { OktaConfiguration } from '../models/oktaConfiguration';
-import { SyncConfiguration } from '../models/syncConfiguration';
-import { UserEntry } from '../models/userEntry';
+import { GroupEntry } from "../models/groupEntry";
+import { OktaConfiguration } from "../models/oktaConfiguration";
+import { SyncConfiguration } from "../models/syncConfiguration";
+import { UserEntry } from "../models/userEntry";
 
-import { BaseDirectoryService } from './baseDirectory.service';
-import { ConfigurationService } from './configuration.service';
-import { IDirectoryService } from './directory.service';
+import { BaseDirectoryService } from "./baseDirectory.service";
+import { ConfigurationService } from "./configuration.service";
+import { IDirectoryService } from "./directory.service";
 
-import { I18nService } from 'jslib-common/abstractions/i18n.service';
-import { LogService } from 'jslib-common/abstractions/log.service';
+import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { LogService } from "jslib-common/abstractions/log.service";
 
-import * as https from 'https';
+import * as https from "https";
 
 const DelayBetweenBuildGroupCallsInMilliseconds = 500;
 
@@ -21,8 +21,11 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
     private syncConfig: SyncConfiguration;
     private lastBuildGroupCall: number;
 
-    constructor(private configurationService: ConfigurationService, private logService: LogService,
-        private i18nService: I18nService) {
+    constructor(
+        private configurationService: ConfigurationService,
+        private logService: LogService,
+        private i18nService: I18nService
+    ) {
         super();
     }
 
@@ -32,7 +35,9 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
             return;
         }
 
-        this.dirConfig = await this.configurationService.getDirectory<OktaConfiguration>(DirectoryType.Okta);
+        this.dirConfig = await this.configurationService.getDirectory<OktaConfiguration>(
+            DirectoryType.Okta
+        );
         if (this.dirConfig == null) {
             return;
         }
@@ -43,7 +48,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
         }
 
         if (this.dirConfig.orgUrl == null || this.dirConfig.token == null) {
-            throw new Error(this.i18nService.t('dirConfigIncomplete'));
+            throw new Error(this.i18nService.t("dirConfigIncomplete"));
         }
 
         let users: UserEntry[];
@@ -67,9 +72,28 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
         const oktaFilter = this.buildOktaFilter(this.syncConfig.userFilter, force, lastSync);
         const setFilter = this.createCustomSet(this.syncConfig.userFilter);
 
-        this.logService.info('Querying users.');
-        const usersPromise = this.apiGetMany('users?filter=' + this.encodeUrlParameter(oktaFilter))
-            .then((users: any[]) => {
+        this.logService.info("Querying users.");
+        const usersPromise = this.apiGetMany(
+            "users?filter=" + this.encodeUrlParameter(oktaFilter)
+        ).then((users: any[]) => {
+            for (const user of users) {
+                const entry = this.buildUser(user);
+                if (entry != null && !this.filterOutResult(setFilter, entry.email)) {
+                    entries.push(entry);
+                }
+            }
+        });
+
+        // Deactivated users have to be queried for separately, only when no filter is provided in the first query
+        let deactUsersPromise: any;
+        if (oktaFilter == null || oktaFilter.indexOf("lastUpdated ") === -1) {
+            let deactOktaFilter = 'status eq "DEPROVISIONED"';
+            if (oktaFilter != null) {
+                deactOktaFilter = "(" + oktaFilter + ") and " + deactOktaFilter;
+            }
+            deactUsersPromise = this.apiGetMany(
+                "users?filter=" + this.encodeUrlParameter(deactOktaFilter)
+            ).then((users: any[]) => {
                 for (const user of users) {
                     const entry = this.buildUser(user);
                     if (entry != null && !this.filterOutResult(setFilter, entry.email)) {
@@ -77,23 +101,6 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
                     }
                 }
             });
-
-        // Deactivated users have to be queried for separately, only when no filter is provided in the first query
-        let deactUsersPromise: any;
-        if (oktaFilter == null || oktaFilter.indexOf('lastUpdated ') === -1) {
-            let deactOktaFilter = 'status eq "DEPROVISIONED"';
-            if (oktaFilter != null) {
-                deactOktaFilter = '(' + oktaFilter + ') and ' + deactOktaFilter;
-            }
-            deactUsersPromise = this.apiGetMany('users?filter=' + this.encodeUrlParameter(deactOktaFilter))
-                .then((users: any[]) => {
-                    for (const user of users) {
-                        const entry = this.buildUser(user);
-                        if (entry != null && !this.filterOutResult(setFilter, entry.email)) {
-                            entries.push(entry);
-                        }
-                    }
-                });
         } else {
             deactUsersPromise = Promise.resolve();
         }
@@ -107,25 +114,32 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
         entry.externalId = user.id;
         entry.referenceId = user.id;
         entry.email = user.profile.email != null ? user.profile.email.trim().toLowerCase() : null;
-        entry.deleted = user.status === 'DEPROVISIONED';
-        entry.disabled = user.status === 'SUSPENDED';
+        entry.deleted = user.status === "DEPROVISIONED";
+        entry.disabled = user.status === "SUSPENDED";
         return entry;
     }
 
-    private async getGroups(force: boolean, setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
+    private async getGroups(
+        force: boolean,
+        setFilter: [boolean, Set<string>]
+    ): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
         const lastSync = await this.configurationService.getLastGroupSyncDate();
         const oktaFilter = this.buildOktaFilter(this.syncConfig.groupFilter, force, lastSync);
 
-        this.logService.info('Querying groups.');
-        await this.apiGetMany('groups?filter=' + this.encodeUrlParameter(oktaFilter)).then(async (groups: any[]) => {
-            for (const group of groups.filter(g => !this.filterOutResult(setFilter, g.profile.name))) {
-                const entry = await this.buildGroup(group);
-                if (entry != null) {
-                    entries.push(entry);
+        this.logService.info("Querying groups.");
+        await this.apiGetMany("groups?filter=" + this.encodeUrlParameter(oktaFilter)).then(
+            async (groups: any[]) => {
+                for (const group of groups.filter(
+                    (g) => !this.filterOutResult(setFilter, g.profile.name)
+                )) {
+                    const entry = await this.buildGroup(group);
+                    if (entry != null) {
+                        entries.push(entry);
+                    }
                 }
             }
-        });
+        );
         return entries;
     }
 
@@ -136,14 +150,14 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
         entry.name = group.profile.name;
 
         // throttle some to avoid rate limiting
-        const neededDelay = DelayBetweenBuildGroupCallsInMilliseconds - (Date.now() - this.lastBuildGroupCall);
+        const neededDelay =
+            DelayBetweenBuildGroupCallsInMilliseconds - (Date.now() - this.lastBuildGroupCall);
         if (neededDelay > 0) {
-            await new Promise(resolve =>
-                setTimeout(resolve, neededDelay));
+            await new Promise((resolve) => setTimeout(resolve, neededDelay));
         }
         this.lastBuildGroupCall = Date.now();
 
-        await this.apiGetMany('groups/' + group.id + '/users').then((users: any[]) => {
+        await this.apiGetMany("groups/" + group.id + "/users").then((users: any[]) => {
             for (const user of users) {
                 entry.userMemberExternalIds.add(user.id);
             }
@@ -154,7 +168,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
 
     private buildOktaFilter(baseFilter: string, force: boolean, lastSync: Date) {
         baseFilter = this.createDirectoryQuery(baseFilter);
-        baseFilter = baseFilter == null || baseFilter.trim() === '' ? null : baseFilter;
+        baseFilter = baseFilter == null || baseFilter.trim() === "" ? null : baseFilter;
         if (force || lastSync == null) {
             return baseFilter;
         }
@@ -164,64 +178,70 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
             return updatedFilter;
         }
 
-        return '(' + baseFilter + ') and ' + updatedFilter;
+        return "(" + baseFilter + ") and " + updatedFilter;
     }
 
     private encodeUrlParameter(filter: string): string {
-        return filter == null ? '' : encodeURIComponent(filter);
+        return filter == null ? "" : encodeURIComponent(filter);
     }
 
     private async apiGetCall(url: string): Promise<[any, Map<string, string | string[]>]> {
         const u = new URL(url);
-        return new Promise(resolve => {
-            https.get({
-                hostname: u.hostname,
-                path: u.pathname + u.search,
-                port: 443,
-                headers: {
-                    Authorization: 'SSWS ' + this.dirConfig.token,
-                    Accept: 'application/json',
+        return new Promise((resolve) => {
+            https.get(
+                {
+                    hostname: u.hostname,
+                    path: u.pathname + u.search,
+                    port: 443,
+                    headers: {
+                        Authorization: "SSWS " + this.dirConfig.token,
+                        Accept: "application/json",
+                    },
                 },
-            }, res => {
-                let body = '';
+                (res) => {
+                    let body = "";
 
-                res.on('data', chunk => {
-                    body += chunk;
-                });
+                    res.on("data", (chunk) => {
+                        body += chunk;
+                    });
 
-                res.on('end', () => {
-                    if (res.statusCode !== 200) {
-                        resolve(null);
-                        return;
-                    }
-
-                    const responseJson = JSON.parse(body);
-                    if (res.headers != null) {
-                        const headersMap = new Map<string, string | string[]>();
-                        for (const key in res.headers) {
-                            if (res.headers.hasOwnProperty(key)) {
-                                const val = res.headers[key];
-                                headersMap.set(key.toLowerCase(), val);
-                            }
+                    res.on("end", () => {
+                        if (res.statusCode !== 200) {
+                            resolve(null);
+                            return;
                         }
-                        resolve([responseJson, headersMap]);
-                        return;
-                    }
-                    resolve([responseJson, null]);
-                });
 
-                res.on('error', () => {
-                    resolve(null);
-                });
-            });
+                        const responseJson = JSON.parse(body);
+                        if (res.headers != null) {
+                            const headersMap = new Map<string, string | string[]>();
+                            for (const key in res.headers) {
+                                if (res.headers.hasOwnProperty(key)) {
+                                    const val = res.headers[key];
+                                    headersMap.set(key.toLowerCase(), val);
+                                }
+                            }
+                            resolve([responseJson, headersMap]);
+                            return;
+                        }
+                        resolve([responseJson, null]);
+                    });
+
+                    res.on("error", () => {
+                        resolve(null);
+                    });
+                }
+            );
         });
     }
 
     private async apiGetMany(endpoint: string, currentData: any[] = []): Promise<any[]> {
-        const url = endpoint.indexOf('https://') === 0 ? endpoint : `${this.dirConfig.orgUrl}/api/v1/${endpoint}`;
+        const url =
+            endpoint.indexOf("https://") === 0
+                ? endpoint
+                : `${this.dirConfig.orgUrl}/api/v1/${endpoint}`;
         const response = await this.apiGetCall(url);
         if (response == null || response[0] == null || !Array.isArray(response[0])) {
-            throw new Error('API call failed.');
+            throw new Error("API call failed.");
         }
         if (response[0].length === 0) {
             return currentData;
@@ -230,17 +250,17 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
         if (response[1] == null) {
             return currentData;
         }
-        const linkHeader = response[1].get('link');
+        const linkHeader = response[1].get("link");
         if (linkHeader == null || Array.isArray(linkHeader)) {
             return currentData;
         }
         let nextLink: string = null;
-        const linkHeaderParts = linkHeader.split(',');
+        const linkHeaderParts = linkHeader.split(",");
         for (const part of linkHeaderParts) {
             if (part.indexOf('; rel="next"') > -1) {
-                const subParts = part.split(';');
-                if (subParts.length > 0 && subParts[0].indexOf('https://') > -1) {
-                    nextLink = subParts[0].replace('>', '').replace('<', '').trim();
+                const subParts = part.split(";");
+                if (subParts.length > 0 && subParts[0].indexOf("https://") > -1) {
+                    nextLink = subParts[0].replace(">", "").replace("<", "").trim();
                     break;
                 }
             }

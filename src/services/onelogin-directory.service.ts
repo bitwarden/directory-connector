@@ -1,16 +1,16 @@
-import { DirectoryType } from '../enums/directoryType';
+import { DirectoryType } from "../enums/directoryType";
 
-import { GroupEntry } from '../models/groupEntry';
-import { OneLoginConfiguration } from '../models/oneLoginConfiguration';
-import { SyncConfiguration } from '../models/syncConfiguration';
-import { UserEntry } from '../models/userEntry';
+import { GroupEntry } from "../models/groupEntry";
+import { OneLoginConfiguration } from "../models/oneLoginConfiguration";
+import { SyncConfiguration } from "../models/syncConfiguration";
+import { UserEntry } from "../models/userEntry";
 
-import { BaseDirectoryService } from './baseDirectory.service';
-import { ConfigurationService } from './configuration.service';
-import { IDirectoryService } from './directory.service';
+import { BaseDirectoryService } from "./baseDirectory.service";
+import { ConfigurationService } from "./configuration.service";
+import { IDirectoryService } from "./directory.service";
 
-import { I18nService } from 'jslib-common/abstractions/i18n.service';
-import { LogService } from 'jslib-common/abstractions/log.service';
+import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { LogService } from "jslib-common/abstractions/log.service";
 
 // Basic email validation: something@something.something
 const ValidEmailRegex = /^\S+@\S+\.\S+$/;
@@ -21,8 +21,11 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
     private accessToken: string;
     private allUsers: any[] = [];
 
-    constructor(private configurationService: ConfigurationService, private logService: LogService,
-        private i18nService: I18nService) {
+    constructor(
+        private configurationService: ConfigurationService,
+        private logService: LogService,
+        private i18nService: I18nService
+    ) {
         super();
     }
 
@@ -32,7 +35,9 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
             return;
         }
 
-        this.dirConfig = await this.configurationService.getDirectory<OneLoginConfiguration>(DirectoryType.OneLogin);
+        this.dirConfig = await this.configurationService.getDirectory<OneLoginConfiguration>(
+            DirectoryType.OneLogin
+        );
         if (this.dirConfig == null) {
             return;
         }
@@ -43,12 +48,12 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
         }
 
         if (this.dirConfig.clientId == null || this.dirConfig.clientSecret == null) {
-            throw new Error(this.i18nService.t('dirConfigIncomplete'));
+            throw new Error(this.i18nService.t("dirConfigIncomplete"));
         }
 
         this.accessToken = await this.getAccessToken();
         if (this.accessToken == null) {
-            throw new Error('Could not get access token');
+            throw new Error("Could not get access token");
         }
 
         let users: UserEntry[];
@@ -70,9 +75,9 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
         const entries: UserEntry[] = [];
         const query = this.createDirectoryQuery(this.syncConfig.userFilter);
         const setFilter = this.createCustomSet(this.syncConfig.userFilter);
-        this.logService.info('Querying users.');
-        this.allUsers = await this.apiGetMany('users' + (query != null ? '?' + query : ''));
-        this.allUsers.forEach(user => {
+        this.logService.info("Querying users.");
+        this.allUsers = await this.apiGetMany("users" + (query != null ? "?" + query : ""));
+        this.allUsers.forEach((user) => {
             const entry = this.buildUser(user);
             if (entry != null && !this.filterOutResult(setFilter, entry.email)) {
                 entries.push(entry);
@@ -88,10 +93,13 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
         entry.deleted = false;
         entry.disabled = user.status === 2;
         entry.email = user.email;
-        if (!this.validEmailAddress(entry.email) && user.username != null && user.username !== '') {
+        if (!this.validEmailAddress(entry.email) && user.username != null && user.username !== "") {
             if (this.validEmailAddress(user.username)) {
                 entry.email = user.username;
-            } else if (this.syncConfig.useEmailPrefixSuffix && this.syncConfig.emailSuffix != null) {
+            } else if (
+                this.syncConfig.useEmailPrefixSuffix &&
+                this.syncConfig.emailSuffix != null
+            ) {
                 entry.email = user.username + this.syncConfig.emailSuffix;
             }
         }
@@ -104,12 +112,15 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
         return entry;
     }
 
-    private async getGroups(force: boolean, setFilter: [boolean, Set<string>]): Promise<GroupEntry[]> {
+    private async getGroups(
+        force: boolean,
+        setFilter: [boolean, Set<string>]
+    ): Promise<GroupEntry[]> {
         const entries: GroupEntry[] = [];
         const query = this.createDirectoryQuery(this.syncConfig.groupFilter);
-        this.logService.info('Querying groups.');
-        const roles = await this.apiGetMany('roles' + (query != null ? '?' + query : ''));
-        roles.forEach(role => {
+        this.logService.info("Querying groups.");
+        const roles = await this.apiGetMany("roles" + (query != null ? "?" + query : ""));
+        roles.forEach((role) => {
             const entry = this.buildGroup(role);
             if (entry != null && !this.filterOutResult(setFilter, entry.name)) {
                 entries.push(entry);
@@ -125,7 +136,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
         entry.name = group.name;
 
         if (this.allUsers != null) {
-            this.allUsers.forEach(user => {
+            this.allUsers.forEach((user) => {
                 if (user.role_id != null && user.role_id.indexOf(entry.referenceId) > -1) {
                     entry.userMemberExternalIds.add(user.id);
                 }
@@ -136,17 +147,22 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
     }
 
     private async getAccessToken() {
-        const response = await fetch(`https://api.${this.dirConfig.region}.onelogin.com/auth/oauth2/v2/token`, {
-            method: 'POST',
-            headers: new Headers({
-                'Authorization': 'Basic ' + btoa(this.dirConfig.clientId + ':' + this.dirConfig.clientSecret),
-                'Content-Type': 'application/json; charset=utf-8',
-                'Accept': 'application/json',
-            }),
-            body: JSON.stringify({
-                grant_type: 'client_credentials',
-            }),
-        });
+        const response = await fetch(
+            `https://api.${this.dirConfig.region}.onelogin.com/auth/oauth2/v2/token`,
+            {
+                method: "POST",
+                headers: new Headers({
+                    Authorization:
+                        "Basic " +
+                        btoa(this.dirConfig.clientId + ":" + this.dirConfig.clientSecret),
+                    "Content-Type": "application/json; charset=utf-8",
+                    Accept: "application/json",
+                }),
+                body: JSON.stringify({
+                    grant_type: "client_credentials",
+                }),
+            }
+        );
         if (response.status === 200) {
             const responseJson = await response.json();
             if (responseJson.access_token != null) {
@@ -158,10 +174,10 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
 
     private async apiGetCall(url: string): Promise<any> {
         const req: RequestInit = {
-            method: 'GET',
+            method: "GET",
             headers: new Headers({
-                Authorization: 'bearer:' + this.accessToken,
-                Accept: 'application/json',
+                Authorization: "bearer:" + this.accessToken,
+                Accept: "application/json",
             }),
         };
         const response = await fetch(new Request(url, req));
@@ -173,14 +189,16 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
     }
 
     private async apiGetMany(endpoint: string, currentData: any[] = []): Promise<any[]> {
-        const url = endpoint.indexOf('https://') === 0 ? endpoint :
-            `https://api.${this.dirConfig.region}.onelogin.com/api/1/${endpoint}`;
+        const url =
+            endpoint.indexOf("https://") === 0
+                ? endpoint
+                : `https://api.${this.dirConfig.region}.onelogin.com/api/1/${endpoint}`;
         const response = await this.apiGetCall(url);
         if (response == null || response.status == null || response.data == null) {
             return currentData;
         }
         if (response.status.code !== 200) {
-            throw new Error('API call failed.');
+            throw new Error("API call failed.");
         }
         currentData = currentData.concat(response.data);
         if (response.pagination == null || response.pagination.next_link == null) {
@@ -190,6 +208,6 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
     }
 
     private validEmailAddress(email: string) {
-        return email != null && email !== '' && ValidEmailRegex.test(email);
+        return email != null && email !== "" && ValidEmailRegex.test(email);
     }
 }

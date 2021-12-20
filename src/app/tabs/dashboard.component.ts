@@ -1,31 +1,25 @@
-import {
-    ChangeDetectorRef,
-    Component,
-    NgZone,
-    OnDestroy,
-    OnInit,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 
-import { BroadcasterService } from 'jslib-common/abstractions/broadcaster.service';
-import { I18nService } from 'jslib-common/abstractions/i18n.service';
-import { MessagingService } from 'jslib-common/abstractions/messaging.service';
-import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
-import { StateService } from 'jslib-common/abstractions/state.service';
+import { BroadcasterService } from "jslib-common/abstractions/broadcaster.service";
+import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { MessagingService } from "jslib-common/abstractions/messaging.service";
+import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
+import { StateService } from "jslib-common/abstractions/state.service";
 
-import { SyncService } from '../../services/sync.service';
+import { SyncService } from "../../services/sync.service";
 
-import { GroupEntry } from '../../models/groupEntry';
-import { SimResult } from '../../models/simResult';
-import { UserEntry } from '../../models/userEntry';
-import { ConfigurationService } from '../../services/configuration.service';
+import { GroupEntry } from "../../models/groupEntry";
+import { SimResult } from "../../models/simResult";
+import { UserEntry } from "../../models/userEntry";
+import { ConfigurationService } from "../../services/configuration.service";
 
-import { ConnectorUtils } from '../../utils';
+import { ConnectorUtils } from "../../utils";
 
-const BroadcasterSubscriptionId = 'DashboardComponent';
+const BroadcasterSubscriptionId = "DashboardComponent";
 
 @Component({
-    selector: 'app-dashboard',
-    templateUrl: 'dashboard.component.html',
+    selector: "app-dashboard",
+    templateUrl: "dashboard.component.html",
 })
 export class DashboardComponent implements OnInit, OnDestroy {
     simGroups: GroupEntry[];
@@ -41,17 +35,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
     lastUserSync: Date;
     syncRunning: boolean;
 
-    constructor(private i18nService: I18nService, private syncService: SyncService,
-        private configurationService: ConfigurationService, private broadcasterService: BroadcasterService,
-        private ngZone: NgZone, private messagingService: MessagingService,
-        private platformUtilsService: PlatformUtilsService, private changeDetectorRef: ChangeDetectorRef,
-        private stateService: StateService) { }
+    constructor(
+        private i18nService: I18nService,
+        private syncService: SyncService,
+        private configurationService: ConfigurationService,
+        private broadcasterService: BroadcasterService,
+        private ngZone: NgZone,
+        private messagingService: MessagingService,
+        private platformUtilsService: PlatformUtilsService,
+        private changeDetectorRef: ChangeDetectorRef,
+        private stateService: StateService
+    ) {}
 
     async ngOnInit() {
         this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
             this.ngZone.run(async () => {
                 switch (message.command) {
-                    case 'dirSyncCompleted':
+                    case "dirSyncCompleted":
                         this.updateLastSync();
                         break;
                     default:
@@ -62,7 +62,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
         });
 
-        this.syncRunning = !!(await this.stateService.get('syncingDir'));
+        this.syncRunning = !!(await this.stateService.get("syncingDir"));
         this.updateLastSync();
     }
 
@@ -73,15 +73,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     async start() {
         this.startPromise = this.syncService.sync(false, false);
         await this.startPromise;
-        this.messagingService.send('scheduleNextDirSync');
+        this.messagingService.send("scheduleNextDirSync");
         this.syncRunning = true;
-        this.platformUtilsService.showToast('success', null, this.i18nService.t('syncingStarted'));
+        this.platformUtilsService.showToast("success", null, this.i18nService.t("syncingStarted"));
     }
 
     async stop() {
-        this.messagingService.send('cancelDirSync');
+        this.messagingService.send("cancelDirSync");
         this.syncRunning = false;
-        this.platformUtilsService.showToast('success', null, this.i18nService.t('syncingStopped'));
+        this.platformUtilsService.showToast("success", null, this.i18nService.t("syncingStopped"));
     }
 
     async sync() {
@@ -89,8 +89,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const result = await this.syncPromise;
         const groupCount = result[0] != null ? result[0].length : 0;
         const userCount = result[1] != null ? result[1].length : 0;
-        this.platformUtilsService.showToast('success', null,
-            this.i18nService.t('syncCounts', groupCount.toString(), userCount.toString()));
+        this.platformUtilsService.showToast(
+            "success",
+            null,
+            this.i18nService.t("syncCounts", groupCount.toString(), userCount.toString())
+        );
     }
 
     async simulate() {
@@ -101,7 +104,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.simDeletedUsers = [];
 
         try {
-            this.simPromise = ConnectorUtils.simulate(this.syncService, this.i18nService, this.simSinceLast);
+            this.simPromise = ConnectorUtils.simulate(
+                this.syncService,
+                this.i18nService,
+                this.simSinceLast
+            );
             const result = await this.simPromise;
             this.simGroups = result.groups;
             this.simUsers = result.users;

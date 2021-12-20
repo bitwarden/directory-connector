@@ -1,6 +1,6 @@
 $fa-font-path: "~font-awesome/fonts";
 @import "~font-awesome/scss/font-awesome.scss";
-@import '~ngx-toastr/toastr';
+@import "~ngx-toastr/toastr";
 
 @import "~bootstrap/scss/_variables.scss";
 
@@ -47,7 +47,8 @@ $fa-font-path: "~font-awesome/fonts";
             }
         }
 
-        &.toast-danger, &.toast-error {
+        &.toast-danger,
+        &.toast-error {
             background-color: $danger;
 
             .icon i::before {
