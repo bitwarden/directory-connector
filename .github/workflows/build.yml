@@ -398,8 +398,8 @@ jobs:
       - name: Install Node dependencies
         run: npm install
 
-      - name: Run linter
-        run: npm run lint
+      # - name: Run linter
+      #   run: npm run lint
 
       - name: Build & Sign
         run: npm run dist:win
@@ -574,8 +574,8 @@ jobs:
       - name: Install Node dependencies
         run: npm install
 
-      - name: Run linter
-        run: npm run lint
+      # - name: Run linter
+      #   run: npm run lint
 
       - name: Build application
         run: npm run dist:mac
