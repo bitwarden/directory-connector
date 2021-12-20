@@ -99,10 +99,10 @@ jobs:
       - name: Version Test
         run: |
           sudo apt install libsecret-1-0 dbus-x11 gnome-keyring
-          dbus-launch --sh-syntax
+          eval $(dbus-launch --sh-syntax)
           
-          echo -n "" | /usr/bin/gnome-keyring-daemon --login
-          /usr/bin/gnome-keyring-daemon --components=secrets --start
+          eval $(echo -n "" | /usr/bin/gnome-keyring-daemon --login)
+          eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start)
 
           mkdir -p test/linux
           unzip ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip -d ./test/linux
