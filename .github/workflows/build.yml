@@ -99,7 +99,7 @@ jobs:
       - name: Version Test
         run: |
           sudo apt install libsecret-1-0 dbus-x11
-          dbus-launch --sh-syntax
+          eval $(dbus-launch --sh-syntax)
 
           mkdir -p test/linux
           unzip ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip -d ./test/linux
