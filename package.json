@@ -27,7 +27,7 @@
     "symlink:lin": "rm -rf ./jslib && ln -s ../jslib ./jslib",
     "rebuild": "electron-rebuild",
     "reset": "rimraf ./node_modules/keytar/* && npm install",
-    "lint": "tslint 'src/**/*.ts' || true",
+    "lint": "tslint 'src/**/*.ts' && prettier --check .",
     "lint:fix": "tslint 'src/**/*.ts' --fix",
     "build": "concurrently -n Main,Rend -c yellow,cyan \"npm run build:main\" \"npm run build:renderer\"",
     "build:main": "webpack --config webpack.main.js",
@@ -59,7 +59,9 @@
     "dist:cli:lin": "npm run build:cli:prod && npm run clean:dist:cli && npm run pack:cli:lin",
     "publish:lin": "npm run build:dist && npm run clean:dist && electron-builder --linux --x64 -p always",
     "publish:mac": "npm run build:dist && npm run clean:dist && electron-builder --mac -p always",
-    "publish:win": "npm run build:dist && npm run clean:dist && electron-builder --win --x64 --ia32 -p always -c.win.certificateSubjectName=\"8bit Solutions LLC\""
+    "publish:win": "npm run build:dist && npm run clean:dist && electron-builder --win --x64 --ia32 -p always -c.win.certificateSubjectName=\"8bit Solutions LLC\"",
+    "prettier": "prettier --write .",
+    "prepare": "husky install"
   },
   "build": {
     "appId": "com.bitwarden.directory-connector",
@@ -150,10 +152,13 @@
     "font-awesome": "4.7.0",
     "html-loader": "^3.0.1",
     "html-webpack-plugin": "^5.5.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.3",
     "mini-css-extract-plugin": "^2.4.5",
     "node-loader": "^2.0.0",
     "pkg": "^5.5.1",
     "prebuild-install": "^5.0.0",
+    "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
     "sass": "^1.32.11",
     "sass-loader": "^12.4.0",
@@ -201,5 +206,8 @@
   "engines": {
     "node": "~16",
     "npm": "~8"
+  },
+  "lint-staged": {
+    "*.{js,css,md}": "prettier --write"
   }
 }
