@@ -85,11 +85,11 @@ Security audits and feedback are welcome. Please open an issue or email us priva
 We recently migrated to using Prettier as code formatter. All previous branches will need to updated to avoid large merge conflicts using the following steps:
 
 1. Check out your local Branch
-2. Run `git merge 2b0a9d995e0147601ca8ae4778434a19354a60c2`
+2. Run `git merge 225073aa335d33ad905877b68336a9288e89ea10`
 3. Resolve any merge conflicts, commit.
 4. Run `npm run prettier`
 5. Commit
-6. Run `git merge -Xours 56477eb39cfd8a73c9920577d24d75fed36e2cf5`
+6. Run `git merge -Xours 096196fcd512944d1c3d9c007647a1319b032639`
 7. Push
 
 #### Git blame
