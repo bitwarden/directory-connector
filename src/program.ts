@@ -19,7 +19,6 @@ import { BaseProgram } from "jslib-node/cli/baseProgram";
 import { Response } from "jslib-node/cli/models/response";
 import { StringResponse } from "jslib-node/cli/models/response/stringResponse";
 
-import { HtmlStorageLocation } from "jslib-common/enums/htmlStorageLocation";
 import { Utils } from "jslib-common/misc/utils";
 
 const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) => {
