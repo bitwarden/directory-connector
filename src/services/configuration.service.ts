@@ -57,32 +57,20 @@ export class ConfigurationService {
     if (this.useSecureStorageForSecrets) {
       switch (type) {
         case DirectoryType.Ldap:
-          if (savedConfig.password == null) {
-            await this.stateService.setLdapKey(null);
-          } else {
             await this.stateService.setLdapKey(savedConfig.password);
             savedConfig.password = StoredSecurely;
-          }
-          await this.stateService.setLdapConfiguration(savedConfig);
-          break;
+            await this.stateService.setLdapConfiguration(savedConfig);
+            break;
         case DirectoryType.AzureActiveDirectory:
-          if (savedConfig.key == null) {
-            await this.stateService.setAzureKey(null);
-          } else {
             await this.stateService.setAzureKey(savedConfig.key);
             savedConfig.key = StoredSecurely;
-          }
-          await this.stateService.setAzureConfiguration(savedConfig);
-          break;
+            await this.stateService.setAzureConfiguration(savedConfig);
+            break;
         case DirectoryType.Okta:
-          if (savedConfig.token == null) {
-            await this.stateService.setOktaKey(null);
-          } else {
             await this.stateService.setOktaKey(savedConfig.token);
             savedConfig.token = StoredSecurely;
-          }
-          await this.stateService.setOktaConfiguration(savedConfig);
-          break;
+            await this.stateService.setOktaConfiguration(savedConfig);
+            break;
         case DirectoryType.GSuite:
           if (savedConfig.privateKey == null) {
             await this.stateService.setGsuiteKey(null);
@@ -95,14 +83,10 @@ export class ConfigurationService {
           await this.stateService.setGsuiteConfiguration(savedConfig);
           break;
         case DirectoryType.OneLogin:
-          if (savedConfig.clientSecret == null) {
-            await this.stateService.setOneLoginKey(null);
-          } else {
             await this.stateService.setOneLoginKey(savedConfig.clientSecret);
             savedConfig.clientSecret = StoredSecurely;
-          }
-          await this.stateService.setOneLoginConfiguration(savedConfig);
-          break;
+            await this.stateService.setOneLoginConfiguration(savedConfig);
+            break;
       }
     }
   }
@@ -133,11 +117,7 @@ export class ConfigurationService {
   }
 
   async saveUserDeltaToken(token: string): Promise<void> {
-    if (token == null) {
-      return this.stateService.setUserDelta(null);
-    } else {
-      return this.stateService.setUserDelta(token);
-    }
+    return this.stateService.setUserDelta(token);
   }
 
   async getGroupDeltaToken(): Promise<string> {
@@ -145,11 +125,7 @@ export class ConfigurationService {
   }
 
   async saveGroupDeltaToken(token: string): Promise<void> {
-    if (token == null) {
-      await this.stateService.setGroupDelta(null);
-    } else {
-      await this.stateService.setGroupDelta(token);
-    }
+    await this.stateService.setGroupDelta(token);
   }
 
   async getLastUserSyncDate(): Promise<Date> {
@@ -157,11 +133,7 @@ export class ConfigurationService {
   }
 
   async saveLastUserSyncDate(date: Date): Promise<void> {
-    if (date == null) {
-      return await this.stateService.setLastUserSync(null);
-    } else {
-      return await this.stateService.setLastUserSync(date);
-    }
+    return await this.stateService.setLastUserSync(date);
   }
 
   async getLastGroupSyncDate(): Promise<Date> {
@@ -169,11 +141,7 @@ export class ConfigurationService {
   }
 
   async saveLastGroupSyncDate(date: Date): Promise<void> {
-    if (date == null) {
-      await this.stateService.setLastGroupSync(null);
-    } else {
-      await this.stateService.setLastGroupSync(date);
-    }
+    await this.stateService.setLastGroupSync(date);
   }
 
   async getLastSyncHash(): Promise<string> {
@@ -181,11 +149,7 @@ export class ConfigurationService {
   }
 
   async saveLastSyncHash(hash: string): Promise<void> {
-    if (hash == null) {
-      await this.stateService.setLastSyncHash(null);
-    } else {
-      await this.stateService.setLastSyncHash(hash);
-    }
+    await this.stateService.setLastSyncHash(hash);
   }
 
   async getOrganizationId(): Promise<string> {
@@ -198,11 +162,7 @@ export class ConfigurationService {
       await this.clearStatefulSettings();
     }
 
-    if (id == null) {
-      await this.stateService.setOrganizationId(null);
-    } else {
-      await this.stateService.setOrganizationId(id);
-    }
+    await this.stateService.setOrganizationId(id);
   }
 
   async clearStatefulSettings(hashToo = false) {
