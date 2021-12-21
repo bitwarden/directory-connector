@@ -77,7 +77,7 @@ export class StateMigrationService extends BaseStateMigrationService {
   protected async migrateStateFrom1To2(useSecureStorageForSecrets: boolean = true): Promise<void> {
     await super.migrateStateFrom1To2();
     const state = await this.storageService.get<State<Account>>("state");
-    const userId = await this.storageService.get<string>(ClientKeys.clientId);
+    const userId = await this.storageService.get<string>("entityId");
 
     if (userId != null) {
       state.accounts[userId] = new Account({

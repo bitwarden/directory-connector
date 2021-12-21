@@ -29,14 +29,6 @@ const SecureStorageKeys = {
 };
 
 export class StateService extends BaseStateService<Account> implements StateServiceAbstraction {
-  async addAccount(account: Account) {
-    if (account?.profile?.apiKeyClientId == null || account?.keys?.apiKeyClientSecret == null) {
-      return;
-    }
-    account.profile.userId = account.profile.apiKeyClientId;
-    await super.addAccount(account);
-  }
-
   async getLdapKey(options?: StorageOptions): Promise<string> {
     options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
     if (options?.userId == null) {

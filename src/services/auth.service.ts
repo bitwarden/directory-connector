@@ -97,7 +97,7 @@ export class AuthService extends AuthServiceBase {
         profile: {
           ...new AccountProfile(),
           ...{
-            userId: clientId,
+            userId: entityId,
             apiKeyClientId: clientId,
             entityId: entityId,
           },
