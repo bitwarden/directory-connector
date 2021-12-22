@@ -1,14 +1,14 @@
 import { Injectable } from "@angular/core";
 import { CanActivate, Router } from "@angular/router";
 
-import { ApiKeyService } from "jslib-common/abstractions/apiKey.service";
+import { StateService } from "../../abstractions/state.service";
 
 @Injectable()
 export class LaunchGuardService implements CanActivate {
-  constructor(private apiKeyService: ApiKeyService, private router: Router) {}
+  constructor(private stateService: StateService, private router: Router) {}
 
   async canActivate() {
-    const isAuthed = await this.apiKeyService.isAuthenticated();
+    const isAuthed = await this.stateService.getIsAuthenticated();
     if (!isAuthed) {
       return true;
     }

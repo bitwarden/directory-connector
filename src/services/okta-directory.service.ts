@@ -6,13 +6,13 @@ import { SyncConfiguration } from "../models/syncConfiguration";
 import { UserEntry } from "../models/userEntry";
 
 import { BaseDirectoryService } from "./baseDirectory.service";
-import { ConfigurationService } from "./configuration.service";
 import { IDirectoryService } from "./directory.service";
 
 import { I18nService } from "jslib-common/abstractions/i18n.service";
 import { LogService } from "jslib-common/abstractions/log.service";
 
 import * as https from "https";
+import { StateService } from "../abstractions/state.service";
 
 const DelayBetweenBuildGroupCallsInMilliseconds = 500;
 
@@ -22,27 +22,25 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
   private lastBuildGroupCall: number;
 
   constructor(
-    private configurationService: ConfigurationService,
     private logService: LogService,
-    private i18nService: I18nService
+    private i18nService: I18nService,
+    private stateService: StateService
   ) {
     super();
   }
 
   async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
-    const type = await this.configurationService.getDirectoryType();
+    const type = await this.stateService.getDirectoryType();
     if (type !== DirectoryType.Okta) {
       return;
     }
 
-    this.dirConfig = await this.configurationService.getDirectory<OktaConfiguration>(
-      DirectoryType.Okta
-    );
+    this.dirConfig = await this.stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta);
     if (this.dirConfig == null) {
       return;
     }
 
-    this.syncConfig = await this.configurationService.getSync();
+    this.syncConfig = await this.stateService.getSync();
     if (this.syncConfig == null) {
       return;
     }
@@ -68,7 +66,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
 
   private async getUsers(force: boolean): Promise<UserEntry[]> {
     const entries: UserEntry[] = [];
-    const lastSync = await this.configurationService.getLastUserSyncDate();
+    const lastSync = await this.stateService.getLastUserSync();
     const oktaFilter = this.buildOktaFilter(this.syncConfig.userFilter, force, lastSync);
     const setFilter = this.createCustomSet(this.syncConfig.userFilter);
 
@@ -124,7 +122,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
     setFilter: [boolean, Set<string>]
   ): Promise<GroupEntry[]> {
     const entries: GroupEntry[] = [];
-    const lastSync = await this.configurationService.getLastGroupSyncDate();
+    const lastSync = await this.stateService.getLastGroupSync();
     const oktaFilter = this.buildOktaFilter(this.syncConfig.groupFilter, force, lastSync);
 
     this.logService.info("Querying groups.");

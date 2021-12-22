@@ -1,4 +1,6 @@
-export class GSuiteConfiguration {
+import { IConfiguration } from "./IConfiguration";
+
+export class GSuiteConfiguration implements IConfiguration {
   clientEmail: string;
   privateKey: string;
   domain: string;

@@ -9,23 +9,16 @@ import { ElectronRendererStorageService } from "jslib-electron/services/electron
 import { AuthGuardService } from "./auth-guard.service";
 import { LaunchGuardService } from "./launch-guard.service";
 
-import { ConfigurationService } from "../../services/configuration.service";
 import { I18nService } from "../../services/i18n.service";
 import { SyncService } from "../../services/sync.service";
 
-import { BroadcasterService } from "jslib-angular/services/broadcaster.service";
 import { JslibServicesModule } from "jslib-angular/services/jslib-services.module";
-import { ModalService } from "jslib-angular/services/modal.service";
-import { ValidationService } from "jslib-angular/services/validation.service";
 
-import { ApiKeyService } from "jslib-common/services/apiKey.service";
-import { ConstantsService } from "jslib-common/services/constants.service";
 import { ContainerService } from "jslib-common/services/container.service";
 
 import { NodeCryptoFunctionService } from "jslib-node/services/nodeCryptoFunction.service";
 
 import { ApiService as ApiServiceAbstraction } from "jslib-common/abstractions/api.service";
-import { ApiKeyService as ApiKeyServiceAbstraction } from "jslib-common/abstractions/apiKey.service";
 import { AppIdService as AppIdServiceAbstraction } from "jslib-common/abstractions/appId.service";
 import { AuthService as AuthServiceAbstraction } from "jslib-common/abstractions/auth.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "jslib-common/abstractions/broadcaster.service";
@@ -36,23 +29,24 @@ import { I18nService as I18nServiceAbstraction } from "jslib-common/abstractions
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "jslib-common/abstractions/keyConnector.service";
 import { LogService as LogServiceAbstraction } from "jslib-common/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "jslib-common/abstractions/messaging.service";
-import { PasswordGenerationService as PasswordGenerationServiceAbstraction } from "jslib-common/abstractions/passwordGeneration.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "jslib-common/abstractions/platformUtils.service";
-import { PolicyService as PolicyServiceAbstraction } from "jslib-common/abstractions/policy.service";
-import { StateService as StateServiceAbstraction } from "jslib-common/abstractions/state.service";
+import { StateMigrationService as StateMigrationServiceAbstraction } from "jslib-common/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "jslib-common/abstractions/token.service";
-import { UserService as UserServiceAbstraction } from "jslib-common/abstractions/user.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "jslib-common/abstractions/vaultTimeout.service";
+
+import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
 
 import { ApiService, refreshToken } from "../../services/api.service";
 import { AuthService } from "../../services/auth.service";
+import { StateService } from "../../services/state.service";
+import { StateMigrationService } from "../../services/stateMigration.service";
 
 function refreshTokenCallback(injector: Injector) {
   return () => {
-    const apiKeyService = injector.get(ApiKeyServiceAbstraction);
+    const stateService = injector.get(StateServiceAbstraction);
     const authService = injector.get(AuthServiceAbstraction);
-    return refreshToken(apiKeyService, authService);
+    return refreshToken(stateService, authService);
   };
 }
 
@@ -61,13 +55,11 @@ export function initFactory(
   i18nService: I18nService,
   authService: AuthService,
   platformUtilsService: PlatformUtilsServiceAbstraction,
-  storageService: StorageServiceAbstraction,
-  userService: UserServiceAbstraction,
-  apiService: ApiServiceAbstraction,
   stateService: StateServiceAbstraction,
   cryptoService: CryptoServiceAbstraction
 ): Function {
   return async () => {
+    await stateService.init();
     await environmentService.setUrlsFromStorage();
     await i18nService.init();
     authService.init();
@@ -77,7 +69,7 @@ export function initFactory(
     window.document.title = i18nService.t("bitwardenDirectoryConnector");
 
     let installAction = null;
-    const installedVersion = await storageService.get<string>(ConstantsService.installedVersionKey);
+    const installedVersion = await stateService.getInstalledVersion();
     const currentVersion = await platformUtilsService.getApplicationVersion();
     if (installedVersion == null) {
       installAction = "install";
@@ -86,15 +78,8 @@ export function initFactory(
     }
 
     if (installAction != null) {
-      await storageService.save(ConstantsService.installedVersionKey, currentVersion);
+      await stateService.setInstalledVersion(currentVersion);
     }
-
-    window.setTimeout(async () => {
-      if (await userService.isAuthenticated()) {
-        const profile = await apiService.getProfile();
-        stateService.save("profileOrganizations", profile.organizations);
-      }
-    }, 500);
 
     const containerService = new ContainerService(cryptoService);
     containerService.attachToWindow(window);
@@ -113,9 +98,6 @@ export function initFactory(
         I18nServiceAbstraction,
         AuthServiceAbstraction,
         PlatformUtilsServiceAbstraction,
-        StorageServiceAbstraction,
-        UserServiceAbstraction,
-        ApiServiceAbstraction,
         StateServiceAbstraction,
         CryptoServiceAbstraction,
       ],
@@ -139,15 +121,11 @@ export function initFactory(
       useFactory: (
         i18nService: I18nServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
-        storageService: StorageServiceAbstraction
-      ) => new ElectronPlatformUtilsService(i18nService, messagingService, true, storageService),
-      deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StorageServiceAbstraction],
+        stateService: StateServiceAbstraction
+      ) => new ElectronPlatformUtilsService(i18nService, messagingService, true, stateService),
+      deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
     },
-    {
-      provide: CryptoFunctionServiceAbstraction,
-      useClass: NodeCryptoFunctionService,
-      deps: [],
-    },
+    { provide: CryptoFunctionServiceAbstraction, useClass: NodeCryptoFunctionService, deps: [] },
     {
       provide: ApiServiceAbstraction,
       useFactory: (
@@ -173,17 +151,11 @@ export function initFactory(
       ],
     },
     {
-      provide: ApiKeyServiceAbstraction,
-      useClass: ApiKeyService,
-      deps: [TokenServiceAbstraction, StorageServiceAbstraction],
-    },
-    {
       provide: AuthServiceAbstraction,
       useClass: AuthService,
       deps: [
         CryptoServiceAbstraction,
         ApiServiceAbstraction,
-        UserServiceAbstraction,
         TokenServiceAbstraction,
         AppIdServiceAbstraction,
         I18nServiceAbstraction,
@@ -191,32 +163,42 @@ export function initFactory(
         MessagingServiceAbstraction,
         VaultTimeoutServiceAbstraction,
         LogServiceAbstraction,
-        ApiKeyServiceAbstraction,
         CryptoFunctionServiceAbstraction,
         EnvironmentServiceAbstraction,
         KeyConnectorServiceAbstraction,
+        StateServiceAbstraction,
       ],
-    },
-    {
-      provide: ConfigurationService,
-      useClass: ConfigurationService,
-      deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
     },
     {
       provide: SyncService,
       useClass: SyncService,
       deps: [
-        ConfigurationService,
         LogServiceAbstraction,
         CryptoFunctionServiceAbstraction,
         ApiServiceAbstraction,
         MessagingServiceAbstraction,
         I18nServiceAbstraction,
         EnvironmentServiceAbstraction,
+        StateServiceAbstraction,
       ],
     },
     AuthGuardService,
     LaunchGuardService,
+    {
+      provide: StateMigrationServiceAbstraction,
+      useClass: StateMigrationService,
+      deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
+    },
+    {
+      provide: StateServiceAbstraction,
+      useClass: StateService,
+      deps: [
+        StorageServiceAbstraction,
+        "SECURE_STORAGE",
+        LogServiceAbstraction,
+        StateMigrationServiceAbstraction,
+      ],
+    },
   ],
 })
 export class ServicesModule {}

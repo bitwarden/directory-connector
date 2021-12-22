@@ -2,11 +2,6 @@ import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angula
 
 import { I18nService } from "jslib-common/abstractions/i18n.service";
 import { LogService } from "jslib-common/abstractions/log.service";
-import { StateService } from "jslib-common/abstractions/state.service";
-
-import { ProfileOrganizationResponse } from "jslib-common/models/response/profileOrganizationResponse";
-
-import { ConfigurationService } from "../../services/configuration.service";
 
 import { DirectoryType } from "../../enums/directoryType";
 
@@ -17,6 +12,7 @@ import { OktaConfiguration } from "../../models/oktaConfiguration";
 import { OneLoginConfiguration } from "../../models/oneLoginConfiguration";
 import { SyncConfiguration } from "../../models/syncConfiguration";
 
+import { StateService } from "../../abstractions/state.service";
 import { ConnectorUtils } from "../../utils";
 
 @Component({
@@ -40,14 +36,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   constructor(
     private i18nService: I18nService,
-    private configurationService: ConfigurationService,
     private changeDetectorRef: ChangeDetectorRef,
     private ngZone: NgZone,
-    private stateService: StateService,
-    private logService: LogService
+    private logService: LogService,
+    private stateService: StateService
   ) {
     this.directoryOptions = [
-      { name: i18nService.t("select"), value: null },
+      { name: this.i18nService.t("select"), value: null },
       { name: "Active Directory / LDAP", value: DirectoryType.Ldap },
       { name: "Azure Active Directory", value: DirectoryType.AzureActiveDirectory },
       { name: "G Suite (Google)", value: DirectoryType.GSuite },
@@ -57,25 +52,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.directory = await this.configurationService.getDirectoryType();
+    this.directory = await this.stateService.getDirectoryType();
     this.ldap =
-      (await this.configurationService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)) ||
-      this.ldap;
+      (await this.stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)) || this.ldap;
     this.gsuite =
-      (await this.configurationService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite)) ||
+      (await this.stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite)) ||
       this.gsuite;
     this.azure =
-      (await this.configurationService.getDirectory<AzureConfiguration>(
+      (await this.stateService.getDirectory<AzureConfiguration>(
         DirectoryType.AzureActiveDirectory
       )) || this.azure;
     this.okta =
-      (await this.configurationService.getDirectory<OktaConfiguration>(DirectoryType.Okta)) ||
-      this.okta;
+      (await this.stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta)) || this.okta;
     this.oneLogin =
-      (await this.configurationService.getDirectory<OneLoginConfiguration>(
-        DirectoryType.OneLogin
-      )) || this.oneLogin;
-    this.sync = (await this.configurationService.getSync()) || this.sync;
+      (await this.stateService.getDirectory<OneLoginConfiguration>(DirectoryType.OneLogin)) ||
+      this.oneLogin;
+    this.sync = (await this.stateService.getSync()) || this.sync;
   }
 
   async ngOnDestroy() {
@@ -87,13 +79,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (this.ldap != null && this.ldap.ad) {
       this.ldap.pagedSearch = true;
     }
-    await this.configurationService.saveDirectoryType(this.directory);
-    await this.configurationService.saveDirectory(DirectoryType.Ldap, this.ldap);
-    await this.configurationService.saveDirectory(DirectoryType.GSuite, this.gsuite);
-    await this.configurationService.saveDirectory(DirectoryType.AzureActiveDirectory, this.azure);
-    await this.configurationService.saveDirectory(DirectoryType.Okta, this.okta);
-    await this.configurationService.saveDirectory(DirectoryType.OneLogin, this.oneLogin);
-    await this.configurationService.saveSync(this.sync);
+    await this.stateService.setDirectoryType(this.directory);
+    await this.stateService.setDirectory(DirectoryType.Ldap, this.ldap);
+    await this.stateService.setDirectory(DirectoryType.GSuite, this.gsuite);
+    await this.stateService.setDirectory(DirectoryType.AzureActiveDirectory, this.azure);
+    await this.stateService.setDirectory(DirectoryType.Okta, this.okta);
+    await this.stateService.setDirectory(DirectoryType.OneLogin, this.oneLogin);
+    await this.stateService.setSync(this.sync);
   }
 
   parseKeyFile() {
