@@ -193,7 +193,7 @@ export class Program extends BaseProgram {
       })
       .action(async (object: string) => {
         await this.exitIfNotAuthed();
-        const command = new LastSyncCommand(this.main.configurationService);
+        const command = new LastSyncCommand(this.main.stateService);
         const response = await command.run(object);
         this.processResponse(response);
       });
@@ -231,7 +231,7 @@ export class Program extends BaseProgram {
         const command = new ConfigCommand(
           this.main.environmentService,
           this.main.i18nService,
-          this.main.configurationService
+          this.main.stateService
         );
         const response = await command.run(setting, value, options);
         this.processResponse(response);
@@ -262,10 +262,7 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .action(async (options: program.OptionValues) => {
-        const command = new ClearCacheCommand(
-          this.main.configurationService,
-          this.main.i18nService
-        );
+        const command = new ClearCacheCommand(this.main.i18nService, this.main.stateService);
         const response = await command.run(options);
         this.processResponse(response);
       });

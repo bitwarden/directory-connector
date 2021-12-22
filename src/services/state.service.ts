@@ -14,6 +14,9 @@ import { OneLoginConfiguration } from "src/models/oneLoginConfiguration";
 import { StateService as StateServiceAbstraction } from "src/abstractions/state.service";
 import { DirectoryType } from "src/enums/directoryType";
 import { SyncConfiguration } from "src/models/syncConfiguration";
+import { LogService } from "jslib-common/abstractions/log.service";
+import { StorageService } from "jslib-common/abstractions/storage.service";
+import { StateMigrationService } from "./stateMigration.service";
 
 const SecureStorageKeys = {
   ldap: "ldapPassword",
@@ -28,7 +31,94 @@ const SecureStorageKeys = {
   lastSyncHash: "lastSyncHash",
 };
 
+const StoredSecurely = "[STORED SECURELY]";
+
 export class StateService extends BaseStateService<Account> implements StateServiceAbstraction {
+  constructor(
+    protected storageService: StorageService,
+    protected secureStorageService: StorageService,
+    protected logService: LogService,
+    protected stateMigrationService: StateMigrationService,
+    private useSecureStorageForSecrets = true
+  ) {
+    super(storageService, secureStorageService, logService, stateMigrationService);
+  }
+
+  async getDirectory<T extends IConfiguration>(type: DirectoryType): Promise<T> {
+    const config = await this.getConfiguration(type);
+    if (config == null) {
+      return config as T;
+    }
+
+    if (this.useSecureStorageForSecrets) {
+      switch (type) {
+        case DirectoryType.Ldap:
+          (config as any).password = await this.getLdapKey();
+          break;
+        case DirectoryType.AzureActiveDirectory:
+          (config as any).key = await this.getAzureKey();
+          break;
+        case DirectoryType.Okta:
+          (config as any).token = await this.getOktaKey();
+          break;
+        case DirectoryType.GSuite:
+          (config as any).privateKey = await this.getGsuiteKey();
+          break;
+        case DirectoryType.OneLogin:
+          (config as any).clientSecret = await this.getOneLoginKey();
+          break;
+      }
+    }
+    return config as T;
+  }
+
+  async setDirectory(
+    type: DirectoryType,
+    config:
+      | LdapConfiguration
+      | GSuiteConfiguration
+      | AzureConfiguration
+      | OktaConfiguration
+      | OneLoginConfiguration
+  ): Promise<any> {
+    const savedConfig: any = Object.assign({}, config);
+    if (this.useSecureStorageForSecrets) {
+      switch (type) {
+        case DirectoryType.Ldap:
+          await this.setLdapKey(savedConfig.password);
+          savedConfig.password = StoredSecurely;
+          await this.setLdapConfiguration(savedConfig);
+          break;
+        case DirectoryType.AzureActiveDirectory:
+          await this.setAzureKey(savedConfig.key);
+          savedConfig.key = StoredSecurely;
+          await this.setAzureConfiguration(savedConfig);
+          break;
+        case DirectoryType.Okta:
+          await this.setOktaKey(savedConfig.token);
+          savedConfig.token = StoredSecurely;
+          await this.setOktaConfiguration(savedConfig);
+          break;
+        case DirectoryType.GSuite:
+          if (savedConfig.privateKey == null) {
+            await this.setGsuiteKey(null);
+          } else {
+            (config as GSuiteConfiguration).privateKey = savedConfig.privateKey =
+              savedConfig.privateKey.replace(/\\n/g, "\n");
+            await this.setGsuiteKey(savedConfig.privateKey);
+            savedConfig.privateKey = StoredSecurely;
+          }
+          await this.setGsuiteConfiguration(savedConfig);
+          break;
+        case DirectoryType.OneLogin:
+          await this.setOneLoginKey(savedConfig.clientSecret);
+          savedConfig.clientSecret = StoredSecurely;
+          await this.setOneLoginConfiguration(savedConfig);
+          break;
+      }
+    }
+  }
+
   async getLdapKey(options?: StorageOptions): Promise<string> {
     options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
     if (options?.userId == null) {
@@ -296,6 +386,11 @@ export class StateService extends BaseStateService<Account> implements StateServ
   }
 
   async setOrganizationId(value: string, options?: StorageOptions): Promise<void> {
+    const currentId = await this.getOrganizationId();
+    if (currentId !== value) {
+      await this.clearSyncSettings();
+    }
+
     const account = await this.getAccount(
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
@@ -330,6 +425,10 @@ export class StateService extends BaseStateService<Account> implements StateServ
   }
 
   async setDirectoryType(value: DirectoryType, options?: StorageOptions): Promise<void> {
+    const currentType = await this.getDirectoryType();
+    if (value !== currentType) {
+      await this.clearSyncSettings();
+    }
     const account = await this.getAccount(
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
@@ -422,5 +521,15 @@ export class StateService extends BaseStateService<Account> implements StateServ
     }
     storedState.accounts[account.profile.userId] = account;
     await this.saveStateToStorage(storedState, await this.defaultOnDiskLocalOptions());
+  }
+
+  async clearSyncSettings(hashToo = false) {
+    await this.setUserDelta(null);
+    await this.setGroupDelta(null);
+    await this.setLastGroupSync(null);
+    await this.setLastUserSync(null);
+    if (hashToo) {
+      await this.setLastSyncHash(null);
+    }
   }
 }

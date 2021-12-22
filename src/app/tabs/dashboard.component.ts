@@ -10,7 +10,6 @@ import { SyncService } from "../../services/sync.service";
 import { GroupEntry } from "../../models/groupEntry";
 import { SimResult } from "../../models/simResult";
 import { UserEntry } from "../../models/userEntry";
-import { ConfigurationService } from "../../services/configuration.service";
 
 import { ConnectorUtils } from "../../utils";
 
@@ -39,7 +38,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private i18nService: I18nService,
     private syncService: SyncService,
-    private configurationService: ConfigurationService,
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
     private messagingService: MessagingService,
@@ -123,7 +121,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private async updateLastSync() {
-    this.lastGroupSync = await this.configurationService.getLastGroupSyncDate();
-    this.lastUserSync = await this.configurationService.getLastUserSyncDate();
+    this.lastGroupSync = await this.stateService.getLastGroupSync();
+    this.lastUserSync = await this.stateService.getLastUserSync();
   }
 }

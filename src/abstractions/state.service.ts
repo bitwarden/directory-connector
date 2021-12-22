@@ -7,12 +7,23 @@ import { DirectoryType } from "src/enums/directoryType";
 import { Account } from "src/models/account";
 import { AzureConfiguration } from "src/models/azureConfiguration";
 import { GSuiteConfiguration } from "src/models/gsuiteConfiguration";
+import { IConfiguration } from "src/models/IConfiguration";
 import { LdapConfiguration } from "src/models/ldapConfiguration";
 import { OktaConfiguration } from "src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "src/models/oneLoginConfiguration";
 import { SyncConfiguration } from "src/models/syncConfiguration";
 
 export abstract class StateService extends BaseStateServiceAbstraction<Account> {
+  getDirectory: <IConfiguration>(type: DirectoryType) => Promise<IConfiguration>;
+  setDirectory: (
+    type: DirectoryType,
+    config:
+      | LdapConfiguration
+      | GSuiteConfiguration
+      | AzureConfiguration
+      | OktaConfiguration
+      | OneLoginConfiguration
+  ) => Promise<any>;
   getLdapKey: (options?: StorageOptions) => Promise<string>;
   setLdapKey: (value: string, options?: StorageOptions) => Promise<void>;
   getGsuiteKey: (options?: StorageOptions) => Promise<string>;
@@ -54,4 +65,5 @@ export abstract class StateService extends BaseStateServiceAbstraction<Account> 
   setLastSyncHash: (value: string, options?: StorageOptions) => Promise<void>;
   getSyncingDir: (options?: StorageOptions) => Promise<boolean>;
   setSyncingDir: (value: boolean, options?: StorageOptions) => Promise<void>;
+  clearSyncSettings: (syncHashToo: boolean) => Promise<void>;
 }

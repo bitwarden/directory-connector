@@ -14,7 +14,6 @@ import { ModalService } from "jslib-angular/services/modal.service";
 
 import { HtmlStorageLocation } from "jslib-common/enums/htmlStorageLocation";
 import { Utils } from "jslib-common/misc/utils";
-import { ConfigurationService } from "../../services/configuration.service";
 
 @Component({
   selector: "app-apiKey",
@@ -34,7 +33,6 @@ export class ApiKeyComponent {
     private authService: AuthService,
     private router: Router,
     private i18nService: I18nService,
-    private configurationService: ConfigurationService,
     private platformUtilsService: PlatformUtilsService,
     private modalService: ModalService,
     private logService: LogService,
@@ -81,7 +79,7 @@ export class ApiKeyComponent {
       this.formPromise = this.authService.logInApiKey(this.clientId, this.clientSecret);
       await this.formPromise;
       const organizationId = await this.stateService.getEntityId();
-      await this.configurationService.saveOrganizationId(organizationId);
+      await this.stateService.setOrganizationId(organizationId);
       this.router.navigate([this.successRoute]);
     } catch (e) {
       this.logService.error(e);

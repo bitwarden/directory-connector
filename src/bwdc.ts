@@ -5,7 +5,6 @@ import { LogLevelType } from "jslib-common/enums/logLevelType";
 
 import { AuthService } from "./services/auth.service";
 
-import { ConfigurationService } from "./services/configuration.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
@@ -63,7 +62,6 @@ export class Main {
   containerService: ContainerService;
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
-  configurationService: ConfigurationService;
   collectionService: CollectionService;
   cipherService: CipherService;
   fileUploadService: FileUploadService;
@@ -131,7 +129,8 @@ export class Main {
       this.storageService,
       this.secureStorageService,
       this.logService,
-      this.stateMigrationService
+      this.stateMigrationService,
+      process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true"
     );
 
     this.cryptoService = new CryptoService(
@@ -187,18 +186,14 @@ export class Main {
       this.stateService
     );
 
-    this.configurationService = new ConfigurationService(
-      this.stateService,
-      process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true"
-    );
     this.syncService = new SyncService(
-      this.configurationService,
       this.logService,
       this.cryptoFunctionService,
       this.apiService,
       this.messagingService,
       this.i18nService,
-      this.environmentService
+      this.environmentService,
+      this.stateService
     );
 
     this.policyService = new PolicyService(

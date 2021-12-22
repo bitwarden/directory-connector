@@ -8,7 +8,7 @@ import { KeyConnectorService } from "jslib-common/abstractions/keyConnector.serv
 import { LogService } from "jslib-common/abstractions/log.service";
 import { MessagingService } from "jslib-common/abstractions/messaging.service";
 import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
-import { StateService } from "jslib-common/abstractions/state.service";
+import { StateService } from "../abstractions/state.service";
 import { TokenService } from "jslib-common/abstractions/token.service";
 import { VaultTimeoutService } from "jslib-common/abstractions/vaultTimeout.service";
 

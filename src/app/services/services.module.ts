@@ -9,7 +9,6 @@ import { ElectronRendererStorageService } from "jslib-electron/services/electron
 import { AuthGuardService } from "./auth-guard.service";
 import { LaunchGuardService } from "./launch-guard.service";
 
-import { ConfigurationService } from "../../services/configuration.service";
 import { I18nService } from "../../services/i18n.service";
 import { SyncService } from "../../services/sync.service";
 
@@ -171,21 +170,16 @@ export function initFactory(
       ],
     },
     {
-      provide: ConfigurationService,
-      useClass: ConfigurationService,
-      deps: [StateServiceAbstraction],
-    },
-    {
       provide: SyncService,
       useClass: SyncService,
       deps: [
-        ConfigurationService,
         LogServiceAbstraction,
         CryptoFunctionServiceAbstraction,
         ApiServiceAbstraction,
         MessagingServiceAbstraction,
         I18nServiceAbstraction,
         EnvironmentServiceAbstraction,
+        StateServiceAbstraction,
       ],
     },
     AuthGuardService,

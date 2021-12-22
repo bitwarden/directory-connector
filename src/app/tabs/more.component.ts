@@ -5,7 +5,7 @@ import { I18nService } from "jslib-common/abstractions/i18n.service";
 import { MessagingService } from "jslib-common/abstractions/messaging.service";
 import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
 
-import { ConfigurationService } from "../../services/configuration.service";
+import { StateService } from "../../abstractions/state.service";
 
 const BroadcasterSubscriptionId = "MoreComponent";
 
@@ -22,10 +22,10 @@ export class MoreComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private messagingService: MessagingService,
-    private configurationService: ConfigurationService,
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private stateService: StateService
   ) {}
 
   async ngOnInit() {
@@ -71,7 +71,7 @@ export class MoreComponent implements OnInit {
   }
 
   async clearCache() {
-    await this.configurationService.clearStatefulSettings(true);
+    await this.stateService.clearSyncSettings(true);
     this.platformUtilsService.showToast("success", null, this.i18nService.t("syncCacheCleared"));
   }
 }
