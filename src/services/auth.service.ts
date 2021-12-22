@@ -1,5 +1,4 @@
 import { ApiService } from "jslib-common/abstractions/api.service";
-import { ApiKeyService } from "jslib-common/abstractions/apiKey.service";
 import { AppIdService } from "jslib-common/abstractions/appId.service";
 import { CryptoService } from "jslib-common/abstractions/crypto.service";
 import { CryptoFunctionService } from "jslib-common/abstractions/cryptoFunction.service";
@@ -10,21 +9,25 @@ import { LogService } from "jslib-common/abstractions/log.service";
 import { MessagingService } from "jslib-common/abstractions/messaging.service";
 import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
 import { TokenService } from "jslib-common/abstractions/token.service";
-import { UserService } from "jslib-common/abstractions/user.service";
 import { VaultTimeoutService } from "jslib-common/abstractions/vaultTimeout.service";
+import { StateService } from "../abstractions/state.service";
 
 import { AuthService as AuthServiceBase } from "jslib-common/services/auth.service";
 
+import { Account, DirectoryConfigurations, DirectorySettings } from "src/models/account";
+
+import { AccountKeys, AccountProfile, AccountTokens } from "jslib-common/models/domain/account";
 import { AuthResult } from "jslib-common/models/domain/authResult";
+
 import { DeviceRequest } from "jslib-common/models/request/deviceRequest";
 import { TokenRequest } from "jslib-common/models/request/tokenRequest";
+
 import { IdentityTokenResponse } from "jslib-common/models/response/identityTokenResponse";
 
 export class AuthService extends AuthServiceBase {
   constructor(
     cryptoService: CryptoService,
     apiService: ApiService,
-    userService: UserService,
     tokenService: TokenService,
     appIdService: AppIdService,
     i18nService: I18nService,
@@ -32,15 +35,14 @@ export class AuthService extends AuthServiceBase {
     messagingService: MessagingService,
     vaultTimeoutService: VaultTimeoutService,
     logService: LogService,
-    private apiKeyService: ApiKeyService,
     cryptoFunctionService: CryptoFunctionService,
     environmentService: EnvironmentService,
-    keyConnectorService: KeyConnectorService
+    keyConnectorService: KeyConnectorService,
+    stateService: StateService
   ) {
     super(
       cryptoService,
       apiService,
-      userService,
       tokenService,
       appIdService,
       i18nService,
@@ -49,8 +51,9 @@ export class AuthService extends AuthServiceBase {
       vaultTimeoutService,
       logService,
       cryptoFunctionService,
-      environmentService,
       keyConnectorService,
+      environmentService,
+      stateService,
       false
     );
   }
@@ -64,12 +67,13 @@ export class AuthService extends AuthServiceBase {
   }
 
   async logOut(callback: Function) {
-    this.apiKeyService.clear();
+    this.stateService.clean();
     super.logOut(callback);
   }
 
   private async organizationLogInHelper(clientId: string, clientSecret: string) {
     const appId = await this.appIdService.getAppId();
+    const entityId = clientId.split("organization.")[1];
     const deviceRequest = new DeviceRequest(appId, this.platformUtilsService);
     const request = new TokenRequest(
       null,
@@ -88,9 +92,33 @@ export class AuthService extends AuthServiceBase {
 
     const tokenResponse = response as IdentityTokenResponse;
     result.resetMasterPassword = tokenResponse.resetMasterPassword;
-    await this.tokenService.setToken(tokenResponse.accessToken);
-    await this.apiKeyService.setInformation(clientId, clientSecret);
-
+    await this.stateService.addAccount(
+      new Account({
+        profile: {
+          ...new AccountProfile(),
+          ...{
+            userId: entityId,
+            apiKeyClientId: clientId,
+            entityId: entityId,
+          },
+        },
+        tokens: {
+          ...new AccountTokens(),
+          ...{
+            accessToken: tokenResponse.accessToken,
+            refreshToken: tokenResponse.refreshToken,
+          },
+        },
+        keys: {
+          ...new AccountKeys(),
+          ...{
+            apiKeyClientSecret: clientSecret,
+          },
+        },
+        directorySettings: new DirectorySettings(),
+        directoryConfigurations: new DirectoryConfigurations(),
+      })
+    );
     return result;
   }
 }

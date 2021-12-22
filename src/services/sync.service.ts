@@ -15,8 +15,8 @@ import { MessagingService } from "jslib-common/abstractions/messaging.service";
 
 import { Utils } from "jslib-common/misc/utils";
 
+import { StateService } from "../abstractions/state.service";
 import { AzureDirectoryService } from "./azure-directory.service";
-import { ConfigurationService } from "./configuration.service";
 import { IDirectoryService } from "./directory.service";
 import { GSuiteDirectoryService } from "./gsuite-directory.service";
 import { LdapDirectoryService } from "./ldap-directory.service";
@@ -27,17 +27,17 @@ export class SyncService {
   private dirType: DirectoryType;
 
   constructor(
-    private configurationService: ConfigurationService,
     private logService: LogService,
     private cryptoFunctionService: CryptoFunctionService,
     private apiService: ApiService,
     private messagingService: MessagingService,
     private i18nService: I18nService,
-    private environmentService: EnvironmentService
+    private environmentService: EnvironmentService,
+    private stateService: StateService
   ) {}
 
   async sync(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
-    this.dirType = await this.configurationService.getDirectoryType();
+    this.dirType = await this.stateService.getDirectoryType();
     if (this.dirType == null) {
       throw new Error("No directory configured.");
     }
@@ -47,9 +47,9 @@ export class SyncService {
       throw new Error("Cannot load directory service.");
     }
 
-    const syncConfig = await this.configurationService.getSync();
-    const startingGroupDelta = await this.configurationService.getGroupDeltaToken();
-    const startingUserDelta = await this.configurationService.getUserDeltaToken();
+    const syncConfig = await this.stateService.getSync();
+    const startingGroupDelta = await this.stateService.getGroupDelta();
+    const startingUserDelta = await this.stateService.getUserDelta();
     const now = new Date();
 
     this.messagingService.send("dirSyncStarted");
@@ -90,7 +90,7 @@ export class SyncService {
       );
       const reqJson = JSON.stringify(req);
 
-      const orgId = await this.configurationService.getOrganizationId();
+      const orgId = await this.stateService.getOrganizationId();
       if (orgId == null) {
         throw new Error("Organization not set.");
       }
@@ -112,11 +112,11 @@ export class SyncService {
       if (hashBuff != null) {
         hash = Utils.fromBufferToB64(hashBuff);
       }
-      const lastHash = await this.configurationService.getLastSyncHash();
+      const lastHash = await this.stateService.getLastSyncHash();
 
       if (lastHash == null || (hash !== lastHash && hashLegacy !== lastHash)) {
         await this.apiService.postPublicImportDirectory(req);
-        await this.configurationService.saveLastSyncHash(hash);
+        await this.stateService.setLastSyncHash(hash);
       } else {
         groups = null;
         users = null;
@@ -127,8 +127,8 @@ export class SyncService {
       return [groups, users];
     } catch (e) {
       if (!test) {
-        await this.configurationService.saveGroupDeltaToken(startingGroupDelta);
-        await this.configurationService.saveUserDeltaToken(startingUserDelta);
+        await this.stateService.setGroupDelta(startingGroupDelta);
+        await this.stateService.setUserDelta(startingUserDelta);
       }
 
       this.messagingService.send("dirSyncCompleted", { successfully: false });
@@ -200,35 +200,15 @@ export class SyncService {
   private getDirectoryService(): IDirectoryService {
     switch (this.dirType) {
       case DirectoryType.GSuite:
-        return new GSuiteDirectoryService(
-          this.configurationService,
-          this.logService,
-          this.i18nService
-        );
+        return new GSuiteDirectoryService(this.logService, this.i18nService, this.stateService);
       case DirectoryType.AzureActiveDirectory:
-        return new AzureDirectoryService(
-          this.configurationService,
-          this.logService,
-          this.i18nService
-        );
+        return new AzureDirectoryService(this.logService, this.i18nService, this.stateService);
       case DirectoryType.Ldap:
-        return new LdapDirectoryService(
-          this.configurationService,
-          this.logService,
-          this.i18nService
-        );
+        return new LdapDirectoryService(this.logService, this.i18nService, this.stateService);
       case DirectoryType.Okta:
-        return new OktaDirectoryService(
-          this.configurationService,
-          this.logService,
-          this.i18nService
-        );
+        return new OktaDirectoryService(this.logService, this.i18nService, this.stateService);
       case DirectoryType.OneLogin:
-        return new OneLoginDirectoryService(
-          this.configurationService,
-          this.logService,
-          this.i18nService
-        );
+        return new OneLoginDirectoryService(this.logService, this.i18nService, this.stateService);
       default:
         return null;
     }
@@ -263,10 +243,10 @@ export class SyncService {
 
   private async saveSyncTimes(syncConfig: SyncConfiguration, time: Date) {
     if (syncConfig.groups) {
-      await this.configurationService.saveLastGroupSyncDate(time);
+      await this.stateService.setLastGroupSync(time);
     }
     if (syncConfig.users) {
-      await this.configurationService.saveLastUserSyncDate(time);
+      await this.stateService.setLastUserSync(time);
     }
   }
 }

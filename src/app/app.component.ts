@@ -16,12 +16,11 @@ import { I18nService } from "jslib-common/abstractions/i18n.service";
 import { LogService } from "jslib-common/abstractions/log.service";
 import { MessagingService } from "jslib-common/abstractions/messaging.service";
 import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
-import { StateService } from "jslib-common/abstractions/state.service";
 import { TokenService } from "jslib-common/abstractions/token.service";
-import { UserService } from "jslib-common/abstractions/user.service";
 
-import { ConfigurationService } from "../services/configuration.service";
 import { SyncService } from "../services/sync.service";
+
+import { StateService } from "../abstractions/state.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
 
@@ -36,7 +35,6 @@ export class AppComponent implements OnInit {
 
   constructor(
     private broadcasterService: BroadcasterService,
-    private userService: UserService,
     private tokenService: TokenService,
     private authService: AuthService,
     private router: Router,
@@ -46,7 +44,6 @@ export class AppComponent implements OnInit {
     private ngZone: NgZone,
     private platformUtilsService: PlatformUtilsService,
     private messagingService: MessagingService,
-    private configurationService: ConfigurationService,
     private syncService: SyncService,
     private stateService: StateService,
     private logService: LogService
@@ -58,21 +55,21 @@ export class AppComponent implements OnInit {
         switch (message.command) {
           case "syncScheduleStarted":
           case "syncScheduleStopped":
-            this.stateService.save("syncingDir", message.command === "syncScheduleStarted");
+            this.stateService.setSyncingDir(message.command === "syncScheduleStarted");
             break;
           case "logout":
             this.logOut(!!message.expired);
             break;
           case "checkDirSync":
             try {
-              const syncConfig = await this.configurationService.getSync();
+              const syncConfig = await this.stateService.getSync();
               if (syncConfig.interval == null || syncConfig.interval < 5) {
                 return;
               }
 
               const syncInterval = syncConfig.interval * 60000;
-              const lastGroupSync = await this.configurationService.getLastGroupSyncDate();
-              const lastUserSync = await this.configurationService.getLastUserSyncDate();
+              const lastGroupSync = await this.stateService.getLastGroupSync();
+              const lastUserSync = await this.stateService.getLastUserSync();
               let lastSync: Date = null;
               if (lastGroupSync != null && lastUserSync == null) {
                 lastSync = lastGroupSync;
@@ -119,10 +116,8 @@ export class AppComponent implements OnInit {
   }
 
   private async logOut(expired: boolean) {
-    const userId = await this.userService.getUserId();
-
     await this.tokenService.clearToken();
-    await this.userService.clear();
+    await this.stateService.clean();
 
     this.authService.logOut(async () => {
       if (expired) {
