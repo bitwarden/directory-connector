@@ -11,11 +11,11 @@ import { SyncConfiguration } from "../models/syncConfiguration";
 import { UserEntry } from "../models/userEntry";
 
 import { BaseDirectoryService } from "./baseDirectory.service";
-import { ConfigurationService } from "./configuration.service";
 import { IDirectoryService } from "./directory.service";
 
 import { I18nService } from "jslib-common/abstractions/i18n.service";
 import { LogService } from "jslib-common/abstractions/log.service";
+import { StateService } from "../abstractions/state.service";
 
 const AzurePublicIdentityAuhtority = "login.microsoftonline.com";
 const AzureGovermentIdentityAuhtority = "login.microsoftonline.us";
@@ -40,28 +40,28 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
   private accessTokenExpiration: Date;
 
   constructor(
-    private configurationService: ConfigurationService,
     private logService: LogService,
-    private i18nService: I18nService
+    private i18nService: I18nService,
+    private stateService: StateService
   ) {
     super();
     this.init();
   }
 
   async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
-    const type = await this.configurationService.getDirectoryType();
+    const type = await this.stateService.getDirectoryType();
     if (type !== DirectoryType.AzureActiveDirectory) {
       return;
     }
 
-    this.dirConfig = await this.configurationService.getDirectory<AzureConfiguration>(
+    this.dirConfig = await this.stateService.getDirectory<AzureConfiguration>(
       DirectoryType.AzureActiveDirectory
     );
     if (this.dirConfig == null) {
       return;
     }
 
-    this.syncConfig = await this.configurationService.getSync();
+    this.syncConfig = await this.stateService.getSync();
     if (this.syncConfig == null) {
       return;
     }
@@ -130,7 +130,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     const entries: UserEntry[] = [];
 
     let res: any = null;
-    const token = await this.configurationService.getUserDeltaToken();
+    const token = await this.stateService.getUserDelta();
     if (!force && token != null) {
       try {
         const deltaReq = this.client.api(token);
@@ -168,7 +168,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
       if (res[NextLink] == null) {
         if (res[DeltaLink] != null && saveDelta) {
-          await this.configurationService.saveUserDeltaToken(res[DeltaLink]);
+          await this.stateService.setUserDelta(res[DeltaLink]);
         }
         break;
       } else {

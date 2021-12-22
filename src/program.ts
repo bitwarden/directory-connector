@@ -16,7 +16,6 @@ import { UpdateCommand } from "jslib-node/cli/commands/update.command";
 
 import { BaseProgram } from "jslib-node/cli/baseProgram";
 
-import { ApiKeyService } from "jslib-common/abstractions/apiKey.service";
 import { Response } from "jslib-node/cli/models/response";
 import { StringResponse } from "jslib-node/cli/models/response/stringResponse";
 
@@ -32,11 +31,8 @@ const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) 
 };
 
 export class Program extends BaseProgram {
-  private apiKeyService: ApiKeyService;
-
   constructor(private main: Main) {
-    super(main.userService, writeLn);
-    this.apiKeyService = main.apiKeyService;
+    super(main.stateService, writeLn);
   }
 
   async run() {
@@ -107,7 +103,7 @@ export class Program extends BaseProgram {
           this.main.passwordGenerationService,
           this.main.cryptoFunctionService,
           this.main.platformUtilsService,
-          this.main.userService,
+          this.main.stateService,
           this.main.cryptoService,
           this.main.policyService,
           "connector",
@@ -197,7 +193,7 @@ export class Program extends BaseProgram {
       })
       .action(async (object: string) => {
         await this.exitIfNotAuthed();
-        const command = new LastSyncCommand(this.main.configurationService);
+        const command = new LastSyncCommand(this.main.stateService);
         const response = await command.run(object);
         this.processResponse(response);
       });
@@ -235,7 +231,7 @@ export class Program extends BaseProgram {
         const command = new ConfigCommand(
           this.main.environmentService,
           this.main.i18nService,
-          this.main.configurationService
+          this.main.stateService
         );
         const response = await command.run(setting, value, options);
         this.processResponse(response);
@@ -266,10 +262,7 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .action(async (options: program.OptionValues) => {
-        const command = new ClearCacheCommand(
-          this.main.configurationService,
-          this.main.i18nService
-        );
+        const command = new ClearCacheCommand(this.main.i18nService, this.main.stateService);
         const response = await command.run(options);
         this.processResponse(response);
       });
@@ -310,10 +303,10 @@ export class Program extends BaseProgram {
   }
 
   async exitIfAuthed() {
-    const authed = await this.apiKeyService.isAuthenticated();
+    const authed = await this.stateService.getIsAuthenticated();
     if (authed) {
-      const type = await this.apiKeyService.getEntityType();
-      const id = await this.apiKeyService.getEntityId();
+      const type = await this.stateService.getEntityType();
+      const id = await this.stateService.getEntityId();
       this.processResponse(
         Response.error("You are already logged in as " + type + "." + id + "."),
         true
@@ -322,7 +315,7 @@ export class Program extends BaseProgram {
   }
 
   async exitIfNotAuthed() {
-    const authed = await this.apiKeyService.isAuthenticated();
+    const authed = await this.stateService.getIsAuthenticated();
     if (!authed) {
       this.processResponse(Response.error("You are not logged in."), true);
     }

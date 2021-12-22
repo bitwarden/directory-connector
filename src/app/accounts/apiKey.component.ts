@@ -1,24 +1,19 @@
-import {
-  Component,
-  ComponentFactoryResolver,
-  Input,
-  ViewChild,
-  ViewContainerRef,
-} from "@angular/core";
+import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { EnvironmentComponent } from "./environment.component";
 
-import { ApiKeyService } from "jslib-common/abstractions/apiKey.service";
 import { AuthService } from "jslib-common/abstractions/auth.service";
 import { I18nService } from "jslib-common/abstractions/i18n.service";
 import { LogService } from "jslib-common/abstractions/log.service";
 import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
 
+import { StateService } from "../../abstractions/state.service";
+
 import { ModalService } from "jslib-angular/services/modal.service";
 
+import { HtmlStorageLocation } from "jslib-common/enums/htmlStorageLocation";
 import { Utils } from "jslib-common/misc/utils";
-import { ConfigurationService } from "../../services/configuration.service";
 
 @Component({
   selector: "app-apiKey",
@@ -36,14 +31,12 @@ export class ApiKeyComponent {
 
   constructor(
     private authService: AuthService,
-    private apiKeyService: ApiKeyService,
     private router: Router,
     private i18nService: I18nService,
-    private componentFactoryResolver: ComponentFactoryResolver,
-    private configurationService: ConfigurationService,
     private platformUtilsService: PlatformUtilsService,
     private modalService: ModalService,
-    private logService: LogService
+    private logService: LogService,
+    private stateService: StateService
   ) {}
 
   async submit() {
@@ -85,8 +78,8 @@ export class ApiKeyComponent {
     try {
       this.formPromise = this.authService.logInApiKey(this.clientId, this.clientSecret);
       await this.formPromise;
-      const organizationId = await this.apiKeyService.getEntityId();
-      await this.configurationService.saveOrganizationId(organizationId);
+      const organizationId = await this.stateService.getEntityId();
+      await this.stateService.setOrganizationId(organizationId);
       this.router.navigate([this.successRoute]);
     } catch (e) {
       this.logService.error(e);
