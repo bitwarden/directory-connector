@@ -13,7 +13,7 @@ import { OktaConfiguration } from "src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "src/models/oneLoginConfiguration";
 import { SyncConfiguration } from "src/models/syncConfiguration";
 
-const Keys: { [key: string]: any } = {
+const SecureStorageKeys: { [key: string]: any } = {
   ldap: "ldapPassword",
   gsuite: "gsuitePrivateKey",
   azure: "azureKey",
@@ -25,6 +25,18 @@ const Keys: { [key: string]: any } = {
   userDelta: "userDeltaToken",
   groupDelta: "groupDeltaToken",
   organizationId: "organizationId",
+};
+
+const Keys: { [key: string]: any } = {
+  state: "state",
+  entityId: "entityId",
+  directoryType: "directoryType",
+  organizationId: "organizationId",
+  lastUserSync: "lastUserSync",
+  lastGroupSync: "lastGroupSync",
+  lastSyncHash: "lastSyncHash",
+  syncingDir: "syncingDir",
+  syncConfig: "syncConfig",
 };
 
 const ClientKeys: { [key: string]: any } = {
@@ -76,54 +88,66 @@ export class StateMigrationService extends BaseStateMigrationService {
 
   protected async migrateStateFrom1To2(useSecureStorageForSecrets: boolean = true): Promise<void> {
     await super.migrateStateFrom1To2();
-    const state = await this.storageService.get<State<Account>>("state");
-    const userId = await this.storageService.get<string>("entityId");
+    const state = await this.storageService.get<State<Account>>(Keys.state);
+    const userId = await this.storageService.get<string>(Keys.entityId);
 
     if (userId != null) {
       state.accounts[userId] = new Account({
         directorySettings: {
-          directoryType: await this.storageService.get<DirectoryType>("directoryType"),
-          organizationId: await this.storageService.get<string>("organizationId"),
-          lastUserSync: await this.storageService.get<Date>("lastUserSync"),
-          lastGroupSync: await this.storageService.get<Date>("lastGroupSync"),
-          lastSyncHash: await this.storageService.get<string>("lastSyncHash"),
-          syncingDir: await this.storageService.get<boolean>("syncingDir"),
-          sync: await this.storageService.get<SyncConfiguration>("syncConfig"),
+          directoryType: await this.storageService.get<DirectoryType>(Keys.directoryType),
+          organizationId: await this.storageService.get<string>(Keys.organizationId),
+          lastUserSync: await this.storageService.get<Date>(Keys.lastUserSync),
+          lastGroupSync: await this.storageService.get<Date>(Keys.lastGroupSync),
+          lastSyncHash: await this.storageService.get<string>(Keys.lastSyncHash),
+          syncingDir: await this.storageService.get<boolean>(Keys.syncingDir),
+          sync: await this.storageService.get<SyncConfiguration>(Keys.syncConfig),
         },
         profile: {
-          entityId: await this.storageService.get<string>("entityId"),
+          entityId: await this.storageService.get<string>(Keys.entityId),
         },
         directoryConfigurations: new DirectoryConfigurations(),
+        clientKeys: {
+          clientId: await this.storageService.get<string>(ClientKeys.clientId),
+          clientSecret: await this.storageService.get<string>(ClientKeys.clientSecret),
+        },
       });
     }
 
     for (const key in DirectoryType) {
-      if (await this.storageService.has(Keys.directoryConfigPrefix + key)) {
+      if (await this.storageService.has(SecureStorageKeys.directoryConfigPrefix + key)) {
         switch (+key) {
           case DirectoryType.Ldap:
             state.accounts[userId].directoryConfigurations.ldap =
-              await this.storageService.get<LdapConfiguration>(Keys.directoryConfigPrefix + key);
+              await this.storageService.get<LdapConfiguration>(
+                SecureStorageKeys.directoryConfigPrefix + key
+              );
             break;
           case DirectoryType.GSuite:
             state.accounts[userId].directoryConfigurations.gsuite =
-              await this.storageService.get<GSuiteConfiguration>(Keys.directoryConfigPrefix + key);
+              await this.storageService.get<GSuiteConfiguration>(
+                SecureStorageKeys.directoryConfigPrefix + key
+              );
             break;
           case DirectoryType.AzureActiveDirectory:
             state.accounts[userId].directoryConfigurations.azure =
-              await this.storageService.get<AzureConfiguration>(Keys.directoryConfigPrefix + key);
+              await this.storageService.get<AzureConfiguration>(
+                SecureStorageKeys.directoryConfigPrefix + key
+              );
             break;
           case DirectoryType.Okta:
             state.accounts[userId].directoryConfigurations.okta =
-              await this.storageService.get<OktaConfiguration>(Keys.directoryConfigPrefix + key);
+              await this.storageService.get<OktaConfiguration>(
+                SecureStorageKeys.directoryConfigPrefix + key
+              );
             break;
           case DirectoryType.OneLogin:
             state.accounts[userId].directoryConfigurations.oneLogin =
               await this.storageService.get<OneLoginConfiguration>(
-                Keys.directoryConfigPrefix + key
+                SecureStorageKeys.directoryConfigPrefix + key
               );
             break;
         }
-        await this.storageService.remove(Keys.directoryConfigPrefix + key);
+        await this.storageService.remove(SecureStorageKeys.directoryConfigPrefix + key);
       }
     }
 
@@ -132,13 +156,13 @@ export class StateMigrationService extends BaseStateMigrationService {
     await this.storageService.save("state", state);
 
     if (useSecureStorageForSecrets) {
-      for (const key in Keys) {
-        if (await this.secureStorageService.has(Keys[key])) {
+      for (const key in SecureStorageKeys) {
+        if (await this.secureStorageService.has(SecureStorageKeys[key])) {
           await this.secureStorageService.save(
-            `${userId}_${Keys[key]}`,
-            await this.secureStorageService.get(Keys[key])
+            `${userId}_${SecureStorageKeys[key]}`,
+            await this.secureStorageService.get(SecureStorageKeys[key])
           );
-          await this.secureStorageService.remove(Keys[key]);
+          await this.secureStorageService.remove(SecureStorageKeys[key]);
         }
       }
     }
