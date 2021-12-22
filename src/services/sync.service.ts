@@ -15,13 +15,13 @@ import { MessagingService } from "jslib-common/abstractions/messaging.service";
 
 import { Utils } from "jslib-common/misc/utils";
 
+import { StateService } from "../abstractions/state.service";
 import { AzureDirectoryService } from "./azure-directory.service";
 import { IDirectoryService } from "./directory.service";
 import { GSuiteDirectoryService } from "./gsuite-directory.service";
 import { LdapDirectoryService } from "./ldap-directory.service";
 import { OktaDirectoryService } from "./okta-directory.service";
 import { OneLoginDirectoryService } from "./onelogin-directory.service";
-import { StateService } from "../abstractions/state.service";
 
 export class SyncService {
   private dirType: DirectoryType;

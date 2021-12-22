@@ -12,8 +12,8 @@ import { OktaConfiguration } from "../../models/oktaConfiguration";
 import { OneLoginConfiguration } from "../../models/oneLoginConfiguration";
 import { SyncConfiguration } from "../../models/syncConfiguration";
 
-import { ConnectorUtils } from "../../utils";
 import { StateService } from "../../abstractions/state.service";
+import { ConnectorUtils } from "../../utils";
 
 @Component({
   selector: "app-settings",

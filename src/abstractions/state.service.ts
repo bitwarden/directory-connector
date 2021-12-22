@@ -7,7 +7,6 @@ import { DirectoryType } from "src/enums/directoryType";
 import { Account } from "src/models/account";
 import { AzureConfiguration } from "src/models/azureConfiguration";
 import { GSuiteConfiguration } from "src/models/gsuiteConfiguration";
-import { IConfiguration } from "src/models/IConfiguration";
 import { LdapConfiguration } from "src/models/ldapConfiguration";
 import { OktaConfiguration } from "src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "src/models/oneLoginConfiguration";

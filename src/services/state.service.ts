@@ -11,11 +11,11 @@ import { LdapConfiguration } from "src/models/ldapConfiguration";
 import { OktaConfiguration } from "src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "src/models/oneLoginConfiguration";
 
+import { LogService } from "jslib-common/abstractions/log.service";
+import { StorageService } from "jslib-common/abstractions/storage.service";
 import { StateService as StateServiceAbstraction } from "src/abstractions/state.service";
 import { DirectoryType } from "src/enums/directoryType";
 import { SyncConfiguration } from "src/models/syncConfiguration";
-import { LogService } from "jslib-common/abstractions/log.service";
-import { StorageService } from "jslib-common/abstractions/storage.service";
 import { StateMigrationService } from "./stateMigration.service";
 
 const SecureStorageKeys = {
@@ -503,6 +503,16 @@ export class StateService extends BaseStateService<Account> implements StateServ
     await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
   }
 
+  async clearSyncSettings(hashToo = false) {
+    await this.setUserDelta(null);
+    await this.setGroupDelta(null);
+    await this.setLastGroupSync(null);
+    await this.setLastUserSync(null);
+    if (hashToo) {
+      await this.setLastSyncHash(null);
+    }
+  }
+
   protected async scaffoldNewAccountStorage(account: Account): Promise<void> {
     await this.scaffoldNewAccountDiskStorage(account);
   }
@@ -521,15 +531,5 @@ export class StateService extends BaseStateService<Account> implements StateServ
     }
     storedState.accounts[account.profile.userId] = account;
     await this.saveStateToStorage(storedState, await this.defaultOnDiskLocalOptions());
-  }
-
-  async clearSyncSettings(hashToo = false) {
-    await this.setUserDelta(null);
-    await this.setGroupDelta(null);
-    await this.setLastGroupSync(null);
-    await this.setLastUserSync(null);
-    if (hashToo) {
-      await this.setLastSyncHash(null);
-    }
   }
 }
