@@ -532,4 +532,12 @@ export class StateService extends BaseStateService<Account> implements StateServ
     storedState.accounts[account.profile.userId] = account;
     await this.saveStateToStorage(storedState, await this.defaultOnDiskLocalOptions());
   }
+
+  protected async pushAccounts(): Promise<void> {
+    if (this.state?.accounts == null || Object.keys(this.state.accounts).length < 1) {
+      this.accounts.next(null);
+      return;
+    }
+    this.accounts.next(this.state.accounts);
+  }
 }
