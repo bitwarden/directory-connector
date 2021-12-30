@@ -16,6 +16,7 @@ import { JslibServicesModule } from "jslib-angular/services/jslib-services.modul
 
 import { ContainerService } from "jslib-common/services/container.service";
 
+import { NodeApiService } from "jslib-node/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "jslib-node/services/nodeCryptoFunction.service";
 
 import { ApiService as ApiServiceAbstraction } from "jslib-common/abstractions/api.service";
@@ -135,12 +136,17 @@ export function initFactory(
         messagingService: MessagingServiceAbstraction,
         injector: Injector
       ) =>
-        new ApiService(
+        new NodeApiService(
           tokenService,
           platformUtilsService,
           environmentService,
-          refreshTokenCallback(injector),
-          async (expired: boolean) => messagingService.send("logout", { expired: expired })
+          async (expired: boolean) => messagingService.send("logout", { expired: expired }),
+          "Bitwarden_DC/" +
+            platformUtilsService.getApplicationVersion() +
+            " (" +
+            platformUtilsService.getDeviceString().toUpperCase() +
+            ")",
+          refreshTokenCallback(injector)
         ),
       deps: [
         TokenServiceAbstraction,
