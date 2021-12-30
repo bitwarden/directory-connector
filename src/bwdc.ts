@@ -14,6 +14,7 @@ import { SyncService } from "./services/sync.service";
 
 import { CliPlatformUtilsService } from "jslib-node/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "jslib-node/cli/services/consoleLog.service";
+import { NodeApiService } from "jslib-node/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "jslib-node/services/nodeCryptoFunction.service";
 
 import { AppIdService } from "jslib-common/services/appId.service";
@@ -26,7 +27,6 @@ import { FileUploadService } from "jslib-common/services/fileUpload.service";
 import { FolderService } from "jslib-common/services/folder.service";
 import { KeyConnectorService } from "jslib-common/services/keyConnector.service";
 import { NoopMessagingService } from "jslib-common/services/noopMessaging.service";
-import { NodeApiService } from "jslib-node/services/nodeApi.service";
 import { OrganizationService } from "jslib-common/services/organization.service";
 import { PasswordGenerationService } from "jslib-common/services/passwordGeneration.service";
 import { PolicyService } from "jslib-common/services/policy.service";

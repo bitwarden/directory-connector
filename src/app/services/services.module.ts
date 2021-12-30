@@ -16,6 +16,7 @@ import { JslibServicesModule } from "jslib-angular/services/jslib-services.modul
 
 import { ContainerService } from "jslib-common/services/container.service";
 
+import { NodeApiService } from "jslib-node/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "jslib-node/services/nodeCryptoFunction.service";
 
 import { ApiService as ApiServiceAbstraction } from "jslib-common/abstractions/api.service";
@@ -29,7 +30,6 @@ import { I18nService as I18nServiceAbstraction } from "jslib-common/abstractions
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "jslib-common/abstractions/keyConnector.service";
 import { LogService as LogServiceAbstraction } from "jslib-common/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "jslib-common/abstractions/messaging.service";
-import { NodeApiService } from "jslib-node/services/nodeApi.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "jslib-common/abstractions/platformUtils.service";
 import { StateMigrationService as StateMigrationServiceAbstraction } from "jslib-common/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
