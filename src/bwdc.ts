@@ -8,7 +8,6 @@ import { AuthService } from "./services/auth.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
-import { NodeApiService } from "./services/nodeApi.service";
 import { StateService } from "./services/state.service";
 import { StateMigrationService } from "./services/stateMigration.service";
 import { SyncService } from "./services/sync.service";
@@ -27,6 +26,7 @@ import { FileUploadService } from "jslib-common/services/fileUpload.service";
 import { FolderService } from "jslib-common/services/folder.service";
 import { KeyConnectorService } from "jslib-common/services/keyConnector.service";
 import { NoopMessagingService } from "jslib-common/services/noopMessaging.service";
+import { NodeApiService } from "jslib-node/services/nodeApi.service";
 import { OrganizationService } from "jslib-common/services/organization.service";
 import { PasswordGenerationService } from "jslib-common/services/passwordGeneration.service";
 import { PolicyService } from "jslib-common/services/policy.service";
@@ -148,7 +148,6 @@ export class Main {
       this.tokenService,
       this.platformUtilsService,
       this.environmentService,
-      () => refreshToken(this.stateService, this.authService),
       async (expired: boolean) => await this.logout(),
       "Bitwarden_DC/" +
         this.platformUtilsService.getApplicationVersion() +
