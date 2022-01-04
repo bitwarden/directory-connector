@@ -440,9 +440,10 @@ export class StateService extends BaseStateService<Account> implements StateServ
   }
 
   async getLastUserSync(options?: StorageOptions): Promise<Date> {
-    return (
+    const userSyncDate = (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
     )?.directorySettings?.lastUserSync;
+    return userSyncDate ? new Date(userSyncDate) : null;
   }
 
   async setLastUserSync(value: Date, options?: StorageOptions): Promise<void> {
@@ -457,9 +458,10 @@ export class StateService extends BaseStateService<Account> implements StateServ
   }
 
   async getLastGroupSync(options?: StorageOptions): Promise<Date> {
-    return (
+    const groupSyncDate = (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
     )?.directorySettings?.lastGroupSync;
+    return groupSyncDate ? new Date(groupSyncDate) : null;
   }
 
   async setLastGroupSync(value: Date, options?: StorageOptions): Promise<void> {
