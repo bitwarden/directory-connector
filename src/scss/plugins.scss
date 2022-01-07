@@ -1,4 +1,4 @@
-$fa-font-path: "~font-awesome/fonts";
+$bwi-font-path: "../../jslib/angular/src/scss/bwicons/fonts";
 @import "~font-awesome/scss/font-awesome.scss";
 @import "~ngx-toastr/toastr";
 
@@ -31,7 +31,7 @@ $fa-font-path: "~font-awesome/fonts";
     .icon i::before {
       float: left;
       font-style: normal;
-      font-family: FontAwesome;
+      font-family: $icomoon-font-family;
       font-size: 25px;
       line-height: 20px;
       padding-right: 15px;

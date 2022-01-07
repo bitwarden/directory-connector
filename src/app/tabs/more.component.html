@@ -9,14 +9,9 @@
           {{ "version" | i18n: version }} <br />
           &copy; Bitwarden Inc. LLC 2015-{{ year }}
         </p>
-        <button
-          class="btn btn-primary"
-          type="button"
-          (click)="update()"
-          [disabled]="checkingForUpdate"
-        >
-          <i class="fa fa-download fa-fw" [hidden]="checkingForUpdate"></i>
-          <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!checkingForUpdate"></i>
+        <button class="btn btn-primary" type="button" (click)="update()" [disabled]="checkingForUpdate">
+          <i class="bwi-download bwi-fw" [hidden]="checkingForUpdate"></i>
+          <i class="bwi-spinner bwi-fw bwi-spin" [hidden]="!checkingForUpdate"></i>
           {{ "checkForUpdates" | i18n }}
         </button>
       </div>

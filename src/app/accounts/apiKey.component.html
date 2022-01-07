@@ -15,25 +15,12 @@
               <div class="row-main">
                 <label for="client_secret">{{ "clientSecret" | i18n }}</label>
                 <div class="input-group">
-                  <input
-                    type="{{ showSecret ? 'text' : 'password' }}"
-                    id="client_secret"
-                    name="ClientSecret"
-                    [(ngModel)]="clientSecret"
-                    class="form-control"
-                  />
+                  <input type="{{ showSecret ? 'text' : 'password' }}" id="client_secret" name="ClientSecret"
+                    [(ngModel)]="clientSecret" class="form-control" />
                   <div class="input-group-append">
-                    <button
-                      type="button"
-                      class="ml-1 btn btn-link"
-                      appA11yTitle="{{ 'toggleVisibility' | i18n }}"
-                      (click)="toggleSecret()"
-                    >
-                      <i
-                        class="fa fa-lg"
-                        aria-hidden="true"
-                        [ngClass]="showSecret ? 'fa-eye-slash' : 'fa-eye'"
-                      ></i>
+                    <button type="button" class="ml-1 btn btn-link" appA11yTitle="{{ 'toggleVisibility' | i18n }}"
+                      (click)="toggleSecret()">
+                      <i class="bwi-lg" aria-hidden="true" [ngClass]="showSecret ? 'bwi-eye-slash-2' : 'bwi-eye-2'"></i>
                     </button>
                   </div>
                 </div>
@@ -42,8 +29,8 @@
             <div class="d-flex">
               <div>
                 <button type="submit" class="btn btn-primary" [disabled]="form.loading">
-                  <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!form.loading"></i>
-                  <i class="fa fa-sign-in fa-fw" [hidden]="form.loading"></i>
+                  <i class="bwi-spinner bwi-fw bwi-spin" [hidden]="!form.loading"></i>
+                  <i class="bwi-sign-in bwi-fw" [hidden]="form.loading"></i>
                   {{ "logIn" | i18n }}
                 </button>
               </div>
