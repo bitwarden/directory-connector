@@ -52,7 +52,7 @@ $bwi-font-path: "../../jslib/angular/src/scss/bwicons/fonts";
       background-color: $danger;
 
       .icon i::before {
-        content: "\f0e7";
+        content: map_get($icons, "error");
       }
     }
 
@@ -60,7 +60,7 @@ $bwi-font-path: "../../jslib/angular/src/scss/bwicons/fonts";
       background-color: $warning;
 
       .icon i::before {
-        content: "\f071";
+        content: map_get($icons, "exclamation-triangle");
       }
     }
 
@@ -68,7 +68,7 @@ $bwi-font-path: "../../jslib/angular/src/scss/bwicons/fonts";
       background-color: $info;
 
       .icon i:before {
-        content: "\f05a";
+        content: map_get($icons, "info-circle");
       }
     }
 
@@ -76,7 +76,7 @@ $bwi-font-path: "../../jslib/angular/src/scss/bwicons/fonts";
       background-color: $success;
 
       .icon i:before {
-        content: "\f00C";
+        content: map_get($icons, "check");
       }
     }
   }
