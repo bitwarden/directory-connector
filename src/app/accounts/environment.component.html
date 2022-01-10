@@ -12,14 +12,28 @@
         <p>{{ "selfHostedEnvironmentFooter" | i18n }}</p>
         <div class="form-group">
           <label for="baseUrl">{{ "baseUrl" | i18n }}</label>
-          <input id="baseUrl" type="text" name="BaseUrl" [(ngModel)]="baseUrl" class="form-control" />
-          <small class="text-muted form-text">{{ "ex" | i18n }} https://bitwarden.company.com</small>
+          <input
+            id="baseUrl"
+            type="text"
+            name="BaseUrl"
+            [(ngModel)]="baseUrl"
+            class="form-control"
+          />
+          <small class="text-muted form-text"
+            >{{ "ex" | i18n }} https://bitwarden.company.com</small
+          >
         </div>
         <h4>{{ "customEnvironment" | i18n }}</h4>
         <p>{{ "customEnvironmentFooter" | i18n }}</p>
         <div class="form-group">
           <label for="webVaultUrl">{{ "webVaultUrl" | i18n }}</label>
-          <input id="webVaultUrl" type="text" name="WebVaultUrl" [(ngModel)]="webVaultUrl" class="form-control" />
+          <input
+            id="webVaultUrl"
+            type="text"
+            name="WebVaultUrl"
+            [(ngModel)]="webVaultUrl"
+            class="form-control"
+          />
         </div>
         <div class="form-group">
           <label for="apiUrl">{{ "apiUrl" | i18n }}</label>
@@ -27,7 +41,13 @@
         </div>
         <div class="form-group">
           <label for="identityUrl">{{ "identityUrl" | i18n }}</label>
-          <input id="identityUrl" type="text" name="IdentityUrl" [(ngModel)]="identityUrl" class="form-control" />
+          <input
+            id="identityUrl"
+            type="text"
+            name="IdentityUrl"
+            [(ngModel)]="identityUrl"
+            class="form-control"
+          />
         </div>
       </div>
       <div class="modal-footer justify-content-start">

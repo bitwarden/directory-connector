@@ -46,7 +46,12 @@
       </button>
     </form>
     <div class="form-check mt-2">
-      <input class="form-check-input" type="checkbox" id="simSinceLast" [(ngModel)]="simSinceLast" />
+      <input
+        class="form-check-input"
+        type="checkbox"
+        id="simSinceLast"
+        [(ngModel)]="simSinceLast"
+      />
       <label class="form-check-label" for="simSinceLast">{{ "testLastSync" | i18n }}</label>
     </div>
     <ng-container *ngIf="!simForm.loading && (simUsers || simGroups)">
