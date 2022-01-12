@@ -49,15 +49,6 @@ const ClientKeys: { [key: string]: any } = {
 };
 
 export class StateMigrationService extends BaseStateMigrationService {
-  async needsMigration(): Promise<boolean> {
-    const currentStateVersion = (
-      await this.storageService.get<State<Account>>("state", {
-        htmlStorageLocation: HtmlStorageLocation.Local,
-      })
-    )?.globals?.stateVersion;
-    return currentStateVersion == null || currentStateVersion < StateVersion.Latest;
-  }
-
   async migrate(): Promise<void> {
     let currentStateVersion =
       (await this.storageService.get<State<Account>>("state"))?.globals?.stateVersion ?? StateVersion.One;
