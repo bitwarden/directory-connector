@@ -3,6 +3,8 @@ import { State } from "jslib-common/models/domain/state";
 
 import { StateMigrationService as BaseStateMigrationService } from "jslib-common/services/stateMigration.service";
 
+import { StateVersion } from "jslib-common/enums/stateVersion";
+
 import { DirectoryType } from "src/enums/directoryType";
 
 import { Account, DirectoryConfigurations, DirectorySettings } from "src/models/account";
@@ -47,21 +49,12 @@ const ClientKeys: { [key: string]: any } = {
 };
 
 export class StateMigrationService extends BaseStateMigrationService {
-  async needsMigration(): Promise<boolean> {
-    const currentStateVersion = (
-      await this.storageService.get<State<Account>>("state", {
-        htmlStorageLocation: HtmlStorageLocation.Local,
-      })
-    )?.globals?.stateVersion;
-    return currentStateVersion == null || currentStateVersion < this.latestVersion;
-  }
-
   async migrate(): Promise<void> {
     let currentStateVersion =
-      (await this.storageService.get<State<Account>>("state"))?.globals?.stateVersion ?? 1;
-    while (currentStateVersion < this.latestVersion) {
+      (await this.storageService.get<State<Account>>("state"))?.globals?.stateVersion ?? StateVersion.One;
+    while (currentStateVersion < StateVersion.Latest) {
       switch (currentStateVersion) {
-        case 1:
+        case StateVersion.One:
           await this.migrateClientKeys();
           await this.migrateStateFrom1To2();
           break;
