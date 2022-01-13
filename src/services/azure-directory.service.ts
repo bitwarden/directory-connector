@@ -86,21 +86,17 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
   private async getCurrentUsers(): Promise<UserEntry[]> {
     const entryIds = new Set<string>();
     const entries: UserEntry[] = [];
-    const userReq = this.client.api("/users" + UserSelectParams);
-    let res = await userReq.get();
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
-    while (true) {
-      const users: graphType.User[] = res.value;
+
+    // Only get users for the groups provided in includeGroup filter
+    if (setFilter && setFilter[0] === UserSetType.IncludeGroup) {
+      const users = await this.getUsersByGroups(setFilter);
       if (users != null) {
         for (const user of users) {
           if (user.id == null || entryIds.has(user.id)) {
             continue;
           }
           const entry = this.buildUser(user);
-          if (await this.filterOutUserResult(setFilter, entry, true)) {
-            continue;
-          }
-
           if (
             !entry.disabled &&
             !entry.deleted &&
@@ -108,20 +104,46 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
           ) {
             continue;
           }
-
           entries.push(entry);
           entryIds.add(user.id);
         }
       }
+    } else {
+      const userReq = this.client.api("/users" + UserSelectParams);
+      let res = await userReq.get();
+      while (true) {
+        const users: graphType.User[] = res.value;
+        if (users != null) {
+          for (const user of users) {
+            if (user.id == null || entryIds.has(user.id)) {
+              continue;
+            }
+            const entry = this.buildUser(user);
+            if (await this.filterOutUserResult(setFilter, entry, true)) {
+              continue;
+            }
 
-      if (res[NextLink] == null) {
-        break;
-      } else {
-        const nextReq = this.client.api(res[NextLink]);
-        res = await nextReq.get();
+            if (
+              !entry.disabled &&
+              !entry.deleted &&
+              (entry.email == null || entry.email.indexOf("#") > -1)
+            ) {
+              continue;
+            }
+
+            entries.push(entry);
+            entryIds.add(user.id);
+          }
+        }
+
+        if (res[NextLink] == null) {
+          break;
+        } else {
+          const nextReq = this.client.api(res[NextLink]);
+          res = await nextReq.get();
+        }
       }
     }
-
     return entries;
   }
 
@@ -295,13 +317,10 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     const memberGroups = await this.client.api(`/users/${user.externalId}/checkMemberGroups`).post({
       groupIds: Array.from(setFilter[1]),
     });
-    if (memberGroups.value.length > 0 && setFilter[0] === UserSetType.IncludeGroup) {
-      return false;
-    } else if (memberGroups.value.length > 0 && setFilter[0] === UserSetType.ExcludeGroup) {
+    if (memberGroups.value.length > 0 && setFilter[0] === UserSetType.ExcludeGroup) {
       return true;
-    } else if (memberGroups.value.length === 0 && setFilter[0] === UserSetType.IncludeGroup) {
-      return true;
-    } else if (memberGroups.value.length === 0 && setFilter[0] === UserSetType.ExcludeGroup) {
+    }
+    if (memberGroups.value.length === 0 && setFilter[0] === UserSetType.ExcludeGroup) {
       return false;
     }
 
@@ -365,6 +384,27 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     }
 
     return entries;
+  }
+
+  private async getUsersByGroups(setFilter: [UserSetType, Set<string>]): Promise<graphType.User[]> {
+    const users: graphType.User[] = [];
+    for (const group of setFilter[1]) {
+      const groupUsersReq = this.client.api(
+        `/groups/${group}/transitiveMembers` + UserSelectParams
+      );
+      let res = await groupUsersReq.get();
+
+      while (true) {
+        res.value.forEach((user: graphType.User) => users.push(user));
+        if (res[NextLink] == null) {
+          break;
+        } else {
+          const nextReq = this.client.api(res[NextLink]);
+          res = await nextReq.get();
+        }
+      }
+    }
+    return users;
   }
 
   private async buildGroup(group: graphType.Group): Promise<GroupEntry> {
