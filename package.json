@@ -1,5 +1,5 @@
 {
-  "name": "bitwarden-directory-connector",
+  "name": "@bitwarden/directory-connector",
   "productName": "Bitwarden Directory Connector",
   "description": "Sync your user directory to your Bitwarden organization.",
   "version": "0.0.0",
