@@ -85,64 +85,31 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
   private async getCurrentUsers(): Promise<UserEntry[]> {
     const entryIds = new Set<string>();
-    const entries: UserEntry[] = [];
+    let entries: UserEntry[] = [];
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
+    const usersToExclude = new Set<string>();
 
     // Only get users for the groups provided in includeGroup filter
     if (setFilter != null && setFilter[0] === UserSetType.IncludeGroup) {
       const users = await this.getUsersByGroups(setFilter);
       if (users != null) {
-        for (const user of users) {
-          if (user.id == null || entryIds.has(user.id)) {
-            continue;
-          }
-          const entry = this.buildUser(user);
-
-          if (!this.isInvalidUser(entry)) {
-            entries.push(entry);
-            entryIds.add(user.id);
-          }
-        }
+        entries = await this.buildUserEntries(users, usersToExclude, setFilter);
       }
       // Get the users in the excludedGroups and filter them out from all users
     } else if (setFilter != null && setFilter[0] === UserSetType.ExcludeGroup) {
-      const usersToExclude = new Set<string>();
       (await this.getUsersByGroups(setFilter)).forEach((user: graphType.User) =>
         usersToExclude.add(user.id)
       );
       const userReq = this.client.api("/users" + UserSelectParams);
       const users = await this.getUsersByResource(userReq);
       if (users != null) {
-        for (const user of users) {
-          if (user.id == null || entryIds.has(user.id) || usersToExclude.has(user.id)) {
-            continue;
-          }
-          const entry = this.buildUser(user);
-
-          if (!this.isInvalidUser(entry)) {
-            entries.push(entry);
-            entryIds.add(user.id);
-          }
-        }
+        entries = await this.buildUserEntries(users, usersToExclude, setFilter);
       }
     } else {
       const userReq = this.client.api("/users" + UserSelectParams);
       const users = await this.getUsersByResource(userReq);
       if (users != null) {
-        for (const user of users) {
-          if (user.id == null || entryIds.has(user.id)) {
-            continue;
-          }
-          const entry = this.buildUser(user);
-          if (await this.filterOutUserResult(setFilter, entry)) {
-            continue;
-          }
-
-          if (!this.isInvalidUser(entry)) {
-            entries.push(entry);
-            entryIds.add(user.id);
-          }
-        }
+        entries = await this.buildUserEntries(users, usersToExclude, setFilter);
       }
     }
     return entries;
@@ -180,8 +147,15 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
           if (!entry.deleted) {
             continue;
           }
-          if (await this.filterOutUserResult(setFilter, entry)) {
-            continue;
+
+          // filterOutUserResult should only be called if the filter is includeUser or excludeUser
+          if (
+            setFilter != null &&
+            (setFilter[0] === UserSetType.IncludeUser || setFilter[0] === UserSetType.ExcludeUser)
+          ) {
+            if (await this.filterOutUserResult(setFilter, entry)) {
+              continue;
+            }
           }
 
           entries.push(entry);
@@ -393,6 +367,36 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
       users.push(...(await this.getUsersByResource(groupUsersReq)));
     }
     return users;
+  }
+
+  private async buildUserEntries(
+    users: graphType.User[],
+    usersToExclude: Set<string>,
+    setFilter: [UserSetType, Set<string>]
+  ) {
+    const entryIds = new Set<string>();
+    const entries: UserEntry[] = [];
+
+    for (const user of users) {
+      if (user.id == null || entryIds.has(user.id) || usersToExclude.has(user.id)) {
+        continue;
+      }
+      const entry = this.buildUser(user);
+
+      if (
+        setFilter != null &&
+        (setFilter[0] === UserSetType.IncludeUser || setFilter[0] === UserSetType.ExcludeUser)
+      ) {
+        if (await this.filterOutUserResult(setFilter, entry)) {
+          continue;
+        }
+      }
+      if (!this.isInvalidUser(entry)) {
+        entries.push(entry);
+        entryIds.add(user.id);
+      }
+    }
+    return entries;
   }
 
   private isInvalidUser(user: UserEntry): boolean {
