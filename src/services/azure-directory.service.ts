@@ -131,8 +131,8 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     }
 
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
-    let users: graphType.User[] = res.value;
-    while (res[NextLink] != null) {
+    while (true) {
+      const users: graphType.User[] = res.value;
       if (users != null) {
         for (const user of users) {
           if (user.id == null || entryIds.has(user.id)) {
@@ -165,7 +165,6 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
       } else {
         const nextReq = this.client.api(res[NextLink]);
         res = await nextReq.get();
-        users = res.value;
       }
     }
 
