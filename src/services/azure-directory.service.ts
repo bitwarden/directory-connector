@@ -85,43 +85,28 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
   private async getCurrentUsers(): Promise<UserEntry[]> {
     const entryIds = new Set<string>();
-    const entries: UserEntry[] = [];
-    const userReq = this.client.api("/users" + UserSelectParams);
-    let res = await userReq.get();
+    let entries: UserEntry[] = [];
+    let users: graphType.User[];
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
-    while (true) {
-      const users: graphType.User[] = res.value;
-      if (users != null) {
-        for (const user of users) {
-          if (user.id == null || entryIds.has(user.id)) {
-            continue;
-          }
-          const entry = this.buildUser(user);
-          if (await this.filterOutUserResult(setFilter, entry, true)) {
-            continue;
-          }
+    const userIdsToExclude = new Set<string>();
 
-          if (
-            !entry.disabled &&
-            !entry.deleted &&
-            (entry.email == null || entry.email.indexOf("#") > -1)
-          ) {
-            continue;
-          }
-
-          entries.push(entry);
-          entryIds.add(user.id);
-        }
-      }
-
-      if (res[NextLink] == null) {
-        break;
-      } else {
-        const nextReq = this.client.api(res[NextLink]);
-        res = await nextReq.get();
-      }
+    // Only get users for the groups provided in includeGroup filter
+    if (setFilter != null && setFilter[0] === UserSetType.IncludeGroup) {
+      users = await this.getUsersByGroups(setFilter);
+      // Get the users in the excludedGroups and filter them out from all users
+    } else if (setFilter != null && setFilter[0] === UserSetType.ExcludeGroup) {
+      (await this.getUsersByGroups(setFilter)).forEach((user: graphType.User) =>
+        userIdsToExclude.add(user.id)
+      );
+      const userReq = this.client.api("/users" + UserSelectParams);
+      users = await this.getUsersByResource(userReq);
+    } else {
+      const userReq = this.client.api("/users" + UserSelectParams);
+      users = await this.getUsersByResource(userReq);
     }
-
+    if (users != null) {
+      entries = await this.buildUserEntries(users, userIdsToExclude, setFilter);
+    }
     return entries;
   }
 
@@ -157,7 +142,13 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
           if (!entry.deleted) {
             continue;
           }
-          if (await this.filterOutUserResult(setFilter, entry, false)) {
+
+          if (
+            setFilter != null &&
+            (setFilter[0] === UserSetType.IncludeUser ||
+              setFilter[0] === UserSetType.ExcludeUser) &&
+            (await this.filterOutUserResult(setFilter, entry))
+          ) {
             continue;
           }
 
@@ -270,8 +261,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
   private async filterOutUserResult(
     setFilter: [UserSetType, Set<string>],
-    user: UserEntry,
-    checkGroupsFilter: boolean
+    user: UserEntry
   ): Promise<boolean> {
     if (setFilter == null) {
       return false;
@@ -286,23 +276,6 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
     if (userSetTypeExclude != null) {
       return this.filterOutResult([userSetTypeExclude, setFilter[1]], user.email);
-    }
-
-    // We need to *not* call the /checkMemberGroups method for deleted users, it will always fail
-    if (!checkGroupsFilter) {
-      return false;
-    }
-    const memberGroups = await this.client.api(`/users/${user.externalId}/checkMemberGroups`).post({
-      groupIds: Array.from(setFilter[1]),
-    });
-    if (memberGroups.value.length > 0 && setFilter[0] === UserSetType.IncludeGroup) {
-      return false;
-    } else if (memberGroups.value.length > 0 && setFilter[0] === UserSetType.ExcludeGroup) {
-      return true;
-    } else if (memberGroups.value.length === 0 && setFilter[0] === UserSetType.IncludeGroup) {
-      return true;
-    } else if (memberGroups.value.length === 0 && setFilter[0] === UserSetType.ExcludeGroup) {
-      return false;
     }
 
     return false;
@@ -365,6 +338,62 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     }
 
     return entries;
+  }
+
+  private async getUsersByResource(usersRequest: graph.GraphRequest) {
+    const users: graphType.User[] = [];
+    let res = await usersRequest.get();
+    res.value.forEach((user: graphType.User) => users.push(user));
+    while (res[NextLink] != null) {
+      const nextReq = this.client.api(res[NextLink]);
+      res = await nextReq.get();
+      res.value.forEach((user: graphType.User) => users.push(user));
+    }
+    return users;
+  }
+
+  private async getUsersByGroups(setFilter: [UserSetType, Set<string>]): Promise<graphType.User[]> {
+    const users: graphType.User[] = [];
+    for (const group of setFilter[1]) {
+      const groupUsersReq = this.client.api(
+        `/groups/${group}/transitiveMembers` + UserSelectParams
+      );
+      users.push(...(await this.getUsersByResource(groupUsersReq)));
+    }
+    return users;
+  }
+
+  private async buildUserEntries(
+    users: graphType.User[],
+    userIdsToExclude: Set<string>,
+    setFilter: [UserSetType, Set<string>]
+  ) {
+    const entryIds = new Set<string>();
+    const entries: UserEntry[] = [];
+
+    for (const user of users) {
+      if (user.id == null || entryIds.has(user.id) || userIdsToExclude.has(user.id)) {
+        continue;
+      }
+      const entry = this.buildUser(user);
+
+      if (
+        setFilter != null &&
+        (setFilter[0] === UserSetType.IncludeUser || setFilter[0] === UserSetType.ExcludeUser) &&
+        (await this.filterOutUserResult(setFilter, entry))
+      ) {
+        continue;
+      }
+      if (!this.isInvalidUser(entry)) {
+        entries.push(entry);
+        entryIds.add(user.id);
+      }
+    }
+    return entries;
+  }
+
+  private isInvalidUser(user: UserEntry): boolean {
+    return !user.disabled && !user.deleted && (user.email == null || user.email.indexOf("#") > -1);
   }
 
   private async buildGroup(group: graphType.Group): Promise<GroupEntry> {
