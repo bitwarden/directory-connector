@@ -148,7 +148,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
             continue;
           }
 
-          // filterOutUserResult should only be called if the filter is includeUser or excludeUser
+          // Deleted users cannot be filtered by group in Azure AD so we only apply user filters if required
           if (
             setFilter != null &&
             (setFilter[0] === UserSetType.IncludeUser || setFilter[0] === UserSetType.ExcludeUser)
