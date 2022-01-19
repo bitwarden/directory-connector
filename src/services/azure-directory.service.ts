@@ -88,7 +88,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     let entries: UserEntry[] = [];
     let users: graphType.User[];
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
-    const usersToExclude = new Set<string>();
+    const userIdsToExclude = new Set<string>();
 
     // Only get users for the groups provided in includeGroup filter
     if (setFilter != null && setFilter[0] === UserSetType.IncludeGroup) {
@@ -96,7 +96,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
       // Get the users in the excludedGroups and filter them out from all users
     } else if (setFilter != null && setFilter[0] === UserSetType.ExcludeGroup) {
       (await this.getUsersByGroups(setFilter)).forEach((user: graphType.User) =>
-        usersToExclude.add(user.id)
+        userIdsToExclude.add(user.id)
       );
       const userReq = this.client.api("/users" + UserSelectParams);
       users = await this.getUsersByResource(userReq);
@@ -105,7 +105,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
       users = await this.getUsersByResource(userReq);
     }
     if (users != null) {
-      entries = await this.buildUserEntries(users, usersToExclude, setFilter);
+      entries = await this.buildUserEntries(users, userIdsToExclude, setFilter);
     }
     return entries;
   }
@@ -366,14 +366,14 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
   private async buildUserEntries(
     users: graphType.User[],
-    usersToExclude: Set<string>,
+    userIdsToExclude: Set<string>,
     setFilter: [UserSetType, Set<string>]
   ) {
     const entryIds = new Set<string>();
     const entries: UserEntry[] = [];
 
     for (const user of users) {
-      if (user.id == null || entryIds.has(user.id) || usersToExclude.has(user.id)) {
+      if (user.id == null || entryIds.has(user.id) || userIdsToExclude.has(user.id)) {
         continue;
       }
       const entry = this.buildUser(user);
