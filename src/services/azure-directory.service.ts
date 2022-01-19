@@ -86,31 +86,26 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
   private async getCurrentUsers(): Promise<UserEntry[]> {
     const entryIds = new Set<string>();
     let entries: UserEntry[] = [];
+    let users: graphType.User[];
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
     const usersToExclude = new Set<string>();
 
     // Only get users for the groups provided in includeGroup filter
     if (setFilter != null && setFilter[0] === UserSetType.IncludeGroup) {
-      const users = await this.getUsersByGroups(setFilter);
-      if (users != null) {
-        entries = await this.buildUserEntries(users, usersToExclude, setFilter);
-      }
+      users = await this.getUsersByGroups(setFilter);
       // Get the users in the excludedGroups and filter them out from all users
     } else if (setFilter != null && setFilter[0] === UserSetType.ExcludeGroup) {
       (await this.getUsersByGroups(setFilter)).forEach((user: graphType.User) =>
         usersToExclude.add(user.id)
       );
       const userReq = this.client.api("/users" + UserSelectParams);
-      const users = await this.getUsersByResource(userReq);
-      if (users != null) {
-        entries = await this.buildUserEntries(users, usersToExclude, setFilter);
-      }
+      users = await this.getUsersByResource(userReq);
     } else {
       const userReq = this.client.api("/users" + UserSelectParams);
-      const users = await this.getUsersByResource(userReq);
-      if (users != null) {
-        entries = await this.buildUserEntries(users, usersToExclude, setFilter);
-      }
+      users = await this.getUsersByResource(userReq);
+    }
+    if (users != null) {
+      entries = await this.buildUserEntries(users, usersToExclude, setFilter);
     }
     return entries;
   }
@@ -136,8 +131,8 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     }
 
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
-    while (true) {
-      const users: graphType.User[] = res.value;
+    let users: graphType.User[] = res.value;
+    while (res[NextLink] != null) {
       if (users != null) {
         for (const user of users) {
           if (user.id == null || entryIds.has(user.id)) {
@@ -148,14 +143,13 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
             continue;
           }
 
-          // Deleted users cannot be filtered by group in Azure AD so we only apply user filters if required
           if (
             setFilter != null &&
-            (setFilter[0] === UserSetType.IncludeUser || setFilter[0] === UserSetType.ExcludeUser)
+            (setFilter[0] === UserSetType.IncludeUser ||
+              setFilter[0] === UserSetType.ExcludeUser) &&
+            (await this.filterOutUserResult(setFilter, entry))
           ) {
-            if (await this.filterOutUserResult(setFilter, entry)) {
-              continue;
-            }
+            continue;
           }
 
           entries.push(entry);
@@ -171,6 +165,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
       } else {
         const nextReq = this.client.api(res[NextLink]);
         res = await nextReq.get();
+        users = res.value;
       }
     }
 
@@ -385,11 +380,10 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
       if (
         setFilter != null &&
-        (setFilter[0] === UserSetType.IncludeUser || setFilter[0] === UserSetType.ExcludeUser)
+        (setFilter[0] === UserSetType.IncludeUser || setFilter[0] === UserSetType.ExcludeUser) &&
+        (await this.filterOutUserResult(setFilter, entry))
       ) {
-        if (await this.filterOutUserResult(setFilter, entry)) {
-          continue;
-        }
+        continue;
       }
       if (!this.isInvalidUser(entry)) {
         entries.push(entry);
