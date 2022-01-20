@@ -573,4 +573,13 @@ export class StateService extends BaseStateService<Account> implements StateServ
       (await this.storageService.has(keys.tempDirectoryConfigs))
     );
   }
+
+  protected resetAccount(account: Account) {
+    const persistentAccountInformation = { 
+        settings: account.settings,
+        directorySettings: account.directorySettings,
+        directoryConfigurations: account.directoryConfigurations 
+    };
+    return Object.assign(this.createAccount(), persistentAccountInformation);
+  }
 }
