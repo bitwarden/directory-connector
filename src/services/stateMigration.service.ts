@@ -136,7 +136,9 @@ export class StateMigrationService extends BaseStateMigrationService {
     account.directoryConfigurations = directoryConfigs;
     account.directorySettings = directorySettings;
     account.profile = {
+      userId: userId,
       entityId: userId,
+      apiKeyClientId: clientId,
     };
     account.clientKeys = {
       clientId: clientId,
