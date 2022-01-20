@@ -83,7 +83,6 @@ export class StateMigrationService extends BaseStateMigrationService {
     const clientSecret = await this.get<string>(ClientKeys.clientSecret);
 
     await super.migrateStateFrom1To2();
-    //
 
     // Setup reusable method for clearing keys since we will want to do that regardless of if there is an active authenticated session
     const clearDirectoryConnectorV1Keys = async () => {
@@ -99,7 +98,6 @@ export class StateMigrationService extends BaseStateMigrationService {
         }
       }
     };
-    //
 
     // Initilize typed objects from key/value pairs in storage to either be saved temporarily until an account is authed or applied to the active account
     const getDirectoryConfig = async <T>(type: DirectoryType) =>
@@ -121,7 +119,6 @@ export class StateMigrationService extends BaseStateMigrationService {
       syncingDir: await this.get<boolean>(Keys.syncingDir),
       sync: await this.get<SyncConfiguration>(Keys.syncConfig),
     };
-    //
 
     // (userId == null) = no authed account, stored data temporarily to be applied and cleared on next auth
     // (userId != null) = authed account known, applied stored data to it and do not save temp data
