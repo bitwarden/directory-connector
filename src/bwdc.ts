@@ -34,13 +34,15 @@ import { ProviderService } from "jslib-common/services/provider.service";
 import { SearchService } from "jslib-common/services/search.service";
 import { SendService } from "jslib-common/services/send.service";
 import { SettingsService } from "jslib-common/services/settings.service";
-import { SyncService as LoginSyncService } from "jslib-common/services/sync.service";
 import { TokenService } from "jslib-common/services/token.service";
 
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
 
 import { Program } from "./program";
-import { refreshToken } from "./services/api.service";
+
+import { AccountFactory } from "jslib-common/models/domain/account";
+
+import { Account } from "./models/account";
 
 // tslint:disable-next-line
 const packageJson = require("./package.json");
@@ -72,7 +74,6 @@ export class Main {
   syncService: SyncService;
   passwordGenerationService: PasswordGenerationService;
   policyService: PolicyService;
-  loginSyncService: LoginSyncService;
   keyConnectorService: KeyConnectorService;
   program: Program;
   stateService: StateService;
@@ -130,7 +131,8 @@ export class Main {
       this.secureStorageService,
       this.logService,
       this.stateMigrationService,
-      process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true"
+      process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
+      new AccountFactory(Account)
     );
 
     this.cryptoService = new CryptoService(
@@ -248,24 +250,6 @@ export class Main {
     );
 
     this.providerService = new ProviderService(this.stateService);
-
-    this.loginSyncService = new LoginSyncService(
-      this.apiService,
-      this.settingsService,
-      this.folderService,
-      this.cipherService,
-      this.cryptoService,
-      this.collectionService,
-      this.messagingService,
-      this.policyService,
-      this.sendService,
-      this.logService,
-      this.keyConnectorService,
-      this.stateService,
-      this.organizationService,
-      this.providerService,
-      async (expired: boolean) => this.messagingService.send("logout", { expired: expired })
-    );
 
     this.program = new Program(this);
   }
