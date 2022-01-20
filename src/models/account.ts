@@ -16,8 +16,8 @@ export class Account extends BaseAccount {
 
   constructor(init: Partial<Account>) {
     super(init);
-    this.directoryConfigurations = init.directoryConfigurations ?? new DirectoryConfigurations();
-    this.directorySettings = init.directorySettings ?? new DirectorySettings();
+    this.directoryConfigurations = init?.directoryConfigurations ?? new DirectoryConfigurations();
+    this.directorySettings = init?.directorySettings ?? new DirectorySettings();
   }
 }
 

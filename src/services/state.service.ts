@@ -1,6 +1,6 @@
 import { StateService as BaseStateService } from "jslib-common/services/state.service";
 
-import { State } from "jslib-common/models/domain/state";
+import { AccountFactory } from "jslib-common/models/domain/account";
 import { StorageOptions } from "jslib-common/models/domain/storageOptions";
 
 import { Account } from "src/models/account";
@@ -10,13 +10,15 @@ import { IConfiguration } from "src/models/IConfiguration";
 import { LdapConfiguration } from "src/models/ldapConfiguration";
 import { OktaConfiguration } from "src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "src/models/oneLoginConfiguration";
+import { SyncConfiguration } from "src/models/syncConfiguration";
 
 import { LogService } from "jslib-common/abstractions/log.service";
+import { StateMigrationService } from "jslib-common/abstractions/stateMigration.service";
 import { StorageService } from "jslib-common/abstractions/storage.service";
+
 import { StateService as StateServiceAbstraction } from "src/abstractions/state.service";
+
 import { DirectoryType } from "src/enums/directoryType";
-import { SyncConfiguration } from "src/models/syncConfiguration";
-import { StateMigrationService } from "./stateMigration.service";
 
 const SecureStorageKeys = {
   ldap: "ldapPassword",
@@ -31,6 +33,12 @@ const SecureStorageKeys = {
   lastSyncHash: "lastSyncHash",
 };
 
+const keys = {
+  tempAccountSettings: "tempAccountSettings",
+  tempDirectoryConfigs: "tempDirectoryConfigs",
+  tempDirectorySettings: "tempDirectorySettings",
+};
+
 const StoredSecurely = "[STORED SECURELY]";
 
 export class StateService extends BaseStateService<Account> implements StateServiceAbstraction {
@@ -39,9 +47,10 @@ export class StateService extends BaseStateService<Account> implements StateServ
     protected secureStorageService: StorageService,
     protected logService: LogService,
     protected stateMigrationService: StateMigrationService,
-    private useSecureStorageForSecrets = true
+    private useSecureStorageForSecrets = true,
+    protected accountFactory: AccountFactory<Account>
   ) {
-    super(storageService, secureStorageService, logService, stateMigrationService);
+    super(storageService, secureStorageService, logService, stateMigrationService, accountFactory);
   }
 
   async getDirectory<T extends IConfiguration>(type: DirectoryType): Promise<T> {
@@ -520,19 +529,29 @@ export class StateService extends BaseStateService<Account> implements StateServ
   }
 
   protected async scaffoldNewAccountDiskStorage(account: Account): Promise<void> {
-    const storedState =
-      (await this.storageService.get<State<Account>>(
-        "state",
+    const storedAccount = await this.getAccount(
+      this.reconcileOptions(
+        { userId: account.profile.userId },
         await this.defaultOnDiskLocalOptions()
-      )) ?? new State<Account>();
-    const storedAccount = storedState.accounts[account.profile.userId];
+      )
+    );
     if (storedAccount != null) {
       account.settings = storedAccount.settings;
       account.directorySettings = storedAccount.directorySettings;
       account.directoryConfigurations = storedAccount.directoryConfigurations;
+    } else if (await this.hasTemporaryStorage()) {
+      // If migrating to state V2 with an no actively authed account we store temporary data to be copied on auth - this will only be run once.
+      account.settings = await this.storageService.get<any>(keys.tempAccountSettings);
+      account.directorySettings = await this.storageService.get<any>(keys.tempDirectorySettings);
+      account.directoryConfigurations = await this.storageService.get<any>(
+        keys.tempDirectoryConfigs
+      );
+      await this.storageService.remove(keys.tempAccountSettings);
+      await this.storageService.remove(keys.tempDirectorySettings);
+      await this.storageService.remove(keys.tempDirectoryConfigs);
     }
-    storedState.accounts[account.profile.userId] = account;
-    await this.saveStateToStorage(storedState, await this.defaultOnDiskLocalOptions());
+
+    await this.saveAccount(account, await this.defaultOnDiskLocalOptions());
   }
 
   protected async pushAccounts(): Promise<void> {
@@ -541,5 +560,13 @@ export class StateService extends BaseStateService<Account> implements StateServ
       return;
     }
     this.accounts.next(this.state.accounts);
+  }
+
+  protected async hasTemporaryStorage(): Promise<boolean> {
+    return (
+      (await this.storageService.has(keys.tempAccountSettings)) ||
+      (await this.storageService.has(keys.tempDirectorySettings)) ||
+      (await this.storageService.has(keys.tempDirectoryConfigs))
+    );
   }
 }
