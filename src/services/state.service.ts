@@ -551,7 +551,11 @@ export class StateService extends BaseStateService<Account> implements StateServ
       await this.storageService.remove(keys.tempDirectoryConfigs);
     }
 
-    await this.saveAccount(account, await this.defaultOnDiskLocalOptions());
+    await this.storageService.save(
+      account.profile.userId,
+      account,
+      await this.defaultOnDiskLocalOptions()
+    );
   }
 
   protected async pushAccounts(): Promise<void> {
