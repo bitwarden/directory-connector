@@ -15,6 +15,10 @@ import { WindowMain } from "jslib-electron/window.main";
 
 import { StateService } from "./services/state.service";
 
+import { AccountFactory } from "jslib-common/models/domain/account";
+
+import { Account } from "./models/account";
+
 export class Main {
   logService: ElectronLogService;
   i18nService: I18nService;
@@ -54,7 +58,14 @@ export class Main {
     this.logService = new ElectronLogService(null, app.getPath("userData"));
     this.i18nService = new I18nService("en", "./locales/");
     this.storageService = new ElectronStorageService(app.getPath("userData"));
-    this.stateService = new StateService(this.storageService, null, this.logService, null);
+    this.stateService = new StateService(
+      this.storageService,
+      null,
+      this.logService,
+      null,
+      true,
+      new AccountFactory(Account)
+    );
 
     this.windowMain = new WindowMain(
       this.stateService,

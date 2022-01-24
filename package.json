@@ -1,6 +1,5 @@
 {
-  "name": "bitwarden-directory-connector",
-  "productName": "Bitwarden Directory Connector",
+  "name": "@bitwarden/directory-connector",
   "description": "Sync your user directory to your Bitwarden organization.",
   "version": "0.0.0",
   "keywords": [
@@ -64,6 +63,10 @@
     "prepare": "husky install"
   },
   "build": {
+    "extraMetadata": {
+      "name": "bitwarden-directory-connector"
+    },
+    "productName": "Bitwarden Directory Connector",
     "appId": "com.bitwarden.directory-connector",
     "copyright": "Copyright © 2015-2022 Bitwarden Inc.",
     "directories": {

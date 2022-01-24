@@ -43,6 +43,10 @@ import { AuthService } from "../../services/auth.service";
 import { StateService } from "../../services/state.service";
 import { StateMigrationService } from "../../services/stateMigration.service";
 
+import { Account } from "../../models/account";
+
+import { AccountFactory } from "jslib-common/models/domain/account";
+
 function refreshTokenCallback(injector: Injector) {
   return () => {
     const stateService = injector.get(StateServiceAbstraction);
@@ -197,7 +201,20 @@ export function initFactory(
     },
     {
       provide: StateServiceAbstraction,
-      useClass: StateService,
+      useFactory: (
+        storageService: StorageServiceAbstraction,
+        secureStorageService: StorageServiceAbstraction,
+        logService: LogServiceAbstraction,
+        stateMigrationService: StateMigrationServiceAbstraction
+      ) =>
+        new StateService(
+          storageService,
+          secureStorageService,
+          logService,
+          stateMigrationService,
+          true, // TODO: It seems like we aren't applying this from settings anywhere. Is toggling secure storage working?
+          new AccountFactory(Account)
+        ),
       deps: [
         StorageServiceAbstraction,
         "SECURE_STORAGE",

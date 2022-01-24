@@ -1,7 +1,6 @@
-import { HtmlStorageLocation } from "jslib-common/enums/htmlStorageLocation";
-import { State } from "jslib-common/models/domain/state";
-
 import { StateMigrationService as BaseStateMigrationService } from "jslib-common/services/stateMigration.service";
+
+import { StateVersion } from "jslib-common/enums/stateVersion";
 
 import { DirectoryType } from "src/enums/directoryType";
 
@@ -28,7 +27,6 @@ const SecureStorageKeys: { [key: string]: any } = {
 };
 
 const Keys: { [key: string]: any } = {
-  state: "state",
   entityId: "entityId",
   directoryType: "directoryType",
   organizationId: "organizationId",
@@ -37,6 +35,8 @@ const Keys: { [key: string]: any } = {
   lastSyncHash: "lastSyncHash",
   syncingDir: "syncingDir",
   syncConfig: "syncConfig",
+  tempDirectoryConfigs: "tempDirectoryConfigs",
+  tempDirectorySettings: "tempDirectorySettings",
 };
 
 const ClientKeys: { [key: string]: any } = {
@@ -47,21 +47,11 @@ const ClientKeys: { [key: string]: any } = {
 };
 
 export class StateMigrationService extends BaseStateMigrationService {
-  async needsMigration(): Promise<boolean> {
-    const currentStateVersion = (
-      await this.storageService.get<State<Account>>("state", {
-        htmlStorageLocation: HtmlStorageLocation.Local,
-      })
-    )?.globals?.stateVersion;
-    return currentStateVersion == null || currentStateVersion < this.latestVersion;
-  }
-
   async migrate(): Promise<void> {
-    let currentStateVersion =
-      (await this.storageService.get<State<Account>>("state"))?.globals?.stateVersion ?? 1;
-    while (currentStateVersion < this.latestVersion) {
+    let currentStateVersion = await this.getCurrentStateVersion();
+    while (currentStateVersion < StateVersion.Latest) {
       switch (currentStateVersion) {
-        case 1:
+        case StateVersion.One:
           await this.migrateClientKeys();
           await this.migrateStateFrom1To2();
           break;
@@ -87,73 +77,73 @@ export class StateMigrationService extends BaseStateMigrationService {
   }
 
   protected async migrateStateFrom1To2(useSecureStorageForSecrets: boolean = true): Promise<void> {
+    // Grabbing a couple of key settings before they get cleared by the base migration
+    const userId = await this.get<string>(Keys.entityId);
+    const clientId = await this.get<string>(ClientKeys.clientId);
+    const clientSecret = await this.get<string>(ClientKeys.clientSecret);
+
     await super.migrateStateFrom1To2();
-    const state = await this.storageService.get<State<Account>>(Keys.state);
-    const userId = await this.storageService.get<string>(Keys.entityId);
 
-    if (userId != null) {
-      state.accounts[userId] = new Account({
-        directorySettings: {
-          directoryType: await this.storageService.get<DirectoryType>(Keys.directoryType),
-          organizationId: await this.storageService.get<string>(Keys.organizationId),
-          lastUserSync: await this.storageService.get<Date>(Keys.lastUserSync),
-          lastGroupSync: await this.storageService.get<Date>(Keys.lastGroupSync),
-          lastSyncHash: await this.storageService.get<string>(Keys.lastSyncHash),
-          syncingDir: await this.storageService.get<boolean>(Keys.syncingDir),
-          sync: await this.storageService.get<SyncConfiguration>(Keys.syncConfig),
-        },
-        profile: {
-          entityId: await this.storageService.get<string>(Keys.entityId),
-        },
-        directoryConfigurations: new DirectoryConfigurations(),
-        clientKeys: {
-          clientId: await this.storageService.get<string>(ClientKeys.clientId),
-          clientSecret: await this.storageService.get<string>(ClientKeys.clientSecret),
-        },
-      });
-    }
-
-    for (const key in DirectoryType) {
-      if (await this.storageService.has(SecureStorageKeys.directoryConfigPrefix + key)) {
-        switch (+key) {
-          case DirectoryType.Ldap:
-            state.accounts[userId].directoryConfigurations.ldap =
-              await this.storageService.get<LdapConfiguration>(
-                SecureStorageKeys.directoryConfigPrefix + key
-              );
-            break;
-          case DirectoryType.GSuite:
-            state.accounts[userId].directoryConfigurations.gsuite =
-              await this.storageService.get<GSuiteConfiguration>(
-                SecureStorageKeys.directoryConfigPrefix + key
-              );
-            break;
-          case DirectoryType.AzureActiveDirectory:
-            state.accounts[userId].directoryConfigurations.azure =
-              await this.storageService.get<AzureConfiguration>(
-                SecureStorageKeys.directoryConfigPrefix + key
-              );
-            break;
-          case DirectoryType.Okta:
-            state.accounts[userId].directoryConfigurations.okta =
-              await this.storageService.get<OktaConfiguration>(
-                SecureStorageKeys.directoryConfigPrefix + key
-              );
-            break;
-          case DirectoryType.OneLogin:
-            state.accounts[userId].directoryConfigurations.oneLogin =
-              await this.storageService.get<OneLoginConfiguration>(
-                SecureStorageKeys.directoryConfigPrefix + key
-              );
-            break;
+    // Setup reusable method for clearing keys since we will want to do that regardless of if there is an active authenticated session
+    const clearDirectoryConnectorV1Keys = async () => {
+      for (const key in Keys) {
+        if (key == null) {
+          continue;
         }
-        await this.storageService.remove(SecureStorageKeys.directoryConfigPrefix + key);
+        for (const directoryType in DirectoryType) {
+          if (directoryType == null) {
+            continue;
+          }
+          await this.set(SecureStorageKeys.directoryConfigPrefix + directoryType, null);
+        }
       }
+    };
+
+    // Initilize typed objects from key/value pairs in storage to either be saved temporarily until an account is authed or applied to the active account
+    const getDirectoryConfig = async <T>(type: DirectoryType) =>
+      await this.get<T>(SecureStorageKeys.directoryConfigPrefix + type);
+    const directoryConfigs: DirectoryConfigurations = {
+      ldap: await getDirectoryConfig<LdapConfiguration>(DirectoryType.Ldap),
+      gsuite: await getDirectoryConfig<GSuiteConfiguration>(DirectoryType.GSuite),
+      azure: await getDirectoryConfig<AzureConfiguration>(DirectoryType.AzureActiveDirectory),
+      okta: await getDirectoryConfig<OktaConfiguration>(DirectoryType.Okta),
+      oneLogin: await getDirectoryConfig<OneLoginConfiguration>(DirectoryType.OneLogin),
+    };
+
+    const directorySettings: DirectorySettings = {
+      directoryType: await this.get<DirectoryType>(Keys.directoryType),
+      organizationId: await this.get<string>(Keys.organizationId),
+      lastUserSync: await this.get<Date>(Keys.lastUserSync),
+      lastGroupSync: await this.get<Date>(Keys.lastGroupSync),
+      lastSyncHash: await this.get<string>(Keys.lastSyncHash),
+      syncingDir: await this.get<boolean>(Keys.syncingDir),
+      sync: await this.get<SyncConfiguration>(Keys.syncConfig),
+    };
+
+    // (userId == null) = no authed account, stored data temporarily to be applied and cleared on next auth
+    // (userId != null) = authed account known, applied stored data to it and do not save temp data
+    if (userId == null) {
+      await this.set(Keys.tempDirectoryConfigs, directoryConfigs);
+      await this.set(Keys.tempDirectorySettings, directorySettings);
+      await clearDirectoryConnectorV1Keys();
+      return;
     }
 
-    state.globals.environmentUrls = await this.storageService.get("environmentUrls");
+    const account = await this.get<Account>(userId);
+    account.directoryConfigurations = directoryConfigs;
+    account.directorySettings = directorySettings;
+    account.profile = {
+      userId: userId,
+      entityId: userId,
+      apiKeyClientId: clientId,
+    };
+    account.clientKeys = {
+      clientId: clientId,
+      clientSecret: clientSecret,
+    };
 
-    await this.storageService.save("state", state);
+    await this.set(userId, account);
+    await clearDirectoryConnectorV1Keys();
 
     if (useSecureStorageForSecrets) {
       for (const key in SecureStorageKeys) {
