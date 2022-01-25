@@ -1,4 +1,5 @@
-import { OrganizationApiLogInDelegate } from '../misc/logInDelegate/apiLogin.delegate';
+import { OrganizationApiLogInDelegate } from '../misc/logInDelegate/organizationApiLogin.delegate';
+import { ApiLogInDelegate } from 'jslib-common/misc/logInDelegate/apiLogin.delegate';
 
 import { ApiService } from "jslib-common/abstractions/api.service";
 import { AppIdService } from "jslib-common/abstractions/appId.service";
@@ -60,16 +61,13 @@ export class AuthService extends AuthServiceBase {
       this.messagingService,
       this.logService,
       this.stateService,
-      this.setCryptoKeys,
       this.twoFactorService,
-      this.environmentService,
-      this.keyConnectorService,
       clientId,
       clientSecret,
       null
     );
 
-    return this.startLogin(apiLogInDelegate);
+    return this.startLogin(apiLogInDelegate as unknown as ApiLogInDelegate);
   }
 
   async logOut(callback: Function) {
