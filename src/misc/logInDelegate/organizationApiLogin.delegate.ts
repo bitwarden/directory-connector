@@ -44,8 +44,7 @@ export class OrganizationApiLogInDelegate extends LogInDelegate {
       messagingService,
       logService,
       stateService,
-      twoFactorService,
-      false
+      twoFactorService
     );
     await delegate.init(clientId, clientSecret, twoFactor);
     return delegate;

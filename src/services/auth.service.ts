@@ -43,8 +43,7 @@ export class AuthService extends AuthServiceBase {
       keyConnectorService,
       environmentService,
       stateService,
-      twoFactorService,
-      false
+      twoFactorService
     );
   }
 
