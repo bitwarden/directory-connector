@@ -30,7 +30,7 @@
                       (click)="toggleSecret()"
                     >
                       <i
-                        class="bwi-lg"
+                        class="bwi bwi-lg"
                         aria-hidden="true"
                         [ngClass]="showSecret ? 'bwi-eye-slash-2' : 'bwi-eye-2'"
                       ></i>
@@ -42,8 +42,8 @@
             <div class="d-flex">
               <div>
                 <button type="submit" class="btn btn-primary" [disabled]="form.loading">
-                  <i class="bwi-spinner bwi-fw bwi-spin" [hidden]="!form.loading"></i>
-                  <i class="bwi-sign-in bwi-fw" [hidden]="form.loading"></i>
+                  <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!form.loading"></i>
+                  <i class="bwi bwi-sign-in bwi-fw" [hidden]="form.loading"></i>
                   {{ "logIn" | i18n }}
                 </button>
               </div>

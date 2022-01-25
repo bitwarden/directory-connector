@@ -15,8 +15,8 @@
           (click)="update()"
           [disabled]="checkingForUpdate"
         >
-          <i class="bwi-download bwi-fw" [hidden]="checkingForUpdate"></i>
-          <i class="bwi-spinner bwi-fw bwi-spin" [hidden]="!checkingForUpdate"></i>
+          <i class="bwi bwi-download bwi-fw" [hidden]="checkingForUpdate"></i>
+          <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!checkingForUpdate"></i>
           {{ "checkForUpdates" | i18n }}
         </button>
       </div>
