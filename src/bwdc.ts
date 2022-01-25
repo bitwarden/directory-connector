@@ -35,6 +35,7 @@ import { SearchService } from "jslib-common/services/search.service";
 import { SendService } from "jslib-common/services/send.service";
 import { SettingsService } from "jslib-common/services/settings.service";
 import { TokenService } from "jslib-common/services/token.service";
+import { TwoFactorService } from 'jslib-common/services/twoFactor.service';
 
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
 
@@ -80,6 +81,7 @@ export class Main {
   stateMigrationService: StateMigrationService;
   organizationService: OrganizationService;
   providerService: ProviderService;
+  twoFactorService: TwoFactorService;
 
   constructor() {
     const applicationName = "Bitwarden Directory Connector";
@@ -168,23 +170,27 @@ export class Main {
       this.apiService,
       this.tokenService,
       this.logService,
-      this.organizationService
+      this.organizationService,
+      this.cryptoFunctionService
     );
+
+    this.twoFactorService = new TwoFactorService(
+      this.i18nService,
+      this.platformUtilsService
+    )
 
     this.authService = new AuthService(
       this.cryptoService,
       this.apiService,
       this.tokenService,
       this.appIdService,
-      this.i18nService,
       this.platformUtilsService,
       this.messagingService,
-      null,
       this.logService,
-      this.cryptoFunctionService,
-      this.environmentService,
       this.keyConnectorService,
-      this.stateService
+      this.environmentService,
+      this.stateService,
+      this.twoFactorService
     );
 
     this.syncService = new SyncService(
@@ -277,7 +283,7 @@ export class Main {
     // });
     const locale = await this.stateService.getLocale();
     await this.i18nService.init(locale);
-    this.authService.init();
+    this.twoFactorService.init();
 
     const installedVersion = await this.stateService.getInstalledVersion();
     const currentVersion = await this.platformUtilsService.getApplicationVersion();
