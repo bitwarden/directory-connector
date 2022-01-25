@@ -34,7 +34,7 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "jslib-c
 import { StateMigrationService as StateMigrationServiceAbstraction } from "jslib-common/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "jslib-common/abstractions/token.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from 'jslib-common/abstractions/twoFactor.service';
+import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "jslib-common/abstractions/vaultTimeout.service";
 
 import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
@@ -175,7 +175,7 @@ export function initFactory(
         KeyConnectorServiceAbstraction,
         EnvironmentServiceAbstraction,
         StateServiceAbstraction,
-        TwoFactorServiceAbstraction
+        TwoFactorServiceAbstraction,
       ],
     },
     {

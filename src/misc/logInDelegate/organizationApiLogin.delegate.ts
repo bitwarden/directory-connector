@@ -1,24 +1,24 @@
-import { LogInDelegate } from 'jslib-common/misc/logInDelegate/logIn.delegate';
+import { LogInDelegate } from "jslib-common/misc/logInDelegate/logIn.delegate";
 
-import { ApiService } from 'jslib-common/abstractions/api.service';
-import { AppIdService } from 'jslib-common/abstractions/appId.service';
-import { CryptoService } from 'jslib-common/abstractions/crypto.service';
-import { LogService } from 'jslib-common/abstractions/log.service';
-import { MessagingService } from 'jslib-common/abstractions/messaging.service';
-import { PlatformUtilsService } from 'jslib-common/abstractions/platformUtils.service';
-import { StateService } from 'jslib-common/abstractions/state.service';
-import { TokenService } from 'jslib-common/abstractions/token.service';
-import { TwoFactorService } from 'jslib-common/abstractions/twoFactor.service';
+import { ApiService } from "jslib-common/abstractions/api.service";
+import { AppIdService } from "jslib-common/abstractions/appId.service";
+import { CryptoService } from "jslib-common/abstractions/crypto.service";
+import { LogService } from "jslib-common/abstractions/log.service";
+import { MessagingService } from "jslib-common/abstractions/messaging.service";
+import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
+import { StateService } from "jslib-common/abstractions/state.service";
+import { TokenService } from "jslib-common/abstractions/token.service";
+import { TwoFactorService } from "jslib-common/abstractions/twoFactor.service";
 
-import { ApiTokenRequest } from 'jslib-common/models/request/identityToken/apiTokenRequest';
-import { TokenRequestTwoFactor } from 'jslib-common/models/request/identityToken/tokenRequest';
+import { ApiTokenRequest } from "jslib-common/models/request/identityToken/apiTokenRequest";
+import { TokenRequestTwoFactor } from "jslib-common/models/request/identityToken/tokenRequest";
 
-import { IdentityTokenResponse } from 'jslib-common/models/response/identityTokenResponse';
+import { IdentityTokenResponse } from "jslib-common/models/response/identityTokenResponse";
 
-import { AuthResult } from 'jslib-common/models/domain/authResult';
-import { AccountKeys, AccountProfile, AccountTokens } from 'jslib-common/models/domain/account';
+import { AccountKeys, AccountProfile, AccountTokens } from "jslib-common/models/domain/account";
+import { AuthResult } from "jslib-common/models/domain/authResult";
 
-import { Account, DirectoryConfigurations, DirectorySettings } from 'src/models/account';
+import { Account, DirectoryConfigurations, DirectorySettings } from "src/models/account";
 
 export class OrganizationApiLogInDelegate extends LogInDelegate {
   static async new(

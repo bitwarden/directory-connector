@@ -1,5 +1,5 @@
-import { OrganizationApiLogInDelegate } from '../misc/logInDelegate/organizationApiLogin.delegate';
-import { ApiLogInDelegate } from 'jslib-common/misc/logInDelegate/apiLogin.delegate';
+import { ApiLogInDelegate } from "jslib-common/misc/logInDelegate/apiLogin.delegate";
+import { OrganizationApiLogInDelegate } from "../misc/logInDelegate/organizationApiLogin.delegate";
 
 import { ApiService } from "jslib-common/abstractions/api.service";
 import { AppIdService } from "jslib-common/abstractions/appId.service";
@@ -10,7 +10,7 @@ import { LogService } from "jslib-common/abstractions/log.service";
 import { MessagingService } from "jslib-common/abstractions/messaging.service";
 import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
 import { TokenService } from "jslib-common/abstractions/token.service";
-import { TwoFactorService } from 'jslib-common/abstractions/twoFactor.service';
+import { TwoFactorService } from "jslib-common/abstractions/twoFactor.service";
 
 import { AuthService as AuthServiceBase } from "jslib-common/services/auth.service";
 
@@ -48,10 +48,7 @@ export class AuthService extends AuthServiceBase {
     );
   }
 
-  async logInApiKey(
-    clientId: string,
-    clientSecret: string
-  ): Promise<AuthResult> {
+  async logInApiKey(clientId: string, clientSecret: string): Promise<AuthResult> {
     const apiLogInDelegate = await OrganizationApiLogInDelegate.new(
       this.cryptoService,
       this.apiService,

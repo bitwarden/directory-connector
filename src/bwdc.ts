@@ -35,7 +35,7 @@ import { SearchService } from "jslib-common/services/search.service";
 import { SendService } from "jslib-common/services/send.service";
 import { SettingsService } from "jslib-common/services/settings.service";
 import { TokenService } from "jslib-common/services/token.service";
-import { TwoFactorService } from 'jslib-common/services/twoFactor.service';
+import { TwoFactorService } from "jslib-common/services/twoFactor.service";
 
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
 
@@ -174,10 +174,7 @@ export class Main {
       this.cryptoFunctionService
     );
 
-    this.twoFactorService = new TwoFactorService(
-      this.i18nService,
-      this.platformUtilsService
-    )
+    this.twoFactorService = new TwoFactorService(this.i18nService, this.platformUtilsService);
 
     this.authService = new AuthService(
       this.cryptoService,
