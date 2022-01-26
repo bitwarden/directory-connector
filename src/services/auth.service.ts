@@ -66,10 +66,6 @@ export class AuthService extends AuthServiceBase {
     return await super.logInApiKey(clientId, clientSecret);
   }
 
-  async logOut(callback: Function) {
-    super.logOut(callback);
-  }
-
   private async organizationLogInHelper(clientId: string, clientSecret: string) {
     const appId = await this.appIdService.getAppId();
     const entityId = clientId.split("organization.")[1];
