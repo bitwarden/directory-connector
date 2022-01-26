@@ -12,7 +12,6 @@ import { StateService } from "../../abstractions/state.service";
 
 import { ModalService } from "jslib-angular/services/modal.service";
 
-import { HtmlStorageLocation } from "jslib-common/enums/htmlStorageLocation";
 import { Utils } from "jslib-common/misc/utils";
 
 @Component({
