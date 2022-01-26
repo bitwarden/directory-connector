@@ -67,7 +67,6 @@ export class AuthService extends AuthServiceBase {
   }
 
   async logOut(callback: Function) {
-    this.stateService.clean();
     super.logOut(callback);
   }
 
