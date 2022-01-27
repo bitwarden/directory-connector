@@ -17,18 +17,18 @@
     </p>
     <form #startForm [appApiAction]="startPromise" class="d-inline">
       <button (click)="start()" class="btn btn-primary" [disabled]="startForm.loading">
-        <i class="fa fa-play fa-fw" [hidden]="startForm.loading"></i>
-        <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!startForm.loading"></i>
+        <i class="bwi bwi-play bwi-fw" [hidden]="startForm.loading"></i>
+        <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!startForm.loading"></i>
         {{ "startSync" | i18n }}
       </button>
     </form>
     <button (click)="stop()" class="btn btn-primary">
-      <i class="fa fa-stop fa-fw"></i>
+      <i class="bwi bwi-stop bwi-fw"></i>
       {{ "stopSync" | i18n }}
     </button>
     <form #syncForm [appApiAction]="syncPromise" class="d-inline">
       <button (click)="sync()" class="btn btn-primary" [disabled]="syncForm.loading">
-        <i class="fa fa-refresh fa-fw" [ngClass]="{ 'fa-spin': syncForm.loading }"></i>
+        <i class="bwi bwi-refresh bwi-fw" [ngClass]="{ 'bwi-spin': syncForm.loading }"></i>
         {{ "syncNow" | i18n }}
       </button>
     </form>
@@ -40,8 +40,8 @@
     <p>{{ "testingDesc" | i18n }}</p>
     <form #simForm [appApiAction]="simPromise" class="d-inline">
       <button (click)="simulate()" class="btn btn-primary" [disabled]="simForm.loading">
-        <i class="fa fa-spinner fa-fw fa-spin" [hidden]="!simForm.loading"></i>
-        <i class="fa fa-bug fa-fw" [hidden]="simForm.loading"></i>
+        <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!simForm.loading"></i>
+        <i class="bwi bwi-bug bwi-fw" [hidden]="simForm.loading"></i>
         {{ "testNow" | i18n }}
       </button>
     </form>
@@ -59,9 +59,9 @@
       <div class="row">
         <div class="col-lg">
           <h4>{{ "users" | i18n }}</h4>
-          <ul class="fa-ul testing-list" *ngIf="simEnabledUsers && simEnabledUsers.length">
+          <ul class="bwi-ul testing-list" *ngIf="simEnabledUsers && simEnabledUsers.length">
             <li *ngFor="let u of simEnabledUsers" title="{{ u.referenceId }}">
-              <i class="fa-li fa fa-user"></i>
+              <i class="bwi bwi-li bwi-user"></i>
               {{ u.displayName }}
             </li>
           </ul>
@@ -69,9 +69,9 @@
             {{ "noUsers" | i18n }}
           </p>
           <h4>{{ "disabledUsers" | i18n }}</h4>
-          <ul class="fa-ul testing-list" *ngIf="simDisabledUsers && simDisabledUsers.length">
+          <ul class="bwi-ul testing-list" *ngIf="simDisabledUsers && simDisabledUsers.length">
             <li *ngFor="let u of simDisabledUsers" title="{{ u.referenceId }}">
-              <i class="fa-li fa fa-user"></i>
+              <i class="bwi bwi-li bwi-user"></i>
               {{ u.displayName }}
             </li>
           </ul>
@@ -79,9 +79,9 @@
             {{ "noUsers" | i18n }}
           </p>
           <h4>{{ "deletedUsers" | i18n }}</h4>
-          <ul class="fa-ul testing-list" *ngIf="simDeletedUsers && simDeletedUsers.length">
+          <ul class="bwi-ul testing-list" *ngIf="simDeletedUsers && simDeletedUsers.length">
             <li *ngFor="let u of simDeletedUsers" title="{{ u.referenceId }}">
-              <i class="fa-li fa fa-user"></i>
+              <i class="bwi bwi-li bwi-user"></i>
               {{ u.displayName }}
             </li>
           </ul>
@@ -91,9 +91,9 @@
         </div>
         <div class="col-lg">
           <h4>{{ "groups" | i18n }}</h4>
-          <ul class="fa-ul testing-list" *ngIf="simGroups && simGroups.length">
+          <ul class="bwi-ul testing-list" *ngIf="simGroups && simGroups.length">
             <li *ngFor="let g of simGroups" title="{{ g.referenceId }}">
-              <i class="fa-li fa fa-sitemap"></i>
+              <i class="bwi bwi-li bwi-sitemap"></i>
               {{ g.displayName }}
               <ul class="small" *ngIf="g.users && g.users.length">
                 <li *ngFor="let u of g.users" title="{{ u.referenceId }}">
