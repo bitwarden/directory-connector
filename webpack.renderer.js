@@ -22,7 +22,7 @@ const common = {
         test: /\.(jpe?g|png|gif|svg)$/i,
         exclude: /.*(fontawesome-webfont)\.svg/,
         generator: {
-          filename: "images/[name].[ext]",
+          filename: "images/[name][ext]",
         },
         type: "asset/resource",
       },
@@ -75,7 +75,7 @@ const renderer = {
         test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
         exclude: /loading.svg/,
         generator: {
-          filename: "fonts/[name].[ext]",
+          filename: "fonts/[name][ext]",
         },
         type: "asset/resource",
       },
