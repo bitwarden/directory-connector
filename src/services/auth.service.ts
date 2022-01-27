@@ -1,4 +1,4 @@
-import { OrganizationApiLogInDelegate } from "../misc/logInDelegate/organizationApiLogin.delegate";
+import { OrganizationLogInStrategy } from "../misc/logInStrategies/organizationLogIn.strategy";
 
 import { ApiService } from "jslib-common/abstractions/api.service";
 import { AppIdService } from "jslib-common/abstractions/appId.service";
@@ -14,6 +14,7 @@ import { TwoFactorService } from "jslib-common/abstractions/twoFactor.service";
 import { AuthService as AuthServiceBase } from "jslib-common/services/auth.service";
 
 import { AuthResult } from "jslib-common/models/domain/authResult";
+import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
 
 import { StateService } from "../abstractions/state.service";
 
@@ -46,8 +47,8 @@ export class AuthService extends AuthServiceBase {
     );
   }
 
-  async logInApiKey(clientId: string, clientSecret: string): Promise<AuthResult> {
-    const apiLogInDelegate = await OrganizationApiLogInDelegate.new(
+  async logIn(credentials: ApiLogInCredentials): Promise<AuthResult> {
+    const strategy = new OrganizationLogInStrategy(
       this.cryptoService,
       this.apiService,
       this.tokenService,
@@ -56,13 +57,10 @@ export class AuthService extends AuthServiceBase {
       this.messagingService,
       this.logService,
       this.stateService,
-      this.twoFactorService,
-      clientId,
-      clientSecret,
-      null
+      this.twoFactorService
     );
 
-    return this.startLogin(apiLogInDelegate);
+    return strategy.logIn(credentials);
   }
 
   async logOut(callback: Function) {

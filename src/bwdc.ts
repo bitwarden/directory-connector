@@ -43,6 +43,7 @@ import { Program } from "./program";
 
 import { AccountFactory } from "jslib-common/models/domain/account";
 
+import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
 import { Account } from "./models/account";
 
 // tslint:disable-next-line
@@ -158,7 +159,8 @@ export class Main {
         " (" +
         this.platformUtilsService.getDeviceString().toUpperCase() +
         ")",
-      (clientId, clientSecret) => this.authService.logInApiKey(clientId, clientSecret)
+      (clientId, clientSecret) =>
+        this.authService.logIn(new ApiLogInCredentials(clientId, clientSecret))
     );
     this.containerService = new ContainerService(this.cryptoService);
 
