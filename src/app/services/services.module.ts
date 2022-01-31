@@ -45,7 +45,10 @@ import { StateMigrationService } from "../../services/stateMigration.service";
 
 import { Account } from "../../models/account";
 
-import { AccountFactory } from "jslib-common/models/domain/account";
+import { GlobalStateFactory } from "jslib-common/factories/globalStateFactory";
+import { StateFactory } from "jslib-common/factories/stateFactory";
+
+import { GlobalState } from "jslib-common/models/domain/globalState";
 
 function refreshTokenCallback(injector: Injector) {
   return () => {
@@ -196,7 +199,15 @@ export function initFactory(
     LaunchGuardService,
     {
       provide: StateMigrationServiceAbstraction,
-      useClass: StateMigrationService,
+      useFactory: (
+        storageService: StorageServiceAbstraction,
+        secureStorageService: StorageServiceAbstraction
+      ) =>
+        new StateMigrationService(
+          storageService,
+          secureStorageService,
+          new GlobalStateFactory(GlobalState)
+        ),
       deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
     },
     {
@@ -213,7 +224,7 @@ export function initFactory(
           logService,
           stateMigrationService,
           true, // TODO: It seems like we aren't applying this from settings anywhere. Is toggling secure storage working?
-          new AccountFactory(Account)
+          new StateFactory(GlobalState, Account)
         ),
       deps: [
         StorageServiceAbstraction,

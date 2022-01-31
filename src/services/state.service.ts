@@ -1,7 +1,9 @@
 import { StateService as BaseStateService } from "jslib-common/services/state.service";
 
-import { AccountFactory } from "jslib-common/models/domain/account";
+import { GlobalState } from "jslib-common/models/domain/globalState";
 import { StorageOptions } from "jslib-common/models/domain/storageOptions";
+
+import { StateFactory } from "jslib-common/factories/stateFactory";
 
 import { Account } from "src/models/account";
 import { AzureConfiguration } from "src/models/azureConfiguration";
@@ -48,9 +50,9 @@ export class StateService extends BaseStateService<Account> implements StateServ
     protected logService: LogService,
     protected stateMigrationService: StateMigrationService,
     private useSecureStorageForSecrets = true,
-    protected accountFactory: AccountFactory<Account>
+    protected stateFactory: StateFactory<Account, GlobalState>
   ) {
-    super(storageService, secureStorageService, logService, stateMigrationService, accountFactory);
+    super(storageService, secureStorageService, logService, stateMigrationService, stateFactory);
   }
 
   async getDirectory<T extends IConfiguration>(type: DirectoryType): Promise<T> {
