@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { ClientType } from "jslib-common/enums/clientType";
 import { LogLevelType } from "jslib-common/enums/logLevelType";
 
 import { AuthService } from "./services/auth.service";
@@ -107,7 +108,7 @@ export class Main {
 
     const plaintextSecrets = process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS === "true";
     this.i18nService = new I18nService("en", "./locales");
-    this.platformUtilsService = new CliPlatformUtilsService("connector", packageJson);
+    this.platformUtilsService = new CliPlatformUtilsService(ClientType.DirectoryConnector, packageJson);
     this.logService = new ConsoleLogService(
       this.platformUtilsService.isDev(),
       (level) => process.env.BITWARDENCLI_CONNECTOR_DEBUG !== "true" && level <= LogLevelType.Info

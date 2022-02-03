@@ -130,7 +130,7 @@ export function initFactory(
         i18nService: I18nServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
         stateService: StateServiceAbstraction
-      ) => new ElectronPlatformUtilsService(i18nService, messagingService, true, stateService),
+      ) => new ElectronPlatformUtilsService(i18nService, messagingService, false, stateService),
       deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
     },
     { provide: CryptoFunctionServiceAbstraction, useClass: NodeCryptoFunctionService, deps: [] },
