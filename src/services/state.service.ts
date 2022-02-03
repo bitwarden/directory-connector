@@ -43,14 +43,17 @@ const keys = {
 
 const StoredSecurely = "[STORED SECURELY]";
 
-export class StateService extends BaseStateService<Account> implements StateServiceAbstraction {
+export class StateService
+  extends BaseStateService<GlobalState, Account>
+  implements StateServiceAbstraction
+{
   constructor(
     protected storageService: StorageService,
     protected secureStorageService: StorageService,
     protected logService: LogService,
     protected stateMigrationService: StateMigrationService,
     private useSecureStorageForSecrets = true,
-    protected stateFactory: StateFactory<Account, GlobalState>
+    protected stateFactory: StateFactory<GlobalState, Account>
   ) {
     super(storageService, secureStorageService, logService, stateMigrationService, stateFactory);
   }
