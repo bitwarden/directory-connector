@@ -45,7 +45,6 @@ import { StateMigrationService } from "../../services/stateMigration.service";
 
 import { Account } from "../../models/account";
 
-import { GlobalStateFactory } from "jslib-common/factories/globalStateFactory";
 import { StateFactory } from "jslib-common/factories/stateFactory";
 
 import { GlobalState } from "jslib-common/models/domain/globalState";
@@ -206,7 +205,7 @@ export function initFactory(
         new StateMigrationService(
           storageService,
           secureStorageService,
-          new GlobalStateFactory(GlobalState)
+          new StateFactory(GlobalState, Account)
         ),
       deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
     },
@@ -223,7 +222,7 @@ export function initFactory(
           secureStorageService,
           logService,
           stateMigrationService,
-          true, // TODO: It seems like we aren't applying this from settings anywhere. Is toggling secure storage working?
+          true,
           new StateFactory(GlobalState, Account)
         ),
       deps: [
