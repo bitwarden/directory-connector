@@ -137,6 +137,10 @@ export class SyncService {
   }
 
   private removeDuplicateUsers(users: UserEntry[]) {
+    if (users == null) {
+      return null;
+    }
+
     const uniqueUsers = new Array<UserEntry>();
     const processedActiveUsers = new Map<string, string>();
     const processedDeletedUsers = new Map<string, string>();
