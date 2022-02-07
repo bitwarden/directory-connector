@@ -46,8 +46,8 @@ import { Account } from "./models/account";
 import { GlobalStateFactory } from "jslib-common/factories/globalStateFactory";
 import { StateFactory } from "jslib-common/factories/stateFactory";
 
-import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
 import { GlobalState } from "jslib-common/models/domain/globalState";
+import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
 
 // tslint:disable-next-line
 const packageJson = require("./package.json");
