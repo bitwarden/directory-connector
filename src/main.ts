@@ -15,9 +15,11 @@ import { WindowMain } from "jslib-electron/window.main";
 
 import { StateService } from "./services/state.service";
 
-import { AccountFactory } from "jslib-common/models/domain/account";
-
 import { Account } from "./models/account";
+
+import { StateFactory } from "jslib-common/factories/stateFactory";
+
+import { GlobalState } from "jslib-common/models/domain/globalState";
 
 export class Main {
   logService: ElectronLogService;
@@ -64,7 +66,7 @@ export class Main {
       this.logService,
       null,
       true,
-      new AccountFactory(Account)
+      new StateFactory(GlobalState, Account)
     );
 
     this.windowMain = new WindowMain(

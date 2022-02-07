@@ -1,7 +1,9 @@
 import { StateService as BaseStateService } from "jslib-common/services/state.service";
 
-import { AccountFactory } from "jslib-common/models/domain/account";
+import { GlobalState } from "jslib-common/models/domain/globalState";
 import { StorageOptions } from "jslib-common/models/domain/storageOptions";
+
+import { StateFactory } from "jslib-common/factories/stateFactory";
 
 import { Account } from "src/models/account";
 import { AzureConfiguration } from "src/models/azureConfiguration";
@@ -41,16 +43,19 @@ const keys = {
 
 const StoredSecurely = "[STORED SECURELY]";
 
-export class StateService extends BaseStateService<Account> implements StateServiceAbstraction {
+export class StateService
+  extends BaseStateService<GlobalState, Account>
+  implements StateServiceAbstraction
+{
   constructor(
     protected storageService: StorageService,
     protected secureStorageService: StorageService,
     protected logService: LogService,
     protected stateMigrationService: StateMigrationService,
     private useSecureStorageForSecrets = true,
-    protected accountFactory: AccountFactory<Account>
+    protected stateFactory: StateFactory<GlobalState, Account>
   ) {
-    super(storageService, secureStorageService, logService, stateMigrationService, accountFactory);
+    super(storageService, secureStorageService, logService, stateMigrationService, stateFactory);
   }
 
   async getDirectory<T extends IConfiguration>(type: DirectoryType): Promise<T> {

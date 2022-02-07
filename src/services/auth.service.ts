@@ -62,9 +62,4 @@ export class AuthService extends AuthServiceBase {
 
     return strategy.logIn(credentials);
   }
-
-  async logOut(callback: Function) {
-    this.stateService.clean();
-    super.logOut(callback);
-  }
 }

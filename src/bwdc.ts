@@ -41,10 +41,13 @@ import { StorageService as StorageServiceAbstraction } from "jslib-common/abstra
 
 import { Program } from "./program";
 
-import { AccountFactory } from "jslib-common/models/domain/account";
+import { Account } from "./models/account";
+
+import { GlobalStateFactory } from "jslib-common/factories/globalStateFactory";
+import { StateFactory } from "jslib-common/factories/stateFactory";
 
 import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
-import { Account } from "./models/account";
+import { GlobalState } from "jslib-common/models/domain/globalState";
 
 // tslint:disable-next-line
 const packageJson = require("./package.json");
@@ -126,7 +129,8 @@ export class Main {
 
     this.stateMigrationService = new StateMigrationService(
       this.storageService,
-      this.secureStorageService
+      this.secureStorageService,
+      new StateFactory(GlobalState, Account)
     );
 
     this.stateService = new StateService(
@@ -135,7 +139,7 @@ export class Main {
       this.logService,
       this.stateMigrationService,
       process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
-      new AccountFactory(Account)
+      new StateFactory(GlobalState, Account)
     );
 
     this.cryptoService = new CryptoService(
