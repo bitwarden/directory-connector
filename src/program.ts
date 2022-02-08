@@ -106,6 +106,7 @@ export class Program extends BaseProgram {
           this.main.stateService,
           this.main.cryptoService,
           this.main.policyService,
+          this.main.twoFactorService,
           "connector"
         );
 

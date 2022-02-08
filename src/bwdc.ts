@@ -8,6 +8,7 @@ import { AuthService } from "./services/auth.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
+import { NoopTwoFactorService } from "./services/noop/noopTwoFactor.service";
 import { StateService } from "./services/state.service";
 import { StateMigrationService } from "./services/stateMigration.service";
 import { SyncService } from "./services/sync.service";
@@ -37,15 +38,16 @@ import { SettingsService } from "jslib-common/services/settings.service";
 import { TokenService } from "jslib-common/services/token.service";
 
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
+import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
 
 import { Program } from "./program";
 
 import { Account } from "./models/account";
 
-import { GlobalStateFactory } from "jslib-common/factories/globalStateFactory";
 import { StateFactory } from "jslib-common/factories/stateFactory";
 
 import { GlobalState } from "jslib-common/models/domain/globalState";
+import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
 
 // tslint:disable-next-line
 const packageJson = require("./package.json");
@@ -83,6 +85,7 @@ export class Main {
   stateMigrationService: StateMigrationService;
   organizationService: OrganizationService;
   providerService: ProviderService;
+  twoFactorService: TwoFactorServiceAbstraction;
 
   constructor() {
     const applicationName = "Bitwarden Directory Connector";
@@ -160,7 +163,8 @@ export class Main {
         " (" +
         this.platformUtilsService.getDeviceString().toUpperCase() +
         ")",
-      (clientId, clientSecret) => this.authService.logInApiKey(clientId, clientSecret)
+      (clientId, clientSecret) =>
+        this.authService.logIn(new ApiLogInCredentials(clientId, clientSecret))
     );
     this.containerService = new ContainerService(this.cryptoService);
 
@@ -172,23 +176,24 @@ export class Main {
       this.apiService,
       this.tokenService,
       this.logService,
-      this.organizationService
+      this.organizationService,
+      this.cryptoFunctionService
     );
+
+    this.twoFactorService = new NoopTwoFactorService();
 
     this.authService = new AuthService(
       this.cryptoService,
       this.apiService,
       this.tokenService,
       this.appIdService,
-      this.i18nService,
       this.platformUtilsService,
       this.messagingService,
-      null,
       this.logService,
-      this.cryptoFunctionService,
-      this.environmentService,
       this.keyConnectorService,
-      this.stateService
+      this.environmentService,
+      this.stateService,
+      this.twoFactorService
     );
 
     this.syncService = new SyncService(
@@ -281,7 +286,6 @@ export class Main {
     // });
     const locale = await this.stateService.getLocale();
     await this.i18nService.init(locale);
-    this.authService.init();
 
     const installedVersion = await this.stateService.getInstalledVersion();
     const currentVersion = await this.platformUtilsService.getApplicationVersion();
