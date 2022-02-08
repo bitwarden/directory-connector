@@ -8,6 +8,7 @@ import { AuthService } from "./services/auth.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
+import { NoopTwoFactorService } from "./services/noop/noopTwoFactor.service";
 import { StateService } from "./services/state.service";
 import { StateMigrationService } from "./services/stateMigration.service";
 import { SyncService } from "./services/sync.service";
@@ -35,15 +36,14 @@ import { SearchService } from "jslib-common/services/search.service";
 import { SendService } from "jslib-common/services/send.service";
 import { SettingsService } from "jslib-common/services/settings.service";
 import { TokenService } from "jslib-common/services/token.service";
-import { TwoFactorService } from "jslib-common/services/twoFactor.service";
 
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
+import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
 
 import { Program } from "./program";
 
 import { Account } from "./models/account";
 
-import { GlobalStateFactory } from "jslib-common/factories/globalStateFactory";
 import { StateFactory } from "jslib-common/factories/stateFactory";
 
 import { GlobalState } from "jslib-common/models/domain/globalState";
@@ -85,7 +85,7 @@ export class Main {
   stateMigrationService: StateMigrationService;
   organizationService: OrganizationService;
   providerService: ProviderService;
-  twoFactorService: TwoFactorService;
+  twoFactorService: TwoFactorServiceAbstraction;
 
   constructor() {
     const applicationName = "Bitwarden Directory Connector";
@@ -180,7 +180,7 @@ export class Main {
       this.cryptoFunctionService
     );
 
-    this.twoFactorService = new TwoFactorService(this.i18nService, this.platformUtilsService);
+    this.twoFactorService = new NoopTwoFactorService();
 
     this.authService = new AuthService(
       this.cryptoService,

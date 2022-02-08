@@ -11,6 +11,7 @@ import { LaunchGuardService } from "./launch-guard.service";
 
 import { I18nService } from "../../services/i18n.service";
 import { SyncService } from "../../services/sync.service";
+import { NoopTwoFactorService } from "../../services/noop/noopTwoFactor.service";
 
 import { JslibServicesModule } from "jslib-angular/services/jslib-services.module";
 
@@ -35,7 +36,6 @@ import { StateMigrationService as StateMigrationServiceAbstraction } from "jslib
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "jslib-common/abstractions/token.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
-import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "jslib-common/abstractions/vaultTimeout.service";
 
 import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
 
@@ -61,7 +61,6 @@ function refreshTokenCallback(injector: Injector) {
 export function initFactory(
   environmentService: EnvironmentServiceAbstraction,
   i18nService: I18nService,
-  twoFactorService: TwoFactorServiceAbstraction,
   platformUtilsService: PlatformUtilsServiceAbstraction,
   stateService: StateServiceAbstraction,
   cryptoService: CryptoServiceAbstraction
@@ -229,6 +228,10 @@ export function initFactory(
         LogServiceAbstraction,
         StateMigrationServiceAbstraction,
       ],
+    },
+    {
+      provide: TwoFactorServiceAbstraction,
+      useClass: NoopTwoFactorService,
     },
   ],
 })
