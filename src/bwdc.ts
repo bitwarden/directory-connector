@@ -286,7 +286,6 @@ export class Main {
     // });
     const locale = await this.stateService.getLocale();
     await this.i18nService.init(locale);
-    this.twoFactorService.init();
 
     const installedVersion = await this.stateService.getInstalledVersion();
     const currentVersion = await this.platformUtilsService.getApplicationVersion();

@@ -70,7 +70,6 @@ export function initFactory(
     await stateService.init();
     await environmentService.setUrlsFromStorage();
     await i18nService.init();
-    twoFactorService.init();
     const htmlEl = window.document.documentElement;
     htmlEl.classList.add("os_" + platformUtilsService.getDeviceString());
     htmlEl.classList.add("locale_" + i18nService.translationLocale);
