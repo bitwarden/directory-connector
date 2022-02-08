@@ -11,6 +11,7 @@ import { LaunchGuardService } from "./launch-guard.service";
 
 import { I18nService } from "../../services/i18n.service";
 import { SyncService } from "../../services/sync.service";
+import { NoopTwoFactorService } from "../../services/noop/noopTwoFactor.service";
 
 import { JslibServicesModule } from "jslib-angular/services/jslib-services.module";
 
@@ -34,11 +35,11 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "jslib-c
 import { StateMigrationService as StateMigrationServiceAbstraction } from "jslib-common/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "jslib-common/abstractions/token.service";
-import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "jslib-common/abstractions/vaultTimeout.service";
+import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
 
 import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
 
-import { ApiService, refreshToken } from "../../services/api.service";
+import { refreshToken } from "../../services/api.service";
 import { AuthService } from "../../services/auth.service";
 import { StateService } from "../../services/state.service";
 import { StateMigrationService } from "../../services/stateMigration.service";
@@ -60,7 +61,6 @@ function refreshTokenCallback(injector: Injector) {
 export function initFactory(
   environmentService: EnvironmentServiceAbstraction,
   i18nService: I18nService,
-  authService: AuthService,
   platformUtilsService: PlatformUtilsServiceAbstraction,
   stateService: StateServiceAbstraction,
   cryptoService: CryptoServiceAbstraction
@@ -69,7 +69,6 @@ export function initFactory(
     await stateService.init();
     await environmentService.setUrlsFromStorage();
     await i18nService.init();
-    authService.init();
     const htmlEl = window.document.documentElement;
     htmlEl.classList.add("os_" + platformUtilsService.getDeviceString());
     htmlEl.classList.add("locale_" + i18nService.translationLocale);
@@ -103,7 +102,6 @@ export function initFactory(
       deps: [
         EnvironmentServiceAbstraction,
         I18nServiceAbstraction,
-        AuthServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         StateServiceAbstraction,
         CryptoServiceAbstraction,
@@ -170,15 +168,13 @@ export function initFactory(
         ApiServiceAbstraction,
         TokenServiceAbstraction,
         AppIdServiceAbstraction,
-        I18nServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         MessagingServiceAbstraction,
-        VaultTimeoutServiceAbstraction,
         LogServiceAbstraction,
-        CryptoFunctionServiceAbstraction,
-        EnvironmentServiceAbstraction,
         KeyConnectorServiceAbstraction,
+        EnvironmentServiceAbstraction,
         StateServiceAbstraction,
+        TwoFactorServiceAbstraction,
       ],
     },
     {
@@ -231,6 +227,10 @@ export function initFactory(
         LogServiceAbstraction,
         StateMigrationServiceAbstraction,
       ],
+    },
+    {
+      provide: TwoFactorServiceAbstraction,
+      useClass: NoopTwoFactorService,
     },
   ],
 })
