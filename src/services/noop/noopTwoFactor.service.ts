@@ -8,7 +8,9 @@ import { TwoFactorProviderType } from "jslib-common/enums/twoFactorProviderType"
 import { IdentityTwoFactorResponse } from "jslib-common/models/response/identityTwoFactorResponse";
 
 export class NoopTwoFactorService implements TwoFactorService {
-  init() {}
+  init() {
+    // Noop
+  }
 
   getSupportedProviders(win: Window): TwoFactorProviderDetails[] {
     return null;
@@ -18,13 +20,21 @@ export class NoopTwoFactorService implements TwoFactorService {
     return null;
   }
 
-  setSelectedProvider(type: TwoFactorProviderType) {}
+  setSelectedProvider(type: TwoFactorProviderType) {
+    // Noop
+  }
 
-  clearSelectedProvider() {}
+  clearSelectedProvider() {
+    // Noop
+  }
 
-  setProviders(response: IdentityTwoFactorResponse) {}
+  setProviders(response: IdentityTwoFactorResponse) {
+    // Noop
+  }
 
-  clearProviders() {}
+  clearProviders() {
+    // Noop
+  }
 
   getProviders(): Map<TwoFactorProviderType, { [key: string]: string }> {
     return null;
