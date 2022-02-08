@@ -102,7 +102,6 @@ export function initFactory(
       deps: [
         EnvironmentServiceAbstraction,
         I18nServiceAbstraction,
-        TwoFactorServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         StateServiceAbstraction,
         CryptoServiceAbstraction,
