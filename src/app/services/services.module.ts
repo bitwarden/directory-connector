@@ -10,8 +10,8 @@ import { AuthGuardService } from "./auth-guard.service";
 import { LaunchGuardService } from "./launch-guard.service";
 
 import { I18nService } from "../../services/i18n.service";
-import { SyncService } from "../../services/sync.service";
 import { NoopTwoFactorService } from "../../services/noop/noopTwoFactor.service";
+import { SyncService } from "../../services/sync.service";
 
 import { JslibServicesModule } from "jslib-angular/services/jslib-services.module";
 
@@ -127,7 +127,7 @@ export function initFactory(
         i18nService: I18nServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
         stateService: StateServiceAbstraction
-      ) => new ElectronPlatformUtilsService(i18nService, messagingService, true, stateService),
+      ) => new ElectronPlatformUtilsService(i18nService, messagingService, false, stateService),
       deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
     },
     { provide: CryptoFunctionServiceAbstraction, useClass: NodeCryptoFunctionService, deps: [] },
