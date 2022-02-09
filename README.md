@@ -42,7 +42,7 @@ bwdc config --help
 
 **Detailed Documentation**
 
-We provide detailed documentation and examples for using the Directory Connector CLI in our help center at https://bitwarden.com/help/directory-sync/#command-line-interface.
+We provide detailed documentation and examples for using the Directory Connector CLI in our help center at https://bitwarden.com/help/directory-sync-cli/.
 
 ## Build/Run
 
