@@ -106,9 +106,8 @@ export class Program extends BaseProgram {
           this.main.stateService,
           this.main.cryptoService,
           this.main.policyService,
-          "connector",
-          this.main.loginSyncService,
-          this.main.keyConnectorService
+          this.main.twoFactorService,
+          "connector"
         );
 
         if (!Utils.isNullOrWhitespace(clientId)) {

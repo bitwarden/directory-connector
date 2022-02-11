@@ -4,6 +4,7 @@ import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.se
 import { TokenService } from "jslib-common/abstractions/token.service";
 import { StateService } from "../abstractions/state.service";
 
+import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
 import { ApiService as ApiServiceBase } from "jslib-common/services/api.service";
 
 export async function refreshToken(stateService: StateService, authService: AuthService) {
@@ -11,7 +12,7 @@ export async function refreshToken(stateService: StateService, authService: Auth
     const clientId = await stateService.getApiKeyClientId();
     const clientSecret = await stateService.getApiKeyClientSecret();
     if (clientId != null && clientSecret != null) {
-      await authService.logInApiKey(clientId, clientSecret);
+      await authService.logIn(new ApiLogInCredentials(clientId, clientSecret));
     }
   } catch (e) {
     return Promise.reject(e);

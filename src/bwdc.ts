@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { ClientType } from "jslib-common/enums/clientType";
 import { LogLevelType } from "jslib-common/enums/logLevelType";
 
 import { AuthService } from "./services/auth.service";
@@ -8,6 +9,7 @@ import { AuthService } from "./services/auth.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
+import { NoopTwoFactorService } from "./services/noop/noopTwoFactor.service";
 import { StateService } from "./services/state.service";
 import { StateMigrationService } from "./services/stateMigration.service";
 import { SyncService } from "./services/sync.service";
@@ -34,13 +36,19 @@ import { ProviderService } from "jslib-common/services/provider.service";
 import { SearchService } from "jslib-common/services/search.service";
 import { SendService } from "jslib-common/services/send.service";
 import { SettingsService } from "jslib-common/services/settings.service";
-import { SyncService as LoginSyncService } from "jslib-common/services/sync.service";
 import { TokenService } from "jslib-common/services/token.service";
 
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
+import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
 
 import { Program } from "./program";
-import { refreshToken } from "./services/api.service";
+
+import { Account } from "./models/account";
+
+import { StateFactory } from "jslib-common/factories/stateFactory";
+
+import { GlobalState } from "jslib-common/models/domain/globalState";
+import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
 
 // tslint:disable-next-line
 const packageJson = require("./package.json");
@@ -72,13 +80,13 @@ export class Main {
   syncService: SyncService;
   passwordGenerationService: PasswordGenerationService;
   policyService: PolicyService;
-  loginSyncService: LoginSyncService;
   keyConnectorService: KeyConnectorService;
   program: Program;
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   organizationService: OrganizationService;
   providerService: ProviderService;
+  twoFactorService: TwoFactorServiceAbstraction;
 
   constructor() {
     const applicationName = "Bitwarden Directory Connector";
@@ -103,7 +111,10 @@ export class Main {
 
     const plaintextSecrets = process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS === "true";
     this.i18nService = new I18nService("en", "./locales");
-    this.platformUtilsService = new CliPlatformUtilsService("connector", packageJson);
+    this.platformUtilsService = new CliPlatformUtilsService(
+      ClientType.DirectoryConnector,
+      packageJson
+    );
     this.logService = new ConsoleLogService(
       this.platformUtilsService.isDev(),
       (level) => process.env.BITWARDENCLI_CONNECTOR_DEBUG !== "true" && level <= LogLevelType.Info
@@ -122,7 +133,8 @@ export class Main {
 
     this.stateMigrationService = new StateMigrationService(
       this.storageService,
-      this.secureStorageService
+      this.secureStorageService,
+      new StateFactory(GlobalState, Account)
     );
 
     this.stateService = new StateService(
@@ -130,7 +142,8 @@ export class Main {
       this.secureStorageService,
       this.logService,
       this.stateMigrationService,
-      process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true"
+      process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
+      new StateFactory(GlobalState, Account)
     );
 
     this.cryptoService = new CryptoService(
@@ -154,7 +167,8 @@ export class Main {
         " (" +
         this.platformUtilsService.getDeviceString().toUpperCase() +
         ")",
-      (clientId, clientSecret) => this.authService.logInApiKey(clientId, clientSecret)
+      (clientId, clientSecret) =>
+        this.authService.logIn(new ApiLogInCredentials(clientId, clientSecret))
     );
     this.containerService = new ContainerService(this.cryptoService);
 
@@ -166,23 +180,24 @@ export class Main {
       this.apiService,
       this.tokenService,
       this.logService,
-      this.organizationService
+      this.organizationService,
+      this.cryptoFunctionService
     );
+
+    this.twoFactorService = new NoopTwoFactorService();
 
     this.authService = new AuthService(
       this.cryptoService,
       this.apiService,
       this.tokenService,
       this.appIdService,
-      this.i18nService,
       this.platformUtilsService,
       this.messagingService,
-      null,
       this.logService,
-      this.cryptoFunctionService,
-      this.environmentService,
       this.keyConnectorService,
-      this.stateService
+      this.environmentService,
+      this.stateService,
+      this.twoFactorService
     );
 
     this.syncService = new SyncService(
@@ -249,24 +264,6 @@ export class Main {
 
     this.providerService = new ProviderService(this.stateService);
 
-    this.loginSyncService = new LoginSyncService(
-      this.apiService,
-      this.settingsService,
-      this.folderService,
-      this.cipherService,
-      this.cryptoService,
-      this.collectionService,
-      this.messagingService,
-      this.policyService,
-      this.sendService,
-      this.logService,
-      this.keyConnectorService,
-      this.stateService,
-      this.organizationService,
-      this.providerService,
-      async (expired: boolean) => this.messagingService.send("logout", { expired: expired })
-    );
-
     this.program = new Program(this);
   }
 
@@ -293,7 +290,6 @@ export class Main {
     // });
     const locale = await this.stateService.getLocale();
     await this.i18nService.init(locale);
-    this.authService.init();
 
     const installedVersion = await this.stateService.getInstalledVersion();
     const currentVersion = await this.platformUtilsService.getApplicationVersion();

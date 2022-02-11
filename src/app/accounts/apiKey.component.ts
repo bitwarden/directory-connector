@@ -12,8 +12,8 @@ import { StateService } from "../../abstractions/state.service";
 
 import { ModalService } from "jslib-angular/services/modal.service";
 
-import { HtmlStorageLocation } from "jslib-common/enums/htmlStorageLocation";
 import { Utils } from "jslib-common/misc/utils";
+import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
 
 @Component({
   selector: "app-apiKey",
@@ -76,7 +76,9 @@ export class ApiKeyComponent {
     }
 
     try {
-      this.formPromise = this.authService.logInApiKey(this.clientId, this.clientSecret);
+      this.formPromise = this.authService.logIn(
+        new ApiLogInCredentials(this.clientId, this.clientSecret)
+      );
       await this.formPromise;
       const organizationId = await this.stateService.getEntityId();
       await this.stateService.setOrganizationId(organizationId);

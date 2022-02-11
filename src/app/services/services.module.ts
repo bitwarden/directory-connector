@@ -10,6 +10,7 @@ import { AuthGuardService } from "./auth-guard.service";
 import { LaunchGuardService } from "./launch-guard.service";
 
 import { I18nService } from "../../services/i18n.service";
+import { NoopTwoFactorService } from "../../services/noop/noopTwoFactor.service";
 import { SyncService } from "../../services/sync.service";
 
 import { JslibServicesModule } from "jslib-angular/services/jslib-services.module";
@@ -34,14 +35,20 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "jslib-c
 import { StateMigrationService as StateMigrationServiceAbstraction } from "jslib-common/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "jslib-common/abstractions/token.service";
-import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "jslib-common/abstractions/vaultTimeout.service";
+import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
 
 import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
 
-import { ApiService, refreshToken } from "../../services/api.service";
+import { refreshToken } from "../../services/api.service";
 import { AuthService } from "../../services/auth.service";
 import { StateService } from "../../services/state.service";
 import { StateMigrationService } from "../../services/stateMigration.service";
+
+import { Account } from "../../models/account";
+
+import { StateFactory } from "jslib-common/factories/stateFactory";
+
+import { GlobalState } from "jslib-common/models/domain/globalState";
 
 function refreshTokenCallback(injector: Injector) {
   return () => {
@@ -54,7 +61,6 @@ function refreshTokenCallback(injector: Injector) {
 export function initFactory(
   environmentService: EnvironmentServiceAbstraction,
   i18nService: I18nService,
-  authService: AuthService,
   platformUtilsService: PlatformUtilsServiceAbstraction,
   stateService: StateServiceAbstraction,
   cryptoService: CryptoServiceAbstraction
@@ -63,7 +69,6 @@ export function initFactory(
     await stateService.init();
     await environmentService.setUrlsFromStorage();
     await i18nService.init();
-    authService.init();
     const htmlEl = window.document.documentElement;
     htmlEl.classList.add("os_" + platformUtilsService.getDeviceString());
     htmlEl.classList.add("locale_" + i18nService.translationLocale);
@@ -97,7 +102,6 @@ export function initFactory(
       deps: [
         EnvironmentServiceAbstraction,
         I18nServiceAbstraction,
-        AuthServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         StateServiceAbstraction,
         CryptoServiceAbstraction,
@@ -123,7 +127,7 @@ export function initFactory(
         i18nService: I18nServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
         stateService: StateServiceAbstraction
-      ) => new ElectronPlatformUtilsService(i18nService, messagingService, true, stateService),
+      ) => new ElectronPlatformUtilsService(i18nService, messagingService, false, stateService),
       deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
     },
     { provide: CryptoFunctionServiceAbstraction, useClass: NodeCryptoFunctionService, deps: [] },
@@ -164,15 +168,13 @@ export function initFactory(
         ApiServiceAbstraction,
         TokenServiceAbstraction,
         AppIdServiceAbstraction,
-        I18nServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         MessagingServiceAbstraction,
-        VaultTimeoutServiceAbstraction,
         LogServiceAbstraction,
-        CryptoFunctionServiceAbstraction,
-        EnvironmentServiceAbstraction,
         KeyConnectorServiceAbstraction,
+        EnvironmentServiceAbstraction,
         StateServiceAbstraction,
+        TwoFactorServiceAbstraction,
       ],
     },
     {
@@ -192,18 +194,43 @@ export function initFactory(
     LaunchGuardService,
     {
       provide: StateMigrationServiceAbstraction,
-      useClass: StateMigrationService,
+      useFactory: (
+        storageService: StorageServiceAbstraction,
+        secureStorageService: StorageServiceAbstraction
+      ) =>
+        new StateMigrationService(
+          storageService,
+          secureStorageService,
+          new StateFactory(GlobalState, Account)
+        ),
       deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
     },
     {
       provide: StateServiceAbstraction,
-      useClass: StateService,
+      useFactory: (
+        storageService: StorageServiceAbstraction,
+        secureStorageService: StorageServiceAbstraction,
+        logService: LogServiceAbstraction,
+        stateMigrationService: StateMigrationServiceAbstraction
+      ) =>
+        new StateService(
+          storageService,
+          secureStorageService,
+          logService,
+          stateMigrationService,
+          true,
+          new StateFactory(GlobalState, Account)
+        ),
       deps: [
         StorageServiceAbstraction,
         "SECURE_STORAGE",
         LogServiceAbstraction,
         StateMigrationServiceAbstraction,
       ],
+    },
+    {
+      provide: TwoFactorServiceAbstraction,
+      useClass: NoopTwoFactorService,
     },
   ],
 })
