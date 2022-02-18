@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BWDC_VERSION=2.9.8
+BWDC_VERSION=2.9.10
 export BUILD_TAG=bitwarden/directory-connector:${BWDC_VERSION}-containerise_v3.0.1
 
 
