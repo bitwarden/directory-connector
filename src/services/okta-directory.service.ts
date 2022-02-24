@@ -212,6 +212,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
             if (res.headers != null) {
               const headersMap = new Map<string, string | string[]>();
               for (const key in res.headers) {
+                // eslint-disable-next-line
                 if (res.headers.hasOwnProperty(key)) {
                   const val = res.headers[key];
                   headersMap.set(key.toLowerCase(), val);

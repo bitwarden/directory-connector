@@ -55,7 +55,7 @@ export function initFactory(
   platformUtilsService: PlatformUtilsServiceAbstraction,
   stateService: StateServiceAbstraction,
   cryptoService: CryptoServiceAbstraction
-): Function {
+): () => Promise<void> {
   return async () => {
     await stateService.init();
     await environmentService.setUrlsFromStorage();

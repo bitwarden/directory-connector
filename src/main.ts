@@ -50,7 +50,7 @@ export class Main {
     const watch = args.some((val) => val === "--watch");
 
     if (watch) {
-      // tslint:disable-next-line
+      // eslint-disable-next-line
       require("electron-reload")(__dirname, {});
     }
 
@@ -129,7 +129,7 @@ export class Main {
         });
       },
       (e: any) => {
-        // tslint:disable-next-line
+        // eslint-disable-next-line
         console.error(e);
       }
     );

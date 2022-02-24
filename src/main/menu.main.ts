@@ -1,4 +1,4 @@
-import { Menu, MenuItem, MenuItemConstructorOptions } from "electron";
+import { Menu, MenuItemConstructorOptions } from "electron";
 
 import { BaseMenu } from "jslib-electron/baseMenu";
 

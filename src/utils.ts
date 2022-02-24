@@ -13,6 +13,7 @@ export class ConnectorUtils {
     i18nService: I18nService,
     sinceLast: boolean
   ): Promise<SimResult> {
+    // eslint-disable-next-line
     return new Promise(async (resolve, reject) => {
       const simResult = new SimResult();
       try {

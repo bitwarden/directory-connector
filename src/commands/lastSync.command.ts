@@ -1,5 +1,3 @@
-import * as program from "commander";
-
 import { Response } from "jslib-node/cli/models/response";
 import { StringResponse } from "jslib-node/cli/models/response/stringResponse";
 
@@ -11,16 +9,18 @@ export class LastSyncCommand {
   async run(object: string): Promise<Response> {
     try {
       switch (object.toLowerCase()) {
-        case "groups":
+        case "groups": {
           const groupsDate = await this.stateService.getLastGroupSync();
           const groupsRes = new StringResponse(
             groupsDate == null ? null : groupsDate.toISOString()
           );
           return Response.success(groupsRes);
-        case "users":
+        }
+        case "users": {
           const usersDate = await this.stateService.getLastUserSync();
           const usersRes = new StringResponse(usersDate == null ? null : usersDate.toISOString());
           return Response.success(usersRes);
+        }
         default:
           return Response.badRequest("Unknown object.");
       }
