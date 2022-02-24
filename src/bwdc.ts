@@ -197,7 +197,8 @@ export class Main {
       this.keyConnectorService,
       this.environmentService,
       this.stateService,
-      this.twoFactorService
+      this.twoFactorService,
+      this.i18nService
     );
 
     this.syncService = new SyncService(
