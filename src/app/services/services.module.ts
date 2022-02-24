@@ -175,6 +175,7 @@ export function initFactory(
         EnvironmentServiceAbstraction,
         StateServiceAbstraction,
         TwoFactorServiceAbstraction,
+        I18nServiceAbstraction,
       ],
     },
     {
