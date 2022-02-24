@@ -1,13 +1,11 @@
 import * as program from "commander";
 
 import { I18nService } from "jslib-common/abstractions/i18n.service";
-
-import { SyncService } from "../services/sync.service";
-
-import { ConnectorUtils } from "../utils";
-
 import { Response } from "jslib-node/cli/models/response";
+
 import { TestResponse } from "../models/response/testResponse";
+import { SyncService } from "../services/sync.service";
+import { ConnectorUtils } from "../utils";
 
 export class TestCommand {
   constructor(private syncService: SyncService, private i18nService: I18nService) {}

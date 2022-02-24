@@ -1,27 +1,24 @@
-import * as chalk from "chalk";
-import * as program from "commander";
 import * as path from "path";
 
-import { Main } from "./bwdc";
+import * as chalk from "chalk";
+import * as program from "commander";
 
+import { Utils } from "jslib-common/misc/utils";
+import { BaseProgram } from "jslib-node/cli/baseProgram";
+import { LoginCommand } from "jslib-node/cli/commands/login.command";
+import { LogoutCommand } from "jslib-node/cli/commands/logout.command";
+import { UpdateCommand } from "jslib-node/cli/commands/update.command";
+import { Response } from "jslib-node/cli/models/response";
+import { StringResponse } from "jslib-node/cli/models/response/stringResponse";
+
+import { Main } from "./bwdc";
 import { ClearCacheCommand } from "./commands/clearCache.command";
 import { ConfigCommand } from "./commands/config.command";
 import { LastSyncCommand } from "./commands/lastSync.command";
 import { SyncCommand } from "./commands/sync.command";
 import { TestCommand } from "./commands/test.command";
 
-import { LoginCommand } from "jslib-node/cli/commands/login.command";
-import { LogoutCommand } from "jslib-node/cli/commands/logout.command";
-import { UpdateCommand } from "jslib-node/cli/commands/update.command";
-
-import { BaseProgram } from "jslib-node/cli/baseProgram";
-
-import { Response } from "jslib-node/cli/models/response";
-import { StringResponse } from "jslib-node/cli/models/response/stringResponse";
-
-import { Utils } from "jslib-common/misc/utils";
-
-const writeLn = (s: string, finalLine: boolean = false, error: boolean = false) => {
+const writeLn = (s: string, finalLine = false, error = false) => {
   const stream = error ? process.stderr : process.stdout;
   if (finalLine && process.platform === "win32") {
     stream.write(s);

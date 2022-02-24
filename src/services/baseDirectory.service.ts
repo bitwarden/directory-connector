@@ -1,6 +1,5 @@
-import { SyncConfiguration } from "../models/syncConfiguration";
-
 import { GroupEntry } from "../models/groupEntry";
+import { SyncConfiguration } from "../models/syncConfiguration";
 import { UserEntry } from "../models/userEntry";
 
 export abstract class BaseDirectoryService {

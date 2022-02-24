@@ -1,8 +1,11 @@
 import { JWT } from "google-auth-library";
 import { admin_directory_v1, google } from "googleapis";
 
-import { DirectoryType } from "../enums/directoryType";
+import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { LogService } from "jslib-common/abstractions/log.service";
 
+import { StateService } from "../abstractions/state.service";
+import { DirectoryType } from "../enums/directoryType";
 import { GroupEntry } from "../models/groupEntry";
 import { GSuiteConfiguration } from "../models/gsuiteConfiguration";
 import { SyncConfiguration } from "../models/syncConfiguration";
@@ -10,10 +13,6 @@ import { UserEntry } from "../models/userEntry";
 
 import { BaseDirectoryService } from "./baseDirectory.service";
 import { IDirectoryService } from "./directory.service";
-
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { LogService } from "jslib-common/abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
 
 export class GSuiteDirectoryService extends BaseDirectoryService implements IDirectoryService {
   private client: JWT;

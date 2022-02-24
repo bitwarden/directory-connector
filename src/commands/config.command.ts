@@ -2,24 +2,19 @@ import * as program from "commander";
 
 import { EnvironmentService } from "jslib-common/abstractions/environment.service";
 import { I18nService } from "jslib-common/abstractions/i18n.service";
-
-import { StateService } from "../abstractions/state.service";
-
-import { DirectoryType } from "../enums/directoryType";
-
+import { NodeUtils } from "jslib-common/misc/nodeUtils";
 import { Response } from "jslib-node/cli/models/response";
 import { MessageResponse } from "jslib-node/cli/models/response/messageResponse";
 
+import { StateService } from "../abstractions/state.service";
+import { DirectoryType } from "../enums/directoryType";
 import { AzureConfiguration } from "../models/azureConfiguration";
 import { GSuiteConfiguration } from "../models/gsuiteConfiguration";
 import { LdapConfiguration } from "../models/ldapConfiguration";
 import { OktaConfiguration } from "../models/oktaConfiguration";
 import { OneLoginConfiguration } from "../models/oneLoginConfiguration";
 import { SyncConfiguration } from "../models/syncConfiguration";
-
 import { ConnectorUtils } from "../utils";
-
-import { NodeUtils } from "jslib-common/misc/nodeUtils";
 
 export class ConfigCommand {
   private directory: DirectoryType;

@@ -1,9 +1,9 @@
 import * as program from "commander";
 
 import { I18nService } from "jslib-common/abstractions/i18n.service";
-
 import { Response } from "jslib-node/cli/models/response";
 import { MessageResponse } from "jslib-node/cli/models/response/messageResponse";
+
 import { StateService } from "../abstractions/state.service";
 
 export class ClearCacheCommand {

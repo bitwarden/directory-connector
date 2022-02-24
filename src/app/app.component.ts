@@ -18,9 +18,8 @@ import { MessagingService } from "jslib-common/abstractions/messaging.service";
 import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
 import { TokenService } from "jslib-common/abstractions/token.service";
 
-import { SyncService } from "../services/sync.service";
-
 import { StateService } from "../abstractions/state.service";
+import { SyncService } from "../services/sync.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
 
