@@ -4,6 +4,7 @@ import { ApiService } from "jslib-common/abstractions/api.service";
 import { AppIdService } from "jslib-common/abstractions/appId.service";
 import { CryptoService } from "jslib-common/abstractions/crypto.service";
 import { EnvironmentService } from "jslib-common/abstractions/environment.service";
+import { I18nService } from "jslib-common/abstractions/i18n.service";
 import { KeyConnectorService } from "jslib-common/abstractions/keyConnector.service";
 import { LogService } from "jslib-common/abstractions/log.service";
 import { MessagingService } from "jslib-common/abstractions/messaging.service";
@@ -30,7 +31,8 @@ export class AuthService extends AuthServiceBase {
     keyConnectorService: KeyConnectorService,
     environmentService: EnvironmentService,
     stateService: StateService,
-    twoFactorService: TwoFactorService
+    twoFactorService: TwoFactorService,
+    i18nService: I18nService
   ) {
     super(
       cryptoService,
@@ -43,7 +45,8 @@ export class AuthService extends AuthServiceBase {
       keyConnectorService,
       environmentService,
       stateService,
-      twoFactorService
+      twoFactorService,
+      i18nService
     );
   }
 
