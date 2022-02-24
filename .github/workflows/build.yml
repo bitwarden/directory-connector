@@ -5,6 +5,8 @@ on:
   push:
     branches-ignore:
       - 'l10n_master'
+    paths-ignore:
+      - '.github/workflows/**'
 
 
 jobs:
@@ -100,7 +102,7 @@ jobs:
         run: |
           sudo apt install libsecret-1-0 dbus-x11 gnome-keyring
           eval $(dbus-launch --sh-syntax)
-          
+
           eval $(echo -n "" | /usr/bin/gnome-keyring-daemon --login)
           eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start)
 
