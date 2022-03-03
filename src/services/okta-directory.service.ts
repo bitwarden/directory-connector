@@ -1,5 +1,10 @@
-import { DirectoryType } from "../enums/directoryType";
+import * as https from "https";
 
+import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { LogService } from "jslib-common/abstractions/log.service";
+
+import { StateService } from "../abstractions/state.service";
+import { DirectoryType } from "../enums/directoryType";
 import { GroupEntry } from "../models/groupEntry";
 import { OktaConfiguration } from "../models/oktaConfiguration";
 import { SyncConfiguration } from "../models/syncConfiguration";
@@ -7,12 +12,6 @@ import { UserEntry } from "../models/userEntry";
 
 import { BaseDirectoryService } from "./baseDirectory.service";
 import { IDirectoryService } from "./directory.service";
-
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { LogService } from "jslib-common/abstractions/log.service";
-
-import * as https from "https";
-import { StateService } from "../abstractions/state.service";
 
 const DelayBetweenBuildGroupCallsInMilliseconds = 500;
 
@@ -213,6 +212,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
             if (res.headers != null) {
               const headersMap = new Map<string, string | string[]>();
               for (const key in res.headers) {
+                // eslint-disable-next-line
                 if (res.headers.hasOwnProperty(key)) {
                   const val = res.headers[key];
                   headersMap.set(key.toLowerCase(), val);

@@ -10,11 +10,6 @@ const common = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
-        enforce: "pre",
-        loader: "tslint-loader",
-      },
-      {
         test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
         loader: "@ngtools/webpack",
       },

@@ -1,9 +1,7 @@
 import { StateService as BaseStateServiceAbstraction } from "jslib-common/abstractions/state.service";
-
 import { StorageOptions } from "jslib-common/models/domain/storageOptions";
 
 import { DirectoryType } from "src/enums/directoryType";
-
 import { Account } from "src/models/account";
 import { AzureConfiguration } from "src/models/azureConfiguration";
 import { GSuiteConfiguration } from "src/models/gsuiteConfiguration";

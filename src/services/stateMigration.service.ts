@@ -1,9 +1,7 @@
+import { StateVersion } from "jslib-common/enums/stateVersion";
 import { StateMigrationService as BaseStateMigrationService } from "jslib-common/services/stateMigration.service";
 
-import { StateVersion } from "jslib-common/enums/stateVersion";
-
 import { DirectoryType } from "src/enums/directoryType";
-
 import { Account, DirectoryConfigurations, DirectorySettings } from "src/models/account";
 import { AzureConfiguration } from "src/models/azureConfiguration";
 import { GSuiteConfiguration } from "src/models/gsuiteConfiguration";
@@ -76,7 +74,7 @@ export class StateMigrationService extends BaseStateMigrationService {
     }
   }
 
-  protected async migrateStateFrom1To2(useSecureStorageForSecrets: boolean = true): Promise<void> {
+  protected async migrateStateFrom1To2(useSecureStorageForSecrets = true): Promise<void> {
     // Grabbing a couple of key settings before they get cleared by the base migration
     const userId = await this.get<string>(Keys.entityId);
     const clientId = await this.get<string>(ClientKeys.clientId);

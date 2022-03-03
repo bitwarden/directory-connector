@@ -1,22 +1,20 @@
 import * as fs from "fs";
-import * as ldap from "ldapjs";
-
 import { checkServerIdentity, PeerCertificate } from "tls";
 
-import { DirectoryType } from "../enums/directoryType";
+import * as ldap from "ldapjs";
 
+import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { LogService } from "jslib-common/abstractions/log.service";
+import { Utils } from "jslib-common/misc/utils";
+
+import { StateService } from "../abstractions/state.service";
+import { DirectoryType } from "../enums/directoryType";
 import { GroupEntry } from "../models/groupEntry";
 import { LdapConfiguration } from "../models/ldapConfiguration";
 import { SyncConfiguration } from "../models/syncConfiguration";
 import { UserEntry } from "../models/userEntry";
 
 import { IDirectoryService } from "./directory.service";
-
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { LogService } from "jslib-common/abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
-
-import { Utils } from "jslib-common/misc/utils";
 
 const UserControlAccountDisabled = 2;
 

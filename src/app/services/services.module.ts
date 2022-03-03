@@ -1,25 +1,6 @@
 import { APP_INITIALIZER, Injector, NgModule } from "@angular/core";
 
-import { ElectronLogService } from "jslib-electron/services/electronLog.service";
-import { ElectronPlatformUtilsService } from "jslib-electron/services/electronPlatformUtils.service";
-import { ElectronRendererMessagingService } from "jslib-electron/services/electronRendererMessaging.service";
-import { ElectronRendererSecureStorageService } from "jslib-electron/services/electronRendererSecureStorage.service";
-import { ElectronRendererStorageService } from "jslib-electron/services/electronRendererStorage.service";
-
-import { AuthGuardService } from "./auth-guard.service";
-import { LaunchGuardService } from "./launch-guard.service";
-
-import { I18nService } from "../../services/i18n.service";
-import { NoopTwoFactorService } from "../../services/noop/noopTwoFactor.service";
-import { SyncService } from "../../services/sync.service";
-
 import { JslibServicesModule } from "jslib-angular/services/jslib-services.module";
-
-import { ContainerService } from "jslib-common/services/container.service";
-
-import { NodeApiService } from "jslib-node/services/nodeApi.service";
-import { NodeCryptoFunctionService } from "jslib-node/services/nodeCryptoFunction.service";
-
 import { ApiService as ApiServiceAbstraction } from "jslib-common/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "jslib-common/abstractions/appId.service";
 import { AuthService as AuthServiceAbstraction } from "jslib-common/abstractions/auth.service";
@@ -36,19 +17,29 @@ import { StateMigrationService as StateMigrationServiceAbstraction } from "jslib
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "jslib-common/abstractions/token.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
+import { StateFactory } from "jslib-common/factories/stateFactory";
+import { GlobalState } from "jslib-common/models/domain/globalState";
+import { ContainerService } from "jslib-common/services/container.service";
+import { ElectronLogService } from "jslib-electron/services/electronLog.service";
+import { ElectronPlatformUtilsService } from "jslib-electron/services/electronPlatformUtils.service";
+import { ElectronRendererMessagingService } from "jslib-electron/services/electronRendererMessaging.service";
+import { ElectronRendererSecureStorageService } from "jslib-electron/services/electronRendererSecureStorage.service";
+import { ElectronRendererStorageService } from "jslib-electron/services/electronRendererStorage.service";
+import { NodeApiService } from "jslib-node/services/nodeApi.service";
+import { NodeCryptoFunctionService } from "jslib-node/services/nodeCryptoFunction.service";
 
 import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
-
+import { Account } from "../../models/account";
 import { refreshToken } from "../../services/api.service";
 import { AuthService } from "../../services/auth.service";
+import { I18nService } from "../../services/i18n.service";
+import { NoopTwoFactorService } from "../../services/noop/noopTwoFactor.service";
 import { StateService } from "../../services/state.service";
 import { StateMigrationService } from "../../services/stateMigration.service";
+import { SyncService } from "../../services/sync.service";
 
-import { Account } from "../../models/account";
-
-import { StateFactory } from "jslib-common/factories/stateFactory";
-
-import { GlobalState } from "jslib-common/models/domain/globalState";
+import { AuthGuardService } from "./auth-guard.service";
+import { LaunchGuardService } from "./launch-guard.service";
 
 function refreshTokenCallback(injector: Injector) {
   return () => {
@@ -64,7 +55,7 @@ export function initFactory(
   platformUtilsService: PlatformUtilsServiceAbstraction,
   stateService: StateServiceAbstraction,
   cryptoService: CryptoServiceAbstraction
-): Function {
+): () => Promise<void> {
   return async () => {
     await stateService.init();
     await environmentService.setUrlsFromStorage();

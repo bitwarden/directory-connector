@@ -1,19 +1,17 @@
 import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { EnvironmentComponent } from "./environment.component";
-
+import { ModalService } from "jslib-angular/services/modal.service";
 import { AuthService } from "jslib-common/abstractions/auth.service";
 import { I18nService } from "jslib-common/abstractions/i18n.service";
 import { LogService } from "jslib-common/abstractions/log.service";
 import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
+import { Utils } from "jslib-common/misc/utils";
+import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
 
 import { StateService } from "../../abstractions/state.service";
 
-import { ModalService } from "jslib-angular/services/modal.service";
-
-import { Utils } from "jslib-common/misc/utils";
-import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
+import { EnvironmentComponent } from "./environment.component";
 
 @Component({
   selector: "app-apiKey",
@@ -22,12 +20,12 @@ import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials
 export class ApiKeyComponent {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
   environmentModal: ViewContainerRef;
-  @Input() clientId: string = "";
-  @Input() clientSecret: string = "";
+  @Input() clientId = "";
+  @Input() clientSecret = "";
 
   formPromise: Promise<any>;
   successRoute = "/tabs/dashboard";
-  showSecret: boolean = false;
+  showSecret = false;
 
   constructor(
     private authService: AuthService,

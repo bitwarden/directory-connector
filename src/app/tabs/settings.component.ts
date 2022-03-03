@@ -3,16 +3,14 @@ import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angula
 import { I18nService } from "jslib-common/abstractions/i18n.service";
 import { LogService } from "jslib-common/abstractions/log.service";
 
+import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
-
 import { AzureConfiguration } from "../../models/azureConfiguration";
 import { GSuiteConfiguration } from "../../models/gsuiteConfiguration";
 import { LdapConfiguration } from "../../models/ldapConfiguration";
 import { OktaConfiguration } from "../../models/oktaConfiguration";
 import { OneLoginConfiguration } from "../../models/oneLoginConfiguration";
 import { SyncConfiguration } from "../../models/syncConfiguration";
-
-import { StateService } from "../../abstractions/state.service";
 import { ConnectorUtils } from "../../utils";
 
 @Component({
@@ -29,10 +27,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   oneLogin = new OneLoginConfiguration();
   sync = new SyncConfiguration();
   directoryOptions: any[];
-  showLdapPassword: boolean = false;
-  showAzureKey: boolean = false;
-  showOktaKey: boolean = false;
-  showOneLoginSecret: boolean = false;
+  showLdapPassword = false;
+  showAzureKey = false;
+  showOktaKey = false;
+  showOneLoginSecret = false;
 
   constructor(
     private i18nService: I18nService,

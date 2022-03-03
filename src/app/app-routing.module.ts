@@ -1,10 +1,9 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
+import { ApiKeyComponent } from "./accounts/apiKey.component";
 import { AuthGuardService } from "./services/auth-guard.service";
 import { LaunchGuardService } from "./services/launch-guard.service";
-
-import { ApiKeyComponent } from "./accounts/apiKey.component";
 import { DashboardComponent } from "./tabs/dashboard.component";
 import { MoreComponent } from "./tabs/more.component";
 import { SettingsComponent } from "./tabs/settings.component";

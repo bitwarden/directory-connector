@@ -1,24 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
+import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
 import { ClientType } from "jslib-common/enums/clientType";
 import { LogLevelType } from "jslib-common/enums/logLevelType";
-
-import { AuthService } from "./services/auth.service";
-
-import { I18nService } from "./services/i18n.service";
-import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
-import { LowdbStorageService } from "./services/lowdbStorage.service";
-import { NoopTwoFactorService } from "./services/noop/noopTwoFactor.service";
-import { StateService } from "./services/state.service";
-import { StateMigrationService } from "./services/stateMigration.service";
-import { SyncService } from "./services/sync.service";
-
-import { CliPlatformUtilsService } from "jslib-node/cli/services/cliPlatformUtils.service";
-import { ConsoleLogService } from "jslib-node/cli/services/consoleLog.service";
-import { NodeApiService } from "jslib-node/services/nodeApi.service";
-import { NodeCryptoFunctionService } from "jslib-node/services/nodeCryptoFunction.service";
-
+import { StateFactory } from "jslib-common/factories/stateFactory";
+import { GlobalState } from "jslib-common/models/domain/globalState";
+import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
 import { AppIdService } from "jslib-common/services/appId.service";
 import { CipherService } from "jslib-common/services/cipher.service";
 import { CollectionService } from "jslib-common/services/collection.service";
@@ -37,23 +26,26 @@ import { SearchService } from "jslib-common/services/search.service";
 import { SendService } from "jslib-common/services/send.service";
 import { SettingsService } from "jslib-common/services/settings.service";
 import { TokenService } from "jslib-common/services/token.service";
-
-import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
-
-import { Program } from "./program";
+import { CliPlatformUtilsService } from "jslib-node/cli/services/cliPlatformUtils.service";
+import { ConsoleLogService } from "jslib-node/cli/services/consoleLog.service";
+import { NodeApiService } from "jslib-node/services/nodeApi.service";
+import { NodeCryptoFunctionService } from "jslib-node/services/nodeCryptoFunction.service";
 
 import { Account } from "./models/account";
+import { Program } from "./program";
+import { AuthService } from "./services/auth.service";
+import { I18nService } from "./services/i18n.service";
+import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
+import { LowdbStorageService } from "./services/lowdbStorage.service";
+import { NoopTwoFactorService } from "./services/noop/noopTwoFactor.service";
+import { StateService } from "./services/state.service";
+import { StateMigrationService } from "./services/stateMigration.service";
+import { SyncService } from "./services/sync.service";
 
-import { StateFactory } from "jslib-common/factories/stateFactory";
-
-import { GlobalState } from "jslib-common/models/domain/globalState";
-import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
-
-// tslint:disable-next-line
+// eslint-disable-next-line
 const packageJson = require("./package.json");
 
-export let searchService: SearchService = null;
+export const searchService: SearchService = null;
 export class Main {
   dataFilePath: string;
   logService: ConsoleLogService;

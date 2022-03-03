@@ -1,9 +1,10 @@
 const path = require("path");
-const webpack = require("webpack");
+
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-const nodeExternals = require("webpack-node-externals");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const webpack = require("webpack");
+const nodeExternals = require("webpack-node-externals");
 
 if (process.env.NODE_ENV == null) {
   process.env.NODE_ENV = "development";
@@ -11,11 +12,6 @@ if (process.env.NODE_ENV == null) {
 const ENV = (process.env.ENV = process.env.NODE_ENV);
 
 const moduleRules = [
-  {
-    test: /\.ts$/,
-    enforce: "pre",
-    loader: "tslint-loader",
-  },
   {
     test: /\.ts$/,
     use: "ts-loader",
