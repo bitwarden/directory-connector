@@ -1,26 +1,21 @@
-import { StateService as BaseStateService } from "jslib-common/services/state.service";
-
+import { LogService } from "jslib-common/abstractions/log.service";
+import { StateMigrationService } from "jslib-common/abstractions/stateMigration.service";
+import { StorageService } from "jslib-common/abstractions/storage.service";
+import { StateFactory } from "jslib-common/factories/stateFactory";
 import { GlobalState } from "jslib-common/models/domain/globalState";
 import { StorageOptions } from "jslib-common/models/domain/storageOptions";
+import { StateService as BaseStateService } from "jslib-common/services/state.service";
 
-import { StateFactory } from "jslib-common/factories/stateFactory";
-
+import { StateService as StateServiceAbstraction } from "src/abstractions/state.service";
+import { DirectoryType } from "src/enums/directoryType";
+import { IConfiguration } from "src/models/IConfiguration";
 import { Account } from "src/models/account";
 import { AzureConfiguration } from "src/models/azureConfiguration";
 import { GSuiteConfiguration } from "src/models/gsuiteConfiguration";
-import { IConfiguration } from "src/models/IConfiguration";
 import { LdapConfiguration } from "src/models/ldapConfiguration";
 import { OktaConfiguration } from "src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "src/models/oneLoginConfiguration";
 import { SyncConfiguration } from "src/models/syncConfiguration";
-
-import { LogService } from "jslib-common/abstractions/log.service";
-import { StateMigrationService } from "jslib-common/abstractions/stateMigration.service";
-import { StorageService } from "jslib-common/abstractions/storage.service";
-
-import { StateService as StateServiceAbstraction } from "src/abstractions/state.service";
-
-import { DirectoryType } from "src/enums/directoryType";
 
 const SecureStorageKeys = {
   ldap: "ldapPassword",

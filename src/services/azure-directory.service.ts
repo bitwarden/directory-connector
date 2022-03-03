@@ -1,10 +1,14 @@
-import * as graph from "@microsoft/microsoft-graph-client";
-import * as graphType from "@microsoft/microsoft-graph-types";
 import * as https from "https";
 import * as querystring from "querystring";
 
-import { DirectoryType } from "../enums/directoryType";
+import * as graph from "@microsoft/microsoft-graph-client";
+import * as graphType from "@microsoft/microsoft-graph-types";
 
+import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { LogService } from "jslib-common/abstractions/log.service";
+
+import { StateService } from "../abstractions/state.service";
+import { DirectoryType } from "../enums/directoryType";
 import { AzureConfiguration } from "../models/azureConfiguration";
 import { GroupEntry } from "../models/groupEntry";
 import { SyncConfiguration } from "../models/syncConfiguration";
@@ -12,10 +16,6 @@ import { UserEntry } from "../models/userEntry";
 
 import { BaseDirectoryService } from "./baseDirectory.service";
 import { IDirectoryService } from "./directory.service";
-
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { LogService } from "jslib-common/abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
 
 const AzurePublicIdentityAuhtority = "login.microsoftonline.com";
 const AzureGovermentIdentityAuhtority = "login.microsoftonline.us";
@@ -84,7 +84,6 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
   }
 
   private async getCurrentUsers(): Promise<UserEntry[]> {
-    const entryIds = new Set<string>();
     let entries: UserEntry[] = [];
     let users: graphType.User[];
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
@@ -131,6 +130,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     }
 
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
+    // eslint-disable-next-line
     while (true) {
       const users: graphType.User[] = res.value;
       if (users != null) {
@@ -312,6 +312,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     const entries: GroupEntry[] = [];
     const groupsReq = this.client.api("/groups");
     let res = await groupsReq.get();
+    // eslint-disable-next-line
     while (true) {
       const groups: graphType.Group[] = res.value;
       if (groups != null) {
@@ -404,6 +405,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
     const memReq = this.client.api("/groups/" + group.id + "/members");
     let memRes = await memReq.get();
+    // eslint-disable-next-line
     while (true) {
       const members: any = memRes.value;
       if (members != null) {
@@ -486,7 +488,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                 } else if (d.error != null && d.error_description != null) {
                   const shortError = d.error_description?.split("\n", 1)[0];
                   const err = new Error(d.error + " (" + res.statusCode + "): " + shortError);
-                  // tslint:disable-next-line
+                  // eslint-disable-next-line
                   console.error(d.error_description);
                   done(err, null);
                 } else {

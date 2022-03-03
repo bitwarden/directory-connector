@@ -1,10 +1,9 @@
-import { app } from "electron";
 import * as path from "path";
 
-import { MenuMain } from "./main/menu.main";
-import { MessagingMain } from "./main/messaging.main";
-import { I18nService } from "./services/i18n.service";
+import { app } from "electron";
 
+import { StateFactory } from "jslib-common/factories/stateFactory";
+import { GlobalState } from "jslib-common/models/domain/globalState";
 import { KeytarStorageListener } from "jslib-electron/keytarStorageListener";
 import { ElectronLogService } from "jslib-electron/services/electronLog.service";
 import { ElectronMainMessagingService } from "jslib-electron/services/electronMainMessaging.service";
@@ -13,13 +12,11 @@ import { TrayMain } from "jslib-electron/tray.main";
 import { UpdaterMain } from "jslib-electron/updater.main";
 import { WindowMain } from "jslib-electron/window.main";
 
-import { StateService } from "./services/state.service";
-
+import { MenuMain } from "./main/menu.main";
+import { MessagingMain } from "./main/messaging.main";
 import { Account } from "./models/account";
-
-import { StateFactory } from "jslib-common/factories/stateFactory";
-
-import { GlobalState } from "jslib-common/models/domain/globalState";
+import { I18nService } from "./services/i18n.service";
+import { StateService } from "./services/state.service";
 
 export class Main {
   logService: ElectronLogService;
@@ -53,7 +50,7 @@ export class Main {
     const watch = args.some((val) => val === "--watch");
 
     if (watch) {
-      // tslint:disable-next-line
+      // eslint-disable-next-line
       require("electron-reload")(__dirname, {});
     }
 
@@ -132,7 +129,7 @@ export class Main {
         });
       },
       (e: any) => {
-        // tslint:disable-next-line
+        // eslint-disable-next-line
         console.error(e);
       }
     );

@@ -5,15 +5,12 @@ import { I18nService } from "jslib-common/abstractions/i18n.service";
 import { MessagingService } from "jslib-common/abstractions/messaging.service";
 import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
 
-import { SyncService } from "../../services/sync.service";
-
+import { StateService } from "../../abstractions/state.service";
 import { GroupEntry } from "../../models/groupEntry";
 import { SimResult } from "../../models/simResult";
 import { UserEntry } from "../../models/userEntry";
-
+import { SyncService } from "../../services/sync.service";
 import { ConnectorUtils } from "../../utils";
-
-import { StateService } from "../../abstractions/state.service";
 
 const BroadcasterSubscriptionId = "DashboardComponent";
 
@@ -28,7 +25,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   simDisabledUsers: UserEntry[] = [];
   simDeletedUsers: UserEntry[] = [];
   simPromise: Promise<SimResult>;
-  simSinceLast: boolean = false;
+  simSinceLast = false;
   syncPromise: Promise<[GroupEntry[], UserEntry[]]>;
   startPromise: Promise<any>;
   lastGroupSync: Date;

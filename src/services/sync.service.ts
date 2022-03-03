@@ -1,21 +1,18 @@
-import { DirectoryType } from "../enums/directoryType";
-
-import { GroupEntry } from "../models/groupEntry";
-import { SyncConfiguration } from "../models/syncConfiguration";
-import { UserEntry } from "../models/userEntry";
-
-import { OrganizationImportRequest } from "jslib-common/models/request/organizationImportRequest";
-
 import { ApiService } from "jslib-common/abstractions/api.service";
 import { CryptoFunctionService } from "jslib-common/abstractions/cryptoFunction.service";
 import { EnvironmentService } from "jslib-common/abstractions/environment.service";
 import { I18nService } from "jslib-common/abstractions/i18n.service";
 import { LogService } from "jslib-common/abstractions/log.service";
 import { MessagingService } from "jslib-common/abstractions/messaging.service";
-
 import { Utils } from "jslib-common/misc/utils";
+import { OrganizationImportRequest } from "jslib-common/models/request/organizationImportRequest";
 
 import { StateService } from "../abstractions/state.service";
+import { DirectoryType } from "../enums/directoryType";
+import { GroupEntry } from "../models/groupEntry";
+import { SyncConfiguration } from "../models/syncConfiguration";
+import { UserEntry } from "../models/userEntry";
+
 import { AzureDirectoryService } from "./azure-directory.service";
 import { IDirectoryService } from "./directory.service";
 import { GSuiteDirectoryService } from "./gsuite-directory.service";
@@ -223,7 +220,7 @@ export class SyncService {
     users: UserEntry[],
     removeDisabled: boolean,
     overwriteExisting: boolean,
-    largeImport: boolean = false
+    largeImport = false
   ) {
     return new OrganizationImportRequest({
       groups: (groups ?? []).map((g) => {

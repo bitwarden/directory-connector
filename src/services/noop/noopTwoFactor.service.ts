@@ -2,9 +2,7 @@ import {
   TwoFactorProviderDetails,
   TwoFactorService,
 } from "jslib-common/abstractions/twoFactor.service";
-
 import { TwoFactorProviderType } from "jslib-common/enums/twoFactorProviderType";
-
 import { IdentityTwoFactorResponse } from "jslib-common/models/response/identityTwoFactorResponse";
 
 export class NoopTwoFactorService implements TwoFactorService {
