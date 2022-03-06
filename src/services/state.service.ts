@@ -529,12 +529,12 @@ export class StateService
   }
 
   protected async scaffoldNewAccountDiskStorage(account: Account): Promise<void> {
-    const storedAccount = await this.getAccount(
-      this.reconcileOptions(
-        { userId: account.profile.userId },
-        await this.defaultOnDiskLocalOptions()
-      )
+    const storageOptions = this.reconcileOptions(
+      { userId: account.profile.userId },
+      await this.defaultOnDiskLocalOptions()
     );
+
+    const storedAccount = await this.getAccount(storageOptions);
     if (storedAccount != null) {
       account.settings = storedAccount.settings;
       account.directorySettings = storedAccount.directorySettings;
@@ -551,11 +551,7 @@ export class StateService
       await this.storageService.remove(keys.tempDirectoryConfigs);
     }
 
-    await this.storageService.save(
-      account.profile.userId,
-      account,
-      await this.defaultOnDiskLocalOptions()
-    );
+    await this.saveAccount(account, storageOptions);
   }
 
   protected async pushAccounts(): Promise<void> {
