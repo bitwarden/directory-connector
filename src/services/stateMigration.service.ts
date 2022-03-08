@@ -19,8 +19,6 @@ const SecureStorageKeys: { [key: string]: any } = {
   directoryConfigPrefix: "directoryConfig_",
   sync: "syncConfig",
   directoryType: "directoryType",
-  userDelta: "userDeltaToken",
-  groupDelta: "groupDeltaToken",
   organizationId: "organizationId",
 };
 
@@ -33,8 +31,15 @@ const Keys: { [key: string]: any } = {
   lastSyncHash: "lastSyncHash",
   syncingDir: "syncingDir",
   syncConfig: "syncConfig",
+  userDelta: "userDeltaToken",
+  groupDelta: "groupDeltaToken",
   tempDirectoryConfigs: "tempDirectoryConfigs",
   tempDirectorySettings: "tempDirectorySettings",
+};
+
+const StateKeys = {
+  global: "global",
+  authenticatedAccounts: "authenticatedAccounts",
 };
 
 const ClientKeys: { [key: string]: any } = {
@@ -53,6 +58,8 @@ export class StateMigrationService extends BaseStateMigrationService {
           await this.migrateClientKeys();
           await this.migrateStateFrom1To2();
           break;
+        case StateVersion.Two:
+          await this.migrateStateFrom2To3();
       }
       currentStateVersion += 1;
     }
@@ -116,6 +123,8 @@ export class StateMigrationService extends BaseStateMigrationService {
       lastSyncHash: await this.get<string>(Keys.lastSyncHash),
       syncingDir: await this.get<boolean>(Keys.syncingDir),
       sync: await this.get<SyncConfiguration>(Keys.syncConfig),
+      userDelta: await this.get<string>(Keys.userDelta),
+      groupDelta: await this.get<string>(Keys.groupDelta),
     };
 
     // (userId == null) = no authed account, stored data temporarily to be applied and cleared on next auth
@@ -154,5 +163,35 @@ export class StateMigrationService extends BaseStateMigrationService {
         }
       }
     }
+  }
+  protected async migrateStateFrom2To3(useSecureStorageForSecrets = true): Promise<void> {
+    if (useSecureStorageForSecrets) {
+      const authenticatedUserIds = await this.get<string[]>(StateKeys.authenticatedAccounts);
+
+      await Promise.all(
+        authenticatedUserIds.map(async (userId) => {
+          const account = await this.get<Account>(userId);
+
+          // Fix for userDelta and groupDelta being put into secure storage when they should not have
+          if (await this.secureStorageService.has(`${userId}_${Keys.userDelta}`)) {
+            account.directorySettings.userDelta = await this.secureStorageService.get(
+              `${userId}_${Keys.userDelta}`
+            );
+            await this.secureStorageService.remove(`${userId}_${Keys.userDelta}`);
+          }
+          if (await this.secureStorageService.has(`${userId}_${Keys.groupDelta}`)) {
+            account.directorySettings.groupDelta = await this.secureStorageService.get(
+              `${userId}_${Keys.groupDelta}`
+            );
+            await this.secureStorageService.remove(`${userId}_${Keys.groupDelta}`);
+          }
+          await this.set(userId, account);
+        })
+      );
+    }
+
+    const globals = await this.getGlobals();
+    globals.stateVersion = StateVersion.Three;
+    await this.set(StateKeys.global, globals);
   }
 }
