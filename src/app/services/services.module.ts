@@ -212,7 +212,7 @@ export function initFactory(
           stateMigrationService,
           true,
           new StateFactory(GlobalState, Account),
-          false
+          false // Do not use disk caching because this will get out of sync with the main process service
         ),
       deps: [
         StorageServiceAbstraction,
