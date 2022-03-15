@@ -48,9 +48,17 @@ export class StateService
     protected logService: LogService,
     protected stateMigrationService: StateMigrationService,
     private useSecureStorageForSecrets = true,
-    protected stateFactory: StateFactory<GlobalState, Account>
+    protected stateFactory: StateFactory<GlobalState, Account>,
+    protected useAccountCache: boolean = true
   ) {
-    super(storageService, secureStorageService, logService, stateMigrationService, stateFactory);
+    super(
+      storageService,
+      secureStorageService,
+      logService,
+      stateMigrationService,
+      stateFactory,
+      useAccountCache
+    );
   }
 
   async getDirectory<T extends IConfiguration>(type: DirectoryType): Promise<T> {
