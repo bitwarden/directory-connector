@@ -55,8 +55,10 @@ jobs:
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f  # v2.3.4
 
       - name: Set up Node
-        uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
+        uses: actions/setup-node@9ced9a43a244f3ac94f13bfd896db8c8f30da67a  # v3.0.0
         with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: '16'
 
       - name: Update NPM
@@ -147,8 +149,10 @@ jobs:
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f  # v2.3.4
 
       - name: Set up Node
-        uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
+        uses: actions/setup-node@9ced9a43a244f3ac94f13bfd896db8c8f30da67a  # v3.0.0
         with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: '16'
 
       - name: Update NPM
@@ -238,8 +242,10 @@ jobs:
           choco install reshack --no-progress
 
       - name: Set up Node
-        uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
+        uses: actions/setup-node@9ced9a43a244f3ac94f13bfd896db8c8f30da67a  # v3.0.0
         with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: '16'
 
       - name: Update NPM
@@ -376,8 +382,10 @@ jobs:
           dotnet-version: "3.1.x"
 
       - name: Set up Node
-        uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
+        uses: actions/setup-node@9ced9a43a244f3ac94f13bfd896db8c8f30da67a  # v3.0.0
         with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: '16'
 
       - name: Update NPM
@@ -454,8 +462,10 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Set up Node
-        uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
+        uses: actions/setup-node@9ced9a43a244f3ac94f13bfd896db8c8f30da67a  # v3.0.0
         with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: '16'
 
       - name: Update NPM
@@ -507,8 +517,10 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Set up Node
-        uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
+        uses: actions/setup-node@9ced9a43a244f3ac94f13bfd896db8c8f30da67a  # v3.0.0
         with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: '16'
 
       - name: Update NPM
