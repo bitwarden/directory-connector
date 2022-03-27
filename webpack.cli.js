@@ -39,6 +39,7 @@ const plugins = [
     resourceRegExp: /^encoding$/,
     contextRegExp: /node-fetch/,
   }),
+  new webpack.NormalModuleReplacementPlugin(/@angular\/core/, "jslib-node/angular-core.noop"),
 ];
 
 const config = {

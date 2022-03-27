@@ -9,6 +9,7 @@ import { CryptoService as CryptoServiceAbstraction } from "jslib-common/abstract
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "jslib-common/abstractions/cryptoFunction.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "jslib-common/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "jslib-common/abstractions/i18n.service";
+import { SECURE_STORAGE, WINDOW_TOKEN } from "jslib-common/abstractions/injectionTokens";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "jslib-common/abstractions/keyConnector.service";
 import { LogService as LogServiceAbstraction } from "jslib-common/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "jslib-common/abstractions/messaging.service";
@@ -17,6 +18,7 @@ import { StateMigrationService as StateMigrationServiceAbstraction } from "jslib
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "jslib-common/abstractions/token.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
+import { ClientType } from "jslib-common/enums/clientType";
 import { StateFactory } from "jslib-common/factories/stateFactory";
 import { GlobalState } from "jslib-common/models/domain/globalState";
 import { ContainerService } from "jslib-common/services/container.service";
@@ -103,7 +105,7 @@ export function initFactory(
     {
       provide: I18nServiceAbstraction,
       useFactory: (window: Window) => new I18nService(window.navigator.language, "./locales"),
-      deps: ["WINDOW"],
+      deps: [WINDOW_TOKEN],
     },
     {
       provide: MessagingServiceAbstraction,
@@ -111,14 +113,20 @@ export function initFactory(
       deps: [BroadcasterServiceAbstraction],
     },
     { provide: StorageServiceAbstraction, useClass: ElectronRendererStorageService },
-    { provide: "SECURE_STORAGE", useClass: ElectronRendererSecureStorageService },
+    { provide: SECURE_STORAGE, useClass: ElectronRendererSecureStorageService },
     {
       provide: PlatformUtilsServiceAbstraction,
       useFactory: (
         i18nService: I18nServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
         stateService: StateServiceAbstraction
-      ) => new ElectronPlatformUtilsService(i18nService, messagingService, false, stateService),
+      ) =>
+        new ElectronPlatformUtilsService(
+          i18nService,
+          messagingService,
+          ClientType.DirectoryConnector,
+          stateService
+        ),
       deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
     },
     { provide: CryptoFunctionServiceAbstraction, useClass: NodeCryptoFunctionService, deps: [] },
@@ -195,7 +203,7 @@ export function initFactory(
           secureStorageService,
           new StateFactory(GlobalState, Account)
         ),
-      deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
+      deps: [StorageServiceAbstraction, SECURE_STORAGE],
     },
     {
       provide: StateServiceAbstraction,
@@ -215,7 +223,7 @@ export function initFactory(
         ),
       deps: [
         StorageServiceAbstraction,
-        "SECURE_STORAGE",
+        SECURE_STORAGE,
         LogServiceAbstraction,
         StateMigrationServiceAbstraction,
       ],
