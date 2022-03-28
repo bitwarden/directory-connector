@@ -1,3 +1,5 @@
+import { Injectable } from "@angular/core";
+
 import { ApiService } from "jslib-common/abstractions/api.service";
 import { AppIdService } from "jslib-common/abstractions/appId.service";
 import { CryptoService } from "jslib-common/abstractions/crypto.service";
@@ -16,6 +18,7 @@ import { AuthService as AuthServiceBase } from "jslib-common/services/auth.servi
 import { StateService } from "../abstractions/state.service";
 import { OrganizationLogInStrategy } from "../misc/logInStrategies/organizationLogIn.strategy";
 
+@Injectable()
 export class AuthService extends AuthServiceBase {
   constructor(
     cryptoService: CryptoService,

@@ -1,3 +1,6 @@
+import { Inject, Injectable } from "@angular/core";
+
+import { SECURE_STORAGE, STATE_FACTORY } from "jslib-common/abstractions/injectionTokens";
 import { LogService } from "jslib-common/abstractions/log.service";
 import { StateMigrationService } from "jslib-common/abstractions/stateMigration.service";
 import { StorageService } from "jslib-common/abstractions/storage.service";
@@ -7,6 +10,7 @@ import { StorageOptions } from "jslib-common/models/domain/storageOptions";
 import { StateService as BaseStateService } from "jslib-common/services/state.service";
 
 import { StateService as StateServiceAbstraction } from "src/abstractions/state.service";
+import { USE_SECURE_STORAGE_FOR_SECRETS } from "src/app/services/injectionTokens";
 import { DirectoryType } from "src/enums/directoryType";
 import { IConfiguration } from "src/models/IConfiguration";
 import { Account } from "src/models/account";
@@ -16,6 +20,7 @@ import { LdapConfiguration } from "src/models/ldapConfiguration";
 import { OktaConfiguration } from "src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "src/models/oneLoginConfiguration";
 import { SyncConfiguration } from "src/models/syncConfiguration";
+
 
 const SecureStorageKeys = {
   ldap: "ldapPassword",
@@ -38,17 +43,18 @@ const keys = {
 
 const StoredSecurely = "[STORED SECURELY]";
 
+@Injectable()
 export class StateService
   extends BaseStateService<GlobalState, Account>
   implements StateServiceAbstraction
 {
   constructor(
     protected storageService: StorageService,
-    protected secureStorageService: StorageService,
+    @Inject(SECURE_STORAGE) protected secureStorageService: StorageService,
     protected logService: LogService,
     protected stateMigrationService: StateMigrationService,
-    private useSecureStorageForSecrets = true,
-    protected stateFactory: StateFactory<GlobalState, Account>
+    @Inject(USE_SECURE_STORAGE_FOR_SECRETS) private useSecureStorageForSecrets = true,
+    @Inject(STATE_FACTORY) protected stateFactory: StateFactory<GlobalState, Account>
   ) {
     super(storageService, secureStorageService, logService, stateMigrationService, stateFactory);
   }

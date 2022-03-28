@@ -1,3 +1,5 @@
+import { Injectable } from "@angular/core";
+
 import { ApiService } from "jslib-common/abstractions/api.service";
 import { CryptoFunctionService } from "jslib-common/abstractions/cryptoFunction.service";
 import { EnvironmentService } from "jslib-common/abstractions/environment.service";
@@ -20,6 +22,7 @@ import { LdapDirectoryService } from "./ldap-directory.service";
 import { OktaDirectoryService } from "./okta-directory.service";
 import { OneLoginDirectoryService } from "./onelogin-directory.service";
 
+@Injectable()
 export class SyncService {
   private dirType: DirectoryType;
 

@@ -9,7 +9,12 @@ import { CryptoService as CryptoServiceAbstraction } from "jslib-common/abstract
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "jslib-common/abstractions/cryptoFunction.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "jslib-common/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "jslib-common/abstractions/i18n.service";
-import { SECURE_STORAGE, WINDOW_TOKEN } from "jslib-common/abstractions/injectionTokens";
+import {
+  CLIENT_TYPE,
+  SECURE_STORAGE,
+  STATE_FACTORY,
+  WINDOW_TOKEN,
+} from "jslib-common/abstractions/injectionTokens";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "jslib-common/abstractions/keyConnector.service";
 import { LogService as LogServiceAbstraction } from "jslib-common/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "jslib-common/abstractions/messaging.service";
@@ -41,6 +46,7 @@ import { StateMigrationService } from "../../services/stateMigration.service";
 import { SyncService } from "../../services/sync.service";
 
 import { AuthGuardService } from "./auth-guard.service";
+import { USE_SECURE_STORAGE_FOR_SECRETS } from "./injectionTokens";
 import { LaunchGuardService } from "./launch-guard.service";
 
 function refreshTokenCallback(injector: Injector) {
@@ -110,24 +116,13 @@ export function initFactory(
     {
       provide: MessagingServiceAbstraction,
       useClass: ElectronRendererMessagingService,
-      deps: [BroadcasterServiceAbstraction],
     },
     { provide: StorageServiceAbstraction, useClass: ElectronRendererStorageService },
     { provide: SECURE_STORAGE, useClass: ElectronRendererSecureStorageService },
+    { provide: CLIENT_TYPE, useValue: ClientType.DirectoryConnector },
     {
       provide: PlatformUtilsServiceAbstraction,
-      useFactory: (
-        i18nService: I18nServiceAbstraction,
-        messagingService: MessagingServiceAbstraction,
-        stateService: StateServiceAbstraction
-      ) =>
-        new ElectronPlatformUtilsService(
-          i18nService,
-          messagingService,
-          ClientType.DirectoryConnector,
-          stateService
-        ),
-      deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
+      useClass: ElectronPlatformUtilsService,
     },
     { provide: CryptoFunctionServiceAbstraction, useClass: NodeCryptoFunctionService, deps: [] },
     {
@@ -162,71 +157,28 @@ export function initFactory(
     {
       provide: AuthServiceAbstraction,
       useClass: AuthService,
-      deps: [
-        CryptoServiceAbstraction,
-        ApiServiceAbstraction,
-        TokenServiceAbstraction,
-        AppIdServiceAbstraction,
-        PlatformUtilsServiceAbstraction,
-        MessagingServiceAbstraction,
-        LogServiceAbstraction,
-        KeyConnectorServiceAbstraction,
-        EnvironmentServiceAbstraction,
-        StateServiceAbstraction,
-        TwoFactorServiceAbstraction,
-        I18nServiceAbstraction,
-      ],
     },
     {
       provide: SyncService,
       useClass: SyncService,
-      deps: [
-        LogServiceAbstraction,
-        CryptoFunctionServiceAbstraction,
-        ApiServiceAbstraction,
-        MessagingServiceAbstraction,
-        I18nServiceAbstraction,
-        EnvironmentServiceAbstraction,
-        StateServiceAbstraction,
-      ],
     },
     AuthGuardService,
     LaunchGuardService,
     {
+      provide: STATE_FACTORY,
+      useFactory: () => new StateFactory(GlobalState, Account),
+    },
+    {
+      provide: USE_SECURE_STORAGE_FOR_SECRETS,
+      useValue: true,
+    },
+    {
       provide: StateMigrationServiceAbstraction,
-      useFactory: (
-        storageService: StorageServiceAbstraction,
-        secureStorageService: StorageServiceAbstraction
-      ) =>
-        new StateMigrationService(
-          storageService,
-          secureStorageService,
-          new StateFactory(GlobalState, Account)
-        ),
-      deps: [StorageServiceAbstraction, SECURE_STORAGE],
+      useClass: StateMigrationService,
     },
     {
       provide: StateServiceAbstraction,
-      useFactory: (
-        storageService: StorageServiceAbstraction,
-        secureStorageService: StorageServiceAbstraction,
-        logService: LogServiceAbstraction,
-        stateMigrationService: StateMigrationServiceAbstraction
-      ) =>
-        new StateService(
-          storageService,
-          secureStorageService,
-          logService,
-          stateMigrationService,
-          true,
-          new StateFactory(GlobalState, Account)
-        ),
-      deps: [
-        StorageServiceAbstraction,
-        SECURE_STORAGE,
-        LogServiceAbstraction,
-        StateMigrationServiceAbstraction,
-      ],
+      useClass: StateService,
     },
     {
       provide: TwoFactorServiceAbstraction,

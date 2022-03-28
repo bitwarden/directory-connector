@@ -1,3 +1,5 @@
+import { Injectable } from "@angular/core";
+
 import { StateVersion } from "jslib-common/enums/stateVersion";
 import { StateMigrationService as BaseStateMigrationService } from "jslib-common/services/stateMigration.service";
 
@@ -49,6 +51,7 @@ const ClientKeys: { [key: string]: any } = {
   clientSecret: "apikey_clientSecret",
 };
 
+@Injectable()
 export class StateMigrationService extends BaseStateMigrationService {
   async migrate(): Promise<void> {
     let currentStateVersion = await this.getCurrentStateVersion();
