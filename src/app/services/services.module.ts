@@ -30,7 +30,6 @@ import { NodeCryptoFunctionService } from "jslib-node/services/nodeCryptoFunctio
 
 import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
 import { Account } from "../../models/account";
-import { refreshToken } from "../../services/api.service";
 import { AuthService } from "../../services/auth.service";
 import { I18nService } from "../../services/i18n.service";
 import { NoopTwoFactorService } from "../../services/noop/noopTwoFactor.service";
@@ -40,14 +39,6 @@ import { SyncService } from "../../services/sync.service";
 
 import { AuthGuardService } from "./auth-guard.service";
 import { LaunchGuardService } from "./launch-guard.service";
-
-function refreshTokenCallback(injector: Injector) {
-  return () => {
-    const stateService = injector.get(StateServiceAbstraction);
-    const authService = injector.get(AuthServiceAbstraction);
-    return refreshToken(stateService, authService);
-  };
-}
 
 export function initFactory(
   environmentService: EnvironmentServiceAbstraction,
@@ -129,26 +120,26 @@ export function initFactory(
         platformUtilsService: PlatformUtilsServiceAbstraction,
         environmentService: EnvironmentServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
-        injector: Injector
+        appIdService: AppIdServiceAbstraction
       ) =>
         new NodeApiService(
           tokenService,
           platformUtilsService,
           environmentService,
+          appIdService,
           async (expired: boolean) => messagingService.send("logout", { expired: expired }),
           "Bitwarden_DC/" +
             platformUtilsService.getApplicationVersion() +
             " (" +
             platformUtilsService.getDeviceString().toUpperCase() +
-            ")",
-          refreshTokenCallback(injector)
+            ")"
         ),
       deps: [
         TokenServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         EnvironmentServiceAbstraction,
         MessagingServiceAbstraction,
-        Injector,
+        AppIdServiceAbstraction,
       ],
     },
     {
