@@ -1,6 +1,12 @@
-import { APP_INITIALIZER, Injector, NgModule } from "@angular/core";
+import { APP_INITIALIZER, InjectionToken, NgModule } from "@angular/core";
 
-import { JslibServicesModule } from "jslib-angular/services/jslib-services.module";
+import {
+  JslibServicesModule,
+  SECURE_STORAGE,
+  WINDOW,
+  LOGOUT_CALLBACK,
+  STATE_FACTORY,
+} from "jslib-angular/services/jslib-services.module";
 import { ApiService as ApiServiceAbstraction } from "jslib-common/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "jslib-common/abstractions/appId.service";
 import { AuthService as AuthServiceAbstraction } from "jslib-common/abstractions/auth.service";
@@ -17,9 +23,9 @@ import { StateMigrationService as StateMigrationServiceAbstraction } from "jslib
 import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "jslib-common/abstractions/token.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
+import { ClientType } from "jslib-common/enums/clientType";
 import { StateFactory } from "jslib-common/factories/stateFactory";
 import { GlobalState } from "jslib-common/models/domain/globalState";
-import { ContainerService } from "jslib-common/services/container.service";
 import { ElectronLogService } from "jslib-electron/services/electronLog.service";
 import { ElectronPlatformUtilsService } from "jslib-electron/services/electronPlatformUtils.service";
 import { ElectronRendererMessagingService } from "jslib-electron/services/electronRendererMessaging.service";
@@ -38,63 +44,60 @@ import { StateMigrationService } from "../../services/stateMigration.service";
 import { SyncService } from "../../services/sync.service";
 
 import { AuthGuardService } from "./auth-guard.service";
+import { InitService } from "./init.service";
 import { LaunchGuardService } from "./launch-guard.service";
 
-export function initFactory(
-  environmentService: EnvironmentServiceAbstraction,
-  i18nService: I18nService,
-  platformUtilsService: PlatformUtilsServiceAbstraction,
-  stateService: StateServiceAbstraction,
-  cryptoService: CryptoServiceAbstraction
-): () => Promise<void> {
-  return async () => {
-    await stateService.init();
-    await environmentService.setUrlsFromStorage();
-    await i18nService.init();
-    const htmlEl = window.document.documentElement;
-    htmlEl.classList.add("os_" + platformUtilsService.getDeviceString());
-    htmlEl.classList.add("locale_" + i18nService.translationLocale);
-    window.document.title = i18nService.t("bitwardenDirectoryConnector");
-
-    let installAction = null;
-    const installedVersion = await stateService.getInstalledVersion();
-    const currentVersion = await platformUtilsService.getApplicationVersion();
-    if (installedVersion == null) {
-      installAction = "install";
-    } else if (installedVersion !== currentVersion) {
-      installAction = "update";
-    }
-
-    if (installAction != null) {
-      await stateService.setInstalledVersion(currentVersion);
-    }
-
-    const containerService = new ContainerService(cryptoService);
-    containerService.attachToWindow(window);
-  };
-}
+const CUSTOM_USER_AGENT = new InjectionToken<string>("CUSTOM_USER_AGENT");
+const STATE_SERVICE_USE_SECURE_STORAGE = new InjectionToken<boolean>(
+  "STATE_SERVICE_USE_SECURE_STORAGE"
+);
+const CLIENT_TYPE = new InjectionToken<boolean>("CLIENT_TYPE");
 
 @NgModule({
   imports: [JslibServicesModule],
   declarations: [],
   providers: [
+    InitService,
+    AuthGuardService,
+    LaunchGuardService,
     {
       provide: APP_INITIALIZER,
-      useFactory: initFactory,
-      deps: [
-        EnvironmentServiceAbstraction,
-        I18nServiceAbstraction,
-        PlatformUtilsServiceAbstraction,
-        StateServiceAbstraction,
-        CryptoServiceAbstraction,
-      ],
+      useFactory: (initService: InitService) => initService.init(),
+      deps: [InitService],
       multi: true,
+    },
+    {
+      provide: STATE_FACTORY,
+      useValue: new StateFactory(GlobalState, Account),
+    },
+    {
+      provide: LOGOUT_CALLBACK,
+      useFactory: (messagingService: MessagingServiceAbstraction) => async (expired: boolean) =>
+        messagingService.send("logout", { expired: expired }),
+    },
+    {
+      provide: CUSTOM_USER_AGENT,
+      useFactory: (platformUtilsService: PlatformUtilsServiceAbstraction) =>
+        "Bitwarden_DC/" +
+        platformUtilsService.getApplicationVersion() +
+        " (" +
+        platformUtilsService.getDeviceString().toUpperCase() +
+        ")",
+      deps: [PlatformUtilsServiceAbstraction],
+    },
+    {
+      provide: STATE_SERVICE_USE_SECURE_STORAGE,
+      useValue: true,
+    },
+    {
+      provide: CLIENT_TYPE,
+      useValue: ClientType.DirectoryConnector,
     },
     { provide: LogServiceAbstraction, useClass: ElectronLogService, deps: [] },
     {
       provide: I18nServiceAbstraction,
       useFactory: (window: Window) => new I18nService(window.navigator.language, "./locales"),
-      deps: ["WINDOW"],
+      deps: [WINDOW],
     },
     {
       provide: MessagingServiceAbstraction,
@@ -102,44 +105,28 @@ export function initFactory(
       deps: [BroadcasterServiceAbstraction],
     },
     { provide: StorageServiceAbstraction, useClass: ElectronRendererStorageService },
-    { provide: "SECURE_STORAGE", useClass: ElectronRendererSecureStorageService },
+    { provide: SECURE_STORAGE, useClass: ElectronRendererSecureStorageService },
     {
       provide: PlatformUtilsServiceAbstraction,
-      useFactory: (
-        i18nService: I18nServiceAbstraction,
-        messagingService: MessagingServiceAbstraction,
-        stateService: StateServiceAbstraction
-      ) => new ElectronPlatformUtilsService(i18nService, messagingService, false, stateService),
-      deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
+      useClass: ElectronPlatformUtilsService,
+      deps: [
+        I18nServiceAbstraction,
+        MessagingServiceAbstraction,
+        CLIENT_TYPE,
+        StateServiceAbstraction,
+      ],
     },
     { provide: CryptoFunctionServiceAbstraction, useClass: NodeCryptoFunctionService, deps: [] },
     {
       provide: ApiServiceAbstraction,
-      useFactory: (
-        tokenService: TokenServiceAbstraction,
-        platformUtilsService: PlatformUtilsServiceAbstraction,
-        environmentService: EnvironmentServiceAbstraction,
-        messagingService: MessagingServiceAbstraction,
-        appIdService: AppIdServiceAbstraction
-      ) =>
-        new NodeApiService(
-          tokenService,
-          platformUtilsService,
-          environmentService,
-          appIdService,
-          async (expired: boolean) => messagingService.send("logout", { expired: expired }),
-          "Bitwarden_DC/" +
-            platformUtilsService.getApplicationVersion() +
-            " (" +
-            platformUtilsService.getDeviceString().toUpperCase() +
-            ")"
-        ),
+      useClass: NodeApiService,
       deps: [
         TokenServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         EnvironmentServiceAbstraction,
-        MessagingServiceAbstraction,
         AppIdServiceAbstraction,
+        LOGOUT_CALLBACK,
+        CUSTOM_USER_AGENT,
       ],
     },
     {
@@ -173,42 +160,21 @@ export function initFactory(
         StateServiceAbstraction,
       ],
     },
-    AuthGuardService,
-    LaunchGuardService,
     {
       provide: StateMigrationServiceAbstraction,
-      useFactory: (
-        storageService: StorageServiceAbstraction,
-        secureStorageService: StorageServiceAbstraction
-      ) =>
-        new StateMigrationService(
-          storageService,
-          secureStorageService,
-          new StateFactory(GlobalState, Account)
-        ),
-      deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
+      useClass: StateMigrationService,
+      deps: [StorageServiceAbstraction, SECURE_STORAGE, STATE_FACTORY],
     },
     {
       provide: StateServiceAbstraction,
-      useFactory: (
-        storageService: StorageServiceAbstraction,
-        secureStorageService: StorageServiceAbstraction,
-        logService: LogServiceAbstraction,
-        stateMigrationService: StateMigrationServiceAbstraction
-      ) =>
-        new StateService(
-          storageService,
-          secureStorageService,
-          logService,
-          stateMigrationService,
-          true,
-          new StateFactory(GlobalState, Account)
-        ),
+      useClass: StateService,
       deps: [
         StorageServiceAbstraction,
-        "SECURE_STORAGE",
+        SECURE_STORAGE,
         LogServiceAbstraction,
         StateMigrationServiceAbstraction,
+        STATE_SERVICE_USE_SECURE_STORAGE,
+        STATE_FACTORY,
       ],
     },
     {
