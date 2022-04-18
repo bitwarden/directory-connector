@@ -6,6 +6,7 @@ import {
   WINDOW,
   LOGOUT_CALLBACK,
   STATE_FACTORY,
+  CLIENT_TYPE,
 } from "jslib-angular/services/jslib-services.module";
 import { ApiService as ApiServiceAbstraction } from "jslib-common/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "jslib-common/abstractions/appId.service";
@@ -51,7 +52,6 @@ const CUSTOM_USER_AGENT = new InjectionToken<string>("CUSTOM_USER_AGENT");
 const STATE_SERVICE_USE_SECURE_STORAGE = new InjectionToken<boolean>(
   "STATE_SERVICE_USE_SECURE_STORAGE"
 );
-const CLIENT_TYPE = new InjectionToken<boolean>("CLIENT_TYPE");
 
 @NgModule({
   imports: [JslibServicesModule],
