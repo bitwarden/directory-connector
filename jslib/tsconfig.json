@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "pretty": true,
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "target": "ES6",
+    "module": "commonjs",
+    "lib": ["es5", "es6", "es7", "dom"],
+    "sourceMap": true,
+    "declaration": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "declarationDir": "dist/types",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "jslib-common/*": ["common/src/*"],
+      "jslib-angular/*": ["angular/src/*"],
+      "jslib-electron/*": ["electron/src/*"],
+      "jslib-node/*": ["node/src/*"]
+    },
+    "plugins": [
+      {
+        "transform": "typescript-transform-paths"
+      }
+    ]
+  },
+  "exclude": ["node_modules", "dist"]
+}
