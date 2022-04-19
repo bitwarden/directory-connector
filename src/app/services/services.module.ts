@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, Injector, NgModule } from "@angular/core";
+import { APP_INITIALIZER, NgModule } from "@angular/core";
 
 import { JslibServicesModule } from "jslib-angular/services/jslib-services.module";
 import { ApiService as ApiServiceAbstraction } from "jslib-common/abstractions/api.service";
