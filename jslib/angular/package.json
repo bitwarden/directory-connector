@@ -1,0 +1,41 @@
+{
+  "name": "@bitwarden/jslib-angular",
+  "version": "0.0.0",
+  "description": "Common code used across Bitwarden JavaScript projects.",
+  "keywords": [
+    "bitwarden"
+  ],
+  "author": "Bitwarden Inc.",
+  "homepage": "https://bitwarden.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitwarden/jslib"
+  },
+  "license": "GPL-3.0",
+  "scripts": {
+    "clean": "rimraf dist/**/*",
+    "build": "npm run clean && tsc",
+    "build:watch": "npm run clean && tsc -watch"
+  },
+  "devDependencies": {
+    "@types/duo_web_sdk": "^2.7.1",
+    "rimraf": "^3.0.2",
+    "typescript": "4.3.5"
+  },
+  "dependencies": {
+    "@angular/animations": "^12.2.13",
+    "@angular/cdk": "^12.2.13",
+    "@angular/common": "^12.2.13",
+    "@angular/compiler": "^12.2.13",
+    "@angular/core": "^12.2.13",
+    "@angular/forms": "^12.2.13",
+    "@angular/platform-browser": "^12.2.13",
+    "@angular/platform-browser-dynamic": "^12.2.13",
+    "@angular/router": "^12.2.13",
+    "@bitwarden/jslib-common": "file:../common",
+    "duo_web_sdk": "git+https://github.com/duosecurity/duo_web_sdk.git",
+    "rxjs": "^7.4.0",
+    "tldjs": "^2.3.1",
+    "zone.js": "0.11.4"
+  }
+}
