@@ -1,9 +1,10 @@
 dist
 build
 build-cli
-jslib
 webpack.cli.js
 webpack.main.js
 webpack.renderer.js
 
 **/node_modules
+
+**/jest.config.js

@@ -1,0 +1,38 @@
+{
+  "name": "@bitwarden/jslib-node",
+  "version": "0.0.0",
+  "description": "Common code used across Bitwarden JavaScript projects.",
+  "keywords": [
+    "bitwarden"
+  ],
+  "author": "Bitwarden Inc.",
+  "homepage": "https://bitwarden.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitwarden/jslib"
+  },
+  "license": "GPL-3.0",
+  "scripts": {
+    "clean": "rimraf dist/**/*",
+    "build": "npm run clean && tsc",
+    "build:watch": "npm run clean && tsc -watch"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^7.3.1",
+    "@types/lowdb": "^1.0.10",
+    "@types/node": "^16.11.12",
+    "@types/node-fetch": "^2.5.10",
+    "rimraf": "^3.0.2",
+    "typescript": "4.3.5"
+  },
+  "dependencies": {
+    "@bitwarden/jslib-common": "file:../common",
+    "chalk": "^4.1.1",
+    "commander": "7.2.0",
+    "form-data": "4.0.0",
+    "https-proxy-agent": "5.0.0",
+    "inquirer": "8.0.0",
+    "lowdb": "1.0.0",
+    "node-fetch": "^2.6.1"
+  }
+}

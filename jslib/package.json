@@ -1,0 +1,74 @@
+{
+  "name": "@bitwarden/jslib",
+  "version": "0.0.0",
+  "description": "Common code used across Bitwarden JavaScript projects.",
+  "keywords": [
+    "bitwarden"
+  ],
+  "author": "Bitwarden Inc.",
+  "homepage": "https://bitwarden.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitwarden/jslib"
+  },
+  "license": "GPL-3.0",
+  "scripts": {
+    "clean": "rimraf dist/**/*",
+    "lint": "eslint . && prettier --check .",
+    "lint:fix": "eslint . --fix",
+    "prettier": "prettier --write .",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:watch:all": "jest --watchAll",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^12.2.13",
+    "@angular/compiler-cli": "^12.2.13",
+    "@angular/platform-browser-dynamic": "^12.2.13",
+    "@fluffy-spoon/substitute": "^1.202.0",
+    "@types/jest": "^27.4.1",
+    "@types/node": "^16.11.12",
+    "@typescript-eslint/eslint-plugin": "^5.10.1",
+    "@typescript-eslint/parser": "^5.10.1",
+    "commander": "7.2.0",
+    "concurrently": "^6.1.0",
+    "eslint": "^8.7.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-typescript": "^2.5.0",
+    "eslint-plugin-import": "^2.25.4",
+    "form-data": "4.0.0",
+    "husky": "^7.0.4",
+    "jest": "^27.5.1",
+    "jest-preset-angular": "^11.1.1",
+    "jsdom": "^16.5.3",
+    "lint-staged": "^12.1.2",
+    "node-forge": "^1.2.0",
+    "nodemon": "^2.0.7",
+    "prettier": "2.5.1",
+    "rimraf": "^3.0.2",
+    "rxjs": "^7.4.0",
+    "ts-loader": "^8.1.0",
+    "ts-node": "^10.4.0",
+    "tsconfig-paths": "^3.12.0",
+    "ttypescript": "^1.5.12",
+    "typemoq": "^2.1.0",
+    "typescript": "4.3.5",
+    "typescript-transform-paths": "^2.2.3",
+    "zone.js": "0.11.4"
+  },
+  "dependencies": {
+    "@bitwarden/jslib-angular": "file:angular",
+    "@bitwarden/jslib-common": "file:common",
+    "@bitwarden/jslib-electron": "file:electron",
+    "@bitwarden/jslib-node": "file:node"
+  },
+  "engines": {
+    "node": "~16",
+    "npm": "~8"
+  },
+  "lint-staged": {
+    "*": "prettier --ignore-unknown --write",
+    "*.ts": "eslint --fix"
+  }
+}
