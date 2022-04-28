@@ -1,7 +1,0 @@
-# Build directories
-dist
-.angular
-coverage
-
-# Github Workflows
-.github/workflows
