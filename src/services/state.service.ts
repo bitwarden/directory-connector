@@ -9,7 +9,7 @@ import { StateService as BaseStateService } from "jslib-common/services/state.se
 import { StateService as StateServiceAbstraction } from "src/abstractions/state.service";
 import { DirectoryType } from "src/enums/directoryType";
 import { IConfiguration } from "src/models/IConfiguration";
-import { Account } from "src/models/account";
+import { Account, DirectoryConfigurations } from "src/models/account";
 import { AzureConfiguration } from "src/models/azureConfiguration";
 import { GSuiteConfiguration } from "src/models/gsuiteConfiguration";
 import { LdapConfiguration } from "src/models/ldapConfiguration";
@@ -54,6 +54,7 @@ export class StateService
   }
 
   async saveAccountToDisk(account: Account, options: StorageOptions): Promise<void> {
+    await this.setSecureSecrets(account.directoryConfigurations);
     const accountNoSecrets = this.removeSecrets(account);
     return super.saveAccountToDisk(accountNoSecrets, options);
   }
@@ -79,6 +80,32 @@ export class StateService
     }
 
     return account;
+  }
+
+  private async setSecureSecrets(config: DirectoryConfigurations) {
+    if (this.useSecureStorageForSecrets) {
+      if (config.azure != null && config.azure.key != StoredSecurely) {
+        await this.setAzureKey(config.azure.key);
+      }
+      if (config.gsuite != null && config.gsuite.privateKey != StoredSecurely) {
+        if (config.gsuite.privateKey == null) {
+          await this.setGsuiteKey(null);
+        } else {
+          (config.gsuite as GSuiteConfiguration).privateKey = config.gsuite.privateKey =
+            config.gsuite.privateKey.replace(/\\n/g, "\n");
+          await this.setGsuiteKey(config.gsuite.privateKey);
+        }
+      }
+      if (config.ldap != null && config.ldap.password != StoredSecurely) {
+        await this.setLdapKey(config.ldap.password);
+      }
+      if (config.okta != null && config.okta.token != StoredSecurely) {
+        await this.setOktaKey(config.okta.token);
+      }
+      if (config.oneLogin != null && config.azure.key != StoredSecurely) {
+        await this.setOneLoginKey(config.oneLogin.clientSecret);
+      }
+    }
   }
 
   async getDirectory<T extends IConfiguration>(type: DirectoryType): Promise<T> {
@@ -122,29 +149,18 @@ export class StateService
     if (this.useSecureStorageForSecrets) {
       switch (type) {
         case DirectoryType.Ldap:
-          await this.setLdapKey(savedConfig.password);
           await this.setLdapConfiguration(savedConfig);
           break;
         case DirectoryType.AzureActiveDirectory:
-          await this.setAzureKey(savedConfig.key);
           await this.setAzureConfiguration(savedConfig);
           break;
         case DirectoryType.Okta:
-          await this.setOktaKey(savedConfig.token);
           await this.setOktaConfiguration(savedConfig);
           break;
         case DirectoryType.GSuite:
-          if (savedConfig.privateKey == null) {
-            await this.setGsuiteKey(null);
-          } else {
-            (config as GSuiteConfiguration).privateKey = savedConfig.privateKey =
-              savedConfig.privateKey.replace(/\\n/g, "\n");
-            await this.setGsuiteKey(savedConfig.privateKey);
-          }
           await this.setGsuiteConfiguration(savedConfig);
           break;
         case DirectoryType.OneLogin:
-          await this.setOneLoginKey(savedConfig.clientSecret);
           await this.setOneLoginConfiguration(savedConfig);
           break;
       }
