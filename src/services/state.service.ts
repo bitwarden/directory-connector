@@ -53,6 +53,34 @@ export class StateService
     super(storageService, secureStorageService, logService, stateMigrationService, stateFactory);
   }
 
+  async saveAccountToDisk(account: Account, options: StorageOptions): Promise<void> {
+    const accountNoSecrets = this.removeSecrets(account);
+    return super.saveAccountToDisk(accountNoSecrets, options);
+  }
+
+  private removeSecrets(account: Account): Account {
+    if (this.useSecureStorageForSecrets) {
+      const configs = account.directoryConfigurations;
+      if (configs.azure != null) {
+        configs.azure.key = StoredSecurely;
+      }
+      if (configs.gsuite != null) {
+        configs.gsuite.privateKey = StoredSecurely;
+      }
+      if (configs.ldap != null) {
+        configs.ldap.password = StoredSecurely;
+      }
+      if (configs.okta != null) {
+        configs.okta.token = StoredSecurely;
+      }
+      if (configs.oneLogin != null) {
+        configs.oneLogin.clientSecret = StoredSecurely;
+      }
+    }
+
+    return account;
+  }
+
   async getDirectory<T extends IConfiguration>(type: DirectoryType): Promise<T> {
     const config = await this.getConfiguration(type);
     if (config == null) {
@@ -95,17 +123,14 @@ export class StateService
       switch (type) {
         case DirectoryType.Ldap:
           await this.setLdapKey(savedConfig.password);
-          savedConfig.password = StoredSecurely;
           await this.setLdapConfiguration(savedConfig);
           break;
         case DirectoryType.AzureActiveDirectory:
           await this.setAzureKey(savedConfig.key);
-          savedConfig.key = StoredSecurely;
           await this.setAzureConfiguration(savedConfig);
           break;
         case DirectoryType.Okta:
           await this.setOktaKey(savedConfig.token);
-          savedConfig.token = StoredSecurely;
           await this.setOktaConfiguration(savedConfig);
           break;
         case DirectoryType.GSuite:
@@ -115,13 +140,11 @@ export class StateService
             (config as GSuiteConfiguration).privateKey = savedConfig.privateKey =
               savedConfig.privateKey.replace(/\\n/g, "\n");
             await this.setGsuiteKey(savedConfig.privateKey);
-            savedConfig.privateKey = StoredSecurely;
           }
           await this.setGsuiteConfiguration(savedConfig);
           break;
         case DirectoryType.OneLogin:
           await this.setOneLoginKey(savedConfig.clientSecret);
-          savedConfig.clientSecret = StoredSecurely;
           await this.setOneLoginConfiguration(savedConfig);
           break;
       }
