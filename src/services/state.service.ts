@@ -55,7 +55,6 @@ export class StateService
   }
 
   async saveAccountToDisk(account: Account, options: StorageOptions): Promise<void> {
-    await this.setSecureSecrets(account.directoryConfigurations);
     const accountNoSecrets = this.removeSecrets(account);
     return super.saveAccountToDisk(accountNoSecrets, options);
   }
@@ -83,7 +82,11 @@ export class StateService
     return account;
   }
 
-  private async setSecureSecrets(config: DirectoryConfigurations) {
+  async setSecureSecrets() {
+    const config = (
+      await this.getAccount(this.reconcileOptions({}, await this.defaultOnDiskOptions()))
+    )?.directoryConfigurations;
+
     if (this.useSecureStorageForSecrets) {
       if (config.azure != null && config.azure.key != StoredSecurely) {
         await this.setAzureKey(config.azure.key);

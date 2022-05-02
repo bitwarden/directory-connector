@@ -63,4 +63,5 @@ export abstract class StateService extends BaseStateServiceAbstraction<Account> 
   getSyncingDir: (options?: StorageOptions) => Promise<boolean>;
   setSyncingDir: (value: boolean, options?: StorageOptions) => Promise<void>;
   clearSyncSettings: (syncHashToo: boolean) => Promise<void>;
+  setSecureSecrets: () => Promise<void>;
 }

@@ -77,6 +77,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (this.ldap != null && this.ldap.ad) {
       this.ldap.pagedSearch = true;
     }
+    await this.stateService.setSecureSecrets();
     await this.stateService.setDirectoryType(this.directory);
     await this.stateService.setDirectory(DirectoryType.Ldap, this.ldap);
     await this.stateService.setDirectory(DirectoryType.GSuite, this.gsuite);

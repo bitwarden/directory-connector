@@ -141,6 +141,7 @@ export class ConfigCommand {
 
   private async saveConfig() {
     ConnectorUtils.adjustConfigForSave(this.ldap, this.sync);
+    await this.stateService.setSecureSecrets();
     await this.stateService.setDirectoryType(this.directory);
     await this.stateService.setDirectory(DirectoryType.Ldap, this.ldap);
     await this.stateService.setDirectory(DirectoryType.GSuite, this.gsuite);
