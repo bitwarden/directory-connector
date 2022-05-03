@@ -99,43 +99,43 @@ export class StateService
     if (this.useSecureStorageForSecrets) {
       switch (type) {
         case DirectoryType.Ldap: {
-          const ldap = config as LdapConfiguration;
-          await this.setLdapKey(ldap.password);
-          ldap.password = StoredSecurely;
-          await this.setLdapConfiguration(ldap);
+          const ldapConfig = config as LdapConfiguration;
+          await this.setLdapKey(ldapConfig.password);
+          ldapConfig.password = StoredSecurely;
+          await this.setLdapConfiguration(ldapConfig);
           break;
         }
         case DirectoryType.AzureActiveDirectory: {
-          const azure = config as AzureConfiguration;
-          await this.setAzureKey(azure.key);
-          azure.key = StoredSecurely;
-          await this.setAzureConfiguration(azure);
+          const azureConfig = config as AzureConfiguration;
+          await this.setAzureKey(azureConfig.key);
+          azureConfig.key = StoredSecurely;
+          await this.setAzureConfiguration(azureConfig);
           break;
         }
         case DirectoryType.Okta: {
-          const okta = config as OktaConfiguration;
-          await this.setOktaKey(okta.token);
-          okta.token = StoredSecurely;
-          await this.setOktaConfiguration(okta);
+          const oktaConfig = config as OktaConfiguration;
+          await this.setOktaKey(oktaConfig.token);
+          oktaConfig.token = StoredSecurely;
+          await this.setOktaConfiguration(oktaConfig);
           break;
         }
         case DirectoryType.GSuite: {
-          const gsuite = config as GSuiteConfiguration;
-          if (gsuite.privateKey == null) {
+          const gsuiteConfig = config as GSuiteConfiguration;
+          if (gsuiteConfig.privateKey == null) {
             await this.setGsuiteKey(null);
           } else {
-            const normalizedPrivateKey = gsuite.privateKey.replace(/\\n/g, "\n");
+            const normalizedPrivateKey = gsuiteConfig.privateKey.replace(/\\n/g, "\n");
             await this.setGsuiteKey(normalizedPrivateKey);
-            gsuite.privateKey = StoredSecurely;
+            gsuiteConfig.privateKey = StoredSecurely;
           }
-          await this.setGsuiteConfiguration(gsuite);
+          await this.setGsuiteConfiguration(gsuiteConfig);
           break;
         }
         case DirectoryType.OneLogin: {
-          const oneLogin = config as OneLoginConfiguration;
-          await this.setOneLoginKey(oneLogin.clientSecret);
-          oneLogin.clientSecret = StoredSecurely;
-          await this.setOneLoginConfiguration(oneLogin);
+          const oneLoginConfig = config as OneLoginConfiguration;
+          await this.setOneLoginKey(oneLoginConfig.clientSecret);
+          oneLoginConfig.clientSecret = StoredSecurely;
+          await this.setOneLoginConfiguration(oneLoginConfig);
           break;
         }
       }
