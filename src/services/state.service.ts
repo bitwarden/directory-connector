@@ -571,6 +571,6 @@ export class StateService
   }
 
   async getEnvironmentUrls(options?: StorageOptions): Promise<EnvironmentUrls> {
-    return await this.getGlobalEnvironmentUrls(options);
+    return this.getGlobalEnvironmentUrls(options);
   }
 }
