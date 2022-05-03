@@ -21,16 +21,6 @@ export abstract class StateService extends BaseStateServiceAbstraction<Account> 
       | OktaConfiguration
       | OneLoginConfiguration
   ) => Promise<any>;
-  getLdapKey: (options?: StorageOptions) => Promise<string>;
-  setLdapKey: (value: string, options?: StorageOptions) => Promise<void>;
-  getGsuiteKey: (options?: StorageOptions) => Promise<string>;
-  setGsuiteKey: (value: string, options?: StorageOptions) => Promise<void>;
-  getAzureKey: (options?: StorageOptions) => Promise<string>;
-  setAzureKey: (value: string, options?: StorageOptions) => Promise<void>;
-  getOktaKey: (options?: StorageOptions) => Promise<string>;
-  setOktaKey: (value: string, options?: StorageOptions) => Promise<void>;
-  getOneLoginKey: (options?: StorageOptions) => Promise<string>;
-  setOneLoginKey: (value: string, options?: StorageOptions) => Promise<void>;
   getLdapConfiguration: (options?: StorageOptions) => Promise<LdapConfiguration>;
   setLdapConfiguration: (value: LdapConfiguration, options?: StorageOptions) => Promise<void>;
   getGsuiteConfiguration: (options?: StorageOptions) => Promise<GSuiteConfiguration>;
