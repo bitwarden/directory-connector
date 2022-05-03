@@ -2,6 +2,7 @@ import { LogService } from "jslib-common/abstractions/log.service";
 import { StateMigrationService } from "jslib-common/abstractions/stateMigration.service";
 import { StorageService } from "jslib-common/abstractions/storage.service";
 import { StateFactory } from "jslib-common/factories/stateFactory";
+import { EnvironmentUrls } from "jslib-common/models/domain/environmentUrls";
 import { GlobalState } from "jslib-common/models/domain/globalState";
 import { StorageOptions } from "jslib-common/models/domain/storageOptions";
 import { StateService as BaseStateService } from "jslib-common/services/state.service";
@@ -581,5 +582,9 @@ export class StateService
       directoryConfigurations: account.directoryConfigurations,
     };
     return Object.assign(this.createAccount(), persistentAccountInformation);
+  }
+
+  async getEnvironmentUrls(options?: StorageOptions): Promise<EnvironmentUrls> {
+    return this.getGlobalEnvironmentUrls(options);
   }
 }
