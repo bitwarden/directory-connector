@@ -63,87 +63,21 @@
     "prettier": "prettier --write .",
     "prepare": "husky install"
   },
-  "build": {
-    "extraMetadata": {
-      "name": "bitwarden-directory-connector"
-    },
-    "productName": "Bitwarden Directory Connector",
-    "appId": "com.bitwarden.directory-connector",
-    "copyright": "Copyright © 2015-2022 Bitwarden Inc.",
-    "directories": {
-      "buildResources": "resources",
-      "output": "dist",
-      "app": "build"
-    },
-    "afterSign": "scripts/notarize.js",
-    "mac": {
-      "category": "public.app-category.productivity",
-      "gatekeeperAssess": false,
-      "hardenedRuntime": true,
-      "entitlements": "resources/entitlements.mac.plist",
-      "entitlementsInherit": "resources/entitlements.mac.plist",
-      "target": [
-        "dmg",
-        "zip"
-      ]
-    },
-    "win": {
-      "target": [
-        "portable",
-        "nsis"
-      ],
-      "sign": "scripts/sign.js"
-    },
-    "linux": {
-      "category": "Utility",
-      "synopsis": "Sync your user directory to your Bitwarden organization.",
-      "target": [
-        "AppImage"
-      ]
-    },
-    "dmg": {
-      "artifactName": "Bitwarden-Connector-${version}.${ext}",
-      "icon": "dmg.icns",
-      "contents": [
-        {
-          "x": 150,
-          "y": 185,
-          "type": "file"
-        },
-        {
-          "x": 390,
-          "y": 180,
-          "type": "link",
-          "path": "/Applications"
-        }
-      ],
-      "window": {
-        "width": 540,
-        "height": 380
-      }
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": true,
-      "allowToChangeInstallationDirectory": true,
-      "artifactName": "Bitwarden-Connector-Installer-${version}.${ext}",
-      "uninstallDisplayName": "${productName}",
-      "deleteAppDataOnUninstall": true
-    },
-    "portable": {
-      "artifactName": "Bitwarden-Connector-Portable-${version}.${ext}"
-    },
-    "appImage": {
-      "artifactName": "Bitwarden-Connector-${version}-${arch}.${ext}"
-    }
-  },
   "devDependencies": {
     "@angular/compiler-cli": "^12.2.13",
     "@microsoft/microsoft-graph-types": "^1.4.0",
     "@ngtools/webpack": "^12.2.13",
+    "@types/inquirer": "^8.2.1",
     "@types/ldapjs": "^1.0.10",
+    "@types/lowdb": "^1.0.11",
+    "@types/lunr": "^2.3.4",
     "@types/node": "^16.11.12",
+    "@types/node-fetch": "^2.6.1",
+    "@types/node-forge": "^1.0.2",
+    "@types/papaparse": "^5.3.2",
     "@types/proper-lockfile": "^4.1.1",
+    "@types/tldjs": "^2.3.1",
+    "@types/zxcvbn": "^4.4.1",
     "@typescript-eslint/eslint-plugin": "^5.12.1",
     "@typescript-eslint/parser": "^5.12.1",
     "clean-webpack-plugin": "^4.0.0",
@@ -151,10 +85,14 @@
     "copy-webpack-plugin": "^10.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "^6.5.1",
+    "electron": "16.1.0",
     "electron-builder": "^22.14.5",
+    "electron-log": "4.4.6",
     "electron-notarize": "^1.1.1",
     "electron-rebuild": "^3.2.5",
     "electron-reload": "^1.5.0",
+    "electron-store": "8.0.1",
+    "electron-updater": "5.0.0",
     "eslint": "^8.9.0",
     "eslint-config-prettier": "^8.4.0",
     "eslint-import-resolver-typescript": "^2.5.0",
@@ -187,31 +125,38 @@
     "@angular/compiler": "^12.2.13",
     "@angular/core": "^12.2.13",
     "@angular/forms": "^12.2.13",
-    "@angular/platform-browser-dynamic": "^12.2.13",
     "@angular/platform-browser": "^12.2.13",
+    "@angular/platform-browser-dynamic": "^12.2.13",
     "@angular/router": "^12.2.13",
     "@bitwarden/jslib-angular": "file:jslib/angular",
-    "@bitwarden/jslib-common": "file:jslib/common",
-    "@bitwarden/jslib-electron": "file:jslib/electron",
-    "@bitwarden/jslib-node": "file:jslib/node",
     "@microsoft/microsoft-graph-client": "^2.2.1",
+    "@microsoft/signalr": "5.0.10",
+    "@microsoft/signalr-protocol-msgpack": "5.0.10",
+    "big-integer": "1.6.48",
     "bootstrap": "^4.6.0",
+    "browser-hrtime": "^1.1.8",
     "chalk": "^4.1.1",
     "commander": "^7.2.0",
     "core-js": "^3.11.0",
     "duo_web_sdk": "git+https://github.com/duosecurity/duo_web_sdk.git",
     "form-data": "^4.0.0",
     "googleapis": "^73.0.0",
+    "https-proxy-agent": "5.0.0",
     "inquirer": "8.0.0",
     "keytar": "^7.9.0",
     "ldapjs": "2.3.1",
+    "lowdb": "1.0.0",
     "lunr": "^2.3.9",
     "ngx-toastr": "14.1.4",
+    "node-fetch": "^2.6.1",
     "node-forge": "^1.2.1",
     "open": "^8.0.6",
+    "papaparse": "^5.3.0",
     "proper-lockfile": "^4.1.2",
     "rxjs": "^7.4.0",
-    "zone.js": "0.11.4"
+    "tldjs": "^2.3.1",
+    "zone.js": "0.11.4",
+    "zxcvbn": "^4.4.2"
   },
   "engines": {
     "node": "~16",
