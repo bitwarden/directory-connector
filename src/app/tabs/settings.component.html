@@ -700,7 +700,7 @@
               [(ngModel)]="sync.groupFilter"
             ></textarea>
             <small class="text-muted form-text" *ngIf="directory === directoryType.Ldap"
-              >{{ "ex" | i18n }} (&amp;!(name=Sales*)!(name=IT*))</small
+              >{{ "ex" | i18n }} (&amp;(objectClass=group)(!(cn=Sales*))(!(cn=IT*)))</small
             >
             <small
               class="text-muted form-text"
