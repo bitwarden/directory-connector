@@ -201,15 +201,29 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     }
 
     const set = new Set<string>();
+    const entryIds = new Set<string>();
     const pieces = parts[1].split(",");
+
     if (keyword === "excludeadministrativeunit" || keyword === "includeadministrativeunit") {
       for (const p of pieces) {
-        const auMembers = await this.client
+        let auMembers = await this.client
           .api(`https://graph.microsoft.com/v1.0/directory/administrativeUnits/${p}/members`)
           .get();
-        for (const auMember of auMembers.value) {
-          if (auMember["@odata.type"] === "#microsoft.graph.group") {
-            set.add(auMember.displayName.toLowerCase());
+        // eslint-disable-next-line
+        while (true) {
+          for (const auMember of auMembers.value) {
+            const groupId = auMember.id;
+            if (auMember["@odata.type"] === "#microsoft.graph.group" && !entryIds.has(groupId)) {
+              set.add(auMember.displayName.toLowerCase());
+              entryIds.add(groupId);
+            }
+          }
+
+          if (auMembers[NextLink] == null) {
+            break;
+          } else {
+            const nextLinkReq = this.client.api(auMembers[NextLink]);
+            auMembers = await nextLinkReq.get();
           }
         }
       }
