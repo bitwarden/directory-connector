@@ -61,11 +61,20 @@ jobs:
           echo "::set-output name=branch-name::$BRANCH_NAME"
 
       - name: Download all artifacts
+        if: ${{ github.event.inputs.release_type != 'Dry Run' }}
         uses: bitwarden/gh-actions/download-artifacts@c1fa8e09871a860862d6bbe36184b06d2c7e35a8
         with:
           workflow: build.yml
           workflow_conclusion: success
           branch: ${{ steps.branch.outputs.branch-name }}
+
+      - name: Download all artifacts
+        if: ${{ github.event.inputs.release_type == 'Dry Run' }}
+        uses: bitwarden/gh-actions/download-artifacts@c1fa8e09871a860862d6bbe36184b06d2c7e35a8
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          branch: master
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
