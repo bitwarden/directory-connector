@@ -190,7 +190,10 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
 
     // eslint-disable-next-line
     while (true) {
-      const p = Object.assign({ groupKey: group.id, pageToken: nextPageToken }, this.authParams);
+      const p = Object.assign(
+        { groupKey: group.id, includeDerivedMembership: true, pageToken: nextPageToken },
+        this.authParams
+      );
       const memRes = await this.service.members.list(p);
       if (memRes.status !== 200) {
         this.logService.warning("Group member list API failed: " + memRes.statusText);
@@ -209,8 +212,6 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
               continue;
             }
             entry.userMemberExternalIds.add(member.id);
-          } else if (type === "group") {
-            entry.groupMemberReferenceIds.add(member.id);
           } else if (type === "customer") {
             for (const user of users) {
               entry.userMemberExternalIds.add(user.externalId);
