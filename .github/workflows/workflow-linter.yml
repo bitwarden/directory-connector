@@ -8,4 +8,5 @@ on:
 
 jobs:
   call-workflow:
+    name: Call Workflow
     uses: bitwarden/gh-actions/.github/workflows/workflow-linter.yml@master
