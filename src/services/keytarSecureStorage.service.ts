@@ -16,6 +16,12 @@ export class KeytarSecureStorageService implements StorageService {
   }
 
   save(key: string, obj: any): Promise<any> {
+    // keytar throws if you try to save a falsy value: https://github.com/atom/node-keytar/issues/86
+    // handle this by removing the key instead
+    if (!obj) {
+      return this.remove(key);
+    }
+
     return setPassword(this.serviceName, key, JSON.stringify(obj));
   }
 
