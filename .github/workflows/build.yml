@@ -101,6 +101,7 @@ jobs:
 
       - name: Version Test
         run: |
+          sudo apt-get update
           sudo apt install libsecret-1-0 dbus-x11 gnome-keyring
           eval $(dbus-launch --sh-syntax)
 
