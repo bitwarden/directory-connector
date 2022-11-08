@@ -78,7 +78,7 @@ jobs:
           workflow_conclusion: success
           branch: ${{ steps.branch.outputs.branch-name }}
 
-      - name: Download all artifacts
+      - name: Dry Run - Download all artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
         uses: bitwarden/gh-actions/download-artifacts@850faad0cf6c02a8c0dc46eddde2363fbd6c373a
         with:
