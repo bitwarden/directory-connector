@@ -151,12 +151,18 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     users: UserEntry[]
   ): Promise<GroupEntry[]> {
     const entries: GroupEntry[] = [];
+    const query = this.createDirectoryQuery(this.syncConfig.groupFilter);
     let nextPageToken: string = null;
 
     // eslint-disable-next-line
     while (true) {
       this.logService.info("Querying groups - nextPageToken:" + nextPageToken);
-      const p = Object.assign({ pageToken: nextPageToken }, this.authParams);
+      let p = null;
+      if (query == null) {
+        p = Object.assign({ pageToken: nextPageToken }, this.authParams);
+      } else {
+        p = Object.assign({ query: query, pageToken: nextPageToken }, this.authParams);
+      }
       const res = await this.service.groups.list(p);
       if (res.status !== 200) {
         throw new Error("Group list API failed: " + res.statusText);
