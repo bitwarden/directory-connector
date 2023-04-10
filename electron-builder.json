@@ -12,7 +12,7 @@
   },
   "afterSign": "scripts/notarize.js",
   "mac": {
-    "artifactName": "Bitwarden-Connector-${version}.${ext}",
+    "artifactName": "Bitwarden-Connector-${version}-mac.${ext}",
     "category": "public.app-category.productivity",
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
