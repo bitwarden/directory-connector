@@ -680,13 +680,13 @@ jobs:
         uses: Azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf
         if: failure()
         with:
-          creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
         if: failure()
         env:
-          KEYVAULT: bitwarden-prod-kv
+          KEYVAULT: bitwarden-ci
           SECRETS: |
             devops-alerts-slack-webhook-url
         run: |
