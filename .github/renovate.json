@@ -14,9 +14,28 @@
   "enabledManagers": ["github-actions", "npm"],
   "packageRules": [
     {
-      "groupName": "{{manager}}",
-      "matchPackagePatterns": ["*"],
+      "groupName": "gh minor",
+      "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "groupName": "npm minor",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "packageNames": ["typescript"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    },
+    {
+      "packageNames": ["typescript"],
+      "matchUpdateTypes": "patch"
+    },
+    {
+      "groupName": "jest",
+      "packageNames": ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
+      "matchUpdateTypes": "major"
     }
   ]
 }
