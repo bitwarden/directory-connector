@@ -377,7 +377,7 @@ jobs:
         uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@9211491ffb35dd6a6657ca4f45d43dfe6e97c829
+        uses: actions/setup-dotnet@5fdecd2063d6b33f52291b3d9299f6a7d4a84964
         with:
           dotnet-version: "3.1.x"
 
