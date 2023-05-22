@@ -28,7 +28,7 @@
     "@angular/platform-browser-dynamic": "12.2.16",
     "@fluffy-spoon/substitute": "1.208.0",
     "@types/jest": "27.4.1",
-    "@types/node": "16.11.26",
+    "@types/node": "18.16.14",
     "@typescript-eslint/eslint-plugin": "5.17.0",
     "@typescript-eslint/parser": "5.17.0",
     "commander": "7.2.0",
@@ -64,7 +64,7 @@
     "@bitwarden/jslib-node": "file:node"
   },
   "engines": {
-    "node": "~16",
+    "node": "~18.16.0",
     "npm": "~8"
   },
   "lint-staged": {
