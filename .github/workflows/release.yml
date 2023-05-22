@@ -30,7 +30,7 @@ jobs:
           fi
 
       - name: Checkout repo
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+        uses: actions/checkout@f095bcc56b7c2baf48f3ac70d6d6782f4f553222
 
       - name: Retrieve Directory Connector release version
         id: retrieve-version
