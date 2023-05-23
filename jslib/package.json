@@ -64,8 +64,8 @@
     "@bitwarden/jslib-node": "file:node"
   },
   "engines": {
-    "node": "~18.16.0",
-    "npm": "~8"
+    "node": "~18",
+    "npm": "~9"
   },
   "lint-staged": {
     "*": "prettier --ignore-unknown --write",

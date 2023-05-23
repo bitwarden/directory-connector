@@ -159,8 +159,8 @@
     "zxcvbn": "4.4.2"
   },
   "engines": {
-    "node": "~18.16.0",
-    "npm": "~8"
+    "node": "~18",
+    "npm": "~9"
   },
   "lint-staged": {
     "./!(jslib)**": "prettier --ignore-unknown --write",
