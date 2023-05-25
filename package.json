@@ -71,7 +71,7 @@
     "@types/ldapjs": "1.0.11",
     "@types/lowdb": "1.0.11",
     "@types/lunr": "2.3.4",
-    "@types/node": "16.11.33",
+    "@types/node": "18.16.14",
     "@types/node-fetch": "2.6.1",
     "@types/node-forge": "1.0.2",
     "@types/papaparse": "5.3.2",
@@ -103,7 +103,7 @@
     "lint-staged": "12.4.1",
     "mini-css-extract-plugin": "2.6.0",
     "node-loader": "2.0.0",
-    "pkg": "5.6.0",
+    "pkg": "5.8.1",
     "prebuild-install": "5.3.6",
     "prettier": "2.6.2",
     "rimraf": "3.0.2",
@@ -159,8 +159,8 @@
     "zxcvbn": "4.4.2"
   },
   "engines": {
-    "node": "~16",
-    "npm": "~8"
+    "node": "~18",
+    "npm": "~9"
   },
   "lint-staged": {
     "./!(jslib)**": "prettier --ignore-unknown --write",

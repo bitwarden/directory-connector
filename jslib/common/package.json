@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@types/lunr": "2.3.4",
-    "@types/node": "16.11.26",
+    "@types/node": "18.16.14",
     "@types/node-forge": "1.0.1",
     "@types/papaparse": "5.3.2",
     "@types/tldjs": "2.3.1",
