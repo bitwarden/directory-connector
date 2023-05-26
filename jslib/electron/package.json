@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@bitwarden/jslib-common": "file:../common",
-    "electron": "16.1.0",
+    "electron": "24.4.0",
     "electron-log": "4.4.6",
     "electron-store": "8.0.1",
     "electron-updater": "5.0.0"
