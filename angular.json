@@ -30,29 +30,6 @@
           }
         }
       }
-    },
-    "jslib": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:application": {
-          "strict": true
-        }
-      },
-      "root": "jslib",
-      "sourceRoot": "jslib",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:browser",
-          "options": {
-            "outputPath": "dist",
-            "tsConfig": "jslib/tsconfig.json",
-            "assets": [],
-            "styles": [],
-            "scripts": []
-          }
-        }
-      }
     }
   }
 }
