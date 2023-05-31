@@ -404,7 +404,7 @@ jobs:
           dotnet --version
 
       - name: Install AST
-        uses: bitwarden/gh-actions/install-ast@34ecb67b2a357795dc893549df0795e7383ff50f
+        uses: bitwarden/gh-actions/install-ast@72594be690a4e7bfa87b1402b2aedc75acdbff12
 
       - name: Install Node dependencies
         run: npm install
