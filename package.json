@@ -121,6 +121,7 @@
   "dependencies": {
     "@angular/animations": "12.2.16",
     "@angular/cdk": "12.2.13",
+    "@angular/cli": "15.2.8",
     "@angular/common": "12.2.16",
     "@angular/compiler": "12.2.16",
     "@angular/core": "12.2.16",
