@@ -1,4 +1,8 @@
 {
+  "angularCompilerOptions": {
+    "strictTemplates": true,
+    "preserveWhitespaces": true
+  },
   "compilerOptions": {
     "pretty": true,
     "moduleResolution": "node",
