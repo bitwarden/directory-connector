@@ -1,5 +1,5 @@
 import "core-js/stable";
-import "zone.js/dist/zone";
+import "zone.js";
 
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
