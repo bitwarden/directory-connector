@@ -1,26 +1,31 @@
 {
+  "angularCompilerOptions": {
+    "strictTemplates": true,
+    "preserveWhitespaces": true
+  },
   "compilerOptions": {
+    "pretty": true,
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "module": "es6",
     "target": "ES2016",
-    "allowJs": true,
+    "module": "ES2020",
+    "lib": ["es5", "es6", "es7", "dom"],
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
-    "types": [],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "declaration": false,
+    "outDir": "dist",
     "baseUrl": ".",
+    "resolveJsonModule": true,
     "paths": {
       "tldjs": ["jslib/src/misc/tldjs.noop"],
       "jslib-common/*": ["jslib/common/src/*"],
       "jslib-angular/*": ["jslib/angular/src/*"],
       "jslib-electron/*": ["jslib/electron/src/*"],
       "jslib-node/*": ["jslib/node/src/*"]
-    }
-  },
-  "angularCompilerOptions": {
-    "preserveWhitespaces": true
+    },
+    "useDefineForClassFields": false
   },
   "include": ["src", "src-cli"]
 }
