@@ -68,7 +68,7 @@
     "@microsoft/microsoft-graph-types": "1.41.0",
     "@ngtools/webpack": "15.2.8",
     "@types/inquirer": "8.2.1",
-    "@types/ldapjs": "1.0.11",
+    "@types/ldapjs": "2.2.5",
     "@types/lowdb": "1.0.11",
     "@types/lunr": "2.3.4",
     "@types/node": "18.16.14",
