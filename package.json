@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "@angular/compiler-cli": "15.2.9",
-    "@microsoft/microsoft-graph-types": "1.41.0",
+    "@microsoft/microsoft-graph-types": "2.33.0",
     "@ngtools/webpack": "15.2.8",
     "@types/inquirer": "8.2.1",
     "@types/ldapjs": "2.2.5",
