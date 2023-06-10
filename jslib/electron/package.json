@@ -17,16 +17,7 @@
     "build": "npm run clean && tsc",
     "build:watch": "npm run clean && tsc -watch"
   },
-  "devDependencies": {
-    "@types/node": "18.16.14",
-    "rimraf": "3.0.2",
-    "typescript": "4.3.5"
-  },
   "dependencies": {
-    "@bitwarden/jslib-common": "file:../common",
-    "electron": "18.3.7",
-    "electron-log": "4.4.6",
-    "electron-store": "8.0.1",
-    "electron-updater": "5.0.0"
+    "@bitwarden/jslib-common": "file:../common"
   }
 }
