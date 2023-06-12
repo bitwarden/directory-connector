@@ -17,8 +17,5 @@
   "pkg": {
     "assets": "../build-cli/**/*"
   },
-  "dependencies": {
-    "browser-hrtime": "1.1.8",
-    "keytar": "7.9.0"
-  }
+  "dependencies": {}
 }
