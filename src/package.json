@@ -11,5 +11,7 @@
     "type": "git",
     "url": "https://github.com/bitwarden/directory-connector"
   },
-  "dependencies": {}
+  "dependencies": {
+    "keytar": "7.9.0"
+  }
 }
