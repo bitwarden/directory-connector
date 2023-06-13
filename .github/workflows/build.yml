@@ -398,7 +398,7 @@ jobs:
           npm --version
 
       - name: Install AST
-        uses: bitwarden/gh-actions/install-ast@72594be690a4e7bfa87b1402b2aedc75acdbff12
+        uses: bitwarden/gh-actions/install-ast@dfc4cc6b2a38bd189db29cd88b9381a143b04dfc
 
       - name: Install Node dependencies
         run: npm install
