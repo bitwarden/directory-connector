@@ -376,11 +376,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
-      - name: Set up .NET
-        uses: actions/setup-dotnet@3447fd6a9f9e57506b15f895c5b76d3b197dc7c2 # v3.2.0
-        with:
-          dotnet-version: "3.1.x"
-
       - name: Set up Node
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
         with:
@@ -401,7 +396,6 @@ jobs:
         run: |
           node --version
           npm --version
-          dotnet --version
 
       - name: Install AST
         uses: bitwarden/gh-actions/install-ast@72594be690a4e7bfa87b1402b2aedc75acdbff12
