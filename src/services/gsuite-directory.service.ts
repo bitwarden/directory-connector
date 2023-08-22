@@ -143,6 +143,8 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     entry.email = user.primaryEmail != null ? user.primaryEmail.trim().toLowerCase() : null;
     entry.disabled = user.suspended || false;
     entry.deleted = deleted;
+    entry.creationDate = user.creationTime != null ? new Date(user.creationTime) : null;
+    entry.deletionDate = user.deletionTime != null ? new Date(user.deletionTime) : null;
     return entry;
   }
 
