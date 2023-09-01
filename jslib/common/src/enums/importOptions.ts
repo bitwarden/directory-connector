@@ -70,5 +70,5 @@ export const regularImportOptions = [
 ] as const;
 
 export type ImportType =
-  | typeof featuredImportOptions[number]["id"]
-  | typeof regularImportOptions[number]["id"];
+  | (typeof featuredImportOptions)[number]["id"]
+  | (typeof regularImportOptions)[number]["id"];
