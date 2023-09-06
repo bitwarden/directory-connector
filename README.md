@@ -48,7 +48,7 @@ We provide detailed documentation and examples for using the Directory Connector
 
 **Requirements**
 
-- [Node.js](https://nodejs.org) v16.13.1 (LTS)
+- [Node.js](https://nodejs.org) v18 (LTS)
 - Windows users: To compile the native node modules used in the app you will need the Visual C++ toolset, available through the standard Visual Studio installer (recommended) or by installing [`windows-build-tools`](https://github.com/felixrieseberg/windows-build-tools) through `npm`. See more at [Compiling native Addon modules](https://github.com/Microsoft/nodejs-guidelines/blob/master/windows-environment.md#compiling-native-addon-modules).
 
 **Run the app**
