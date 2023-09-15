@@ -30,7 +30,7 @@ jobs:
           fi
 
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
 
       - name: Retrieve Directory Connector release version
         id: retrieve-version
@@ -72,7 +72,7 @@ jobs:
       
       - name: Download all artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@72594be690a4e7bfa87b1402b2aedc75acdbff12
+        uses: bitwarden/gh-actions/download-artifacts@bc3bf31f1d9cac9c9d02cae01fc615fa25d38929
         with:
           workflow: build.yml
           workflow_conclusion: success
@@ -80,7 +80,7 @@ jobs:
 
       - name: Download all artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@72594be690a4e7bfa87b1402b2aedc75acdbff12
+        uses: bitwarden/gh-actions/download-artifacts@bc3bf31f1d9cac9c9d02cae01fc615fa25d38929
         with:
           workflow: build.yml
           workflow_conclusion: success
@@ -88,7 +88,7 @@ jobs:
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e # v1.12.0
+        uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5 # v1.13.0
         env:
           PKG_VERSION: ${{ steps.retrieve-version.outputs.package_version }}
         with:
