@@ -57,7 +57,10 @@ const main = {
       ],
     }),
   ],
-  externals: [nodeExternals()],
+  externals: {
+    "electron-reload": "commonjs2 electron-reload",
+    "@bitwarden/directory-connector": "commonjs2 @bitwarden/directory-connector",
+  },
 };
 
 module.exports = merge(common, main);
