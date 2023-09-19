@@ -59,7 +59,7 @@ const main = {
   ],
   externals: {
     "electron-reload": "commonjs2 electron-reload",
-    "@bitwarden/directory-connector": "commonjs2 @bitwarden/directory-connector",
+    keytar: "commonjs2 keytar",
   },
 };
 
