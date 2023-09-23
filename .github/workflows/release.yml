@@ -72,7 +72,7 @@ jobs:
       
       - name: Download all artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@8fccdaea2810d5dfb13753b6dd93bbd3a63ff82e
+        uses: bitwarden/gh-actions/download-artifacts@62d1bf7c3e31c458cc7236b1e69a475d235cd78f
         with:
           workflow: build.yml
           workflow_conclusion: success
@@ -80,7 +80,7 @@ jobs:
 
       - name: Download all artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@8fccdaea2810d5dfb13753b6dd93bbd3a63ff82e
+        uses: bitwarden/gh-actions/download-artifacts@62d1bf7c3e31c458cc7236b1e69a475d235cd78f
         with:
           workflow: build.yml
           workflow_conclusion: success
