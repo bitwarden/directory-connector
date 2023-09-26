@@ -57,7 +57,10 @@ const main = {
       ],
     }),
   ],
-  externals: [nodeExternals()],
+  externals: {
+    "electron-reload": "commonjs2 electron-reload",
+    keytar: "commonjs2 keytar",
+  },
 };
 
 module.exports = merge(common, main);
