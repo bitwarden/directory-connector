@@ -10,7 +10,19 @@ const common = {
   module: {
     rules: [
       {
-        test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
+        test: /\.[cm]?js$/,
+        use: [
+          {
+            loader: "babel-loader",
+            options: {
+              configFile: false,
+              plugins: ["@angular/compiler-cli/linker/babel"],
+            },
+          },
+        ],
+      },
+      {
+        test: /\.[jt]sx?$/,
         loader: "@ngtools/webpack",
       },
       {
