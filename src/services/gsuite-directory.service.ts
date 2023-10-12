@@ -198,6 +198,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     while (true) {
       const p = Object.assign({ groupKey: group.id, pageToken: nextPageToken }, this.authParams);
       const memRes = await this.service.members.list(p);
+      memRes.status = 400;
       if (memRes.status !== 200) {
         this.logService.warning("Group member list API failed: " + memRes.statusText);
         return entry;
