@@ -30,13 +30,13 @@ jobs:
           fi
 
       - name: Checkout repo
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Retrieve Directory Connector release version
         id: retrieve-version
         run: |
           PKG_VERSION=$(jq -r .version src/package.json)
-          echo "::set-output name=package_version::$PKG_VERSION"
+          echo "package_version=$PKG_VERSION" >> $GITHUB_OUTPUT
 
       - name: Check to make sure Mobile release version has been bumped
         if: ${{ github.event.inputs.release_type == 'Initial Release' }}
@@ -58,7 +58,7 @@ jobs:
         id: branch
         run: |
           BRANCH_NAME=$(basename ${{ github.ref }})
-          echo "::set-output name=branch-name::$BRANCH_NAME"
+          echo "branch-name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
       - name: Create GitHub deployment
         uses: chrnorm/deployment-action@d42cde7132fcec920de534fffc3be83794335c00 # v2.0.5
@@ -69,10 +69,10 @@ jobs:
           environment: 'production'
           description: 'Deployment ${{ steps.retrieve-version.outputs.package_version }} from branch ${{ steps.branch.outputs.branch-name }}'
           task: release
-      
+
       - name: Download all artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@c970b0fb89bd966749280e832928db62040812bf
+        uses: bitwarden/gh-actions/download-artifacts@master
         with:
           workflow: build.yml
           workflow_conclusion: success
@@ -80,7 +80,7 @@ jobs:
 
       - name: Download all artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@c970b0fb89bd966749280e832928db62040812bf
+        uses: bitwarden/gh-actions/download-artifacts@master
         with:
           workflow: build.yml
           workflow_conclusion: success
@@ -114,7 +114,7 @@ jobs:
           body: "<insert release notes here>"
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
-          
+
       - name: Update deployment status to Success
         if: ${{ success() }}
         uses: chrnorm/deployment-status@2afb7d27101260f4a764219439564d954d10b5b0 # v2.0.1
