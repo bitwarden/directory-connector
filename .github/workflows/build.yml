@@ -349,7 +349,7 @@ jobs:
         shell: pwsh
         run: |
           Expand-Archive -Path "dist-cli\bwdc-windows-${{ env._PACKAGE_VERSION }}.zip" -DestinationPath "test\windows"
-          $testVersion = Invoke-Expression '& test\windows\bwdc.exe -v'
+          $testVersion = Invoke-Expression '& .\test\windows\bwdc.exe -v'
           echo "version: ${{ env._PACKAGE_VERSION }}"
           echo "testVersion: $testVersion"
           if($testVersion -ne ${{ env._PACKAGE_VERSION }}) {
