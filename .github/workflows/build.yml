@@ -338,7 +338,7 @@ jobs:
       - name: Zip
         shell: cmd
         run: |
-          7z a dist-cli\bwdc-windows-%_PACKAGE_VERSION%.zip dist-cli\windows\bwdc.exe keytar\windows\keytar.node
+          7z a .\dist-cli\bwdc-windows-%_PACKAGE_VERSION%.zip .\dist-cli\windows\bwdc.exe .\keytar\windows\keytar.node
           dir
           dir dist-cli
           dir dist-cli\windows
