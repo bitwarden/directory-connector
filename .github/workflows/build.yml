@@ -351,7 +351,7 @@ jobs:
           Expand-Archive -Path "dist-cli\bwdc-windows-${{ env._PACKAGE_VERSION }}.zip" -DestinationPath "test\windows"
           dir
           dir dist-cli
-          dit test
+          dir test
           dir test\windows
           $testVersion = Invoke-Expression '& .\test\windows\bwdc.exe -v'
           echo "version: ${{ env._PACKAGE_VERSION }}"
