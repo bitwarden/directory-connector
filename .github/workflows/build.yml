@@ -337,15 +337,21 @@ jobs:
 
       - name: Zip
         shell: cmd
-        run: 7z a dist-cli/bwdc-windows-%_PACKAGE_VERSION%.zip dist-cli/windows/bwdc.exe keytar/windows/keytar.node
+        run: |
+          7z a dist-cli/bwdc-windows-%_PACKAGE_VERSION%.zip dist-cli/windows/bwdc.exe keytar/windows/keytar.node
+          dir
+          dir dist-cli
+          dir dist-cli/windows
+          dir keytar
+          dir keytar/windows
 
       - name: Version Test
         run: |
-          Expand-Archive -Path "./dist-cli/bwdc-windows-${env:_PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
-          $testVersion = Invoke-Expression '& ./test/windows/bwdc.exe -v'
-          echo "version: $env:_PACKAGE_VERSION"
+          Expand-Archive -Path "dist-cli/bwdc-windows-${{ env._PACKAGE_VERSION }}.zip" -DestinationPath "test/windows"
+          $testVersion = Invoke-Expression '& test/windows/bwdc.exe -v'
+          echo "version: ${{ env._PACKAGE_VERSION }}"
           echo "testVersion: $testVersion"
-          if($testVersion -ne $env:_PACKAGE_VERSION) {
+          if($testVersion -ne ${{ env._PACKAGE_VERSION }}) {
             Throw "Version test failed."
           }
 
