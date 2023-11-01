@@ -13,10 +13,10 @@ on:
 jobs:
   cloc:
     name: CLOC
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up CLOC
         run: |
@@ -29,23 +29,23 @@ jobs:
 
   setup:
     name: Setup
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Get Package Version
         id: retrieve-version
         run: |
           PKG_VERSION=$(jq -r .version src/package.json)
-          echo "::set-output name=package_version::$PKG_VERSION"
+          echo "package_version=$PKG_VERSION" >> $GITHUB_OUTPUT
 
 
   linux-cli:
     name: Build Linux CLI
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -53,10 +53,10 @@ jobs:
       _PKG_FETCH_VERSION: 3.4
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
-        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
+        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -94,10 +94,12 @@ jobs:
         run: npm run dist:cli:lin
 
       - name: Zip
-        run: zip -j ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip ./dist-cli/linux/bwdc ./keytar/linux/build/Release/keytar.node
+        run: zip -j dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip dist-cli/linux/bwdc keytar/linux/build/Release/keytar.node
 
       - name: Create checksums
-        run: sha256sum ./dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip | cut -d " " -f 1 > ./dist-cli/bwdc-linux-sha256-$_PACKAGE_VERSION.txt
+        run: |
+          sha256sum dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip | \
+            cut -d " " -f 1 > dist-cli/bwdc-linux-sha256-$_PACKAGE_VERSION.txt
 
       - name: Version Test
         run: |
@@ -138,7 +140,7 @@ jobs:
 
   macos-cli:
     name: Build Mac CLI
-    runs-on: macos-11
+    runs-on: macos-12
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -146,10 +148,10 @@ jobs:
       _PKG_FETCH_VERSION: 3.4
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
-        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
+        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -187,10 +189,12 @@ jobs:
         run: npm run dist:cli:mac
 
       - name: Zip
-        run: zip -j ./dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip ./dist-cli/macos/bwdc ./keytar/macos/build/Release/keytar.node
+        run: zip -j dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip dist-cli/macos/bwdc keytar/macos/build/Release/keytar.node
 
       - name: Create checksums
-        run: sha256sum ./dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip | cut -d " " -f 1 > ./dist-cli/bwdc-macos-sha256-$_PACKAGE_VERSION.txt
+        run: |
+          sha256sum dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip | \
+            cut -d " " -f 1 > dist-cli/bwdc-macos-sha256-$_PACKAGE_VERSION.txt
 
       - name: Version Test
         run: |
@@ -223,7 +227,7 @@ jobs:
 
   windows-cli:
     name: Build Windows CLI
-    runs-on: windows-2019
+    runs-on: windows-2022
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -231,7 +235,7 @@ jobs:
       _WIN_PKG_VERSION: 3.4
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup Windows builder
         run: |
@@ -239,7 +243,7 @@ jobs:
           choco install reshack --no-progress
 
       - name: Set up Node
-        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
+        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -333,15 +337,17 @@ jobs:
 
       - name: Zip
         shell: cmd
-        run: 7z a ./dist-cli/bwdc-windows-%_PACKAGE_VERSION%.zip ./dist-cli/windows/bwdc.exe ./keytar/windows/keytar.node
+        run: |
+          7z a .\dist-cli\bwdc-windows-%_PACKAGE_VERSION%.zip .\dist-cli\windows\bwdc.exe .\keytar\windows\keytar.node
 
       - name: Version Test
+        shell: pwsh
         run: |
-          Expand-Archive -Path "./dist-cli/bwdc-windows-${env:_PACKAGE_VERSION}.zip" -DestinationPath "./test/windows"
-          $testVersion = Invoke-Expression '& ./test/windows/bwdc.exe -v'
-          echo "version: $env:_PACKAGE_VERSION"
+          Expand-Archive -Path "dist-cli\bwdc-windows-${{ env._PACKAGE_VERSION }}.zip" -DestinationPath "test\windows"
+          $testVersion = Invoke-Expression '& .\test\windows\bwdc.exe -v'
+          echo "version: ${env:_PACKAGE_VERSION}"
           echo "testVersion: $testVersion"
-          if($testVersion -ne $env:_PACKAGE_VERSION) {
+          if ($testVersion -ne ${env:_PACKAGE_VERSION}) {
             Throw "Version test failed."
           }
 
@@ -367,16 +373,17 @@ jobs:
 
   windows-gui:
     name: Build Windows GUI
-    runs-on: windows-2019
+    runs-on: windows-2022
     needs: setup
     env:
+      NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
-        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
+        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -387,23 +394,16 @@ jobs:
           npm install -g node-gyp
           node-gyp install $(node -v)
 
-      - name: Set Node options
-        run: echo "NODE_OPTIONS=--max_old_space_size=4096" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        shell: pwsh
-
       - name: Print environment
         run: |
           node --version
           npm --version
 
       - name: Install AST
-        uses: bitwarden/gh-actions/install-ast@f1125802b1ccae8c601d7c4f61ce39ea254b10c8
+        uses: bitwarden/gh-actions/install-ast@master
 
       - name: Install Node dependencies
         run: npm install
-
-      # - name: Run linter
-      #   run: npm run lint
 
       - name: Build & Sign
         run: npm run dist:win
@@ -446,16 +446,17 @@ jobs:
 
   linux-gui:
     name: Build Linux GUI
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: setup
     env:
+      NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
-        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
+        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -465,9 +466,6 @@ jobs:
         run: |
           npm install -g node-gyp
           node-gyp install $(node -v)
-
-      - name: Set Node options
-        run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
 
       - name: Set up environment
         run: |
@@ -501,16 +499,17 @@ jobs:
 
   macos-gui:
     name: Build MacOS GUI
-    runs-on: macos-11
+    runs-on: macos-12
     needs: setup
     env:
+      NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
-        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
+        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -520,9 +519,6 @@ jobs:
         run: |
           npm install -g node-gyp
           node-gyp install $(node -v)
-
-      - name: Set Node options
-        run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
 
       - name: Print environment
         run: |
@@ -619,7 +615,7 @@ jobs:
 
   check-failures:
     name: Check for failures
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - cloc
       - setup
@@ -668,7 +664,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@f1125802b1ccae8c601d7c4f61ce39ea254b10c8
+        uses: bitwarden/gh-actions/get-keyvault-secrets@master
         if: failure()
         with:
           keyvault: "bitwarden-ci"
