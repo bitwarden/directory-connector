@@ -376,6 +376,7 @@ jobs:
     runs-on: windows-2022
     needs: setup
     env:
+      NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Checkout repo
@@ -393,9 +394,9 @@ jobs:
           npm install -g node-gyp
           node-gyp install $(node -v)
 
-      - name: Set Node options
-        run: echo "NODE_OPTIONS=--max_old_space_size=4096" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        shell: pwsh
+      # - name: Set Node options
+      #   run: echo "NODE_OPTIONS=--max_old_space_size=4096" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      #   shell: pwsh
 
       - name: Print environment
         run: |
@@ -452,6 +453,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: setup
     env:
+      NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Checkout repo
@@ -469,8 +471,8 @@ jobs:
           npm install -g node-gyp
           node-gyp install $(node -v)
 
-      - name: Set Node options
-        run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
+      # - name: Set Node options
+      #   run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
 
       - name: Set up environment
         run: |
@@ -507,6 +509,7 @@ jobs:
     runs-on: macos-12
     needs: setup
     env:
+      NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Checkout repo
@@ -524,8 +527,8 @@ jobs:
           npm install -g node-gyp
           node-gyp install $(node -v)
 
-      - name: Set Node options
-        run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
+      # - name: Set Node options
+      #   run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
 
       - name: Print environment
         run: |
