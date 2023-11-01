@@ -98,7 +98,7 @@ jobs:
 
       - name: Create checksums
         run: |
-          sha256sum dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip | \
+          shasum -a 256 dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip | \
             cut -d " " -f 1 > dist-cli/bwdc-linux-sha256-$_PACKAGE_VERSION.txt
 
       - name: Version Test
@@ -193,7 +193,7 @@ jobs:
 
       - name: Create checksums
         run: |
-          sha256sum dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip | \
+          shasum -a 256 dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip | \
             cut -d " " -f 1 > dist-cli/bwdc-macos-sha256-$_PACKAGE_VERSION.txt
 
       - name: Version Test
