@@ -17,8 +17,13 @@ on:
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    outputs:
+      release-version: ${{ steps.version.outputs.version }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
       - name: Branch check
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
         run: |
@@ -29,37 +34,19 @@ jobs:
             exit 1
           fi
 
-      - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Check Release Version
+        id: version
+        uses: bitwarden/gh-actions/release-version-check@main
+        with:
+          release-type: ${{ github.event.inputs.release_type }}
+          project-type: ts
+          file: src/package.json
 
-      - name: Retrieve Directory Connector release version
-        id: retrieve-version
-        run: |
-          PKG_VERSION=$(jq -r .version src/package.json)
-          echo "::set-output name=package_version::$PKG_VERSION"
-
-      - name: Check to make sure Mobile release version has been bumped
-        if: ${{ github.event.inputs.release_type == 'Initial Release' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          latest_ver=$(hub release -L 1 -f '%T')
-          latest_ver=${latest_ver:1}
-          echo "Latest version: $latest_ver"
-          ver=${{ steps.retrieve-version.outputs.package_version }}
-          echo "Version: $ver"
-          if [ "$latest_ver" = "$ver" ]; then
-            echo "Version has not been bumped!"
-            exit 1
-          fi
-        shell: bash
-
-      - name: Get branch name
-        id: branch
-        run: |
-          BRANCH_NAME=$(basename ${{ github.ref }})
-          echo "::set-output name=branch-name::$BRANCH_NAME"
-
+  release:
+    name: Release
+    runs-on: ubuntu-22.04
+    needs: setup
+    steps:
       - name: Create GitHub deployment
         uses: chrnorm/deployment-action@d42cde7132fcec920de534fffc3be83794335c00 # v2.0.5
         id: deployment
@@ -67,20 +54,20 @@ jobs:
           token: '${{ secrets.GITHUB_TOKEN }}'
           initial-status: 'in_progress'
           environment: 'production'
-          description: 'Deployment ${{ steps.retrieve-version.outputs.package_version }} from branch ${{ steps.branch.outputs.branch-name }}'
+          description: 'Deployment ${{ needs.setup.outputs.release-version }} from branch ${{ github.ref_name }}'
           task: release
-      
+
       - name: Download all artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@72594be690a4e7bfa87b1402b2aedc75acdbff12
+        uses: bitwarden/gh-actions/download-artifacts@main
         with:
           workflow: build.yml
           workflow_conclusion: success
-          branch: ${{ steps.branch.outputs.branch-name }}
+          branch: ${{ github.ref_name }}
 
       - name: Download all artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@72594be690a4e7bfa87b1402b2aedc75acdbff12
+        uses: bitwarden/gh-actions/download-artifacts@main
         with:
           workflow: build.yml
           workflow_conclusion: success
@@ -88,9 +75,9 @@ jobs:
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e # v1.12.0
+        uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5 # v1.13.0
         env:
-          PKG_VERSION: ${{ steps.retrieve-version.outputs.package_version }}
+          PKG_VERSION: ${{ needs.setup.outputs.release-version }}
         with:
           artifacts: "./bwdc-windows-${{ env.PKG_VERSION }}.zip,
                       ./bwdc-macos-${{ env.PKG_VERSION }}.zip,
@@ -114,7 +101,7 @@ jobs:
           body: "<insert release notes here>"
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
-          
+
       - name: Update deployment status to Success
         if: ${{ success() }}
         uses: chrnorm/deployment-status@2afb7d27101260f4a764219439564d954d10b5b0 # v2.0.1
