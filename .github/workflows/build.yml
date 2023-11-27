@@ -39,7 +39,7 @@ jobs:
       - name: Get Package Version
         id: retrieve-version
         run: |
-          PKG_VERSION=$(jq -r .version src/package.json)
+          PKG_VERSION=$(jq -r .version package.json)
           echo "package_version=$PKG_VERSION" >> $GITHUB_OUTPUT
 
 
@@ -77,7 +77,7 @@ jobs:
 
       - name: Keytar
         run: |
-          keytarVersion=$(cat src/package.json | jq -r '.dependencies.keytar')
+          keytarVersion=$(cat package.json | jq -r '.dependencies.keytar')
           keytarTar="keytar-v$keytarVersion-napi-v3-linux-x64.tar"
 
           keytarTarGz="$keytarTar.gz"
@@ -172,7 +172,7 @@ jobs:
 
       - name: Keytar
         run: |
-          keytarVersion=$(cat src/package.json | jq -r '.dependencies.keytar')
+          keytarVersion=$(cat package.json | jq -r '.dependencies.keytar')
           keytarTar="keytar-v$keytarVersion-napi-v3-darwin-x64.tar"
 
           keytarTarGz="$keytarTar.gz"
@@ -268,7 +268,7 @@ jobs:
       - name: Keytar
         shell: pwsh
         run: |
-          $keytarVersion = (Get-Content -Raw -Path ./src/package.json | ConvertFrom-Json).dependencies.keytar
+          $keytarVersion = (Get-Content -Raw -Path ./package.json | ConvertFrom-Json).dependencies.keytar
           $keytarTar = "keytar-v${keytarVersion}-napi-v3-{0}-x64.tar"
           $keytarTarGz = "${keytarTar}.gz"
           $keytarUrl = "https://github.com/atom/node-keytar/releases/download/v${keytarVersion}/${keytarTarGz}"
@@ -569,7 +569,7 @@ jobs:
       - name: Load package version
         run: |
           $rootPath = $env:GITHUB_WORKSPACE;
-          $packageVersion = (Get-Content -Raw -Path $rootPath\src\package.json | ConvertFrom-Json).version;
+          $packageVersion = (Get-Content -Raw -Path $rootPath\package.json | ConvertFrom-Json).version;
 
           Write-Output "Setting package version to $packageVersion";
           Write-Output "PACKAGE_VERSION=$packageVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append;
