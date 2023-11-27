@@ -400,7 +400,7 @@ jobs:
           npm --version
 
       - name: Install AST
-        uses: bitwarden/gh-actions/install-ast@main
+        run: dotnet tool install --global AzureSignTool --version 4.0.1
 
       - name: Install Node dependencies
         run: npm install
