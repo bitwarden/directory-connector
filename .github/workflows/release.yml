@@ -40,7 +40,7 @@ jobs:
         with:
           release-type: ${{ github.event.inputs.release_type }}
           project-type: ts
-          file: src/package.json
+          file: package.json
 
   release:
     name: Release

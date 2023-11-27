@@ -4,7 +4,6 @@
     "browser": true,
     "node": true
   },
-  "extends": ["./jslib/shared/eslintrc.json"],
   "rules": {
     "import/order": [
       "error",

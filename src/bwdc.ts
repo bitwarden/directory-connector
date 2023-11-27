@@ -42,7 +42,7 @@ import { StateMigrationService } from "./services/stateMigration.service";
 import { SyncService } from "./services/sync.service";
 
 // eslint-disable-next-line
-const packageJson = require("./package.json");
+const packageJson = require("../package.json");
 
 export const searchService: SearchService = null;
 export class Main {
