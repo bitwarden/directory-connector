@@ -1,4 +1,4 @@
-import { KeePass2XmlImporter as Importer } from "jslib-common/importers/keepass2XmlImporter";
+import { KeePass2XmlImporter as Importer } from "@/jslib/common/src/importers/keepass2XmlImporter";
 
 const TestData = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <KeePassFile>

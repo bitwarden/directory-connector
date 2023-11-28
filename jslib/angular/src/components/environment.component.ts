@@ -1,8 +1,8 @@
 import { Directive, EventEmitter, Output } from "@angular/core";
 
-import { EnvironmentService } from "jslib-common/abstractions/environment.service";
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
+import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 
 @Directive()
 export class EnvironmentComponent {

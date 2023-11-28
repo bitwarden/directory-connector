@@ -1,11 +1,11 @@
-import { LogService } from "jslib-common/abstractions/log.service";
-import { StateMigrationService } from "jslib-common/abstractions/stateMigration.service";
-import { StorageService } from "jslib-common/abstractions/storage.service";
-import { StateFactory } from "jslib-common/factories/stateFactory";
-import { EnvironmentUrls } from "jslib-common/models/domain/environmentUrls";
-import { GlobalState } from "jslib-common/models/domain/globalState";
-import { StorageOptions } from "jslib-common/models/domain/storageOptions";
-import { StateService as BaseStateService } from "jslib-common/services/state.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { StateMigrationService } from "@/jslib/common/src/abstractions/stateMigration.service";
+import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
+import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
+import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
+import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
+import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
+import { StateService as BaseStateService } from "@/jslib/common/src/services/state.service";
 
 import { StateService as StateServiceAbstraction } from "src/abstractions/state.service";
 import { DirectoryType } from "src/enums/directoryType";

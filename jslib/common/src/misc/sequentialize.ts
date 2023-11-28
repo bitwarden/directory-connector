@@ -6,7 +6,7 @@
  *
  * Results are not cached, once the promise has returned, the next call will result in a fresh call
  *
- * Read more at https://github.com/bitwarden/jslib/pull/7
+ * Read more at https://github.com/bitwarden/@/jslib/pull/7
  */
 export function sequentialize(cacheKey: (args: any[]) => string) {
   return (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {

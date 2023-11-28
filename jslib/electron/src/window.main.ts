@@ -3,8 +3,8 @@ import * as url from "url";
 
 import { app, BrowserWindow, screen } from "electron";
 
-import { LogService } from "jslib-common/abstractions/log.service";
-import { StateService } from "jslib-common/abstractions/state.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { StateService } from "@/jslib/common/src/abstractions/state.service";
 
 import { cleanUserAgent, isDev, isMacAppStore, isSnapStore } from "./utils";
 

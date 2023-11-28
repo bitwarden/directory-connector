@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { CanActivate } from "@angular/router";
 
-import { MessagingService } from "jslib-common/abstractions/messaging.service";
+import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 
 import { StateService } from "../../abstractions/state.service";
 

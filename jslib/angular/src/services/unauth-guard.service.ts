@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { CanActivate, Router } from "@angular/router";
 
-import { StateService } from "jslib-common/abstractions/state.service";
-import { VaultTimeoutService } from "jslib-common/abstractions/vaultTimeout.service";
+import { StateService } from "@/jslib/common/src/abstractions/state.service";
+import { VaultTimeoutService } from "@/jslib/common/src/abstractions/vaultTimeout.service";
 
 @Injectable()
 export class UnauthGuardService implements CanActivate {

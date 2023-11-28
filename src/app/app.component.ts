@@ -10,13 +10,13 @@ import { DomSanitizer } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
 
-import { AuthService } from "jslib-common/abstractions/auth.service";
-import { BroadcasterService } from "jslib-common/abstractions/broadcaster.service";
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { LogService } from "jslib-common/abstractions/log.service";
-import { MessagingService } from "jslib-common/abstractions/messaging.service";
-import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
-import { TokenService } from "jslib-common/abstractions/token.service";
+import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
+import { BroadcasterService } from "@/jslib/common/src/abstractions/broadcaster.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
+import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
+import { TokenService } from "@/jslib/common/src/abstractions/token.service";
 
 import { StateService } from "../abstractions/state.service";
 import { SyncService } from "../services/sync.service";

@@ -1,5 +1,5 @@
-import { StateService as BaseStateServiceAbstraction } from "jslib-common/abstractions/state.service";
-import { StorageOptions } from "jslib-common/models/domain/storageOptions";
+import { StateService as BaseStateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
+import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
 import { DirectoryType } from "src/enums/directoryType";
 import { Account } from "src/models/account";

@@ -1,4 +1,4 @@
-import { ExportData } from "jslib-common/importers/onepasswordImporters/types/onepassword1PuxImporterTypes";
+import { ExportData } from "@/jslib/common/src/importers/onepasswordImporters/types/onepassword1PuxImporterTypes";
 
 export const OutdoorLicenseData: ExportData = {
   accounts: [

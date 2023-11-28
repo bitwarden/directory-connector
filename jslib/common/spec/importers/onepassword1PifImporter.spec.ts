@@ -1,5 +1,5 @@
-import { FieldType } from "jslib-common/enums/fieldType";
-import { OnePassword1PifImporter as Importer } from "jslib-common/importers/onepasswordImporters/onepassword1PifImporter";
+import { FieldType } from "@/jslib/common/src/enums/fieldType";
+import { OnePassword1PifImporter as Importer } from "@/jslib/common/src/importers/onepasswordImporters/onepassword1PifImporter";
 
 const TestData: string =
   "***aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee***\n" +

@@ -1,10 +1,10 @@
-import { CryptoFunctionService } from "jslib-common/abstractions/cryptoFunction.service";
-import { LogService } from "jslib-common/abstractions/log.service";
-import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
-import { StateService } from "jslib-common/abstractions/state.service";
-import { KeySuffixOptions } from "jslib-common/enums/keySuffixOptions";
-import { SymmetricCryptoKey } from "jslib-common/models/domain/symmetricCryptoKey";
-import { CryptoService } from "jslib-common/services/crypto.service";
+import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
+import { StateService } from "@/jslib/common/src/abstractions/state.service";
+import { KeySuffixOptions } from "@/jslib/common/src/enums/keySuffixOptions";
+import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
+import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 
 export class ElectronCryptoService extends CryptoService {
   constructor(

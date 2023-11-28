@@ -2,7 +2,7 @@ import { dialog, shell } from "electron";
 import log from "electron-log";
 import { autoUpdater } from "electron-updater";
 
-import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 
 import { isAppImage, isDev, isMacAppStore, isWindowsPortable, isWindowsStore } from "./utils";
 import { WindowMain } from "./window.main";

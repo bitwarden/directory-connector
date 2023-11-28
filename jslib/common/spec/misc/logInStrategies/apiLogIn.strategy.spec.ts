@@ -1,19 +1,19 @@
 import { Arg, Substitute, SubstituteOf } from "@fluffy-spoon/substitute";
 
-import { ApiService } from "jslib-common/abstractions/api.service";
-import { AppIdService } from "jslib-common/abstractions/appId.service";
-import { CryptoService } from "jslib-common/abstractions/crypto.service";
-import { EnvironmentService } from "jslib-common/abstractions/environment.service";
-import { KeyConnectorService } from "jslib-common/abstractions/keyConnector.service";
-import { LogService } from "jslib-common/abstractions/log.service";
-import { MessagingService } from "jslib-common/abstractions/messaging.service";
-import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
-import { StateService } from "jslib-common/abstractions/state.service";
-import { TokenService } from "jslib-common/abstractions/token.service";
-import { TwoFactorService } from "jslib-common/abstractions/twoFactor.service";
-import { ApiLogInStrategy } from "jslib-common/misc/logInStrategies/apiLogin.strategy";
-import { Utils } from "jslib-common/misc/utils";
-import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
+import { ApiService } from "@/jslib/common/src/abstractions/api.service";
+import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
+import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
+import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
+import { KeyConnectorService } from "@/jslib/common/src/abstractions/keyConnector.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
+import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
+import { StateService } from "@/jslib/common/src/abstractions/state.service";
+import { TokenService } from "@/jslib/common/src/abstractions/token.service";
+import { TwoFactorService } from "@/jslib/common/src/abstractions/twoFactor.service";
+import { ApiLogInStrategy } from "@/jslib/common/src/misc/logInStrategies/apiLogin.strategy";
+import { Utils } from "@/jslib/common/src/misc/utils";
+import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
 
 import { identityTokenResponseFactory } from "./logIn.strategy.spec";
 

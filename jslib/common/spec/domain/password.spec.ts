@@ -1,5 +1,5 @@
-import { PasswordHistoryData } from "jslib-common/models/data/passwordHistoryData";
-import { Password } from "jslib-common/models/domain/password";
+import { PasswordHistoryData } from "@/jslib/common/src/models/data/passwordHistoryData";
+import { Password } from "@/jslib/common/src/models/domain/password";
 
 import { mockEnc } from "../utils";
 

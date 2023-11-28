@@ -1,19 +1,19 @@
 import Substitute, { Arg } from "@fluffy-spoon/substitute";
 
-import { CipherRepromptType } from "jslib-common/enums/cipherRepromptType";
-import { CipherType } from "jslib-common/enums/cipherType";
-import { FieldType } from "jslib-common/enums/fieldType";
-import { SecureNoteType } from "jslib-common/enums/secureNoteType";
-import { UriMatchType } from "jslib-common/enums/uriMatchType";
-import { CipherData } from "jslib-common/models/data/cipherData";
-import { Card } from "jslib-common/models/domain/card";
-import { Cipher } from "jslib-common/models/domain/cipher";
-import { Identity } from "jslib-common/models/domain/identity";
-import { Login } from "jslib-common/models/domain/login";
-import { SecureNote } from "jslib-common/models/domain/secureNote";
-import { CardView } from "jslib-common/models/view/cardView";
-import { IdentityView } from "jslib-common/models/view/identityView";
-import { LoginView } from "jslib-common/models/view/loginView";
+import { CipherRepromptType } from "@/jslib/common/src/enums/cipherRepromptType";
+import { CipherType } from "@/jslib/common/src/enums/cipherType";
+import { FieldType } from "@/jslib/common/src/enums/fieldType";
+import { SecureNoteType } from "@/jslib/common/src/enums/secureNoteType";
+import { UriMatchType } from "@/jslib/common/src/enums/uriMatchType";
+import { CipherData } from "@/jslib/common/src/models/data/cipherData";
+import { Card } from "@/jslib/common/src/models/domain/card";
+import { Cipher } from "@/jslib/common/src/models/domain/cipher";
+import { Identity } from "@/jslib/common/src/models/domain/identity";
+import { Login } from "@/jslib/common/src/models/domain/login";
+import { SecureNote } from "@/jslib/common/src/models/domain/secureNote";
+import { CardView } from "@/jslib/common/src/models/view/cardView";
+import { IdentityView } from "@/jslib/common/src/models/view/identityView";
+import { LoginView } from "@/jslib/common/src/models/view/loginView";
 
 import { mockEnc } from "../utils";
 
