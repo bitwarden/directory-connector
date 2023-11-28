@@ -1,9 +1,9 @@
 import Substitute, { Arg } from "@fluffy-spoon/substitute";
 
-import { SendType } from "jslib-common/enums/sendType";
-import { SendAccess } from "jslib-common/models/domain/sendAccess";
-import { SendText } from "jslib-common/models/domain/sendText";
-import { SendAccessResponse } from "jslib-common/models/response/sendAccessResponse";
+import { SendType } from "@/jslib/common/src/enums/sendType";
+import { SendAccess } from "@/jslib/common/src/models/domain/sendAccess";
+import { SendText } from "@/jslib/common/src/models/domain/sendText";
+import { SendAccessResponse } from "@/jslib/common/src/models/response/sendAccessResponse";
 
 import { mockEnc } from "../utils";
 

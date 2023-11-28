@@ -1,5 +1,5 @@
-import { IdentityData } from "jslib-common/models/data/identityData";
-import { Identity } from "jslib-common/models/domain/identity";
+import { IdentityData } from "@/jslib/common/src/models/data/identityData";
+import { Identity } from "@/jslib/common/src/models/domain/identity";
 
 import { mockEnc } from "../utils";
 

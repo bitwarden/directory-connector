@@ -1,7 +1,7 @@
 import { ipcRenderer } from "electron";
 
-import { StorageService } from "jslib-common/abstractions/storage.service";
-import { StorageOptions } from "jslib-common/models/domain/storageOptions";
+import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
+import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
 export class ElectronRendererSecureStorageService implements StorageService {
   async get<T>(key: string, options?: StorageOptions): Promise<T> {

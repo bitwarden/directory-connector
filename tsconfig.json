@@ -19,12 +19,8 @@
     "baseUrl": ".",
     "resolveJsonModule": true,
     "paths": {
-      "tldjs": ["jslib/src/misc/tldjs.noop"],
-      "jslib-common/*": ["./jslib/common/src/*"],
-      "jslib-common-spec/*": ["./jslib/common/spec/*"],
-      "jslib-angular/*": ["./jslib/angular/src/*"],
-      "jslib-electron/*": ["./jslib/electron/src/*"],
-      "jslib-node/*": ["./jslib/node/src/*"]
+      "tldjs": ["@/jslib/src/misc/tldjs.noop"],
+      "@/*": ["./*"]
     },
     "useDefineForClassFields": false
   },

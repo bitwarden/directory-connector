@@ -4,30 +4,30 @@ import * as program from "commander";
 import * as inquirer from "inquirer";
 import Separator from "inquirer/lib/objects/separator";
 
-import { ApiService } from "jslib-common/abstractions/api.service";
-import { AuthService } from "jslib-common/abstractions/auth.service";
-import { CryptoService } from "jslib-common/abstractions/crypto.service";
-import { CryptoFunctionService } from "jslib-common/abstractions/cryptoFunction.service";
-import { EnvironmentService } from "jslib-common/abstractions/environment.service";
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { PasswordGenerationService } from "jslib-common/abstractions/passwordGeneration.service";
-import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
-import { PolicyService } from "jslib-common/abstractions/policy.service";
-import { StateService } from "jslib-common/abstractions/state.service";
-import { TwoFactorService } from "jslib-common/abstractions/twoFactor.service";
-import { TwoFactorProviderType } from "jslib-common/enums/twoFactorProviderType";
-import { NodeUtils } from "jslib-common/misc/nodeUtils";
-import { Utils } from "jslib-common/misc/utils";
-import { AuthResult } from "jslib-common/models/domain/authResult";
+import { ApiService } from "@/jslib/common/src/abstractions/api.service";
+import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
+import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
+import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
+import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { PasswordGenerationService } from "@/jslib/common/src/abstractions/passwordGeneration.service";
+import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
+import { PolicyService } from "@/jslib/common/src/abstractions/policy.service";
+import { StateService } from "@/jslib/common/src/abstractions/state.service";
+import { TwoFactorService } from "@/jslib/common/src/abstractions/twoFactor.service";
+import { TwoFactorProviderType } from "@/jslib/common/src/enums/twoFactorProviderType";
+import { NodeUtils } from "@/jslib/common/src/misc/nodeUtils";
+import { Utils } from "@/jslib/common/src/misc/utils";
+import { AuthResult } from "@/jslib/common/src/models/domain/authResult";
 import {
   ApiLogInCredentials,
   PasswordLogInCredentials,
   SsoLogInCredentials,
-} from "jslib-common/models/domain/logInCredentials";
-import { TokenRequestTwoFactor } from "jslib-common/models/request/identityToken/tokenRequestTwoFactor";
-import { TwoFactorEmailRequest } from "jslib-common/models/request/twoFactorEmailRequest";
-import { UpdateTempPasswordRequest } from "jslib-common/models/request/updateTempPasswordRequest";
-import { ErrorResponse } from "jslib-common/models/response/errorResponse";
+} from "@/jslib/common/src/models/domain/logInCredentials";
+import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
+import { TwoFactorEmailRequest } from "@/jslib/common/src/models/request/twoFactorEmailRequest";
+import { UpdateTempPasswordRequest } from "@/jslib/common/src/models/request/updateTempPasswordRequest";
+import { ErrorResponse } from "@/jslib/common/src/models/response/errorResponse";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/messageResponse";

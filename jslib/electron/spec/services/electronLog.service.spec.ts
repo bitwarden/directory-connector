@@ -1,4 +1,4 @@
-import { ElectronLogService } from "jslib-electron/services/electronLog.service";
+import { ElectronLogService } from "@/jslib/electron/src/services/electronLog.service";
 
 describe("ElectronLogService", () => {
   it("sets dev based on electron method", () => {

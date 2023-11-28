@@ -1,12 +1,12 @@
 import Substitute, { Arg, SubstituteOf } from "@fluffy-spoon/substitute";
 
-import { CryptoService } from "jslib-common/abstractions/crypto.service";
-import { SendType } from "jslib-common/enums/sendType";
-import { SendData } from "jslib-common/models/data/sendData";
-import { EncString } from "jslib-common/models/domain/encString";
-import { Send } from "jslib-common/models/domain/send";
-import { SendText } from "jslib-common/models/domain/sendText";
-import { ContainerService } from "jslib-common/services/container.service";
+import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
+import { SendType } from "@/jslib/common/src/enums/sendType";
+import { SendData } from "@/jslib/common/src/models/data/sendData";
+import { EncString } from "@/jslib/common/src/models/domain/encString";
+import { Send } from "@/jslib/common/src/models/domain/send";
+import { SendText } from "@/jslib/common/src/models/domain/sendText";
+import { ContainerService } from "@/jslib/common/src/services/container.service";
 
 import { makeStaticByteArray, mockEnc } from "../utils";
 

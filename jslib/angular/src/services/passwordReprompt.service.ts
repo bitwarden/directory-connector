@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 
-import { KeyConnectorService } from "jslib-common/abstractions/keyConnector.service";
-import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "jslib-common/abstractions/passwordReprompt.service";
+import { KeyConnectorService } from "@/jslib/common/src/abstractions/keyConnector.service";
+import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "@/jslib/common/src/abstractions/passwordReprompt.service";
 
 import { PasswordRepromptComponent } from "../components/password-reprompt.component";
 

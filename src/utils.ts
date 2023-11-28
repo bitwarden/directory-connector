@@ -1,4 +1,4 @@
-import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 
 import { Entry } from "./models/entry";
 import { LdapConfiguration } from "./models/ldapConfiguration";

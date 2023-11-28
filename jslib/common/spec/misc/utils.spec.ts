@@ -1,4 +1,4 @@
-import { Utils } from "jslib-common/misc/utils";
+import { Utils } from "@/jslib/common/src/misc/utils";
 
 describe("Utils Service", () => {
   describe("getDomain", () => {

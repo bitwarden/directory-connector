@@ -1,6 +1,6 @@
 import { deletePassword, getPassword, setPassword } from "keytar";
 
-import { StorageService } from "jslib-common/abstractions/storage.service";
+import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
 
 export class KeytarSecureStorageService implements StorageService {
   constructor(private serviceName: string) {}

@@ -1,5 +1,5 @@
-import { CollectionData } from "jslib-common/models/data/collectionData";
-import { Collection } from "jslib-common/models/domain/collection";
+import { CollectionData } from "@/jslib/common/src/models/data/collectionData";
+import { Collection } from "@/jslib/common/src/models/domain/collection";
 
 import { mockEnc } from "../utils";
 

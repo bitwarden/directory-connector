@@ -1,6 +1,6 @@
 import { Menu, MenuItemConstructorOptions } from "electron";
 
-import { I18nService } from "jslib-common/abstractions/i18n.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 
 import { WindowMain } from "./window.main";
 
