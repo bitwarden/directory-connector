@@ -7,16 +7,16 @@ import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 import { StateService as BaseStateService } from "@/jslib/common/src/services/state.service";
 
-import { StateService as StateServiceAbstraction } from "src/abstractions/state.service";
-import { DirectoryType } from "src/enums/directoryType";
-import { IConfiguration } from "src/models/IConfiguration";
-import { Account } from "src/models/account";
-import { AzureConfiguration } from "src/models/azureConfiguration";
-import { GSuiteConfiguration } from "src/models/gsuiteConfiguration";
-import { LdapConfiguration } from "src/models/ldapConfiguration";
-import { OktaConfiguration } from "src/models/oktaConfiguration";
-import { OneLoginConfiguration } from "src/models/oneLoginConfiguration";
-import { SyncConfiguration } from "src/models/syncConfiguration";
+import { StateService as StateServiceAbstraction } from "@/src/abstractions/state.service";
+import { DirectoryType } from "@/src/enums/directoryType";
+import { IConfiguration } from "@/src/models/IConfiguration";
+import { Account } from "@/src/models/account";
+import { AzureConfiguration } from "@/src/models/azureConfiguration";
+import { GSuiteConfiguration } from "@/src/models/gsuiteConfiguration";
+import { LdapConfiguration } from "@/src/models/ldapConfiguration";
+import { OktaConfiguration } from "@/src/models/oktaConfiguration";
+import { OneLoginConfiguration } from "@/src/models/oneLoginConfiguration";
+import { SyncConfiguration } from "@/src/models/syncConfiguration";
 
 const SecureStorageKeys = {
   ldap: "ldapPassword",

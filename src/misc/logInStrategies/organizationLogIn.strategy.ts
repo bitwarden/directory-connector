@@ -9,7 +9,7 @@ import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCrede
 import { ApiTokenRequest } from "@/jslib/common/src/models/request/identityToken/apiTokenRequest";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
-import { Account, DirectoryConfigurations, DirectorySettings } from "src/models/account";
+import { Account, DirectoryConfigurations, DirectorySettings } from "@/src/models/account";
 
 export class OrganizationLogInStrategy extends LogInStrategy {
   tokenRequest: ApiTokenRequest;
