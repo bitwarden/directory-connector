@@ -1,9 +1,7 @@
 dist
 build
 build-cli
-webpack.cli.js
-webpack.main.js
-webpack.renderer.js
+**/webpack**.config.js
 
 **/node_modules
 
