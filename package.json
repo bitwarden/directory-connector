@@ -120,7 +120,6 @@
     "node-loader": "2.0.0",
     "nodemon": "2.0.22",
     "pkg": "5.8.1",
-    "prebuild-install": "5.3.6",
     "prettier": "2.8.8",
     "rimraf": "3.0.2",
     "rxjs": "7.8.1",
