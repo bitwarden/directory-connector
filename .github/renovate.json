@@ -8,34 +8,18 @@
     ":pinAllExceptPeerDependencies",
     ":prConcurrentLimit10",
     ":rebaseStalePrs",
-    "schedule:weekends",
-    ":separateMajorReleases"
+    ":separateMajorReleases",
+    "group:monorepos",
+    "schedule:weekends"
   ],
   "enabledManagers": ["github-actions", "npm"],
+  "commitMessagePrefix": "[deps]:",
+  "commitMessageTopic": "{{depName}}",
   "packageRules": [
     {
-      "groupName": "gh minor",
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "groupName": "npm minor",
-      "matchManagers": ["npm"],
-      "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "packageNames": ["typescript"],
-      "matchUpdateTypes": ["major", "minor"],
-      "enabled": false
-    },
-    {
-      "packageNames": ["typescript"],
-      "matchUpdateTypes": "patch"
-    },
-    {
-      "groupName": "jest",
-      "packageNames": ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
-      "matchUpdateTypes": "major"
+      "matchFileNames": ["package.json"],
+      "description": "Admin Console owns general dependencies",
+      "reviewers": ["team:team-admin-console-dev"]
     }
   ]
 }
