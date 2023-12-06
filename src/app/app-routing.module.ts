@@ -1,5 +1,5 @@
 import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+import { mapToCanActivate, RouterModule, Routes } from "@angular/router";
 
 import { ApiKeyComponent } from "./accounts/apiKey.component";
 import { AuthGuardService } from "./services/auth-guard.service";
@@ -14,7 +14,7 @@ const routes: Routes = [
   {
     path: "login",
     component: ApiKeyComponent,
-    canActivate: [LaunchGuardService],
+    canActivate: mapToCanActivate([LaunchGuardService]),
   },
   {
     path: "tabs",
@@ -28,17 +28,17 @@ const routes: Routes = [
       {
         path: "dashboard",
         component: DashboardComponent,
-        canActivate: [AuthGuardService],
+        canActivate: mapToCanActivate([AuthGuardService]),
       },
       {
         path: "settings",
         component: SettingsComponent,
-        canActivate: [AuthGuardService],
+        canActivate: mapToCanActivate([AuthGuardService]),
       },
       {
         path: "more",
         component: MoreComponent,
-        canActivate: [AuthGuardService],
+        canActivate: mapToCanActivate([AuthGuardService]),
       },
     ],
   },

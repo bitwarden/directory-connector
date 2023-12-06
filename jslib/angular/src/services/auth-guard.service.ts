@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from "@angular/router";
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 
 import { KeyConnectorService } from "@/jslib/common/src/abstractions/keyConnector.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
@@ -7,7 +7,7 @@ import { StateService } from "@/jslib/common/src/abstractions/state.service";
 import { VaultTimeoutService } from "@/jslib/common/src/abstractions/vaultTimeout.service";
 
 @Injectable()
-export class AuthGuardService implements CanActivate {
+export class AuthGuardService  {
   constructor(
     private vaultTimeoutService: VaultTimeoutService,
     private router: Router,
