@@ -24,5 +24,5 @@
     },
     "useDefineForClassFields": false
   },
-  "include": ["src", "src-cli", "jslib"]
+  "include": ["src", "src-cli", "jslib", "scripts"]
 }
