@@ -1,5 +1,13 @@
 import { Injector, LOCALE_ID, NgModule } from "@angular/core";
 
+import { AuthGuardService } from "./auth-guard.service";
+import { BroadcasterService } from "./broadcaster.service";
+import { LockGuardService } from "./lock-guard.service";
+import { ModalService } from "./modal.service";
+import { PasswordRepromptService } from "./passwordReprompt.service";
+import { UnauthGuardService } from "./unauth-guard.service";
+import { ValidationService } from "./validation.service";
+
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
 import { AuditService as AuditServiceAbstraction } from "@/jslib/common/src/abstractions/audit.service";
@@ -74,13 +82,6 @@ import { UsernameGenerationService } from "@/jslib/common/src/services/usernameG
 import { VaultTimeoutService } from "@/jslib/common/src/services/vaultTimeout.service";
 import { WebCryptoFunctionService } from "@/jslib/common/src/services/webCryptoFunction.service";
 
-import { AuthGuardService } from "./auth-guard.service";
-import { BroadcasterService } from "./broadcaster.service";
-import { LockGuardService } from "./lock-guard.service";
-import { ModalService } from "./modal.service";
-import { PasswordRepromptService } from "./passwordReprompt.service";
-import { UnauthGuardService } from "./unauth-guard.service";
-import { ValidationService } from "./validation.service";
 
 @NgModule({
   declarations: [],

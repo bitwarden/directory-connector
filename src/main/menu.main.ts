@@ -1,8 +1,8 @@
 import { Menu, MenuItemConstructorOptions } from "electron";
 
-import { BaseMenu } from "@/jslib/electron/src/baseMenu";
-
 import { Main } from "../main";
+
+import { BaseMenu } from "@/jslib/electron/src/baseMenu";
 
 export class MenuMain extends BaseMenu {
   menu: Menu;

@@ -2,10 +2,11 @@ import * as path from "path";
 
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray } from "electron";
 
+import { WindowMain } from "./window.main";
+
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { StateService } from "@/jslib/common/src/abstractions/state.service";
 
-import { WindowMain } from "./window.main";
 
 export class TrayMain {
   contextMenu: Menu;

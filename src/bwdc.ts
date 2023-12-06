@@ -1,6 +1,17 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { Account } from "./models/account";
+import { Program } from "./program";
+import { AuthService } from "./services/auth.service";
+import { I18nService } from "./services/i18n.service";
+import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
+import { LowdbStorageService } from "./services/lowdbStorage.service";
+import { NoopTwoFactorService } from "./services/noop/noopTwoFactor.service";
+import { StateService } from "./services/state.service";
+import { StateMigrationService } from "./services/stateMigration.service";
+import { SyncService } from "./services/sync.service";
+
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { ClientType } from "@/jslib/common/src/enums/clientType";
@@ -29,17 +40,6 @@ import { CliPlatformUtilsService } from "@/jslib/node/src/cli/services/cliPlatfo
 import { ConsoleLogService } from "@/jslib/node/src/cli/services/consoleLog.service";
 import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
-
-import { Account } from "./models/account";
-import { Program } from "./program";
-import { AuthService } from "./services/auth.service";
-import { I18nService } from "./services/i18n.service";
-import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
-import { LowdbStorageService } from "./services/lowdbStorage.service";
-import { NoopTwoFactorService } from "./services/noop/noopTwoFactor.service";
-import { StateService } from "./services/state.service";
-import { StateMigrationService } from "./services/stateMigration.service";
-import { SyncService } from "./services/sync.service";
 
 // eslint-disable-next-line
 const packageJson = require("../package.json");

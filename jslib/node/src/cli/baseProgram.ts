@@ -1,11 +1,12 @@
 import * as chalk from "chalk";
 
-import { StateService } from "@/jslib/common/src/abstractions/state.service";
 
 import { Response } from "./models/response";
 import { ListResponse } from "./models/response/listResponse";
 import { MessageResponse } from "./models/response/messageResponse";
 import { StringResponse } from "./models/response/stringResponse";
+
+import { StateService } from "@/jslib/common/src/abstractions/state.service";
 
 export abstract class BaseProgram {
   constructor(

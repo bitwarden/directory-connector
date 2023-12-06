@@ -1,6 +1,5 @@
 import { StateVersion } from "@/jslib/common/src/enums/stateVersion";
 import { StateMigrationService as BaseStateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
-
 import { DirectoryType } from "@/src/enums/directoryType";
 import { Account, DirectoryConfigurations, DirectorySettings } from "@/src/models/account";
 import { AzureConfiguration } from "@/src/models/azureConfiguration";

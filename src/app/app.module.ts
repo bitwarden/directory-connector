@@ -6,6 +6,16 @@ import { FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
+import { ApiKeyComponent } from "./accounts/apiKey.component";
+import { EnvironmentComponent } from "./accounts/environment.component";
+import { AppRoutingModule } from "./app-routing.module";
+import { AppComponent } from "./app.component";
+import { ServicesModule } from "./services/services.module";
+import { DashboardComponent } from "./tabs/dashboard.component";
+import { MoreComponent } from "./tabs/more.component";
+import { SettingsComponent } from "./tabs/settings.component";
+import { TabsComponent } from "./tabs/tabs.component";
+
 import { CalloutComponent } from "@/jslib/angular/src/components/callout.component";
 import { IconComponent } from "@/jslib/angular/src/components/icon.component";
 import { BitwardenToastModule } from "@/jslib/angular/src/components/toastr.component";
@@ -19,16 +29,6 @@ import { StopClickDirective } from "@/jslib/angular/src/directives/stop-click.di
 import { StopPropDirective } from "@/jslib/angular/src/directives/stop-prop.directive";
 import { I18nPipe } from "@/jslib/angular/src/pipes/i18n.pipe";
 import { SearchCiphersPipe } from "@/jslib/angular/src/pipes/search-ciphers.pipe";
-
-import { ApiKeyComponent } from "./accounts/apiKey.component";
-import { EnvironmentComponent } from "./accounts/environment.component";
-import { AppRoutingModule } from "./app-routing.module";
-import { AppComponent } from "./app.component";
-import { ServicesModule } from "./services/services.module";
-import { DashboardComponent } from "./tabs/dashboard.component";
-import { MoreComponent } from "./tabs/more.component";
-import { SettingsComponent } from "./tabs/settings.component";
-import { TabsComponent } from "./tabs/tabs.component";
 
 @NgModule({
   imports: [

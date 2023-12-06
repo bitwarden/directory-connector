@@ -1,9 +1,9 @@
-import { BaseResponse } from "@/jslib/node/src/cli/models/response/baseResponse";
-
 import { SimResult } from "../simResult";
 
 import { GroupResponse } from "./groupResponse";
 import { UserResponse } from "./userResponse";
+
+import { BaseResponse } from "@/jslib/node/src/cli/models/response/baseResponse";
 
 export class TestResponse implements BaseResponse {
   object: string;

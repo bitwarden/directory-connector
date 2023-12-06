@@ -1,5 +1,7 @@
 import { clipboard, ipcRenderer, shell } from "electron";
 
+import { isDev, isMacAppStore } from "../utils";
+
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
@@ -8,7 +10,6 @@ import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { DeviceType } from "@/jslib/common/src/enums/deviceType";
 import { ThemeType } from "@/jslib/common/src/enums/themeType";
 
-import { isDev, isMacAppStore } from "../utils";
 
 export class ElectronPlatformUtilsService implements PlatformUtilsService {
   private clientType: ClientType;

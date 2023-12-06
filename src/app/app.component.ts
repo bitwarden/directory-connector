@@ -10,6 +10,9 @@ import { DomSanitizer } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
 
+import { StateService } from "../abstractions/state.service";
+import { SyncService } from "../services/sync.service";
+
 import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
 import { BroadcasterService } from "@/jslib/common/src/abstractions/broadcaster.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
@@ -17,9 +20,6 @@ import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { TokenService } from "@/jslib/common/src/abstractions/token.service";
-
-import { StateService } from "../abstractions/state.service";
-import { SyncService } from "../services/sync.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
 

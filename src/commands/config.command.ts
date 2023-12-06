@@ -1,11 +1,5 @@
 import * as program from "commander";
 
-import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { NodeUtils } from "@/jslib/common/src/misc/nodeUtils";
-import { Response } from "@/jslib/node/src/cli/models/response";
-import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
-
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 import { AzureConfiguration } from "../models/azureConfiguration";
@@ -15,6 +9,12 @@ import { OktaConfiguration } from "../models/oktaConfiguration";
 import { OneLoginConfiguration } from "../models/oneLoginConfiguration";
 import { SyncConfiguration } from "../models/syncConfiguration";
 import { ConnectorUtils } from "../utils";
+
+import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { NodeUtils } from "@/jslib/common/src/misc/nodeUtils";
+import { Response } from "@/jslib/node/src/cli/models/response";
+import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
 
 export class ConfigCommand {
   private directory: DirectoryType;

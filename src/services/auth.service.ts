@@ -1,3 +1,6 @@
+import { StateService } from "../abstractions/state.service";
+import { OrganizationLogInStrategy } from "../misc/logInStrategies/organizationLogIn.strategy";
+
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
@@ -12,9 +15,6 @@ import { TwoFactorService } from "@/jslib/common/src/abstractions/twoFactor.serv
 import { AuthResult } from "@/jslib/common/src/models/domain/authResult";
 import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
 import { AuthService as AuthServiceBase } from "@/jslib/common/src/services/auth.service";
-
-import { StateService } from "../abstractions/state.service";
-import { OrganizationLogInStrategy } from "../misc/logInStrategies/organizationLogIn.strategy";
 
 export class AuthService extends AuthServiceBase {
   constructor(

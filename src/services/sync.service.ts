@@ -1,12 +1,3 @@
-import { ApiService } from "@/jslib/common/src/abstractions/api.service";
-import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
-import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
-import { Utils } from "@/jslib/common/src/misc/utils";
-import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
-
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 import { GroupEntry } from "../models/groupEntry";
@@ -19,6 +10,15 @@ import { GSuiteDirectoryService } from "./gsuite-directory.service";
 import { LdapDirectoryService } from "./ldap-directory.service";
 import { OktaDirectoryService } from "./okta-directory.service";
 import { OneLoginDirectoryService } from "./onelogin-directory.service";
+
+import { ApiService } from "@/jslib/common/src/abstractions/api.service";
+import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
+import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
+import { Utils } from "@/jslib/common/src/misc/utils";
+import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 
 export class SyncService {
   private dirType: DirectoryType;

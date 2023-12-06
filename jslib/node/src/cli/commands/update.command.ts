@@ -1,10 +1,11 @@
 import * as fetch from "node-fetch";
 
+import { Response } from "../models/response";
+import { MessageResponse } from "../models/response/messageResponse";
+
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 
-import { Response } from "../models/response";
-import { MessageResponse } from "../models/response/messageResponse";
 
 export class UpdateCommand {
   inPkg = false;

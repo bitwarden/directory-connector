@@ -4,9 +4,6 @@ import * as querystring from "querystring";
 import * as graph from "@microsoft/microsoft-graph-client";
 import * as graphType from "@microsoft/microsoft-graph-types";
 
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
-
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 import { AzureConfiguration } from "../models/azureConfiguration";
@@ -16,6 +13,9 @@ import { UserEntry } from "../models/userEntry";
 
 import { BaseDirectoryService } from "./baseDirectory.service";
 import { IDirectoryService } from "./directory.service";
+
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
 const AzurePublicIdentityAuhtority = "login.microsoftonline.com";
 const AzureGovermentIdentityAuhtority = "login.microsoftonline.us";

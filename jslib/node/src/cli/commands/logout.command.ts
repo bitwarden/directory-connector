@@ -1,8 +1,9 @@
+import { Response } from "../models/response";
+import { MessageResponse } from "../models/response/messageResponse";
+
 import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 
-import { Response } from "../models/response";
-import { MessageResponse } from "../models/response/messageResponse";
 
 export class LogoutCommand {
   constructor(

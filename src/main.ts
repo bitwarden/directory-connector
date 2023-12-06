@@ -2,6 +2,13 @@ import * as path from "path";
 
 import { app } from "electron";
 
+import { DCCredentialStorageListener } from "./main/credential-storage-listener";
+import { MenuMain } from "./main/menu.main";
+import { MessagingMain } from "./main/messaging.main";
+import { Account } from "./models/account";
+import { I18nService } from "./services/i18n.service";
+import { StateService } from "./services/state.service";
+
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ElectronLogService } from "@/jslib/electron/src/services/electronLog.service";
@@ -10,13 +17,6 @@ import { ElectronStorageService } from "@/jslib/electron/src/services/electronSt
 import { TrayMain } from "@/jslib/electron/src/tray.main";
 import { UpdaterMain } from "@/jslib/electron/src/updater.main";
 import { WindowMain } from "@/jslib/electron/src/window.main";
-
-import { DCCredentialStorageListener } from "./main/credential-storage-listener";
-import { MenuMain } from "./main/menu.main";
-import { MessagingMain } from "./main/messaging.main";
-import { Account } from "./models/account";
-import { I18nService } from "./services/i18n.service";
-import { StateService } from "./services/state.service";
 
 export class Main {
   logService: ElectronLogService;

@@ -1,10 +1,10 @@
 import { ipcMain } from "electron";
 
+import { MenuMain } from "./menu.main";
+
 import { TrayMain } from "@/jslib/electron/src/tray.main";
 import { UpdaterMain } from "@/jslib/electron/src/updater.main";
 import { WindowMain } from "@/jslib/electron/src/window.main";
-
-import { MenuMain } from "./menu.main";
 
 const SyncCheckInterval = 60 * 1000; // 1 minute
 

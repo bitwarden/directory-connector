@@ -3,10 +3,11 @@ import * as url from "url";
 
 import { app, BrowserWindow, screen } from "electron";
 
+import { cleanUserAgent, isDev, isMacAppStore, isSnapStore } from "./utils";
+
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { StateService } from "@/jslib/common/src/abstractions/state.service";
 
-import { cleanUserAgent, isDev, isMacAppStore, isSnapStore } from "./utils";
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;

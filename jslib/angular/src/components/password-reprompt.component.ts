@@ -1,10 +1,11 @@
 import { Directive } from "@angular/core";
 
+import { ModalRef } from "./modal/modal.ref";
+
 import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 
-import { ModalRef } from "./modal/modal.ref";
 
 /**
  * Used to verify the user's Master Password for the "Master Password Re-prompt" feature only.

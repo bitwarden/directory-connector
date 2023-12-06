@@ -1,9 +1,10 @@
 import { Directive, ElementRef, Input, OnChanges } from "@angular/core";
 
+import { ValidationService } from "../services/validation.service";
+
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { ErrorResponse } from "@/jslib/common/src/models/response/errorResponse";
 
-import { ValidationService } from "../services/validation.service";
 
 /**
  * Provides error handling, in particular for any error returned by the server in an api call.

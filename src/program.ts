@@ -3,6 +3,13 @@ import * as path from "path";
 import * as chalk from "chalk";
 import * as program from "commander";
 
+import { Main } from "./bwdc";
+import { ClearCacheCommand } from "./commands/clearCache.command";
+import { ConfigCommand } from "./commands/config.command";
+import { LastSyncCommand } from "./commands/lastSync.command";
+import { SyncCommand } from "./commands/sync.command";
+import { TestCommand } from "./commands/test.command";
+
 import { Utils } from "@/jslib/common/src/misc/utils";
 import { BaseProgram } from "@/jslib/node/src/cli/baseProgram";
 import { LoginCommand } from "@/jslib/node/src/cli/commands/login.command";
@@ -10,13 +17,6 @@ import { LogoutCommand } from "@/jslib/node/src/cli/commands/logout.command";
 import { UpdateCommand } from "@/jslib/node/src/cli/commands/update.command";
 import { Response } from "@/jslib/node/src/cli/models/response";
 import { StringResponse } from "@/jslib/node/src/cli/models/response/stringResponse";
-
-import { Main } from "./bwdc";
-import { ClearCacheCommand } from "./commands/clearCache.command";
-import { ConfigCommand } from "./commands/config.command";
-import { LastSyncCommand } from "./commands/lastSync.command";
-import { SyncCommand } from "./commands/sync.command";
-import { TestCommand } from "./commands/test.command";
 
 const writeLn = (s: string, finalLine = false, error = false) => {
   const stream = error ? process.stderr : process.stdout;

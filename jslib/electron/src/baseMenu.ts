@@ -1,8 +1,9 @@
 import { Menu, MenuItemConstructorOptions } from "electron";
 
+import { WindowMain } from "./window.main";
+
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 
-import { WindowMain } from "./window.main";
 
 export class BaseMenu {
   protected editMenuItemOptions: MenuItemConstructorOptions;

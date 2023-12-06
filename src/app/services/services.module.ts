@@ -1,5 +1,17 @@
 import { APP_INITIALIZER, NgModule } from "@angular/core";
 
+import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
+import { Account } from "../../models/account";
+import { AuthService } from "../../services/auth.service";
+import { I18nService } from "../../services/i18n.service";
+import { NoopTwoFactorService } from "../../services/noop/noopTwoFactor.service";
+import { StateService } from "../../services/state.service";
+import { StateMigrationService } from "../../services/stateMigration.service";
+import { SyncService } from "../../services/sync.service";
+
+import { AuthGuardService } from "./auth-guard.service";
+import { LaunchGuardService } from "./launch-guard.service";
+
 import { JslibServicesModule } from "@/jslib/angular/src/services/jslib-services.module";
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
@@ -27,18 +39,6 @@ import { ElectronRendererSecureStorageService } from "@/jslib/electron/src/servi
 import { ElectronRendererStorageService } from "@/jslib/electron/src/services/electronRendererStorage.service";
 import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
-
-import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
-import { Account } from "../../models/account";
-import { AuthService } from "../../services/auth.service";
-import { I18nService } from "../../services/i18n.service";
-import { NoopTwoFactorService } from "../../services/noop/noopTwoFactor.service";
-import { StateService } from "../../services/state.service";
-import { StateMigrationService } from "../../services/stateMigration.service";
-import { SyncService } from "../../services/sync.service";
-
-import { AuthGuardService } from "./auth-guard.service";
-import { LaunchGuardService } from "./launch-guard.service";
 
 export function initFactory(
   environmentService: EnvironmentServiceAbstraction,

@@ -1,8 +1,5 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
-
 import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
 import { AzureConfiguration } from "../../models/azureConfiguration";
@@ -12,6 +9,9 @@ import { OktaConfiguration } from "../../models/oktaConfiguration";
 import { OneLoginConfiguration } from "../../models/oneLoginConfiguration";
 import { SyncConfiguration } from "../../models/syncConfiguration";
 import { ConnectorUtils } from "../../utils";
+
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
 @Component({
   selector: "app-settings",

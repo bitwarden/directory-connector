@@ -1,11 +1,11 @@
 import { ChangeDetectorRef, Component, NgZone, OnInit } from "@angular/core";
 
+import { StateService } from "../../abstractions/state.service";
+
 import { BroadcasterService } from "@/jslib/common/src/abstractions/broadcaster.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-
-import { StateService } from "../../abstractions/state.service";
 
 const BroadcasterSubscriptionId = "MoreComponent";
 

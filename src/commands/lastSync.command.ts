@@ -1,7 +1,7 @@
+import { StateService } from "../abstractions/state.service";
+
 import { Response } from "@/jslib/node/src/cli/models/response";
 import { StringResponse } from "@/jslib/node/src/cli/models/response/stringResponse";
-
-import { StateService } from "../abstractions/state.service";
 
 export class LastSyncCommand {
   constructor(private stateService: StateService) {}

@@ -1,11 +1,13 @@
 import { Injectable } from "@angular/core";
 
-import { KeyConnectorService } from "@/jslib/common/src/abstractions/keyConnector.service";
-import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "@/jslib/common/src/abstractions/passwordReprompt.service";
-
 import { PasswordRepromptComponent } from "../components/password-reprompt.component";
 
 import { ModalService } from "./modal.service";
+
+import { KeyConnectorService } from "@/jslib/common/src/abstractions/keyConnector.service";
+import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "@/jslib/common/src/abstractions/passwordReprompt.service";
+
+
 
 /**
  * Used to verify the user's Master Password for the "Master Password Re-prompt" feature only.

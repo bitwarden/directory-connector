@@ -1,16 +1,16 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 
-import { BroadcasterService } from "@/jslib/common/src/abstractions/broadcaster.service";
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
-import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-
 import { StateService } from "../../abstractions/state.service";
 import { GroupEntry } from "../../models/groupEntry";
 import { SimResult } from "../../models/simResult";
 import { UserEntry } from "../../models/userEntry";
 import { SyncService } from "../../services/sync.service";
 import { ConnectorUtils } from "../../utils";
+
+import { BroadcasterService } from "@/jslib/common/src/abstractions/broadcaster.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
+import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 
 const BroadcasterSubscriptionId = "DashboardComponent";
 

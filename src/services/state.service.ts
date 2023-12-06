@@ -6,7 +6,6 @@ import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrl
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 import { StateService as BaseStateService } from "@/jslib/common/src/services/state.service";
-
 import { StateService as StateServiceAbstraction } from "@/src/abstractions/state.service";
 import { DirectoryType } from "@/src/enums/directoryType";
 import { IConfiguration } from "@/src/models/IConfiguration";

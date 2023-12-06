@@ -1,10 +1,11 @@
 import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme } from "electron";
 
+import { RendererMenuItem } from "../utils";
+import { WindowMain } from "../window.main";
+
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { ThemeType } from "@/jslib/common/src/enums/themeType";
 
-import { RendererMenuItem } from "../utils";
-import { WindowMain } from "../window.main";
 
 export class ElectronMainMessagingService implements MessagingService {
   constructor(private windowMain: WindowMain, private onMessage: (message: any) => void) {

@@ -1,13 +1,12 @@
-import { Account as BaseAccount } from "@/jslib/common/src/models/domain/account";
-
-import { DirectoryType } from "@/src/enums/directoryType";
-
 import { AzureConfiguration } from "./azureConfiguration";
 import { GSuiteConfiguration } from "./gsuiteConfiguration";
 import { LdapConfiguration } from "./ldapConfiguration";
 import { OktaConfiguration } from "./oktaConfiguration";
 import { OneLoginConfiguration } from "./oneLoginConfiguration";
 import { SyncConfiguration } from "./syncConfiguration";
+
+import { Account as BaseAccount } from "@/jslib/common/src/models/domain/account";
+import { DirectoryType } from "@/src/enums/directoryType";
 
 export class Account extends BaseAccount {
   directoryConfigurations?: DirectoryConfigurations = new DirectoryConfigurations();

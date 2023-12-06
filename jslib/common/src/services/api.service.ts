@@ -1,6 +1,3 @@
-import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
-import { DeviceRequest } from "@/jslib/common/src/models/request/deviceRequest";
-import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { EnvironmentService } from "../abstractions/environment.service";
@@ -176,6 +173,10 @@ import {
 import { TwoFactorYubiKeyResponse } from "../models/response/twoFactorYubiKeyResponse";
 import { UserKeyResponse } from "../models/response/userKeyResponse";
 import { SendAccessView } from "../models/view/sendAccessView";
+
+import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
+import { DeviceRequest } from "@/jslib/common/src/models/request/deviceRequest";
+import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
 
 export class ApiService implements ApiServiceAbstraction {
   private device: DeviceType;

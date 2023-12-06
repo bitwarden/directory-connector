@@ -4,6 +4,9 @@ import * as program from "commander";
 import * as inquirer from "inquirer";
 import Separator from "inquirer/lib/objects/separator";
 
+import { Response } from "../models/response";
+import { MessageResponse } from "../models/response/messageResponse";
+
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
 import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
@@ -29,8 +32,6 @@ import { TwoFactorEmailRequest } from "@/jslib/common/src/models/request/twoFact
 import { UpdateTempPasswordRequest } from "@/jslib/common/src/models/request/updateTempPasswordRequest";
 import { ErrorResponse } from "@/jslib/common/src/models/response/errorResponse";
 
-import { Response } from "../models/response";
-import { MessageResponse } from "../models/response/messageResponse";
 
 export class LoginCommand {
   protected validatedParams: () => Promise<any>;
