@@ -186,6 +186,6 @@
   },
   "lint-staged": {
     "./!(jslib)**": "prettier --ignore-unknown --write",
-    "./**!(.spec).ts": "eslint --fix"
+    "*.ts": "eslint --fix"
   }
 }
