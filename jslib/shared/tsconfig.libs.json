@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "tldjs": ["../common/src/misc/tldjs.noop"],
+      "jslib-common/*": ["../common/src/*"],
+      "jslib-angular/*": ["../angular/src/*"],
+      "jslib-electron/*": ["../electron/src/*"],
+      "jslib-node/*": ["../node/src/*"]
+    }
+  }
+}
