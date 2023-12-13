@@ -71,7 +71,7 @@ jobs:
         with:
           workflow: build.yml
           workflow_conclusion: success
-          branch: master
+          branch: main
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
