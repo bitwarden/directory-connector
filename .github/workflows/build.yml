@@ -337,8 +337,7 @@ jobs:
 
       - name: Zip
         shell: cmd
-        run: |
-          7z a .\dist-cli\bwdc-windows-%_PACKAGE_VERSION%.zip .\dist-cli\windows\bwdc.exe .\keytar\windows\keytar.node
+        run: 7z a .\dist-cli\bwdc-windows-%_PACKAGE_VERSION%.zip .\dist-cli\windows\bwdc.exe .\keytar\windows\keytar.node
 
       - name: Version Test
         shell: pwsh
