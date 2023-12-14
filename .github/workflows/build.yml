@@ -2,13 +2,8 @@
 name: Build
 
 on:
-  push:
-    branches-ignore:
-      - 'l10n_master'
-    paths-ignore:
-      - '.github/workflows/**'
+  pull_request: {}
   workflow_dispatch: {}
-
 
 jobs:
   cloc:
