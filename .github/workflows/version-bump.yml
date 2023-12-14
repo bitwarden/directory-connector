@@ -137,11 +137,11 @@ jobs:
           PR_NUMBER: ${{ steps.create-pr.outputs.pr_number }}
         run: gh pr review $PR_NUMBER --approve
 
-      # - name: Merge PR
-      #   env:
-      #     GH_TOKEN: ${{ steps.retrieve-secrets.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
-      #     PR_NUMBER: ${{ steps.create-pr.outputs.pr_number }}
-      #   run: gh pr merge $PR_NUMBER --squash --auto --delete-branch
+      - name: Merge PR
+        env:
+          GH_TOKEN: ${{ steps.retrieve-secrets.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
+          PR_NUMBER: ${{ steps.create-pr.outputs.pr_number }}
+        run: gh pr merge $PR_NUMBER --squash --auto --delete-branch
 
   cut_rc:
     name: Cut RC Branch
