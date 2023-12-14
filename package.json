@@ -2,7 +2,7 @@
   "name": "@bitwarden/directory-connector",
   "productName": "Bitwarden Directory Connector",
   "description": "Sync your user directory to your Bitwarden organization.",
-  "version": "2023.10.0",
+  "version": "2023.12.0",
   "keywords": [
     "bitwarden",
     "password",
