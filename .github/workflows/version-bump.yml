@@ -147,4 +147,5 @@ jobs:
     name: Cut RC Branch
     if: ${{ inputs.cut_rc_branch == true }}
     needs: bump_version
-    uses: ./.github/workflows/cut-rc.yml
+    uses: ./.github/workflows/_cut_rc.yml
+    secrets: inherit
