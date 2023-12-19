@@ -27,7 +27,7 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
         distinctUntilChanged((oldUserId: string, newUserId: string) => oldUserId == newUserId),
         concatMap(async () => {
           await this.setUrlsFromStorage();
-        }),
+        })
       )
       .subscribe();
   }
