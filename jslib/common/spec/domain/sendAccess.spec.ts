@@ -1,4 +1,4 @@
-import Substitute, { Arg } from "@fluffy-spoon/substitute";
+import { Substitute, Arg } from "@fluffy-spoon/substitute";
 
 import { SendType } from "@/jslib/common/src/enums/sendType";
 import { SendAccess } from "@/jslib/common/src/models/domain/sendAccess";

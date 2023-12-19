@@ -1,4 +1,4 @@
-import Substitute, { Arg, SubstituteOf } from "@fluffy-spoon/substitute";
+import { Substitute, Arg, SubstituteOf } from "@fluffy-spoon/substitute";
 
 import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
 import { SendType } from "@/jslib/common/src/enums/sendType";

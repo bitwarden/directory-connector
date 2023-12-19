@@ -1,4 +1,4 @@
-import Substitute, { Arg } from "@fluffy-spoon/substitute";
+import { Substitute, Arg } from "@fluffy-spoon/substitute";
 
 import { CipherRepromptType } from "@/jslib/common/src/enums/cipherRepromptType";
 import { CipherType } from "@/jslib/common/src/enums/cipherType";
