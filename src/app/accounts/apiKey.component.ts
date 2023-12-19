@@ -1,5 +1,6 @@
-import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, Input, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
 import { Router } from "@angular/router";
+import { Subject, takeUntil } from "rxjs";
 
 import { ModalService } from "@/jslib/angular/src/services/modal.service";
 import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
@@ -17,11 +18,13 @@ import { EnvironmentComponent } from "./environment.component";
   selector: "app-apiKey",
   templateUrl: "apiKey.component.html",
 })
-export class ApiKeyComponent {
+export class ApiKeyComponent implements OnDestroy {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
   environmentModal: ViewContainerRef;
   @Input() clientId = "";
   @Input() clientSecret = "";
+
+  private destroyed$: Subject<void> = new Subject();
 
   formPromise: Promise<any>;
   successRoute = "/tabs/dashboard";
@@ -92,12 +95,17 @@ export class ApiKeyComponent {
       this.environmentModal
     );
 
-    childComponent.onSaved.subscribe(() => {
+    childComponent.onSaved.pipe(takeUntil(this.destroyed$)).subscribe(() => {
       modalRef.close();
     });
   }
   toggleSecret() {
     this.showSecret = !this.showSecret;
     document.getElementById("client_secret").focus();
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
 }
