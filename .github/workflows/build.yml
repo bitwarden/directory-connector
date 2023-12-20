@@ -372,7 +372,6 @@ jobs:
     env:
       NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      HUSKY: 0
     steps:
       - name: Checkout repo
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -446,7 +445,6 @@ jobs:
     env:
       NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      HUSKY: 0
     steps:
       - name: Checkout repo
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -500,7 +498,6 @@ jobs:
     env:
       NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      HUSKY: 0
     steps:
       - name: Checkout repo
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
