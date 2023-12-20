@@ -1,6 +1,6 @@
 import { Menu, MenuItemConstructorOptions } from "electron";
 
-import { BaseMenu } from "jslib-electron/baseMenu";
+import { BaseMenu } from "@/jslib/electron/src/baseMenu";
 
 import { Main } from "../main";
 

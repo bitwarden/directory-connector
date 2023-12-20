@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 
-import { BroadcasterService } from "jslib-common/abstractions/broadcaster.service";
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { MessagingService } from "jslib-common/abstractions/messaging.service";
-import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
+import { BroadcasterService } from "@/jslib/common/src/abstractions/broadcaster.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
+import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 
 import { StateService } from "../../abstractions/state.service";
 import { GroupEntry } from "../../models/groupEntry";

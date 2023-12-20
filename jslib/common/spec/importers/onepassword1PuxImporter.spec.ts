@@ -1,9 +1,9 @@
-import { CipherType } from "jslib-common/enums/cipherType";
-import { FieldType } from "jslib-common/enums/fieldType";
-import { SecureNoteType } from "jslib-common/enums/secureNoteType";
-import { OnePassword1PuxImporter as Importer } from "jslib-common/importers/onepasswordImporters/onepassword1PuxImporter";
-import { Utils } from "jslib-common/misc/utils";
-import { FieldView } from "jslib-common/models/view/fieldView";
+import { CipherType } from "@/jslib/common/src/enums/cipherType";
+import { FieldType } from "@/jslib/common/src/enums/fieldType";
+import { SecureNoteType } from "@/jslib/common/src/enums/secureNoteType";
+import { OnePassword1PuxImporter as Importer } from "@/jslib/common/src/importers/onepasswordImporters/onepassword1PuxImporter";
+import { Utils } from "@/jslib/common/src/misc/utils";
+import { FieldView } from "@/jslib/common/src/models/view/fieldView";
 
 import { APICredentialsData } from "./testData/onePassword1Pux/APICredentials";
 import { BankAccountData } from "./testData/onePassword1Pux/BankAccount";

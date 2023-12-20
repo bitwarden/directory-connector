@@ -1,6 +1,6 @@
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { Response } from "jslib-node/cli/models/response";
-import { MessageResponse } from "jslib-node/cli/models/response/messageResponse";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { Response } from "@/jslib/node/src/cli/models/response";
+import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
 
 import { SyncService } from "../services/sync.service";
 

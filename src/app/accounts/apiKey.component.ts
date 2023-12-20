@@ -1,13 +1,13 @@
 import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { ModalService } from "jslib-angular/services/modal.service";
-import { AuthService } from "jslib-common/abstractions/auth.service";
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { LogService } from "jslib-common/abstractions/log.service";
-import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
-import { Utils } from "jslib-common/misc/utils";
-import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
+import { ModalService } from "@/jslib/angular/src/services/modal.service";
+import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
+import { Utils } from "@/jslib/common/src/misc/utils";
+import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
 
 import { StateService } from "../../abstractions/state.service";
 

@@ -1,9 +1,9 @@
 import Substitute from "@fluffy-spoon/substitute";
 
-import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
-import { Utils } from "jslib-common/misc/utils";
-import { SymmetricCryptoKey } from "jslib-common/models/domain/symmetricCryptoKey";
-import { WebCryptoFunctionService } from "jslib-common/services/webCryptoFunction.service";
+import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
+import { Utils } from "@/jslib/common/src/misc/utils";
+import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
+import { WebCryptoFunctionService } from "@/jslib/common/src/services/webCryptoFunction.service";
 
 const RsaPublicKey =
   "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAl0Vawl/toXzkEvB82FEtqHP" +

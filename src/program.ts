@@ -3,13 +3,13 @@ import * as path from "path";
 import * as chalk from "chalk";
 import * as program from "commander";
 
-import { Utils } from "jslib-common/misc/utils";
-import { BaseProgram } from "jslib-node/cli/baseProgram";
-import { LoginCommand } from "jslib-node/cli/commands/login.command";
-import { LogoutCommand } from "jslib-node/cli/commands/logout.command";
-import { UpdateCommand } from "jslib-node/cli/commands/update.command";
-import { Response } from "jslib-node/cli/models/response";
-import { StringResponse } from "jslib-node/cli/models/response/stringResponse";
+import { Utils } from "@/jslib/common/src/misc/utils";
+import { BaseProgram } from "@/jslib/node/src/cli/baseProgram";
+import { LoginCommand } from "@/jslib/node/src/cli/commands/login.command";
+import { LogoutCommand } from "@/jslib/node/src/cli/commands/logout.command";
+import { UpdateCommand } from "@/jslib/node/src/cli/commands/update.command";
+import { Response } from "@/jslib/node/src/cli/models/response";
+import { StringResponse } from "@/jslib/node/src/cli/models/response/stringResponse";
 
 import { Main } from "./bwdc";
 import { ClearCacheCommand } from "./commands/clearCache.command";

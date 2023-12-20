@@ -1,5 +1,5 @@
-import { CardData } from "jslib-common/models/data/cardData";
-import { Card } from "jslib-common/models/domain/card";
+import { CardData } from "@/jslib/common/src/models/data/cardData";
+import { Card } from "@/jslib/common/src/models/domain/card";
 
 import { mockEnc } from "../utils";
 

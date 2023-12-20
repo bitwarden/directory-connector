@@ -1,5 +1,5 @@
-import { Response } from "jslib-node/cli/models/response";
-import { StringResponse } from "jslib-node/cli/models/response/stringResponse";
+import { Response } from "@/jslib/node/src/cli/models/response";
+import { StringResponse } from "@/jslib/node/src/cli/models/response/stringResponse";
 
 import { StateService } from "../abstractions/state.service";
 

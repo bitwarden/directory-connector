@@ -1,34 +1,34 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { StorageService as StorageServiceAbstraction } from "jslib-common/abstractions/storage.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "jslib-common/abstractions/twoFactor.service";
-import { ClientType } from "jslib-common/enums/clientType";
-import { LogLevelType } from "jslib-common/enums/logLevelType";
-import { StateFactory } from "jslib-common/factories/stateFactory";
-import { GlobalState } from "jslib-common/models/domain/globalState";
-import { AppIdService } from "jslib-common/services/appId.service";
-import { CipherService } from "jslib-common/services/cipher.service";
-import { CollectionService } from "jslib-common/services/collection.service";
-import { ContainerService } from "jslib-common/services/container.service";
-import { CryptoService } from "jslib-common/services/crypto.service";
-import { EnvironmentService } from "jslib-common/services/environment.service";
-import { FileUploadService } from "jslib-common/services/fileUpload.service";
-import { FolderService } from "jslib-common/services/folder.service";
-import { KeyConnectorService } from "jslib-common/services/keyConnector.service";
-import { NoopMessagingService } from "jslib-common/services/noopMessaging.service";
-import { OrganizationService } from "jslib-common/services/organization.service";
-import { PasswordGenerationService } from "jslib-common/services/passwordGeneration.service";
-import { PolicyService } from "jslib-common/services/policy.service";
-import { ProviderService } from "jslib-common/services/provider.service";
-import { SearchService } from "jslib-common/services/search.service";
-import { SendService } from "jslib-common/services/send.service";
-import { SettingsService } from "jslib-common/services/settings.service";
-import { TokenService } from "jslib-common/services/token.service";
-import { CliPlatformUtilsService } from "jslib-node/cli/services/cliPlatformUtils.service";
-import { ConsoleLogService } from "jslib-node/cli/services/consoleLog.service";
-import { NodeApiService } from "jslib-node/services/nodeApi.service";
-import { NodeCryptoFunctionService } from "jslib-node/services/nodeCryptoFunction.service";
+import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
+import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
+import { ClientType } from "@/jslib/common/src/enums/clientType";
+import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
+import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
+import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
+import { AppIdService } from "@/jslib/common/src/services/appId.service";
+import { CipherService } from "@/jslib/common/src/services/cipher.service";
+import { CollectionService } from "@/jslib/common/src/services/collection.service";
+import { ContainerService } from "@/jslib/common/src/services/container.service";
+import { CryptoService } from "@/jslib/common/src/services/crypto.service";
+import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
+import { FileUploadService } from "@/jslib/common/src/services/fileUpload.service";
+import { FolderService } from "@/jslib/common/src/services/folder.service";
+import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.service";
+import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
+import { OrganizationService } from "@/jslib/common/src/services/organization.service";
+import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
+import { PolicyService } from "@/jslib/common/src/services/policy.service";
+import { ProviderService } from "@/jslib/common/src/services/provider.service";
+import { SearchService } from "@/jslib/common/src/services/search.service";
+import { SendService } from "@/jslib/common/src/services/send.service";
+import { SettingsService } from "@/jslib/common/src/services/settings.service";
+import { TokenService } from "@/jslib/common/src/services/token.service";
+import { CliPlatformUtilsService } from "@/jslib/node/src/cli/services/cliPlatformUtils.service";
+import { ConsoleLogService } from "@/jslib/node/src/cli/services/consoleLog.service";
+import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
+import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 
 import { Account } from "./models/account";
 import { Program } from "./program";
@@ -42,7 +42,7 @@ import { StateMigrationService } from "./services/stateMigration.service";
 import { SyncService } from "./services/sync.service";
 
 // eslint-disable-next-line
-const packageJson = require("./package.json");
+const packageJson = require("../package.json");
 
 export const searchService: SearchService = null;
 export class Main {

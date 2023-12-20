@@ -1,5 +1,5 @@
-import { EncryptionType } from "jslib-common/enums/encryptionType";
-import { SymmetricCryptoKey } from "jslib-common/models/domain/symmetricCryptoKey";
+import { EncryptionType } from "@/jslib/common/src/enums/encryptionType";
+import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
 
 import { makeStaticByteArray } from "../utils";
 

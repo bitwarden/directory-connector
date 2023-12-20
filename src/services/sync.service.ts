@@ -1,11 +1,11 @@
-import { ApiService } from "jslib-common/abstractions/api.service";
-import { CryptoFunctionService } from "jslib-common/abstractions/cryptoFunction.service";
-import { EnvironmentService } from "jslib-common/abstractions/environment.service";
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { LogService } from "jslib-common/abstractions/log.service";
-import { MessagingService } from "jslib-common/abstractions/messaging.service";
-import { Utils } from "jslib-common/misc/utils";
-import { OrganizationImportRequest } from "jslib-common/models/request/organizationImportRequest";
+import { ApiService } from "@/jslib/common/src/abstractions/api.service";
+import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
+import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
+import { Utils } from "@/jslib/common/src/misc/utils";
+import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";

@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
-import { ErrorResponse } from "jslib-common/models/response/errorResponse";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
+import { ErrorResponse } from "@/jslib/common/src/models/response/errorResponse";
 
 @Injectable()
 export class ValidationService {

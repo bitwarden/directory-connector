@@ -1,5 +1,5 @@
-import { CipherType } from "jslib-common/enums/cipherType";
-import { DashlaneCsvImporter as Importer } from "jslib-common/importers/dashlaneImporters/dashlaneCsvImporter";
+import { CipherType } from "@/jslib/common/src/enums/cipherType";
+import { DashlaneCsvImporter as Importer } from "@/jslib/common/src/importers/dashlaneImporters/dashlaneCsvImporter";
 
 import { credentialsData } from "./testData/dashlaneCsv/credentials.csv";
 import { identityData } from "./testData/dashlaneCsv/id.csv";

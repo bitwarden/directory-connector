@@ -1,7 +1,8 @@
 {
   "name": "@bitwarden/directory-connector",
+  "productName": "Bitwarden Directory Connector",
   "description": "Sync your user directory to your Bitwarden organization.",
-  "version": "0.0.0",
+  "version": "2023.10.0",
   "keywords": [
     "bitwarden",
     "password",
@@ -15,6 +16,7 @@
     "url": "https://github.com/bitwarden/directory-connector"
   },
   "license": "GPL-3.0",
+  "main": "main.js",
   "scripts": {
     "sub:init": "git submodule update --init --recursive",
     "sub:update": "git submodule update --remote",
@@ -152,10 +154,6 @@
     "@angular/platform-browser": "15.2.9",
     "@angular/platform-browser-dynamic": "15.2.9",
     "@angular/router": "15.2.9",
-    "@bitwarden/jslib-angular": "file:jslib/angular",
-    "@bitwarden/jslib-common": "file:jslib/common",
-    "@bitwarden/jslib-electron": "file:jslib/electron",
-    "@bitwarden/jslib-node": "file:jslib/node",
     "@microsoft/microsoft-graph-client": "3.0.6",
     "@microsoft/signalr": "7.0.10",
     "@microsoft/signalr-protocol-msgpack": "7.0.10",

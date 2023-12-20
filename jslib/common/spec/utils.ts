@@ -1,6 +1,6 @@
 import Substitute, { Arg } from "@fluffy-spoon/substitute";
 
-import { EncString } from "jslib-common/models/domain/encString";
+import { EncString } from "@/jslib/common/src/models/domain/encString";
 
 function newGuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {

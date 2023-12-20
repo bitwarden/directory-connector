@@ -1,6 +1,6 @@
-import { Account as BaseAccount } from "jslib-common/models/domain/account";
+import { Account as BaseAccount } from "@/jslib/common/src/models/domain/account";
 
-import { DirectoryType } from "src/enums/directoryType";
+import { DirectoryType } from "@/src/enums/directoryType";
 
 import { AzureConfiguration } from "./azureConfiguration";
 import { GSuiteConfiguration } from "./gsuiteConfiguration";

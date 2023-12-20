@@ -1,10 +1,10 @@
 import Substitute, { Arg } from "@fluffy-spoon/substitute";
 
-import { UriMatchType } from "jslib-common/enums/uriMatchType";
-import { LoginData } from "jslib-common/models/data/loginData";
-import { Login } from "jslib-common/models/domain/login";
-import { LoginUri } from "jslib-common/models/domain/loginUri";
-import { LoginUriView } from "jslib-common/models/view/loginUriView";
+import { UriMatchType } from "@/jslib/common/src/enums/uriMatchType";
+import { LoginData } from "@/jslib/common/src/models/data/loginData";
+import { Login } from "@/jslib/common/src/models/domain/login";
+import { LoginUri } from "@/jslib/common/src/models/domain/loginUri";
+import { LoginUriView } from "@/jslib/common/src/models/view/loginUriView";
 
 import { mockEnc } from "../utils";
 

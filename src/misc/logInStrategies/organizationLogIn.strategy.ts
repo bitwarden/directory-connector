@@ -1,11 +1,15 @@
-import { LogInStrategy } from "jslib-common/misc/logInStrategies/logIn.strategy";
-import { AccountKeys, AccountProfile, AccountTokens } from "jslib-common/models/domain/account";
-import { AuthResult } from "jslib-common/models/domain/authResult";
-import { ApiLogInCredentials } from "jslib-common/models/domain/logInCredentials";
-import { ApiTokenRequest } from "jslib-common/models/request/identityToken/apiTokenRequest";
-import { IdentityTokenResponse } from "jslib-common/models/response/identityTokenResponse";
+import { LogInStrategy } from "@/jslib/common/src/misc/logInStrategies/logIn.strategy";
+import {
+  AccountKeys,
+  AccountProfile,
+  AccountTokens,
+} from "@/jslib/common/src/models/domain/account";
+import { AuthResult } from "@/jslib/common/src/models/domain/authResult";
+import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
+import { ApiTokenRequest } from "@/jslib/common/src/models/request/identityToken/apiTokenRequest";
+import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
-import { Account, DirectoryConfigurations, DirectorySettings } from "src/models/account";
+import { Account, DirectoryConfigurations, DirectorySettings } from "@/src/models/account";
 
 export class OrganizationLogInStrategy extends LogInStrategy {
   tokenRequest: ApiTokenRequest;
