@@ -1,5 +1,5 @@
-import { SendFileData } from "jslib-common/models/data/sendFileData";
-import { SendFile } from "jslib-common/models/domain/sendFile";
+import { SendFileData } from "@/jslib/common/src/models/data/sendFileData";
+import { SendFile } from "@/jslib/common/src/models/domain/sendFile";
 
 import { mockEnc } from "../utils";
 

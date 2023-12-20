@@ -1,10 +1,10 @@
 import Substitute, { Arg } from "@fluffy-spoon/substitute";
 
-import { CryptoService } from "jslib-common/abstractions/crypto.service";
-import { EncryptionType } from "jslib-common/enums/encryptionType";
-import { EncString } from "jslib-common/models/domain/encString";
-import { SymmetricCryptoKey } from "jslib-common/models/domain/symmetricCryptoKey";
-import { ContainerService } from "jslib-common/services/container.service";
+import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
+import { EncryptionType } from "@/jslib/common/src/enums/encryptionType";
+import { EncString } from "@/jslib/common/src/models/domain/encString";
+import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
+import { ContainerService } from "@/jslib/common/src/services/container.service";
 
 describe("EncString", () => {
   afterEach(() => {

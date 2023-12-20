@@ -1,6 +1,6 @@
-import { FieldType } from "jslib-common/enums/fieldType";
-import { FieldData } from "jslib-common/models/data/fieldData";
-import { Field } from "jslib-common/models/domain/field";
+import { FieldType } from "@/jslib/common/src/enums/fieldType";
+import { FieldData } from "@/jslib/common/src/models/data/fieldData";
+import { Field } from "@/jslib/common/src/models/domain/field";
 
 import { mockEnc } from "../utils";
 

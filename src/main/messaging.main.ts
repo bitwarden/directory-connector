@@ -1,8 +1,8 @@
 import { ipcMain } from "electron";
 
-import { TrayMain } from "jslib-electron/tray.main";
-import { UpdaterMain } from "jslib-electron/updater.main";
-import { WindowMain } from "jslib-electron/window.main";
+import { TrayMain } from "@/jslib/electron/src/tray.main";
+import { UpdaterMain } from "@/jslib/electron/src/updater.main";
+import { WindowMain } from "@/jslib/electron/src/window.main";
 
 import { MenuMain } from "./menu.main";
 

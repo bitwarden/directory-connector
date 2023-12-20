@@ -1,19 +1,19 @@
 import { Arg, Substitute, SubstituteOf } from "@fluffy-spoon/substitute";
 
-import { ApiService } from "jslib-common/abstractions/api.service";
-import { CryptoService } from "jslib-common/abstractions/crypto.service";
-import { FileUploadService } from "jslib-common/abstractions/fileUpload.service";
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { LogService } from "jslib-common/abstractions/log.service";
-import { SearchService } from "jslib-common/abstractions/search.service";
-import { SettingsService } from "jslib-common/abstractions/settings.service";
-import { StateService } from "jslib-common/abstractions/state.service";
-import { Utils } from "jslib-common/misc/utils";
-import { Cipher } from "jslib-common/models/domain/cipher";
-import { EncArrayBuffer } from "jslib-common/models/domain/encArrayBuffer";
-import { EncString } from "jslib-common/models/domain/encString";
-import { SymmetricCryptoKey } from "jslib-common/models/domain/symmetricCryptoKey";
-import { CipherService } from "jslib-common/services/cipher.service";
+import { ApiService } from "@/jslib/common/src/abstractions/api.service";
+import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
+import { FileUploadService } from "@/jslib/common/src/abstractions/fileUpload.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { SearchService } from "@/jslib/common/src/abstractions/search.service";
+import { SettingsService } from "@/jslib/common/src/abstractions/settings.service";
+import { StateService } from "@/jslib/common/src/abstractions/state.service";
+import { Utils } from "@/jslib/common/src/misc/utils";
+import { Cipher } from "@/jslib/common/src/models/domain/cipher";
+import { EncArrayBuffer } from "@/jslib/common/src/models/domain/encArrayBuffer";
+import { EncString } from "@/jslib/common/src/models/domain/encString";
+import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
+import { CipherService } from "@/jslib/common/src/services/cipher.service";
 
 const ENCRYPTED_TEXT = "This data has been encrypted";
 const ENCRYPTED_BYTES = new EncArrayBuffer(Utils.fromUtf8ToArray(ENCRYPTED_TEXT).buffer);

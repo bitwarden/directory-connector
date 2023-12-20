@@ -1,6 +1,6 @@
-import { CipherType } from "jslib-common/enums/cipherType";
-import { MykiCsvImporter as Importer } from "jslib-common/importers/mykiCsvImporter";
-import { CipherView } from "jslib-common/models/view/cipherView";
+import { CipherType } from "@/jslib/common/src/enums/cipherType";
+import { MykiCsvImporter as Importer } from "@/jslib/common/src/importers/mykiCsvImporter";
+import { CipherView } from "@/jslib/common/src/models/view/cipherView";
 
 import { userAccountData } from "./testData/mykiCsv/UserAccount.csv";
 import { userCreditCardData } from "./testData/mykiCsv/UserCreditCard.csv";

@@ -1,4 +1,4 @@
-import { BaseResponse } from "jslib-node/cli/models/response/baseResponse";
+import { BaseResponse } from "@/jslib/node/src/cli/models/response/baseResponse";
 
 import { SimResult } from "../simResult";
 

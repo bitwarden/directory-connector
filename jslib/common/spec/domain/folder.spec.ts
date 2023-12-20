@@ -1,5 +1,5 @@
-import { FolderData } from "jslib-common/models/data/folderData";
-import { Folder } from "jslib-common/models/domain/folder";
+import { FolderData } from "@/jslib/common/src/models/data/folderData";
+import { Folder } from "@/jslib/common/src/models/domain/folder";
 
 import { mockEnc } from "../utils";
 

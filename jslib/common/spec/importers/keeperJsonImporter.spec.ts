@@ -1,5 +1,5 @@
-import { KeeperJsonImporter as Importer } from "jslib-common/importers/keeperImporters/keeperJsonImporter";
-import { Utils } from "jslib-common/misc/utils";
+import { KeeperJsonImporter as Importer } from "@/jslib/common/src/importers/keeperImporters/keeperJsonImporter";
+import { Utils } from "@/jslib/common/src/misc/utils";
 
 import { testData as TestData } from "./testData/keeperJson/testData";
 

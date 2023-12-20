@@ -1,6 +1,6 @@
-import { AppIdService } from "jslib-common/abstractions/appId.service";
-import { DeviceRequest } from "jslib-common/models/request/deviceRequest";
-import { TokenRequestTwoFactor } from "jslib-common/models/request/identityToken/tokenRequestTwoFactor";
+import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
+import { DeviceRequest } from "@/jslib/common/src/models/request/deviceRequest";
+import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { EnvironmentService } from "../abstractions/environment.service";

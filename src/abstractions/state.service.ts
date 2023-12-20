@@ -1,14 +1,14 @@
-import { StateService as BaseStateServiceAbstraction } from "jslib-common/abstractions/state.service";
-import { StorageOptions } from "jslib-common/models/domain/storageOptions";
+import { StateService as BaseStateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
+import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
-import { DirectoryType } from "src/enums/directoryType";
-import { Account } from "src/models/account";
-import { AzureConfiguration } from "src/models/azureConfiguration";
-import { GSuiteConfiguration } from "src/models/gsuiteConfiguration";
-import { LdapConfiguration } from "src/models/ldapConfiguration";
-import { OktaConfiguration } from "src/models/oktaConfiguration";
-import { OneLoginConfiguration } from "src/models/oneLoginConfiguration";
-import { SyncConfiguration } from "src/models/syncConfiguration";
+import { DirectoryType } from "@/src/enums/directoryType";
+import { Account } from "@/src/models/account";
+import { AzureConfiguration } from "@/src/models/azureConfiguration";
+import { GSuiteConfiguration } from "@/src/models/gsuiteConfiguration";
+import { LdapConfiguration } from "@/src/models/ldapConfiguration";
+import { OktaConfiguration } from "@/src/models/oktaConfiguration";
+import { OneLoginConfiguration } from "@/src/models/oneLoginConfiguration";
+import { SyncConfiguration } from "@/src/models/syncConfiguration";
 
 export abstract class StateService extends BaseStateServiceAbstraction<Account> {
   getDirectory: <IConfiguration>(type: DirectoryType) => Promise<IConfiguration>;

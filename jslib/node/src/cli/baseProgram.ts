@@ -1,6 +1,6 @@
 import * as chalk from "chalk";
 
-import { StateService } from "jslib-common/abstractions/state.service";
+import { StateService } from "@/jslib/common/src/abstractions/state.service";
 
 import { Response } from "./models/response";
 import { ListResponse } from "./models/response/listResponse";

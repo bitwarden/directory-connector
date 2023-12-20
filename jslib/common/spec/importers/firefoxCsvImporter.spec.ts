@@ -1,7 +1,7 @@
-import { FirefoxCsvImporter as Importer } from "jslib-common/importers/firefoxCsvImporter";
-import { CipherView } from "jslib-common/models/view/cipherView";
-import { LoginUriView } from "jslib-common/models/view/loginUriView";
-import { LoginView } from "jslib-common/models/view/loginView";
+import { FirefoxCsvImporter as Importer } from "@/jslib/common/src/importers/firefoxCsvImporter";
+import { CipherView } from "@/jslib/common/src/models/view/cipherView";
+import { LoginUriView } from "@/jslib/common/src/models/view/loginUriView";
+import { LoginView } from "@/jslib/common/src/models/view/loginView";
 
 import { data as firefoxAccountsData } from "./testData/firefoxCsv/firefoxAccountsData.csv";
 import { data as simplePasswordData } from "./testData/firefoxCsv/simplePasswordData.csv";

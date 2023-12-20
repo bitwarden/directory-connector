@@ -4,8 +4,8 @@ import * as querystring from "querystring";
 import * as graph from "@microsoft/microsoft-graph-client";
 import * as graphType from "@microsoft/microsoft-graph-types";
 
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { LogService } from "jslib-common/abstractions/log.service";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";

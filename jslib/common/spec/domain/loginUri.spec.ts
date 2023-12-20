@@ -1,6 +1,6 @@
-import { UriMatchType } from "jslib-common/enums/uriMatchType";
-import { LoginUriData } from "jslib-common/models/data/loginUriData";
-import { LoginUri } from "jslib-common/models/domain/loginUri";
+import { UriMatchType } from "@/jslib/common/src/enums/uriMatchType";
+import { LoginUriData } from "@/jslib/common/src/models/data/loginUriData";
+import { LoginUri } from "@/jslib/common/src/models/domain/loginUri";
 
 import { mockEnc } from "../utils";
 

@@ -1,10 +1,10 @@
 import Substitute, { Arg } from "@fluffy-spoon/substitute";
 
-import { CryptoService } from "jslib-common/abstractions/crypto.service";
-import { AttachmentData } from "jslib-common/models/data/attachmentData";
-import { Attachment } from "jslib-common/models/domain/attachment";
-import { SymmetricCryptoKey } from "jslib-common/models/domain/symmetricCryptoKey";
-import { ContainerService } from "jslib-common/services/container.service";
+import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
+import { AttachmentData } from "@/jslib/common/src/models/data/attachmentData";
+import { Attachment } from "@/jslib/common/src/models/domain/attachment";
+import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
+import { ContainerService } from "@/jslib/common/src/services/container.service";
 
 import { makeStaticByteArray, mockEnc } from "../utils";
 

@@ -51,7 +51,7 @@ const main = {
     new CleanWebpackPlugin(),
     new CopyWebpackPlugin({
       patterns: [
-        "./src/package.json",
+        "./package.json",
         { from: "./src/images", to: "images" },
         { from: "./src/locales", to: "locales" },
       ],

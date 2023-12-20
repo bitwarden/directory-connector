@@ -1,5 +1,5 @@
-import { sequentialize } from "jslib-common/misc/sequentialize";
-import { throttle } from "jslib-common/misc/throttle";
+import { sequentialize } from "@/jslib/common/src/misc/sequentialize";
+import { throttle } from "@/jslib/common/src/misc/throttle";
 
 describe("throttle decorator", () => {
   it("should call the function once at a time", async () => {

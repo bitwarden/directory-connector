@@ -1,20 +1,20 @@
 import { Arg, Substitute, SubstituteOf } from "@fluffy-spoon/substitute";
 
-import { ApiService } from "jslib-common/abstractions/api.service";
-import { CipherService } from "jslib-common/abstractions/cipher.service";
-import { CryptoService } from "jslib-common/abstractions/crypto.service";
-import { CryptoFunctionService } from "jslib-common/abstractions/cryptoFunction.service";
-import { FolderService } from "jslib-common/abstractions/folder.service";
-import { CipherType } from "jslib-common/enums/cipherType";
-import { KdfType } from "jslib-common/enums/kdfType";
-import { Utils } from "jslib-common/misc/utils";
-import { Cipher } from "jslib-common/models/domain/cipher";
-import { EncString } from "jslib-common/models/domain/encString";
-import { Login } from "jslib-common/models/domain/login";
-import { CipherWithIds as CipherExport } from "jslib-common/models/export/cipherWithIds";
-import { CipherView } from "jslib-common/models/view/cipherView";
-import { LoginView } from "jslib-common/models/view/loginView";
-import { ExportService } from "jslib-common/services/export.service";
+import { ApiService } from "@/jslib/common/src/abstractions/api.service";
+import { CipherService } from "@/jslib/common/src/abstractions/cipher.service";
+import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
+import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
+import { FolderService } from "@/jslib/common/src/abstractions/folder.service";
+import { CipherType } from "@/jslib/common/src/enums/cipherType";
+import { KdfType } from "@/jslib/common/src/enums/kdfType";
+import { Utils } from "@/jslib/common/src/misc/utils";
+import { Cipher } from "@/jslib/common/src/models/domain/cipher";
+import { EncString } from "@/jslib/common/src/models/domain/encString";
+import { Login } from "@/jslib/common/src/models/domain/login";
+import { CipherWithIds as CipherExport } from "@/jslib/common/src/models/export/cipherWithIds";
+import { CipherView } from "@/jslib/common/src/models/view/cipherView";
+import { LoginView } from "@/jslib/common/src/models/view/loginView";
+import { ExportService } from "@/jslib/common/src/services/export.service";
 
 import { BuildTestObject, GetUniqueString } from "../utils";
 

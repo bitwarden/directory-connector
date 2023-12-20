@@ -2,14 +2,14 @@ import * as path from "path";
 
 import { app } from "electron";
 
-import { StateFactory } from "jslib-common/factories/stateFactory";
-import { GlobalState } from "jslib-common/models/domain/globalState";
-import { ElectronLogService } from "jslib-electron/services/electronLog.service";
-import { ElectronMainMessagingService } from "jslib-electron/services/electronMainMessaging.service";
-import { ElectronStorageService } from "jslib-electron/services/electronStorage.service";
-import { TrayMain } from "jslib-electron/tray.main";
-import { UpdaterMain } from "jslib-electron/updater.main";
-import { WindowMain } from "jslib-electron/window.main";
+import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
+import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
+import { ElectronLogService } from "@/jslib/electron/src/services/electronLog.service";
+import { ElectronMainMessagingService } from "@/jslib/electron/src/services/electronMainMessaging.service";
+import { ElectronStorageService } from "@/jslib/electron/src/services/electronStorage.service";
+import { TrayMain } from "@/jslib/electron/src/tray.main";
+import { UpdaterMain } from "@/jslib/electron/src/updater.main";
+import { WindowMain } from "@/jslib/electron/src/window.main";
 
 import { DCCredentialStorageListener } from "./main/credential-storage-listener";
 import { MenuMain } from "./main/menu.main";

@@ -1,20 +1,20 @@
 import { Arg, Substitute, SubstituteOf } from "@fluffy-spoon/substitute";
 
-import { ApiService } from "jslib-common/abstractions/api.service";
-import { AppIdService } from "jslib-common/abstractions/appId.service";
-import { AuthService } from "jslib-common/abstractions/auth.service";
-import { CryptoService } from "jslib-common/abstractions/crypto.service";
-import { LogService } from "jslib-common/abstractions/log.service";
-import { MessagingService } from "jslib-common/abstractions/messaging.service";
-import { PlatformUtilsService } from "jslib-common/abstractions/platformUtils.service";
-import { StateService } from "jslib-common/abstractions/state.service";
-import { TokenService } from "jslib-common/abstractions/token.service";
-import { TwoFactorService } from "jslib-common/abstractions/twoFactor.service";
-import { HashPurpose } from "jslib-common/enums/hashPurpose";
-import { PasswordLogInStrategy } from "jslib-common/misc/logInStrategies/passwordLogin.strategy";
-import { Utils } from "jslib-common/misc/utils";
-import { PasswordLogInCredentials } from "jslib-common/models/domain/logInCredentials";
-import { SymmetricCryptoKey } from "jslib-common/models/domain/symmetricCryptoKey";
+import { ApiService } from "@/jslib/common/src/abstractions/api.service";
+import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
+import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
+import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
+import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
+import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
+import { StateService } from "@/jslib/common/src/abstractions/state.service";
+import { TokenService } from "@/jslib/common/src/abstractions/token.service";
+import { TwoFactorService } from "@/jslib/common/src/abstractions/twoFactor.service";
+import { HashPurpose } from "@/jslib/common/src/enums/hashPurpose";
+import { PasswordLogInStrategy } from "@/jslib/common/src/misc/logInStrategies/passwordLogin.strategy";
+import { Utils } from "@/jslib/common/src/misc/utils";
+import { PasswordLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
+import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
 
 import { identityTokenResponseFactory } from "./logIn.strategy.spec";
 

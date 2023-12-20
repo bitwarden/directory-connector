@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 
-import { I18nService } from "jslib-common/abstractions/i18n.service";
-import { MasterPasswordPolicyOptions } from "jslib-common/models/domain/masterPasswordPolicyOptions";
+import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
+import { MasterPasswordPolicyOptions } from "@/jslib/common/src/models/domain/masterPasswordPolicyOptions";
 
 @Component({
   selector: "app-callout",

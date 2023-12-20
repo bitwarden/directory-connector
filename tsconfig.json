@@ -19,13 +19,10 @@
     "baseUrl": ".",
     "resolveJsonModule": true,
     "paths": {
-      "tldjs": ["jslib/src/misc/tldjs.noop"],
-      "jslib-common/*": ["jslib/common/src/*"],
-      "jslib-angular/*": ["jslib/angular/src/*"],
-      "jslib-electron/*": ["jslib/electron/src/*"],
-      "jslib-node/*": ["jslib/node/src/*"]
+      "tldjs": ["@/jslib/src/misc/tldjs.noop"],
+      "@/*": ["./*"]
     },
     "useDefineForClassFields": false
   },
-  "include": ["src", "src-cli"]
+  "include": ["src", "src-cli", "jslib"]
 }

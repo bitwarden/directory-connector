@@ -1,5 +1,5 @@
-import { SendTextData } from "jslib-common/models/data/sendTextData";
-import { SendText } from "jslib-common/models/domain/sendText";
+import { SendTextData } from "@/jslib/common/src/models/data/sendTextData";
+import { SendText } from "@/jslib/common/src/models/domain/sendText";
 
 import { mockEnc } from "../utils";
 
