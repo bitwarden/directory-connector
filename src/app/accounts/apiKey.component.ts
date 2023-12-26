@@ -24,7 +24,7 @@ export class ApiKeyComponent implements OnDestroy {
   @Input() clientId = "";
   @Input() clientSecret = "";
 
-  private destroyed$: Subject<void> = new Subject();
+  private modalClosed: Subject<void> = new Subject();
 
   formPromise: Promise<any>;
   successRoute = "/tabs/dashboard";
@@ -95,17 +95,23 @@ export class ApiKeyComponent implements OnDestroy {
       this.environmentModal
     );
 
-    childComponent.onSaved.pipe(takeUntil(this.destroyed$)).subscribe(() => {
+    modalRef.onClosed.pipe(takeUntil(this.modalClosed)).subscribe(() => {
+      this.modalClosed.next();
+      this.modalClosed.complete();
+    });
+
+    childComponent.onSaved.pipe(takeUntil(this.modalClosed)).subscribe(() => {
       modalRef.close();
     });
   }
+
   toggleSecret() {
     this.showSecret = !this.showSecret;
     document.getElementById("client_secret").focus();
   }
 
   ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
+    this.modalClosed.next();
+    this.modalClosed.complete();
   }
 }
