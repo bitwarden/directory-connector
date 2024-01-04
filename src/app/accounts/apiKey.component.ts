@@ -90,17 +90,13 @@ export class ApiKeyComponent implements OnDestroy {
   }
 
   async settings() {
-    const [modalRef, childComponent] = await this.modalService.openViewRef(
+    const [modalRef, childComponent] = await this.modalService.openViewRef<EnvironmentComponent>(
       EnvironmentComponent,
       this.environmentModal
     );
 
-    modalRef.onClosed.pipe(takeUntil(this.modalClosed)).subscribe(() => {
-      this.modalClosed.next();
-      this.modalClosed.complete();
-    });
-
-    childComponent.onSaved.pipe(takeUntil(this.modalClosed)).subscribe(() => {
+    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
+    childComponent.onSaved.pipe(takeUntil(modalRef.onClosed)).subscribe(() => {
       modalRef.close();
     });
   }
