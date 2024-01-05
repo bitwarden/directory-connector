@@ -1,4 +1,4 @@
-import Substitute from "@fluffy-spoon/substitute";
+import { Substitute } from "@fluffy-spoon/substitute";
 
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { Utils } from "@/jslib/common/src/misc/utils";

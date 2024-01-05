@@ -1,5 +1,6 @@
 import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
 import { Router } from "@angular/router";
+import { takeUntil } from "rxjs";
 
 import { ModalService } from "@/jslib/angular/src/services/modal.service";
 import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
@@ -17,6 +18,12 @@ import { EnvironmentComponent } from "./environment.component";
   selector: "app-apiKey",
   templateUrl: "apiKey.component.html",
 })
+// There is an eslint exception made here due to semantics.
+// The eslint rule expects a typical takeUntil() pattern involving component destruction.
+// The only subscription in this component is closed from a child component, confusing eslint.
+// https://github.com/cartant/eslint-plugin-rxjs-angular/blob/main/docs/rules/prefer-takeuntil.md
+//
+// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class ApiKeyComponent {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
   environmentModal: ViewContainerRef;
@@ -87,15 +94,17 @@ export class ApiKeyComponent {
   }
 
   async settings() {
-    const [modalRef, childComponent] = await this.modalService.openViewRef(
+    const [modalRef, childComponent] = await this.modalService.openViewRef<EnvironmentComponent>(
       EnvironmentComponent,
       this.environmentModal
     );
 
-    childComponent.onSaved.subscribe(() => {
+    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
+    childComponent.onSaved.pipe(takeUntil(modalRef.onClosed)).subscribe(() => {
       modalRef.close();
     });
   }
+
   toggleSecret() {
     this.showSecret = !this.showSecret;
     document.getElementById("client_secret").focus();

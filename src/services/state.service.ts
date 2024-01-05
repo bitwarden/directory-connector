@@ -561,10 +561,10 @@ export class StateService
 
   protected async pushAccounts(): Promise<void> {
     if (this.state?.accounts == null || Object.keys(this.state.accounts).length < 1) {
-      this.accounts.next(null);
+      this.accountsSubject.next(null);
       return;
     }
-    this.accounts.next(this.state.accounts);
+    this.accountsSubject.next(this.state.accounts);
   }
 
   protected async hasTemporaryStorage(): Promise<boolean> {

@@ -52,8 +52,11 @@ export class StateService<
   TAccount extends Account = Account
 > implements StateServiceAbstraction<TAccount>
 {
-  accounts = new BehaviorSubject<{ [userId: string]: TAccount }>({});
-  activeAccount = new BehaviorSubject<string>(null);
+  protected accountsSubject = new BehaviorSubject<{ [userId: string]: TAccount }>({});
+  accounts$ = this.accountsSubject.asObservable();
+
+  protected activeAccountSubject = new BehaviorSubject<string | null>(null);
+  activeAccount$ = this.activeAccountSubject.asObservable();
 
   protected state: State<TGlobalState, TAccount> = new State<TGlobalState, TAccount>(
     this.createGlobals()
@@ -100,7 +103,7 @@ export class StateService<
       this.state.activeUserId = storedActiveUser;
     }
     await this.pushAccounts();
-    this.activeAccount.next(this.state.activeUserId);
+    this.activeAccountSubject.next(this.state.activeUserId);
   }
 
   async syncAccountFromDisk(userId: string) {
@@ -120,14 +123,14 @@ export class StateService<
     await this.scaffoldNewAccountStorage(account);
     await this.setLastActive(new Date().getTime(), { userId: account.profile.userId });
     await this.setActiveUser(account.profile.userId);
-    this.activeAccount.next(account.profile.userId);
+    this.activeAccountSubject.next(account.profile.userId);
   }
 
   async setActiveUser(userId: string): Promise<void> {
     this.clearDecryptedDataForActiveUser();
     this.state.activeUserId = userId;
     await this.storageService.save(keys.activeUserId, userId);
-    this.activeAccount.next(this.state.activeUserId);
+    this.activeAccountSubject.next(this.state.activeUserId);
     await this.pushAccounts();
   }
 
@@ -2338,11 +2341,11 @@ export class StateService<
   protected async pushAccounts(): Promise<void> {
     await this.pruneInMemoryAccounts();
     if (this.state?.accounts == null || Object.keys(this.state.accounts).length < 1) {
-      this.accounts.next(null);
+      this.accountsSubject.next(null);
       return;
     }
 
-    this.accounts.next(this.state.accounts);
+    this.accountsSubject.next(this.state.accounts);
   }
 
   protected reconcileOptions(

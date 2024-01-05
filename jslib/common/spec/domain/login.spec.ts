@@ -1,4 +1,4 @@
-import Substitute, { Arg } from "@fluffy-spoon/substitute";
+import { Substitute, Arg } from "@fluffy-spoon/substitute";
 
 import { UriMatchType } from "@/jslib/common/src/enums/uriMatchType";
 import { LoginData } from "@/jslib/common/src/models/data/loginData";
