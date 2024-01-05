@@ -1,6 +1,6 @@
-import { Component, Input, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
+import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { takeUntil } from "rxjs";
 
 import { ModalService } from "@/jslib/angular/src/services/modal.service";
 import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
@@ -18,13 +18,17 @@ import { EnvironmentComponent } from "./environment.component";
   selector: "app-apiKey",
   templateUrl: "apiKey.component.html",
 })
-export class ApiKeyComponent implements OnDestroy {
+// There is an eslint exception made here due to semantics.
+// The eslint rule expects a typical takeUntil() pattern involving component destruction.
+// The only subscription in this component is closed from a child component, confusing eslint.
+// https://github.com/cartant/eslint-plugin-rxjs-angular/blob/main/docs/rules/prefer-takeuntil.md
+//
+// eslint-disable-next-line rxjs-angular/prefer-takeuntil
+export class ApiKeyComponent {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
   environmentModal: ViewContainerRef;
   @Input() clientId = "";
   @Input() clientSecret = "";
-
-  private modalClosed: Subject<void> = new Subject();
 
   formPromise: Promise<any>;
   successRoute = "/tabs/dashboard";
@@ -104,10 +108,5 @@ export class ApiKeyComponent implements OnDestroy {
   toggleSecret() {
     this.showSecret = !this.showSecret;
     document.getElementById("client_secret").focus();
-  }
-
-  ngOnDestroy(): void {
-    this.modalClosed.next();
-    this.modalClosed.complete();
   }
 }
