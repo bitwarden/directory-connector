@@ -16,18 +16,23 @@
       <strong *ngIf="!syncRunning" class="text-danger">{{ "stopped" | i18n }}</strong>
     </p>
     <form #startForm [appApiAction]="startPromise" class="d-inline">
-      <button (click)="start()" class="btn btn-primary" [disabled]="startForm.loading">
+      <button
+        type="button"
+        (click)="start()"
+        class="btn btn-primary"
+        [disabled]="startForm.loading"
+      >
         <i class="bwi bwi-play bwi-fw" [hidden]="startForm.loading"></i>
         <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!startForm.loading"></i>
         {{ "startSync" | i18n }}
       </button>
     </form>
-    <button (click)="stop()" class="btn btn-primary">
+    <button type="button" (click)="stop()" class="btn btn-primary">
       <i class="bwi bwi-stop bwi-fw"></i>
       {{ "stopSync" | i18n }}
     </button>
     <form #syncForm [appApiAction]="syncPromise" class="d-inline">
-      <button (click)="sync()" class="btn btn-primary" [disabled]="syncForm.loading">
+      <button type="button" (click)="sync()" class="btn btn-primary" [disabled]="syncForm.loading">
         <i class="bwi bwi-refresh bwi-fw" [ngClass]="{ 'bwi-spin': syncForm.loading }"></i>
         {{ "syncNow" | i18n }}
       </button>
@@ -39,7 +44,12 @@
   <div class="card-body">
     <p>{{ "testingDesc" | i18n }}</p>
     <form #simForm [appApiAction]="simPromise" class="d-inline">
-      <button (click)="simulate()" class="btn btn-primary" [disabled]="simForm.loading">
+      <button
+        type="button"
+        (click)="simulate()"
+        class="btn btn-primary"
+        [disabled]="simForm.loading"
+      >
         <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!simForm.loading"></i>
         <i class="bwi bwi-bug bwi-fw" [hidden]="simForm.loading"></i>
         {{ "testNow" | i18n }}

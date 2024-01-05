@@ -1,4 +1,4 @@
-import { Observable, Subject } from "rxjs";
+import { concatMap, distinctUntilChanged, Observable, Subject } from "rxjs";
 
 import {
   EnvironmentService as EnvironmentServiceAbstraction,
@@ -21,9 +21,15 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
   private keyConnectorUrl: string;
 
   constructor(private stateService: StateService) {
-    this.stateService.activeAccount.subscribe(async () => {
-      await this.setUrlsFromStorage();
-    });
+    this.stateService.activeAccount$
+      .pipe(
+        // Use == here to not trigger on undefined -> null transition
+        distinctUntilChanged((oldUserId: string, newUserId: string) => oldUserId == newUserId),
+        concatMap(async () => {
+          await this.setUrlsFromStorage();
+        })
+      )
+      .subscribe();
   }
 
   hasBaseUrl() {

@@ -1,4 +1,4 @@
-import Substitute, { Arg } from "@fluffy-spoon/substitute";
+import { Substitute, Arg } from "@fluffy-spoon/substitute";
 
 import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
 import { AttachmentData } from "@/jslib/common/src/models/data/attachmentData";

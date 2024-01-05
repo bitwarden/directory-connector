@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs";
+import { Observable } from "rxjs";
 
 import { KdfType } from "../enums/kdfType";
 import { ThemeType } from "../enums/themeType";
@@ -25,8 +25,8 @@ import { FolderView } from "../models/view/folderView";
 import { SendView } from "../models/view/sendView";
 
 export abstract class StateService<T extends Account = Account> {
-  accounts: BehaviorSubject<{ [userId: string]: T }>;
-  activeAccount: BehaviorSubject<string>;
+  accounts$: Observable<{ [userId: string]: T }>;
+  activeAccount$: Observable<string>;
 
   addAccount: (account: T) => Promise<void>;
   setActiveUser: (userId: string) => Promise<void>;
