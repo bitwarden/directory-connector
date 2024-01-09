@@ -151,7 +151,6 @@
   "dependencies": {
     "@angular/animations": "15.2.9",
     "@angular/cdk": "15.2.9",
-    "@angular/cli": "15.2.9",
     "@angular/common": "15.2.9",
     "@angular/compiler": "15.2.9",
     "@angular/core": "15.2.9",
