@@ -16,8 +16,6 @@ module.exports = {
       "jest-preset-angular",
       {
         ...defaultTransformerOptions,
-        // Jest does not use tsconfig.spec.json by default
-        tsconfig: "<rootDir>/tsconfig.spec.json",
         // Further workaround for memory leak, recommended here:
         // https://github.com/kulshekhar/ts-jest/issues/1967#issuecomment-697494014
         // Makes tests run faster and reduces size/rate of leak, but loses typechecking on test code
