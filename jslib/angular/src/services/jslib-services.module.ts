@@ -72,7 +72,6 @@ import { TwoFactorService } from "@/jslib/common/src/services/twoFactor.service"
 import { UserVerificationService } from "@/jslib/common/src/services/userVerification.service";
 import { UsernameGenerationService } from "@/jslib/common/src/services/usernameGeneration.service";
 import { VaultTimeoutService } from "@/jslib/common/src/services/vaultTimeout.service";
-import { WebCryptoFunctionService } from "@/jslib/common/src/services/webCryptoFunction.service";
 
 import { AuthGuardService } from "./auth-guard.service";
 import { BroadcasterService } from "./broadcaster.service";
@@ -419,11 +418,6 @@ import { ValidationService } from "./validation.service";
         LogService,
         StateServiceAbstraction,
       ],
-    },
-    {
-      provide: CryptoFunctionServiceAbstraction,
-      useClass: WebCryptoFunctionService,
-      deps: ["WINDOW"],
     },
     {
       provide: EventServiceAbstraction,
