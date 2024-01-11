@@ -44,5 +44,11 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      # We use isolatedModules: true which disables typechecking in tests
+      # Tests in apps/ are typechecked when their app is built, so we just do it here for libs/
+      # See https://bitwarden.atlassian.net/browse/EC-497
+      - name: Run typechecking
+        run: npm run test:types --coverage
+
       - name: Run tests
         run: npm run test

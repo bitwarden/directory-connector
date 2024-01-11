@@ -66,7 +66,8 @@
     "prepare": "husky install",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:watch:all": "jest --watchAll"
+    "test:watch:all": "jest --watchAll",
+    "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "15.2.9",
