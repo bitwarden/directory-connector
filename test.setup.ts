@@ -27,7 +27,3 @@ Object.defineProperty(document.body.style, "transform", {
 Object.defineProperty(window, "crypto", {
   value: webcrypto,
 });
-
-Object.defineProperty(window, "crypto", {
-  value: webcrypto,
-});
