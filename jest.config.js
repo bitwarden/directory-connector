@@ -28,9 +28,6 @@ module.exports = {
         ...defaultTransformerOptions,
         isolatedModules: true,
         tsconfig: "./tsconfig.json",
-        astTransformers: {
-          before: ["./es2020-transformer.ts"],
-        },
       },
     ],
   },
