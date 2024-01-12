@@ -134,7 +134,6 @@
     "ts-loader": "9.4.4",
     "ts-node": "10.9.1",
     "tsconfig-paths-webpack-plugin": "4.1.0",
-    "typemoq": "2.1.0",
     "typescript": "4.9.5",
     "typescript-transform-paths": "2.2.4",
     "webpack": "5.88.2",
