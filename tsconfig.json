@@ -19,10 +19,10 @@
     "baseUrl": ".",
     "resolveJsonModule": true,
     "paths": {
-      "tldjs": ["@/jslib/src/misc/tldjs.noop"],
+      "tldjs": ["./jslib/common/src/misc/tldjs.noop"],
       "@/*": ["./*"]
     },
     "useDefineForClassFields": false
   },
-  "include": ["src", "src-cli", "jslib"]
+  "include": ["src", "jslib"]
 }
