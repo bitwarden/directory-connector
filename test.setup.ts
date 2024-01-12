@@ -1,4 +1,5 @@
 import { webcrypto } from "crypto";
+
 import "jest-preset-angular/setup-jest";
 
 Object.defineProperty(window, "CSS", { value: null });
