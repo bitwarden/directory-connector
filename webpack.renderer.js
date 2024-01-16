@@ -96,7 +96,6 @@ const renderer = {
             },
           },
           "css-loader",
-          "sass-loader",
           {
             loader: "sass-loader",
             options: {
