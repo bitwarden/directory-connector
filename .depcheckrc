@@ -1,0 +1,1 @@
+ignores: ["*-loader", "webpack-cli", "@types/jest"]
