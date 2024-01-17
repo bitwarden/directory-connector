@@ -11,7 +11,6 @@ import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/ab
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/common/src/abstractions/environment.service";
 import { EventService as EventServiceAbstraction } from "@/jslib/common/src/abstractions/event.service";
-import { ExportService as ExportServiceAbstraction } from "@/jslib/common/src/abstractions/export.service";
 import { FileUploadService as FileUploadServiceAbstraction } from "@/jslib/common/src/abstractions/fileUpload.service";
 import { FolderService as FolderServiceAbstraction } from "@/jslib/common/src/abstractions/folder.service";
 import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstractions/i18n.service";
@@ -51,7 +50,6 @@ import { ConsoleLogService } from "@/jslib/common/src/services/consoleLog.servic
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
 import { EventService } from "@/jslib/common/src/services/event.service";
-import { ExportService } from "@/jslib/common/src/services/export.service";
 import { FileUploadService } from "@/jslib/common/src/services/fileUpload.service";
 import { FolderService } from "@/jslib/common/src/services/folder.service";
 import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.service";
@@ -370,16 +368,6 @@ import { ValidationService } from "./validation.service";
           new StateFactory(GlobalState, Account)
         ),
       deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
-    },
-    {
-      provide: ExportServiceAbstraction,
-      useClass: ExportService,
-      deps: [
-        FolderServiceAbstraction,
-        CipherServiceAbstraction,
-        ApiServiceAbstraction,
-        CryptoServiceAbstraction,
-      ],
     },
     {
       provide: SearchServiceAbstraction,
