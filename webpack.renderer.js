@@ -96,7 +96,12 @@ const renderer = {
             },
           },
           "css-loader",
-          "sass-loader",
+          {
+            loader: "sass-loader",
+            options: {
+              implementation: require("sass"),
+            },
+          },
         ],
       },
       // Hide System.import warnings. ref: https://github.com/angular/angular/issues/21560
