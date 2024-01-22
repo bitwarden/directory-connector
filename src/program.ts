@@ -1,7 +1,7 @@
 import * as path from "path";
 
 import * as chalk from "chalk";
-import * as program from "commander";
+import { Command, OptionValues } from "commander";
 
 import { Utils } from "@/jslib/common/src/misc/utils";
 import { BaseProgram } from "@/jslib/node/src/cli/baseProgram";
@@ -33,7 +33,7 @@ export class Program extends BaseProgram {
   }
 
   async run() {
-    program
+    const program = new Command()
       .option("--pretty", "Format output. JSON is tabbed with two spaces.")
       .option("--raw", "Return raw output instead of a descriptive message.")
       .option("--response", "Return a JSON formatted version of response output.")
@@ -90,7 +90,7 @@ export class Program extends BaseProgram {
         clientId: "Client_id part of your organization's API key",
         clientSecret: "Client_secret part of your organization's API key",
       })
-      .action(async (clientId: string, clientSecret: string, options: program.OptionValues) => {
+      .action(async (clientId: string, clientSecret: string, options: OptionValues) => {
         await this.exitIfAuthed();
         const command = new LoginCommand(
           this.main.authService,
@@ -104,7 +104,7 @@ export class Program extends BaseProgram {
           this.main.cryptoService,
           this.main.policyService,
           this.main.twoFactorService,
-          "connector"
+          "connector",
         );
 
         if (!Utils.isNullOrWhitespace(clientId)) {
@@ -133,7 +133,7 @@ export class Program extends BaseProgram {
         const command = new LogoutCommand(
           this.main.authService,
           this.main.i18nService,
-          async () => await this.main.logout()
+          async () => await this.main.logout(),
         );
         const response = await command.run();
         this.processResponse(response);
@@ -150,7 +150,7 @@ export class Program extends BaseProgram {
         writeLn("    bwdc test --last");
         writeLn("", true);
       })
-      .action(async (options: program.OptionValues) => {
+      .action(async (options: OptionValues) => {
         await this.exitIfNotAuthed();
         const command = new TestCommand(this.main.syncService, this.main.i18nService);
         const response = await command.run(options);
@@ -223,11 +223,11 @@ export class Program extends BaseProgram {
         writeLn("    bwdc config onelogin.secret <secret>");
         writeLn("", true);
       })
-      .action(async (setting: string, value: string, options: program.OptionValues) => {
+      .action(async (setting: string, value: string, options: OptionValues) => {
         const command = new ConfigCommand(
           this.main.environmentService,
           this.main.i18nService,
-          this.main.stateService
+          this.main.stateService,
         );
         const response = await command.run(setting, value, options);
         this.processResponse(response);
@@ -244,7 +244,7 @@ export class Program extends BaseProgram {
       })
       .action(() => {
         this.processResponse(
-          Response.success(new StringResponse(path.join(this.main.dataFilePath, "data.json")))
+          Response.success(new StringResponse(path.join(this.main.dataFilePath, "data.json"))),
         );
       });
 
@@ -257,7 +257,7 @@ export class Program extends BaseProgram {
         writeLn("    bwdc clear-cache");
         writeLn("", true);
       })
-      .action(async (options: program.OptionValues) => {
+      .action(async (options: OptionValues) => {
         const command = new ClearCacheCommand(this.main.i18nService, this.main.stateService);
         const response = await command.run(options);
         this.processResponse(response);
@@ -285,7 +285,7 @@ export class Program extends BaseProgram {
           this.main.i18nService,
           "directory-connector",
           "bwdc",
-          false
+          false,
         );
         const response = await command.run();
         this.processResponse(response);
@@ -305,7 +305,7 @@ export class Program extends BaseProgram {
       const id = await this.stateService.getEntityId();
       this.processResponse(
         Response.error("You are already logged in as " + type + "." + id + "."),
-        true
+        true,
       );
     }
   }
