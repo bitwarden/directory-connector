@@ -205,7 +205,7 @@ export class LoginCommand {
             selectedProvider = twoFactorProviders[0];
           } else if (this.canInteract) {
             const twoFactorOptions: (string | Separator)[] = twoFactorProviders.map((p) => p.name);
-            twoFactorOptions.push(new inquirer.Separator());
+            twoFactorOptions.push(new inquirer.default.Separator());
             twoFactorOptions.push("Cancel");
             const answer: inquirer.Answers = await inquirer.createPromptModule({
               output: process.stderr,
