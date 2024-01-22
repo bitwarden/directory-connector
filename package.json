@@ -127,7 +127,7 @@
     "prettier": "3.2.2",
     "rxjs": "7.8.1",
     "sass": "1.69.7",
-    "sass-loader": "12.6.0",
+    "sass-loader": "14.0.0",
     "ts-jest": "29.1.1",
     "ts-loader": "9.5.1",
     "tsconfig-paths-webpack-plugin": "4.1.0",
