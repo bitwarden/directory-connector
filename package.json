@@ -70,7 +70,7 @@
     "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "15.2.9",
+    "@angular-devkit/build-angular": "15.2.10",
     "@angular-eslint/eslint-plugin-template": "17.1.1",
     "@angular-eslint/template-parser": "17.1.1",
     "@angular/compiler-cli": "15.2.9",
