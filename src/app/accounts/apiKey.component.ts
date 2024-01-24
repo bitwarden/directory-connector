@@ -41,7 +41,7 @@ export class ApiKeyComponent {
     private platformUtilsService: PlatformUtilsService,
     private modalService: ModalService,
     private logService: LogService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async submit() {
@@ -49,7 +49,7 @@ export class ApiKeyComponent {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("clientIdRequired")
+        this.i18nService.t("clientIdRequired"),
       );
       return;
     }
@@ -57,7 +57,7 @@ export class ApiKeyComponent {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("orgApiKeyRequired")
+        this.i18nService.t("orgApiKeyRequired"),
       );
       return;
     }
@@ -65,7 +65,7 @@ export class ApiKeyComponent {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("clientSecretRequired")
+        this.i18nService.t("clientSecretRequired"),
       );
       return;
     }
@@ -75,14 +75,14 @@ export class ApiKeyComponent {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("invalidClientId")
+        this.i18nService.t("invalidClientId"),
       );
       return;
     }
 
     try {
       this.formPromise = this.authService.logIn(
-        new ApiLogInCredentials(this.clientId, this.clientSecret)
+        new ApiLogInCredentials(this.clientId, this.clientSecret),
       );
       await this.formPromise;
       const organizationId = await this.stateService.getEntityId();
@@ -96,7 +96,7 @@ export class ApiKeyComponent {
   async settings() {
     const [modalRef, childComponent] = await this.modalService.openViewRef<EnvironmentComponent>(
       EnvironmentComponent,
-      this.environmentModal
+      this.environmentModal,
     );
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil

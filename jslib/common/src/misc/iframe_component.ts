@@ -10,7 +10,7 @@ export abstract class IFrameComponent {
     private iframeId: string,
     public successCallback?: (message: string) => any,
     public errorCallback?: (message: string) => any,
-    public infoCallback?: (message: string) => any
+    public infoCallback?: (message: string) => any,
   ) {
     this.connectorLink = win.document.createElement("a");
   }
@@ -35,7 +35,7 @@ export abstract class IFrameComponent {
     return btoa(
       encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
         return String.fromCharCode(("0x" + p1) as any);
-      })
+      }),
     );
   }
 

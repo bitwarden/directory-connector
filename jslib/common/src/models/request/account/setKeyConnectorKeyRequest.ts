@@ -13,7 +13,7 @@ export class SetKeyConnectorKeyRequest {
     kdf: KdfType,
     kdfIterations: number,
     orgIdentifier: string,
-    keys: KeysRequest
+    keys: KeysRequest,
   ) {
     this.key = key;
     this.kdf = kdf;

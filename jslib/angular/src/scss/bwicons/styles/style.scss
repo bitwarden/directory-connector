@@ -4,7 +4,8 @@ $icomoon-font-path: "/jslib/angular/src/scss/bwicons/fonts/" !default;
 // New font sheet? Update the font-face information below
 @font-face {
   font-family: "#{$icomoon-font-family}";
-  src: url($icomoon-font-path + "bwi-font.svg") format("svg"),
+  src:
+    url($icomoon-font-path + "bwi-font.svg") format("svg"),
     url($icomoon-font-path + "bwi-font.ttf") format("truetype"),
     url($icomoon-font-path + "bwi-font.woff") format("woff"),
     url($icomoon-font-path + "bwi-font.woff2") format("woff2");

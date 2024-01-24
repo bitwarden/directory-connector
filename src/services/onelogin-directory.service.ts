@@ -23,7 +23,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {
     super();
   }
@@ -35,7 +35,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
     }
 
     this.dirConfig = await this.stateService.getDirectory<OneLoginConfiguration>(
-      DirectoryType.OneLogin
+      DirectoryType.OneLogin,
     );
     if (this.dirConfig == null) {
       return;
@@ -110,7 +110,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
 
   private async getGroups(
     force: boolean,
-    setFilter: [boolean, Set<string>]
+    setFilter: [boolean, Set<string>],
   ): Promise<GroupEntry[]> {
     const entries: GroupEntry[] = [];
     const query = this.createDirectoryQuery(this.syncConfig.groupFilter);
@@ -156,7 +156,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
         body: JSON.stringify({
           grant_type: "client_credentials",
         }),
-      }
+      },
     );
     if (response.status === 200) {
       const responseJson = await response.json();

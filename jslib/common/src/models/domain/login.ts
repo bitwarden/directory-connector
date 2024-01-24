@@ -31,7 +31,7 @@ export class Login extends Domain {
         password: null,
         totp: null,
       },
-      []
+      [],
     );
 
     if (obj.uris) {
@@ -51,7 +51,7 @@ export class Login extends Domain {
         totp: null,
       },
       orgId,
-      encKey
+      encKey,
     );
 
     if (this.uris != null) {

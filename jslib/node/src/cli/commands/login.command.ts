@@ -55,7 +55,7 @@ export class LoginCommand {
     protected cryptoService: CryptoService,
     protected policyService: PolicyService,
     protected twoFactorService: TwoFactorService,
-    clientId: string
+    clientId: string,
   ) {
     this.clientId = clientId;
   }
@@ -167,12 +167,12 @@ export class LoginCommand {
             ssoCodeVerifier,
             this.ssoRedirectUri,
             orgIdentifier,
-            twoFactor
-          )
+            twoFactor,
+          ),
         );
       } else {
         response = await this.authService.logIn(
-          new PasswordLogInCredentials(email, password, null, twoFactor)
+          new PasswordLogInCredentials(email, password, null, twoFactor),
         );
       }
       if (response.captchaSiteKey) {
@@ -255,7 +255,7 @@ export class LoginCommand {
 
         response = await this.authService.logInTwoFactor(
           new TokenRequestTwoFactor(selectedProvider.type, twoFactorToken),
-          null
+          null,
         );
       }
 
@@ -278,7 +278,7 @@ export class LoginCommand {
       if (response.resetMasterPassword) {
         return Response.error(
           "In order to log in with SSO from the CLI, you must first log in" +
-            " through the web vault to set your master password."
+            " through the web vault to set your master password.",
         );
       }
 
@@ -313,8 +313,8 @@ export class LoginCommand {
       return Response.error(
         new MessageResponse(
           "An organization administrator recently changed your master password. In order to access the vault, you must update your master password now via the web vault. You have been logged out.",
-          null
-        )
+          null,
+        ),
       );
     }
 
@@ -346,7 +346,7 @@ export class LoginCommand {
     // Strength & Policy Validation
     const strengthResult = this.passwordGenerationService.passwordStrength(
       masterPassword,
-      this.getPasswordStrengthUserInput()
+      this.getPasswordStrengthUserInput(),
     );
 
     // Get New Master Password Re-type
@@ -381,11 +381,11 @@ export class LoginCommand {
       !this.policyService.evaluateMasterPassword(
         strengthResult.score,
         masterPassword,
-        enforcedPolicyOptions
+        enforcedPolicyOptions,
       )
     ) {
       return this.updateTempPassword(
-        "Your new master password does not meet the policy requirements.\n"
+        "Your new master password does not meet the policy requirements.\n",
       );
     }
 
@@ -395,7 +395,7 @@ export class LoginCommand {
         masterPassword,
         this.email.trim().toLowerCase(),
         kdf,
-        kdfIterations
+        kdfIterations,
       );
       const newPasswordHash = await this.cryptoService.hashPassword(masterPassword, newKey);
 
@@ -425,12 +425,12 @@ export class LoginCommand {
 
   private async handleCaptchaRequired(
     twoFactorRequest: TokenRequestTwoFactor,
-    credentials: PasswordLogInCredentials = null
+    credentials: PasswordLogInCredentials = null,
   ): Promise<AuthResult | Response> {
     const badCaptcha = Response.badRequest(
       "Your authentication request has been flagged and will require user interaction to proceed.\n" +
         "Please use your API key to validate this request and ensure BW_CLIENTSECRET is correct, if set.\n" +
-        "(https://bitwarden.com/help/cli-auth-challenges)"
+        "(https://bitwarden.com/help/cli-auth-challenges)",
     );
 
     try {
@@ -447,7 +447,7 @@ export class LoginCommand {
       } else {
         authResultResponse = await this.authService.logInTwoFactor(
           twoFactorRequest,
-          captchaClientSecret
+          captchaClientSecret,
         );
       }
 
@@ -474,7 +474,7 @@ export class LoginCommand {
           .substr(0, atPosition)
           .trim()
           .toLowerCase()
-          .split(/[^A-Za-z0-9]/)
+          .split(/[^A-Za-z0-9]/),
       );
     }
     return userInput;
@@ -535,7 +535,7 @@ export class LoginCommand {
 
   private async openSsoPrompt(
     codeChallenge: string,
-    state: string
+    state: string,
   ): Promise<{ ssoCode: string; orgIdentifier: string }> {
     return new Promise((resolve, reject) => {
       const callbackServer = http.createServer((req, res) => {
@@ -551,13 +551,13 @@ export class LoginCommand {
             "<html><head><title>Success | Bitwarden CLI</title></head><body>" +
               "<h1>Successfully authenticated with the Bitwarden CLI</h1>" +
               "<p>You may now close this tab and return to the terminal.</p>" +
-              "</body></html>"
+              "</body></html>",
           );
           callbackServer.close(() =>
             resolve({
               ssoCode: code,
               orgIdentifier: orgIdentifier,
-            })
+            }),
           );
         } else {
           res.writeHead(400);
@@ -565,7 +565,7 @@ export class LoginCommand {
             "<html><head><title>Failed | Bitwarden CLI</title></head><body>" +
               "<h1>Something went wrong logging into the Bitwarden CLI</h1>" +
               "<p>You may now close this tab and return to the terminal.</p>" +
-              "</body></html>"
+              "</body></html>",
           );
           callbackServer.close(() => reject());
         }
@@ -585,7 +585,7 @@ export class LoginCommand {
                 "&state=" +
                 state +
                 "&codeChallenge=" +
-                codeChallenge
+                codeChallenge,
             );
           });
           foundPort = true;

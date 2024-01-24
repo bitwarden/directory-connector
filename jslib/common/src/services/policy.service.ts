@@ -19,7 +19,7 @@ export class PolicyService implements PolicyServiceAbstraction {
   constructor(
     private stateService: StateService,
     private organizationService: OrganizationService,
-    private apiService: ApiService
+    private apiService: ApiService,
   ) {}
 
   async clearCache(): Promise<void> {
@@ -76,7 +76,7 @@ export class PolicyService implements PolicyServiceAbstraction {
   }
 
   async getMasterPasswordPoliciesForInvitedUsers(
-    orgId: string
+    orgId: string,
   ): Promise<MasterPasswordPolicyOptions> {
     const userId = await this.stateService.getUserId();
     const response = await this.apiService.getPoliciesByInvitedUser(orgId, userId);
@@ -143,7 +143,7 @@ export class PolicyService implements PolicyServiceAbstraction {
   evaluateMasterPassword(
     passwordStrength: number,
     newPassword: string,
-    enforcedPolicyOptions: MasterPasswordPolicyOptions
+    enforcedPolicyOptions: MasterPasswordPolicyOptions,
   ): boolean {
     if (enforcedPolicyOptions == null) {
       return true;
@@ -185,7 +185,7 @@ export class PolicyService implements PolicyServiceAbstraction {
 
   getResetPasswordPolicyOptions(
     policies: Policy[],
-    orgId: string
+    orgId: string,
   ): [ResetPasswordPolicyOptions, boolean] {
     const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
 
@@ -194,7 +194,7 @@ export class PolicyService implements PolicyServiceAbstraction {
     }
 
     const policy = policies.find(
-      (p) => p.organizationId === orgId && p.type === PolicyType.ResetPassword && p.enabled
+      (p) => p.organizationId === orgId && p.type === PolicyType.ResetPassword && p.enabled,
     );
     resetPasswordPolicyOptions.autoEnrollEnabled = policy?.data?.autoEnrollEnabled ?? false;
 
@@ -213,7 +213,7 @@ export class PolicyService implements PolicyServiceAbstraction {
   async policyAppliesToUser(
     policyType: PolicyType,
     policyFilter?: (policy: Policy) => boolean,
-    userId?: string
+    userId?: string,
   ) {
     const policies = await this.getAll(policyType, userId);
     const organizations = await this.organizationService.getAll(userId);
@@ -233,7 +233,7 @@ export class PolicyService implements PolicyServiceAbstraction {
         o.status >= OrganizationUserStatusType.Accepted &&
         o.usePolicies &&
         !this.isExcemptFromPolicies(o, policyType) &&
-        policySet.has(o.id)
+        policySet.has(o.id),
     );
   }
 

@@ -13,7 +13,7 @@ export class BoxRowDirective implements OnInit {
 
   ngOnInit(): void {
     this.formEls = Array.from(
-      this.el.querySelectorAll('input:not([type="hidden"]), select, textarea')
+      this.el.querySelectorAll('input:not([type="hidden"]), select, textarea'),
     );
     this.formEls.forEach((formEl) => {
       formEl.addEventListener(
@@ -21,7 +21,7 @@ export class BoxRowDirective implements OnInit {
         () => {
           this.el.classList.add("active");
         },
-        false
+        false,
       );
 
       formEl.addEventListener(
@@ -29,7 +29,7 @@ export class BoxRowDirective implements OnInit {
         () => {
           this.el.classList.remove("active");
         },
-        false
+        false,
       );
     });
   }

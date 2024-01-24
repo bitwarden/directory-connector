@@ -26,7 +26,7 @@ export class SendFile extends Domain {
         sizeName: null,
         fileName: null,
       },
-      ["id", "sizeName"]
+      ["id", "sizeName"],
     );
   }
 
@@ -37,7 +37,7 @@ export class SendFile extends Domain {
         fileName: null,
       },
       null,
-      key
+      key,
     );
     return view;
   }

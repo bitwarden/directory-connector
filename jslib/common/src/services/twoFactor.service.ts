@@ -65,7 +65,7 @@ export class TwoFactorService implements TwoFactorServiceAbstraction {
 
   constructor(
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService
+    private platformUtilsService: PlatformUtilsService,
   ) {}
 
   init() {

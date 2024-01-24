@@ -12,7 +12,7 @@ export class PasswordTokenRequest extends TokenRequest implements CaptchaProtect
     public masterPasswordHash: string,
     public captchaResponse: string,
     protected twoFactor: TokenRequestTwoFactor,
-    device?: DeviceRequest
+    device?: DeviceRequest,
   ) {
     super(twoFactor, device);
   }

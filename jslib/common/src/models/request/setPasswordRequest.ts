@@ -18,7 +18,7 @@ export class SetPasswordRequest {
     kdf: KdfType,
     kdfIterations: number,
     orgIdentifier: string,
-    keys: KeysRequest
+    keys: KeysRequest,
   ) {
     this.masterPasswordHash = masterPasswordHash;
     this.key = key;

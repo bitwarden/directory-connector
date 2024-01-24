@@ -15,7 +15,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   constructor(
     private cryptoService: CryptoService,
     private i18nService: I18nService,
-    private apiService: ApiService
+    private apiService: ApiService,
   ) {}
 
   /**
@@ -27,7 +27,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   async buildRequest<T extends SecretVerificationRequest>(
     verification: Verification,
     requestClass?: new () => T,
-    alreadyHashed?: boolean
+    alreadyHashed?: boolean,
   ) {
     this.validateInput(verification);
 
@@ -63,7 +63,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     } else {
       const passwordValid = await this.cryptoService.compareAndUpdateKeyHash(
         verification.secret,
-        null
+        null,
       );
       if (!passwordValid) {
         throw new Error(this.i18nService.t("invalidMasterPassword"));

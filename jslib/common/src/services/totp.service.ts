@@ -11,7 +11,7 @@ export class TotpService implements TotpServiceAbstraction {
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
     private logService: LogService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async getCode(key: string): Promise<string> {
@@ -166,7 +166,7 @@ export class TotpService implements TotpServiceAbstraction {
   private async sign(
     keyBytes: Uint8Array,
     timeBytes: Uint8Array,
-    alg: "sha1" | "sha256" | "sha512"
+    alg: "sha1" | "sha256" | "sha512",
   ) {
     const signature = await this.cryptoFunctionService.hmac(timeBytes.buffer, keyBytes.buffer, alg);
     return new Uint8Array(signature);

@@ -169,7 +169,7 @@ import { SendAccessView } from "../models/view/sendAccessView";
 
 export abstract class ApiService {
   postIdentityToken: (
-    request: PasswordTokenRequest | SsoTokenRequest | ApiTokenRequest
+    request: PasswordTokenRequest | SsoTokenRequest | ApiTokenRequest,
   ) => Promise<IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse>;
   refreshIdentityToken: () => Promise<any>;
 
@@ -221,7 +221,7 @@ export abstract class ApiService {
   postSendAccess: (
     id: string,
     request: SendAccessRequest,
-    apiUrl?: string
+    apiUrl?: string,
   ) => Promise<SendAccessResponse>;
   getSends: () => Promise<ListResponse<SendResponse>>;
   postSend: (request: SendRequest) => Promise<SendResponse>;
@@ -238,7 +238,7 @@ export abstract class ApiService {
   getSendFileDownloadData: (
     send: SendAccessView,
     request: SendAccessRequest,
-    apiUrl?: string
+    apiUrl?: string,
   ) => Promise<SendFileDownloadDataResponse>;
   renewSendFileUploadUrl: (sendId: string, fileId: string) => Promise<SendFileUploadDataResponse>;
 
@@ -247,7 +247,7 @@ export abstract class ApiService {
   getAttachmentData: (
     cipherId: string,
     attachmentId: string,
-    emergencyAccessId?: string
+    emergencyAccessId?: string,
   ) => Promise<AttachmentResponse>;
   getCiphersOrganization: (organizationId: string) => Promise<ListResponse<CipherResponse>>;
   postCipher: (request: CipherRequest) => Promise<CipherResponse>;
@@ -268,7 +268,7 @@ export abstract class ApiService {
   postImportCiphers: (request: ImportCiphersRequest) => Promise<any>;
   postImportOrganizationCiphers: (
     organizationId: string,
-    request: ImportOrganizationCiphersRequest
+    request: ImportOrganizationCiphersRequest,
   ) => Promise<any>;
   putDeleteCipher: (id: string) => Promise<any>;
   putDeleteCipherAdmin: (id: string) => Promise<any>;
@@ -277,7 +277,7 @@ export abstract class ApiService {
   putRestoreCipher: (id: string) => Promise<CipherResponse>;
   putRestoreCipherAdmin: (id: string) => Promise<CipherResponse>;
   putRestoreManyCiphers: (
-    request: CipherBulkRestoreRequest
+    request: CipherBulkRestoreRequest,
   ) => Promise<ListResponse<CipherResponse>>;
 
   /**
@@ -292,7 +292,7 @@ export abstract class ApiService {
   postCipherAttachmentAdminLegacy: (id: string, data: FormData) => Promise<CipherResponse>;
   postCipherAttachment: (
     id: string,
-    request: AttachmentRequest
+    request: AttachmentRequest,
   ) => Promise<AttachmentUploadDataResponse>;
   deleteCipherAttachment: (id: string, attachmentId: string) => Promise<any>;
   deleteCipherAttachmentAdmin: (id: string, attachmentId: string) => Promise<any>;
@@ -300,40 +300,40 @@ export abstract class ApiService {
     id: string,
     attachmentId: string,
     data: FormData,
-    organizationId: string
+    organizationId: string,
   ) => Promise<any>;
   renewAttachmentUploadUrl: (
     id: string,
-    attachmentId: string
+    attachmentId: string,
   ) => Promise<AttachmentUploadDataResponse>;
   postAttachmentFile: (id: string, attachmentId: string, data: FormData) => Promise<any>;
 
   getCollectionDetails: (
     organizationId: string,
-    id: string
+    id: string,
   ) => Promise<CollectionGroupDetailsResponse>;
   getUserCollections: () => Promise<ListResponse<CollectionResponse>>;
   getCollections: (organizationId: string) => Promise<ListResponse<CollectionResponse>>;
   getCollectionUsers: (organizationId: string, id: string) => Promise<SelectionReadOnlyResponse[]>;
   postCollection: (
     organizationId: string,
-    request: CollectionRequest
+    request: CollectionRequest,
   ) => Promise<CollectionResponse>;
   putCollectionUsers: (
     organizationId: string,
     id: string,
-    request: SelectionReadOnlyRequest[]
+    request: SelectionReadOnlyRequest[],
   ) => Promise<any>;
   putCollection: (
     organizationId: string,
     id: string,
-    request: CollectionRequest
+    request: CollectionRequest,
   ) => Promise<CollectionResponse>;
   deleteCollection: (organizationId: string, id: string) => Promise<any>;
   deleteCollectionUser: (
     organizationId: string,
     id: string,
-    organizationUserId: string
+    organizationUserId: string,
   ) => Promise<any>;
 
   getGroupDetails: (organizationId: string, id: string) => Promise<GroupDetailsResponse>;
@@ -351,82 +351,82 @@ export abstract class ApiService {
     organizationId: string,
     token: string,
     email: string,
-    organizationUserId: string
+    organizationUserId: string,
   ) => Promise<ListResponse<PolicyResponse>>;
   getPoliciesByInvitedUser: (
     organizationId: string,
-    userId: string
+    userId: string,
   ) => Promise<ListResponse<PolicyResponse>>;
   putPolicy: (
     organizationId: string,
     type: PolicyType,
-    request: PolicyRequest
+    request: PolicyRequest,
   ) => Promise<PolicyResponse>;
 
   getOrganizationUser: (
     organizationId: string,
-    id: string
+    id: string,
   ) => Promise<OrganizationUserDetailsResponse>;
   getOrganizationUserGroups: (organizationId: string, id: string) => Promise<string[]>;
   getOrganizationUsers: (
-    organizationId: string
+    organizationId: string,
   ) => Promise<ListResponse<OrganizationUserUserDetailsResponse>>;
   getOrganizationUserResetPasswordDetails: (
     organizationId: string,
-    id: string
+    id: string,
   ) => Promise<OrganizationUserResetPasswordDetailsReponse>;
   postOrganizationUserInvite: (
     organizationId: string,
-    request: OrganizationUserInviteRequest
+    request: OrganizationUserInviteRequest,
   ) => Promise<any>;
   postOrganizationUserReinvite: (organizationId: string, id: string) => Promise<any>;
   postManyOrganizationUserReinvite: (
     organizationId: string,
-    request: OrganizationUserBulkRequest
+    request: OrganizationUserBulkRequest,
   ) => Promise<ListResponse<OrganizationUserBulkResponse>>;
   postOrganizationUserAccept: (
     organizationId: string,
     id: string,
-    request: OrganizationUserAcceptRequest
+    request: OrganizationUserAcceptRequest,
   ) => Promise<any>;
   postOrganizationUserConfirm: (
     organizationId: string,
     id: string,
-    request: OrganizationUserConfirmRequest
+    request: OrganizationUserConfirmRequest,
   ) => Promise<any>;
   postOrganizationUsersPublicKey: (
     organizationId: string,
-    request: OrganizationUserBulkRequest
+    request: OrganizationUserBulkRequest,
   ) => Promise<ListResponse<OrganizationUserBulkPublicKeyResponse>>;
   postOrganizationUserBulkConfirm: (
     organizationId: string,
-    request: OrganizationUserBulkConfirmRequest
+    request: OrganizationUserBulkConfirmRequest,
   ) => Promise<ListResponse<OrganizationUserBulkResponse>>;
 
   putOrganizationUser: (
     organizationId: string,
     id: string,
-    request: OrganizationUserUpdateRequest
+    request: OrganizationUserUpdateRequest,
   ) => Promise<any>;
   putOrganizationUserGroups: (
     organizationId: string,
     id: string,
-    request: OrganizationUserUpdateGroupsRequest
+    request: OrganizationUserUpdateGroupsRequest,
   ) => Promise<any>;
   putOrganizationUserResetPasswordEnrollment: (
     organizationId: string,
     userId: string,
-    request: OrganizationUserResetPasswordEnrollmentRequest
+    request: OrganizationUserResetPasswordEnrollmentRequest,
   ) => Promise<any>;
   putOrganizationUserResetPassword: (
     organizationId: string,
     id: string,
-    request: OrganizationUserResetPasswordRequest
+    request: OrganizationUserResetPasswordRequest,
   ) => Promise<any>;
   deleteOrganizationUser: (organizationId: string, id: string) => Promise<any>;
   deleteManyOrganizationUsers: (
     organizationId: string,
-    request: OrganizationUserBulkRequest
+    request: OrganizationUserBulkRequest,
   ) => Promise<ListResponse<OrganizationUserBulkResponse>>;
 
   getSync: () => Promise<SyncResponse>;
@@ -438,43 +438,43 @@ export abstract class ApiService {
 
   getTwoFactorProviders: () => Promise<ListResponse<TwoFactorProviderResponse>>;
   getTwoFactorOrganizationProviders: (
-    organizationId: string
+    organizationId: string,
   ) => Promise<ListResponse<TwoFactorProviderResponse>>;
   getTwoFactorAuthenticator: (
-    request: SecretVerificationRequest
+    request: SecretVerificationRequest,
   ) => Promise<TwoFactorAuthenticatorResponse>;
   getTwoFactorEmail: (request: SecretVerificationRequest) => Promise<TwoFactorEmailResponse>;
   getTwoFactorDuo: (request: SecretVerificationRequest) => Promise<TwoFactorDuoResponse>;
   getTwoFactorOrganizationDuo: (
     organizationId: string,
-    request: SecretVerificationRequest
+    request: SecretVerificationRequest,
   ) => Promise<TwoFactorDuoResponse>;
   getTwoFactorYubiKey: (request: SecretVerificationRequest) => Promise<TwoFactorYubiKeyResponse>;
   getTwoFactorWebAuthn: (request: SecretVerificationRequest) => Promise<TwoFactorWebAuthnResponse>;
   getTwoFactorWebAuthnChallenge: (request: SecretVerificationRequest) => Promise<ChallengeResponse>;
   getTwoFactorRecover: (request: SecretVerificationRequest) => Promise<TwoFactorRecoverResponse>;
   putTwoFactorAuthenticator: (
-    request: UpdateTwoFactorAuthenticatorRequest
+    request: UpdateTwoFactorAuthenticatorRequest,
   ) => Promise<TwoFactorAuthenticatorResponse>;
   putTwoFactorEmail: (request: UpdateTwoFactorEmailRequest) => Promise<TwoFactorEmailResponse>;
   putTwoFactorDuo: (request: UpdateTwoFactorDuoRequest) => Promise<TwoFactorDuoResponse>;
   putTwoFactorOrganizationDuo: (
     organizationId: string,
-    request: UpdateTwoFactorDuoRequest
+    request: UpdateTwoFactorDuoRequest,
   ) => Promise<TwoFactorDuoResponse>;
   putTwoFactorYubiKey: (
-    request: UpdateTwoFactorYubioOtpRequest
+    request: UpdateTwoFactorYubioOtpRequest,
   ) => Promise<TwoFactorYubiKeyResponse>;
   putTwoFactorWebAuthn: (
-    request: UpdateTwoFactorWebAuthnRequest
+    request: UpdateTwoFactorWebAuthnRequest,
   ) => Promise<TwoFactorWebAuthnResponse>;
   deleteTwoFactorWebAuthn: (
-    request: UpdateTwoFactorWebAuthnDeleteRequest
+    request: UpdateTwoFactorWebAuthnDeleteRequest,
   ) => Promise<TwoFactorWebAuthnResponse>;
   putTwoFactorDisable: (request: TwoFactorProviderRequest) => Promise<TwoFactorProviderResponse>;
   putTwoFactorOrganizationDisable: (
     organizationId: string,
-    request: TwoFactorProviderRequest
+    request: TwoFactorProviderRequest,
   ) => Promise<TwoFactorProviderResponse>;
   postTwoFactorRecover: (request: TwoFactorRecoveryRequest) => Promise<any>;
   postTwoFactorEmailSetup: (request: TwoFactorEmailRequest) => Promise<any>;
@@ -496,7 +496,7 @@ export abstract class ApiService {
   postEmergencyAccessTakeover: (id: string) => Promise<EmergencyAccessTakeoverResponse>;
   postEmergencyAccessPassword: (
     id: string,
-    request: EmergencyAccessPasswordRequest
+    request: EmergencyAccessPasswordRequest,
   ) => Promise<any>;
   postEmergencyAccessView: (id: string) => Promise<EmergencyAccessViewResponse>;
 
@@ -506,13 +506,13 @@ export abstract class ApiService {
   getOrganizationLicense: (id: string, installationId: string) => Promise<any>;
   getOrganizationTaxInfo: (id: string) => Promise<TaxInfoResponse>;
   getOrganizationAutoEnrollStatus: (
-    identifier: string
+    identifier: string,
   ) => Promise<OrganizationAutoEnrollStatusResponse>;
   getOrganizationSso: (id: string) => Promise<OrganizationSsoResponse>;
   postOrganization: (request: OrganizationCreateRequest) => Promise<OrganizationResponse>;
   putOrganization: (
     id: string,
-    request: OrganizationUpdateRequest
+    request: OrganizationUpdateRequest,
   ) => Promise<OrganizationResponse>;
   putOrganizationTaxInfo: (id: string, request: OrganizationTaxInfoUpdateRequest) => Promise<any>;
   postLeaveOrganization: (id: string) => Promise<any>;
@@ -520,23 +520,23 @@ export abstract class ApiService {
   postOrganizationLicenseUpdate: (id: string, data: FormData) => Promise<any>;
   postOrganizationApiKey: (
     id: string,
-    request: SecretVerificationRequest
+    request: SecretVerificationRequest,
   ) => Promise<ApiKeyResponse>;
   postOrganizationRotateApiKey: (
     id: string,
-    request: SecretVerificationRequest
+    request: SecretVerificationRequest,
   ) => Promise<ApiKeyResponse>;
   postOrganizationSso: (
     id: string,
-    request: OrganizationSsoRequest
+    request: OrganizationSsoRequest,
   ) => Promise<OrganizationSsoResponse>;
   postOrganizationUpgrade: (
     id: string,
-    request: OrganizationUpgradeRequest
+    request: OrganizationUpgradeRequest,
   ) => Promise<PaymentResponse>;
   postOrganizationUpdateSubscription: (
     id: string,
-    request: OrganizationSubscriptionUpdateRequest
+    request: OrganizationSubscriptionUpdateRequest,
   ) => Promise<void>;
   postOrganizationSeat: (id: string, request: SeatRequest) => Promise<PaymentResponse>;
   postOrganizationStorage: (id: string, request: StorageRequest) => Promise<any>;
@@ -550,7 +550,7 @@ export abstract class ApiService {
   getOrganizationKeys: (id: string) => Promise<OrganizationKeysResponse>;
   postOrganizationKeys: (
     id: string,
-    request: OrganizationKeysRequest
+    request: OrganizationKeysRequest,
   ) => Promise<OrganizationKeysResponse>;
 
   postProviderSetup: (id: string, request: ProviderSetupRequest) => Promise<ProviderResponse>;
@@ -563,46 +563,46 @@ export abstract class ApiService {
   postProviderUserReinvite: (providerId: string, id: string) => Promise<any>;
   postManyProviderUserReinvite: (
     providerId: string,
-    request: ProviderUserBulkRequest
+    request: ProviderUserBulkRequest,
   ) => Promise<ListResponse<ProviderUserBulkResponse>>;
   postProviderUserAccept: (
     providerId: string,
     id: string,
-    request: ProviderUserAcceptRequest
+    request: ProviderUserAcceptRequest,
   ) => Promise<any>;
   postProviderUserConfirm: (
     providerId: string,
     id: string,
-    request: ProviderUserConfirmRequest
+    request: ProviderUserConfirmRequest,
   ) => Promise<any>;
   postProviderUsersPublicKey: (
     providerId: string,
-    request: ProviderUserBulkRequest
+    request: ProviderUserBulkRequest,
   ) => Promise<ListResponse<ProviderUserBulkPublicKeyResponse>>;
   postProviderUserBulkConfirm: (
     providerId: string,
-    request: ProviderUserBulkConfirmRequest
+    request: ProviderUserBulkConfirmRequest,
   ) => Promise<ListResponse<ProviderUserBulkResponse>>;
   putProviderUser: (
     providerId: string,
     id: string,
-    request: ProviderUserUpdateRequest
+    request: ProviderUserUpdateRequest,
   ) => Promise<any>;
   deleteProviderUser: (organizationId: string, id: string) => Promise<any>;
   deleteManyProviderUsers: (
     providerId: string,
-    request: ProviderUserBulkRequest
+    request: ProviderUserBulkRequest,
   ) => Promise<ListResponse<ProviderUserBulkResponse>>;
   getProviderClients: (
-    providerId: string
+    providerId: string,
   ) => Promise<ListResponse<ProviderOrganizationOrganizationDetailsResponse>>;
   postProviderAddOrganization: (
     providerId: string,
-    request: ProviderAddOrganizationRequest
+    request: ProviderAddOrganizationRequest,
   ) => Promise<any>;
   postProviderCreateOrganization: (
     providerId: string,
-    request: ProviderOrganizationCreateRequest
+    request: ProviderOrganizationCreateRequest,
   ) => Promise<ProviderOrganizationResponse>;
   deleteProviderOrganization: (providerId: string, organizationId: string) => Promise<any>;
 
@@ -611,33 +611,33 @@ export abstract class ApiService {
     id: string,
     start: string,
     end: string,
-    token: string
+    token: string,
   ) => Promise<ListResponse<EventResponse>>;
   getEventsOrganization: (
     id: string,
     start: string,
     end: string,
-    token: string
+    token: string,
   ) => Promise<ListResponse<EventResponse>>;
   getEventsOrganizationUser: (
     organizationId: string,
     id: string,
     start: string,
     end: string,
-    token: string
+    token: string,
   ) => Promise<ListResponse<EventResponse>>;
   getEventsProvider: (
     id: string,
     start: string,
     end: string,
-    token: string
+    token: string,
   ) => Promise<ListResponse<EventResponse>>;
   getEventsProviderUser: (
     providerId: string,
     id: string,
     start: string,
     end: string,
-    token: string
+    token: string,
   ) => Promise<ListResponse<EventResponse>>;
   postEventsCollect: (request: EventRequest[]) => Promise<any>;
 
@@ -659,21 +659,21 @@ export abstract class ApiService {
 
   postCreateSponsorship: (
     sponsorshipOrgId: string,
-    request: OrganizationSponsorshipCreateRequest
+    request: OrganizationSponsorshipCreateRequest,
   ) => Promise<void>;
   deleteRevokeSponsorship: (sponsoringOrganizationId: string) => Promise<void>;
   deleteRemoveSponsorship: (sponsoringOrgId: string) => Promise<void>;
   postPreValidateSponsorshipToken: (sponsorshipToken: string) => Promise<boolean>;
   postRedeemSponsorship: (
     sponsorshipToken: string,
-    request: OrganizationSponsorshipRedeemRequest
+    request: OrganizationSponsorshipRedeemRequest,
   ) => Promise<void>;
   postResendSponsorshipOffer: (sponsoringOrgId: string) => Promise<void>;
 
   getUserKeyFromKeyConnector: (keyConnectorUrl: string) => Promise<KeyConnectorUserKeyResponse>;
   postUserKeyToKeyConnector: (
     keyConnectorUrl: string,
-    request: KeyConnectorUserKeyRequest
+    request: KeyConnectorUserKeyRequest,
   ) => Promise<void>;
   getKeyConnectorAlive: (keyConnectorUrl: string) => Promise<void>;
 }

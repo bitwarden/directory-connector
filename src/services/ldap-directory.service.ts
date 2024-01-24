@@ -26,7 +26,7 @@ export class LdapDirectoryService implements IDirectoryService {
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
@@ -75,7 +75,7 @@ export class LdapDirectoryService implements IDirectoryService {
     this.logService.info("User search: " + path + " => " + filter);
 
     const regularUsers = await this.search<UserEntry>(path, filter, (se: any) =>
-      this.buildUser(se, false)
+      this.buildUser(se, false),
     );
     if (!this.dirConfig.ad) {
       return regularUsers;
@@ -96,7 +96,7 @@ export class LdapDirectoryService implements IDirectoryService {
         deletedPath,
         deletedFilter,
         (se: any) => this.buildUser(se, true),
-        [delControl]
+        [delControl],
       );
       return regularUsers.concat(deletedUsers);
     } catch (e) {
@@ -146,7 +146,7 @@ export class LdapDirectoryService implements IDirectoryService {
     const lastSync = await this.stateService.getLastUserSync();
     const originalFilter = this.buildBaseFilter(
       this.syncConfig.groupObjectClass,
-      this.syncConfig.groupFilter
+      this.syncConfig.groupFilter,
     );
     let filter = originalFilter;
     const revisionFilter = this.buildRevisionFilter(filter, force, lastSync);
@@ -170,7 +170,7 @@ export class LdapDirectoryService implements IDirectoryService {
 
     const userFilter = this.buildBaseFilter(
       this.syncConfig.userObjectClass,
-      this.syncConfig.userFilter
+      this.syncConfig.userFilter,
     );
     const userPath = this.makeSearchPath(this.syncConfig.userPath);
     const userIdMap = new Map<string, string>();
@@ -321,7 +321,7 @@ export class LdapDirectoryService implements IDirectoryService {
     path: string,
     filter: string,
     processEntry: (searchEntry: any) => T,
-    controls: ldap.Control[] = []
+    controls: ldap.Control[] = [],
   ): Promise<T[]> {
     const options: ldap.SearchOptions = {
       filter: filter,

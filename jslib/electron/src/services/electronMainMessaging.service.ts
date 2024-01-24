@@ -7,7 +7,10 @@ import { RendererMenuItem } from "../utils";
 import { WindowMain } from "../window.main";
 
 export class ElectronMainMessagingService implements MessagingService {
-  constructor(private windowMain: WindowMain, private onMessage: (message: any) => void) {
+  constructor(
+    private windowMain: WindowMain,
+    private onMessage: (message: any) => void,
+  ) {
     ipcMain.handle("appVersion", () => {
       return app.getVersion();
     });
@@ -31,7 +34,7 @@ export class ElectronMainMessagingService implements MessagingService {
               click: () => {
                 resolve(index);
               },
-            })
+            }),
           );
         });
         menu.popup({
@@ -50,7 +53,7 @@ export class ElectronMainMessagingService implements MessagingService {
     nativeTheme.on("updated", () => {
       windowMain.win?.webContents.send(
         "systemThemeUpdated",
-        nativeTheme.shouldUseDarkColors ? ThemeType.Dark : ThemeType.Light
+        nativeTheme.shouldUseDarkColors ? ThemeType.Dark : ThemeType.Light,
       );
     });
   }

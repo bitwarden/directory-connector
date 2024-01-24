@@ -14,7 +14,7 @@ export class UpdateCommand {
     private i18nService: I18nService,
     private repoName: string,
     private executableName: string,
-    private showExtendedMessage: boolean
+    private showExtendedMessage: boolean,
   ) {
     this.inPkg = !!(process as any).pkg;
   }
@@ -23,7 +23,7 @@ export class UpdateCommand {
     const currentVersion = await this.platformUtilsService.getApplicationVersion();
 
     const response = await fetch.default(
-      "https://api.github.com/repos/bitwarden/" + this.repoName + "/releases/latest"
+      "https://api.github.com/repos/bitwarden/" + this.repoName + "/releases/latest",
     );
     if (response.status === 200) {
       const responseJson = await response.json();

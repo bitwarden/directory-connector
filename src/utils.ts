@@ -11,7 +11,7 @@ export class ConnectorUtils {
   static async simulate(
     syncService: SyncService,
     i18nService: I18nService,
-    sinceLast: boolean
+    sinceLast: boolean,
   ): Promise<SimResult> {
     // eslint-disable-next-line
     return new Promise(async (resolve, reject) => {

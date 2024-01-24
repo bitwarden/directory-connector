@@ -27,7 +27,7 @@ export abstract class PlatformUtilsService {
     type: "error" | "success" | "warning" | "info",
     title: string,
     text: string | string[],
-    options?: ToastOptions
+    options?: ToastOptions,
   ) => void;
   showDialog: (
     body: string,
@@ -35,7 +35,7 @@ export abstract class PlatformUtilsService {
     confirmText?: string,
     cancelText?: string,
     type?: string,
-    bodyIsHtml?: boolean
+    bodyIsHtml?: boolean,
   ) => Promise<boolean>;
   isDev: () => boolean;
   isSelfHost: () => boolean;
@@ -45,7 +45,7 @@ export abstract class PlatformUtilsService {
   authenticateBiometric: () => Promise<boolean>;
   getDefaultSystemTheme: () => Promise<ThemeType.Light | ThemeType.Dark>;
   onDefaultSystemThemeChange: (
-    callback: (theme: ThemeType.Light | ThemeType.Dark) => unknown
+    callback: (theme: ThemeType.Light | ThemeType.Dark) => unknown,
   ) => unknown;
   getEffectiveTheme: () => Promise<ThemeType>;
   supportsSecureStorage: () => boolean;

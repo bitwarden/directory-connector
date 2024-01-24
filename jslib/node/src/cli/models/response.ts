@@ -11,8 +11,8 @@ export class Response {
         error.message != null
           ? error.message
           : error.toString() === "[object Object]"
-          ? JSON.stringify(error)
-          : error.toString();
+            ? JSON.stringify(error)
+            : error.toString();
     }
     res.data = data;
     return res;

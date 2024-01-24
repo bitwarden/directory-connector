@@ -8,14 +8,17 @@ import { SyncService } from "../services/sync.service";
 import { ConnectorUtils } from "../utils";
 
 export class TestCommand {
-  constructor(private syncService: SyncService, private i18nService: I18nService) {}
+  constructor(
+    private syncService: SyncService,
+    private i18nService: I18nService,
+  ) {}
 
   async run(cmd: program.OptionValues): Promise<Response> {
     try {
       const result = await ConnectorUtils.simulate(
         this.syncService,
         this.i18nService,
-        cmd.last || false
+        cmd.last || false,
       );
       const res = new TestResponse(result);
       return Response.success(res);

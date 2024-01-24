@@ -12,7 +12,7 @@ export class LastSyncCommand {
         case "groups": {
           const groupsDate = await this.stateService.getLastGroupSync();
           const groupsRes = new StringResponse(
-            groupsDate == null ? null : groupsDate.toISOString()
+            groupsDate == null ? null : groupsDate.toISOString(),
           );
           return Response.success(groupsRes);
         }

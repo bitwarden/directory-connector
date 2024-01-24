@@ -45,7 +45,7 @@ export function initFactory(
   i18nService: I18nService,
   platformUtilsService: PlatformUtilsServiceAbstraction,
   stateService: StateServiceAbstraction,
-  cryptoService: CryptoServiceAbstraction
+  cryptoService: CryptoServiceAbstraction,
 ): () => Promise<void> {
   return async () => {
     await stateService.init();
@@ -108,7 +108,7 @@ export function initFactory(
       useFactory: (
         i18nService: I18nServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
-        stateService: StateServiceAbstraction
+        stateService: StateServiceAbstraction,
       ) => new ElectronPlatformUtilsService(i18nService, messagingService, false, stateService),
       deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
     },
@@ -120,7 +120,7 @@ export function initFactory(
         platformUtilsService: PlatformUtilsServiceAbstraction,
         environmentService: EnvironmentServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
-        appIdService: AppIdServiceAbstraction
+        appIdService: AppIdServiceAbstraction,
       ) =>
         new NodeApiService(
           tokenService,
@@ -132,7 +132,7 @@ export function initFactory(
             platformUtilsService.getApplicationVersion() +
             " (" +
             platformUtilsService.getDeviceString().toUpperCase() +
-            ")"
+            ")",
         ),
       deps: [
         TokenServiceAbstraction,
@@ -179,12 +179,12 @@ export function initFactory(
       provide: StateMigrationServiceAbstraction,
       useFactory: (
         storageService: StorageServiceAbstraction,
-        secureStorageService: StorageServiceAbstraction
+        secureStorageService: StorageServiceAbstraction,
       ) =>
         new StateMigrationService(
           storageService,
           secureStorageService,
-          new StateFactory(GlobalState, Account)
+          new StateFactory(GlobalState, Account),
         ),
       deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
     },
@@ -194,7 +194,7 @@ export function initFactory(
         storageService: StorageServiceAbstraction,
         secureStorageService: StorageServiceAbstraction,
         logService: LogServiceAbstraction,
-        stateMigrationService: StateMigrationServiceAbstraction
+        stateMigrationService: StateMigrationServiceAbstraction,
       ) =>
         new StateService(
           storageService,
@@ -202,7 +202,7 @@ export function initFactory(
           logService,
           stateMigrationService,
           true,
-          new StateFactory(GlobalState, Account)
+          new StateFactory(GlobalState, Account),
         ),
       deps: [
         StorageServiceAbstraction,

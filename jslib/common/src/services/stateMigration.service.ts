@@ -129,12 +129,12 @@ const partialKeys = {
 
 export class StateMigrationService<
   TGlobalState extends GlobalState = GlobalState,
-  TAccount extends Account = Account
+  TAccount extends Account = Account,
 > {
   constructor(
     protected storageService: StorageService,
     protected secureStorageService: StorageService,
-    protected stateFactory: StateFactory<TGlobalState, TAccount>
+    protected stateFactory: StateFactory<TGlobalState, TAccount>,
   ) {}
 
   async needsMigration(): Promise<boolean> {
@@ -334,7 +334,7 @@ export class StateMigrationService<
         collections: {
           decrypted: null,
           encrypted: await this.get<{ [id: string]: CollectionData }>(
-            v1KeyPrefixes.collections + userId
+            v1KeyPrefixes.collections + userId,
           ),
         },
         eventCollection: await this.get<EventData[]>(v1Keys.eventCollection),
@@ -344,7 +344,7 @@ export class StateMigrationService<
         },
         localData: null,
         organizations: await this.get<{ [id: string]: OrganizationData }>(
-          v1KeyPrefixes.organizations + userId
+          v1KeyPrefixes.organizations + userId,
         ),
         passwordGenerationHistory: {
           decrypted: null,
@@ -427,7 +427,7 @@ export class StateMigrationService<
       await this.secureStorageService.save(
         `${userId}${partialKeys.biometricKey}`,
         await this.secureStorageService.get(v1Keys.key, { keySuffix: "biometric" }),
-        { keySuffix: "biometric" }
+        { keySuffix: "biometric" },
       );
       await this.secureStorageService.remove(v1Keys.key, { keySuffix: "biometric" });
     }
@@ -436,7 +436,7 @@ export class StateMigrationService<
       await this.secureStorageService.save(
         `${userId}${partialKeys.autoKey}`,
         await this.secureStorageService.get(v1Keys.key, { keySuffix: "auto" }),
-        { keySuffix: "auto" }
+        { keySuffix: "auto" },
       );
       await this.secureStorageService.remove(v1Keys.key, { keySuffix: "auto" });
     }
@@ -444,7 +444,7 @@ export class StateMigrationService<
     if (await this.secureStorageService.has(v1Keys.key)) {
       await this.secureStorageService.save(
         `${userId}${partialKeys.masterKey}`,
-        await this.secureStorageService.get(v1Keys.key)
+        await this.secureStorageService.get(v1Keys.key),
       );
       await this.secureStorageService.remove(v1Keys.key);
     }
@@ -463,7 +463,7 @@ export class StateMigrationService<
           account.profile.hasPremiumPersonally = decodedToken.premium;
           await this.set(userId, account);
         }
-      })
+      }),
     );
 
     const globals = await this.getGlobals();
@@ -480,7 +480,7 @@ export class StateMigrationService<
           delete account.profile.everBeenUnlocked;
           return this.set(userId, account);
         }
-      })
+      }),
     );
 
     const globals = await this.getGlobals();

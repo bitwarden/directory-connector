@@ -32,7 +32,7 @@ export class SendAccess extends Domain {
         expirationDate: null,
         creatorIdentifier: null,
       },
-      ["id", "expirationDate", "creatorIdentifier"]
+      ["id", "expirationDate", "creatorIdentifier"],
     );
 
     this.type = obj.type;
@@ -58,7 +58,7 @@ export class SendAccess extends Domain {
         name: null,
       },
       null,
-      key
+      key,
     );
 
     switch (this.type) {

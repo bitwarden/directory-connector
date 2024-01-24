@@ -22,7 +22,7 @@ export class UpdaterMain {
     private onCheckingForUpdate: () => void = null,
     private onReset: () => void = null,
     private onUpdateDownloaded: () => void = null,
-    private projectName: string
+    private projectName: string,
   ) {
     autoUpdater.logger = log;
 
@@ -117,7 +117,7 @@ export class UpdaterMain {
       if (this.doingUpdateCheckWithFeedback) {
         dialog.showErrorBox(
           this.i18nService.t("updateError"),
-          error == null ? this.i18nService.t("unknown") : (error.stack || error).toString()
+          error == null ? this.i18nService.t("unknown") : (error.stack || error).toString(),
         );
       }
 

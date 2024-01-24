@@ -27,7 +27,7 @@ export class SendService implements SendServiceAbstraction {
     private fileUploadService: FileUploadService,
     private i18nService: I18nService,
     private cryptoFunctionService: CryptoFunctionService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async clearCache(): Promise<void> {
@@ -38,7 +38,7 @@ export class SendService implements SendServiceAbstraction {
     model: SendView,
     file: File | ArrayBuffer,
     password: string,
-    key?: SymmetricCryptoKey
+    key?: SymmetricCryptoKey,
   ): Promise<[Send, EncArrayBuffer]> {
     let fileData: EncArrayBuffer = null;
     const send = new Send();
@@ -56,7 +56,7 @@ export class SendService implements SendServiceAbstraction {
         password,
         model.key,
         "sha256",
-        SEND_KDF_ITERATIONS
+        SEND_KDF_ITERATIONS,
       );
       send.password = Utils.fromBufferToB64(passwordHash);
     }
@@ -74,7 +74,7 @@ export class SendService implements SendServiceAbstraction {
           const [name, data] = await this.encryptFileData(
             model.file.fileName,
             file,
-            model.cryptoKey
+            model.cryptoKey,
           );
           send.file.fileName = name;
           fileData = data;
@@ -148,7 +148,7 @@ export class SendService implements SendServiceAbstraction {
           await this.fileUploadService.uploadSendFile(
             uploadDataResponse,
             sendData[0].file.fileName,
-            sendData[1]
+            sendData[1],
           );
         } catch (e) {
           if (e instanceof ErrorResponse && (e as ErrorResponse).statusCode === 404) {
@@ -177,7 +177,7 @@ export class SendService implements SendServiceAbstraction {
    */
   async legacyServerSendFileUpload(
     sendData: [Send, EncArrayBuffer],
-    request: SendRequest
+    request: SendRequest,
   ): Promise<SendResponse> {
     const fd = new FormData();
     try {
@@ -193,7 +193,7 @@ export class SendService implements SendServiceAbstraction {
           {
             filepath: sendData[0].file.fileName.encryptedString,
             contentType: "application/octet-stream",
-          } as any
+          } as any,
         );
       } else {
         throw e;
@@ -271,7 +271,7 @@ export class SendService implements SendServiceAbstraction {
           const [name, data] = await this.encryptFileData(
             file.name,
             evt.target.result as ArrayBuffer,
-            key
+            key,
           );
           send.file.fileName = name;
           resolve(data);
@@ -288,7 +288,7 @@ export class SendService implements SendServiceAbstraction {
   private async encryptFileData(
     fileName: string,
     data: ArrayBuffer,
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): Promise<[EncString, EncArrayBuffer]> {
     const encFileName = await this.cryptoService.encrypt(fileName, key);
     const encFileData = await this.cryptoService.encryptToBytes(data, key);

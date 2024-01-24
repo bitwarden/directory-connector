@@ -11,7 +11,7 @@ const PwnedPasswordsApi = "https://api.pwnedpasswords.com/range/";
 export class AuditService implements AuditServiceAbstraction {
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
-    private apiService: ApiService
+    private apiService: ApiService,
   ) {}
 
   @throttle(100, () => "passwordLeaked")

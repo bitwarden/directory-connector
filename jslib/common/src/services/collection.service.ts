@@ -15,7 +15,7 @@ export class CollectionService implements CollectionServiceAbstraction {
   constructor(
     private cryptoService: CryptoService,
     private i18nService: I18nService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async clearCache(userId?: string): Promise<void> {

@@ -17,16 +17,16 @@ export abstract class PolicyService {
   evaluateMasterPassword: (
     passwordStrength: number,
     newPassword: string,
-    enforcedPolicyOptions?: MasterPasswordPolicyOptions
+    enforcedPolicyOptions?: MasterPasswordPolicyOptions,
   ) => boolean;
   getResetPasswordPolicyOptions: (
     policies: Policy[],
-    orgId: string
+    orgId: string,
   ) => [ResetPasswordPolicyOptions, boolean];
   mapPoliciesFromToken: (policiesResponse: ListResponse<PolicyResponse>) => Policy[];
   policyAppliesToUser: (
     policyType: PolicyType,
     policyFilter?: (policy: Policy) => boolean,
-    userId?: string
+    userId?: string,
   ) => Promise<boolean>;
 }

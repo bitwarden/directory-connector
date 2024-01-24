@@ -17,7 +17,7 @@ export class PasswordRepromptService implements PasswordRepromptServiceAbstracti
 
   constructor(
     private modalService: ModalService,
-    private keyConnectorService: KeyConnectorService
+    private keyConnectorService: KeyConnectorService,
   ) {}
 
   protectedFields() {

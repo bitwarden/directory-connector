@@ -19,7 +19,7 @@ export class EnvironmentComponent {
   constructor(
     protected platformUtilsService: PlatformUtilsService,
     protected environmentService: EnvironmentService,
-    protected i18nService: I18nService
+    protected i18nService: I18nService,
   ) {
     const urls = this.environmentService.getUrls();
 

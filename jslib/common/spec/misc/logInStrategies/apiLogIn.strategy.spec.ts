@@ -65,7 +65,7 @@ describe("ApiLogInStrategy", () => {
       stateService,
       twoFactorService,
       environmentService,
-      keyConnectorService
+      keyConnectorService,
     );
 
     credentials = new ApiLogInCredentials(apiClientId, apiClientSecret);
@@ -86,7 +86,7 @@ describe("ApiLogInStrategy", () => {
           apiTokenRequest.twoFactor.token == null &&
           apiTokenRequest.captchaResponse == null
         );
-      })
+      }),
     );
   });
 

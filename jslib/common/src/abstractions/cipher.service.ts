@@ -12,7 +12,7 @@ export abstract class CipherService {
   encrypt: (
     model: CipherView,
     key?: SymmetricCryptoKey,
-    originalCipher?: Cipher
+    originalCipher?: Cipher,
   ) => Promise<Cipher>;
   encryptFields: (fieldsModel: FieldView[], key: SymmetricCryptoKey) => Promise<Field[]>;
   encryptField: (fieldModel: FieldView, key: SymmetricCryptoKey) => Promise<Field>;
@@ -23,7 +23,7 @@ export abstract class CipherService {
   getAllDecryptedForUrl: (
     url: string,
     includeOtherTypes?: CipherType[],
-    defaultMatch?: UriMatchType
+    defaultMatch?: UriMatchType,
   ) => Promise<CipherView[]>;
   getAllFromApiForOrganization: (organizationId: string) => Promise<CipherView[]>;
   getLastUsedForUrl: (url: string, autofillOnPageLoad: boolean) => Promise<CipherView>;
@@ -37,23 +37,23 @@ export abstract class CipherService {
   shareWithServer: (
     cipher: CipherView,
     organizationId: string,
-    collectionIds: string[]
+    collectionIds: string[],
   ) => Promise<any>;
   shareManyWithServer: (
     ciphers: CipherView[],
     organizationId: string,
-    collectionIds: string[]
+    collectionIds: string[],
   ) => Promise<any>;
   saveAttachmentWithServer: (
     cipher: Cipher,
     unencryptedFile: any,
-    admin?: boolean
+    admin?: boolean,
   ) => Promise<Cipher>;
   saveAttachmentRawWithServer: (
     cipher: Cipher,
     filename: string,
     data: ArrayBuffer,
-    admin?: boolean
+    admin?: boolean,
   ) => Promise<Cipher>;
   saveCollectionsWithServer: (cipher: Cipher) => Promise<any>;
   upsert: (cipher: CipherData | CipherData[]) => Promise<any>;
@@ -72,7 +72,7 @@ export abstract class CipherService {
   softDeleteWithServer: (id: string) => Promise<any>;
   softDeleteManyWithServer: (ids: string[]) => Promise<any>;
   restore: (
-    cipher: { id: string; revisionDate: string } | { id: string; revisionDate: string }[]
+    cipher: { id: string; revisionDate: string } | { id: string; revisionDate: string }[],
   ) => Promise<any>;
   restoreWithServer: (id: string) => Promise<any>;
   restoreManyWithServer: (ids: string[]) => Promise<any>;

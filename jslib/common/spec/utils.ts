@@ -16,7 +16,7 @@ export function GetUniqueString(prefix = "") {
 
 export function BuildTestObject<T, K extends keyof T = keyof T>(
   def: Partial<Pick<T, K>> | T,
-  constructor?: new () => T
+  constructor?: new () => T,
 ): T {
   return Object.assign(constructor === null ? {} : new constructor(), def) as T;
 }

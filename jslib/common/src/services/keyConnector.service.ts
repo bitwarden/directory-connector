@@ -22,7 +22,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private tokenService: TokenService,
     private logService: LogService,
     private organizationService: OrganizationService,
-    private cryptoFunctionService: CryptoFunctionService
+    private cryptoFunctionService: CryptoFunctionService,
   ) {}
 
   setUsesKeyConnector(usesKeyConnector: boolean) {
@@ -49,7 +49,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     try {
       await this.apiService.postUserKeyToKeyConnector(
         organization.keyConnectorUrl,
-        keyConnectorRequest
+        keyConnectorRequest,
       );
     } catch (e) {
       throw new Error("Unable to reach key connector");
@@ -77,7 +77,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
         o.keyConnectorEnabled &&
         o.type !== OrganizationUserType.Admin &&
         o.type !== OrganizationUserType.Owner &&
-        !o.isProviderUser
+        !o.isProviderUser,
     );
   }
 
@@ -89,7 +89,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       Utils.fromBufferToB64(password),
       await this.tokenService.getEmail(),
       kdf,
-      kdfIterations
+      kdfIterations,
     );
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(k.encKeyB64);
     await this.cryptoService.setKey(k);
@@ -111,7 +111,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       kdf,
       kdfIterations,
       orgId,
-      keys
+      keys,
     );
     await this.apiService.postSetKeyConnectorKey(setPasswordRequest);
   }

@@ -131,7 +131,7 @@ import { ValidationService } from "./validation.service";
         i18nService: I18nServiceAbstraction,
         injector: Injector,
         logService: LogService,
-        stateService: StateServiceAbstraction
+        stateService: StateServiceAbstraction,
       ) =>
         new CipherService(
           cryptoService,
@@ -141,7 +141,7 @@ import { ValidationService } from "./validation.service";
           i18nService,
           () => injector.get(SearchServiceAbstraction),
           logService,
-          stateService
+          stateService,
         ),
       deps: [
         CryptoServiceAbstraction,
@@ -209,14 +209,14 @@ import { ValidationService } from "./validation.service";
         platformUtilsService: PlatformUtilsServiceAbstraction,
         environmentService: EnvironmentServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
-        appIdService: AppIdServiceAbstraction
+        appIdService: AppIdServiceAbstraction,
       ) =>
         new ApiService(
           tokenService,
           platformUtilsService,
           environmentService,
           appIdService,
-          async (expired: boolean) => messagingService.send("logout", { expired: expired })
+          async (expired: boolean) => messagingService.send("logout", { expired: expired }),
         ),
       deps: [
         TokenServiceAbstraction,
@@ -247,7 +247,7 @@ import { ValidationService } from "./validation.service";
         keyConnectorService: KeyConnectorServiceAbstraction,
         stateService: StateServiceAbstraction,
         organizationService: OrganizationServiceAbstraction,
-        providerService: ProviderServiceAbstraction
+        providerService: ProviderServiceAbstraction,
       ) =>
         new SyncService(
           apiService,
@@ -264,7 +264,7 @@ import { ValidationService } from "./validation.service";
           stateService,
           organizationService,
           providerService,
-          async (expired: boolean) => messagingService.send("logout", { expired: expired })
+          async (expired: boolean) => messagingService.send("logout", { expired: expired }),
         ),
       deps: [
         ApiServiceAbstraction,
@@ -302,7 +302,7 @@ import { ValidationService } from "./validation.service";
         tokenService: TokenServiceAbstraction,
         policyService: PolicyServiceAbstraction,
         keyConnectorService: KeyConnectorServiceAbstraction,
-        stateService: StateServiceAbstraction
+        stateService: StateServiceAbstraction,
       ) =>
         new VaultTimeoutService(
           cipherService,
@@ -318,7 +318,7 @@ import { ValidationService } from "./validation.service";
           stateService,
           null,
           async (userId?: string) =>
-            messagingService.send("logout", { expired: false, userId: userId })
+            messagingService.send("logout", { expired: false, userId: userId }),
         ),
       deps: [
         CipherServiceAbstraction,
@@ -340,14 +340,14 @@ import { ValidationService } from "./validation.service";
         storageService: StorageServiceAbstraction,
         secureStorageService: StorageServiceAbstraction,
         logService: LogService,
-        stateMigrationService: StateMigrationServiceAbstraction
+        stateMigrationService: StateMigrationServiceAbstraction,
       ) =>
         new StateService(
           storageService,
           secureStorageService,
           logService,
           stateMigrationService,
-          new StateFactory(GlobalState, Account)
+          new StateFactory(GlobalState, Account),
         ),
       deps: [
         StorageServiceAbstraction,
@@ -360,12 +360,12 @@ import { ValidationService } from "./validation.service";
       provide: StateMigrationServiceAbstraction,
       useFactory: (
         storageService: StorageServiceAbstraction,
-        secureStorageService: StorageServiceAbstraction
+        secureStorageService: StorageServiceAbstraction,
       ) =>
         new StateMigrationService(
           storageService,
           secureStorageService,
-          new StateFactory(GlobalState, Account)
+          new StateFactory(GlobalState, Account),
         ),
       deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
     },
@@ -384,7 +384,7 @@ import { ValidationService } from "./validation.service";
         environmentService: EnvironmentServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
         logService: LogService,
-        stateService: StateServiceAbstraction
+        stateService: StateServiceAbstraction,
       ) =>
         new NotificationsService(
           syncService,
@@ -394,7 +394,7 @@ import { ValidationService } from "./validation.service";
           environmentService,
           async () => messagingService.send("logout", { expired: true }),
           logService,
-          stateService
+          stateService,
         ),
       deps: [
         SyncServiceAbstraction,

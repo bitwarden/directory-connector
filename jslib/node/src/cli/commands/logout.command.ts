@@ -8,7 +8,7 @@ export class LogoutCommand {
   constructor(
     private authService: AuthService,
     private i18nService: I18nService,
-    private logoutCallback: () => Promise<void>
+    private logoutCallback: () => Promise<void>,
   ) {}
 
   async run() {

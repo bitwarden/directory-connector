@@ -31,7 +31,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private keyConnectorService: KeyConnectorService,
     private stateService: StateService,
     private lockedCallback: (userId?: string) => Promise<void> = null,
-    private loggedOutCallback: (userId?: string) => Promise<void> = null
+    private loggedOutCallback: (userId?: string) => Promise<void> = null,
   ) {}
 
   init(checkOnInterval: boolean) {

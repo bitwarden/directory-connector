@@ -13,7 +13,7 @@ export class SystemService implements SystemServiceAbstraction {
     private messagingService: MessagingService,
     private platformUtilsService: PlatformUtilsService,
     private reloadCallback: () => Promise<void> = null,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async startProcessReload(): Promise<void> {

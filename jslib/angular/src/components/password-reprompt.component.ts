@@ -19,7 +19,7 @@ export class PasswordRepromptComponent {
     private modalRef: ModalRef,
     private cryptoService: CryptoService,
     private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService
+    private i18nService: I18nService,
   ) {}
 
   togglePassword() {
@@ -31,7 +31,7 @@ export class PasswordRepromptComponent {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("invalidMasterPassword")
+        this.i18nService.t("invalidMasterPassword"),
       );
       return;
     }

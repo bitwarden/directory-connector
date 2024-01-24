@@ -90,7 +90,7 @@ export class Main {
     } else if (process.platform === "darwin") {
       this.dataFilePath = path.join(
         process.env.HOME,
-        "Library/Application Support/" + applicationName
+        "Library/Application Support/" + applicationName,
       );
     } else if (process.platform === "win32") {
       this.dataFilePath = path.join(process.env.APPDATA, applicationName);
@@ -104,11 +104,11 @@ export class Main {
     this.i18nService = new I18nService("en", "./locales");
     this.platformUtilsService = new CliPlatformUtilsService(
       ClientType.DirectoryConnector,
-      packageJson
+      packageJson,
     );
     this.logService = new ConsoleLogService(
       this.platformUtilsService.isDev(),
-      (level) => process.env.BITWARDENCLI_CONNECTOR_DEBUG !== "true" && level <= LogLevelType.Info
+      (level) => process.env.BITWARDENCLI_CONNECTOR_DEBUG !== "true" && level <= LogLevelType.Info,
     );
     this.cryptoFunctionService = new NodeCryptoFunctionService();
     this.storageService = new LowdbStorageService(
@@ -116,7 +116,7 @@ export class Main {
       null,
       this.dataFilePath,
       false,
-      true
+      true,
     );
     this.secureStorageService = plaintextSecrets
       ? this.storageService
@@ -125,7 +125,7 @@ export class Main {
     this.stateMigrationService = new StateMigrationService(
       this.storageService,
       this.secureStorageService,
-      new StateFactory(GlobalState, Account)
+      new StateFactory(GlobalState, Account),
     );
 
     this.stateService = new StateService(
@@ -134,14 +134,14 @@ export class Main {
       this.logService,
       this.stateMigrationService,
       process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
-      new StateFactory(GlobalState, Account)
+      new StateFactory(GlobalState, Account),
     );
 
     this.cryptoService = new CryptoService(
       this.cryptoFunctionService,
       this.platformUtilsService,
       this.logService,
-      this.stateService
+      this.stateService,
     );
 
     this.appIdService = new AppIdService(this.storageService);
@@ -161,7 +161,7 @@ export class Main {
       this.environmentService,
       this.appIdService,
       async (expired: boolean) => await this.logout(),
-      customUserAgent
+      customUserAgent,
     );
     this.containerService = new ContainerService(this.cryptoService);
 
@@ -174,7 +174,7 @@ export class Main {
       this.tokenService,
       this.logService,
       this.organizationService,
-      this.cryptoFunctionService
+      this.cryptoFunctionService,
     );
 
     this.twoFactorService = new NoopTwoFactorService();
@@ -191,7 +191,7 @@ export class Main {
       this.environmentService,
       this.stateService,
       this.twoFactorService,
-      this.i18nService
+      this.i18nService,
     );
 
     this.syncService = new SyncService(
@@ -201,19 +201,19 @@ export class Main {
       this.messagingService,
       this.i18nService,
       this.environmentService,
-      this.stateService
+      this.stateService,
     );
 
     this.policyService = new PolicyService(
       this.stateService,
       this.organizationService,
-      this.apiService
+      this.apiService,
     );
 
     this.passwordGenerationService = new PasswordGenerationService(
       this.cryptoService,
       this.policyService,
-      this.stateService
+      this.stateService,
     );
 
     this.settingsService = new SettingsService(this.stateService);
@@ -228,7 +228,7 @@ export class Main {
       this.i18nService,
       () => searchService,
       this.logService,
-      this.stateService
+      this.stateService,
     );
 
     this.searchService = new SearchService(this.cipherService, this.logService, this.i18nService);
@@ -238,13 +238,13 @@ export class Main {
       this.apiService,
       this.i18nService,
       this.cipherService,
-      this.stateService
+      this.stateService,
     );
 
     this.collectionService = new CollectionService(
       this.cryptoService,
       this.i18nService,
-      this.stateService
+      this.stateService,
     );
 
     this.sendService = new SendService(
@@ -253,7 +253,7 @@ export class Main {
       this.fileUploadService,
       this.i18nService,
       this.cryptoFunctionService,
-      this.stateService
+      this.stateService,
     );
 
     this.providerService = new ProviderService(this.stateService);

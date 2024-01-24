@@ -66,7 +66,7 @@ describe("SsoLogInStrategy", () => {
       logService,
       stateService,
       twoFactorService,
-      keyConnectorService
+      keyConnectorService,
     );
     credentials = new SsoLogInCredentials(ssoCode, ssoCodeVerifier, ssoRedirectUrl, ssoOrgId);
   });
@@ -87,7 +87,7 @@ describe("SsoLogInStrategy", () => {
           ssoTokenRequest.twoFactor.provider == null &&
           ssoTokenRequest.twoFactor.token == null
         );
-      })
+      }),
     );
   });
 

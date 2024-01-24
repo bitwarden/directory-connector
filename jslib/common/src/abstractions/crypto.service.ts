@@ -15,7 +15,7 @@ export abstract class CryptoService {
   setEncPrivateKey: (encPrivateKey: string) => Promise<void>;
   setOrgKeys: (
     orgs: ProfileOrganizationResponse[],
-    providerOrgs: ProfileProviderOrganizationResponse[]
+    providerOrgs: ProfileProviderOrganizationResponse[],
   ) => Promise<void>;
   setProviderKeys: (orgs: ProfileProviderResponse[]) => Promise<void>;
   getKey: (keySuffix?: KeySuffixOptions, userId?: string) => Promise<SymmetricCryptoKey>;
@@ -46,14 +46,14 @@ export abstract class CryptoService {
     password: string,
     salt: string,
     kdf: KdfType,
-    kdfIterations: number
+    kdfIterations: number,
   ) => Promise<SymmetricCryptoKey>;
   makeKeyFromPin: (
     pin: string,
     salt: string,
     kdf: KdfType,
     kdfIterations: number,
-    protectedKeyCs?: EncString
+    protectedKeyCs?: EncString,
   ) => Promise<SymmetricCryptoKey>;
   makeShareKey: () => Promise<[EncString, SymmetricCryptoKey]>;
   makeKeyPair: (key?: SymmetricCryptoKey) => Promise<[string, EncString]>;
@@ -61,18 +61,18 @@ export abstract class CryptoService {
     pin: string,
     salt: string,
     kdf: KdfType,
-    kdfIterations: number
+    kdfIterations: number,
   ) => Promise<SymmetricCryptoKey>;
   makeSendKey: (keyMaterial: ArrayBuffer) => Promise<SymmetricCryptoKey>;
   hashPassword: (
     password: string,
     key: SymmetricCryptoKey,
-    hashPurpose?: HashPurpose
+    hashPurpose?: HashPurpose,
   ) => Promise<string>;
   makeEncKey: (key: SymmetricCryptoKey) => Promise<[SymmetricCryptoKey, EncString]>;
   remakeEncKey: (
     key: SymmetricCryptoKey,
-    encKey?: SymmetricCryptoKey
+    encKey?: SymmetricCryptoKey,
   ) => Promise<[SymmetricCryptoKey, EncString]>;
   encrypt: (plainValue: string | ArrayBuffer, key?: SymmetricCryptoKey) => Promise<EncString>;
   encryptToBytes: (plainValue: ArrayBuffer, key?: SymmetricCryptoKey) => Promise<EncArrayBuffer>;

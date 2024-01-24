@@ -104,7 +104,7 @@ export class Program extends BaseProgram {
           this.main.cryptoService,
           this.main.policyService,
           this.main.twoFactorService,
-          "connector"
+          "connector",
         );
 
         if (!Utils.isNullOrWhitespace(clientId)) {
@@ -133,7 +133,7 @@ export class Program extends BaseProgram {
         const command = new LogoutCommand(
           this.main.authService,
           this.main.i18nService,
-          async () => await this.main.logout()
+          async () => await this.main.logout(),
         );
         const response = await command.run();
         this.processResponse(response);
@@ -227,7 +227,7 @@ export class Program extends BaseProgram {
         const command = new ConfigCommand(
           this.main.environmentService,
           this.main.i18nService,
-          this.main.stateService
+          this.main.stateService,
         );
         const response = await command.run(setting, value, options);
         this.processResponse(response);
@@ -244,7 +244,7 @@ export class Program extends BaseProgram {
       })
       .action(() => {
         this.processResponse(
-          Response.success(new StringResponse(path.join(this.main.dataFilePath, "data.json")))
+          Response.success(new StringResponse(path.join(this.main.dataFilePath, "data.json"))),
         );
       });
 
@@ -285,7 +285,7 @@ export class Program extends BaseProgram {
           this.main.i18nService,
           "directory-connector",
           "bwdc",
-          false
+          false,
         );
         const response = await command.run();
         this.processResponse(response);
@@ -305,7 +305,7 @@ export class Program extends BaseProgram {
       const id = await this.stateService.getEntityId();
       this.processResponse(
         Response.error("You are already logged in as " + type + "." + id + "."),
-        true
+        true,
       );
     }
   }

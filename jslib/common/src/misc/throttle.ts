@@ -8,7 +8,7 @@ export function throttle(limit: number, throttleKey: (args: any[]) => string) {
   return <T>(
     target: any,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<(...args: any[]) => Promise<T>>
+    descriptor: TypedPropertyDescriptor<(...args: any[]) => Promise<T>>,
   ) => {
     const originalMethod: () => Promise<T> = descriptor.value;
     const allThrottles = new Map<any, Map<string, (() => void)[]>>();

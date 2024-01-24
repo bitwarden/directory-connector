@@ -19,7 +19,7 @@ export class OrganizationLogInStrategy extends LogInStrategy {
       credentials.clientId,
       credentials.clientSecret,
       await this.buildTwoFactor(),
-      await this.buildDeviceRequest()
+      await this.buildDeviceRequest(),
     );
 
     return this.startLogIn();
@@ -60,7 +60,7 @@ export class OrganizationLogInStrategy extends LogInStrategy {
         },
         directorySettings: new DirectorySettings(),
         directoryConfigurations: new DirectoryConfigurations(),
-      })
+      }),
     );
   }
 }
