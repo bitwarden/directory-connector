@@ -1,12 +1,11 @@
 import { Injectable } from "@angular/core";
-import { CanActivate } from "@angular/router";
 
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 
 import { StateService } from "../../abstractions/state.service";
 
 @Injectable()
-export class AuthGuardService implements CanActivate {
+export class AuthGuardService {
   constructor(
     private stateService: StateService,
     private messagingService: MessagingService,
