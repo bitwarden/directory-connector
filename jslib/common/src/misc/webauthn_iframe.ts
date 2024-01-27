@@ -14,7 +14,7 @@ export class WebAuthnIFrame {
     private i18nService: I18nService,
     private successCallback: Function, // eslint-disable-line
     private errorCallback: Function, // eslint-disable-line
-    private infoCallback: Function // eslint-disable-line
+    private infoCallback: Function, // eslint-disable-line
   ) {
     this.connectorLink = win.document.createElement("a");
   }
@@ -31,7 +31,7 @@ export class WebAuthnIFrame {
       // Firefox fallback which opens the webauthn page in a new tab
       params.append("locale", this.i18nService.translationLocale);
       this.platformUtilsService.launchUri(
-        `${this.webVaultUrl}/webauthn-fallback-connector.html?${params}`
+        `${this.webVaultUrl}/webauthn-fallback-connector.html?${params}`,
       );
     } else {
       this.connectorLink.href = `${this.webVaultUrl}/webauthn-connector.html?${params}`;
@@ -63,7 +63,7 @@ export class WebAuthnIFrame {
     return btoa(
       encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
         return String.fromCharCode(("0x" + p1) as any);
-      })
+      }),
     );
   }
 

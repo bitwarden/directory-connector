@@ -16,7 +16,7 @@ export class EventService implements EventServiceAbstraction {
     private cipherService: CipherService,
     private stateService: StateService,
     private logService: LogService,
-    private organizationService: OrganizationService
+    private organizationService: OrganizationService,
   ) {}
 
   init(checkOnInterval: boolean) {
@@ -34,7 +34,7 @@ export class EventService implements EventServiceAbstraction {
   async collect(
     eventType: EventType,
     cipherId: string = null,
-    uploadImmediately = false
+    uploadImmediately = false,
   ): Promise<any> {
     const authed = await this.stateService.getIsAuthenticated();
     if (!authed) {

@@ -9,7 +9,7 @@ export class CaptchaIFrame extends IFrameComponent {
     private i18nService: I18nService,
     successCallback: (message: string) => any,
     errorCallback: (message: string) => any,
-    infoCallback: (message: string) => any
+    infoCallback: (message: string) => any,
   ) {
     super(
       win,
@@ -26,13 +26,13 @@ export class CaptchaIFrame extends IFrameComponent {
         } else {
           infoCallback(parsedMessage);
         }
-      }
+      },
     );
   }
 
   init(siteKey: string): void {
     super.initComponent(
-      this.createParams({ siteKey: siteKey, locale: this.i18nService.translationLocale }, 1)
+      this.createParams({ siteKey: siteKey, locale: this.i18nService.translationLocale }, 1),
     );
   }
 }

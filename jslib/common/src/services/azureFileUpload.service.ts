@@ -40,7 +40,7 @@ export class AzureFileUploadService {
   private async azureUploadBlocks(
     url: string,
     data: EncArrayBuffer,
-    renewalCallback: () => Promise<string>
+    renewalCallback: () => Promise<string>,
   ) {
     const baseUrl = Utils.getUrl(url);
     const blockSize = this.getMaxBlockSize(baseUrl.searchParams.get("sv"));
@@ -50,7 +50,7 @@ export class AzureFileUploadService {
 
     if (numBlocks > MAX_BLOCKS_PER_BLOB) {
       throw new Error(
-        `Cannot upload file, exceeds maximum size of ${blockSize * MAX_BLOCKS_PER_BLOB}`
+        `Cannot upload file, exceeds maximum size of ${blockSize * MAX_BLOCKS_PER_BLOB}`,
       );
     }
 
@@ -120,7 +120,7 @@ export class AzureFileUploadService {
 
   private async renewUrlIfNecessary(
     url: string,
-    renewalCallback: () => Promise<string>
+    renewalCallback: () => Promise<string>,
   ): Promise<string> {
     const urlObject = Utils.getUrl(url);
     const expiry = new Date(urlObject.searchParams.get("se") ?? "");
@@ -183,10 +183,10 @@ class Version {
     return a.year !== b.year
       ? a.year - b.year
       : a.month !== b.month
-      ? a.month - b.month
-      : a.day !== b.day
-      ? a.day - b.day
-      : 0;
+        ? a.month - b.month
+        : a.day !== b.day
+          ? a.day - b.day
+          : 0;
   }
   year = 0;
   month = 0;

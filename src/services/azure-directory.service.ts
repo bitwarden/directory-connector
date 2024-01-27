@@ -42,7 +42,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {
     super();
     this.init();
@@ -55,7 +55,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     }
 
     this.dirConfig = await this.stateService.getDirectory<AzureConfiguration>(
-      DirectoryType.AzureActiveDirectory
+      DirectoryType.AzureActiveDirectory,
     );
     if (this.dirConfig == null) {
       return;
@@ -95,7 +95,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
       // Get the users in the excludedGroups and filter them out from all users
     } else if (setFilter != null && setFilter[0] === UserSetType.ExcludeGroup) {
       (await this.getUsersByGroups(setFilter)).forEach((user: graphType.User) =>
-        userIdsToExclude.add(user.id)
+        userIdsToExclude.add(user.id),
       );
       const userReq = this.client.api("/users" + UserSelectParams);
       users = await this.getUsersByResource(userReq);
@@ -275,7 +275,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
   private async filterOutUserResult(
     setFilter: [UserSetType, Set<string>],
-    user: UserEntry
+    user: UserEntry,
   ): Promise<boolean> {
     if (setFilter == null) {
       return false;
@@ -371,7 +371,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     const users: graphType.User[] = [];
     for (const group of setFilter[1]) {
       const groupUsersReq = this.client.api(
-        `/groups/${group}/transitiveMembers` + UserSelectParams
+        `/groups/${group}/transitiveMembers` + UserSelectParams,
       );
       users.push(...(await this.getUsersByResource(groupUsersReq)));
     }
@@ -381,7 +381,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
   private async buildUserEntries(
     users: graphType.User[],
     userIdsToExclude: Set<string>,
-    setFilter: [UserSetType, Set<string>]
+    setFilter: [UserSetType, Set<string>],
   ) {
     const entryIds = new Set<string>();
     const entries: UserEntry[] = [];
@@ -510,7 +510,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
                   done(err, null);
                 }
               });
-            }
+            },
           )
           .on("error", (err) => {
             done(err, null);

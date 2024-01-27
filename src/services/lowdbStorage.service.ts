@@ -10,7 +10,7 @@ export class LowdbStorageService extends LowdbStorageServiceBase {
     defaults?: any,
     dir?: string,
     allowCache = false,
-    private requireLock = false
+    private requireLock = false,
   ) {
     super(logService, defaults, dir, allowCache);
   }

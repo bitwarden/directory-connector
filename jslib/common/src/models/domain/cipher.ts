@@ -55,7 +55,7 @@ export class Cipher extends Domain {
         name: null,
         notes: null,
       },
-      ["id", "userId", "organizationId", "folderId"]
+      ["id", "userId", "organizationId", "folderId"],
     );
 
     this.type = obj.type;
@@ -119,7 +119,7 @@ export class Cipher extends Domain {
         notes: null,
       },
       this.organizationId,
-      encKey
+      encKey,
     );
 
     switch (this.type) {

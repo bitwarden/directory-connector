@@ -157,7 +157,7 @@ export class StateMigrationService extends BaseStateMigrationService {
         if (await this.secureStorageService.has(SecureStorageKeys[key])) {
           await this.secureStorageService.save(
             `${userId}_${SecureStorageKeys[key]}`,
-            await this.secureStorageService.get(SecureStorageKeys[key])
+            await this.secureStorageService.get(SecureStorageKeys[key]),
           );
           await this.secureStorageService.remove(SecureStorageKeys[key]);
         }
@@ -175,18 +175,18 @@ export class StateMigrationService extends BaseStateMigrationService {
           // Fix for userDelta and groupDelta being put into secure storage when they should not have
           if (await this.secureStorageService.has(`${userId}_${Keys.userDelta}`)) {
             account.directorySettings.userDelta = await this.secureStorageService.get(
-              `${userId}_${Keys.userDelta}`
+              `${userId}_${Keys.userDelta}`,
             );
             await this.secureStorageService.remove(`${userId}_${Keys.userDelta}`);
           }
           if (await this.secureStorageService.has(`${userId}_${Keys.groupDelta}`)) {
             account.directorySettings.groupDelta = await this.secureStorageService.get(
-              `${userId}_${Keys.groupDelta}`
+              `${userId}_${Keys.groupDelta}`,
             );
             await this.secureStorageService.remove(`${userId}_${Keys.groupDelta}`);
           }
           await this.set(userId, account);
-        })
+        }),
       );
     }
 

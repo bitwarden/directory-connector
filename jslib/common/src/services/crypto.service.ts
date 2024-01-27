@@ -25,7 +25,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     private cryptoFunctionService: CryptoFunctionService,
     protected platformUtilService: PlatformUtilsService,
     protected logService: LogService,
-    protected stateService: StateService
+    protected stateService: StateService,
   ) {}
 
   async setKey(key: SymmetricCryptoKey, userId?: string): Promise<any> {
@@ -57,7 +57,7 @@ export class CryptoService implements CryptoServiceAbstraction {
 
   async setOrgKeys(
     orgs: ProfileOrganizationResponse[],
-    providerOrgs: ProfileProviderOrganizationResponse[]
+    providerOrgs: ProfileProviderOrganizationResponse[],
   ): Promise<void> {
     const orgKeys: any = {};
     orgs.forEach((org) => {
@@ -105,7 +105,7 @@ export class CryptoService implements CryptoServiceAbstraction {
 
   async getKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: string
+    userId?: string,
   ): Promise<SymmetricCryptoKey> {
     const key = await this.retrieveKeyFromStorage(keySuffix, userId);
     if (key != null) {
@@ -132,7 +132,7 @@ export class CryptoService implements CryptoServiceAbstraction {
       const localKeyHash = await this.hashPassword(
         masterPassword,
         key,
-        HashPurpose.LocalAuthorization
+        HashPurpose.LocalAuthorization,
       );
       if (localKeyHash != null && storedKeyHash === localKeyHash) {
         return true;
@@ -142,7 +142,7 @@ export class CryptoService implements CryptoServiceAbstraction {
       const serverKeyHash = await this.hashPassword(
         masterPassword,
         key,
-        HashPurpose.ServerAuthorization
+        HashPurpose.ServerAuthorization,
       );
       if (serverKeyHash != null && storedKeyHash === serverKeyHash) {
         await this.setKeyHash(localKeyHash);
@@ -202,7 +202,7 @@ export class CryptoService implements CryptoServiceAbstraction {
       keyFingerprint,
       userId,
       32,
-      "sha256"
+      "sha256",
     );
     return this.hashPhrase(userFingerprint);
   }
@@ -400,7 +400,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     password: string,
     salt: string,
     kdf: KdfType,
-    kdfIterations: number
+    kdfIterations: number,
   ): Promise<SymmetricCryptoKey> {
     let key: ArrayBuffer = null;
     if (kdf == null || kdf === KdfType.PBKDF2_SHA256) {
@@ -421,7 +421,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     salt: string,
     kdf: KdfType,
     kdfIterations: number,
-    protectedKeyCs: EncString = null
+    protectedKeyCs: EncString = null,
   ): Promise<SymmetricCryptoKey> {
     if (protectedKeyCs == null) {
       const pinProtectedKey = await this.stateService.getEncryptedPinProtected();
@@ -453,7 +453,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     pin: string,
     salt: string,
     kdf: KdfType,
-    kdfIterations: number
+    kdfIterations: number,
   ): Promise<SymmetricCryptoKey> {
     const pinKey = await this.makeKey(pin, salt, kdf, kdfIterations);
     return await this.stretchKey(pinKey);
@@ -465,7 +465,7 @@ export class CryptoService implements CryptoServiceAbstraction {
       "bitwarden-send",
       "send",
       64,
-      "sha256"
+      "sha256",
     );
     return new SymmetricCryptoKey(sendKey);
   }
@@ -473,7 +473,7 @@ export class CryptoService implements CryptoServiceAbstraction {
   async hashPassword(
     password: string,
     key: SymmetricCryptoKey,
-    hashPurpose?: HashPurpose
+    hashPurpose?: HashPurpose,
   ): Promise<string> {
     if (key == null) {
       key = await this.getKey();
@@ -495,7 +495,7 @@ export class CryptoService implements CryptoServiceAbstraction {
 
   async remakeEncKey(
     key: SymmetricCryptoKey,
-    encKey?: SymmetricCryptoKey
+    encKey?: SymmetricCryptoKey,
   ): Promise<[SymmetricCryptoKey, EncString]> {
     if (encKey == null) {
       encKey = await this.getEncKey();
@@ -623,7 +623,7 @@ export class CryptoService implements CryptoServiceAbstraction {
       encString.data,
       encString.iv,
       encString.mac,
-      key
+      key,
     );
   }
 
@@ -668,7 +668,7 @@ export class CryptoService implements CryptoServiceAbstraction {
       ctBytes.buffer,
       ivBytes.buffer,
       macBytes != null ? macBytes.buffer : null,
-      key
+      key,
     );
   }
 
@@ -775,7 +775,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     data: string,
     iv: string,
     mac: string,
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): Promise<string> {
     const keyForEnc = await this.getKeyForEncryption(key);
     const theKey = await this.resolveLegacyKey(encType, keyForEnc);
@@ -795,7 +795,7 @@ export class CryptoService implements CryptoServiceAbstraction {
       const computedMac = await this.cryptoFunctionService.hmacFast(
         fastParams.macData,
         fastParams.macKey,
-        "sha256"
+        "sha256",
       );
       const macsEqual = await this.cryptoFunctionService.compareFast(fastParams.mac, computedMac);
       if (!macsEqual) {
@@ -812,7 +812,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     data: ArrayBuffer,
     iv: ArrayBuffer,
     mac: ArrayBuffer,
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): Promise<ArrayBuffer> {
     const keyForEnc = await this.getKeyForEncryption(key);
     const theKey = await this.resolveLegacyKey(encType, keyForEnc);
@@ -832,7 +832,7 @@ export class CryptoService implements CryptoServiceAbstraction {
       const computedMac = await this.cryptoFunctionService.hmac(
         macData.buffer,
         theKey.macKey,
-        "sha256"
+        "sha256",
       );
       if (computedMac === null) {
         return null;
@@ -863,7 +863,7 @@ export class CryptoService implements CryptoServiceAbstraction {
 
   private async resolveLegacyKey(
     encType: EncryptionType,
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): Promise<SymmetricCryptoKey> {
     if (
       encType === EncryptionType.AesCbc128_HmacSha256_B64 &&
@@ -912,7 +912,7 @@ export class CryptoService implements CryptoServiceAbstraction {
 
   private async buildEncKey(
     key: SymmetricCryptoKey,
-    encKey: ArrayBuffer
+    encKey: ArrayBuffer,
   ): Promise<[SymmetricCryptoKey, EncString]> {
     let encKeyEnc: EncString = null;
     if (key.key.byteLength === 32) {

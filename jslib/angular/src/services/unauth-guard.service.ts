@@ -10,7 +10,7 @@ export class UnauthGuardService implements CanActivate {
   constructor(
     private vaultTimeoutService: VaultTimeoutService,
     private router: Router,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async canActivate() {

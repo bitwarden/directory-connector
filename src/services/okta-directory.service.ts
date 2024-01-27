@@ -23,7 +23,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {
     super();
   }
@@ -71,7 +71,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
 
     this.logService.info("Querying users.");
     const usersPromise = this.apiGetMany(
-      "users?filter=" + this.encodeUrlParameter(oktaFilter)
+      "users?filter=" + this.encodeUrlParameter(oktaFilter),
     ).then((users: any[]) => {
       for (const user of users) {
         const entry = this.buildUser(user);
@@ -89,7 +89,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
         deactOktaFilter = "(" + oktaFilter + ") and " + deactOktaFilter;
       }
       deactUsersPromise = this.apiGetMany(
-        "users?filter=" + this.encodeUrlParameter(deactOktaFilter)
+        "users?filter=" + this.encodeUrlParameter(deactOktaFilter),
       ).then((users: any[]) => {
         for (const user of users) {
           const entry = this.buildUser(user);
@@ -118,7 +118,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
 
   private async getGroups(
     force: boolean,
-    setFilter: [boolean, Set<string>]
+    setFilter: [boolean, Set<string>],
   ): Promise<GroupEntry[]> {
     const entries: GroupEntry[] = [];
     const lastSync = await this.stateService.getLastGroupSync();
@@ -128,14 +128,14 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
     await this.apiGetMany("groups?filter=" + this.encodeUrlParameter(oktaFilter)).then(
       async (groups: any[]) => {
         for (const group of groups.filter(
-          (g) => !this.filterOutResult(setFilter, g.profile.name)
+          (g) => !this.filterOutResult(setFilter, g.profile.name),
         )) {
           const entry = await this.buildGroup(group);
           if (entry != null) {
             entries.push(entry);
           }
         }
-      }
+      },
     );
     return entries;
   }
@@ -227,7 +227,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
           res.on("error", () => {
             resolve(null);
           });
-        }
+        },
       );
     });
   }

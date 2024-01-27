@@ -120,7 +120,7 @@ const renderer = {
     // ref: https://github.com/angular/angular/issues/20357
     new webpack.ContextReplacementPlugin(
       /\@angular(\\|\/)core(\\|\/)fesm5/,
-      path.resolve(__dirname, "./src")
+      path.resolve(__dirname, "./src"),
     ),
     new HtmlWebpackPlugin({
       template: "./src/index.html",

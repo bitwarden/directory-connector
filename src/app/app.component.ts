@@ -45,7 +45,7 @@ export class AppComponent implements OnInit {
     private messagingService: MessagingService,
     private syncService: SyncService,
     private stateService: StateService,
-    private logService: LogService
+    private logService: LogService,
   ) {}
 
   ngOnInit() {
@@ -123,7 +123,7 @@ export class AppComponent implements OnInit {
         this.platformUtilsService.showToast(
           "warning",
           this.i18nService.t("loggedOut"),
-          this.i18nService.t("loginExpired")
+          this.i18nService.t("loginExpired"),
         );
       }
       this.router.navigate(["login"]);
@@ -142,7 +142,7 @@ export class AppComponent implements OnInit {
     } else {
       msg.text.forEach(
         (t: string) =>
-          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>")
+          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>"),
       );
       options.enableHtml = true;
     }

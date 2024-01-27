@@ -8,7 +8,7 @@ import { ErrorResponse } from "@/jslib/common/src/models/response/errorResponse"
 export class ValidationService {
   constructor(
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService
+    private platformUtilsService: PlatformUtilsService,
   ) {}
 
   showError(data: any): string[] {

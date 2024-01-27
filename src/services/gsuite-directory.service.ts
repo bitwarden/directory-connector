@@ -24,7 +24,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {
     super();
     this.service = google.admin("directory_v1");
@@ -37,7 +37,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     }
 
     this.dirConfig = await this.stateService.getDirectory<GSuiteConfiguration>(
-      DirectoryType.GSuite
+      DirectoryType.GSuite,
     );
     if (this.dirConfig == null) {
       return;
@@ -104,7 +104,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
       this.logService.info("Querying deleted users - nextPageToken:" + nextPageToken);
       const p = Object.assign(
         { showDeleted: true, query: query, pageToken: nextPageToken },
-        this.authParams
+        this.authParams,
       );
       const delRes = await this.service.users.list(p);
       if (delRes.status !== 200) {
@@ -148,7 +148,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
 
   private async getGroups(
     setFilter: [boolean, Set<string>],
-    users: UserEntry[]
+    users: UserEntry[],
   ): Promise<GroupEntry[]> {
     const entries: GroupEntry[] = [];
     const query = this.createDirectoryQuery(this.syncConfig.groupFilter);

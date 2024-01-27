@@ -29,7 +29,7 @@ export class AuthService extends AuthServiceBase {
     environmentService: EnvironmentService,
     stateService: StateService,
     twoFactorService: TwoFactorService,
-    i18nService: I18nService
+    i18nService: I18nService,
   ) {
     super(
       cryptoService,
@@ -43,7 +43,7 @@ export class AuthService extends AuthServiceBase {
       environmentService,
       stateService,
       twoFactorService,
-      i18nService
+      i18nService,
     );
   }
 
@@ -57,7 +57,7 @@ export class AuthService extends AuthServiceBase {
       this.messagingService,
       this.logService,
       this.stateService,
-      this.twoFactorService
+      this.twoFactorService,
     );
 
     return strategy.logIn(credentials);

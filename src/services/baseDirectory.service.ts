@@ -70,7 +70,7 @@ export abstract class BaseDirectoryService {
     users: UserEntry[],
     groups: GroupEntry[],
     setFilter: [boolean, Set<string>],
-    syncConfig: SyncConfiguration
+    syncConfig: SyncConfiguration,
   ): UserEntry[] {
     if (setFilter == null || users == null) {
       return users;

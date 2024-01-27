@@ -41,7 +41,7 @@ export class PasswordLogInStrategy extends LogInStrategy {
     logService: LogService,
     stateService: StateService,
     twoFactorService: TwoFactorService,
-    private authService: AuthService
+    private authService: AuthService,
   ) {
     super(
       cryptoService,
@@ -52,7 +52,7 @@ export class PasswordLogInStrategy extends LogInStrategy {
       messagingService,
       logService,
       stateService,
-      twoFactorService
+      twoFactorService,
     );
   }
 
@@ -63,7 +63,7 @@ export class PasswordLogInStrategy extends LogInStrategy {
 
   async logInTwoFactor(
     twoFactor: TokenRequestTwoFactor,
-    captchaResponse: string
+    captchaResponse: string,
   ): Promise<AuthResult> {
     this.tokenRequest.captchaResponse = captchaResponse ?? this.captchaBypassToken;
     return super.logInTwoFactor(twoFactor);
@@ -78,7 +78,7 @@ export class PasswordLogInStrategy extends LogInStrategy {
     this.localHashedPassword = await this.cryptoService.hashPassword(
       masterPassword,
       this.key,
-      HashPurpose.LocalAuthorization
+      HashPurpose.LocalAuthorization,
     );
     const hashedPassword = await this.cryptoService.hashPassword(masterPassword, this.key);
 
@@ -87,7 +87,7 @@ export class PasswordLogInStrategy extends LogInStrategy {
       hashedPassword,
       captchaToken,
       await this.buildTwoFactor(twoFactor),
-      await this.buildDeviceRequest()
+      await this.buildDeviceRequest(),
     );
 
     return this.startLogIn();

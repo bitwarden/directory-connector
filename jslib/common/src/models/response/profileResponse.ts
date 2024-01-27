@@ -48,7 +48,7 @@ export class ProfileResponse extends BaseResponse {
     const providerOrganizations = this.getResponseProperty("ProviderOrganizations");
     if (providerOrganizations != null) {
       this.providerOrganizations = providerOrganizations.map(
-        (o: any) => new ProfileProviderOrganizationResponse(o)
+        (o: any) => new ProfileProviderOrganizationResponse(o),
       );
     }
   }

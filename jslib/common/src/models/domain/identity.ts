@@ -54,7 +54,7 @@ export class Identity extends Domain {
         passportNumber: null,
         licenseNumber: null,
       },
-      []
+      [],
     );
   }
 
@@ -82,7 +82,7 @@ export class Identity extends Domain {
         licenseNumber: null,
       },
       orgId,
-      encKey
+      encKey,
     );
   }
 

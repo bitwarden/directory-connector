@@ -13,7 +13,7 @@ export class EnvironmentComponent extends BaseEnvironmentComponent {
   constructor(
     environmentService: EnvironmentService,
     i18nService: I18nService,
-    platformUtilsService: PlatformUtilsService
+    platformUtilsService: PlatformUtilsService,
   ) {
     super(platformUtilsService, environmentService, i18nService);
   }

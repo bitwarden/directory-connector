@@ -52,7 +52,7 @@ export class SyncService implements SyncServiceAbstraction {
     private stateService: StateService,
     private organizationService: OrganizationService,
     private providerService: ProviderService,
-    private logoutCallback: (expired: boolean) => Promise<void>
+    private logoutCallback: (expired: boolean) => Promise<void>,
   ) {}
 
   async getLastSync(): Promise<Date> {

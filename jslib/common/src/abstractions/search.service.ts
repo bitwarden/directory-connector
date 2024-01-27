@@ -9,7 +9,7 @@ export abstract class SearchService {
   searchCiphers: (
     query: string,
     filter?: ((cipher: CipherView) => boolean) | ((cipher: CipherView) => boolean)[],
-    ciphers?: CipherView[]
+    ciphers?: CipherView[],
   ) => Promise<CipherView[]>;
   searchCiphersBasic: (ciphers: CipherView[], query: string, deleted?: boolean) => CipherView[];
   searchSends: (sends: SendView[], query: string) => SendView[];

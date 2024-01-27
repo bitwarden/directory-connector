@@ -11,7 +11,7 @@ export class ElectronCryptoService extends CryptoService {
     cryptoFunctionService: CryptoFunctionService,
     platformUtilService: PlatformUtilsService,
     logService: LogService,
-    stateService: StateService
+    stateService: StateService,
   ) {
     super(cryptoFunctionService, platformUtilService, logService, stateService);
   }
@@ -61,7 +61,7 @@ export class ElectronCryptoService extends CryptoService {
       }
     } catch (e) {
       this.logService.error(
-        `Encountered error while upgrading obsolete Bitwarden secure storage item:`
+        `Encountered error while upgrading obsolete Bitwarden secure storage item:`,
       );
       this.logService.error(e);
     }

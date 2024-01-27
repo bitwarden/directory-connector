@@ -80,7 +80,7 @@ describe("NodeCrypto Function Service", () => {
       prk32Byte,
       64,
       "BnIqJlfnHm0e/2iB/15cbHyR19ARPIcWRp4oNS22CD9BV+" +
-        "/queOZenPNkDhmlVyL2WZ3OSU5+7ISNF5NhNfvZA=="
+        "/queOZenPNkDhmlVyL2WZ3OSU5+7ISNF5NhNfvZA==",
     );
     testHkdfExpand("sha512", prk64Byte, 32, "uLWbMWodSBms5uGJ5WTRTesyW+MD7nlpCZvagvIRXlk=");
     testHkdfExpand(
@@ -88,7 +88,7 @@ describe("NodeCrypto Function Service", () => {
       prk64Byte,
       64,
       "uLWbMWodSBms5uGJ5WTRTesyW+MD7nlpCZvagvIRXlkY5Pv0sB+" +
-        "MqvaopmkC6sD/j89zDwTV9Ib2fpucUydO8w=="
+        "MqvaopmkC6sD/j89zDwTV9Ib2fpucUydO8w==",
     );
 
     it("should fail with prk too small", async () => {
@@ -97,7 +97,7 @@ describe("NodeCrypto Function Service", () => {
         Utils.fromB64ToArray(prk16Byte),
         "info",
         32,
-        "sha256"
+        "sha256",
       );
       await expect(f).rejects.toEqual(new Error("prk is too small."));
     });
@@ -108,7 +108,7 @@ describe("NodeCrypto Function Service", () => {
         Utils.fromB64ToArray(prk32Byte),
         "info",
         8161,
-        "sha256"
+        "sha256",
       );
       await expect(f).rejects.toEqual(new Error("outputByteSize is too large."));
     });
@@ -172,7 +172,7 @@ describe("NodeCrypto Function Service", () => {
       const encValue = await nodeCryptoFunctionService.aesEncrypt(
         data.buffer,
         iv.buffer,
-        key.buffer
+        key.buffer,
       );
       expect(Utils.fromBufferToB64(encValue)).toBe("ByUF8vhyX4ddU9gcooznwA==");
     });
@@ -186,7 +186,7 @@ describe("NodeCrypto Function Service", () => {
       const encValue = await nodeCryptoFunctionService.aesEncrypt(
         data.buffer,
         iv.buffer,
-        key.buffer
+        key.buffer,
       );
       const decValue = await nodeCryptoFunctionService.aesDecrypt(encValue, iv.buffer, key.buffer);
       expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
@@ -214,7 +214,7 @@ describe("NodeCrypto Function Service", () => {
       const decValue = await nodeCryptoFunctionService.aesDecrypt(
         data.buffer,
         iv.buffer,
-        key.buffer
+        key.buffer,
       );
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
     });
@@ -230,7 +230,7 @@ describe("NodeCrypto Function Service", () => {
       const encValue = await nodeCryptoFunctionService.rsaEncrypt(
         data.buffer,
         pubKey.buffer,
-        "sha1"
+        "sha1",
       );
       const decValue = await nodeCryptoFunctionService.rsaDecrypt(encValue, privKey.buffer, "sha1");
       expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
@@ -245,12 +245,12 @@ describe("NodeCrypto Function Service", () => {
         "A1/p8BQzN9UrbdYxUY2Va5+kPLyfZXF9JsZrjeEXcaclsnHurdxVAJcnbEqYMP3UXV" +
           "4YAS/mpf+Rxe6/X0WS1boQdA0MAHSgx95hIlAraZYpiMLLiJRKeo2u8YivCdTM9V5vuAEJwf9Tof/qFsFci3sApdbATkorCT" +
           "zFOIEPF2S1zgperEP23M01mr4dWVdYN18B32YF67xdJHMbFhp5dkQwv9CmscoWq7OE5HIfOb+JAh7BEZb+CmKhM3yWJvoR/D" +
-          "/5jcercUtK2o+XrzNrL4UQ7yLZcFz6Bfwb/j6ICYvqd/YJwXNE6dwlL57OfwJyCdw2rRYf0/qI00t9u8Iitw=="
+          "/5jcercUtK2o+XrzNrL4UQ7yLZcFz6Bfwb/j6ICYvqd/YJwXNE6dwlL57OfwJyCdw2rRYf0/qI00t9u8Iitw==",
       );
       const decValue = await nodeCryptoFunctionService.rsaDecrypt(
         data.buffer,
         privKey.buffer,
-        "sha1"
+        "sha1",
       );
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
     });
@@ -286,7 +286,7 @@ describe("NodeCrypto Function Service", () => {
       const randomData = await nodeCryptoFunctionService.randomBytes(16);
       const randomData2 = await nodeCryptoFunctionService.randomBytes(16);
       expect(
-        randomData.byteLength === randomData2.byteLength && randomData !== randomData2
+        randomData.byteLength === randomData2.byteLength && randomData !== randomData2,
       ).toBeTruthy();
     });
   });
@@ -296,7 +296,7 @@ function testPbkdf2(
   algorithm: "sha256" | "sha512",
   regularKey: string,
   utf8Key: string,
-  unicodeKey: string
+  unicodeKey: string,
 ) {
   const regularEmail = "user@example.com";
   const utf8Email = "üser@example.com";
@@ -329,7 +329,7 @@ function testPbkdf2(
       Utils.fromUtf8ToArray(regularPassword).buffer,
       Utils.fromUtf8ToArray(regularEmail).buffer,
       algorithm,
-      5000
+      5000,
     );
     expect(Utils.fromBufferToB64(key)).toBe(regularKey);
   });
@@ -339,7 +339,7 @@ function testHkdf(
   algorithm: "sha256" | "sha512",
   regularKey: string,
   utf8Key: string,
-  unicodeKey: string
+  unicodeKey: string,
 ) {
   const ikm = Utils.fromB64ToArray("criAmKtfzxanbgea5/kelQ==");
 
@@ -376,7 +376,7 @@ function testHkdf(
       Utils.fromUtf8ToArray(regularSalt).buffer,
       Utils.fromUtf8ToArray(regularInfo).buffer,
       32,
-      algorithm
+      algorithm,
     );
     expect(Utils.fromBufferToB64(key)).toBe(regularKey);
   });
@@ -386,7 +386,7 @@ function testHkdfExpand(
   algorithm: "sha256" | "sha512",
   b64prk: string,
   outputByteSize: number,
-  b64ExpectedOkm: string
+  b64ExpectedOkm: string,
 ) {
   const info = "info";
 
@@ -396,7 +396,7 @@ function testHkdfExpand(
       Utils.fromB64ToArray(b64prk),
       info,
       outputByteSize,
-      algorithm
+      algorithm,
     );
     expect(Utils.fromBufferToB64(okm)).toBe(b64ExpectedOkm);
   });
@@ -406,7 +406,7 @@ function testHash(
   algorithm: "sha1" | "sha256" | "sha512" | "md5",
   regularHash: string,
   utf8Hash: string,
-  unicodeHash: string
+  unicodeHash: string,
 ) {
   const regularValue = "HashMe!!";
   const utf8Value = "HǻshMe!!";
@@ -434,7 +434,7 @@ function testHash(
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const hash = await cryptoFunctionService.hash(
       Utils.fromUtf8ToArray(regularValue).buffer,
-      algorithm
+      algorithm,
     );
     expect(Utils.fromBufferToHex(hash)).toBe(regularHash);
   });
@@ -505,7 +505,7 @@ function testRsaGenerateKeyPair(length: 1024 | 2048 | 4096) {
       const publicKey = await cryptoFunctionService.rsaExtractPublicKey(keyPair[1]);
       expect(Utils.fromBufferToB64(keyPair[0])).toBe(Utils.fromBufferToB64(publicKey));
     },
-    30000
+    30000,
   );
 }
 

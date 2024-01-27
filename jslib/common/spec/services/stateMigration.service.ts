@@ -24,7 +24,7 @@ describe("State Migration Service", () => {
     stateMigrationService = new StateMigrationService(
       storageService,
       secureStorageService,
-      stateFactory
+      stateFactory,
     );
   });
 
@@ -77,7 +77,7 @@ describe("State Migration Service", () => {
       storageService.received(1).save(
         "global",
         Arg.is((globals: GlobalState) => globals.stateVersion === StateVersion.Four),
-        Arg.any()
+        Arg.any(),
       );
     });
   });

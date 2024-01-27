@@ -15,7 +15,7 @@ export class MessagingMain {
     private windowMain: WindowMain,
     private menuMain: MenuMain,
     private updaterMain: UpdaterMain,
-    private trayMain: TrayMain
+    private trayMain: TrayMain,
   ) {}
 
   init() {

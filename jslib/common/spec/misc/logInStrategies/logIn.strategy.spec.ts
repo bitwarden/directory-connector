@@ -103,7 +103,7 @@ describe("LogInStrategy", () => {
       logService,
       stateService,
       twoFactorService,
-      authService
+      authService,
     );
     credentials = new PasswordLogInCredentials(email, masterPassword);
   });
@@ -134,7 +134,7 @@ describe("LogInStrategy", () => {
               refreshToken: refreshToken,
             },
           },
-        })
+        }),
       );
       cryptoService.received(1).setEncKey(encKey);
       cryptoService.received(1).setEncPrivateKey(privateKey);
@@ -230,7 +230,7 @@ describe("LogInStrategy", () => {
             passwordTokenRequest.twoFactor.token === twoFactorToken &&
             passwordTokenRequest.twoFactor.remember === false
           );
-        })
+        }),
       );
     });
 
@@ -240,7 +240,7 @@ describe("LogInStrategy", () => {
       credentials.twoFactor = new TokenRequestTwoFactor(
         twoFactorProviderType,
         twoFactorToken,
-        twoFactorRemember
+        twoFactorRemember,
       );
 
       await passwordLogInStrategy.logIn(credentials);
@@ -253,7 +253,7 @@ describe("LogInStrategy", () => {
             passwordTokenRequest.twoFactor.token === twoFactorToken &&
             passwordTokenRequest.twoFactor.remember === twoFactorRemember
           );
-        })
+        }),
       );
     });
 
@@ -263,14 +263,14 @@ describe("LogInStrategy", () => {
         email,
         masterPasswordHash,
         null,
-        null
+        null,
       );
 
       apiService.postIdentityToken(Arg.any()).resolves(identityTokenResponseFactory());
 
       await passwordLogInStrategy.logInTwoFactor(
         new TokenRequestTwoFactor(twoFactorProviderType, twoFactorToken, twoFactorRemember),
-        null
+        null,
       );
 
       apiService.received(1).postIdentityToken(
@@ -281,7 +281,7 @@ describe("LogInStrategy", () => {
             passwordTokenRequest.twoFactor.token === twoFactorToken &&
             passwordTokenRequest.twoFactor.remember === twoFactorRemember
           );
-        })
+        }),
       );
     });
   });

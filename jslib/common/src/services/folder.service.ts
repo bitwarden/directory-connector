@@ -23,7 +23,7 @@ export class FolderService implements FolderServiceAbstraction {
     private apiService: ApiService,
     private i18nService: I18nService,
     private cipherService: CipherService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async clearCache(userId?: string): Promise<void> {

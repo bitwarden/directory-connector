@@ -49,7 +49,7 @@ export class MenuMain extends BaseMenu {
       0,
       {
         label: this.main.i18nService.t(
-          process.platform === "darwin" ? "hideToMenuBar" : "hideToTray"
+          process.platform === "darwin" ? "hideToMenuBar" : "hideToTray",
         ),
         click: () => this.main.messagingService.send("hideToTray"),
         accelerator: "CmdOrCtrl+Shift+M",
@@ -60,7 +60,7 @@ export class MenuMain extends BaseMenu {
         checked: this.windowMain.win.isAlwaysOnTop(),
         click: () => this.main.windowMain.toggleAlwaysOnTop(),
         accelerator: "CmdOrCtrl+Shift+T",
-      }
+      },
     );
 
     this.menu = Menu.buildFromTemplate(template);

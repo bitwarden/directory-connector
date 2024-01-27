@@ -21,7 +21,7 @@ export class NodeApiService extends ApiService {
     environmentService: EnvironmentService,
     appIdService: AppIdService,
     logoutCallback: (expired: boolean) => Promise<void>,
-    customUserAgent: string = null
+    customUserAgent: string = null,
   ) {
     super(
       tokenService,
@@ -29,7 +29,7 @@ export class NodeApiService extends ApiService {
       environmentService,
       appIdService,
       logoutCallback,
-      customUserAgent
+      customUserAgent,
     );
   }
 

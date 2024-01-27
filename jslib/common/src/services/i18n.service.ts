@@ -71,7 +71,7 @@ export class I18nService implements I18nServiceAbstraction {
   constructor(
     protected systemLanguage: string,
     protected localesDirectory: string,
-    protected getLocalesJson: (formattedLocale: string) => Promise<any>
+    protected getLocalesJson: (formattedLocale: string) => Promise<any>,
   ) {
     this.systemLanguage = systemLanguage.replace("_", "-");
   }
@@ -166,7 +166,7 @@ export class I18nService implements I18nServiceAbstraction {
           }
           messagesObj[prop] = messagesObj[prop].replace(
             new RegExp(replaceToken, "g"),
-            replaceContent
+            replaceContent,
           );
         }
       }

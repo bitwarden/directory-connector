@@ -34,7 +34,10 @@ export class IconComponent implements OnChanges {
 
   private iconsUrl: string;
 
-  constructor(environmentService: EnvironmentService, private stateService: StateService) {
+  constructor(
+    environmentService: EnvironmentService,
+    private stateService: StateService,
+  ) {
     this.iconsUrl = environmentService.getIconsUrl();
   }
 

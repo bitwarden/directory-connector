@@ -30,7 +30,7 @@ export class SyncService {
     private messagingService: MessagingService,
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async sync(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
@@ -53,7 +53,7 @@ export class SyncService {
     try {
       const entries = await directoryService.getEntries(
         force || syncConfig.overwriteExisting,
-        test
+        test,
       );
       let groups = entries[0];
       let users = this.filterUnsupportedUsers(entries[1]);
@@ -83,7 +83,7 @@ export class SyncService {
         users,
         syncConfig.removeDisabled,
         syncConfig.overwriteExisting,
-        syncConfig.largeImport
+        syncConfig.largeImport,
       );
       const reqJson = JSON.stringify(req);
 
@@ -96,7 +96,7 @@ export class SyncService {
       let hashLegacy: string = null;
       const hashBuffLegacy = await this.cryptoFunctionService.hash(
         this.environmentService.getApiUrl() + reqJson,
-        "sha256"
+        "sha256",
       );
       if (hashBuffLegacy != null) {
         hashLegacy = Utils.fromBufferToB64(hashBuffLegacy);
@@ -104,7 +104,7 @@ export class SyncService {
       let hash: string = null;
       const hashBuff = await this.cryptoFunctionService.hash(
         this.environmentService.getApiUrl() + orgId + reqJson,
-        "sha256"
+        "sha256",
       );
       if (hashBuff != null) {
         hash = Utils.fromBufferToB64(hashBuff);
@@ -220,7 +220,7 @@ export class SyncService {
     users: UserEntry[],
     removeDisabled: boolean,
     overwriteExisting: boolean,
-    largeImport = false
+    largeImport = false,
   ) {
     return new OrganizationImportRequest({
       groups: (groups ?? []).map((g) => {

@@ -20,7 +20,7 @@ export class ApiActionDirective implements OnChanges {
   constructor(
     private el: ElementRef,
     private validationService: ValidationService,
-    private logService: LogService
+    private logService: LogService,
   ) {}
 
   ngOnChanges(changes: any) {
@@ -43,7 +43,7 @@ export class ApiActionDirective implements OnChanges {
         }
         this.logService?.error(`Received API exception: ${e}`);
         this.validationService.showError(e);
-      }
+      },
     );
   }
 }

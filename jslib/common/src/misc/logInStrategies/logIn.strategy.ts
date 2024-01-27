@@ -38,16 +38,16 @@ export abstract class LogInStrategy {
     protected messagingService: MessagingService,
     protected logService: LogService,
     protected stateService: StateService,
-    protected twoFactorService: TwoFactorService
+    protected twoFactorService: TwoFactorService,
   ) {}
 
   abstract logIn(
-    credentials: ApiLogInCredentials | PasswordLogInCredentials | SsoLogInCredentials
+    credentials: ApiLogInCredentials | PasswordLogInCredentials | SsoLogInCredentials,
   ): Promise<AuthResult>;
 
   async logInTwoFactor(
     twoFactor: TokenRequestTwoFactor,
-    captchaResponse: string = null
+    captchaResponse: string = null,
   ): Promise<AuthResult> {
     this.tokenRequest.setTwoFactor(twoFactor);
     return this.startLogIn();
@@ -113,7 +113,7 @@ export abstract class LogInStrategy {
             refreshToken: tokenResponse.refreshToken,
           },
         },
-      })
+      }),
     );
   }
 
@@ -132,7 +132,7 @@ export abstract class LogInStrategy {
     if (!newSsoUser) {
       await this.cryptoService.setEncKey(response.key);
       await this.cryptoService.setEncPrivateKey(
-        response.privateKey ?? (await this.createKeyPairForOldAccount())
+        response.privateKey ?? (await this.createKeyPairForOldAccount()),
       );
     }
 

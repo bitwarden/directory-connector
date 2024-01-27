@@ -5,7 +5,10 @@ import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageRes
 import { SyncService } from "../services/sync.service";
 
 export class SyncCommand {
-  constructor(private syncService: SyncService, private i18nService: I18nService) {}
+  constructor(
+    private syncService: SyncService,
+    private i18nService: I18nService,
+  ) {}
 
   async run(): Promise<Response> {
     try {
@@ -14,7 +17,7 @@ export class SyncCommand {
       const userCount = result[1] != null ? result[1].length : 0;
       const res = new MessageResponse(
         this.i18nService.t("syncingComplete"),
-        this.i18nService.t("syncCounts", groupCount.toString(), userCount.toString())
+        this.i18nService.t("syncCounts", groupCount.toString(), userCount.toString()),
       );
       return Response.success(res);
     } catch (e) {

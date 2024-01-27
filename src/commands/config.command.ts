@@ -28,7 +28,7 @@ export class ConfigCommand {
   constructor(
     private environmentService: EnvironmentService,
     private i18nService: I18nService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async run(setting: string, value: string, options: program.OptionValues): Promise<Response> {
@@ -129,7 +129,7 @@ export class ConfigCommand {
       this.gsuite;
     this.azure =
       (await this.stateService.getDirectory<AzureConfiguration>(
-        DirectoryType.AzureActiveDirectory
+        DirectoryType.AzureActiveDirectory,
       )) || this.azure;
     this.okta =
       (await this.stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta)) || this.okta;

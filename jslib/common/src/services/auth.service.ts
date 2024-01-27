@@ -55,11 +55,11 @@ export class AuthService implements AuthServiceAbstraction {
     protected environmentService: EnvironmentService,
     protected stateService: StateService,
     protected twoFactorService: TwoFactorService,
-    protected i18nService: I18nService
+    protected i18nService: I18nService,
   ) {}
 
   async logIn(
-    credentials: ApiLogInCredentials | PasswordLogInCredentials | SsoLogInCredentials
+    credentials: ApiLogInCredentials | PasswordLogInCredentials | SsoLogInCredentials,
   ): Promise<AuthResult> {
     this.clearState();
 
@@ -76,7 +76,7 @@ export class AuthService implements AuthServiceAbstraction {
         this.logService,
         this.stateService,
         this.twoFactorService,
-        this
+        this,
       );
     } else if (credentials.type === AuthenticationType.Sso) {
       strategy = new SsoLogInStrategy(
@@ -89,7 +89,7 @@ export class AuthService implements AuthServiceAbstraction {
         this.logService,
         this.stateService,
         this.twoFactorService,
-        this.keyConnectorService
+        this.keyConnectorService,
       );
     } else if (credentials.type === AuthenticationType.Api) {
       strategy = new ApiLogInStrategy(
@@ -103,7 +103,7 @@ export class AuthService implements AuthServiceAbstraction {
         this.stateService,
         this.twoFactorService,
         this.environmentService,
-        this.keyConnectorService
+        this.keyConnectorService,
       );
     }
 
@@ -117,7 +117,7 @@ export class AuthService implements AuthServiceAbstraction {
 
   async logInTwoFactor(
     twoFactor: TokenRequestTwoFactor,
-    captchaResponse: string
+    captchaResponse: string,
   ): Promise<AuthResult> {
     if (this.logInStrategy == null) {
       throw new Error(this.i18nService.t("sessionTimeout"));

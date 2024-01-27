@@ -13,7 +13,10 @@ export class AutofocusDirective {
 
   private autofocus: boolean;
 
-  constructor(private el: ElementRef, private ngZone: NgZone) {}
+  constructor(
+    private el: ElementRef,
+    private ngZone: NgZone,
+  ) {}
 
   ngOnInit() {
     if (!Utils.isMobileBrowser && this.autofocus) {

@@ -63,7 +63,7 @@ export class Main {
       this.logService,
       null,
       true,
-      new StateFactory(GlobalState, Account)
+      new StateFactory(GlobalState, Account),
     );
 
     this.windowMain = new WindowMain(
@@ -73,7 +73,7 @@ export class Main {
       800,
       600,
       (arg) => this.processDeepLink(arg),
-      null
+      null,
     );
 
     this.menuMain = new MenuMain(this);
@@ -90,7 +90,7 @@ export class Main {
       () => {
         this.messagingService.send("doneCheckingForUpdate");
       },
-      "bitwardenDirectoryConnector"
+      "bitwardenDirectoryConnector",
     );
 
     this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.stateService);
@@ -99,14 +99,14 @@ export class Main {
       this.windowMain,
       this.menuMain,
       this.updaterMain,
-      this.trayMain
+      this.trayMain,
     );
     this.messagingService = new ElectronMainMessagingService(this.windowMain, (message) => {
       this.messagingMain.onMessage(message);
     });
 
     this.credentialStorageListener = new DCCredentialStorageListener(
-      "Bitwarden Directory Connector"
+      "Bitwarden Directory Connector",
     );
   }
 
@@ -133,7 +133,7 @@ export class Main {
       (e: any) => {
         // eslint-disable-next-line
         console.error(e);
-      }
+      },
     );
   }
 

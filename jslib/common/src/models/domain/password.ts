@@ -28,7 +28,7 @@ export class Password extends Domain {
         password: null,
       },
       orgId,
-      encKey
+      encKey,
     );
   }
 

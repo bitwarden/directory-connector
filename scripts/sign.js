@@ -15,7 +15,7 @@ exports.default = async function (configuration) {
         `"${configuration.path}"`,
       {
         stdio: "inherit",
-      }
+      },
     );
   }
 };

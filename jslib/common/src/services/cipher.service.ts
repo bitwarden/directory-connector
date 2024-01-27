@@ -50,7 +50,7 @@ const DomainMatchBlacklist = new Map<string, Set<string>>([
 
 export class CipherService implements CipherServiceAbstraction {
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
-    this.sortCiphersByLastUsed
+    this.sortCiphersByLastUsed,
   );
 
   constructor(
@@ -61,7 +61,7 @@ export class CipherService implements CipherServiceAbstraction {
     private i18nService: I18nService,
     private searchService: () => SearchService,
     private logService: LogService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async getDecryptedCipherCache(): Promise<CipherView[]> {
@@ -87,7 +87,7 @@ export class CipherService implements CipherServiceAbstraction {
   async encrypt(
     model: CipherView,
     key?: SymmetricCryptoKey,
-    originalCipher: Cipher = null
+    originalCipher: Cipher = null,
   ): Promise<Cipher> {
     // Adjust password history
     if (model.id != null) {
@@ -118,13 +118,13 @@ export class CipherService implements CipherServiceAbstraction {
               f.name != null &&
               f.name !== "" &&
               f.value != null &&
-              f.value !== ""
+              f.value !== "",
           );
           const hiddenFields =
             model.fields == null
               ? []
               : model.fields.filter(
-                  (f) => f.type === FieldType.Hidden && f.name != null && f.name !== ""
+                  (f) => f.type === FieldType.Hidden && f.name != null && f.name !== "",
                 );
           existingHiddenFields.forEach((ef) => {
             const matchedField = hiddenFields.find((f) => f.name === ef.name);
@@ -169,7 +169,7 @@ export class CipherService implements CipherServiceAbstraction {
           name: null,
           notes: null,
         },
-        key
+        key,
       ),
       this.encryptCipherData(cipher, model, key),
       this.encryptFields(model.fields, key).then((fields) => {
@@ -188,7 +188,7 @@ export class CipherService implements CipherServiceAbstraction {
 
   async encryptAttachments(
     attachmentsModel: AttachmentView[],
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): Promise<Attachment[]> {
     if (attachmentsModel == null || attachmentsModel.length === 0) {
       return null;
@@ -208,7 +208,7 @@ export class CipherService implements CipherServiceAbstraction {
         {
           fileName: null,
         },
-        key
+        key,
       ).then(async () => {
         if (model.key != null) {
           attachment.key = await this.cryptoService.encrypt(model.key.key, key);
@@ -254,7 +254,7 @@ export class CipherService implements CipherServiceAbstraction {
         name: null,
         value: null,
       },
-      key
+      key,
     );
 
     return field;
@@ -262,7 +262,7 @@ export class CipherService implements CipherServiceAbstraction {
 
   async encryptPasswordHistories(
     phModels: PasswordHistoryView[],
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): Promise<Password[]> {
     if (!phModels || !phModels.length) {
       return null;
@@ -281,7 +281,7 @@ export class CipherService implements CipherServiceAbstraction {
 
   async encryptPasswordHistory(
     phModel: PasswordHistoryView,
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): Promise<Password> {
     const ph = new Password();
     ph.lastUsedDate = phModel.lastUsedDate;
@@ -292,7 +292,7 @@ export class CipherService implements CipherServiceAbstraction {
       {
         password: null,
       },
-      key
+      key,
     );
 
     return ph;
@@ -377,7 +377,7 @@ export class CipherService implements CipherServiceAbstraction {
   async getAllDecryptedForUrl(
     url: string,
     includeOtherTypes?: CipherType[],
-    defaultMatch: UriMatchType = null
+    defaultMatch: UriMatchType = null,
   ): Promise<CipherView[]> {
     if (url == null && includeOtherTypes == null) {
       return Promise.resolve([]);
@@ -608,7 +608,7 @@ export class CipherService implements CipherServiceAbstraction {
     const data = new CipherData(
       response,
       await this.stateService.getUserId(),
-      cipher.collectionIds
+      cipher.collectionIds,
     );
     await this.upsert(data);
   }
@@ -616,14 +616,14 @@ export class CipherService implements CipherServiceAbstraction {
   async shareWithServer(
     cipher: CipherView,
     organizationId: string,
-    collectionIds: string[]
+    collectionIds: string[],
   ): Promise<any> {
     const attachmentPromises: Promise<any>[] = [];
     if (cipher.attachments != null) {
       cipher.attachments.forEach((attachment) => {
         if (attachment.key == null) {
           attachmentPromises.push(
-            this.shareAttachmentWithServer(attachment, cipher.id, organizationId)
+            this.shareAttachmentWithServer(attachment, cipher.id, organizationId),
           );
         }
       });
@@ -642,7 +642,7 @@ export class CipherService implements CipherServiceAbstraction {
   async shareManyWithServer(
     ciphers: CipherView[],
     organizationId: string,
-    collectionIds: string[]
+    collectionIds: string[],
   ): Promise<any> {
     const promises: Promise<any>[] = [];
     const encCiphers: Cipher[] = [];
@@ -652,7 +652,7 @@ export class CipherService implements CipherServiceAbstraction {
       promises.push(
         this.encrypt(cipher).then((c) => {
           encCiphers.push(c);
-        })
+        }),
       );
     }
     await Promise.all(promises);
@@ -680,7 +680,7 @@ export class CipherService implements CipherServiceAbstraction {
             cipher,
             unencryptedFile.name,
             evt.target.result,
-            admin
+            admin,
           );
           resolve(cData);
         } catch (e) {
@@ -697,7 +697,7 @@ export class CipherService implements CipherServiceAbstraction {
     cipher: Cipher,
     filename: string,
     data: ArrayBuffer,
-    admin = false
+    admin = false,
   ): Promise<Cipher> {
     const key = await this.cryptoService.getOrgKey(cipher.organizationId);
     const encFileName = await this.cryptoService.encrypt(filename, key);
@@ -720,7 +720,7 @@ export class CipherService implements CipherServiceAbstraction {
         admin,
         uploadDataResponse,
         encFileName,
-        encData
+        encData,
       );
     } catch (e) {
       if (
@@ -732,7 +732,7 @@ export class CipherService implements CipherServiceAbstraction {
           cipher.id,
           encFileName,
           encData,
-          dataEncKey[1]
+          dataEncKey[1],
         );
       } else if (e instanceof ErrorResponse) {
         throw new Error((e as ErrorResponse).getSingleMessage());
@@ -744,7 +744,7 @@ export class CipherService implements CipherServiceAbstraction {
     const cData = new CipherData(
       response,
       await this.stateService.getUserId(),
-      cipher.collectionIds
+      cipher.collectionIds,
     );
     if (!admin) {
       await this.upsert(cData);
@@ -761,7 +761,7 @@ export class CipherService implements CipherServiceAbstraction {
     cipherId: string,
     encFileName: EncString,
     encData: EncArrayBuffer,
-    key: EncString
+    key: EncString,
   ) {
     const fd = new FormData();
     try {
@@ -777,7 +777,7 @@ export class CipherService implements CipherServiceAbstraction {
           {
             filepath: encFileName.encryptedString,
             contentType: "application/octet-stream",
-          } as any
+          } as any,
         );
       } else {
         throw e;
@@ -1014,7 +1014,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async restore(
-    cipher: { id: string; revisionDate: string } | { id: string; revisionDate: string }[]
+    cipher: { id: string; revisionDate: string } | { id: string; revisionDate: string }[],
   ) {
     const ciphers = await this.stateService.getEncryptedCiphers();
     if (ciphers == null) {
@@ -1058,10 +1058,10 @@ export class CipherService implements CipherServiceAbstraction {
   private async shareAttachmentWithServer(
     attachmentView: AttachmentView,
     cipherId: string,
-    organizationId: string
+    organizationId: string,
   ): Promise<any> {
     const attachmentResponse = await this.apiService.nativeFetch(
-      new Request(attachmentView.url, { cache: "no-store" })
+      new Request(attachmentView.url, { cache: "no-store" }),
     );
     if (attachmentResponse.status !== 200) {
       throw Error("Failed to download attachment: " + attachmentResponse.status.toString());
@@ -1089,7 +1089,7 @@ export class CipherService implements CipherServiceAbstraction {
           {
             filepath: encFileName.encryptedString,
             contentType: "application/octet-stream",
-          } as any
+          } as any,
         );
       } else {
         throw e;
@@ -1101,7 +1101,7 @@ export class CipherService implements CipherServiceAbstraction {
         cipherId,
         attachmentView.id,
         fd,
-        organizationId
+        organizationId,
       );
     } catch (e) {
       throw new Error((e as ErrorResponse).getSingleMessage());
@@ -1112,7 +1112,7 @@ export class CipherService implements CipherServiceAbstraction {
     model: V,
     obj: D,
     map: any,
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): Promise<void> {
     const promises = [];
     const self = this;
@@ -1156,7 +1156,7 @@ export class CipherService implements CipherServiceAbstraction {
             password: null,
             totp: null,
           },
-          key
+          key,
         );
 
         if (model.login.uris != null) {
@@ -1170,7 +1170,7 @@ export class CipherService implements CipherServiceAbstraction {
               {
                 uri: null,
               },
-              key
+              key,
             );
             cipher.login.uris.push(loginUri);
           }
@@ -1193,7 +1193,7 @@ export class CipherService implements CipherServiceAbstraction {
             expYear: null,
             code: null,
           },
-          key
+          key,
         );
         return;
       case CipherType.Identity:
@@ -1221,7 +1221,7 @@ export class CipherService implements CipherServiceAbstraction {
             passportNumber: null,
             licenseNumber: null,
           },
-          key
+          key,
         );
         return;
       default:
@@ -1233,7 +1233,7 @@ export class CipherService implements CipherServiceAbstraction {
     url: string,
     lastUsed: boolean,
     lastLaunched: boolean,
-    autofillOnPageLoad: boolean
+    autofillOnPageLoad: boolean,
   ): Promise<CipherView> {
     const cacheKey = autofillOnPageLoad ? "autofillOnPageLoad-" + url : url;
 
@@ -1248,7 +1248,7 @@ export class CipherService implements CipherServiceAbstraction {
         ciphers = ciphers.filter(
           (cipher) =>
             cipher.login.autofillOnPageLoad ||
-            (cipher.login.autofillOnPageLoad == null && autofillOnPageLoadDefault !== false)
+            (cipher.login.autofillOnPageLoad == null && autofillOnPageLoadDefault !== false),
         );
         if (ciphers.length === 0) {
           return null;

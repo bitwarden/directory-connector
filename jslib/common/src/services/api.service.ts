@@ -189,7 +189,7 @@ export class ApiService implements ApiServiceAbstraction {
     private environmentService: EnvironmentService,
     private appIdService: AppIdService,
     private logoutCallback: (expired: boolean) => Promise<void>,
-    private customUserAgent: string = null
+    private customUserAgent: string = null,
   ) {
     this.device = platformUtilsService.getDevice();
     this.deviceType = this.device.toString();
@@ -211,7 +211,7 @@ export class ApiService implements ApiServiceAbstraction {
   // Auth APIs
 
   async postIdentityToken(
-    request: ApiTokenRequest | PasswordTokenRequest | SsoTokenRequest
+    request: ApiTokenRequest | PasswordTokenRequest | SsoTokenRequest,
   ): Promise<IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse> {
     const headers = new Headers({
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
@@ -235,7 +235,7 @@ export class ApiService implements ApiServiceAbstraction {
         cache: "no-store",
         headers: headers,
         method: "POST",
-      })
+      }),
     );
 
     let responseJson: any = null;
@@ -313,7 +313,7 @@ export class ApiService implements ApiServiceAbstraction {
       true,
       this.platformUtilsService.isDev()
         ? this.environmentService.getIdentityUrl()
-        : this.environmentService.getApiUrl()
+        : this.environmentService.getApiUrl(),
     );
     return new PreloginResponse(r);
   }
@@ -364,7 +364,7 @@ export class ApiService implements ApiServiceAbstraction {
       false,
       this.platformUtilsService.isDev()
         ? this.environmentService.getIdentityUrl()
-        : this.environmentService.getApiUrl()
+        : this.environmentService.getApiUrl(),
     );
   }
 
@@ -445,7 +445,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postUserRotateApiKey(
     id: string,
-    request: SecretVerificationRequest
+    request: SecretVerificationRequest,
   ): Promise<ApiKeyResponse> {
     const r = await this.send("POST", "/accounts/rotate-api-key", request, true, true);
     return new ApiKeyResponse(r);
@@ -498,7 +498,7 @@ export class ApiService implements ApiServiceAbstraction {
   async postSendAccess(
     id: string,
     request: SendAccessRequest,
-    apiUrl?: string
+    apiUrl?: string,
   ): Promise<SendAccessResponse> {
     const addSendIdHeader = (headers: Headers) => {
       headers.set("Send-Id", id);
@@ -510,7 +510,7 @@ export class ApiService implements ApiServiceAbstraction {
       false,
       true,
       apiUrl,
-      addSendIdHeader
+      addSendIdHeader,
     );
     return new SendAccessResponse(r);
   }
@@ -518,7 +518,7 @@ export class ApiService implements ApiServiceAbstraction {
   async getSendFileDownloadData(
     send: SendAccessView,
     request: SendAccessRequest,
-    apiUrl?: string
+    apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
     const addSendIdHeader = (headers: Headers) => {
       headers.set("Send-Id", send.id);
@@ -530,7 +530,7 @@ export class ApiService implements ApiServiceAbstraction {
       false,
       true,
       apiUrl,
-      addSendIdHeader
+      addSendIdHeader,
     );
     return new SendFileDownloadDataResponse(r);
   }
@@ -552,7 +552,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async renewSendFileUploadUrl(
     sendId: string,
-    fileId: string
+    fileId: string,
   ): Promise<SendFileUploadDataResponse> {
     const r = await this.send("GET", "/sends/" + sendId + "/file/" + fileId, null, true, true);
     return new SendFileUploadDataResponse(r);
@@ -603,7 +603,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/ciphers/organization-details?organizationId=" + organizationId,
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, CipherResponse);
   }
@@ -672,7 +672,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   postPurgeCiphers(
     request: SecretVerificationRequest,
-    organizationId: string = null
+    organizationId: string = null,
   ): Promise<any> {
     let path = "/ciphers/purge";
     if (organizationId != null) {
@@ -687,14 +687,14 @@ export class ApiService implements ApiServiceAbstraction {
 
   postImportOrganizationCiphers(
     organizationId: string,
-    request: ImportOrganizationCiphersRequest
+    request: ImportOrganizationCiphersRequest,
   ): Promise<any> {
     return this.send(
       "POST",
       "/ciphers/import-organization?organizationId=" + organizationId,
       request,
       true,
-      false
+      false,
     );
   }
 
@@ -725,7 +725,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async putRestoreManyCiphers(
-    request: CipherBulkDeleteRequest
+    request: CipherBulkDeleteRequest,
   ): Promise<ListResponse<CipherResponse>> {
     const r = await this.send("PUT", "/ciphers/restore", request, true, true);
     return new ListResponse<CipherResponse>(r, CipherResponse);
@@ -736,7 +736,7 @@ export class ApiService implements ApiServiceAbstraction {
   async getAttachmentData(
     cipherId: string,
     attachmentId: string,
-    emergencyAccessId?: string
+    emergencyAccessId?: string,
   ): Promise<AttachmentResponse> {
     const path =
       (emergencyAccessId != null ? "/emergency-access/" + emergencyAccessId + "/" : "/ciphers/") +
@@ -749,7 +749,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postCipherAttachment(
     id: string,
-    request: AttachmentRequest
+    request: AttachmentRequest,
   ): Promise<AttachmentUploadDataResponse> {
     const r = await this.send("POST", "/ciphers/" + id + "/attachment/v2", request, true, true);
     return new AttachmentUploadDataResponse(r);
@@ -783,7 +783,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
       null,
       true,
-      false
+      false,
     );
   }
 
@@ -791,27 +791,27 @@ export class ApiService implements ApiServiceAbstraction {
     id: string,
     attachmentId: string,
     data: FormData,
-    organizationId: string
+    organizationId: string,
   ): Promise<any> {
     return this.send(
       "POST",
       "/ciphers/" + id + "/attachment/" + attachmentId + "/share?organizationId=" + organizationId,
       data,
       true,
-      false
+      false,
     );
   }
 
   async renewAttachmentUploadUrl(
     id: string,
-    attachmentId: string
+    attachmentId: string,
   ): Promise<AttachmentUploadDataResponse> {
     const r = await this.send(
       "GET",
       "/ciphers/" + id + "/attachment/" + attachmentId + "/renew",
       null,
       true,
-      true
+      true,
     );
     return new AttachmentUploadDataResponse(r);
   }
@@ -824,14 +824,14 @@ export class ApiService implements ApiServiceAbstraction {
 
   async getCollectionDetails(
     organizationId: string,
-    id: string
+    id: string,
   ): Promise<CollectionGroupDetailsResponse> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/collections/" + id + "/details",
       null,
       true,
-      true
+      true,
     );
     return new CollectionGroupDetailsResponse(r);
   }
@@ -847,35 +847,35 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/collections",
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, CollectionResponse);
   }
 
   async getCollectionUsers(
     organizationId: string,
-    id: string
+    id: string,
   ): Promise<SelectionReadOnlyResponse[]> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/collections/" + id + "/users",
       null,
       true,
-      true
+      true,
     );
     return r.map((dr: any) => new SelectionReadOnlyResponse(dr));
   }
 
   async postCollection(
     organizationId: string,
-    request: CollectionRequest
+    request: CollectionRequest,
   ): Promise<CollectionResponse> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/collections",
       request,
       true,
-      true
+      true,
     );
     return new CollectionResponse(r);
   }
@@ -883,14 +883,14 @@ export class ApiService implements ApiServiceAbstraction {
   async putCollection(
     organizationId: string,
     id: string,
-    request: CollectionRequest
+    request: CollectionRequest,
   ): Promise<CollectionResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/collections/" + id,
       request,
       true,
-      true
+      true,
     );
     return new CollectionResponse(r);
   }
@@ -898,14 +898,14 @@ export class ApiService implements ApiServiceAbstraction {
   async putCollectionUsers(
     organizationId: string,
     id: string,
-    request: SelectionReadOnlyRequest[]
+    request: SelectionReadOnlyRequest[],
   ): Promise<any> {
     await this.send(
       "PUT",
       "/organizations/" + organizationId + "/collections/" + id + "/users",
       request,
       true,
-      false
+      false,
     );
   }
 
@@ -915,21 +915,21 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/collections/" + id,
       null,
       true,
-      false
+      false,
     );
   }
 
   deleteCollectionUser(
     organizationId: string,
     id: string,
-    organizationUserId: string
+    organizationUserId: string,
   ): Promise<any> {
     return this.send(
       "DELETE",
       "/organizations/" + organizationId + "/collections/" + id + "/user/" + organizationUserId,
       null,
       true,
-      false
+      false,
     );
   }
 
@@ -941,7 +941,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/groups/" + id + "/details",
       null,
       true,
-      true
+      true,
     );
     return new GroupDetailsResponse(r);
   }
@@ -952,7 +952,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/groups",
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, GroupResponse);
   }
@@ -963,7 +963,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/groups/" + id + "/users",
       null,
       true,
-      true
+      true,
     );
     return r;
   }
@@ -974,7 +974,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/groups",
       request,
       true,
-      true
+      true,
     );
     return new GroupResponse(r);
   }
@@ -982,14 +982,14 @@ export class ApiService implements ApiServiceAbstraction {
   async putGroup(
     organizationId: string,
     id: string,
-    request: GroupRequest
+    request: GroupRequest,
   ): Promise<GroupResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/groups/" + id,
       request,
       true,
-      true
+      true,
     );
     return new GroupResponse(r);
   }
@@ -1000,7 +1000,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/groups/" + id + "/users",
       request,
       true,
-      false
+      false,
     );
   }
 
@@ -1010,7 +1010,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/groups/" + id,
       null,
       true,
-      false
+      false,
     );
   }
 
@@ -1020,7 +1020,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/groups/" + id + "/user/" + organizationUserId,
       null,
       true,
-      false
+      false,
     );
   }
 
@@ -1032,7 +1032,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/policies/" + type,
       null,
       true,
-      true
+      true,
     );
     return new PolicyResponse(r);
   }
@@ -1043,7 +1043,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/policies",
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, PolicyResponse);
   }
@@ -1052,7 +1052,7 @@ export class ApiService implements ApiServiceAbstraction {
     organizationId: string,
     token: string,
     email: string,
-    organizationUserId: string
+    organizationUserId: string,
   ): Promise<ListResponse<PolicyResponse>> {
     const r = await this.send(
       "GET",
@@ -1067,21 +1067,21 @@ export class ApiService implements ApiServiceAbstraction {
         organizationUserId,
       null,
       false,
-      true
+      true,
     );
     return new ListResponse(r, PolicyResponse);
   }
 
   async getPoliciesByInvitedUser(
     organizationId: string,
-    userId: string
+    userId: string,
   ): Promise<ListResponse<PolicyResponse>> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/policies/invited-user?" + "userId=" + userId,
       null,
       false,
-      true
+      true,
     );
     return new ListResponse(r, PolicyResponse);
   }
@@ -1089,14 +1089,14 @@ export class ApiService implements ApiServiceAbstraction {
   async putPolicy(
     organizationId: string,
     type: PolicyType,
-    request: PolicyRequest
+    request: PolicyRequest,
   ): Promise<PolicyResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/policies/" + type,
       request,
       true,
-      true
+      true,
     );
     return new PolicyResponse(r);
   }
@@ -1105,14 +1105,14 @@ export class ApiService implements ApiServiceAbstraction {
 
   async getOrganizationUser(
     organizationId: string,
-    id: string
+    id: string,
   ): Promise<OrganizationUserDetailsResponse> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/users/" + id,
       null,
       true,
-      true
+      true,
     );
     return new OrganizationUserDetailsResponse(r);
   }
@@ -1123,61 +1123,61 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/users/" + id + "/groups",
       null,
       true,
-      true
+      true,
     );
     return r;
   }
 
   async getOrganizationUsers(
-    organizationId: string
+    organizationId: string,
   ): Promise<ListResponse<OrganizationUserUserDetailsResponse>> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/users",
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, OrganizationUserUserDetailsResponse);
   }
 
   async getOrganizationUserResetPasswordDetails(
     organizationId: string,
-    id: string
+    id: string,
   ): Promise<OrganizationUserResetPasswordDetailsReponse> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/users/" + id + "/reset-password-details",
       null,
       true,
-      true
+      true,
     );
     return new OrganizationUserResetPasswordDetailsReponse(r);
   }
 
   async getOrganizationAutoEnrollStatus(
-    identifier: string
+    identifier: string,
   ): Promise<OrganizationAutoEnrollStatusResponse> {
     const r = await this.send(
       "GET",
       "/organizations/" + identifier + "/auto-enroll-status",
       null,
       true,
-      true
+      true,
     );
     return new OrganizationAutoEnrollStatusResponse(r);
   }
 
   postOrganizationUserInvite(
     organizationId: string,
-    request: OrganizationUserInviteRequest
+    request: OrganizationUserInviteRequest,
   ): Promise<any> {
     return this.send(
       "POST",
       "/organizations/" + organizationId + "/users/invite",
       request,
       true,
-      false
+      false,
     );
   }
 
@@ -1187,20 +1187,20 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/users/" + id + "/reinvite",
       null,
       true,
-      false
+      false,
     );
   }
 
   async postManyOrganizationUserReinvite(
     organizationId: string,
-    request: OrganizationUserBulkRequest
+    request: OrganizationUserBulkRequest,
   ): Promise<ListResponse<OrganizationUserBulkResponse>> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/users/reinvite",
       request,
       true,
-      true
+      true,
     );
     return new ListResponse(r, OrganizationUserBulkResponse);
   }
@@ -1208,55 +1208,55 @@ export class ApiService implements ApiServiceAbstraction {
   postOrganizationUserAccept(
     organizationId: string,
     id: string,
-    request: OrganizationUserAcceptRequest
+    request: OrganizationUserAcceptRequest,
   ): Promise<any> {
     return this.send(
       "POST",
       "/organizations/" + organizationId + "/users/" + id + "/accept",
       request,
       true,
-      false
+      false,
     );
   }
 
   postOrganizationUserConfirm(
     organizationId: string,
     id: string,
-    request: OrganizationUserConfirmRequest
+    request: OrganizationUserConfirmRequest,
   ): Promise<any> {
     return this.send(
       "POST",
       "/organizations/" + organizationId + "/users/" + id + "/confirm",
       request,
       true,
-      false
+      false,
     );
   }
 
   async postOrganizationUsersPublicKey(
     organizationId: string,
-    request: OrganizationUserBulkRequest
+    request: OrganizationUserBulkRequest,
   ): Promise<ListResponse<OrganizationUserBulkPublicKeyResponse>> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/users/public-keys",
       request,
       true,
-      true
+      true,
     );
     return new ListResponse(r, OrganizationUserBulkPublicKeyResponse);
   }
 
   async postOrganizationUserBulkConfirm(
     organizationId: string,
-    request: OrganizationUserBulkConfirmRequest
+    request: OrganizationUserBulkConfirmRequest,
   ): Promise<ListResponse<OrganizationUserBulkResponse>> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/users/confirm",
       request,
       true,
-      true
+      true,
     );
     return new ListResponse(r, OrganizationUserBulkResponse);
   }
@@ -1264,56 +1264,56 @@ export class ApiService implements ApiServiceAbstraction {
   putOrganizationUser(
     organizationId: string,
     id: string,
-    request: OrganizationUserUpdateRequest
+    request: OrganizationUserUpdateRequest,
   ): Promise<any> {
     return this.send(
       "PUT",
       "/organizations/" + organizationId + "/users/" + id,
       request,
       true,
-      false
+      false,
     );
   }
 
   putOrganizationUserGroups(
     organizationId: string,
     id: string,
-    request: OrganizationUserUpdateGroupsRequest
+    request: OrganizationUserUpdateGroupsRequest,
   ): Promise<any> {
     return this.send(
       "PUT",
       "/organizations/" + organizationId + "/users/" + id + "/groups",
       request,
       true,
-      false
+      false,
     );
   }
 
   putOrganizationUserResetPasswordEnrollment(
     organizationId: string,
     userId: string,
-    request: OrganizationUserResetPasswordEnrollmentRequest
+    request: OrganizationUserResetPasswordEnrollmentRequest,
   ): Promise<any> {
     return this.send(
       "PUT",
       "/organizations/" + organizationId + "/users/" + userId + "/reset-password-enrollment",
       request,
       true,
-      false
+      false,
     );
   }
 
   putOrganizationUserResetPassword(
     organizationId: string,
     id: string,
-    request: OrganizationUserResetPasswordRequest
+    request: OrganizationUserResetPasswordRequest,
   ): Promise<any> {
     return this.send(
       "PUT",
       "/organizations/" + organizationId + "/users/" + id + "/reset-password",
       request,
       true,
-      false
+      false,
     );
   }
 
@@ -1323,20 +1323,20 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + organizationId + "/users/" + id,
       null,
       true,
-      false
+      false,
     );
   }
 
   async deleteManyOrganizationUsers(
     organizationId: string,
-    request: OrganizationUserBulkRequest
+    request: OrganizationUserBulkRequest,
   ): Promise<ListResponse<OrganizationUserBulkResponse>> {
     const r = await this.send(
       "DELETE",
       "/organizations/" + organizationId + "/users",
       request,
       true,
-      true
+      true,
     );
     return new ListResponse(r, OrganizationUserBulkResponse);
   }
@@ -1389,20 +1389,20 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async getTwoFactorOrganizationProviders(
-    organizationId: string
+    organizationId: string,
   ): Promise<ListResponse<TwoFactorProviderResponse>> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/two-factor",
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, TwoFactorProviderResponse);
   }
 
   async getTwoFactorAuthenticator(
-    request: SecretVerificationRequest
+    request: SecretVerificationRequest,
   ): Promise<TwoFactorAuthenticatorResponse> {
     const r = await this.send("POST", "/two-factor/get-authenticator", request, true, true);
     return new TwoFactorAuthenticatorResponse(r);
@@ -1420,14 +1420,14 @@ export class ApiService implements ApiServiceAbstraction {
 
   async getTwoFactorOrganizationDuo(
     organizationId: string,
-    request: SecretVerificationRequest
+    request: SecretVerificationRequest,
   ): Promise<TwoFactorDuoResponse> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/two-factor/get-duo",
       request,
       true,
-      true
+      true,
     );
     return new TwoFactorDuoResponse(r);
   }
@@ -1438,14 +1438,14 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async getTwoFactorWebAuthn(
-    request: SecretVerificationRequest
+    request: SecretVerificationRequest,
   ): Promise<TwoFactorWebAuthnResponse> {
     const r = await this.send("POST", "/two-factor/get-webauthn", request, true, true);
     return new TwoFactorWebAuthnResponse(r);
   }
 
   async getTwoFactorWebAuthnChallenge(
-    request: SecretVerificationRequest
+    request: SecretVerificationRequest,
   ): Promise<ChallengeResponse> {
     const r = await this.send("POST", "/two-factor/get-webauthn-challenge", request, true, true);
     return new ChallengeResponse(r);
@@ -1457,7 +1457,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async putTwoFactorAuthenticator(
-    request: UpdateTwoFactorAuthenticatorRequest
+    request: UpdateTwoFactorAuthenticatorRequest,
   ): Promise<TwoFactorAuthenticatorResponse> {
     const r = await this.send("PUT", "/two-factor/authenticator", request, true, true);
     return new TwoFactorAuthenticatorResponse(r);
@@ -1475,27 +1475,27 @@ export class ApiService implements ApiServiceAbstraction {
 
   async putTwoFactorOrganizationDuo(
     organizationId: string,
-    request: UpdateTwoFactorDuoRequest
+    request: UpdateTwoFactorDuoRequest,
   ): Promise<TwoFactorDuoResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/two-factor/duo",
       request,
       true,
-      true
+      true,
     );
     return new TwoFactorDuoResponse(r);
   }
 
   async putTwoFactorYubiKey(
-    request: UpdateTwoFactorYubioOtpRequest
+    request: UpdateTwoFactorYubioOtpRequest,
   ): Promise<TwoFactorYubiKeyResponse> {
     const r = await this.send("PUT", "/two-factor/yubikey", request, true, true);
     return new TwoFactorYubiKeyResponse(r);
   }
 
   async putTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnRequest
+    request: UpdateTwoFactorWebAuthnRequest,
   ): Promise<TwoFactorWebAuthnResponse> {
     const response = request.deviceResponse.response as AuthenticatorAttestationResponse;
     const data: any = Object.assign({}, request);
@@ -1516,7 +1516,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async deleteTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnDeleteRequest
+    request: UpdateTwoFactorWebAuthnDeleteRequest,
   ): Promise<TwoFactorWebAuthnResponse> {
     const r = await this.send("DELETE", "/two-factor/webauthn", request, true, true);
     return new TwoFactorWebAuthnResponse(r);
@@ -1529,14 +1529,14 @@ export class ApiService implements ApiServiceAbstraction {
 
   async putTwoFactorOrganizationDisable(
     organizationId: string,
-    request: TwoFactorProviderRequest
+    request: TwoFactorProviderRequest,
   ): Promise<TwoFactorProviderResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/two-factor/disable",
       request,
       true,
-      true
+      true,
     );
     return new TwoFactorProviderResponse(r);
   }
@@ -1618,7 +1618,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postEmergencyAccessPassword(
     id: string,
-    request: EmergencyAccessPasswordRequest
+    request: EmergencyAccessPasswordRequest,
   ): Promise<any> {
     await this.send("POST", "/emergency-access/" + id + "/password", request, true, true);
   }
@@ -1651,7 +1651,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organizations/" + id + "/license?installationId=" + installationId,
       null,
       true,
-      true
+      true,
     );
   }
 
@@ -1672,7 +1672,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async putOrganization(
     id: string,
-    request: OrganizationUpdateRequest
+    request: OrganizationUpdateRequest,
   ): Promise<OrganizationResponse> {
     const r = await this.send("PUT", "/organizations/" + id, request, true, true);
     return new OrganizationResponse(r);
@@ -1680,7 +1680,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async putOrganizationTaxInfo(
     id: string,
-    request: OrganizationTaxInfoUpdateRequest
+    request: OrganizationTaxInfoUpdateRequest,
   ): Promise<any> {
     return this.send("PUT", "/organizations/" + id + "/tax", request, true, false);
   }
@@ -1700,7 +1700,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postOrganizationApiKey(
     id: string,
-    request: SecretVerificationRequest
+    request: SecretVerificationRequest,
   ): Promise<ApiKeyResponse> {
     const r = await this.send("POST", "/organizations/" + id + "/api-key", request, true, true);
     return new ApiKeyResponse(r);
@@ -1708,21 +1708,21 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postOrganizationRotateApiKey(
     id: string,
-    request: SecretVerificationRequest
+    request: SecretVerificationRequest,
   ): Promise<ApiKeyResponse> {
     const r = await this.send(
       "POST",
       "/organizations/" + id + "/rotate-api-key",
       request,
       true,
-      true
+      true,
     );
     return new ApiKeyResponse(r);
   }
 
   async postOrganizationSso(
     id: string,
-    request: OrganizationSsoRequest
+    request: OrganizationSsoRequest,
   ): Promise<OrganizationSsoResponse> {
     const r = await this.send("POST", "/organizations/" + id + "/sso", request, true, true);
     return new OrganizationSsoResponse(r);
@@ -1730,7 +1730,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postOrganizationUpgrade(
     id: string,
-    request: OrganizationUpgradeRequest
+    request: OrganizationUpgradeRequest,
   ): Promise<PaymentResponse> {
     const r = await this.send("POST", "/organizations/" + id + "/upgrade", request, true, true);
     return new PaymentResponse(r);
@@ -1738,7 +1738,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postOrganizationUpdateSubscription(
     id: string,
-    request: OrganizationSubscriptionUpdateRequest
+    request: OrganizationSubscriptionUpdateRequest,
   ): Promise<void> {
     return this.send("POST", "/organizations/" + id + "/subscription", request, true, false);
   }
@@ -1780,7 +1780,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postOrganizationKeys(
     id: string,
-    request: OrganizationKeysRequest
+    request: OrganizationKeysRequest,
   ): Promise<OrganizationKeysResponse> {
     const r = await this.send("POST", "/organizations/" + id + "/keys", request, true, true);
     return new OrganizationKeysResponse(r);
@@ -1806,7 +1806,7 @@ export class ApiService implements ApiServiceAbstraction {
   // Provider User APIs
 
   async getProviderUsers(
-    providerId: string
+    providerId: string,
   ): Promise<ListResponse<ProviderUserUserDetailsResponse>> {
     const r = await this.send("GET", "/providers/" + providerId + "/users", null, true, true);
     return new ListResponse(r, ProviderUserUserDetailsResponse);
@@ -1827,41 +1827,41 @@ export class ApiService implements ApiServiceAbstraction {
       "/providers/" + providerId + "/users/" + id + "/reinvite",
       null,
       true,
-      false
+      false,
     );
   }
 
   async postManyProviderUserReinvite(
     providerId: string,
-    request: ProviderUserBulkRequest
+    request: ProviderUserBulkRequest,
   ): Promise<ListResponse<ProviderUserBulkResponse>> {
     const r = await this.send(
       "POST",
       "/providers/" + providerId + "/users/reinvite",
       request,
       true,
-      true
+      true,
     );
     return new ListResponse(r, ProviderUserBulkResponse);
   }
 
   async postProviderUserBulkConfirm(
     providerId: string,
-    request: ProviderUserBulkConfirmRequest
+    request: ProviderUserBulkConfirmRequest,
   ): Promise<ListResponse<ProviderUserBulkResponse>> {
     const r = await this.send(
       "POST",
       "/providers/" + providerId + "/users/confirm",
       request,
       true,
-      true
+      true,
     );
     return new ListResponse(r, ProviderUserBulkResponse);
   }
 
   async deleteManyProviderUsers(
     providerId: string,
-    request: ProviderUserBulkRequest
+    request: ProviderUserBulkRequest,
   ): Promise<ListResponse<ProviderUserBulkResponse>> {
     const r = await this.send("DELETE", "/providers/" + providerId + "/users", request, true, true);
     return new ListResponse(r, ProviderUserBulkResponse);
@@ -1870,41 +1870,41 @@ export class ApiService implements ApiServiceAbstraction {
   postProviderUserAccept(
     providerId: string,
     id: string,
-    request: ProviderUserAcceptRequest
+    request: ProviderUserAcceptRequest,
   ): Promise<any> {
     return this.send(
       "POST",
       "/providers/" + providerId + "/users/" + id + "/accept",
       request,
       true,
-      false
+      false,
     );
   }
 
   postProviderUserConfirm(
     providerId: string,
     id: string,
-    request: ProviderUserConfirmRequest
+    request: ProviderUserConfirmRequest,
   ): Promise<any> {
     return this.send(
       "POST",
       "/providers/" + providerId + "/users/" + id + "/confirm",
       request,
       true,
-      false
+      false,
     );
   }
 
   async postProviderUsersPublicKey(
     providerId: string,
-    request: ProviderUserBulkRequest
+    request: ProviderUserBulkRequest,
   ): Promise<ListResponse<ProviderUserBulkPublicKeyResponse>> {
     const r = await this.send(
       "POST",
       "/providers/" + providerId + "/users/public-keys",
       request,
       true,
-      true
+      true,
     );
     return new ListResponse(r, ProviderUserBulkPublicKeyResponse);
   }
@@ -1912,7 +1912,7 @@ export class ApiService implements ApiServiceAbstraction {
   putProviderUser(
     providerId: string,
     id: string,
-    request: ProviderUserUpdateRequest
+    request: ProviderUserUpdateRequest,
   ): Promise<any> {
     return this.send("PUT", "/providers/" + providerId + "/users/" + id, request, true, false);
   }
@@ -1924,41 +1924,41 @@ export class ApiService implements ApiServiceAbstraction {
   // Provider Organization APIs
 
   async getProviderClients(
-    providerId: string
+    providerId: string,
   ): Promise<ListResponse<ProviderOrganizationOrganizationDetailsResponse>> {
     const r = await this.send(
       "GET",
       "/providers/" + providerId + "/organizations",
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, ProviderOrganizationOrganizationDetailsResponse);
   }
 
   postProviderAddOrganization(
     providerId: string,
-    request: ProviderAddOrganizationRequest
+    request: ProviderAddOrganizationRequest,
   ): Promise<any> {
     return this.send(
       "POST",
       "/providers/" + providerId + "/organizations/add",
       request,
       true,
-      false
+      false,
     );
   }
 
   async postProviderCreateOrganization(
     providerId: string,
-    request: ProviderOrganizationCreateRequest
+    request: ProviderOrganizationCreateRequest,
   ): Promise<ProviderOrganizationResponse> {
     const r = await this.send(
       "POST",
       "/providers/" + providerId + "/organizations",
       request,
       true,
-      true
+      true,
     );
     return new ProviderOrganizationResponse(r);
   }
@@ -1969,7 +1969,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/providers/" + providerId + "/organizations/" + id,
       null,
       true,
-      false
+      false,
     );
   }
 
@@ -1981,7 +1981,7 @@ export class ApiService implements ApiServiceAbstraction {
       this.addEventParameters("/events", start, end, token),
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, EventResponse);
   }
@@ -1990,14 +1990,14 @@ export class ApiService implements ApiServiceAbstraction {
     id: string,
     start: string,
     end: string,
-    token: string
+    token: string,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
       this.addEventParameters("/ciphers/" + id + "/events", start, end, token),
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, EventResponse);
   }
@@ -2006,14 +2006,14 @@ export class ApiService implements ApiServiceAbstraction {
     id: string,
     start: string,
     end: string,
-    token: string
+    token: string,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
       this.addEventParameters("/organizations/" + id + "/events", start, end, token),
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, EventResponse);
   }
@@ -2023,7 +2023,7 @@ export class ApiService implements ApiServiceAbstraction {
     id: string,
     start: string,
     end: string,
-    token: string
+    token: string,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
@@ -2031,11 +2031,11 @@ export class ApiService implements ApiServiceAbstraction {
         "/organizations/" + organizationId + "/users/" + id + "/events",
         start,
         end,
-        token
+        token,
       ),
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, EventResponse);
   }
@@ -2044,14 +2044,14 @@ export class ApiService implements ApiServiceAbstraction {
     id: string,
     start: string,
     end: string,
-    token: string
+    token: string,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
       this.addEventParameters("/providers/" + id + "/events", start, end, token),
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, EventResponse);
   }
@@ -2061,7 +2061,7 @@ export class ApiService implements ApiServiceAbstraction {
     id: string,
     start: string,
     end: string,
-    token: string
+    token: string,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
@@ -2069,11 +2069,11 @@ export class ApiService implements ApiServiceAbstraction {
         "/providers/" + providerId + "/users/" + id + "/events",
         start,
         end,
-        token
+        token,
       ),
       null,
       true,
-      true
+      true,
     );
     return new ListResponse(r, EventResponse);
   }
@@ -2095,7 +2095,7 @@ export class ApiService implements ApiServiceAbstraction {
         method: "POST",
         body: JSON.stringify(request),
         headers: headers,
-      })
+      }),
     );
     if (response.status !== 200) {
       return Promise.reject("Event post failed.");
@@ -2141,7 +2141,7 @@ export class ApiService implements ApiServiceAbstraction {
           Accept: "application/json",
           Authorization: "Bearer " + authHeader,
         }),
-      })
+      }),
     );
 
     if (response.status !== 200) {
@@ -2154,7 +2154,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postUserKeyToKeyConnector(
     keyConnectorUrl: string,
-    request: KeyConnectorUserKeyRequest
+    request: KeyConnectorUserKeyRequest,
   ): Promise<void> {
     const authHeader = await this.getActiveBearerToken();
 
@@ -2168,7 +2168,7 @@ export class ApiService implements ApiServiceAbstraction {
           "Content-Type": "application/json; charset=utf-8",
         }),
         body: JSON.stringify(request),
-      })
+      }),
     );
 
     if (response.status !== 200) {
@@ -2186,7 +2186,7 @@ export class ApiService implements ApiServiceAbstraction {
           Accept: "application/json",
           "Content-Type": "application/json; charset=utf-8",
         }),
-      })
+      }),
     );
 
     if (response.status !== 200) {
@@ -2214,7 +2214,7 @@ export class ApiService implements ApiServiceAbstraction {
     request.headers.set("Bitwarden-Client-Name", this.platformUtilsService.getClientType());
     request.headers.set(
       "Bitwarden-Client-Version",
-      await this.platformUtilsService.getApplicationVersion()
+      await this.platformUtilsService.getApplicationVersion(),
     );
     return this.nativeFetch(request);
   }
@@ -2242,7 +2242,7 @@ export class ApiService implements ApiServiceAbstraction {
         credentials: this.getCredentials(),
         headers: headers,
         method: "GET",
-      })
+      }),
     );
 
     if (response.status === 200) {
@@ -2255,14 +2255,14 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postCreateSponsorship(
     sponsoredOrgId: string,
-    request: OrganizationSponsorshipCreateRequest
+    request: OrganizationSponsorshipCreateRequest,
   ): Promise<void> {
     return await this.send(
       "POST",
       "/organization/sponsorship/" + sponsoredOrgId + "/families-for-enterprise",
       request,
       true,
-      false
+      false,
     );
   }
 
@@ -2272,7 +2272,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organization/sponsorship/" + sponsoringOrganizationId,
       null,
       true,
-      false
+      false,
     );
   }
 
@@ -2282,7 +2282,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organization/sponsorship/sponsored/" + sponsoringOrgId,
       null,
       true,
-      false
+      false,
     );
   }
 
@@ -2293,21 +2293,21 @@ export class ApiService implements ApiServiceAbstraction {
         encodeURIComponent(sponsorshipToken),
       null,
       true,
-      true
+      true,
     );
     return r as boolean;
   }
 
   async postRedeemSponsorship(
     sponsorshipToken: string,
-    request: OrganizationSponsorshipRedeemRequest
+    request: OrganizationSponsorshipRedeemRequest,
   ): Promise<void> {
     return await this.send(
       "POST",
       "/organization/sponsorship/redeem?sponsorshipToken=" + encodeURIComponent(sponsorshipToken),
       request,
       true,
-      false
+      false,
     );
   }
 
@@ -2317,7 +2317,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/organization/sponsorship/" + sponsoringOrgId + "/families-for-enterprise/resend",
       null,
       true,
-      false
+      false,
     );
   }
 
@@ -2362,7 +2362,7 @@ export class ApiService implements ApiServiceAbstraction {
         credentials: this.getCredentials(),
         headers: headers,
         method: "POST",
-      })
+      }),
     );
 
     if (response.status === 200) {
@@ -2371,7 +2371,7 @@ export class ApiService implements ApiServiceAbstraction {
       await this.tokenService.setTokens(
         tokenResponse.accessToken,
         tokenResponse.refreshToken,
-        null
+        null,
       );
     } else {
       const error = await this.handleError(response, true, true);
@@ -2390,7 +2390,7 @@ export class ApiService implements ApiServiceAbstraction {
       clientId,
       clientSecret,
       new TokenRequestTwoFactor(),
-      deviceRequest
+      deviceRequest,
     );
 
     const response = await this.postIdentityToken(tokenRequest);
@@ -2408,7 +2408,7 @@ export class ApiService implements ApiServiceAbstraction {
     authed: boolean,
     hasResponse: boolean,
     apiUrl?: string,
-    alterHeaders?: (headers: Headers) => void
+    alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
     apiUrl = Utils.isNullOrWhitespace(apiUrl) ? this.environmentService.getApiUrl() : apiUrl;
 
@@ -2470,7 +2470,7 @@ export class ApiService implements ApiServiceAbstraction {
   private async handleError(
     response: Response,
     tokenError: boolean,
-    authed: boolean
+    authed: boolean,
   ): Promise<ErrorResponse> {
     if (
       authed &&

@@ -82,23 +82,23 @@ export abstract class StateService<T extends Account = Account> {
   getDecryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<SymmetricCryptoKey>;
   setDecryptedCryptoSymmetricKey: (
     value: SymmetricCryptoKey,
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getDecryptedFolders: (options?: StorageOptions) => Promise<FolderView[]>;
   setDecryptedFolders: (value: FolderView[], options?: StorageOptions) => Promise<void>;
   getDecryptedOrganizationKeys: (
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<Map<string, SymmetricCryptoKey>>;
   setDecryptedOrganizationKeys: (
     value: Map<string, SymmetricCryptoKey>,
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getDecryptedPasswordGenerationHistory: (
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<GeneratedPasswordHistory[]>;
   setDecryptedPasswordGenerationHistory: (
     value: GeneratedPasswordHistory[],
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getDecryptedPinProtected: (options?: StorageOptions) => Promise<EncString>;
   setDecryptedPinProtected: (value: EncString, options?: StorageOptions) => Promise<void>;
@@ -109,7 +109,7 @@ export abstract class StateService<T extends Account = Account> {
   getDecryptedProviderKeys: (options?: StorageOptions) => Promise<Map<string, SymmetricCryptoKey>>;
   setDecryptedProviderKeys: (
     value: Map<string, SymmetricCryptoKey>,
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getDecryptedSends: (options?: StorageOptions) => Promise<SendView[]>;
   setDecryptedSends: (value: SendView[], options?: StorageOptions) => Promise<void>;
@@ -126,7 +126,7 @@ export abstract class StateService<T extends Account = Account> {
   getDisableChangedPasswordNotification: (options?: StorageOptions) => Promise<boolean>;
   setDisableChangedPasswordNotification: (
     value: boolean,
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getDisableContextMenuItem: (options?: StorageOptions) => Promise<boolean>;
   setDisableContextMenuItem: (value: boolean, options?: StorageOptions) => Promise<void>;
@@ -153,7 +153,7 @@ export abstract class StateService<T extends Account = Account> {
   getEnableBrowserIntegrationFingerprint: (options?: StorageOptions) => Promise<boolean>;
   setEnableBrowserIntegrationFingerprint: (
     value: boolean,
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getEnableCloseToTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableCloseToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
@@ -170,38 +170,38 @@ export abstract class StateService<T extends Account = Account> {
   getEncryptedCiphers: (options?: StorageOptions) => Promise<{ [id: string]: CipherData }>;
   setEncryptedCiphers: (
     value: { [id: string]: CipherData },
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getEncryptedCollections: (options?: StorageOptions) => Promise<{ [id: string]: CollectionData }>;
   setEncryptedCollections: (
     value: { [id: string]: CollectionData },
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getEncryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<string>;
   setEncryptedCryptoSymmetricKey: (value: string, options?: StorageOptions) => Promise<void>;
   getEncryptedFolders: (options?: StorageOptions) => Promise<{ [id: string]: FolderData }>;
   setEncryptedFolders: (
     value: { [id: string]: FolderData },
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getEncryptedOrganizationKeys: (options?: StorageOptions) => Promise<any>;
   setEncryptedOrganizationKeys: (
     value: Map<string, SymmetricCryptoKey>,
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getEncryptedPasswordGenerationHistory: (
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<GeneratedPasswordHistory[]>;
   setEncryptedPasswordGenerationHistory: (
     value: GeneratedPasswordHistory[],
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getEncryptedPinProtected: (options?: StorageOptions) => Promise<string>;
   setEncryptedPinProtected: (value: string, options?: StorageOptions) => Promise<void>;
   getEncryptedPolicies: (options?: StorageOptions) => Promise<{ [id: string]: PolicyData }>;
   setEncryptedPolicies: (
     value: { [id: string]: PolicyData },
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getEncryptedPrivateKey: (options?: StorageOptions) => Promise<string>;
   setEncryptedPrivateKey: (value: string, options?: StorageOptions) => Promise<void>;
@@ -261,7 +261,7 @@ export abstract class StateService<T extends Account = Account> {
   getOrganizations: (options?: StorageOptions) => Promise<{ [id: string]: OrganizationData }>;
   setOrganizations: (
     value: { [id: string]: OrganizationData },
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getPasswordGenerationOptions: (options?: StorageOptions) => Promise<any>;
   setPasswordGenerationOptions: (value: any, options?: StorageOptions) => Promise<void>;

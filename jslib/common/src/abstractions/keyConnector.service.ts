@@ -9,7 +9,7 @@ export abstract class KeyConnectorService {
   userNeedsMigration: () => Promise<boolean>;
   convertNewSsoUserToKeyConnector: (
     tokenResponse: IdentityTokenResponse,
-    orgId: string
+    orgId: string,
   ) => Promise<void>;
   setUsesKeyConnector: (enabled: boolean) => Promise<void>;
   setConvertAccountRequired: (status: boolean) => Promise<void>;

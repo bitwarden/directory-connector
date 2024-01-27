@@ -18,7 +18,7 @@ export class TrayMain {
   constructor(
     private windowMain: WindowMain,
     private i18nService: I18nService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {
     if (process.platform === "win32") {
       this.icon = path.join(__dirname, "/images/icon.ico");
@@ -27,7 +27,7 @@ export class TrayMain {
       nImage.setTemplateImage(true);
       this.icon = nImage;
       this.pressedIcon = nativeImage.createFromPath(
-        path.join(__dirname, "/images/icon-highlight.png")
+        path.join(__dirname, "/images/icon-highlight.png"),
       );
     } else {
       this.icon = path.join(__dirname, "/images/icon.png");
