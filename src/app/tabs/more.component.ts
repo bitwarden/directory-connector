@@ -25,7 +25,7 @@ export class MoreComponent implements OnInit {
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
     private changeDetectorRef: ChangeDetectorRef,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async ngOnInit() {
@@ -63,7 +63,7 @@ export class MoreComponent implements OnInit {
       this.i18nService.t("logOutConfirmation"),
       this.i18nService.t("logOut"),
       this.i18nService.t("yes"),
-      this.i18nService.t("cancel")
+      this.i18nService.t("cancel"),
     );
     if (confirmed) {
       this.messagingService.send("logout");

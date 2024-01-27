@@ -12,7 +12,10 @@ const DefaultOptions = {
 };
 
 export class UsernameGenerationService implements BaseUsernameGenerationService {
-  constructor(private cryptoService: CryptoService, private stateService: StateService) {}
+  constructor(
+    private cryptoService: CryptoService,
+    private stateService: StateService,
+  ) {}
 
   generateUsername(options: any): Promise<string> {
     if (options.type === "catchall") {

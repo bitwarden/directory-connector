@@ -44,7 +44,7 @@ export class OrganizationService implements OrganizationServiceAbstraction {
   async canManageSponsorships(): Promise<boolean> {
     const orgs = await this.getAll();
     return orgs.some(
-      (o) => o.familySponsorshipAvailable || o.familySponsorshipFriendlyName !== null
+      (o) => o.familySponsorshipAvailable || o.familySponsorshipFriendlyName !== null,
     );
   }
 

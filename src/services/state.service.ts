@@ -49,7 +49,7 @@ export class StateService
     protected logService: LogService,
     protected stateMigrationService: StateMigrationService,
     private useSecureStorageForSecrets = true,
-    protected stateFactory: StateFactory<GlobalState, Account>
+    protected stateFactory: StateFactory<GlobalState, Account>,
   ) {
     super(storageService, secureStorageService, logService, stateMigrationService, stateFactory);
   }
@@ -95,7 +95,7 @@ export class StateService
       | GSuiteConfiguration
       | AzureConfiguration
       | OktaConfiguration
-      | OneLoginConfiguration
+      | OneLoginConfiguration,
   ): Promise<any> {
     if (this.useSecureStorageForSecrets) {
       switch (type) {
@@ -149,7 +149,7 @@ export class StateService
       return null;
     }
     return await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.ldap}`
+      `${options.userId}_${SecureStorageKeys.ldap}`,
     );
   }
 
@@ -161,7 +161,7 @@ export class StateService
     await this.secureStorageService.save(
       `${options.userId}_${SecureStorageKeys.ldap}`,
       value,
-      options
+      options,
     );
   }
 
@@ -171,7 +171,7 @@ export class StateService
       return null;
     }
     return await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.gsuite}`
+      `${options.userId}_${SecureStorageKeys.gsuite}`,
     );
   }
 
@@ -183,7 +183,7 @@ export class StateService
     await this.secureStorageService.save(
       `${options.userId}_${SecureStorageKeys.gsuite}`,
       value,
-      options
+      options,
     );
   }
 
@@ -193,7 +193,7 @@ export class StateService
       return null;
     }
     return await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.azure}`
+      `${options.userId}_${SecureStorageKeys.azure}`,
     );
   }
 
@@ -205,7 +205,7 @@ export class StateService
     await this.secureStorageService.save(
       `${options.userId}_${SecureStorageKeys.azure}`,
       value,
-      options
+      options,
     );
   }
 
@@ -215,7 +215,7 @@ export class StateService
       return null;
     }
     return await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.okta}`
+      `${options.userId}_${SecureStorageKeys.okta}`,
     );
   }
 
@@ -227,7 +227,7 @@ export class StateService
     await this.secureStorageService.save(
       `${options.userId}_${SecureStorageKeys.okta}`,
       value,
-      options
+      options,
     );
   }
 
@@ -237,7 +237,7 @@ export class StateService
       return null;
     }
     return await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.oneLogin}`
+      `${options.userId}_${SecureStorageKeys.oneLogin}`,
     );
   }
 
@@ -249,7 +249,7 @@ export class StateService
     await this.secureStorageService.save(
       `${options.userId}_${SecureStorageKeys.oneLogin}`,
       value,
-      options
+      options,
     );
   }
 
@@ -276,12 +276,12 @@ export class StateService
 
   async setLdapConfiguration(value: LdapConfiguration, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directoryConfigurations.ldap = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -293,15 +293,15 @@ export class StateService
 
   async setGsuiteConfiguration(
     value: GSuiteConfiguration,
-    options?: StorageOptions
+    options?: StorageOptions,
   ): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directoryConfigurations.gsuite = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -313,12 +313,12 @@ export class StateService
 
   async setAzureConfiguration(value: AzureConfiguration, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directoryConfigurations.azure = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -330,12 +330,12 @@ export class StateService
 
   async setOktaConfiguration(value: OktaConfiguration, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directoryConfigurations.okta = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -347,15 +347,15 @@ export class StateService
 
   async setOneLoginConfiguration(
     value: OneLoginConfiguration,
-    options?: StorageOptions
+    options?: StorageOptions,
   ): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directoryConfigurations.oneLogin = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -372,12 +372,12 @@ export class StateService
     }
 
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directorySettings.organizationId = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -389,12 +389,12 @@ export class StateService
 
   async setSync(value: SyncConfiguration, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directorySettings.sync = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -410,12 +410,12 @@ export class StateService
       await this.clearSyncSettings();
     }
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directorySettings.directoryType = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -428,12 +428,12 @@ export class StateService
 
   async setLastUserSync(value: Date, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directorySettings.lastUserSync = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -446,12 +446,12 @@ export class StateService
 
   async setLastGroupSync(value: Date, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directorySettings.lastGroupSync = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -463,12 +463,12 @@ export class StateService
 
   async setLastSyncHash(value: string, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directorySettings.lastSyncHash = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -479,7 +479,7 @@ export class StateService
 
   async setSyncingDir(value: boolean, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, this.defaultInMemoryOptions)
+      this.reconcileOptions(options, this.defaultInMemoryOptions),
     );
     account.directorySettings.syncingDir = value;
     await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
@@ -493,12 +493,12 @@ export class StateService
 
   async setUserDelta(value: string, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directorySettings.userDelta = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -510,12 +510,12 @@ export class StateService
 
   async setGroupDelta(value: string, options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.directorySettings.groupDelta = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -536,7 +536,7 @@ export class StateService
   protected async scaffoldNewAccountDiskStorage(account: Account): Promise<void> {
     const storageOptions = this.reconcileOptions(
       { userId: account.profile.userId },
-      await this.defaultOnDiskLocalOptions()
+      await this.defaultOnDiskLocalOptions(),
     );
 
     const storedAccount = await this.getAccount(storageOptions);
@@ -549,7 +549,7 @@ export class StateService
       account.settings = await this.storageService.get<any>(keys.tempAccountSettings);
       account.directorySettings = await this.storageService.get<any>(keys.tempDirectorySettings);
       account.directoryConfigurations = await this.storageService.get<any>(
-        keys.tempDirectoryConfigs
+        keys.tempDirectoryConfigs,
       );
       await this.storageService.remove(keys.tempAccountSettings);
       await this.storageService.remove(keys.tempDirectorySettings);

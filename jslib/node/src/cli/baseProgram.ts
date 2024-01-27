@@ -10,13 +10,13 @@ import { StringResponse } from "./models/response/stringResponse";
 export abstract class BaseProgram {
   constructor(
     protected stateService: StateService,
-    private writeLn: (s: string, finalLine: boolean, error: boolean) => void
+    private writeLn: (s: string, finalLine: boolean, error: boolean) => void,
   ) {}
 
   protected processResponse(
     response: Response,
     exitImmediately = false,
-    dataProcessor: () => string = null
+    dataProcessor: () => string = null,
   ) {
     if (!response.success) {
       if (process.env.BW_QUIET !== "true") {

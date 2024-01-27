@@ -12,7 +12,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     password: string | ArrayBuffer,
     salt: string | ArrayBuffer,
     algorithm: "sha256" | "sha512",
-    iterations: number
+    iterations: number,
   ): Promise<ArrayBuffer> {
     const len = algorithm === "sha256" ? 32 : 64;
     const nodePassword = this.toNodeValue(password);
@@ -34,7 +34,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     salt: string | ArrayBuffer,
     info: string | ArrayBuffer,
     outputByteSize: number,
-    algorithm: "sha256" | "sha512"
+    algorithm: "sha256" | "sha512",
   ): Promise<ArrayBuffer> {
     const saltBuf = this.toArrayBuffer(salt);
     const prk = await this.hmac(ikm, saltBuf, algorithm);
@@ -46,7 +46,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     prk: ArrayBuffer,
     info: string | ArrayBuffer,
     outputByteSize: number,
-    algorithm: "sha256" | "sha512"
+    algorithm: "sha256" | "sha512",
   ): Promise<ArrayBuffer> {
     const hashLen = algorithm === "sha256" ? 32 : 64;
     if (outputByteSize > 255 * hashLen) {
@@ -79,7 +79,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
 
   hash(
     value: string | ArrayBuffer,
-    algorithm: "sha1" | "sha256" | "sha512" | "md5"
+    algorithm: "sha1" | "sha256" | "sha512" | "md5",
   ): Promise<ArrayBuffer> {
     const nodeValue = this.toNodeValue(value);
     const hash = crypto.createHash(algorithm);
@@ -90,7 +90,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   hmac(
     value: ArrayBuffer,
     key: ArrayBuffer,
-    algorithm: "sha1" | "sha256" | "sha512"
+    algorithm: "sha1" | "sha256" | "sha512",
   ): Promise<ArrayBuffer> {
     const nodeValue = this.toNodeBuffer(value);
     const nodeKey = this.toNodeBuffer(key);
@@ -121,7 +121,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   hmacFast(
     value: ArrayBuffer,
     key: ArrayBuffer,
-    algorithm: "sha1" | "sha256" | "sha512"
+    algorithm: "sha1" | "sha256" | "sha512",
   ): Promise<ArrayBuffer> {
     return this.hmac(value, key, algorithm);
   }
@@ -143,7 +143,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     data: string,
     iv: string,
     mac: string,
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): DecryptParameters<ArrayBuffer> {
     const p = new DecryptParameters<ArrayBuffer>();
     p.encKey = key.encKey;
@@ -182,7 +182,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   rsaEncrypt(
     data: ArrayBuffer,
     publicKey: ArrayBuffer,
-    algorithm: "sha1" | "sha256"
+    algorithm: "sha1" | "sha256",
   ): Promise<ArrayBuffer> {
     if (algorithm === "sha256") {
       throw new Error("Node crypto does not support RSA-OAEP SHA-256");
@@ -196,7 +196,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   rsaDecrypt(
     data: ArrayBuffer,
     privateKey: ArrayBuffer,
-    algorithm: "sha1" | "sha256"
+    algorithm: "sha1" | "sha256",
   ): Promise<ArrayBuffer> {
     if (algorithm === "sha256") {
       throw new Error("Node crypto does not support RSA-OAEP SHA-256");
@@ -242,7 +242,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
           const privateKey = Utils.fromByteStringToArray(privateKeyByteString);
 
           resolve([publicKey.buffer, privateKey.buffer]);
-        }
+        },
       );
     });
   }

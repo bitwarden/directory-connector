@@ -14,7 +14,10 @@ export class FileUploadService implements FileUploadServiceAbstraction {
   private azureFileUploadService: AzureFileUploadService;
   private bitwardenFileUploadService: BitwardenFileUploadService;
 
-  constructor(private logService: LogService, private apiService: ApiService) {
+  constructor(
+    private logService: LogService,
+    private apiService: ApiService,
+  ) {
     this.azureFileUploadService = new AzureFileUploadService(logService);
     this.bitwardenFileUploadService = new BitwardenFileUploadService(apiService);
   }
@@ -22,7 +25,7 @@ export class FileUploadService implements FileUploadServiceAbstraction {
   async uploadSendFile(
     uploadData: SendFileUploadDataResponse,
     fileName: EncString,
-    encryptedFileData: EncArrayBuffer
+    encryptedFileData: EncArrayBuffer,
   ) {
     try {
       switch (uploadData.fileUploadType) {
@@ -34,22 +37,22 @@ export class FileUploadService implements FileUploadServiceAbstraction {
               this.apiService.postSendFile(
                 uploadData.sendResponse.id,
                 uploadData.sendResponse.file.id,
-                fd
-              )
+                fd,
+              ),
           );
           break;
         case FileUploadType.Azure: {
           const renewalCallback = async () => {
             const renewalResponse = await this.apiService.renewSendFileUploadUrl(
               uploadData.sendResponse.id,
-              uploadData.sendResponse.file.id
+              uploadData.sendResponse.file.id,
             );
             return renewalResponse.url;
           };
           await this.azureFileUploadService.upload(
             uploadData.url,
             encryptedFileData,
-            renewalCallback
+            renewalCallback,
           );
           break;
         }
@@ -66,7 +69,7 @@ export class FileUploadService implements FileUploadServiceAbstraction {
     admin: boolean,
     uploadData: AttachmentUploadDataResponse,
     encryptedFileName: EncString,
-    encryptedFileData: EncArrayBuffer
+    encryptedFileData: EncArrayBuffer,
   ) {
     const response = admin ? uploadData.cipherMiniResponse : uploadData.cipherResponse;
     try {
@@ -75,21 +78,21 @@ export class FileUploadService implements FileUploadServiceAbstraction {
           await this.bitwardenFileUploadService.upload(
             encryptedFileName.encryptedString,
             encryptedFileData,
-            (fd) => this.apiService.postAttachmentFile(response.id, uploadData.attachmentId, fd)
+            (fd) => this.apiService.postAttachmentFile(response.id, uploadData.attachmentId, fd),
           );
           break;
         case FileUploadType.Azure: {
           const renewalCallback = async () => {
             const renewalResponse = await this.apiService.renewAttachmentUploadUrl(
               response.id,
-              uploadData.attachmentId
+              uploadData.attachmentId,
             );
             return renewalResponse.url;
           };
           await this.azureFileUploadService.upload(
             uploadData.url,
             encryptedFileData,
-            renewalCallback
+            renewalCallback,
           );
           break;
         }

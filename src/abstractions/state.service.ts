@@ -19,7 +19,7 @@ export abstract class StateService extends BaseStateServiceAbstraction<Account> 
       | GSuiteConfiguration
       | AzureConfiguration
       | OktaConfiguration
-      | OneLoginConfiguration
+      | OneLoginConfiguration,
   ) => Promise<any>;
   getLdapConfiguration: (options?: StorageOptions) => Promise<LdapConfiguration>;
   setLdapConfiguration: (value: LdapConfiguration, options?: StorageOptions) => Promise<void>;
@@ -32,7 +32,7 @@ export abstract class StateService extends BaseStateServiceAbstraction<Account> 
   getOneLoginConfiguration: (options?: StorageOptions) => Promise<OneLoginConfiguration>;
   setOneLoginConfiguration: (
     value: OneLoginConfiguration,
-    options?: StorageOptions
+    options?: StorageOptions,
   ) => Promise<void>;
   getOrganizationId: (options?: StorageOptions) => Promise<string>;
   setOrganizationId: (value: string, options?: StorageOptions) => Promise<void>;

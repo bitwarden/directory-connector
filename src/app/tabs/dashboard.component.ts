@@ -40,7 +40,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private messagingService: MessagingService,
     private platformUtilsService: PlatformUtilsService,
     private changeDetectorRef: ChangeDetectorRef,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async ngOnInit() {
@@ -88,7 +88,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.platformUtilsService.showToast(
       "success",
       null,
-      this.i18nService.t("syncCounts", groupCount.toString(), userCount.toString())
+      this.i18nService.t("syncCounts", groupCount.toString(), userCount.toString()),
     );
   }
 
@@ -103,7 +103,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.simPromise = ConnectorUtils.simulate(
         this.syncService,
         this.i18nService,
-        this.simSinceLast
+        this.simSinceLast,
       );
       const result = await this.simPromise;
       this.simGroups = result.groups;

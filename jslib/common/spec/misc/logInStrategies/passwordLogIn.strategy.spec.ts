@@ -24,8 +24,8 @@ const hashedPassword = "HASHED_PASSWORD";
 const localHashedPassword = "LOCAL_HASHED_PASSWORD";
 const preloginKey = new SymmetricCryptoKey(
   Utils.fromB64ToArray(
-    "N2KWjlLpfi5uHjv+YcfUKIpZ1l+W+6HRensmIqD+BFYBf6N/dvFpJfWwYnVBdgFCK2tJTAIMLhqzIQQEUmGFgg=="
-  )
+    "N2KWjlLpfi5uHjv+YcfUKIpZ1l+W+6HRensmIqD+BFYBf6N/dvFpJfWwYnVBdgFCK2tJTAIMLhqzIQQEUmGFgg==",
+  ),
 );
 const deviceId = Utils.newGuid();
 
@@ -76,7 +76,7 @@ describe("PasswordLogInStrategy", () => {
       logService,
       stateService,
       twoFactorService,
-      authService
+      authService,
     );
     credentials = new PasswordLogInCredentials(email, masterPassword);
 
@@ -97,7 +97,7 @@ describe("PasswordLogInStrategy", () => {
           passwordTokenRequest.twoFactor.token == null &&
           passwordTokenRequest.captchaResponse == null
         );
-      })
+      }),
     );
   });
 

@@ -35,7 +35,7 @@ export class PasswordGenerationService implements PasswordGenerationServiceAbstr
   constructor(
     private cryptoService: CryptoService,
     private policyService: PolicyService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   async generatePassword(options: any): Promise<string> {
@@ -191,7 +191,7 @@ export class PasswordGenerationService implements PasswordGenerationServiceAbstr
   }
 
   async enforcePasswordGeneratorPoliciesOnOptions(
-    options: any
+    options: any,
   ): Promise<[any, PasswordGeneratorPolicyOptions]> {
     let enforcedPolicyOptions = await this.getPasswordGeneratorPolicyOptions();
     if (enforcedPolicyOptions != null) {
@@ -475,7 +475,7 @@ export class PasswordGenerationService implements PasswordGenerationServiceAbstr
   }
 
   private async encryptHistory(
-    history: GeneratedPasswordHistory[]
+    history: GeneratedPasswordHistory[],
   ): Promise<GeneratedPasswordHistory[]> {
     if (history == null || history.length === 0) {
       return Promise.resolve([]);
@@ -490,7 +490,7 @@ export class PasswordGenerationService implements PasswordGenerationServiceAbstr
   }
 
   private async decryptHistory(
-    history: GeneratedPasswordHistory[]
+    history: GeneratedPasswordHistory[],
   ): Promise<GeneratedPasswordHistory[]> {
     if (history == null || history.length === 0) {
       return Promise.resolve([]);

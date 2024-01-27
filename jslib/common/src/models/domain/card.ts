@@ -30,7 +30,7 @@ export class Card extends Domain {
         expYear: null,
         code: null,
       },
-      []
+      [],
     );
   }
 
@@ -46,7 +46,7 @@ export class Card extends Domain {
         code: null,
       },
       orgId,
-      encKey
+      encKey,
     );
   }
 

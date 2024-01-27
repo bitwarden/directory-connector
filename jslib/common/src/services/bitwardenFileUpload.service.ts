@@ -8,7 +8,7 @@ export class BitwardenFileUploadService {
   async upload(
     encryptedFileName: string,
     encryptedFileData: EncArrayBuffer,
-    apiCall: (fd: FormData) => Promise<any>
+    apiCall: (fd: FormData) => Promise<any>,
   ) {
     const fd = new FormData();
     try {
@@ -22,7 +22,7 @@ export class BitwardenFileUploadService {
           {
             filepath: encryptedFileName,
             contentType: "application/octet-stream",
-          } as any
+          } as any,
         );
       } else {
         throw e;

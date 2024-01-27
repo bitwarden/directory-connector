@@ -19,7 +19,7 @@ export class SearchService implements SearchServiceAbstraction {
   constructor(
     private cipherService: CipherService,
     private logService: LogService,
-    private i18nService: I18nService
+    private i18nService: I18nService,
   ) {
     if (["zh-CN", "zh-TW"].indexOf(i18nService.locale) !== -1) {
       this.searchableMinLength = 1;
@@ -88,7 +88,7 @@ export class SearchService implements SearchServiceAbstraction {
   async searchCiphers(
     query: string,
     filter: ((cipher: CipherView) => boolean) | ((cipher: CipherView) => boolean)[] = null,
-    ciphers: CipherView[] = null
+    ciphers: CipherView[] = null,
   ): Promise<CipherView[]> {
     const results: CipherView[] = [];
     if (query != null) {

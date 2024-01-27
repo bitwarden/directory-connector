@@ -3,7 +3,7 @@ import { GlobalState } from "./globalState";
 
 export class State<
   TGlobalState extends GlobalState = GlobalState,
-  TAccount extends Account = Account
+  TAccount extends Account = Account,
 > {
   accounts: { [userId: string]: TAccount } = {};
   globals: TGlobalState;

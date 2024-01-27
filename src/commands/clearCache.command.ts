@@ -7,7 +7,10 @@ import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageRes
 import { StateService } from "../abstractions/state.service";
 
 export class ClearCacheCommand {
-  constructor(private i18nService: I18nService, private stateService: StateService) {}
+  constructor(
+    private i18nService: I18nService,
+    private stateService: StateService,
+  ) {}
 
   async run(cmd: program.OptionValues): Promise<Response> {
     try {

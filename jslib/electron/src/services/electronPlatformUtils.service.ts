@@ -18,7 +18,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     protected i18nService: I18nService,
     private messagingService: MessagingService,
     private isDesktopApp: boolean,
-    private stateService: StateService
+    private stateService: StateService,
   ) {
     this.clientType = isDesktopApp ? ClientType.Desktop : ClientType.DirectoryConnector;
   }
@@ -115,7 +115,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     type: "error" | "success" | "warning" | "info",
     title: string,
     text: string | string[],
-    options?: any
+    options?: any,
   ): void {
     this.messagingService.send("showToast", {
       text: text,
@@ -130,7 +130,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     title?: string,
     confirmText?: string,
     cancelText?: string,
-    type?: string
+    type?: string,
   ): Promise<boolean> {
     const buttons = [confirmText == null ? this.i18nService.t("ok") : confirmText];
     if (cancelText != null) {
@@ -198,7 +198,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
 
   onDefaultSystemThemeChange(callback: (theme: ThemeType.Light | ThemeType.Dark) => unknown) {
     ipcRenderer.on("systemThemeUpdated", (event, theme: ThemeType.Light | ThemeType.Dark) =>
-      callback(theme)
+      callback(theme),
     );
   }
 

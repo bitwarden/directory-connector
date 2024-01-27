@@ -8,7 +8,7 @@ export abstract class BaseResponse {
   protected getResponseProperty(
     propertyName: string,
     response: any = null,
-    exactName = false
+    exactName = false,
   ): any {
     if (propertyName == null || propertyName === "") {
       throw new Error("propertyName must not be null/empty.");

@@ -126,10 +126,10 @@ export class SsoConfigApi extends BaseResponse {
     this.idpX509PublicCert = this.getResponseProperty("IdpX509PublicCert");
     this.idpOutboundSigningAlgorithm = this.getResponseProperty("IdpOutboundSigningAlgorithm");
     this.idpAllowUnsolicitedAuthnResponse = this.getResponseProperty(
-      "IdpAllowUnsolicitedAuthnResponse"
+      "IdpAllowUnsolicitedAuthnResponse",
     );
     this.idpDisableOutboundLogoutRequests = this.getResponseProperty(
-      "IdpDisableOutboundLogoutRequests"
+      "IdpDisableOutboundLogoutRequests",
     );
     this.idpWantAuthnRequestsSigned = this.getResponseProperty("IdpWantAuthnRequestsSigned");
   }

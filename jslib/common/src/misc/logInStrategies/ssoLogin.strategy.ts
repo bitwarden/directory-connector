@@ -28,7 +28,7 @@ export class SsoLogInStrategy extends LogInStrategy {
     logService: LogService,
     stateService: StateService,
     twoFactorService: TwoFactorService,
-    private keyConnectorService: KeyConnectorService
+    private keyConnectorService: KeyConnectorService,
   ) {
     super(
       cryptoService,
@@ -39,7 +39,7 @@ export class SsoLogInStrategy extends LogInStrategy {
       messagingService,
       logService,
       stateService,
-      twoFactorService
+      twoFactorService,
     );
   }
 
@@ -62,7 +62,7 @@ export class SsoLogInStrategy extends LogInStrategy {
       credentials.codeVerifier,
       credentials.redirectUrl,
       await this.buildTwoFactor(credentials.twoFactor),
-      await this.buildDeviceRequest()
+      await this.buildDeviceRequest(),
     );
 
     return this.startLogIn();

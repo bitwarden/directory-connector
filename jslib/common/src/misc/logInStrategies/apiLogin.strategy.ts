@@ -29,7 +29,7 @@ export class ApiLogInStrategy extends LogInStrategy {
     stateService: StateService,
     twoFactorService: TwoFactorService,
     private environmentService: EnvironmentService,
-    private keyConnectorService: KeyConnectorService
+    private keyConnectorService: KeyConnectorService,
   ) {
     super(
       cryptoService,
@@ -40,7 +40,7 @@ export class ApiLogInStrategy extends LogInStrategy {
       messagingService,
       logService,
       stateService,
-      twoFactorService
+      twoFactorService,
     );
   }
 
@@ -56,7 +56,7 @@ export class ApiLogInStrategy extends LogInStrategy {
       credentials.clientId,
       credentials.clientSecret,
       await this.buildTwoFactor(),
-      await this.buildDeviceRequest()
+      await this.buildDeviceRequest(),
     );
 
     return this.startLogIn();

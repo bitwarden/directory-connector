@@ -5,7 +5,10 @@ import { TokenRequestTwoFactor } from "./tokenRequestTwoFactor";
 export abstract class TokenRequest {
   protected device?: DeviceRequest;
 
-  constructor(protected twoFactor: TokenRequestTwoFactor, device?: DeviceRequest) {
+  constructor(
+    protected twoFactor: TokenRequestTwoFactor,
+    device?: DeviceRequest,
+  ) {
     this.device = device != null ? device : null;
   }
 

@@ -4,11 +4,11 @@
     <p>
       {{ "lastGroupSync" | i18n }}:
       <span *ngIf="!lastGroupSync">-</span>
-      {{ lastGroupSync | date : "medium" }}
+      {{ lastGroupSync | date: "medium" }}
       <br />
       {{ "lastUserSync" | i18n }}:
       <span *ngIf="!lastUserSync">-</span>
-      {{ lastUserSync | date : "medium" }}
+      {{ lastUserSync | date: "medium" }}
     </p>
     <p>
       {{ "syncStatus" | i18n }}:

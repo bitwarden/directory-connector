@@ -51,7 +51,7 @@ describe("Cipher Service", () => {
       i18nService,
       () => searchService,
       logService,
-      stateService
+      stateService,
     );
   });
 

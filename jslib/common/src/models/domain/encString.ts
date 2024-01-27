@@ -16,7 +16,7 @@ export class EncString {
     encryptedStringOrType: string | EncryptionType,
     data?: string,
     iv?: string,
-    mac?: string
+    mac?: string,
   ) {
     if (data != null) {
       // data and header

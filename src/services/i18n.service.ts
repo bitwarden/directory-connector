@@ -8,7 +8,7 @@ export class I18nService extends BaseI18nService {
     super(systemLanguage, localesDirectory, (formattedLocale: string) => {
       const filePath = path.join(
         __dirname,
-        this.localesDirectory + "/" + formattedLocale + "/messages.json"
+        this.localesDirectory + "/" + formattedLocale + "/messages.json",
       );
       const localesJson = fs.readFileSync(filePath, "utf8");
       const locales = JSON.parse(localesJson.replace(/^\uFEFF/, "")); // strip the BOM

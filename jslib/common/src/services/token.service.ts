@@ -28,7 +28,7 @@ export class TokenService implements TokenServiceAbstraction {
   async setTokens(
     accessToken: string,
     refreshToken: string,
-    clientIdClientSecret: [string, string]
+    clientIdClientSecret: [string, string],
   ): Promise<any> {
     await this.setToken(accessToken);
     await this.setRefreshToken(refreshToken);

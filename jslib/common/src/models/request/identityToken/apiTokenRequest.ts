@@ -8,7 +8,7 @@ export class ApiTokenRequest extends TokenRequest {
     public clientId: string,
     public clientSecret: string,
     protected twoFactor: TokenRequestTwoFactor,
-    device?: DeviceRequest
+    device?: DeviceRequest,
   ) {
     super(twoFactor, device);
   }

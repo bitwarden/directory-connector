@@ -37,7 +37,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private logService: LogService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {
     this.directoryOptions = [
       { name: this.i18nService.t("select"), value: null },
@@ -58,7 +58,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.gsuite;
     this.azure =
       (await this.stateService.getDirectory<AzureConfiguration>(
-        DirectoryType.AzureActiveDirectory
+        DirectoryType.AzureActiveDirectory,
       )) || this.azure;
     this.okta =
       (await this.stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta)) || this.okta;

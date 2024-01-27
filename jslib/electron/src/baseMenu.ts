@@ -11,7 +11,10 @@ export class BaseMenu {
   protected macAppMenuItemOptions: MenuItemConstructorOptions[];
   protected macWindowSubmenuOptions: MenuItemConstructorOptions[];
 
-  constructor(protected i18nService: I18nService, protected windowMain: WindowMain) {}
+  constructor(
+    protected i18nService: I18nService,
+    protected windowMain: WindowMain,
+  ) {}
 
   protected initProperties() {
     this.editMenuItemOptions = {

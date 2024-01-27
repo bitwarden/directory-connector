@@ -8,7 +8,10 @@ import { ConsoleLogService as BaseLogService } from "@/jslib/common/src/services
 import { isDev } from "../utils";
 
 export class ElectronLogService extends BaseLogService {
-  constructor(protected filter: (level: LogLevelType) => boolean = null, logDir: string = null) {
+  constructor(
+    protected filter: (level: LogLevelType) => boolean = null,
+    logDir: string = null,
+  ) {
     super(isDev(), filter);
     if (log.transports == null) {
       return;

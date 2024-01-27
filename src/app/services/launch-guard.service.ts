@@ -5,7 +5,10 @@ import { StateService } from "../../abstractions/state.service";
 
 @Injectable()
 export class LaunchGuardService implements CanActivate {
-  constructor(private stateService: StateService, private router: Router) {}
+  constructor(
+    private stateService: StateService,
+    private router: Router,
+  ) {}
 
   async canActivate() {
     const isAuthed = await this.stateService.getIsAuthenticated();
