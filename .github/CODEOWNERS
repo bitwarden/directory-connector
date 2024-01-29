@@ -12,4 +12,4 @@
 .github/secrets @bitwarden/dept-devops
 
 # Multiple Owners
-**/package.json
+**/package.json @bitwarden/dept-devops @bitwarden/team-admin-console-dev
