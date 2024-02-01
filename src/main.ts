@@ -55,6 +55,7 @@ export class Main {
     }
 
     this.logService = new ElectronLogService(null, app.getPath("userData"));
+    this.logService.init();
     this.i18nService = new I18nService("en", "./locales/");
     this.storageService = new ElectronStorageService(app.getPath("userData"));
     this.stateService = new StateService(
