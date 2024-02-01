@@ -166,7 +166,7 @@
     "lowdb": "1.0.0",
     "lunr": "2.3.9",
     "ngx-toastr": "16.2.0",
-    "node-fetch": "2.7.0",
+    "node-fetch": "3.3.2",
     "open": "8.4.2",
     "proper-lockfile": "4.1.2",
     "rxjs": "7.8.1",
