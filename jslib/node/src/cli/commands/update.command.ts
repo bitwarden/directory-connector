@@ -1,4 +1,4 @@
-import * as fetch from "node-fetch";
+import fetch from "node-fetch";
 
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
@@ -22,11 +22,11 @@ export class UpdateCommand {
   async run(): Promise<Response> {
     const currentVersion = await this.platformUtilsService.getApplicationVersion();
 
-    const response = await fetch.default(
+    const response = await fetch(
       "https://api.github.com/repos/bitwarden/" + this.repoName + "/releases/latest",
     );
     if (response.status === 200) {
-      const responseJson = await response.json();
+      const responseJson = await response.json() as any;
       const res = new MessageResponse(null, null);
 
       const tagName: string = responseJson.tag_name;
