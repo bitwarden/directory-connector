@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 require("dotenv").config();
-const { notarize } = require("electron-notarize");
+const { notarize } = require("@electron/notarize");
 
 exports.default = async function notarizing(context) {
   const { electronPlatformName, appOutDir } = context;
@@ -11,8 +11,10 @@ exports.default = async function notarizing(context) {
   const appleIdPassword = process.env.APPLE_ID_PASSWORD || `@keychain:AC_PASSWORD`;
   const appName = context.packager.appInfo.productFilename;
   return await notarize({
+    tool: "notarytool",
     appBundleId: "com.bitwarden.directory-connector",
     appPath: `${appOutDir}/${appName}.app`,
+    teamId: "LTZ2PFU5D6",
     appleId: appleId,
     appleIdPassword: appleIdPassword,
   });
