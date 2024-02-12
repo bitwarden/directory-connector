@@ -167,15 +167,13 @@ jobs:
         env:
           NEW_VERSION: ${{ inputs.version_number }}
         run: |
-          CURRENT_VERSION=$(cat package.json | jq -r '.version')
-
           # Wait for version to change.
-          while [[ "$NEW_VERSION" != "$CURRENT_VERSION" ]]
           do
             echo "Waiting for version to be updated..."
-            sleep 10
             git pull --force
-          done
+            CURRENT_VERSION=$(cat package.json | jq -r '.version')
+            sleep 10
+          done while [[ "$NEW_VERSION" != "$CURRENT_VERSION" ]]
 
       - name: Cut RC branch
         run: |
