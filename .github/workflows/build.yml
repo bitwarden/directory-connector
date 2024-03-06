@@ -624,34 +624,8 @@ jobs:
       - macos-gui
     steps:
       - name: Check if any job failed
-        if: ${{ (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rc') }}
-        env:
-          CLOC_STATUS: ${{ needs.cloc.result }}
-          SETUP_STATUS: ${{ needs.setup.result }}
-          LINUX_CLI_STATUS: ${{ needs.linux-cli.result }}
-          MACOS_CLI_STATUS: ${{ needs.macos-cli.result }}
-          WINDOWS_CLI_STATUS: ${{ needs.windows-cli.result }}
-          WINDOWS_GUI_STATUS: ${{ needs.windows-gui.result }}
-          LINUX_GUI_STATUS: ${{ needs.linux-gui.result }}
-          MACOS_GUI_STATUS: ${{ needs.macos-gui.result }}
-        run: |
-          if [ "$CLOC_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$SETUP_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$LINUX_CLI_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$MACOS_CLI_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$WINDOWS_CLI_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$WINDOWS_GUI_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$LINUX_GUI_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$MACOS_GUI_STATUS" = "failure" ]; then
-              exit 1
-          fi
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc') && contains(needs.*.result, 'failure')
+        run: exit 1
 
       - name: Login to Azure - CI subscription
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
