@@ -102,6 +102,13 @@ jobs:
             exit 1
           fi
 
+      - name: Calculate next release version
+        if: ${{ inputs.version_number_override == '' }}
+        id: calculate-next-version
+        uses: bitwarden/gh-actions/version-next@main
+        with:
+          version: ${{ steps.current-version.outputs.version }}
+
       - name: Bump Version - Package - Version Override
         if: ${{ inputs.version_number_override != '' }}
         id: bump-version-override
