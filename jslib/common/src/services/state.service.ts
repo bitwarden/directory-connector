@@ -1355,34 +1355,6 @@ export class StateService<
     )?.profile?.entityId;
   }
 
-  async setEntityId(value: string, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-    account.profile.entityId = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-  }
-
-  async getEntityType(options?: StorageOptions): Promise<any> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()))
-    )?.profile?.entityType;
-  }
-
-  async setEntityType(value: string, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-    account.profile.entityType = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-  }
-
   async getEnvironmentUrls(options?: StorageOptions): Promise<EnvironmentUrls> {
     if (this.state.activeUserId == null) {
       return await this.getGlobalEnvironmentUrls(options);
