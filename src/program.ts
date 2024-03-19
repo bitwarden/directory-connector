@@ -301,10 +301,9 @@ export class Program extends BaseProgram {
   async exitIfAuthed() {
     const authed = await this.stateService.getIsAuthenticated();
     if (authed) {
-      const type = await this.stateService.getEntityType();
       const id = await this.stateService.getEntityId();
       this.processResponse(
-        Response.error("You are already logged in as " + type + "." + id + "."),
+        Response.error("You are already logged in as organization." + id + "."),
         true,
       );
     }
