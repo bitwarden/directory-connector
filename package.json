@@ -162,7 +162,7 @@
     "inquirer": "8.2.6",
     "keytar": "7.9.0",
     "ldapjs": "2.3.3",
-    "lowdb": "1.0.0",
+    "lowdb": "7.0.1",
     "lunr": "2.3.9",
     "ngx-toastr": "16.2.0",
     "node-fetch": "2.7.0",
