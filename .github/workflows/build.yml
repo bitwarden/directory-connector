@@ -140,7 +140,7 @@ jobs:
 
   macos-cli:
     name: Build Mac CLI
-    runs-on: macos-12
+    runs-on: macos-13
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -500,7 +500,7 @@ jobs:
 
   macos-gui:
     name: Build MacOS GUI
-    runs-on: macos-12
+    runs-on: macos-13
     needs: setup
     env:
       NODE_OPTIONS: --max_old_space_size=4096
