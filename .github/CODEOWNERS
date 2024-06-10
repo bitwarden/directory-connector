@@ -12,6 +12,3 @@
 
 # BRE for release workflow changes
 .github/workflows/release.yml @bitwarden/dept-bre
-
-# BRE for release workflow changes
-.github/workflows/release.yml @bitwarden/dept-bre
