@@ -138,33 +138,37 @@ export class SyncService {
       return null;
     }
 
+    const userMap = new Map<string, UserEntry[]>();
     const uniqueUsers = new Array<UserEntry>();
-    const processedActiveUsers = new Map<string, string>();
-    const processedDeletedUsers = new Map<string, string>();
     const duplicateEmails = new Array<string>();
 
-    // UserEntrys with the same email are ignored if their properties are the same
-    // UserEntrys with the same email but different properties will throw an error, unless they are all in a deleted state.
+    // Map users by email address
     users.forEach((u) => {
-      if (processedActiveUsers.has(u.email)) {
-        if (processedActiveUsers.get(u.email) !== JSON.stringify(u)) {
-          duplicateEmails.push(u.email);
-        }
-      } else {
-        if (!u.deleted) {
-          // Check that active UserEntry does not conflict with a deleted UserEntry
-          if (processedDeletedUsers.has(u.email)) {
+      userMap.set(u.email, userMap.get(u.email) || []);
+      userMap.get(u.email).push(u);
+    });
+
+    // We only care about the most recent entry. If there are multiple entries for the same email, all except the most recent must be either
+    // deleted, or have identical properties.
+    userMap.forEach((us) => {
+      // If there are multiple entries, we want to process the newest one first.
+      us = us.sort((a, b) => { return a.newerThan(b) ? -1 : 1; });
+      const [head, ...tail] = us;
+      uniqueUsers.push(head);
+      const comparison = JSON.stringify(head);
+      tail.forEach((u) => {
+        if (head.deleted) {
+          // If the latest entry is deleted, all other entries also must be deleted
+          if (!u.deleted) {
             duplicateEmails.push(u.email);
-          } else {
-            processedActiveUsers.set(u.email, JSON.stringify(u));
-            uniqueUsers.push(u);
           }
         } else {
-          // UserEntrys with duplicate email will not throw an error if they are all deleted. They will be synced.
-          processedDeletedUsers.set(u.email, JSON.stringify(u));
-          uniqueUsers.push(u);
+          // If the latest entry is active, all other entries must be deleted, or identical.
+          if (!u.deleted && comparison !== JSON.stringify(u)) {
+            duplicateEmails.push(u.email);
+          }
         }
-      }
+      });
     });
 
     if (duplicateEmails.length > 0) {
