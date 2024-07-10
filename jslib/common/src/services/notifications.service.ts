@@ -8,7 +8,6 @@ import { LogService } from "../abstractions/log.service";
 import { NotificationsService as NotificationsServiceAbstraction } from "../abstractions/notifications.service";
 import { StateService } from "../abstractions/state.service";
 import { SyncService } from "../abstractions/sync.service";
-import { VaultTimeoutService } from "../abstractions/vaultTimeout.service";
 import { NotificationType } from "../enums/notificationType";
 import {
   NotificationResponse,
@@ -26,7 +25,6 @@ export class NotificationsService implements NotificationsServiceAbstraction {
     private syncService: SyncService,
     private appIdService: AppIdService,
     private apiService: ApiService,
-    private vaultTimeoutService: VaultTimeoutService,
     private environmentService: EnvironmentService,
     private logoutCallback: () => Promise<void>,
     private logService: LogService,
@@ -182,11 +180,7 @@ export class NotificationsService implements NotificationsServiceAbstraction {
   }
 
   private async isAuthedAndUnlocked() {
-    if (await this.stateService.getIsAuthenticated()) {
-      const locked = await this.vaultTimeoutService.isLocked();
-      return !locked;
-    }
-    return false;
+    return await this.stateService.getIsAuthenticated()
   }
 
   private random(min: number, max: number) {

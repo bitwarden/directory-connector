@@ -28,7 +28,6 @@ import { SyncService as SyncServiceAbstraction } from "@/jslib/common/src/abstra
 import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abstractions/token.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@/jslib/common/src/abstractions/userVerification.service";
-import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@/jslib/common/src/abstractions/vaultTimeout.service";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { Account } from "@/jslib/common/src/models/domain/account";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
@@ -53,7 +52,6 @@ import { SyncService } from "@/jslib/common/src/services/sync.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { TwoFactorService } from "@/jslib/common/src/services/twoFactor.service";
 import { UserVerificationService } from "@/jslib/common/src/services/userVerification.service";
-import { VaultTimeoutService } from "@/jslib/common/src/services/vaultTimeout.service";
 
 import { AuthGuardService } from "./auth-guard.service";
 import { BroadcasterService } from "./broadcaster.service";
@@ -195,42 +193,6 @@ import { ValidationService } from "./validation.service";
       deps: [StateServiceAbstraction],
     },
     {
-      provide: VaultTimeoutServiceAbstraction,
-      useFactory: (
-        cryptoService: CryptoServiceAbstraction,
-        platformUtilsService: PlatformUtilsServiceAbstraction,
-        messagingService: MessagingServiceAbstraction,
-        searchService: SearchServiceAbstraction,
-        tokenService: TokenServiceAbstraction,
-        policyService: PolicyServiceAbstraction,
-        keyConnectorService: KeyConnectorServiceAbstraction,
-        stateService: StateServiceAbstraction,
-      ) =>
-        new VaultTimeoutService(
-          cryptoService,
-          platformUtilsService,
-          messagingService,
-          searchService,
-          tokenService,
-          policyService,
-          keyConnectorService,
-          stateService,
-          null,
-          async (userId?: string) =>
-            messagingService.send("logout", { expired: false, userId: userId }),
-        ),
-      deps: [
-        CryptoServiceAbstraction,
-        PlatformUtilsServiceAbstraction,
-        MessagingServiceAbstraction,
-        SearchServiceAbstraction,
-        TokenServiceAbstraction,
-        PolicyServiceAbstraction,
-        KeyConnectorServiceAbstraction,
-        StateServiceAbstraction,
-      ],
-    },
-    {
       provide: StateServiceAbstraction,
       useFactory: (
         storageService: StorageServiceAbstraction,
@@ -276,7 +238,6 @@ import { ValidationService } from "./validation.service";
         syncService: SyncServiceAbstraction,
         appIdService: AppIdServiceAbstraction,
         apiService: ApiServiceAbstraction,
-        vaultTimeoutService: VaultTimeoutServiceAbstraction,
         environmentService: EnvironmentServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
         logService: LogService,
@@ -286,7 +247,6 @@ import { ValidationService } from "./validation.service";
           syncService,
           appIdService,
           apiService,
-          vaultTimeoutService,
           environmentService,
           async () => messagingService.send("logout", { expired: true }),
           logService,
@@ -296,7 +256,6 @@ import { ValidationService } from "./validation.service";
         SyncServiceAbstraction,
         AppIdServiceAbstraction,
         ApiServiceAbstraction,
-        VaultTimeoutServiceAbstraction,
         EnvironmentServiceAbstraction,
         MessagingServiceAbstraction,
         LogService,

@@ -4,12 +4,10 @@ import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/ro
 import { KeyConnectorService } from "@/jslib/common/src/abstractions/keyConnector.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { StateService } from "@/jslib/common/src/abstractions/state.service";
-import { VaultTimeoutService } from "@/jslib/common/src/abstractions/vaultTimeout.service";
 
 @Injectable()
 export class AuthGuardService  {
   constructor(
-    private vaultTimeoutService: VaultTimeoutService,
     private router: Router,
     private messagingService: MessagingService,
     private keyConnectorService: KeyConnectorService,
@@ -20,15 +18,6 @@ export class AuthGuardService  {
     const isAuthed = await this.stateService.getIsAuthenticated();
     if (!isAuthed) {
       this.messagingService.send("authBlocked");
-      return false;
-    }
-
-    const locked = await this.vaultTimeoutService.isLocked();
-    if (locked) {
-      if (routerState != null) {
-        this.messagingService.send("lockedUrl", { url: routerState.url });
-      }
-      this.router.navigate(["lock"], { queryParams: { promptBiometric: true } });
       return false;
     }
 
