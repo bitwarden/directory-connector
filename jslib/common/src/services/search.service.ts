@@ -1,6 +1,5 @@
 import * as lunr from "lunr";
 
-import { CipherService } from "../abstractions/cipher.service";
 import { I18nService } from "../abstractions/i18n.service";
 import { LogService } from "../abstractions/log.service";
 import { SearchService as SearchServiceAbstraction } from "../abstractions/search.service";
@@ -17,7 +16,6 @@ export class SearchService implements SearchServiceAbstraction {
   private searchableMinLength = 2;
 
   constructor(
-    private cipherService: CipherService,
     private logService: LogService,
     private i18nService: I18nService,
   ) {
@@ -76,7 +74,6 @@ export class SearchService implements SearchServiceAbstraction {
       extractor: (c: CipherView) => this.attachmentExtractor(c, true),
     });
     builder.field("organizationid", { extractor: (c: CipherView) => c.organizationId });
-    ciphers = ciphers || (await this.cipherService.getAllDecrypted());
     ciphers.forEach((c) => builder.add(c));
     this.index = builder.build();
 
@@ -97,11 +94,6 @@ export class SearchService implements SearchServiceAbstraction {
     if (query === "") {
       query = null;
     }
-
-    if (ciphers == null) {
-      ciphers = await this.cipherService.getAllDecrypted();
-    }
-
     if (filter != null && Array.isArray(filter) && filter.length > 0) {
       ciphers = ciphers.filter((c) => filter.every((f) => f == null || f(c)));
     } else if (filter != null) {

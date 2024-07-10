@@ -1,5 +1,4 @@
 import { ApiService } from "../abstractions/api.service";
-import { CipherService } from "../abstractions/cipher.service";
 import { CryptoService } from "../abstractions/crypto.service";
 import { FolderService as FolderServiceAbstraction } from "../abstractions/folder.service";
 import { I18nService } from "../abstractions/i18n.service";
@@ -22,7 +21,6 @@ export class FolderService implements FolderServiceAbstraction {
     private cryptoService: CryptoService,
     private apiService: ApiService,
     private i18nService: I18nService,
-    private cipherService: CipherService,
     private stateService: StateService,
   ) {}
 
@@ -180,9 +178,6 @@ export class FolderService implements FolderServiceAbstraction {
           ciphers[cId].folderId = null;
           updates.push(ciphers[cId]);
         }
-      }
-      if (updates.length > 0) {
-        this.cipherService.upsert(updates);
       }
     }
   }

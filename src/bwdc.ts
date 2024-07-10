@@ -8,7 +8,6 @@ import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { CipherService } from "@/jslib/common/src/services/cipher.service";
 import { CollectionService } from "@/jslib/common/src/services/collection.service";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
@@ -61,7 +60,6 @@ export class Main {
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
   collectionService: CollectionService;
-  cipherService: CipherService;
   fileUploadService: FileUploadService;
   folderService: FolderService;
   searchService: SearchService;
@@ -218,24 +216,12 @@ export class Main {
 
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
 
-    this.cipherService = new CipherService(
-      this.cryptoService,
-      this.settingsService,
-      this.apiService,
-      this.fileUploadService,
-      this.i18nService,
-      () => searchService,
-      this.logService,
-      this.stateService,
-    );
-
-    this.searchService = new SearchService(this.cipherService, this.logService, this.i18nService);
+    this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.folderService = new FolderService(
       this.cryptoService,
       this.apiService,
       this.i18nService,
-      this.cipherService,
       this.stateService,
     );
 

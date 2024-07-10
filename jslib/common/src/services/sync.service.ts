@@ -1,5 +1,4 @@
 import { ApiService } from "../abstractions/api.service";
-import { CipherService } from "../abstractions/cipher.service";
 import { CollectionService } from "../abstractions/collection.service";
 import { CryptoService } from "../abstractions/crypto.service";
 import { FolderService } from "../abstractions/folder.service";
@@ -13,18 +12,15 @@ import { SettingsService } from "../abstractions/settings.service";
 import { StateService } from "../abstractions/state.service";
 import { SyncService as SyncServiceAbstraction } from "../abstractions/sync.service";
 import { sequentialize } from "../misc/sequentialize";
-import { CipherData } from "../models/data/cipherData";
 import { CollectionData } from "../models/data/collectionData";
 import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
 import { PolicyData } from "../models/data/policyData";
 import { ProviderData } from "../models/data/providerData";
-import { CipherResponse } from "../models/response/cipherResponse";
 import { CollectionDetailsResponse } from "../models/response/collectionResponse";
 import { DomainsResponse } from "../models/response/domainsResponse";
 import { FolderResponse } from "../models/response/folderResponse";
 import {
-  SyncCipherNotification,
   SyncFolderNotification,
 } from "../models/response/notificationResponse";
 import { PolicyResponse } from "../models/response/policyResponse";
@@ -37,7 +33,6 @@ export class SyncService implements SyncServiceAbstraction {
     private apiService: ApiService,
     private settingsService: SettingsService,
     private folderService: FolderService,
-    private cipherService: CipherService,
     private cryptoService: CryptoService,
     private collectionService: CollectionService,
     private messagingService: MessagingService,
@@ -98,7 +93,6 @@ export class SyncService implements SyncServiceAbstraction {
       await this.syncProfile(response.profile);
       await this.syncFolders(userId, response.folders);
       await this.syncCollections(response.collections);
-      await this.syncCiphers(userId, response.ciphers);
       await this.syncSettings(response.domains);
       await this.syncPolicies(response.policies);
 
@@ -144,79 +138,6 @@ export class SyncService implements SyncServiceAbstraction {
       this.messagingService.send("syncedDeletedFolder", { folderId: notification.id });
       this.syncCompleted(true);
       return true;
-    }
-    return this.syncCompleted(false);
-  }
-
-  async syncUpsertCipher(notification: SyncCipherNotification, isEdit: boolean): Promise<boolean> {
-    this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
-      try {
-        let shouldUpdate = true;
-        const localCipher = await this.cipherService.get(notification.id);
-        if (localCipher != null && localCipher.revisionDate >= notification.revisionDate) {
-          shouldUpdate = false;
-        }
-
-        let checkCollections = false;
-        if (shouldUpdate) {
-          if (isEdit) {
-            shouldUpdate = localCipher != null;
-            checkCollections = true;
-          } else {
-            if (notification.collectionIds == null || notification.organizationId == null) {
-              shouldUpdate = localCipher == null;
-            } else {
-              shouldUpdate = false;
-              checkCollections = true;
-            }
-          }
-        }
-
-        if (
-          !shouldUpdate &&
-          checkCollections &&
-          notification.organizationId != null &&
-          notification.collectionIds != null &&
-          notification.collectionIds.length > 0
-        ) {
-          const collections = await this.collectionService.getAll();
-          if (collections != null) {
-            for (let i = 0; i < collections.length; i++) {
-              if (notification.collectionIds.indexOf(collections[i].id) > -1) {
-                shouldUpdate = true;
-                break;
-              }
-            }
-          }
-        }
-
-        if (shouldUpdate) {
-          const remoteCipher = await this.apiService.getCipher(notification.id);
-          if (remoteCipher != null) {
-            const userId = await this.stateService.getUserId();
-            await this.cipherService.upsert(new CipherData(remoteCipher, userId));
-            this.messagingService.send("syncedUpsertedCipher", { cipherId: notification.id });
-            return this.syncCompleted(true);
-          }
-        }
-      } catch (e) {
-        if (e != null && e.statusCode === 404 && isEdit) {
-          await this.cipherService.delete(notification.id);
-          this.messagingService.send("syncedDeletedCipher", { cipherId: notification.id });
-          return this.syncCompleted(true);
-        }
-      }
-    }
-    return this.syncCompleted(false);
-  }
-
-  async syncDeleteCipher(notification: SyncCipherNotification): Promise<boolean> {
-    this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
-      await this.cipherService.delete(notification.id);
-      this.messagingService.send("syncedDeletedCipher", { cipherId: notification.id });
-      return this.syncCompleted(true);
     }
     return this.syncCompleted(false);
   }
@@ -312,14 +233,6 @@ export class SyncService implements SyncServiceAbstraction {
       collections[c.id] = new CollectionData(c);
     });
     return await this.collectionService.replace(collections);
-  }
-
-  private async syncCiphers(userId: string, response: CipherResponse[]) {
-    const ciphers: { [id: string]: CipherData } = {};
-    response.forEach((c) => {
-      ciphers[c.id] = new CipherData(c, userId);
-    });
-    return await this.cipherService.replace(ciphers);
   }
 
   private async syncSettings(response: DomainsResponse) {

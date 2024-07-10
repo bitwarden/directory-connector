@@ -1,10 +1,9 @@
-import { Injector, LOCALE_ID, NgModule } from "@angular/core";
+import { LOCALE_ID, NgModule } from "@angular/core";
 
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
 import { AuthService as AuthServiceAbstraction } from "@/jslib/common/src/abstractions/auth.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
-import { CipherService as CipherServiceAbstraction } from "@/jslib/common/src/abstractions/cipher.service";
 import { CollectionService as CollectionServiceAbstraction } from "@/jslib/common/src/abstractions/collection.service";
 import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/abstractions/crypto.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
@@ -39,7 +38,6 @@ import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { AuthService } from "@/jslib/common/src/services/auth.service";
-import { CipherService } from "@/jslib/common/src/services/cipher.service";
 import { CollectionService } from "@/jslib/common/src/services/collection.service";
 import { ConsoleLogService } from "@/jslib/common/src/services/consoleLog.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
@@ -109,46 +107,12 @@ import { ValidationService } from "./validation.service";
       ],
     },
     {
-      provide: CipherServiceAbstraction,
-      useFactory: (
-        cryptoService: CryptoServiceAbstraction,
-        settingsService: SettingsServiceAbstraction,
-        apiService: ApiServiceAbstraction,
-        fileUploadService: FileUploadServiceAbstraction,
-        i18nService: I18nServiceAbstraction,
-        injector: Injector,
-        logService: LogService,
-        stateService: StateServiceAbstraction,
-      ) =>
-        new CipherService(
-          cryptoService,
-          settingsService,
-          apiService,
-          fileUploadService,
-          i18nService,
-          () => injector.get(SearchServiceAbstraction),
-          logService,
-          stateService,
-        ),
-      deps: [
-        CryptoServiceAbstraction,
-        SettingsServiceAbstraction,
-        ApiServiceAbstraction,
-        FileUploadServiceAbstraction,
-        I18nServiceAbstraction,
-        Injector, // TODO: Get rid of this circular dependency!
-        LogService,
-        StateServiceAbstraction,
-      ],
-    },
-    {
       provide: FolderServiceAbstraction,
       useClass: FolderService,
       deps: [
         CryptoServiceAbstraction,
         ApiServiceAbstraction,
         I18nServiceAbstraction,
-        CipherServiceAbstraction,
         StateServiceAbstraction,
       ],
     },
@@ -206,7 +170,7 @@ import { ValidationService } from "./validation.service";
     {
       provide: FileUploadServiceAbstraction,
       useClass: FileUploadService,
-      deps: [LogServiceAbstraction, ApiServiceAbstraction],
+      deps: [LogService, ApiServiceAbstraction],
     },
     {
       provide: SyncServiceAbstraction,
@@ -214,7 +178,6 @@ import { ValidationService } from "./validation.service";
         apiService: ApiServiceAbstraction,
         settingsService: SettingsServiceAbstraction,
         folderService: FolderServiceAbstraction,
-        cipherService: CipherServiceAbstraction,
         cryptoService: CryptoServiceAbstraction,
         collectionService: CollectionServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
@@ -229,7 +192,6 @@ import { ValidationService } from "./validation.service";
           apiService,
           settingsService,
           folderService,
-          cipherService,
           cryptoService,
           collectionService,
           messagingService,
@@ -245,7 +207,6 @@ import { ValidationService } from "./validation.service";
         ApiServiceAbstraction,
         SettingsServiceAbstraction,
         FolderServiceAbstraction,
-        CipherServiceAbstraction,
         CryptoServiceAbstraction,
         CollectionServiceAbstraction,
         MessagingServiceAbstraction,
@@ -266,7 +227,6 @@ import { ValidationService } from "./validation.service";
     {
       provide: VaultTimeoutServiceAbstraction,
       useFactory: (
-        cipherService: CipherServiceAbstraction,
         folderService: FolderServiceAbstraction,
         collectionService: CollectionServiceAbstraction,
         cryptoService: CryptoServiceAbstraction,
@@ -279,7 +239,6 @@ import { ValidationService } from "./validation.service";
         stateService: StateServiceAbstraction,
       ) =>
         new VaultTimeoutService(
-          cipherService,
           folderService,
           collectionService,
           cryptoService,
@@ -295,7 +254,6 @@ import { ValidationService } from "./validation.service";
             messagingService.send("logout", { expired: false, userId: userId }),
         ),
       deps: [
-        CipherServiceAbstraction,
         FolderServiceAbstraction,
         CollectionServiceAbstraction,
         CryptoServiceAbstraction,
@@ -346,7 +304,7 @@ import { ValidationService } from "./validation.service";
     {
       provide: SearchServiceAbstraction,
       useClass: SearchService,
-      deps: [CipherServiceAbstraction, LogService, I18nServiceAbstraction],
+      deps: [LogService, I18nServiceAbstraction],
     },
     {
       provide: NotificationsServiceAbstraction,
@@ -386,7 +344,6 @@ import { ValidationService } from "./validation.service";
       useClass: EventService,
       deps: [
         ApiServiceAbstraction,
-        CipherServiceAbstraction,
         StateServiceAbstraction,
         LogService,
         OrganizationServiceAbstraction,

@@ -1,5 +1,4 @@
 import { ApiService } from "../abstractions/api.service";
-import { CipherService } from "../abstractions/cipher.service";
 import { EventService as EventServiceAbstraction } from "../abstractions/event.service";
 import { LogService } from "../abstractions/log.service";
 import { OrganizationService } from "../abstractions/organization.service";
@@ -13,7 +12,6 @@ export class EventService implements EventServiceAbstraction {
 
   constructor(
     private apiService: ApiService,
-    private cipherService: CipherService,
     private stateService: StateService,
     private logService: LogService,
     private organizationService: OrganizationService,
@@ -47,12 +45,6 @@ export class EventService implements EventServiceAbstraction {
     const orgIds = new Set<string>(organizations.filter((o) => o.useEvents).map((o) => o.id));
     if (orgIds.size === 0) {
       return;
-    }
-    if (cipherId != null) {
-      const cipher = await this.cipherService.get(cipherId);
-      if (cipher == null || cipher.organizationId == null || !orgIds.has(cipher.organizationId)) {
-        return;
-      }
     }
     let eventCollection = await this.stateService.getEventCollection();
     if (eventCollection == null) {

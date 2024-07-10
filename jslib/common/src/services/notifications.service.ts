@@ -12,7 +12,6 @@ import { VaultTimeoutService } from "../abstractions/vaultTimeout.service";
 import { NotificationType } from "../enums/notificationType";
 import {
   NotificationResponse,
-  SyncCipherNotification,
   SyncFolderNotification,
 } from "../models/response/notificationResponse";
 
@@ -131,17 +130,6 @@ export class NotificationsService implements NotificationsServiceAbstraction {
     }
 
     switch (notification.type) {
-      case NotificationType.SyncCipherCreate:
-      case NotificationType.SyncCipherUpdate:
-        await this.syncService.syncUpsertCipher(
-          notification.payload as SyncCipherNotification,
-          notification.type === NotificationType.SyncCipherUpdate,
-        );
-        break;
-      case NotificationType.SyncCipherDelete:
-      case NotificationType.SyncLoginDelete:
-        await this.syncService.syncDeleteCipher(notification.payload as SyncCipherNotification);
-        break;
       case NotificationType.SyncFolderCreate:
       case NotificationType.SyncFolderUpdate:
         await this.syncService.syncUpsertFolder(
