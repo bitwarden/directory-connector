@@ -11,7 +11,6 @@ import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
-import { FileUploadService } from "@/jslib/common/src/services/fileUpload.service";
 import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.service";
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
@@ -55,7 +54,6 @@ export class Main {
   containerService: ContainerService;
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
-  fileUploadService: FileUploadService;
   searchService: SearchService;
   settingsService: SettingsService;
   syncService: SyncService;
@@ -198,8 +196,6 @@ export class Main {
     );
 
     this.settingsService = new SettingsService(this.stateService);
-
-    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
 
     this.searchService = new SearchService(this.logService, this.i18nService);
 
