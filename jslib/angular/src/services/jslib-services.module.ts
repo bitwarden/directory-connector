@@ -34,7 +34,6 @@ import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abst
 import { TotpService as TotpServiceAbstraction } from "@/jslib/common/src/abstractions/totp.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@/jslib/common/src/abstractions/userVerification.service";
-import { UsernameGenerationService as UsernameGenerationServiceAbstraction } from "@/jslib/common/src/abstractions/usernameGeneration.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@/jslib/common/src/abstractions/vaultTimeout.service";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { Account } from "@/jslib/common/src/models/domain/account";
@@ -66,7 +65,6 @@ import { TokenService } from "@/jslib/common/src/services/token.service";
 import { TotpService } from "@/jslib/common/src/services/totp.service";
 import { TwoFactorService } from "@/jslib/common/src/services/twoFactor.service";
 import { UserVerificationService } from "@/jslib/common/src/services/userVerification.service";
-import { UsernameGenerationService } from "@/jslib/common/src/services/usernameGeneration.service";
 import { VaultTimeoutService } from "@/jslib/common/src/services/vaultTimeout.service";
 
 import { AuthGuardService } from "./auth-guard.service";
@@ -189,11 +187,6 @@ import { ValidationService } from "./validation.service";
       provide: PasswordGenerationServiceAbstraction,
       useClass: PasswordGenerationService,
       deps: [CryptoServiceAbstraction, PolicyServiceAbstraction, StateServiceAbstraction],
-    },
-    {
-      provide: UsernameGenerationServiceAbstraction,
-      useClass: UsernameGenerationService,
-      deps: [CryptoServiceAbstraction, StateServiceAbstraction],
     },
     {
       provide: ApiServiceAbstraction,
