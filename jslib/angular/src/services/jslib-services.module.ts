@@ -31,7 +31,6 @@ import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jsl
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
 import { SyncService as SyncServiceAbstraction } from "@/jslib/common/src/abstractions/sync.service";
 import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abstractions/token.service";
-import { TotpService as TotpServiceAbstraction } from "@/jslib/common/src/abstractions/totp.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@/jslib/common/src/abstractions/userVerification.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@/jslib/common/src/abstractions/vaultTimeout.service";
@@ -62,7 +61,6 @@ import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
 import { SyncService } from "@/jslib/common/src/services/sync.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
-import { TotpService } from "@/jslib/common/src/services/totp.service";
 import { TwoFactorService } from "@/jslib/common/src/services/twoFactor.service";
 import { UserVerificationService } from "@/jslib/common/src/services/userVerification.service";
 import { VaultTimeoutService } from "@/jslib/common/src/services/vaultTimeout.service";
@@ -166,11 +164,6 @@ import { ValidationService } from "./validation.service";
       provide: EnvironmentServiceAbstraction,
       useClass: EnvironmentService,
       deps: [StateServiceAbstraction],
-    },
-    {
-      provide: TotpServiceAbstraction,
-      useClass: TotpService,
-      deps: [CryptoFunctionServiceAbstraction, LogService, StateServiceAbstraction],
     },
     { provide: TokenServiceAbstraction, useClass: TokenService, deps: [StateServiceAbstraction] },
     {
