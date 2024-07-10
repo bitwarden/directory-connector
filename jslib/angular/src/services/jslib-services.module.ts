@@ -19,7 +19,6 @@ import { PasswordGenerationService as PasswordGenerationServiceAbstraction } fro
 import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "@/jslib/common/src/abstractions/passwordReprompt.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { PolicyService as PolicyServiceAbstraction } from "@/jslib/common/src/abstractions/policy.service";
-import { ProviderService as ProviderServiceAbstraction } from "@/jslib/common/src/abstractions/provider.service";
 import { SearchService as SearchServiceAbstraction } from "@/jslib/common/src/abstractions/search.service";
 import { SettingsService as SettingsServiceAbstraction } from "@/jslib/common/src/abstractions/settings.service";
 import { StateService as StateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
@@ -46,7 +45,6 @@ import { NotificationsService } from "@/jslib/common/src/services/notifications.
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
-import { ProviderService } from "@/jslib/common/src/services/provider.service";
 import { SearchService } from "@/jslib/common/src/services/search.service";
 import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { StateService } from "@/jslib/common/src/services/state.service";
@@ -165,7 +163,6 @@ import { ValidationService } from "./validation.service";
         keyConnectorService: KeyConnectorServiceAbstraction,
         stateService: StateServiceAbstraction,
         organizationService: OrganizationServiceAbstraction,
-        providerService: ProviderServiceAbstraction,
       ) =>
         new SyncService(
           apiService,
@@ -177,7 +174,6 @@ import { ValidationService } from "./validation.service";
           keyConnectorService,
           stateService,
           organizationService,
-          providerService,
           async (expired: boolean) => messagingService.send("logout", { expired: expired }),
         ),
       deps: [
@@ -190,7 +186,6 @@ import { ValidationService } from "./validation.service";
         KeyConnectorServiceAbstraction,
         StateServiceAbstraction,
         OrganizationServiceAbstraction,
-        ProviderServiceAbstraction,
       ],
     },
     { provide: BroadcasterServiceAbstraction, useClass: BroadcasterService },
@@ -345,11 +340,6 @@ import { ValidationService } from "./validation.service";
     {
       provide: OrganizationServiceAbstraction,
       useClass: OrganizationService,
-      deps: [StateServiceAbstraction],
-    },
-    {
-      provide: ProviderServiceAbstraction,
-      useClass: ProviderService,
       deps: [StateServiceAbstraction],
     },
     {

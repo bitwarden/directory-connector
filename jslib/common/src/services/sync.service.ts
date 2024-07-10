@@ -5,14 +5,12 @@ import { LogService } from "../abstractions/log.service";
 import { MessagingService } from "../abstractions/messaging.service";
 import { OrganizationService } from "../abstractions/organization.service";
 import { PolicyService } from "../abstractions/policy.service";
-import { ProviderService } from "../abstractions/provider.service";
 import { SettingsService } from "../abstractions/settings.service";
 import { StateService } from "../abstractions/state.service";
 import { SyncService as SyncServiceAbstraction } from "../abstractions/sync.service";
 import { sequentialize } from "../misc/sequentialize";
 import { OrganizationData } from "../models/data/organizationData";
 import { PolicyData } from "../models/data/policyData";
-import { ProviderData } from "../models/data/providerData";
 import { DomainsResponse } from "../models/response/domainsResponse";
 import { PolicyResponse } from "../models/response/policyResponse";
 import { ProfileResponse } from "../models/response/profileResponse";
@@ -30,7 +28,6 @@ export class SyncService implements SyncServiceAbstraction {
     private keyConnectorService: KeyConnectorService,
     private stateService: StateService,
     private organizationService: OrganizationService,
-    private providerService: ProviderService,
     private logoutCallback: (expired: boolean) => Promise<void>,
   ) {}
 
@@ -135,7 +132,6 @@ export class SyncService implements SyncServiceAbstraction {
 
     await this.cryptoService.setEncKey(response.key);
     await this.cryptoService.setEncPrivateKey(response.privateKey);
-    await this.cryptoService.setProviderKeys(response.providers);
     await this.cryptoService.setOrgKeys(response.organizations, response.providerOrganizations);
     await this.stateService.setSecurityStamp(response.securityStamp);
     await this.stateService.setEmailVerified(response.emailVerified);
@@ -147,11 +143,6 @@ export class SyncService implements SyncServiceAbstraction {
       organizations[o.id] = new OrganizationData(o);
     });
 
-    const providers: { [id: string]: ProviderData } = {};
-    response.providers.forEach((p) => {
-      providers[p.id] = new ProviderData(p);
-    });
-
     response.providerOrganizations.forEach((o) => {
       if (organizations[o.id] == null) {
         organizations[o.id] = new OrganizationData(o);
@@ -160,7 +151,6 @@ export class SyncService implements SyncServiceAbstraction {
     });
 
     await this.organizationService.save(organizations);
-    await this.providerService.save(providers);
 
     if (await this.keyConnectorService.userNeedsMigration()) {
       await this.keyConnectorService.setConvertAccountRequired(true);

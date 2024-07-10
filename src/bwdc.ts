@@ -17,7 +17,6 @@ import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
-import { ProviderService } from "@/jslib/common/src/services/provider.service";
 import { SearchService } from "@/jslib/common/src/services/search.service";
 import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
@@ -68,7 +67,6 @@ export class Main {
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   organizationService: OrganizationService;
-  providerService: ProviderService;
   twoFactorService: TwoFactorServiceAbstraction;
 
   constructor() {
@@ -213,8 +211,6 @@ export class Main {
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
 
     this.searchService = new SearchService(this.logService, this.i18nService);
-
-    this.providerService = new ProviderService(this.stateService);
 
     this.program = new Program(this);
   }
