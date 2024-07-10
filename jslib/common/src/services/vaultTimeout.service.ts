@@ -1,6 +1,5 @@
 import { firstValueFrom } from "rxjs";
 
-import { CollectionService } from "../abstractions/collection.service";
 import { CryptoService } from "../abstractions/crypto.service";
 import { KeyConnectorService } from "../abstractions/keyConnector.service";
 import { MessagingService } from "../abstractions/messaging.service";
@@ -17,7 +16,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
   private inited = false;
 
   constructor(
-    private collectionService: CollectionService,
     private cryptoService: CryptoService,
     protected platformUtilsService: PlatformUtilsService,
     private messagingService: MessagingService,
@@ -101,8 +99,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     await this.cryptoService.clearOrgKeys(true, userId);
     await this.cryptoService.clearKeyPair(true, userId);
     await this.cryptoService.clearEncKey(true, userId);
-
-    await this.collectionService.clearCache(userId);
 
     this.messagingService.send("locked", { userId: userId });
 

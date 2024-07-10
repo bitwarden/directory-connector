@@ -4,7 +4,6 @@ import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstract
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
 import { AuthService as AuthServiceAbstraction } from "@/jslib/common/src/abstractions/auth.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
-import { CollectionService as CollectionServiceAbstraction } from "@/jslib/common/src/abstractions/collection.service";
 import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/abstractions/crypto.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/common/src/abstractions/environment.service";
@@ -37,7 +36,6 @@ import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { AuthService } from "@/jslib/common/src/services/auth.service";
-import { CollectionService } from "@/jslib/common/src/services/collection.service";
 import { ConsoleLogService } from "@/jslib/common/src/services/consoleLog.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
@@ -106,11 +104,6 @@ import { ValidationService } from "./validation.service";
     },
     { provide: LogService, useFactory: () => new ConsoleLogService(false) },
     {
-      provide: CollectionServiceAbstraction,
-      useClass: CollectionService,
-      deps: [CryptoServiceAbstraction, I18nServiceAbstraction, StateServiceAbstraction],
-    },
-    {
       provide: EnvironmentServiceAbstraction,
       useClass: EnvironmentService,
       deps: [StateServiceAbstraction],
@@ -166,7 +159,6 @@ import { ValidationService } from "./validation.service";
         apiService: ApiServiceAbstraction,
         settingsService: SettingsServiceAbstraction,
         cryptoService: CryptoServiceAbstraction,
-        collectionService: CollectionServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
         policyService: PolicyServiceAbstraction,
         logService: LogService,
@@ -179,7 +171,6 @@ import { ValidationService } from "./validation.service";
           apiService,
           settingsService,
           cryptoService,
-          collectionService,
           messagingService,
           policyService,
           logService,
@@ -193,7 +184,6 @@ import { ValidationService } from "./validation.service";
         ApiServiceAbstraction,
         SettingsServiceAbstraction,
         CryptoServiceAbstraction,
-        CollectionServiceAbstraction,
         MessagingServiceAbstraction,
         PolicyServiceAbstraction,
         LogService,
@@ -212,7 +202,6 @@ import { ValidationService } from "./validation.service";
     {
       provide: VaultTimeoutServiceAbstraction,
       useFactory: (
-        collectionService: CollectionServiceAbstraction,
         cryptoService: CryptoServiceAbstraction,
         platformUtilsService: PlatformUtilsServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
@@ -223,7 +212,6 @@ import { ValidationService } from "./validation.service";
         stateService: StateServiceAbstraction,
       ) =>
         new VaultTimeoutService(
-          collectionService,
           cryptoService,
           platformUtilsService,
           messagingService,
@@ -237,7 +225,6 @@ import { ValidationService } from "./validation.service";
             messagingService.send("logout", { expired: false, userId: userId }),
         ),
       deps: [
-        CollectionServiceAbstraction,
         CryptoServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         MessagingServiceAbstraction,

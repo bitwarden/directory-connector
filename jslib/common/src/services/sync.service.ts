@@ -1,5 +1,4 @@
 import { ApiService } from "../abstractions/api.service";
-import { CollectionService } from "../abstractions/collection.service";
 import { CryptoService } from "../abstractions/crypto.service";
 import { KeyConnectorService } from "../abstractions/keyConnector.service";
 import { LogService } from "../abstractions/log.service";
@@ -11,11 +10,9 @@ import { SettingsService } from "../abstractions/settings.service";
 import { StateService } from "../abstractions/state.service";
 import { SyncService as SyncServiceAbstraction } from "../abstractions/sync.service";
 import { sequentialize } from "../misc/sequentialize";
-import { CollectionData } from "../models/data/collectionData";
 import { OrganizationData } from "../models/data/organizationData";
 import { PolicyData } from "../models/data/policyData";
 import { ProviderData } from "../models/data/providerData";
-import { CollectionDetailsResponse } from "../models/response/collectionResponse";
 import { DomainsResponse } from "../models/response/domainsResponse";
 import { PolicyResponse } from "../models/response/policyResponse";
 import { ProfileResponse } from "../models/response/profileResponse";
@@ -27,7 +24,6 @@ export class SyncService implements SyncServiceAbstraction {
     private apiService: ApiService,
     private settingsService: SettingsService,
     private cryptoService: CryptoService,
-    private collectionService: CollectionService,
     private messagingService: MessagingService,
     private policyService: PolicyService,
     private logService: LogService,
@@ -83,7 +79,6 @@ export class SyncService implements SyncServiceAbstraction {
       const response = await this.apiService.getSync();
 
       await this.syncProfile(response.profile);
-      await this.syncCollections(response.collections);
       await this.syncSettings(response.domains);
       await this.syncPolicies(response.policies);
 
@@ -173,14 +168,6 @@ export class SyncService implements SyncServiceAbstraction {
     } else {
       this.keyConnectorService.removeConvertAccountRequired();
     }
-  }
-
-  private async syncCollections(response: CollectionDetailsResponse[]) {
-    const collections: { [id: string]: CollectionData } = {};
-    response.forEach((c) => {
-      collections[c.id] = new CollectionData(c);
-    });
-    return await this.collectionService.replace(collections);
   }
 
   private async syncSettings(response: DomainsResponse) {
