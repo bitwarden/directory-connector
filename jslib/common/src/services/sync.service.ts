@@ -4,15 +4,12 @@ import { KeyConnectorService } from "../abstractions/keyConnector.service";
 import { LogService } from "../abstractions/log.service";
 import { MessagingService } from "../abstractions/messaging.service";
 import { OrganizationService } from "../abstractions/organization.service";
-import { PolicyService } from "../abstractions/policy.service";
 import { SettingsService } from "../abstractions/settings.service";
 import { StateService } from "../abstractions/state.service";
 import { SyncService as SyncServiceAbstraction } from "../abstractions/sync.service";
 import { sequentialize } from "../misc/sequentialize";
 import { OrganizationData } from "../models/data/organizationData";
-import { PolicyData } from "../models/data/policyData";
 import { DomainsResponse } from "../models/response/domainsResponse";
-import { PolicyResponse } from "../models/response/policyResponse";
 import { ProfileResponse } from "../models/response/profileResponse";
 
 export class SyncService implements SyncServiceAbstraction {
@@ -23,7 +20,6 @@ export class SyncService implements SyncServiceAbstraction {
     private settingsService: SettingsService,
     private cryptoService: CryptoService,
     private messagingService: MessagingService,
-    private policyService: PolicyService,
     private logService: LogService,
     private keyConnectorService: KeyConnectorService,
     private stateService: StateService,
@@ -77,7 +73,6 @@ export class SyncService implements SyncServiceAbstraction {
 
       await this.syncProfile(response.profile);
       await this.syncSettings(response.domains);
-      await this.syncPolicies(response.policies);
 
       await this.setLastSync(now);
       return this.syncCompleted(true);
@@ -175,15 +170,5 @@ export class SyncService implements SyncServiceAbstraction {
     }
 
     return this.settingsService.setEquivalentDomains(eqDomains);
-  }
-
-  private async syncPolicies(response: PolicyResponse[]) {
-    const policies: { [id: string]: PolicyData } = {};
-    if (response != null) {
-      response.forEach((p) => {
-        policies[p.id] = new PolicyData(p);
-      });
-    }
-    return await this.policyService.replace(policies);
   }
 }

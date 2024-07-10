@@ -2,14 +2,11 @@ import * as zxcvbn from "zxcvbn";
 
 import { CryptoService } from "../abstractions/crypto.service";
 import { PasswordGenerationService as PasswordGenerationServiceAbstraction } from "../abstractions/passwordGeneration.service";
-import { PolicyService } from "../abstractions/policy.service";
 import { StateService } from "../abstractions/state.service";
-import { PolicyType } from "../enums/policyType";
 import { EEFLongWordList } from "../misc/wordlist";
 import { EncString } from "../models/domain/encString";
 import { GeneratedPasswordHistory } from "../models/domain/generatedPasswordHistory";
 import { PasswordGeneratorPolicyOptions } from "../models/domain/passwordGeneratorPolicyOptions";
-import { Policy } from "../models/domain/policy";
 
 const DefaultOptions = {
   length: 14,
@@ -34,7 +31,6 @@ const MaxPasswordsInHistory = 100;
 export class PasswordGenerationService implements PasswordGenerationServiceAbstraction {
   constructor(
     private cryptoService: CryptoService,
-    private policyService: PolicyService,
     private stateService: StateService,
   ) {}
 
@@ -193,146 +189,7 @@ export class PasswordGenerationService implements PasswordGenerationServiceAbstr
   async enforcePasswordGeneratorPoliciesOnOptions(
     options: any,
   ): Promise<[any, PasswordGeneratorPolicyOptions]> {
-    let enforcedPolicyOptions = await this.getPasswordGeneratorPolicyOptions();
-    if (enforcedPolicyOptions != null) {
-      if (options.length < enforcedPolicyOptions.minLength) {
-        options.length = enforcedPolicyOptions.minLength;
-      }
-
-      if (enforcedPolicyOptions.useUppercase) {
-        options.uppercase = true;
-      }
-
-      if (enforcedPolicyOptions.useLowercase) {
-        options.lowercase = true;
-      }
-
-      if (enforcedPolicyOptions.useNumbers) {
-        options.number = true;
-      }
-
-      if (options.minNumber < enforcedPolicyOptions.numberCount) {
-        options.minNumber = enforcedPolicyOptions.numberCount;
-      }
-
-      if (enforcedPolicyOptions.useSpecial) {
-        options.special = true;
-      }
-
-      if (options.minSpecial < enforcedPolicyOptions.specialCount) {
-        options.minSpecial = enforcedPolicyOptions.specialCount;
-      }
-
-      // Must normalize these fields because the receiving call expects all options to pass the current rules
-      if (options.minSpecial + options.minNumber > options.length) {
-        options.minSpecial = options.length - options.minNumber;
-      }
-
-      if (options.numWords < enforcedPolicyOptions.minNumberWords) {
-        options.numWords = enforcedPolicyOptions.minNumberWords;
-      }
-
-      if (enforcedPolicyOptions.capitalize) {
-        options.capitalize = true;
-      }
-
-      if (enforcedPolicyOptions.includeNumber) {
-        options.includeNumber = true;
-      }
-
-      // Force default type if password/passphrase selected via policy
-      if (
-        enforcedPolicyOptions.defaultType === "password" ||
-        enforcedPolicyOptions.defaultType === "passphrase"
-      ) {
-        options.type = enforcedPolicyOptions.defaultType;
-      }
-    } else {
-      // UI layer expects an instantiated object to prevent more explicit null checks
-      enforcedPolicyOptions = new PasswordGeneratorPolicyOptions();
-    }
-    return [options, enforcedPolicyOptions];
-  }
-
-  async getPasswordGeneratorPolicyOptions(): Promise<PasswordGeneratorPolicyOptions> {
-    const policies: Policy[] =
-      this.policyService == null
-        ? null
-        : await this.policyService.getAll(PolicyType.PasswordGenerator);
-    let enforcedOptions: PasswordGeneratorPolicyOptions = null;
-
-    if (policies == null || policies.length === 0) {
-      return enforcedOptions;
-    }
-
-    policies.forEach((currentPolicy) => {
-      if (!currentPolicy.enabled || currentPolicy.data == null) {
-        return;
-      }
-
-      if (enforcedOptions == null) {
-        enforcedOptions = new PasswordGeneratorPolicyOptions();
-      }
-
-      // Password wins in multi-org collisions
-      if (currentPolicy.data.defaultType != null && enforcedOptions.defaultType !== "password") {
-        enforcedOptions.defaultType = currentPolicy.data.defaultType;
-      }
-
-      if (
-        currentPolicy.data.minLength != null &&
-        currentPolicy.data.minLength > enforcedOptions.minLength
-      ) {
-        enforcedOptions.minLength = currentPolicy.data.minLength;
-      }
-
-      if (currentPolicy.data.useUpper) {
-        enforcedOptions.useUppercase = true;
-      }
-
-      if (currentPolicy.data.useLower) {
-        enforcedOptions.useLowercase = true;
-      }
-
-      if (currentPolicy.data.useNumbers) {
-        enforcedOptions.useNumbers = true;
-      }
-
-      if (
-        currentPolicy.data.minNumbers != null &&
-        currentPolicy.data.minNumbers > enforcedOptions.numberCount
-      ) {
-        enforcedOptions.numberCount = currentPolicy.data.minNumbers;
-      }
-
-      if (currentPolicy.data.useSpecial) {
-        enforcedOptions.useSpecial = true;
-      }
-
-      if (
-        currentPolicy.data.minSpecial != null &&
-        currentPolicy.data.minSpecial > enforcedOptions.specialCount
-      ) {
-        enforcedOptions.specialCount = currentPolicy.data.minSpecial;
-      }
-
-      if (
-        currentPolicy.data.minNumberWords != null &&
-        currentPolicy.data.minNumberWords > enforcedOptions.minNumberWords
-      ) {
-        enforcedOptions.minNumberWords = currentPolicy.data.minNumberWords;
-      }
-
-      if (currentPolicy.data.capitalize) {
-        enforcedOptions.capitalize = true;
-      }
-
-      if (currentPolicy.data.includeNumber) {
-        enforcedOptions.includeNumber = true;
-      }
-    });
-
-    return enforcedOptions;
+    return [options, new PasswordGeneratorPolicyOptions()];
   }
 
   async saveOptions(options: any) {

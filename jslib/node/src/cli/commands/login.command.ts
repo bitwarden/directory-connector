@@ -12,7 +12,6 @@ import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { PasswordGenerationService } from "@/jslib/common/src/abstractions/passwordGeneration.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { PolicyService } from "@/jslib/common/src/abstractions/policy.service";
 import { StateService } from "@/jslib/common/src/abstractions/state.service";
 import { TwoFactorService } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { TwoFactorProviderType } from "@/jslib/common/src/enums/twoFactorProviderType";
@@ -53,7 +52,6 @@ export class LoginCommand {
     protected platformUtilsService: PlatformUtilsService,
     protected stateService: StateService,
     protected cryptoService: CryptoService,
-    protected policyService: PolicyService,
     protected twoFactorService: TwoFactorService,
     clientId: string,
   ) {
@@ -372,22 +370,8 @@ export class LoginCommand {
     const masterPasswordHint = hint.input;
 
     // Retrieve details for key generation
-    const enforcedPolicyOptions = await this.policyService.getMasterPasswordPolicyOptions();
     const kdf = await this.stateService.getKdfType();
     const kdfIterations = await this.stateService.getKdfIterations();
-
-    if (
-      enforcedPolicyOptions != null &&
-      !this.policyService.evaluateMasterPassword(
-        strengthResult.score,
-        masterPassword,
-        enforcedPolicyOptions,
-      )
-    ) {
-      return this.updateTempPassword(
-        "Your new master password does not meet the policy requirements.\n",
-      );
-    }
 
     try {
       // Create new key and hash new password

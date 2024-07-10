@@ -18,7 +18,6 @@ import { OrganizationService as OrganizationServiceAbstraction } from "@/jslib/c
 import { PasswordGenerationService as PasswordGenerationServiceAbstraction } from "@/jslib/common/src/abstractions/passwordGeneration.service";
 import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "@/jslib/common/src/abstractions/passwordReprompt.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { PolicyService as PolicyServiceAbstraction } from "@/jslib/common/src/abstractions/policy.service";
 import { SearchService as SearchServiceAbstraction } from "@/jslib/common/src/abstractions/search.service";
 import { SettingsService as SettingsServiceAbstraction } from "@/jslib/common/src/abstractions/settings.service";
 import { StateService as StateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
@@ -43,7 +42,6 @@ import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.se
 import { NotificationsService } from "@/jslib/common/src/services/notifications.service";
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
-import { PolicyService } from "@/jslib/common/src/services/policy.service";
 import { SearchService } from "@/jslib/common/src/services/search.service";
 import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { StateService } from "@/jslib/common/src/services/state.service";
@@ -118,7 +116,7 @@ import { ValidationService } from "./validation.service";
     {
       provide: PasswordGenerationServiceAbstraction,
       useClass: PasswordGenerationService,
-      deps: [CryptoServiceAbstraction, PolicyServiceAbstraction, StateServiceAbstraction],
+      deps: [CryptoServiceAbstraction, StateServiceAbstraction],
     },
     {
       provide: ApiServiceAbstraction,
@@ -156,7 +154,6 @@ import { ValidationService } from "./validation.service";
         settingsService: SettingsServiceAbstraction,
         cryptoService: CryptoServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
-        policyService: PolicyServiceAbstraction,
         logService: LogService,
         keyConnectorService: KeyConnectorServiceAbstraction,
         stateService: StateServiceAbstraction,
@@ -167,7 +164,6 @@ import { ValidationService } from "./validation.service";
           settingsService,
           cryptoService,
           messagingService,
-          policyService,
           logService,
           keyConnectorService,
           stateService,
@@ -179,7 +175,6 @@ import { ValidationService } from "./validation.service";
         SettingsServiceAbstraction,
         CryptoServiceAbstraction,
         MessagingServiceAbstraction,
-        PolicyServiceAbstraction,
         LogService,
         KeyConnectorServiceAbstraction,
         StateServiceAbstraction,
@@ -271,11 +266,6 @@ import { ValidationService } from "./validation.service";
         LogService,
         OrganizationServiceAbstraction,
       ],
-    },
-    {
-      provide: PolicyServiceAbstraction,
-      useClass: PolicyService,
-      deps: [StateServiceAbstraction, OrganizationServiceAbstraction, ApiServiceAbstraction],
     },
     {
       provide: KeyConnectorServiceAbstraction,

@@ -102,7 +102,6 @@ export class Program extends BaseProgram {
           this.main.platformUtilsService,
           this.main.stateService,
           this.main.cryptoService,
-          this.main.policyService,
           this.main.twoFactorService,
           "connector",
         );

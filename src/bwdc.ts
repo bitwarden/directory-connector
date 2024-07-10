@@ -16,7 +16,6 @@ import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.se
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
-import { PolicyService } from "@/jslib/common/src/services/policy.service";
 import { SearchService } from "@/jslib/common/src/services/search.service";
 import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
@@ -61,7 +60,6 @@ export class Main {
   settingsService: SettingsService;
   syncService: SyncService;
   passwordGenerationService: PasswordGenerationService;
-  policyService: PolicyService;
   keyConnectorService: KeyConnectorService;
   program: Program;
   stateService: StateService;
@@ -194,15 +192,8 @@ export class Main {
       this.stateService,
     );
 
-    this.policyService = new PolicyService(
-      this.stateService,
-      this.organizationService,
-      this.apiService,
-    );
-
     this.passwordGenerationService = new PasswordGenerationService(
       this.cryptoService,
-      this.policyService,
       this.stateService,
     );
 
