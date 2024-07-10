@@ -1,7 +1,6 @@
 import { ApiService } from "../abstractions/api.service";
 import { CollectionService } from "../abstractions/collection.service";
 import { CryptoService } from "../abstractions/crypto.service";
-import { FolderService } from "../abstractions/folder.service";
 import { KeyConnectorService } from "../abstractions/keyConnector.service";
 import { LogService } from "../abstractions/log.service";
 import { MessagingService } from "../abstractions/messaging.service";
@@ -13,16 +12,11 @@ import { StateService } from "../abstractions/state.service";
 import { SyncService as SyncServiceAbstraction } from "../abstractions/sync.service";
 import { sequentialize } from "../misc/sequentialize";
 import { CollectionData } from "../models/data/collectionData";
-import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
 import { PolicyData } from "../models/data/policyData";
 import { ProviderData } from "../models/data/providerData";
 import { CollectionDetailsResponse } from "../models/response/collectionResponse";
 import { DomainsResponse } from "../models/response/domainsResponse";
-import { FolderResponse } from "../models/response/folderResponse";
-import {
-  SyncFolderNotification,
-} from "../models/response/notificationResponse";
 import { PolicyResponse } from "../models/response/policyResponse";
 import { ProfileResponse } from "../models/response/profileResponse";
 
@@ -32,7 +26,6 @@ export class SyncService implements SyncServiceAbstraction {
   constructor(
     private apiService: ApiService,
     private settingsService: SettingsService,
-    private folderService: FolderService,
     private cryptoService: CryptoService,
     private collectionService: CollectionService,
     private messagingService: MessagingService,
@@ -85,13 +78,11 @@ export class SyncService implements SyncServiceAbstraction {
       return this.syncCompleted(false);
     }
 
-    const userId = await this.stateService.getUserId();
     try {
       await this.apiService.refreshIdentityToken();
       const response = await this.apiService.getSync();
 
       await this.syncProfile(response.profile);
-      await this.syncFolders(userId, response.folders);
       await this.syncCollections(response.collections);
       await this.syncSettings(response.domains);
       await this.syncPolicies(response.policies);
@@ -105,41 +96,6 @@ export class SyncService implements SyncServiceAbstraction {
         return this.syncCompleted(false);
       }
     }
-  }
-
-  async syncUpsertFolder(notification: SyncFolderNotification, isEdit: boolean): Promise<boolean> {
-    this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
-      try {
-        const localFolder = await this.folderService.get(notification.id);
-        if (
-          (!isEdit && localFolder == null) ||
-          (isEdit && localFolder != null && localFolder.revisionDate < notification.revisionDate)
-        ) {
-          const remoteFolder = await this.apiService.getFolder(notification.id);
-          if (remoteFolder != null) {
-            const userId = await this.stateService.getUserId();
-            await this.folderService.upsert(new FolderData(remoteFolder, userId));
-            this.messagingService.send("syncedUpsertedFolder", { folderId: notification.id });
-            return this.syncCompleted(true);
-          }
-        }
-      } catch (e) {
-        this.logService.error(e);
-      }
-    }
-    return this.syncCompleted(false);
-  }
-
-  async syncDeleteFolder(notification: SyncFolderNotification): Promise<boolean> {
-    this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
-      await this.folderService.delete(notification.id);
-      this.messagingService.send("syncedDeletedFolder", { folderId: notification.id });
-      this.syncCompleted(true);
-      return true;
-    }
-    return this.syncCompleted(false);
   }
 
   // Helpers
@@ -217,14 +173,6 @@ export class SyncService implements SyncServiceAbstraction {
     } else {
       this.keyConnectorService.removeConvertAccountRequired();
     }
-  }
-
-  private async syncFolders(userId: string, response: FolderResponse[]) {
-    const folders: { [id: string]: FolderData } = {};
-    response.forEach((f) => {
-      folders[f.id] = new FolderData(f, userId);
-    });
-    return await this.folderService.replace(folders);
   }
 
   private async syncCollections(response: CollectionDetailsResponse[]) {

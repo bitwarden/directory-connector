@@ -10,7 +10,6 @@ import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jsl
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/common/src/abstractions/environment.service";
 import { EventService as EventServiceAbstraction } from "@/jslib/common/src/abstractions/event.service";
 import { FileUploadService as FileUploadServiceAbstraction } from "@/jslib/common/src/abstractions/fileUpload.service";
-import { FolderService as FolderServiceAbstraction } from "@/jslib/common/src/abstractions/folder.service";
 import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstractions/i18n.service";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@/jslib/common/src/abstractions/keyConnector.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
@@ -44,7 +43,6 @@ import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
 import { EventService } from "@/jslib/common/src/services/event.service";
 import { FileUploadService } from "@/jslib/common/src/services/fileUpload.service";
-import { FolderService } from "@/jslib/common/src/services/folder.service";
 import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.service";
 import { NotificationsService } from "@/jslib/common/src/services/notifications.service";
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
@@ -104,16 +102,6 @@ import { ValidationService } from "./validation.service";
         StateServiceAbstraction,
         TwoFactorServiceAbstraction,
         I18nServiceAbstraction,
-      ],
-    },
-    {
-      provide: FolderServiceAbstraction,
-      useClass: FolderService,
-      deps: [
-        CryptoServiceAbstraction,
-        ApiServiceAbstraction,
-        I18nServiceAbstraction,
-        StateServiceAbstraction,
       ],
     },
     { provide: LogService, useFactory: () => new ConsoleLogService(false) },
@@ -177,7 +165,6 @@ import { ValidationService } from "./validation.service";
       useFactory: (
         apiService: ApiServiceAbstraction,
         settingsService: SettingsServiceAbstraction,
-        folderService: FolderServiceAbstraction,
         cryptoService: CryptoServiceAbstraction,
         collectionService: CollectionServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
@@ -191,7 +178,6 @@ import { ValidationService } from "./validation.service";
         new SyncService(
           apiService,
           settingsService,
-          folderService,
           cryptoService,
           collectionService,
           messagingService,
@@ -206,7 +192,6 @@ import { ValidationService } from "./validation.service";
       deps: [
         ApiServiceAbstraction,
         SettingsServiceAbstraction,
-        FolderServiceAbstraction,
         CryptoServiceAbstraction,
         CollectionServiceAbstraction,
         MessagingServiceAbstraction,
@@ -227,7 +212,6 @@ import { ValidationService } from "./validation.service";
     {
       provide: VaultTimeoutServiceAbstraction,
       useFactory: (
-        folderService: FolderServiceAbstraction,
         collectionService: CollectionServiceAbstraction,
         cryptoService: CryptoServiceAbstraction,
         platformUtilsService: PlatformUtilsServiceAbstraction,
@@ -239,7 +223,6 @@ import { ValidationService } from "./validation.service";
         stateService: StateServiceAbstraction,
       ) =>
         new VaultTimeoutService(
-          folderService,
           collectionService,
           cryptoService,
           platformUtilsService,
@@ -254,7 +237,6 @@ import { ValidationService } from "./validation.service";
             messagingService.send("logout", { expired: false, userId: userId }),
         ),
       deps: [
-        FolderServiceAbstraction,
         CollectionServiceAbstraction,
         CryptoServiceAbstraction,
         PlatformUtilsServiceAbstraction,
