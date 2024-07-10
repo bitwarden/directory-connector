@@ -22,7 +22,6 @@ import { PasswordGenerationService } from "@/jslib/common/src/services/passwordG
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
 import { ProviderService } from "@/jslib/common/src/services/provider.service";
 import { SearchService } from "@/jslib/common/src/services/search.service";
-import { SendService } from "@/jslib/common/src/services/send.service";
 import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { CliPlatformUtilsService } from "@/jslib/node/src/cli/services/cliPlatformUtils.service";
@@ -66,7 +65,6 @@ export class Main {
   fileUploadService: FileUploadService;
   folderService: FolderService;
   searchService: SearchService;
-  sendService: SendService;
   settingsService: SettingsService;
   syncService: SyncService;
   passwordGenerationService: PasswordGenerationService;
@@ -244,15 +242,6 @@ export class Main {
     this.collectionService = new CollectionService(
       this.cryptoService,
       this.i18nService,
-      this.stateService,
-    );
-
-    this.sendService = new SendService(
-      this.cryptoService,
-      this.apiService,
-      this.fileUploadService,
-      this.i18nService,
-      this.cryptoFunctionService,
       this.stateService,
     );
 

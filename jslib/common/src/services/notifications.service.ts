@@ -14,7 +14,6 @@ import {
   NotificationResponse,
   SyncCipherNotification,
   SyncFolderNotification,
-  SyncSendNotification,
 } from "../models/response/notificationResponse";
 
 export class NotificationsService implements NotificationsServiceAbstraction {
@@ -171,16 +170,6 @@ export class NotificationsService implements NotificationsServiceAbstraction {
         if (isAuthenticated) {
           this.logoutCallback();
         }
-        break;
-      case NotificationType.SyncSendCreate:
-      case NotificationType.SyncSendUpdate:
-        await this.syncService.syncUpsertSend(
-          notification.payload as SyncSendNotification,
-          notification.type === NotificationType.SyncSendUpdate,
-        );
-        break;
-      case NotificationType.SyncSendDelete:
-        await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
       default:
         break;

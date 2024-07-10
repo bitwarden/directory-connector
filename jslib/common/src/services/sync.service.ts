@@ -9,7 +9,6 @@ import { MessagingService } from "../abstractions/messaging.service";
 import { OrganizationService } from "../abstractions/organization.service";
 import { PolicyService } from "../abstractions/policy.service";
 import { ProviderService } from "../abstractions/provider.service";
-import { SendService } from "../abstractions/send.service";
 import { SettingsService } from "../abstractions/settings.service";
 import { StateService } from "../abstractions/state.service";
 import { SyncService as SyncServiceAbstraction } from "../abstractions/sync.service";
@@ -20,7 +19,6 @@ import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
 import { PolicyData } from "../models/data/policyData";
 import { ProviderData } from "../models/data/providerData";
-import { SendData } from "../models/data/sendData";
 import { CipherResponse } from "../models/response/cipherResponse";
 import { CollectionDetailsResponse } from "../models/response/collectionResponse";
 import { DomainsResponse } from "../models/response/domainsResponse";
@@ -28,11 +26,9 @@ import { FolderResponse } from "../models/response/folderResponse";
 import {
   SyncCipherNotification,
   SyncFolderNotification,
-  SyncSendNotification,
 } from "../models/response/notificationResponse";
 import { PolicyResponse } from "../models/response/policyResponse";
 import { ProfileResponse } from "../models/response/profileResponse";
-import { SendResponse } from "../models/response/sendResponse";
 
 export class SyncService implements SyncServiceAbstraction {
   syncInProgress = false;
@@ -46,7 +42,6 @@ export class SyncService implements SyncServiceAbstraction {
     private collectionService: CollectionService,
     private messagingService: MessagingService,
     private policyService: PolicyService,
-    private sendService: SendService,
     private logService: LogService,
     private keyConnectorService: KeyConnectorService,
     private stateService: StateService,
@@ -104,7 +99,6 @@ export class SyncService implements SyncServiceAbstraction {
       await this.syncFolders(userId, response.folders);
       await this.syncCollections(response.collections);
       await this.syncCiphers(userId, response.ciphers);
-      await this.syncSends(userId, response.sends);
       await this.syncSettings(response.domains);
       await this.syncPolicies(response.policies);
 
@@ -227,41 +221,6 @@ export class SyncService implements SyncServiceAbstraction {
     return this.syncCompleted(false);
   }
 
-  async syncUpsertSend(notification: SyncSendNotification, isEdit: boolean): Promise<boolean> {
-    this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
-      try {
-        const localSend = await this.sendService.get(notification.id);
-        if (
-          (!isEdit && localSend == null) ||
-          (isEdit && localSend != null && localSend.revisionDate < notification.revisionDate)
-        ) {
-          const remoteSend = await this.apiService.getSend(notification.id);
-          if (remoteSend != null) {
-            const userId = await this.stateService.getUserId();
-            await this.sendService.upsert(new SendData(remoteSend, userId));
-            this.messagingService.send("syncedUpsertedSend", { sendId: notification.id });
-            return this.syncCompleted(true);
-          }
-        }
-      } catch (e) {
-        this.logService.error(e);
-      }
-    }
-    return this.syncCompleted(false);
-  }
-
-  async syncDeleteSend(notification: SyncSendNotification): Promise<boolean> {
-    this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
-      await this.sendService.delete(notification.id);
-      this.messagingService.send("syncedDeletedSend", { sendId: notification.id });
-      this.syncCompleted(true);
-      return true;
-    }
-    return this.syncCompleted(false);
-  }
-
   // Helpers
 
   private syncStarted() {
@@ -361,14 +320,6 @@ export class SyncService implements SyncServiceAbstraction {
       ciphers[c.id] = new CipherData(c, userId);
     });
     return await this.cipherService.replace(ciphers);
-  }
-
-  private async syncSends(userId: string, response: SendResponse[]) {
-    const sends: { [id: string]: SendData } = {};
-    response.forEach((s) => {
-      sends[s.id] = new SendData(s, userId);
-    });
-    return await this.sendService.replace(sends);
   }
 
   private async syncSettings(response: DomainsResponse) {

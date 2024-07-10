@@ -9,7 +9,6 @@ import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/ab
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstractions/i18n.service";
-import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@/jslib/common/src/abstractions/keyConnector.service";
 import { LogService as LogServiceAbstraction } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
@@ -153,7 +152,6 @@ export function initFactory(
         PlatformUtilsServiceAbstraction,
         MessagingServiceAbstraction,
         LogServiceAbstraction,
-        KeyConnectorServiceAbstraction,
         EnvironmentServiceAbstraction,
         StateServiceAbstraction,
         TwoFactorServiceAbstraction,

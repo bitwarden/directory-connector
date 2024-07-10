@@ -24,7 +24,6 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib
 import { PolicyService as PolicyServiceAbstraction } from "@/jslib/common/src/abstractions/policy.service";
 import { ProviderService as ProviderServiceAbstraction } from "@/jslib/common/src/abstractions/provider.service";
 import { SearchService as SearchServiceAbstraction } from "@/jslib/common/src/abstractions/search.service";
-import { SendService as SendServiceAbstraction } from "@/jslib/common/src/abstractions/send.service";
 import { SettingsService as SettingsServiceAbstraction } from "@/jslib/common/src/abstractions/settings.service";
 import { StateService as StateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
 import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
@@ -55,7 +54,6 @@ import { PasswordGenerationService } from "@/jslib/common/src/services/passwordG
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
 import { ProviderService } from "@/jslib/common/src/services/provider.service";
 import { SearchService } from "@/jslib/common/src/services/search.service";
-import { SendService } from "@/jslib/common/src/services/send.service";
 import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
@@ -208,7 +206,7 @@ import { ValidationService } from "./validation.service";
     {
       provide: FileUploadServiceAbstraction,
       useClass: FileUploadService,
-      deps: [LogService, ApiServiceAbstraction],
+      deps: [LogServiceAbstraction, ApiServiceAbstraction],
     },
     {
       provide: SyncServiceAbstraction,
@@ -221,7 +219,6 @@ import { ValidationService } from "./validation.service";
         collectionService: CollectionServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
         policyService: PolicyServiceAbstraction,
-        sendService: SendServiceAbstraction,
         logService: LogService,
         keyConnectorService: KeyConnectorServiceAbstraction,
         stateService: StateServiceAbstraction,
@@ -237,7 +234,6 @@ import { ValidationService } from "./validation.service";
           collectionService,
           messagingService,
           policyService,
-          sendService,
           logService,
           keyConnectorService,
           stateService,
@@ -254,7 +250,6 @@ import { ValidationService } from "./validation.service";
         CollectionServiceAbstraction,
         MessagingServiceAbstraction,
         PolicyServiceAbstraction,
-        SendServiceAbstraction,
         LogService,
         KeyConnectorServiceAbstraction,
         StateServiceAbstraction,
@@ -401,18 +396,6 @@ import { ValidationService } from "./validation.service";
       provide: PolicyServiceAbstraction,
       useClass: PolicyService,
       deps: [StateServiceAbstraction, OrganizationServiceAbstraction, ApiServiceAbstraction],
-    },
-    {
-      provide: SendServiceAbstraction,
-      useClass: SendService,
-      deps: [
-        CryptoServiceAbstraction,
-        ApiServiceAbstraction,
-        FileUploadServiceAbstraction,
-        I18nServiceAbstraction,
-        CryptoFunctionServiceAbstraction,
-        StateServiceAbstraction,
-      ],
     },
     {
       provide: KeyConnectorServiceAbstraction,
