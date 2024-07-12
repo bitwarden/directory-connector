@@ -419,7 +419,7 @@
               name="AdminUser"
               [(ngModel)]="gsuite.adminUser"
             />
-            <small class="text-muted form-text">{{ "ex" | i18n }} admin@company.com</small>
+            <small class="text-muted form-text">{{ "ex" | i18n }} admin&#64;company.com</small>
           </div>
           <div class="form-group">
             <label for="customerId">{{ "customerId" | i18n }}</label>
@@ -596,7 +596,7 @@
                 name="EmailSuffix"
                 [(ngModel)]="sync.emailSuffix"
               />
-              <small class="text-muted form-text">{{ "ex" | i18n }} @company.com</small>
+              <small class="text-muted form-text">{{ "ex" | i18n }} &#64;company.com</small>
             </div>
           </div>
         </div>
@@ -628,13 +628,13 @@
             <small
               class="text-muted form-text"
               *ngIf="directory === directoryType.AzureActiveDirectory"
-              >{{ "ex" | i18n }} exclude:joe@company.com</small
+              >{{ "ex" | i18n }} exclude:joe&#64;company.com</small
             >
             <small class="text-muted form-text" *ngIf="directory === directoryType.Okta"
-              >{{ "ex" | i18n }} exclude:joe@company.com | profile.firstName eq "John"</small
+              >{{ "ex" | i18n }} exclude:joe&#64;company.com | profile.firstName eq "John"</small
             >
             <small class="text-muted form-text" *ngIf="directory === directoryType.GSuite"
-              >{{ "ex" | i18n }} exclude:joe@company.com | orgName=Engineering</small
+              >{{ "ex" | i18n }} exclude:joe&#64;company.com | orgName=Engineering</small
             >
           </div>
           <div class="form-group" [hidden]="directory != directoryType.Ldap">

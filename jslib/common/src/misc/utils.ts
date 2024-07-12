@@ -3,7 +3,6 @@ import { I18nService } from "../abstractions/i18n.service";
 
 import * as tldjs from "tldjs";
 
-
 const nodeURL = typeof window === "undefined" ? require("url") : null;
 
 export class Utils {
