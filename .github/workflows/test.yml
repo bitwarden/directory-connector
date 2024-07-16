@@ -6,8 +6,6 @@ on:
   push:
     branches:
       - "main"
-      - "rc"
-      - "hotfix-rc-*"
   pull_request: {}
 
 defaults:
