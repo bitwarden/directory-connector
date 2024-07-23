@@ -105,6 +105,11 @@
             <li *ngFor="let g of simGroups" title="{{ g.referenceId }}">
               <i class="bwi bwi-li bwi-sitemap"></i>
               {{ g.displayName }}
+              <ul class="small" *ngIf="g.users && g.users.length">
+                <li *ngFor="let u of g.users" title="{{ u.referenceId }}">
+                  {{ u.displayName }}
+                </li>
+              </ul>
             </li>
           </ul>
           <p *ngIf="!simGroups || !simGroups.length">{{ "noGroups" | i18n }}</p>

@@ -15,7 +15,7 @@ export class ElectronLogService extends BaseLogService {
     super(isDev(), filter);
   }
 
-  init () {
+  init() {
     if (log.transports == null) {
       return;
     }

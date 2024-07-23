@@ -5,7 +5,7 @@ import { StateService } from "@/jslib/common/src/abstractions/state.service";
 import { VaultTimeoutService } from "@/jslib/common/src/abstractions/vaultTimeout.service";
 
 @Injectable()
-export class UnauthGuardService  {
+export class UnauthGuardService {
   protected homepage = "vault";
   constructor(
     private vaultTimeoutService: VaultTimeoutService,
