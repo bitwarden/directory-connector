@@ -6,8 +6,6 @@ on:
   push:
     branches:
       - "main"
-      - "rc"
-      - "hotfix-rc"
   workflow_dispatch: {}
 
 jobs:
@@ -629,7 +627,7 @@ jobs:
       - macos-gui
     steps:
       - name: Check if any job failed
-        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc') && contains(needs.*.result, 'failure')
+        if: github.ref == 'refs/heads/main' && contains(needs.*.result, 'failure')
         run: exit 1
 
       - name: Login to Azure - CI subscription
