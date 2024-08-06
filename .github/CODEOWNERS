@@ -6,10 +6,3 @@
 
 # Default file owners.
 * @bitwarden/team-admin-console-dev
-
-# DevOps for Actions and other workflow changes.
-.github/workflows @bitwarden/dept-devops
-.github/secrets @bitwarden/dept-devops
-
-# Multiple Owners
-**/package.json
