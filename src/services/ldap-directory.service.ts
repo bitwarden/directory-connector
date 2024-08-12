@@ -49,7 +49,7 @@ export class LdapDirectoryService implements IDirectoryService {
 
     let users: UserEntry[];
     if (this.syncConfig.users) {
-      users = await this.getUsers(force);
+      users = await this.getUsers(force, test);
     }
 
     let groups: GroupEntry[];
@@ -66,7 +66,7 @@ export class LdapDirectoryService implements IDirectoryService {
     return [groups, users];
   }
 
-  private async getUsers(force: boolean): Promise<UserEntry[]> {
+  private async getUsers(force: boolean, test: boolean): Promise<UserEntry[]> {
     const lastSync = await this.stateService.getLastUserSync();
     let filter = this.buildBaseFilter(this.syncConfig.userObjectClass, this.syncConfig.userFilter);
     filter = this.buildRevisionFilter(filter, force, lastSync);
@@ -77,7 +77,20 @@ export class LdapDirectoryService implements IDirectoryService {
     const regularUsers = await this.search<UserEntry>(path, filter, (se: any) =>
       this.buildUser(se, false),
     );
-    if (!this.dirConfig.ad) {
+
+    // Active Directory has a special way of managing deleted users that
+    // standard LDAP does not. Users can be "tombstoned", where they cease to
+    // exist, or they can be "recycled" where they exist in a quarantined
+    // state for a period of time before being tombstoned.
+    //
+    // Essentially, recycled users are soft deleted but tombstoned users are
+    // hard deleted. In standard LDAP deleted users are only ever hard
+    // deleted.
+    //
+    // We check for recycled Active Directory users below, but only if the
+    // sync is a test sync or the "Overwrite existing users" flag is checked.
+    const ignoreDeletedUsers = !this.dirConfig.ad || (!force && !test);
+    if (ignoreDeletedUsers) {
       return regularUsers;
     }
 
