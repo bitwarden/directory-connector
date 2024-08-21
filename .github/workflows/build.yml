@@ -576,12 +576,20 @@ jobs:
 
       - name: Install Node dependencies
         run: npm install
+      
+      - name: Set up private auth key
+        run: |
+          mkdir ~/private_keys
+          cat << EOF > ~/private_keys/AuthKey_UFD296548T.p8
+          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          EOF
 
       - name: Build application
         run: npm run dist:mac
         env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_AUTH_KEY: UFD296548T
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_UFD296548T.p8
           CSC_FOR_PULL_REQUEST: true
 
       - name: Upload .zip artifact
