@@ -150,7 +150,7 @@
     "@microsoft/signalr": "7.0.10",
     "@microsoft/signalr-protocol-msgpack": "7.0.10",
     "big-integer": "1.6.52",
-    "bootstrap": "4.6.2",
+    "bootstrap": "5.3.3",
     "browser-hrtime": "1.1.8",
     "chalk": "4.1.2",
     "commander": "12.0.0",
