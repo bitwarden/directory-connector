@@ -101,7 +101,7 @@
     "@electron/notarize": "2.2.1",
     "@electron/rebuild": "3.6.0",
     "electron-reload": "2.0.0-alpha.1",
-    "electron-store": "8.1.0",
+    "electron-store": "10.0.0",
     "electron-updater": "6.1.7",
     "eslint": "8.56.0",
     "eslint-config-prettier": "9.1.0",
