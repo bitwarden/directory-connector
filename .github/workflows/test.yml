@@ -1,26 +1,46 @@
----
-name: Run tests
+name: Testing
 
 on:
   workflow_dispatch:
   push:
     branches:
       - "main"
-  pull_request: {}
-
-defaults:
-  run:
-    shell: bash
+  pull_request:
 
 jobs:
-  test:
-    name: Run tests
+  check-test-secrets:
+    name: Check for test secrets
     runs-on: ubuntu-22.04
+    outputs:
+      available: ${{ steps.check-test-secrets.outputs.available }}
+    permissions:
+      contents: read
+
     steps:
-      - name: Checkout repo
+      - name: Check
+        id: check-test-secrets
+        run: |
+          if [ "${{ secrets.CODECOV_TOKEN }}" != '' ]; then
+            echo "available=true" >> $GITHUB_OUTPUT;
+          else
+            echo "available=false" >> $GITHUB_OUTPUT;
+          fi
+
+  testing:
+    name: Run tests
+    if: ${{ startsWith(github.head_ref, 'version_bump_') == false }}
+    runs-on: ubuntu-22.04
+    needs: check-test-secrets
+    permissions:
+      checks: write
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Check out repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - name: Get Node Version
+      - name: Get Node version
         id: retrieve-node-version
         run: |
           NODE_NVMRC=$(cat .nvmrc)
@@ -34,11 +54,6 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
-      - name: Print environment
-        run: |
-          node --version
-          npm --version
-
       - name: Install Node dependencies
         run: npm ci
 
@@ -49,4 +64,25 @@ jobs:
         run: npm run test:types --coverage
 
       - name: Run tests
-        run: npm run test
+        run: npm run test --coverage
+
+      - name: Report test results
+        uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
+        if: ${{ needs.check-test-secrets.outputs.available == 'true' && !cancelled() }}
+        with:
+          name: Test Results
+          path: "junit.xml"
+          reporter: jest-junit
+          fail-on-error: true
+
+      - name: Upload coverage to codecov.io
+        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4.5.0
+        if: ${{ needs.check-test-secrets.outputs.available == 'true' }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload results to codecov.io
+        uses: codecov/test-results-action@1b5b448b98e58ba90d1a1a1d9fcb72ca2263be46 # v1.0.0
+        if: ${{ needs.check-test-secrets.outputs.available == 'true' }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
