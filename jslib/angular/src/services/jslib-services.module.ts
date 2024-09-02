@@ -1,10 +1,9 @@
-import { Injector, LOCALE_ID, NgModule } from "@angular/core";
+import { LOCALE_ID, NgModule } from "@angular/core";
 
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
 import { AuthService as AuthServiceAbstraction } from "@/jslib/common/src/abstractions/auth.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
-import { CipherService as CipherServiceAbstraction } from "@/jslib/common/src/abstractions/cipher.service";
 import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/abstractions/crypto.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/common/src/abstractions/environment.service";
@@ -17,7 +16,6 @@ import { OrganizationService as OrganizationServiceAbstraction } from "@/jslib/c
 import { PasswordGenerationService as PasswordGenerationServiceAbstraction } from "@/jslib/common/src/abstractions/passwordGeneration.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { PolicyService as PolicyServiceAbstraction } from "@/jslib/common/src/abstractions/policy.service";
-import { SearchService as SearchServiceAbstraction } from "@/jslib/common/src/abstractions/search.service";
 import { SettingsService as SettingsServiceAbstraction } from "@/jslib/common/src/abstractions/settings.service";
 import { StateService as StateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
 import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
@@ -30,7 +28,6 @@ import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { AuthService } from "@/jslib/common/src/services/auth.service";
-import { CipherService } from "@/jslib/common/src/services/cipher.service";
 import { ConsoleLogService } from "@/jslib/common/src/services/consoleLog.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
@@ -39,7 +36,6 @@ import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.se
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
-import { SearchService } from "@/jslib/common/src/services/search.service";
 import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
@@ -82,39 +78,6 @@ import { ValidationService } from "./validation.service";
         StateServiceAbstraction,
         TwoFactorServiceAbstraction,
         I18nServiceAbstraction,
-      ],
-    },
-    {
-      provide: CipherServiceAbstraction,
-      useFactory: (
-        cryptoService: CryptoServiceAbstraction,
-        settingsService: SettingsServiceAbstraction,
-        apiService: ApiServiceAbstraction,
-        fileUploadService: FileUploadServiceAbstraction,
-        i18nService: I18nServiceAbstraction,
-        injector: Injector,
-        logService: LogService,
-        stateService: StateServiceAbstraction,
-      ) =>
-        new CipherService(
-          cryptoService,
-          settingsService,
-          apiService,
-          fileUploadService,
-          i18nService,
-          () => injector.get(SearchServiceAbstraction),
-          logService,
-          stateService,
-        ),
-      deps: [
-        CryptoServiceAbstraction,
-        SettingsServiceAbstraction,
-        ApiServiceAbstraction,
-        FileUploadServiceAbstraction,
-        I18nServiceAbstraction,
-        Injector, // TODO: Get rid of this circular dependency!
-        LogService,
-        StateServiceAbstraction,
       ],
     },
     { provide: LogService, useFactory: () => new ConsoleLogService(false) },
@@ -208,11 +171,6 @@ import { ValidationService } from "./validation.service";
           new StateFactory(GlobalState, Account),
         ),
       deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
-    },
-    {
-      provide: SearchServiceAbstraction,
-      useClass: SearchService,
-      deps: [CipherServiceAbstraction, LogService, I18nServiceAbstraction],
     },
     {
       provide: PolicyServiceAbstraction,

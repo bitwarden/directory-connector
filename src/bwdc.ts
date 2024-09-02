@@ -8,7 +8,6 @@ import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { CipherService } from "@/jslib/common/src/services/cipher.service";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
@@ -18,7 +17,6 @@ import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
-import { SearchService } from "@/jslib/common/src/services/search.service";
 import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { CliPlatformUtilsService } from "@/jslib/node/src/cli/services/cliPlatformUtils.service";
@@ -40,7 +38,6 @@ import { SyncService } from "./services/sync.service";
 // eslint-disable-next-line
 const packageJson = require("../package.json");
 
-export const searchService: SearchService = null;
 export class Main {
   dataFilePath: string;
   logService: ConsoleLogService;
@@ -57,9 +54,7 @@ export class Main {
   containerService: ContainerService;
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
-  cipherService: CipherService;
   fileUploadService: FileUploadService;
-  searchService: SearchService;
   settingsService: SettingsService;
   syncService: SyncService;
   passwordGenerationService: PasswordGenerationService;
@@ -211,19 +206,6 @@ export class Main {
     this.settingsService = new SettingsService(this.stateService);
 
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
-
-    this.cipherService = new CipherService(
-      this.cryptoService,
-      this.settingsService,
-      this.apiService,
-      this.fileUploadService,
-      this.i18nService,
-      () => searchService,
-      this.logService,
-      this.stateService,
-    );
-
-    this.searchService = new SearchService(this.cipherService, this.logService, this.i18nService);
 
     this.program = new Program(this);
   }
