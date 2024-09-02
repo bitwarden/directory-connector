@@ -18,7 +18,6 @@ import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@/jslib/common/src/abstractions/messaging.service";
 import { OrganizationService as OrganizationServiceAbstraction } from "@/jslib/common/src/abstractions/organization.service";
 import { PasswordGenerationService as PasswordGenerationServiceAbstraction } from "@/jslib/common/src/abstractions/passwordGeneration.service";
-import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "@/jslib/common/src/abstractions/passwordReprompt.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { PolicyService as PolicyServiceAbstraction } from "@/jslib/common/src/abstractions/policy.service";
 import { SearchService as SearchServiceAbstraction } from "@/jslib/common/src/abstractions/search.service";
@@ -59,7 +58,6 @@ import { UsernameGenerationService } from "@/jslib/common/src/services/usernameG
 
 import { BroadcasterService } from "./broadcaster.service";
 import { ModalService } from "./modal.service";
-import { PasswordRepromptService } from "./passwordReprompt.service";
 import { ValidationService } from "./validation.service";
 
 @NgModule({
@@ -275,7 +273,6 @@ import { ValidationService } from "./validation.service";
         CryptoFunctionServiceAbstraction,
       ],
     },
-    { provide: PasswordRepromptServiceAbstraction, useClass: PasswordRepromptService },
     {
       provide: OrganizationServiceAbstraction,
       useClass: OrganizationService,
