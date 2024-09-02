@@ -23,7 +23,6 @@ import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "@
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { PolicyService as PolicyServiceAbstraction } from "@/jslib/common/src/abstractions/policy.service";
 import { SearchService as SearchServiceAbstraction } from "@/jslib/common/src/abstractions/search.service";
-import { SendService as SendServiceAbstraction } from "@/jslib/common/src/abstractions/send.service";
 import { SettingsService as SettingsServiceAbstraction } from "@/jslib/common/src/abstractions/settings.service";
 import { StateService as StateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
 import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
@@ -52,7 +51,6 @@ import { OrganizationService } from "@/jslib/common/src/services/organization.se
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
 import { SearchService } from "@/jslib/common/src/services/search.service";
-import { SendService } from "@/jslib/common/src/services/send.service";
 import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
@@ -276,18 +274,6 @@ import { ValidationService } from "./validation.service";
       provide: PolicyServiceAbstraction,
       useClass: PolicyService,
       deps: [StateServiceAbstraction, OrganizationServiceAbstraction, ApiServiceAbstraction],
-    },
-    {
-      provide: SendServiceAbstraction,
-      useClass: SendService,
-      deps: [
-        CryptoServiceAbstraction,
-        ApiServiceAbstraction,
-        FileUploadServiceAbstraction,
-        I18nServiceAbstraction,
-        CryptoFunctionServiceAbstraction,
-        StateServiceAbstraction,
-      ],
     },
     {
       provide: KeyConnectorServiceAbstraction,
