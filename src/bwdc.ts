@@ -9,7 +9,6 @@ import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { CipherService } from "@/jslib/common/src/services/cipher.service";
-import { CollectionService } from "@/jslib/common/src/services/collection.service";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
@@ -59,7 +58,6 @@ export class Main {
   containerService: ContainerService;
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
-  collectionService: CollectionService;
   cipherService: CipherService;
   fileUploadService: FileUploadService;
   folderService: FolderService;
@@ -234,12 +232,6 @@ export class Main {
       this.apiService,
       this.i18nService,
       this.cipherService,
-      this.stateService,
-    );
-
-    this.collectionService = new CollectionService(
-      this.cryptoService,
-      this.i18nService,
       this.stateService,
     );
 

@@ -6,7 +6,6 @@ import { AuditService as AuditServiceAbstraction } from "@/jslib/common/src/abst
 import { AuthService as AuthServiceAbstraction } from "@/jslib/common/src/abstractions/auth.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
 import { CipherService as CipherServiceAbstraction } from "@/jslib/common/src/abstractions/cipher.service";
-import { CollectionService as CollectionServiceAbstraction } from "@/jslib/common/src/abstractions/collection.service";
 import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/abstractions/crypto.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/common/src/abstractions/environment.service";
@@ -35,7 +34,6 @@ import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { AuditService } from "@/jslib/common/src/services/audit.service";
 import { AuthService } from "@/jslib/common/src/services/auth.service";
 import { CipherService } from "@/jslib/common/src/services/cipher.service";
-import { CollectionService } from "@/jslib/common/src/services/collection.service";
 import { ConsoleLogService } from "@/jslib/common/src/services/consoleLog.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
@@ -140,11 +138,6 @@ import { ValidationService } from "./validation.service";
       ],
     },
     { provide: LogService, useFactory: () => new ConsoleLogService(false) },
-    {
-      provide: CollectionServiceAbstraction,
-      useClass: CollectionService,
-      deps: [CryptoServiceAbstraction, I18nServiceAbstraction, StateServiceAbstraction],
-    },
     {
       provide: EnvironmentServiceAbstraction,
       useClass: EnvironmentService,
