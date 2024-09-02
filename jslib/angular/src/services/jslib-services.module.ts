@@ -34,7 +34,6 @@ import { TotpService as TotpServiceAbstraction } from "@/jslib/common/src/abstra
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@/jslib/common/src/abstractions/userVerification.service";
 import { UsernameGenerationService as UsernameGenerationServiceAbstraction } from "@/jslib/common/src/abstractions/usernameGeneration.service";
-import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@/jslib/common/src/abstractions/vaultTimeout.service";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { Account } from "@/jslib/common/src/models/domain/account";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
@@ -65,14 +64,10 @@ import { TotpService } from "@/jslib/common/src/services/totp.service";
 import { TwoFactorService } from "@/jslib/common/src/services/twoFactor.service";
 import { UserVerificationService } from "@/jslib/common/src/services/userVerification.service";
 import { UsernameGenerationService } from "@/jslib/common/src/services/usernameGeneration.service";
-import { VaultTimeoutService } from "@/jslib/common/src/services/vaultTimeout.service";
 
-import { AuthGuardService } from "./auth-guard.service";
 import { BroadcasterService } from "./broadcaster.service";
-import { LockGuardService } from "./lock-guard.service";
 import { ModalService } from "./modal.service";
 import { PasswordRepromptService } from "./passwordReprompt.service";
-import { UnauthGuardService } from "./unauth-guard.service";
 import { ValidationService } from "./validation.service";
 
 @NgModule({
@@ -85,9 +80,6 @@ import { ValidationService } from "./validation.service";
       deps: [I18nServiceAbstraction],
     },
     ValidationService,
-    AuthGuardService,
-    UnauthGuardService,
-    LockGuardService,
     ModalService,
     {
       provide: AppIdServiceAbstraction,
@@ -232,51 +224,6 @@ import { ValidationService } from "./validation.service";
       provide: SettingsServiceAbstraction,
       useClass: SettingsService,
       deps: [StateServiceAbstraction],
-    },
-    {
-      provide: VaultTimeoutServiceAbstraction,
-      useFactory: (
-        cipherService: CipherServiceAbstraction,
-        folderService: FolderServiceAbstraction,
-        collectionService: CollectionServiceAbstraction,
-        cryptoService: CryptoServiceAbstraction,
-        platformUtilsService: PlatformUtilsServiceAbstraction,
-        messagingService: MessagingServiceAbstraction,
-        searchService: SearchServiceAbstraction,
-        tokenService: TokenServiceAbstraction,
-        policyService: PolicyServiceAbstraction,
-        keyConnectorService: KeyConnectorServiceAbstraction,
-        stateService: StateServiceAbstraction,
-      ) =>
-        new VaultTimeoutService(
-          cipherService,
-          folderService,
-          collectionService,
-          cryptoService,
-          platformUtilsService,
-          messagingService,
-          searchService,
-          tokenService,
-          policyService,
-          keyConnectorService,
-          stateService,
-          null,
-          async (userId?: string) =>
-            messagingService.send("logout", { expired: false, userId: userId }),
-        ),
-      deps: [
-        CipherServiceAbstraction,
-        FolderServiceAbstraction,
-        CollectionServiceAbstraction,
-        CryptoServiceAbstraction,
-        PlatformUtilsServiceAbstraction,
-        MessagingServiceAbstraction,
-        SearchServiceAbstraction,
-        TokenServiceAbstraction,
-        PolicyServiceAbstraction,
-        KeyConnectorServiceAbstraction,
-        StateServiceAbstraction,
-      ],
     },
     {
       provide: StateServiceAbstraction,
