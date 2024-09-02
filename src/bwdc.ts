@@ -13,7 +13,6 @@ import { ContainerService } from "@/jslib/common/src/services/container.service"
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
 import { FileUploadService } from "@/jslib/common/src/services/fileUpload.service";
-import { FolderService } from "@/jslib/common/src/services/folder.service";
 import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.service";
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
@@ -60,7 +59,6 @@ export class Main {
   authService: AuthService;
   cipherService: CipherService;
   fileUploadService: FileUploadService;
-  folderService: FolderService;
   searchService: SearchService;
   settingsService: SettingsService;
   syncService: SyncService;
@@ -226,14 +224,6 @@ export class Main {
     );
 
     this.searchService = new SearchService(this.cipherService, this.logService, this.i18nService);
-
-    this.folderService = new FolderService(
-      this.cryptoService,
-      this.apiService,
-      this.i18nService,
-      this.cipherService,
-      this.stateService,
-    );
 
     this.program = new Program(this);
   }
