@@ -17,7 +17,6 @@ import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstra
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@/jslib/common/src/abstractions/keyConnector.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@/jslib/common/src/abstractions/messaging.service";
-import { NotificationsService as NotificationsServiceAbstraction } from "@/jslib/common/src/abstractions/notifications.service";
 import { OrganizationService as OrganizationServiceAbstraction } from "@/jslib/common/src/abstractions/organization.service";
 import { PasswordGenerationService as PasswordGenerationServiceAbstraction } from "@/jslib/common/src/abstractions/passwordGeneration.service";
 import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "@/jslib/common/src/abstractions/passwordReprompt.service";
@@ -53,7 +52,6 @@ import { EventService } from "@/jslib/common/src/services/event.service";
 import { FileUploadService } from "@/jslib/common/src/services/fileUpload.service";
 import { FolderService } from "@/jslib/common/src/services/folder.service";
 import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.service";
-import { NotificationsService } from "@/jslib/common/src/services/notifications.service";
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
@@ -373,39 +371,6 @@ import { ValidationService } from "./validation.service";
       provide: SearchServiceAbstraction,
       useClass: SearchService,
       deps: [CipherServiceAbstraction, LogService, I18nServiceAbstraction],
-    },
-    {
-      provide: NotificationsServiceAbstraction,
-      useFactory: (
-        syncService: SyncServiceAbstraction,
-        appIdService: AppIdServiceAbstraction,
-        apiService: ApiServiceAbstraction,
-        vaultTimeoutService: VaultTimeoutServiceAbstraction,
-        environmentService: EnvironmentServiceAbstraction,
-        messagingService: MessagingServiceAbstraction,
-        logService: LogService,
-        stateService: StateServiceAbstraction,
-      ) =>
-        new NotificationsService(
-          syncService,
-          appIdService,
-          apiService,
-          vaultTimeoutService,
-          environmentService,
-          async () => messagingService.send("logout", { expired: true }),
-          logService,
-          stateService,
-        ),
-      deps: [
-        SyncServiceAbstraction,
-        AppIdServiceAbstraction,
-        ApiServiceAbstraction,
-        VaultTimeoutServiceAbstraction,
-        EnvironmentServiceAbstraction,
-        MessagingServiceAbstraction,
-        LogService,
-        StateServiceAbstraction,
-      ],
     },
     {
       provide: EventServiceAbstraction,
