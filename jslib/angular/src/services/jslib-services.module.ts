@@ -28,7 +28,6 @@ import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/
 import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abstractions/token.service";
 import { TotpService as TotpServiceAbstraction } from "@/jslib/common/src/abstractions/totp.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
-import { UsernameGenerationService as UsernameGenerationServiceAbstraction } from "@/jslib/common/src/abstractions/usernameGeneration.service";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { Account } from "@/jslib/common/src/models/domain/account";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
@@ -54,7 +53,6 @@ import { StateMigrationService } from "@/jslib/common/src/services/stateMigratio
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { TotpService } from "@/jslib/common/src/services/totp.service";
 import { TwoFactorService } from "@/jslib/common/src/services/twoFactor.service";
-import { UsernameGenerationService } from "@/jslib/common/src/services/usernameGeneration.service";
 
 import { BroadcasterService } from "./broadcaster.service";
 import { ModalService } from "./modal.service";
@@ -174,11 +172,6 @@ import { ValidationService } from "./validation.service";
       provide: PasswordGenerationServiceAbstraction,
       useClass: PasswordGenerationService,
       deps: [CryptoServiceAbstraction, PolicyServiceAbstraction, StateServiceAbstraction],
-    },
-    {
-      provide: UsernameGenerationServiceAbstraction,
-      useClass: UsernameGenerationService,
-      deps: [CryptoServiceAbstraction, StateServiceAbstraction],
     },
     {
       provide: ApiServiceAbstraction,
