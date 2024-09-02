@@ -20,7 +20,6 @@ import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
-import { ProviderService } from "@/jslib/common/src/services/provider.service";
 import { SearchService } from "@/jslib/common/src/services/search.service";
 import { SendService } from "@/jslib/common/src/services/send.service";
 import { SettingsService } from "@/jslib/common/src/services/settings.service";
@@ -76,7 +75,6 @@ export class Main {
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   organizationService: OrganizationService;
-  providerService: ProviderService;
   twoFactorService: TwoFactorServiceAbstraction;
 
   constructor() {
@@ -255,8 +253,6 @@ export class Main {
       this.cryptoFunctionService,
       this.stateService,
     );
-
-    this.providerService = new ProviderService(this.stateService);
 
     this.program = new Program(this);
   }
