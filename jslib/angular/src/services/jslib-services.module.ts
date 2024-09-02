@@ -2,7 +2,6 @@ import { Injector, LOCALE_ID, NgModule } from "@angular/core";
 
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
-import { AuditService as AuditServiceAbstraction } from "@/jslib/common/src/abstractions/audit.service";
 import { AuthService as AuthServiceAbstraction } from "@/jslib/common/src/abstractions/auth.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
 import { CipherService as CipherServiceAbstraction } from "@/jslib/common/src/abstractions/cipher.service";
@@ -30,7 +29,6 @@ import { Account } from "@/jslib/common/src/models/domain/account";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { AuditService } from "@/jslib/common/src/services/audit.service";
 import { AuthService } from "@/jslib/common/src/services/auth.service";
 import { CipherService } from "@/jslib/common/src/services/cipher.service";
 import { ConsoleLogService } from "@/jslib/common/src/services/consoleLog.service";
@@ -67,11 +65,6 @@ import { ValidationService } from "./validation.service";
       provide: AppIdServiceAbstraction,
       useClass: AppIdService,
       deps: [StorageServiceAbstraction],
-    },
-    {
-      provide: AuditServiceAbstraction,
-      useClass: AuditService,
-      deps: [CryptoFunctionServiceAbstraction, ApiServiceAbstraction],
     },
     {
       provide: AuthServiceAbstraction,
