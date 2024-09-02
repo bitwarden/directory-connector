@@ -16,7 +16,6 @@ import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
-import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { CliPlatformUtilsService } from "@/jslib/node/src/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "@/jslib/node/src/cli/services/consoleLog.service";
@@ -53,7 +52,6 @@ export class Main {
   containerService: ContainerService;
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
-  settingsService: SettingsService;
   syncService: SyncService;
   passwordGenerationService: PasswordGenerationService;
   policyService: PolicyService;
@@ -200,8 +198,6 @@ export class Main {
       this.policyService,
       this.stateService,
     );
-
-    this.settingsService = new SettingsService(this.stateService);
 
     this.program = new Program(this);
   }

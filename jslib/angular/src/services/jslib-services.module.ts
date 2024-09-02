@@ -15,7 +15,6 @@ import { OrganizationService as OrganizationServiceAbstraction } from "@/jslib/c
 import { PasswordGenerationService as PasswordGenerationServiceAbstraction } from "@/jslib/common/src/abstractions/passwordGeneration.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { PolicyService as PolicyServiceAbstraction } from "@/jslib/common/src/abstractions/policy.service";
-import { SettingsService as SettingsServiceAbstraction } from "@/jslib/common/src/abstractions/settings.service";
 import { StateService as StateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
 import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
@@ -34,7 +33,6 @@ import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.se
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
-import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
@@ -125,11 +123,6 @@ import { ValidationService } from "./validation.service";
       ],
     },
     { provide: BroadcasterServiceAbstraction, useClass: BroadcasterService },
-    {
-      provide: SettingsServiceAbstraction,
-      useClass: SettingsService,
-      deps: [StateServiceAbstraction],
-    },
     {
       provide: StateServiceAbstraction,
       useFactory: (
