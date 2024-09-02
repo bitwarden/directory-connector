@@ -29,7 +29,6 @@ import { SettingsService as SettingsServiceAbstraction } from "@/jslib/common/sr
 import { StateService as StateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
 import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
-import { SyncService as SyncServiceAbstraction } from "@/jslib/common/src/abstractions/sync.service";
 import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abstractions/token.service";
 import { TotpService as TotpServiceAbstraction } from "@/jslib/common/src/abstractions/totp.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
@@ -61,7 +60,6 @@ import { SendService } from "@/jslib/common/src/services/send.service";
 import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
-import { SyncService } from "@/jslib/common/src/services/sync.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { TotpService } from "@/jslib/common/src/services/totp.service";
 import { TwoFactorService } from "@/jslib/common/src/services/twoFactor.service";
@@ -228,58 +226,6 @@ import { ValidationService } from "./validation.service";
       provide: FileUploadServiceAbstraction,
       useClass: FileUploadService,
       deps: [LogService, ApiServiceAbstraction],
-    },
-    {
-      provide: SyncServiceAbstraction,
-      useFactory: (
-        apiService: ApiServiceAbstraction,
-        settingsService: SettingsServiceAbstraction,
-        folderService: FolderServiceAbstraction,
-        cipherService: CipherServiceAbstraction,
-        cryptoService: CryptoServiceAbstraction,
-        collectionService: CollectionServiceAbstraction,
-        messagingService: MessagingServiceAbstraction,
-        policyService: PolicyServiceAbstraction,
-        sendService: SendServiceAbstraction,
-        logService: LogService,
-        keyConnectorService: KeyConnectorServiceAbstraction,
-        stateService: StateServiceAbstraction,
-        organizationService: OrganizationServiceAbstraction,
-        providerService: ProviderServiceAbstraction,
-      ) =>
-        new SyncService(
-          apiService,
-          settingsService,
-          folderService,
-          cipherService,
-          cryptoService,
-          collectionService,
-          messagingService,
-          policyService,
-          sendService,
-          logService,
-          keyConnectorService,
-          stateService,
-          organizationService,
-          providerService,
-          async (expired: boolean) => messagingService.send("logout", { expired: expired }),
-        ),
-      deps: [
-        ApiServiceAbstraction,
-        SettingsServiceAbstraction,
-        FolderServiceAbstraction,
-        CipherServiceAbstraction,
-        CryptoServiceAbstraction,
-        CollectionServiceAbstraction,
-        MessagingServiceAbstraction,
-        PolicyServiceAbstraction,
-        SendServiceAbstraction,
-        LogService,
-        KeyConnectorServiceAbstraction,
-        StateServiceAbstraction,
-        OrganizationServiceAbstraction,
-        ProviderServiceAbstraction,
-      ],
     },
     { provide: BroadcasterServiceAbstraction, useClass: BroadcasterService },
     {
