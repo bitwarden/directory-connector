@@ -26,7 +26,6 @@ import { StateService as StateServiceAbstraction } from "@/jslib/common/src/abst
 import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abstractions/token.service";
-import { TotpService as TotpServiceAbstraction } from "@/jslib/common/src/abstractions/totp.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { Account } from "@/jslib/common/src/models/domain/account";
@@ -51,7 +50,6 @@ import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
-import { TotpService } from "@/jslib/common/src/services/totp.service";
 import { TwoFactorService } from "@/jslib/common/src/services/twoFactor.service";
 
 import { BroadcasterService } from "./broadcaster.service";
@@ -151,11 +149,6 @@ import { ValidationService } from "./validation.service";
       provide: EnvironmentServiceAbstraction,
       useClass: EnvironmentService,
       deps: [StateServiceAbstraction],
-    },
-    {
-      provide: TotpServiceAbstraction,
-      useClass: TotpService,
-      deps: [CryptoFunctionServiceAbstraction, LogService, StateServiceAbstraction],
     },
     { provide: TokenServiceAbstraction, useClass: TokenService, deps: [StateServiceAbstraction] },
     {
