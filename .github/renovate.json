@@ -7,11 +7,6 @@
       "groupName": "gh minor",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "groupName": "npm minor",
-      "matchManagers": ["npm"],
-      "matchUpdateTypes": ["minor", "patch"]
     }
   ]
 }

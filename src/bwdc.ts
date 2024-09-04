@@ -8,22 +8,14 @@ import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { CipherService } from "@/jslib/common/src/services/cipher.service";
-import { CollectionService } from "@/jslib/common/src/services/collection.service";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
-import { FileUploadService } from "@/jslib/common/src/services/fileUpload.service";
-import { FolderService } from "@/jslib/common/src/services/folder.service";
 import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.service";
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
 import { PolicyService } from "@/jslib/common/src/services/policy.service";
-import { ProviderService } from "@/jslib/common/src/services/provider.service";
-import { SearchService } from "@/jslib/common/src/services/search.service";
-import { SendService } from "@/jslib/common/src/services/send.service";
-import { SettingsService } from "@/jslib/common/src/services/settings.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { CliPlatformUtilsService } from "@/jslib/node/src/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "@/jslib/node/src/cli/services/consoleLog.service";
@@ -44,7 +36,6 @@ import { SyncService } from "./services/sync.service";
 // eslint-disable-next-line
 const packageJson = require("../package.json");
 
-export const searchService: SearchService = null;
 export class Main {
   dataFilePath: string;
   logService: ConsoleLogService;
@@ -61,13 +52,6 @@ export class Main {
   containerService: ContainerService;
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
-  collectionService: CollectionService;
-  cipherService: CipherService;
-  fileUploadService: FileUploadService;
-  folderService: FolderService;
-  searchService: SearchService;
-  sendService: SendService;
-  settingsService: SettingsService;
   syncService: SyncService;
   passwordGenerationService: PasswordGenerationService;
   policyService: PolicyService;
@@ -76,7 +60,6 @@ export class Main {
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   organizationService: OrganizationService;
-  providerService: ProviderService;
   twoFactorService: TwoFactorServiceAbstraction;
 
   constructor() {
@@ -215,48 +198,6 @@ export class Main {
       this.policyService,
       this.stateService,
     );
-
-    this.settingsService = new SettingsService(this.stateService);
-
-    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
-
-    this.cipherService = new CipherService(
-      this.cryptoService,
-      this.settingsService,
-      this.apiService,
-      this.fileUploadService,
-      this.i18nService,
-      () => searchService,
-      this.logService,
-      this.stateService,
-    );
-
-    this.searchService = new SearchService(this.cipherService, this.logService, this.i18nService);
-
-    this.folderService = new FolderService(
-      this.cryptoService,
-      this.apiService,
-      this.i18nService,
-      this.cipherService,
-      this.stateService,
-    );
-
-    this.collectionService = new CollectionService(
-      this.cryptoService,
-      this.i18nService,
-      this.stateService,
-    );
-
-    this.sendService = new SendService(
-      this.cryptoService,
-      this.apiService,
-      this.fileUploadService,
-      this.i18nService,
-      this.cryptoFunctionService,
-      this.stateService,
-    );
-
-    this.providerService = new ProviderService(this.stateService);
 
     this.program = new Program(this);
   }
