@@ -38,11 +38,13 @@ import { StateMigrationService } from "../../services/stateMigration.service";
 import { SyncService } from "../../services/sync.service";
 
 import { AuthGuardService } from "./auth-guard.service";
+import { SafeInjectionToken, SECURE_STORAGE, WINDOW } from "./injection-tokens";
 import { LaunchGuardService } from "./launch-guard.service";
+import { SafeProvider, safeProvider } from "./safe-provider";
 
 export function initFactory(
   environmentService: EnvironmentServiceAbstraction,
-  i18nService: I18nService,
+  i18nService: I18nServiceAbstraction,
   platformUtilsService: PlatformUtilsServiceAbstraction,
   stateService: StateServiceAbstraction,
   cryptoService: CryptoServiceAbstraction,
@@ -50,7 +52,7 @@ export function initFactory(
   return async () => {
     await stateService.init();
     await environmentService.setUrlsFromStorage();
-    await i18nService.init();
+    await (i18nService as I18nService).init();
     const htmlEl = window.document.documentElement;
     htmlEl.classList.add("os_" + platformUtilsService.getDeviceString());
     htmlEl.classList.add("locale_" + i18nService.translationLocale);
@@ -78,8 +80,8 @@ export function initFactory(
   imports: [JslibServicesModule],
   declarations: [],
   providers: [
-    {
-      provide: APP_INITIALIZER,
+    safeProvider({
+      provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
       useFactory: initFactory,
       deps: [
         EnvironmentServiceAbstraction,
@@ -89,21 +91,29 @@ export function initFactory(
         CryptoServiceAbstraction,
       ],
       multi: true,
-    },
-    { provide: LogServiceAbstraction, useClass: ElectronLogService, deps: [] },
-    {
+    }),
+    safeProvider({ provide: LogServiceAbstraction, useClass: ElectronLogService, deps: [] }),
+    safeProvider({
       provide: I18nServiceAbstraction,
       useFactory: (window: Window) => new I18nService(window.navigator.language, "./locales"),
-      deps: ["WINDOW"],
-    },
-    {
+      deps: [WINDOW],
+    }),
+    safeProvider({
       provide: MessagingServiceAbstraction,
       useClass: ElectronRendererMessagingService,
       deps: [BroadcasterServiceAbstraction],
-    },
-    { provide: StorageServiceAbstraction, useClass: ElectronRendererStorageService },
-    { provide: "SECURE_STORAGE", useClass: ElectronRendererSecureStorageService },
-    {
+    }),
+    safeProvider({
+      provide: StorageServiceAbstraction,
+      useClass: ElectronRendererStorageService,
+      deps: [],
+    }),
+    safeProvider({
+      provide: SECURE_STORAGE,
+      useClass: ElectronRendererSecureStorageService,
+      deps: [],
+    }),
+    safeProvider({
       provide: PlatformUtilsServiceAbstraction,
       useFactory: (
         i18nService: I18nServiceAbstraction,
@@ -111,9 +121,13 @@ export function initFactory(
         stateService: StateServiceAbstraction,
       ) => new ElectronPlatformUtilsService(i18nService, messagingService, false, stateService),
       deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
-    },
-    { provide: CryptoFunctionServiceAbstraction, useClass: NodeCryptoFunctionService, deps: [] },
-    {
+    }),
+    safeProvider({
+      provide: CryptoFunctionServiceAbstraction,
+      useClass: NodeCryptoFunctionService,
+      deps: [],
+    }),
+    safeProvider({
       provide: ApiServiceAbstraction,
       useFactory: (
         tokenService: TokenServiceAbstraction,
@@ -141,8 +155,8 @@ export function initFactory(
         MessagingServiceAbstraction,
         AppIdServiceAbstraction,
       ],
-    },
-    {
+    }),
+    safeProvider({
       provide: AuthServiceAbstraction,
       useClass: AuthService,
       deps: [
@@ -159,8 +173,8 @@ export function initFactory(
         TwoFactorServiceAbstraction,
         I18nServiceAbstraction,
       ],
-    },
-    {
+    }),
+    safeProvider({
       provide: SyncService,
       useClass: SyncService,
       deps: [
@@ -172,10 +186,10 @@ export function initFactory(
         EnvironmentServiceAbstraction,
         StateServiceAbstraction,
       ],
-    },
-    AuthGuardService,
-    LaunchGuardService,
-    {
+    }),
+    safeProvider(AuthGuardService),
+    safeProvider(LaunchGuardService),
+    safeProvider({
       provide: StateMigrationServiceAbstraction,
       useFactory: (
         storageService: StorageServiceAbstraction,
@@ -186,9 +200,9 @@ export function initFactory(
           secureStorageService,
           new StateFactory(GlobalState, Account),
         ),
-      deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
-    },
-    {
+      deps: [StorageServiceAbstraction, SECURE_STORAGE],
+    }),
+    safeProvider({
       provide: StateServiceAbstraction,
       useFactory: (
         storageService: StorageServiceAbstraction,
@@ -206,15 +220,16 @@ export function initFactory(
         ),
       deps: [
         StorageServiceAbstraction,
-        "SECURE_STORAGE",
+        SECURE_STORAGE,
         LogServiceAbstraction,
         StateMigrationServiceAbstraction,
       ],
-    },
-    {
+    }),
+    safeProvider({
       provide: TwoFactorServiceAbstraction,
       useClass: NoopTwoFactorService,
-    },
-  ],
+      deps: [],
+    }),
+  ] satisfies SafeProvider[],
 })
 export class ServicesModule {}

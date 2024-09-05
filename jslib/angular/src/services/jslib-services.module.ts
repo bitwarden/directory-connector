@@ -38,6 +38,9 @@ import { StateMigrationService } from "@/jslib/common/src/services/stateMigratio
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { TwoFactorService } from "@/jslib/common/src/services/twoFactor.service";
 
+import { SafeInjectionToken, SECURE_STORAGE, WINDOW } from '../../../../src/app/services/injection-tokens';
+import { SafeProvider, safeProvider } from '../../../../src/app/services/safe-provider';
+
 import { BroadcasterService } from "./broadcaster.service";
 import { ModalService } from "./modal.service";
 import { ValidationService } from "./validation.service";
@@ -45,20 +48,20 @@ import { ValidationService } from "./validation.service";
 @NgModule({
   declarations: [],
   providers: [
-    { provide: "WINDOW", useValue: window },
-    {
-      provide: LOCALE_ID,
+    safeProvider({ provide: WINDOW, useValue: window }),
+    safeProvider({
+      provide: LOCALE_ID as SafeInjectionToken<string>,
       useFactory: (i18nService: I18nServiceAbstraction) => i18nService.translationLocale,
       deps: [I18nServiceAbstraction],
-    },
-    ValidationService,
-    ModalService,
-    {
+    }),
+    safeProvider(ValidationService),
+    safeProvider(ModalService),
+    safeProvider({
       provide: AppIdServiceAbstraction,
       useClass: AppIdService,
       deps: [StorageServiceAbstraction],
-    },
-    {
+    }),
+    safeProvider({
       provide: AuthServiceAbstraction,
       useClass: AuthService,
       deps: [
@@ -75,15 +78,15 @@ import { ValidationService } from "./validation.service";
         TwoFactorServiceAbstraction,
         I18nServiceAbstraction,
       ],
-    },
-    { provide: LogService, useFactory: () => new ConsoleLogService(false) },
-    {
+    }),
+    safeProvider({ provide: LogService, useFactory: () => new ConsoleLogService(false), deps: [] }),
+    safeProvider({
       provide: EnvironmentServiceAbstraction,
       useClass: EnvironmentService,
       deps: [StateServiceAbstraction],
-    },
-    { provide: TokenServiceAbstraction, useClass: TokenService, deps: [StateServiceAbstraction] },
-    {
+    }),
+    safeProvider({ provide: TokenServiceAbstraction, useClass: TokenService, deps: [StateServiceAbstraction] }),
+    safeProvider({
       provide: CryptoServiceAbstraction,
       useClass: CryptoService,
       deps: [
@@ -92,13 +95,13 @@ import { ValidationService } from "./validation.service";
         LogService,
         StateServiceAbstraction,
       ],
-    },
-    {
+    }),
+    safeProvider({
       provide: PasswordGenerationServiceAbstraction,
       useClass: PasswordGenerationService,
       deps: [CryptoServiceAbstraction, PolicyServiceAbstraction, StateServiceAbstraction],
-    },
-    {
+    }),
+    safeProvider({
       provide: ApiServiceAbstraction,
       useFactory: (
         tokenService: TokenServiceAbstraction,
@@ -121,9 +124,9 @@ import { ValidationService } from "./validation.service";
         MessagingServiceAbstraction,
         AppIdServiceAbstraction,
       ],
-    },
-    { provide: BroadcasterServiceAbstraction, useClass: BroadcasterService },
-    {
+    }),
+    safeProvider({ provide: BroadcasterServiceAbstraction, useClass: BroadcasterService, useAngularDecorators: true }),
+    safeProvider({
       provide: StateServiceAbstraction,
       useFactory: (
         storageService: StorageServiceAbstraction,
@@ -140,12 +143,12 @@ import { ValidationService } from "./validation.service";
         ),
       deps: [
         StorageServiceAbstraction,
-        "SECURE_STORAGE",
+        SECURE_STORAGE,
         LogService,
         StateMigrationServiceAbstraction,
       ],
-    },
-    {
+    }),
+    safeProvider({
       provide: StateMigrationServiceAbstraction,
       useFactory: (
         storageService: StorageServiceAbstraction,
@@ -156,14 +159,14 @@ import { ValidationService } from "./validation.service";
           secureStorageService,
           new StateFactory(GlobalState, Account),
         ),
-      deps: [StorageServiceAbstraction, "SECURE_STORAGE"],
-    },
-    {
+      deps: [StorageServiceAbstraction, SECURE_STORAGE],
+    }),
+    safeProvider({
       provide: PolicyServiceAbstraction,
       useClass: PolicyService,
       deps: [StateServiceAbstraction, OrganizationServiceAbstraction, ApiServiceAbstraction],
-    },
-    {
+    }),
+    safeProvider({
       provide: KeyConnectorServiceAbstraction,
       useClass: KeyConnectorService,
       deps: [
@@ -175,17 +178,17 @@ import { ValidationService } from "./validation.service";
         OrganizationServiceAbstraction,
         CryptoFunctionServiceAbstraction,
       ],
-    },
-    {
+    }),
+    safeProvider({
       provide: OrganizationServiceAbstraction,
       useClass: OrganizationService,
       deps: [StateServiceAbstraction],
-    },
-    {
+    }),
+    safeProvider({
       provide: TwoFactorServiceAbstraction,
       useClass: TwoFactorService,
       deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction],
-    },
-  ],
+    }),
+  ] satisfies SafeProvider[],
 })
 export class JslibServicesModule {}
