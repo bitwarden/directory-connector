@@ -6,3 +6,6 @@
 
 # Default file owners.
 * @bitwarden/team-admin-console-dev
+
+# Multiple owners
+package.json
