@@ -121,7 +121,7 @@
     "node-loader": "2.0.0",
     "pkg": "5.8.1",
     "prettier": "3.3.3",
-    "rimraf": "5.0.5",
+    "rimraf": "5.0.10",
     "rxjs": "7.8.1",
     "sass": "1.69.7",
     "sass-loader": "14.0.0",
