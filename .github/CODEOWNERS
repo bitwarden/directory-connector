@@ -8,4 +8,4 @@
 * @bitwarden/team-admin-console-dev
 
 # Multiple owners
-package.json @bitwarden/team-admin-console-dev @bitwarden/automation-users
+package.json
