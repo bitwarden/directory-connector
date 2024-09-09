@@ -94,7 +94,7 @@
     "cross-env": "7.0.3",
     "css-loader": "6.9.0",
     "dotenv": "16.4.5",
-    "electron": "28.2.0",
+    "electron": "32.0.2",
     "electron-builder": "24.9.1",
     "electron-log": "5.0.1",
     "@electron/notarize": "2.2.1",
