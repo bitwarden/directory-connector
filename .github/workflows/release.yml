@@ -22,14 +22,14 @@ jobs:
       release-version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Branch check
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
         run: |
-          if [[ "$GITHUB_REF" != "refs/heads/rc" ]] && [[ "$GITHUB_REF" != "refs/heads/hotfix-rc" ]]; then
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
             echo "==================================="
-            echo "[!] Can only release from the 'rc' or 'hotfix-rc' branches"
+            echo "[!] Can only release from the 'main' branch"
             echo "==================================="
             exit 1
           fi
@@ -47,16 +47,6 @@ jobs:
     runs-on: ubuntu-22.04
     needs: setup
     steps:
-      - name: Create GitHub deployment
-        uses: chrnorm/deployment-action@55729fcebec3d284f60f5bcabbd8376437d696b1 # v2.0.7
-        id: deployment
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          initial-status: 'in_progress'
-          environment: 'production'
-          description: 'Deployment ${{ needs.setup.outputs.release-version }} from branch ${{ github.ref_name }}'
-          task: release
-
       - name: Download all artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -65,7 +55,7 @@ jobs:
           workflow_conclusion: success
           branch: ${{ github.ref_name }}
 
-      - name: Download all artifacts
+      - name: Dry Run - Download all artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
@@ -101,19 +91,3 @@ jobs:
           body: "<insert release notes here>"
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
-
-      - name: Update deployment status to Success
-        if: ${{ success() }}
-        uses: chrnorm/deployment-status@2afb7d27101260f4a764219439564d954d10b5b0 # v2.0.1
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          state: 'success'
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
-
-      - name: Update deployment status to Failure
-        if: ${{ failure() }}
-        uses: chrnorm/deployment-status@2afb7d27101260f4a764219439564d954d10b5b0 # v2.0.1
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          state: 'failure'
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}

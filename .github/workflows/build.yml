@@ -3,6 +3,9 @@ name: Build
 
 on:
   pull_request: {}
+  push:
+    branches:
+      - "main"
   workflow_dispatch: {}
 
 jobs:
@@ -11,7 +14,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Set up CLOC
         run: |
@@ -29,7 +32,7 @@ jobs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Get Package Version
         id: retrieve-version
@@ -48,7 +51,7 @@ jobs:
       _PKG_FETCH_VERSION: 3.4
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Set up Node
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
@@ -119,14 +122,14 @@ jobs:
           fi
 
       - name: Upload Linux Zip to GitHub
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
       - name: Upload Linux checksum to GitHub
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
@@ -135,7 +138,7 @@ jobs:
 
   macos-cli:
     name: Build Mac CLI
-    runs-on: macos-12
+    runs-on: macos-13
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -143,7 +146,7 @@ jobs:
       _PKG_FETCH_VERSION: 3.4
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Set up Node
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
@@ -207,14 +210,14 @@ jobs:
           fi
 
       - name: Upload Mac Zip to GitHub
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
       - name: Upload Mac checksum to GitHub
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
@@ -230,7 +233,7 @@ jobs:
       _WIN_PKG_VERSION: 3.4
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Setup Windows builder
         run: |
@@ -351,14 +354,14 @@ jobs:
             -t sha256 | Out-File ./dist-cli/bwdc-windows-sha256-${env:_PACKAGE_VERSION}.txt
 
       - name: Upload Windows Zip to GitHub
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
       - name: Upload Windows checksum to GitHub
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
@@ -375,7 +378,7 @@ jobs:
       HUSKY: 0
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Set up Node
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
@@ -411,28 +414,28 @@ jobs:
           SIGNING_CERT_NAME: ${{ secrets.SIGNING_CERT_NAME }}
 
       - name: Upload Portable Executable to GitHub
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: Bitwarden-Connector-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Portable-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload Installer Executable to GitHub
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload Installer Executable Blockmap to GitHub
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe.blockmap
           path: ./dist/Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe.blockmap
           if-no-files-found: error
 
       - name: Upload latest auto-update artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: latest.yml
           path: ./dist/latest.yml
@@ -449,7 +452,7 @@ jobs:
       HUSKY: 0
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Set up Node
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
@@ -479,14 +482,14 @@ jobs:
         run: npm run dist:lin
 
       - name: Upload AppImage
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           if-no-files-found: error
 
       - name: Upload latest auto-update artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: latest-linux.yml
           path: ./dist/latest-linux.yml
@@ -495,7 +498,7 @@ jobs:
 
   macos-gui:
     name: Build MacOS GUI
-    runs-on: macos-12
+    runs-on: macos-13
     needs: setup
     env:
       NODE_OPTIONS: --max_old_space_size=4096
@@ -503,7 +506,7 @@ jobs:
       HUSKY: 0
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Set up Node
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
@@ -523,44 +526,43 @@ jobs:
           npm --version
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
-        shell: bash
 
-      - name: Decrypt secrets
-        env:
-          DECRYPT_FILE_PASSWORD: ${{ secrets.DECRYPT_FILE_PASSWORD }}
-        shell: bash
+      - name: Login to Azure
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Get certificates
         run: |
-          mkdir -p $HOME/secrets
+          mkdir -p $HOME/certificates
 
-          gpg --quiet --batch --yes --decrypt --passphrase="$DECRYPT_FILE_PASSWORD" \
-            --output "$HOME/secrets/devid-app-cert.p12" \
-            "$GITHUB_WORKSPACE/.github/secrets/devid-app-cert.p12.gpg"
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
+            jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
 
-          gpg --quiet --batch --yes --decrypt --passphrase="$DECRYPT_FILE_PASSWORD" \
-            --output "$HOME/secrets/devid-installer-cert.p12" \
-            "$GITHUB_WORKSPACE/.github/secrets/devid-installer-cert.p12.gpg"
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
+            jq -r .value | base64 -d > $HOME/certificates/devid-installer-cert.p12
 
-          gpg --quiet --batch --yes --decrypt --passphrase="$DECRYPT_FILE_PASSWORD" \
-            --output "$HOME/secrets/macdev-cert.p12" \
-            "$GITHUB_WORKSPACE/.github/secrets/macdev-cert.p12.gpg"
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
+            jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
       - name: Set up keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          DEVID_CERT_PASSWORD: ${{ secrets.DEVID_CERT_PASSWORD }}
-          MACDEV_CERT_PASSWORD: ${{ secrets.MACDEV_CERT_PASSWORD }}
-        shell: bash
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security set-keychain-settings -lut 1200 build.keychain
-          security import "$HOME/secrets/devid-app-cert.p12" -k build.keychain -P $DEVID_CERT_PASSWORD \
+
+          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-          security import "$HOME/secrets/devid-installer-cert.p12" -k build.keychain -P $DEVID_CERT_PASSWORD \
+
+          security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-          security import "$HOME/secrets/macdev-cert.p12" -k build.keychain -P $MACDEV_CERT_PASSWORD \
+
+          security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
       - name: Load package version
@@ -574,37 +576,45 @@ jobs:
 
       - name: Install Node dependencies
         run: npm install
+      
+      - name: Set up private auth key
+        run: |
+          mkdir ~/private_keys
+          cat << EOF > ~/private_keys/AuthKey_UFD296548T.p8
+          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          EOF
 
       - name: Build application
         run: npm run dist:mac
         env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_AUTH_KEY: UFD296548T
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_UFD296548T.p8
           CSC_FOR_PULL_REQUEST: true
 
       - name: Upload .zip artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg
           if-no-files-found: error
 
       - name: Upload .dmg Blockmap artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg.blockmap
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg.blockmap
           if-no-files-found: error
 
       - name: Upload latest auto-update artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: latest-mac.yml
           path: ./dist/latest-mac.yml
@@ -625,34 +635,8 @@ jobs:
       - macos-gui
     steps:
       - name: Check if any job failed
-        if: ${{ (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rc') }}
-        env:
-          CLOC_STATUS: ${{ needs.cloc.result }}
-          SETUP_STATUS: ${{ needs.setup.result }}
-          LINUX_CLI_STATUS: ${{ needs.linux-cli.result }}
-          MACOS_CLI_STATUS: ${{ needs.macos-cli.result }}
-          WINDOWS_CLI_STATUS: ${{ needs.windows-cli.result }}
-          WINDOWS_GUI_STATUS: ${{ needs.windows-gui.result }}
-          LINUX_GUI_STATUS: ${{ needs.linux-gui.result }}
-          MACOS_GUI_STATUS: ${{ needs.macos-gui.result }}
-        run: |
-          if [ "$CLOC_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$SETUP_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$LINUX_CLI_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$MACOS_CLI_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$WINDOWS_CLI_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$WINDOWS_GUI_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$LINUX_GUI_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$MACOS_GUI_STATUS" = "failure" ]; then
-              exit 1
-          fi
+        if: github.ref == 'refs/heads/main' && contains(needs.*.result, 'failure')
+        run: exit 1
 
       - name: Login to Azure - CI subscription
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
@@ -669,7 +653,7 @@ jobs:
           secrets: "devops-alerts-slack-webhook-url"
 
       - name: Notify Slack on failure
-        uses: act10ns/slack@ed1309ab9862e57e9e583e51c7889486b9a00b0f # v2.0.0
+        uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
         if: failure()
         env:
           SLACK_WEBHOOK_URL: ${{ steps.retrieve-secrets.outputs.devops-alerts-slack-webhook-url }}

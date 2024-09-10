@@ -26,6 +26,7 @@ npm-debug.log
 # Build directories
 dist
 build
+build-cli
 .angular/cache
 
 # Testing
