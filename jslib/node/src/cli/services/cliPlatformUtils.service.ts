@@ -1,12 +1,7 @@
-import * as child_process from "child_process";
-
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { DeviceType } from "@/jslib/common/src/enums/deviceType";
 import { ThemeType } from "@/jslib/common/src/enums/themeType";
-
-// eslint-disable-next-line
-const open = require("open");
 
 export class CliPlatformUtilsService implements PlatformUtilsService {
   clientType: ClientType;
@@ -80,13 +75,9 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return Promise.resolve(false);
   }
 
-  launchUri(uri: string, options?: any): void {
-    if (process.platform === "linux") {
-      child_process.spawnSync("xdg-open", [uri]);
-    } else {
-      open(uri);
-    }
-  }
+  launchUri(_uri: string, _options?: any): void {
+    throw new Error("Not implemented.");
+  };
 
   saveFile(win: Window, blobData: any, blobOptions: any, fileName: string): void {
     throw new Error("Not implemented.");
