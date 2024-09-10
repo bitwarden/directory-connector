@@ -1,5 +1,3 @@
-import * as http from "http";
-
 import * as program from "commander";
 import * as inquirer from "inquirer";
 import Separator from "inquirer/lib/objects/separator";
@@ -22,7 +20,6 @@ import { AuthResult } from "@/jslib/common/src/models/domain/authResult";
 import {
   ApiLogInCredentials,
   PasswordLogInCredentials,
-  SsoLogInCredentials,
 } from "@/jslib/common/src/models/domain/logInCredentials";
 import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
 import { TwoFactorEmailRequest } from "@/jslib/common/src/models/request/twoFactorEmailRequest";
@@ -40,8 +37,6 @@ export class LoginCommand {
   protected clientId: string;
   protected clientSecret: string;
   protected email: string;
-
-  private ssoRedirectUri: string = null;
 
   constructor(
     protected authService: AuthService,
@@ -63,10 +58,6 @@ export class LoginCommand {
   async run(email: string, password: string, options: program.OptionValues) {
     this.canInteract = process.env.BW_NOINTERACTION !== "true";
 
-    let ssoCodeVerifier: string = null;
-    let ssoCode: string = null;
-    let orgIdentifier: string = null;
-
     let clientId: string = null;
     let clientSecret: string = null;
 
@@ -76,26 +67,6 @@ export class LoginCommand {
       const apiIdentifiers = await this.apiIdentifiers();
       clientId = apiIdentifiers.clientId;
       clientSecret = apiIdentifiers.clientSecret;
-    } else if (options.sso != null && this.canInteract) {
-      const passwordOptions: any = {
-        type: "password",
-        length: 64,
-        uppercase: true,
-        lowercase: true,
-        numbers: true,
-        special: false,
-      };
-      const state = await this.passwordGenerationService.generatePassword(passwordOptions);
-      ssoCodeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
-      const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
-      const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
-      try {
-        const ssoParams = await this.openSsoPrompt(codeChallenge, state);
-        ssoCode = ssoParams.ssoCode;
-        orgIdentifier = ssoParams.orgIdentifier;
-      } catch {
-        return Response.badRequest("Something went wrong. Try again.");
-      }
     } else {
       if ((email == null || email === "") && this.canInteract) {
         const answer: inquirer.Answers = await inquirer.createPromptModule({
@@ -160,17 +131,8 @@ export class LoginCommand {
       let response: AuthResult = null;
       if (clientId != null && clientSecret != null) {
         response = await this.authService.logIn(new ApiLogInCredentials(clientId, clientSecret));
-      } else if (ssoCode != null && ssoCodeVerifier != null) {
-        response = await this.authService.logIn(
-          new SsoLogInCredentials(
-            ssoCode,
-            ssoCodeVerifier,
-            this.ssoRedirectUri,
-            orgIdentifier,
-            twoFactor,
-          ),
-        );
-      } else {
+      } 
+      else {
         response = await this.authService.logIn(
           new PasswordLogInCredentials(email, password, null, twoFactor),
         );
@@ -531,94 +493,5 @@ export class LoginCommand {
       clientId: await this.apiClientId(),
       clientSecret: await this.apiClientSecret(),
     };
-  }
-
-  private async openSsoPrompt(
-    codeChallenge: string,
-    state: string,
-  ): Promise<{ ssoCode: string; orgIdentifier: string }> {
-    return new Promise((resolve, reject) => {
-      const callbackServer = http.createServer((req, res) => {
-        const urlString = "http://localhost" + req.url;
-        const url = new URL(urlString);
-        const code = url.searchParams.get("code");
-        const receivedState = url.searchParams.get("state");
-        const orgIdentifier = this.getOrgIdentifierFromState(receivedState);
-        res.setHeader("Content-Type", "text/html");
-        if (code != null && receivedState != null && this.checkState(receivedState, state)) {
-          res.writeHead(200);
-          res.end(
-            "<html><head><title>Success | Bitwarden CLI</title></head><body>" +
-              "<h1>Successfully authenticated with the Bitwarden CLI</h1>" +
-              "<p>You may now close this tab and return to the terminal.</p>" +
-              "</body></html>",
-          );
-          callbackServer.close(() =>
-            resolve({
-              ssoCode: code,
-              orgIdentifier: orgIdentifier,
-            }),
-          );
-        } else {
-          res.writeHead(400);
-          res.end(
-            "<html><head><title>Failed | Bitwarden CLI</title></head><body>" +
-              "<h1>Something went wrong logging into the Bitwarden CLI</h1>" +
-              "<p>You may now close this tab and return to the terminal.</p>" +
-              "</body></html>",
-          );
-          callbackServer.close(() => reject());
-        }
-      });
-      let foundPort = false;
-      const webUrl = this.environmentService.getWebVaultUrl();
-      for (let port = 8065; port <= 8070; port++) {
-        try {
-          this.ssoRedirectUri = "http://localhost:" + port;
-          callbackServer.listen(port, () => {
-            this.platformUtilsService.launchUri(
-              webUrl +
-                "/#/sso?clientId=" +
-                this.clientId +
-                "&redirectUri=" +
-                encodeURIComponent(this.ssoRedirectUri) +
-                "&state=" +
-                state +
-                "&codeChallenge=" +
-                codeChallenge,
-            );
-          });
-          foundPort = true;
-          break;
-        } catch {
-          // Ignore error since we run the same command up to 5 times.
-        }
-      }
-      if (!foundPort) {
-        reject();
-      }
-    });
-  }
-
-  private getOrgIdentifierFromState(state: string): string {
-    if (state === null || state === undefined) {
-      return null;
-    }
-
-    const stateSplit = state.split("_identifier=");
-    return stateSplit.length > 1 ? stateSplit[1] : null;
-  }
-
-  private checkState(state: string, checkState: string): boolean {
-    if (state === null || state === undefined) {
-      return false;
-    }
-    if (checkState === null || checkState === undefined) {
-      return false;
-    }
-
-    const stateSplit = state.split("_identifier=");
-    const checkStateSplit = checkState.split("_identifier=");
-    return stateSplit[0] === checkStateSplit[0];
   }
 }
