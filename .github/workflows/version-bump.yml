@@ -8,10 +8,10 @@ on:
         description: "New version override (leave blank for automatic calculation, example: '2024.1.0')"
         required: false
         type: string
-      enable_slack_notification:
-        description: "Enable Slack notifications for upcoming release?"
-        default: false
-        type: boolean
+      # enable_slack_notification:
+      #   description: "Enable Slack notifications for upcoming release?"
+      #   default: false
+      #   type: boolean
 
 jobs:
   bump_version:
@@ -26,13 +26,13 @@ jobs:
         with:
           version: ${{ inputs.version_number_override }}
 
-      - name: Slack Notification Check
-        run: |
-          if [[ "${{ inputs.enable_slack_notification }}" == true ]]; then
-            echo "Slack notifications enabled."
-          else
-            echo "Slack notifications disabled."
-          fi
+      # - name: Slack Notification Check
+      #   run: |
+      #     if [[ "${{ inputs.enable_slack_notification }}" == true ]]; then
+      #       echo "Slack notifications enabled."
+      #     else
+      #       echo "Slack notifications disabled."
+      #     fi
 
       - name: Checkout Branch
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -189,17 +189,17 @@ jobs:
           PR_NUMBER: ${{ steps.create-pr.outputs.pr_number }}
         run: gh pr review $PR_NUMBER --approve
 
-      - name: Merge PR
-        if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          PR_NUMBER: ${{ steps.create-pr.outputs.pr_number }}
-        run: gh pr merge $PR_NUMBER --squash --auto --delete-branch
+      # - name: Merge PR
+      #   if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
+      #   env:
+      #     GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      #     PR_NUMBER: ${{ steps.create-pr.outputs.pr_number }}
+      #   run: gh pr merge $PR_NUMBER --squash --auto --delete-branch
 
-      - name: Report upcoming release version to Slack
-        if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' && inputs.enable_slack_notification == true }}
-        uses: bitwarden/gh-actions/report-upcoming-release-version@main
-        with:
-          version: ${{ steps.set-final-version-output.outputs.version }}
-          project: ${{ github.repository }}
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+      # - name: Report upcoming release version to Slack
+      #   if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' && inputs.enable_slack_notification == true }}
+      #   uses: bitwarden/gh-actions/report-upcoming-release-version@main
+      #   with:
+      #     version: ${{ steps.set-final-version-output.outputs.version }}
+      #     project: ${{ github.repository }}
+      #     AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
