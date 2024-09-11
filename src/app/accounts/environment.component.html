@@ -3,15 +3,13 @@
     <form class="modal-content" (ngSubmit)="submit()">
       <div class="modal-header">
         <h3 class="modal-title">{{ "settings" | i18n }}</h3>
-        <button type="button" class="close" data-dismiss="modal" title="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <h4>{{ "selfHostedEnvironment" | i18n }}</h4>
         <p>{{ "selfHostedEnvironmentFooter" | i18n }}</p>
-        <div class="form-group">
-          <label for="baseUrl">{{ "baseUrl" | i18n }}</label>
+        <div class="mb-3">
+          <label for="baseUrl" class="form-label">{{ "baseUrl" | i18n }}</label>
           <input
             id="baseUrl"
             type="text"
@@ -19,14 +17,12 @@
             [(ngModel)]="baseUrl"
             class="form-control"
           />
-          <small class="text-muted form-text"
-            >{{ "ex" | i18n }} https://bitwarden.company.com</small
-          >
+          <div class="form-text">{{ "ex" | i18n }} https://bitwarden.company.com</div>
         </div>
         <h4>{{ "customEnvironment" | i18n }}</h4>
         <p>{{ "customEnvironmentFooter" | i18n }}</p>
-        <div class="form-group">
-          <label for="webVaultUrl">{{ "webVaultUrl" | i18n }}</label>
+        <div class="mb-3">
+          <label for="webVaultUrl" class="form-label">{{ "webVaultUrl" | i18n }}</label>
           <input
             id="webVaultUrl"
             type="text"
@@ -35,12 +31,12 @@
             class="form-control"
           />
         </div>
-        <div class="form-group">
-          <label for="apiUrl">{{ "apiUrl" | i18n }}</label>
+        <div class="mb-3">
+          <label for="apiUrl" class="form-label">{{ "apiUrl" | i18n }}</label>
           <input id="apiUrl" type="text" name="ApiUrl" [(ngModel)]="apiUrl" class="form-control" />
         </div>
-        <div class="form-group">
-          <label for="identityUrl">{{ "identityUrl" | i18n }}</label>
+        <div class="mb-3">
+          <label for="identityUrl" class="form-label">{{ "identityUrl" | i18n }}</label>
           <input
             id="identityUrl"
             type="text"
