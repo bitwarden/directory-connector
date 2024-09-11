@@ -163,15 +163,15 @@ jobs:
       - name: Get pkg-fetch
         run: |
           cd $HOME
-          fetchedUrl="https://github.com/vercel/pkg-fetch/releases/download/v$_PKG_FETCH_VERSION/node-v$_PKG_FETCH_NODE_VERSION-macos-x64"
+          fetchedUrl="https://github.com/vercel/pkg-fetch/releases/download/v$_PKG_FETCH_VERSION/node-v$_PKG_FETCH_NODE_VERSION-macos-arm64"
 
           mkdir -p .pkg-cache/v$_PKG_FETCH_VERSION
-          wget $fetchedUrl -O "./.pkg-cache/v$_PKG_FETCH_VERSION/fetched-v$_PKG_FETCH_NODE_VERSION-macos-x64"
+          wget $fetchedUrl -O "./.pkg-cache/v$_PKG_FETCH_VERSION/fetched-v$_PKG_FETCH_NODE_VERSION-macos-arm64"
 
       - name: Keytar
         run: |
           keytarVersion=$(cat package.json | jq -r '.dependencies.keytar')
-          keytarTar="keytar-v$keytarVersion-napi-v3-darwin-x64.tar"
+          keytarTar="keytar-v$keytarVersion-napi-v3-darwin-arm64.tar"
 
           keytarTarGz="$keytarTar.gz"
           keytarUrl="https://github.com/atom/node-keytar/releases/download/v$keytarVersion/$keytarTarGz"
