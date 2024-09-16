@@ -9,7 +9,7 @@ import { MenuMain } from "./menu.main";
 const SyncCheckInterval = 60 * 1000; // 1 minute
 
 export class MessagingMain {
-  private syncTimeout: NodeJS.Timer;
+  private syncTimeout: NodeJS.Timeout;
 
   constructor(
     private windowMain: WindowMain,
