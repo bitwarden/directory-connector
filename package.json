@@ -157,7 +157,7 @@
     "google-auth-library": "7.14.1",
     "googleapis": "73.0.0",
     "https-proxy-agent": "7.0.4",
-    "inquirer": "8.2.6",
+    "inquirer": "11.0.1",
     "keytar": "7.9.0",
     "ldapjs": "2.3.3",
     "lowdb": "1.0.0",
