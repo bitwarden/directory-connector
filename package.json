@@ -125,7 +125,7 @@
     "rxjs": "7.8.1",
     "sass": "1.69.7",
     "sass-loader": "14.0.0",
-    "ts-jest": "29.1.1",
+    "ts-jest": "29.2.5",
     "ts-loader": "9.5.1",
     "tsconfig-paths-webpack-plugin": "4.1.0",
     "typescript": "4.9.5",
