@@ -14,7 +14,7 @@ export class WindowMain {
   win: BrowserWindow;
   isQuitting = false;
 
-  private windowStateChangeTimer: NodeJS.Timer;
+  private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: any } = {};
   private enableAlwaysOnTop = false;
 
