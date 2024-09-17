@@ -131,8 +131,7 @@ export class LoginCommand {
       let response: AuthResult = null;
       if (clientId != null && clientSecret != null) {
         response = await this.authService.logIn(new ApiLogInCredentials(clientId, clientSecret));
-      } 
-      else {
+      } else {
         response = await this.authService.logIn(
           new PasswordLogInCredentials(email, password, null, twoFactor),
         );
