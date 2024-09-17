@@ -38,8 +38,12 @@ import { StateMigrationService } from "@/jslib/common/src/services/stateMigratio
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { TwoFactorService } from "@/jslib/common/src/services/twoFactor.service";
 
-import { SafeInjectionToken, SECURE_STORAGE, WINDOW } from '../../../../src/app/services/injection-tokens';
-import { SafeProvider, safeProvider } from '../../../../src/app/services/safe-provider';
+import {
+  SafeInjectionToken,
+  SECURE_STORAGE,
+  WINDOW,
+} from "../../../../src/app/services/injection-tokens";
+import { SafeProvider, safeProvider } from "../../../../src/app/services/safe-provider";
 
 import { BroadcasterService } from "./broadcaster.service";
 import { ModalService } from "./modal.service";
@@ -85,7 +89,11 @@ import { ValidationService } from "./validation.service";
       useClass: EnvironmentService,
       deps: [StateServiceAbstraction],
     }),
-    safeProvider({ provide: TokenServiceAbstraction, useClass: TokenService, deps: [StateServiceAbstraction] }),
+    safeProvider({
+      provide: TokenServiceAbstraction,
+      useClass: TokenService,
+      deps: [StateServiceAbstraction],
+    }),
     safeProvider({
       provide: CryptoServiceAbstraction,
       useClass: CryptoService,
@@ -125,7 +133,11 @@ import { ValidationService } from "./validation.service";
         AppIdServiceAbstraction,
       ],
     }),
-    safeProvider({ provide: BroadcasterServiceAbstraction, useClass: BroadcasterService, useAngularDecorators: true }),
+    safeProvider({
+      provide: BroadcasterServiceAbstraction,
+      useClass: BroadcasterService,
+      useAngularDecorators: true,
+    }),
     safeProvider({
       provide: StateServiceAbstraction,
       useFactory: (
