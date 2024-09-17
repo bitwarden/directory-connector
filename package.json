@@ -124,7 +124,7 @@
     "rimraf": "5.0.10",
     "rxjs": "7.8.1",
     "sass": "1.78.0",
-    "sass-loader": "14.0.0",
+    "sass-loader": "14.2.1",
     "ts-jest": "29.2.5",
     "ts-loader": "9.5.1",
     "tsconfig-paths-webpack-plugin": "4.1.0",
