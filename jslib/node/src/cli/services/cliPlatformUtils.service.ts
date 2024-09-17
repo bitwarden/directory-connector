@@ -77,7 +77,7 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
 
   launchUri(_uri: string, _options?: any): void {
     throw new Error("Not implemented.");
-  };
+  }
 
   saveFile(win: Window, blobData: any, blobOptions: any, fileName: string): void {
     throw new Error("Not implemented.");

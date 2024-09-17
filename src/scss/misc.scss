@@ -138,6 +138,6 @@ ul.testing-list {
 
   &:focus,
   &.focus {
-    box-shadow: 0 0 0 $btn-focus-width rgba(mix(color-yiq($primary), $primary, 15%), 0.5);
+    box-shadow: 0 0 0 $btn-focus-width rgba(mix(color-contrast($primary), $primary, 15%), 0.5);
   }
 }

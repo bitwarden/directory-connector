@@ -143,7 +143,7 @@ export class ModalService {
       dialogEl.style.zIndex = `${this.modalCount}050`;
 
       const modals = Array.from(
-        el.querySelectorAll('.modal-backdrop, .modal *[data-dismiss="modal"]'),
+        el.querySelectorAll('.modal-backdrop, .modal *[data-bs-dismiss="modal"]'),
       );
       for (const closeElement of modals) {
         closeElement.addEventListener("click", () => {
