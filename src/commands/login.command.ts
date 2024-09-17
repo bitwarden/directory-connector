@@ -25,9 +25,8 @@ import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identit
 import { TwoFactorEmailRequest } from "@/jslib/common/src/models/request/twoFactorEmailRequest";
 import { UpdateTempPasswordRequest } from "@/jslib/common/src/models/request/updateTempPasswordRequest";
 import { ErrorResponse } from "@/jslib/common/src/models/response/errorResponse";
-
-import { Response } from "../models/response";
-import { MessageResponse } from "../models/response/messageResponse";
+import { Response } from "@/jslib/node/src/cli/models/response";
+import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
 
 export class LoginCommand {
   protected validatedParams: () => Promise<any>;
