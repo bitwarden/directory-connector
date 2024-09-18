@@ -5,7 +5,6 @@ import { Command, OptionValues } from "commander";
 
 import { Utils } from "@/jslib/common/src/misc/utils";
 import { BaseProgram } from "@/jslib/node/src/cli/baseProgram";
-import { LoginCommand } from "@/jslib/node/src/cli/commands/login.command";
 import { LogoutCommand } from "@/jslib/node/src/cli/commands/logout.command";
 import { UpdateCommand } from "@/jslib/node/src/cli/commands/update.command";
 import { Response } from "@/jslib/node/src/cli/models/response";
@@ -15,6 +14,7 @@ import { Main } from "./bwdc";
 import { ClearCacheCommand } from "./commands/clearCache.command";
 import { ConfigCommand } from "./commands/config.command";
 import { LastSyncCommand } from "./commands/lastSync.command";
+import { LoginCommand } from "./commands/login.command";
 import { SyncCommand } from "./commands/sync.command";
 import { TestCommand } from "./commands/test.command";
 
@@ -92,20 +92,7 @@ export class Program extends BaseProgram {
       })
       .action(async (clientId: string, clientSecret: string, options: OptionValues) => {
         await this.exitIfAuthed();
-        const command = new LoginCommand(
-          this.main.authService,
-          this.main.apiService,
-          this.main.i18nService,
-          this.main.environmentService,
-          this.main.passwordGenerationService,
-          this.main.cryptoFunctionService,
-          this.main.platformUtilsService,
-          this.main.stateService,
-          this.main.cryptoService,
-          this.main.policyService,
-          this.main.twoFactorService,
-          "connector",
-        );
+        const command = new LoginCommand(this.main.authService);
 
         if (!Utils.isNullOrWhitespace(clientId)) {
           process.env.BW_CLIENTID = clientId;
@@ -114,8 +101,7 @@ export class Program extends BaseProgram {
           process.env.BW_CLIENTSECRET = clientSecret;
         }
 
-        options = Object.assign(options ?? {}, { apikey: true }); // force apikey use
-        const response = await command.run(null, null, options);
+        const response = await command.run();
         this.processResponse(response);
       });
 
