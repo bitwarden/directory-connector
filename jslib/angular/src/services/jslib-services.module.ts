@@ -9,7 +9,6 @@ import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/com
 import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@/jslib/common/src/abstractions/messaging.service";
-import { OrganizationService as OrganizationServiceAbstraction } from "@/jslib/common/src/abstractions/organization.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { StateService as StateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
 import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
@@ -23,7 +22,6 @@ import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { ConsoleLogService } from "@/jslib/common/src/services/consoleLog.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
-import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
@@ -139,11 +137,6 @@ import { ValidationService } from "./validation.service";
           new StateFactory(GlobalState, Account),
         ),
       deps: [StorageServiceAbstraction, SECURE_STORAGE],
-    }),
-    safeProvider({
-      provide: OrganizationServiceAbstraction,
-      useClass: OrganizationService,
-      deps: [StateServiceAbstraction],
     }),
   ] satisfies SafeProvider[],
 })

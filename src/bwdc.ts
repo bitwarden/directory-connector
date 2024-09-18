@@ -11,7 +11,6 @@ import { ContainerService } from "@/jslib/common/src/services/container.service"
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
-import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { CliPlatformUtilsService } from "@/jslib/node/src/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "@/jslib/node/src/cli/services/consoleLog.service";
@@ -52,7 +51,6 @@ export class Main {
   syncService: SyncService;
   stateService: StateService;
   stateMigrationService: StateMigrationService;
-  organizationService: OrganizationService;
 
   constructor() {
     const applicationName = "Bitwarden Directory Connector";
@@ -139,8 +137,6 @@ export class Main {
       customUserAgent,
     );
     this.containerService = new ContainerService(this.cryptoService);
-
-    this.organizationService = new OrganizationService(this.stateService);
 
     this.authService = new AuthService(
       this.apiService,
