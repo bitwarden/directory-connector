@@ -1,4 +1,3 @@
-import { AuthResult } from "@/jslib/common/src/models/domain/authResult";
 import {
   ApiLogInCredentials,
   PasswordLogInCredentials,
@@ -8,6 +7,6 @@ import {
 export abstract class AuthService {
   logIn: (
     credentials: ApiLogInCredentials | PasswordLogInCredentials | SsoLogInCredentials,
-  ) => Promise<AuthResult>;
+  ) => Promise<void>;
   logOut: (callback: () => void) => void;
 }
