@@ -12,9 +12,7 @@ import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@/jslib/c
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@/jslib/common/src/abstractions/messaging.service";
 import { OrganizationService as OrganizationServiceAbstraction } from "@/jslib/common/src/abstractions/organization.service";
-import { PasswordGenerationService as PasswordGenerationServiceAbstraction } from "@/jslib/common/src/abstractions/passwordGeneration.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { PolicyService as PolicyServiceAbstraction } from "@/jslib/common/src/abstractions/policy.service";
 import { StateService as StateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
 import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
@@ -31,8 +29,6 @@ import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
 import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.service";
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
-import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
-import { PolicyService } from "@/jslib/common/src/services/policy.service";
 import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
@@ -105,11 +101,6 @@ import { ValidationService } from "./validation.service";
       ],
     }),
     safeProvider({
-      provide: PasswordGenerationServiceAbstraction,
-      useClass: PasswordGenerationService,
-      deps: [CryptoServiceAbstraction, PolicyServiceAbstraction, StateServiceAbstraction],
-    }),
-    safeProvider({
       provide: ApiServiceAbstraction,
       useFactory: (
         tokenService: TokenServiceAbstraction,
@@ -172,11 +163,6 @@ import { ValidationService } from "./validation.service";
           new StateFactory(GlobalState, Account),
         ),
       deps: [StorageServiceAbstraction, SECURE_STORAGE],
-    }),
-    safeProvider({
-      provide: PolicyServiceAbstraction,
-      useClass: PolicyService,
-      deps: [StateServiceAbstraction, OrganizationServiceAbstraction, ApiServiceAbstraction],
     }),
     safeProvider({
       provide: KeyConnectorServiceAbstraction,

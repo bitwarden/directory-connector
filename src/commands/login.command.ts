@@ -1,46 +1,16 @@
 import * as program from "commander";
 import * as inquirer from "inquirer";
 
-import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
-import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
-import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { PasswordGenerationService } from "@/jslib/common/src/abstractions/passwordGeneration.service";
-import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { PolicyService } from "@/jslib/common/src/abstractions/policy.service";
-import { StateService } from "@/jslib/common/src/abstractions/state.service";
-import { TwoFactorService } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
 import { Response } from "@/jslib/node/src/cli/models/response";
 import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
 
 export class LoginCommand {
-  protected validatedParams: () => Promise<any>;
-  protected success: () => Promise<MessageResponse>;
-  protected logout: () => Promise<void>;
-  protected canInteract: boolean;
-  protected clientId: string;
-  protected clientSecret: string;
-  protected email: string;
+  private canInteract: boolean;
+  private clientSecret: string;
 
-  constructor(
-    protected authService: AuthService,
-    protected apiService: ApiService,
-    protected i18nService: I18nService,
-    protected environmentService: EnvironmentService,
-    protected passwordGenerationService: PasswordGenerationService,
-    protected cryptoFunctionService: CryptoFunctionService,
-    protected platformUtilsService: PlatformUtilsService,
-    protected stateService: StateService,
-    protected cryptoService: CryptoService,
-    protected policyService: PolicyService,
-    protected twoFactorService: TwoFactorService,
-    clientId: string,
-  ) {
-    this.clientId = clientId;
-  }
+  constructor(private authService: AuthService) {}
 
   async run(email: string, password: string, options: program.OptionValues) {
     this.canInteract = process.env.BW_NOINTERACTION !== "true";
@@ -66,13 +36,8 @@ export class LoginCommand {
   }
 
   private async handleSuccessResponse(): Promise<Response> {
-    if (this.success != null) {
-      const res = await this.success();
-      return Response.success(res);
-    } else {
-      const res = new MessageResponse("You are logged in!", null);
-      return Response.success(res);
-    }
+    const res = new MessageResponse("You are logged in!", null);
+    return Response.success(res);
   }
 
   private async apiClientId(): Promise<string> {

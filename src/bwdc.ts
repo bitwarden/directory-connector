@@ -14,8 +14,6 @@ import { EnvironmentService } from "@/jslib/common/src/services/environment.serv
 import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.service";
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
-import { PasswordGenerationService } from "@/jslib/common/src/services/passwordGeneration.service";
-import { PolicyService } from "@/jslib/common/src/services/policy.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { CliPlatformUtilsService } from "@/jslib/node/src/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "@/jslib/node/src/cli/services/consoleLog.service";
@@ -39,6 +37,8 @@ const packageJson = require("../package.json");
 export class Main {
   dataFilePath: string;
   logService: ConsoleLogService;
+  program: Program;
+
   messagingService: NoopMessagingService;
   storageService: LowdbStorageService;
   secureStorageService: StorageServiceAbstraction;
@@ -53,10 +53,7 @@ export class Main {
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
   syncService: SyncService;
-  passwordGenerationService: PasswordGenerationService;
-  policyService: PolicyService;
   keyConnectorService: KeyConnectorService;
-  program: Program;
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   organizationService: OrganizationService;
@@ -184,18 +181,6 @@ export class Main {
       this.messagingService,
       this.i18nService,
       this.environmentService,
-      this.stateService,
-    );
-
-    this.policyService = new PolicyService(
-      this.stateService,
-      this.organizationService,
-      this.apiService,
-    );
-
-    this.passwordGenerationService = new PasswordGenerationService(
-      this.cryptoService,
-      this.policyService,
       this.stateService,
     );
 
