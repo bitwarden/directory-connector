@@ -33,13 +33,13 @@ describe("LoginCommand", () => {
     loginCommand = new LoginCommand(authService);
   });
 
-  it("works with supplied api key", async () => {
+  it("uses client id and secret stored in environment variables", async () => {
     process.env.BW_CLIENTID = clientId;
     process.env.BW_CLIENTSECRET = clientSecret;
 
     authService.logIn.mockResolvedValue(new AuthResult()); // logging in with api key does not set any flag on the authResult
 
-    const result = await loginCommand.run(null, null, { apikey: true });
+    const result = await loginCommand.run();
 
     expect(authService.logIn).toHaveBeenCalledWith(new ApiLogInCredentials(clientId, clientSecret));
     expect(result).toMatchObject({
@@ -50,10 +50,10 @@ describe("LoginCommand", () => {
     });
   });
 
-  it("works with prompted api key", async () => {
+  it("uses client id and secret prompted from the user", async () => {
     authService.logIn.mockResolvedValue(new AuthResult()); // logging in with api key does not set any flag on the authResult
 
-    const result = await loginCommand.run(null, null, { apikey: true });
+    const result = await loginCommand.run();
 
     expect(authService.logIn).toHaveBeenCalledWith(new ApiLogInCredentials(clientId, clientSecret));
     expect(result).toMatchObject({

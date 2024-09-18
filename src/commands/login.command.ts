@@ -1,4 +1,3 @@
-import * as program from "commander";
 import * as inquirer from "inquirer";
 
 import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
@@ -6,38 +5,34 @@ import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCrede
 import { Response } from "@/jslib/node/src/cli/models/response";
 import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
 
+import { Utils } from "../../jslib/common/src/misc/utils";
+
 export class LoginCommand {
   private canInteract: boolean;
-  private clientSecret: string;
 
   constructor(private authService: AuthService) {}
 
-  async run(email: string, password: string, options: program.OptionValues) {
+  async run() {
     this.canInteract = process.env.BW_NOINTERACTION !== "true";
 
-    let clientId: string = null;
-    let clientSecret: string = null;
+    const { clientId, clientSecret } = await this.apiIdentifiers();
 
-    if (options.apikey != null) {
-      const apiIdentifiers = await this.apiIdentifiers();
-      clientId = apiIdentifiers.clientId;
-      clientSecret = apiIdentifiers.clientSecret;
+    if (Utils.isNullOrWhitespace(clientId)) {
+      return Response.error("Client ID is required.");
+    }
+
+    if (Utils.isNullOrWhitespace(clientSecret)) {
+      return Response.error("Client Secret is required.");
     }
 
     try {
-      if (clientId != null && clientSecret != null) {
-        await this.authService.logIn(new ApiLogInCredentials(clientId, clientSecret));
-      }
+      await this.authService.logIn(new ApiLogInCredentials(clientId, clientSecret));
 
-      return await this.handleSuccessResponse();
+      const res = new MessageResponse("You are logged in!", null);
+      return Response.success(res);
     } catch (e) {
       return Response.error(e);
     }
-  }
-
-  private async handleSuccessResponse(): Promise<Response> {
-    const res = new MessageResponse("You are logged in!", null);
-    return Response.success(res);
   }
 
   private async apiClientId(): Promise<string> {
@@ -64,19 +59,17 @@ export class LoginCommand {
     return clientId;
   }
 
-  private async apiClientSecret(isAdditionalAuthentication = false): Promise<string> {
-    const additionalAuthenticationMessage = "Additional authentication required.\nAPI key ";
+  private async apiClientSecret(): Promise<string> {
     let clientSecret: string = null;
 
-    const storedClientSecret: string = this.clientSecret || process.env.BW_CLIENTSECRET;
+    const storedClientSecret = process.env.BW_CLIENTSECRET;
     if (this.canInteract && storedClientSecret == null) {
       const answer: inquirer.Answers = await inquirer.createPromptModule({
         output: process.stderr,
       })({
         type: "input",
         name: "clientSecret",
-        message:
-          (isAdditionalAuthentication ? additionalAuthenticationMessage : "") + "client_secret:",
+        message: "client_secret:",
       });
       clientSecret = answer.clientSecret;
     } else {

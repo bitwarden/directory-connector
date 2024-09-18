@@ -101,8 +101,7 @@ export class Program extends BaseProgram {
           process.env.BW_CLIENTSECRET = clientSecret;
         }
 
-        options = Object.assign(options ?? {}, { apikey: true }); // force apikey use
-        const response = await command.run(null, null, options);
+        const response = await command.run();
         this.processResponse(response);
       });
 
