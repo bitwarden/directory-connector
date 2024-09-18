@@ -2,7 +2,6 @@ import { Arg, Substitute, SubstituteOf } from "@fluffy-spoon/substitute";
 
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
-import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
 import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
@@ -22,6 +21,8 @@ import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identit
 import { IdentityCaptchaResponse } from "@/jslib/common/src/models/response/identityCaptchaResponse";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 import { IdentityTwoFactorResponse } from "@/jslib/common/src/models/response/identityTwoFactorResponse";
+
+import { AuthService } from "../../../../../src/abstractions/auth.service";
 
 const email = "hello@world.com";
 const masterPassword = "password";

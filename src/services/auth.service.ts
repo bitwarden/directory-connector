@@ -1,9 +1,6 @@
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
-import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { KeyConnectorService } from "@/jslib/common/src/abstractions/keyConnector.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
@@ -11,41 +8,22 @@ import { TokenService } from "@/jslib/common/src/abstractions/token.service";
 import { TwoFactorService } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { AuthResult } from "@/jslib/common/src/models/domain/authResult";
 import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
-import { AuthService as AuthServiceBase } from "@/jslib/common/src/services/auth.service";
 
 import { StateService } from "../abstractions/state.service";
 import { OrganizationLogInStrategy } from "../misc/logInStrategies/organizationLogIn.strategy";
 
-export class AuthService extends AuthServiceBase {
+export class AuthService {
   constructor(
-    cryptoService: CryptoService,
-    apiService: ApiService,
-    tokenService: TokenService,
-    appIdService: AppIdService,
-    platformUtilsService: PlatformUtilsService,
-    messagingService: MessagingService,
-    logService: LogService,
-    keyConnectorService: KeyConnectorService,
-    environmentService: EnvironmentService,
-    stateService: StateService,
-    twoFactorService: TwoFactorService,
-    i18nService: I18nService,
-  ) {
-    super(
-      cryptoService,
-      apiService,
-      tokenService,
-      appIdService,
-      platformUtilsService,
-      messagingService,
-      logService,
-      keyConnectorService,
-      environmentService,
-      stateService,
-      twoFactorService,
-      i18nService,
-    );
-  }
+    private cryptoService: CryptoService,
+    private apiService: ApiService,
+    private tokenService: TokenService,
+    private appIdService: AppIdService,
+    private platformUtilsService: PlatformUtilsService,
+    private messagingService: MessagingService,
+    private logService: LogService,
+    private stateService: StateService,
+    private twoFactorService: TwoFactorService,
+  ) {}
 
   async logIn(credentials: ApiLogInCredentials): Promise<AuthResult> {
     const strategy = new OrganizationLogInStrategy(
@@ -61,5 +39,10 @@ export class AuthService extends AuthServiceBase {
     );
 
     return strategy.logIn(credentials);
+  }
+
+  logOut(callback: () => void) {
+    callback();
+    this.messagingService.send("loggedOut");
   }
 }

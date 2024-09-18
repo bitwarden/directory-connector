@@ -167,11 +167,8 @@ export class Main {
       this.platformUtilsService,
       this.messagingService,
       this.logService,
-      this.keyConnectorService,
-      this.environmentService,
       this.stateService,
       this.twoFactorService,
-      this.i18nService,
     );
 
     this.syncService = new SyncService(

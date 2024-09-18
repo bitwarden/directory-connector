@@ -5,7 +5,6 @@ import { Command, OptionValues } from "commander";
 
 import { Utils } from "@/jslib/common/src/misc/utils";
 import { BaseProgram } from "@/jslib/node/src/cli/baseProgram";
-import { LogoutCommand } from "@/jslib/node/src/cli/commands/logout.command";
 import { UpdateCommand } from "@/jslib/node/src/cli/commands/update.command";
 import { Response } from "@/jslib/node/src/cli/models/response";
 import { StringResponse } from "@/jslib/node/src/cli/models/response/stringResponse";
@@ -15,6 +14,7 @@ import { ClearCacheCommand } from "./commands/clearCache.command";
 import { ConfigCommand } from "./commands/config.command";
 import { LastSyncCommand } from "./commands/lastSync.command";
 import { LoginCommand } from "./commands/login.command";
+import { LogoutCommand } from "./commands/logout.command";
 import { SyncCommand } from "./commands/sync.command";
 import { TestCommand } from "./commands/test.command";
 
@@ -118,7 +118,6 @@ export class Program extends BaseProgram {
         await this.exitIfNotAuthed();
         const command = new LogoutCommand(
           this.main.authService,
-          this.main.i18nService,
           async () => await this.main.logout(),
         );
         const response = await command.run();

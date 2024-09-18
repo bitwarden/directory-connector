@@ -2,7 +2,6 @@ import { LOCALE_ID, NgModule } from "@angular/core";
 
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
-import { AuthService as AuthServiceAbstraction } from "@/jslib/common/src/abstractions/auth.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
 import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/abstractions/crypto.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
@@ -23,7 +22,6 @@ import { Account } from "@/jslib/common/src/models/domain/account";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { AuthService } from "@/jslib/common/src/services/auth.service";
 import { ConsoleLogService } from "@/jslib/common/src/services/consoleLog.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
@@ -60,24 +58,6 @@ import { ValidationService } from "./validation.service";
       provide: AppIdServiceAbstraction,
       useClass: AppIdService,
       deps: [StorageServiceAbstraction],
-    }),
-    safeProvider({
-      provide: AuthServiceAbstraction,
-      useClass: AuthService,
-      deps: [
-        CryptoServiceAbstraction,
-        ApiServiceAbstraction,
-        TokenServiceAbstraction,
-        AppIdServiceAbstraction,
-        PlatformUtilsServiceAbstraction,
-        MessagingServiceAbstraction,
-        LogService,
-        KeyConnectorServiceAbstraction,
-        EnvironmentServiceAbstraction,
-        StateServiceAbstraction,
-        TwoFactorServiceAbstraction,
-        I18nServiceAbstraction,
-      ],
     }),
     safeProvider({ provide: LogService, useFactory: () => new ConsoleLogService(false), deps: [] }),
     safeProvider({
