@@ -14,7 +14,6 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib
 import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abstractions/token.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
@@ -31,7 +30,6 @@ import { StateService as StateServiceAbstraction } from "../../abstractions/stat
 import { Account } from "../../models/account";
 import { AuthService } from "../../services/auth.service";
 import { I18nService } from "../../services/i18n.service";
-import { NoopTwoFactorService } from "../../services/noop/noopTwoFactor.service";
 import { StateService } from "../../services/state.service";
 import { StateMigrationService } from "../../services/stateMigration.service";
 import { SyncService } from "../../services/sync.service";
@@ -160,12 +158,10 @@ export function initFactory(
       useClass: AuthService,
       deps: [
         ApiServiceAbstraction,
-        TokenServiceAbstraction,
         AppIdServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         MessagingServiceAbstraction,
         StateServiceAbstraction,
-        TwoFactorServiceAbstraction,
       ],
     }),
     safeProvider({
@@ -218,11 +214,6 @@ export function initFactory(
         LogServiceAbstraction,
         StateMigrationServiceAbstraction,
       ],
-    }),
-    safeProvider({
-      provide: TwoFactorServiceAbstraction,
-      useClass: NoopTwoFactorService,
-      deps: [],
     }),
   ] satisfies SafeProvider[],
 })

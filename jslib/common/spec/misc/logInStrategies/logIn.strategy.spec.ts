@@ -4,8 +4,6 @@ import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { StateService } from "@/jslib/common/src/abstractions/state.service";
-import { TokenService } from "@/jslib/common/src/abstractions/token.service";
-import { TwoFactorService } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
 import {
   AccountKeys,
@@ -39,33 +37,27 @@ export function identityTokenResponseFactory() {
 
 describe("LogInStrategy", () => {
   let apiService: SubstituteOf<ApiService>;
-  let tokenService: SubstituteOf<TokenService>;
   let appIdService: SubstituteOf<AppIdService>;
   let platformUtilsService: SubstituteOf<PlatformUtilsService>;
   let stateService: SubstituteOf<StateService>;
-  let twoFactorService: SubstituteOf<TwoFactorService>;
 
   let loginStrategy: LogInStrategy;
   let credentials: ApiLogInCredentials;
 
   beforeEach(async () => {
     apiService = Substitute.for<ApiService>();
-    tokenService = Substitute.for<TokenService>();
     appIdService = Substitute.for<AppIdService>();
     platformUtilsService = Substitute.for<PlatformUtilsService>();
     stateService = Substitute.for<StateService>();
-    twoFactorService = Substitute.for<TwoFactorService>();
 
     appIdService.getAppId().resolves(deviceId);
 
     // The base class is abstract so we test it via PasswordLogInStrategy
     loginStrategy = new LogInStrategy(
       apiService,
-      tokenService,
       appIdService,
       platformUtilsService,
       stateService,
-      twoFactorService,
     );
     credentials = new ApiLogInCredentials(clientId, clientSecret);
   });

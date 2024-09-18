@@ -15,7 +15,6 @@ import { StateService as StateServiceAbstraction } from "@/jslib/common/src/abst
 import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abstractions/token.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { Account } from "@/jslib/common/src/models/domain/account";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
@@ -28,7 +27,6 @@ import { OrganizationService } from "@/jslib/common/src/services/organization.se
 import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
-import { TwoFactorService } from "@/jslib/common/src/services/twoFactor.service";
 
 import {
   SafeInjectionToken,
@@ -146,11 +144,6 @@ import { ValidationService } from "./validation.service";
       provide: OrganizationServiceAbstraction,
       useClass: OrganizationService,
       deps: [StateServiceAbstraction],
-    }),
-    safeProvider({
-      provide: TwoFactorServiceAbstraction,
-      useClass: TwoFactorService,
-      deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction],
     }),
   ] satisfies SafeProvider[],
 })

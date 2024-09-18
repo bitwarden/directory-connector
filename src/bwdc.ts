@@ -2,7 +2,6 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
@@ -25,7 +24,6 @@ import { AuthService } from "./services/auth.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
-import { NoopTwoFactorService } from "./services/noop/noopTwoFactor.service";
 import { StateService } from "./services/state.service";
 import { StateMigrationService } from "./services/stateMigration.service";
 import { SyncService } from "./services/sync.service";
@@ -55,7 +53,6 @@ export class Main {
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   organizationService: OrganizationService;
-  twoFactorService: TwoFactorServiceAbstraction;
 
   constructor() {
     const applicationName = "Bitwarden Directory Connector";
@@ -145,16 +142,12 @@ export class Main {
 
     this.organizationService = new OrganizationService(this.stateService);
 
-    this.twoFactorService = new NoopTwoFactorService();
-
     this.authService = new AuthService(
       this.apiService,
-      this.tokenService,
       this.appIdService,
       this.platformUtilsService,
       this.messagingService,
       this.stateService,
-      this.twoFactorService,
     );
 
     this.syncService = new SyncService(
