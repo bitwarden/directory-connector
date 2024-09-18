@@ -148,13 +148,11 @@ export class Main {
     this.twoFactorService = new NoopTwoFactorService();
 
     this.authService = new AuthService(
-      this.cryptoService,
       this.apiService,
       this.tokenService,
       this.appIdService,
       this.platformUtilsService,
       this.messagingService,
-      this.logService,
       this.stateService,
       this.twoFactorService,
     );

@@ -159,13 +159,11 @@ export function initFactory(
       provide: AuthServiceAbstraction,
       useClass: AuthService,
       deps: [
-        CryptoServiceAbstraction,
         ApiServiceAbstraction,
         TokenServiceAbstraction,
         AppIdServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         MessagingServiceAbstraction,
-        LogServiceAbstraction,
         StateServiceAbstraction,
         TwoFactorServiceAbstraction,
       ],

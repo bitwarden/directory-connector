@@ -1,8 +1,9 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
 import { AuthResult } from "@/jslib/common/src/models/domain/authResult";
 import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
+
+import { AuthService } from "../abstractions/auth.service";
 
 import { LoginCommand } from "./login.command";
 

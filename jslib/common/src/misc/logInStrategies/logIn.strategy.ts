@@ -1,54 +1,47 @@
+import { Account, DirectoryConfigurations, DirectorySettings } from "@/src/models/account";
+
 import { ApiService } from "../../abstractions/api.service";
 import { AppIdService } from "../../abstractions/appId.service";
-import { CryptoService } from "../../abstractions/crypto.service";
-import { LogService } from "../../abstractions/log.service";
-import { MessagingService } from "../../abstractions/messaging.service";
 import { PlatformUtilsService } from "../../abstractions/platformUtils.service";
 import { StateService } from "../../abstractions/state.service";
 import { TokenService } from "../../abstractions/token.service";
 import { TwoFactorService } from "../../abstractions/twoFactor.service";
 import { TwoFactorProviderType } from "../../enums/twoFactorProviderType";
-import { Account, AccountProfile, AccountTokens } from "../../models/domain/account";
+import { AccountKeys, AccountProfile, AccountTokens } from "../../models/domain/account";
 import { AuthResult } from "../../models/domain/authResult";
-import {
-  ApiLogInCredentials,
-  PasswordLogInCredentials,
-  SsoLogInCredentials,
-} from "../../models/domain/logInCredentials";
+import { ApiLogInCredentials } from "../../models/domain/logInCredentials";
 import { DeviceRequest } from "../../models/request/deviceRequest";
 import { ApiTokenRequest } from "../../models/request/identityToken/apiTokenRequest";
-import { PasswordTokenRequest } from "../../models/request/identityToken/passwordTokenRequest";
-import { SsoTokenRequest } from "../../models/request/identityToken/ssoTokenRequest";
 import { TokenRequestTwoFactor } from "../../models/request/identityToken/tokenRequestTwoFactor";
-import { KeysRequest } from "../../models/request/keysRequest";
 import { IdentityCaptchaResponse } from "../../models/response/identityCaptchaResponse";
 import { IdentityTokenResponse } from "../../models/response/identityTokenResponse";
 import { IdentityTwoFactorResponse } from "../../models/response/identityTwoFactorResponse";
 
-export abstract class LogInStrategy {
-  protected abstract tokenRequest: ApiTokenRequest | PasswordTokenRequest | SsoTokenRequest;
+export class LogInStrategy {
+  protected tokenRequest: ApiTokenRequest;
   protected captchaBypassToken: string = null;
 
   constructor(
-    protected cryptoService: CryptoService,
-    protected apiService: ApiService,
-    protected tokenService: TokenService,
-    protected appIdService: AppIdService,
-    protected platformUtilsService: PlatformUtilsService,
-    protected messagingService: MessagingService,
-    protected logService: LogService,
-    protected stateService: StateService,
-    protected twoFactorService: TwoFactorService,
+    private apiService: ApiService,
+    private tokenService: TokenService,
+    private appIdService: AppIdService,
+    private platformUtilsService: PlatformUtilsService,
+    private stateService: StateService,
+    private twoFactorService: TwoFactorService,
   ) {}
 
-  abstract logIn(
-    credentials: ApiLogInCredentials | PasswordLogInCredentials | SsoLogInCredentials,
-  ): Promise<AuthResult>;
+  async logIn(credentials: ApiLogInCredentials) {
+    this.tokenRequest = new ApiTokenRequest(
+      credentials.clientId,
+      credentials.clientSecret,
+      await this.buildTwoFactor(),
+      await this.buildDeviceRequest(),
+    );
 
-  async logInTwoFactor(
-    twoFactor: TokenRequestTwoFactor,
-    captchaResponse: string = null,
-  ): Promise<AuthResult> {
+    return this.startLogIn();
+  }
+
+  async logInTwoFactor(twoFactor: TokenRequestTwoFactor): Promise<AuthResult> {
     this.tokenRequest.setTwoFactor(twoFactor);
     return this.startLogIn();
   }
@@ -93,17 +86,18 @@ export abstract class LogInStrategy {
   }
 
   protected async saveAccountInformation(tokenResponse: IdentityTokenResponse) {
-    const accountInformation = await this.tokenService.decodeToken(tokenResponse.accessToken);
+    const clientId = this.tokenRequest.clientId;
+    const entityId = clientId.split("organization.")[1];
+    const clientSecret = this.tokenRequest.clientSecret;
+
     await this.stateService.addAccount(
       new Account({
         profile: {
           ...new AccountProfile(),
           ...{
-            userId: accountInformation.sub,
-            email: accountInformation.email,
-            hasPremiumPersonally: accountInformation.premium,
-            kdfIterations: tokenResponse.kdfIterations,
-            kdfType: tokenResponse.kdf,
+            userId: entityId,
+            apiKeyClientId: clientId,
+            entityId: entityId,
           },
         },
         tokens: {
@@ -113,35 +107,21 @@ export abstract class LogInStrategy {
             refreshToken: tokenResponse.refreshToken,
           },
         },
+        keys: {
+          ...new AccountKeys(),
+          ...{
+            apiKeyClientSecret: clientSecret,
+          },
+        },
+        directorySettings: new DirectorySettings(),
+        directoryConfigurations: new DirectoryConfigurations(),
       }),
     );
   }
 
   protected async processTokenResponse(response: IdentityTokenResponse): Promise<AuthResult> {
-    const result = new AuthResult();
-    result.resetMasterPassword = response.resetMasterPassword;
-    result.forcePasswordReset = response.forcePasswordReset;
-
     await this.saveAccountInformation(response);
-
-    if (response.twoFactorToken != null) {
-      await this.tokenService.setTwoFactorToken(response);
-    }
-
-    const newSsoUser = response.key == null;
-    if (!newSsoUser) {
-      await this.cryptoService.setEncKey(response.key);
-      await this.cryptoService.setEncPrivateKey(
-        response.privateKey ?? (await this.createKeyPairForOldAccount()),
-      );
-    }
-
-    await this.onSuccessfulLogin(response);
-
-    await this.stateService.setBiometricLocked(false);
-    this.messagingService.send("loggedIn");
-
-    return result;
+    return new AuthResult();
   }
 
   private async processTwoFactorResponse(response: IdentityTwoFactorResponse): Promise<AuthResult> {
@@ -156,15 +136,5 @@ export abstract class LogInStrategy {
     const result = new AuthResult();
     result.captchaSiteKey = response.siteKey;
     return result;
-  }
-
-  private async createKeyPairForOldAccount() {
-    try {
-      const [publicKey, privateKey] = await this.cryptoService.makeKeyPair();
-      await this.apiService.postAccountKeys(new KeysRequest(publicKey, privateKey.encryptedString));
-      return privateKey.encryptedString;
-    } catch (e) {
-      this.logService.error(e);
-    }
   }
 }
