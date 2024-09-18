@@ -7,7 +7,6 @@ import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
-import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
 
 import { AuthService } from "../../abstractions/auth.service";
 import { StateService } from "../../abstractions/state.service";
@@ -81,9 +80,10 @@ export class ApiKeyComponent {
     }
 
     try {
-      this.formPromise = this.authService.logIn(
-        new ApiLogInCredentials(this.clientId, this.clientSecret),
-      );
+      this.formPromise = this.authService.logIn({
+        clientId: this.clientId,
+        clientSecret: this.clientSecret,
+      });
       await this.formPromise;
       const organizationId = await this.stateService.getEntityId();
       await this.stateService.setOrganizationId(organizationId);

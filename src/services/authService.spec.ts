@@ -9,7 +9,6 @@ import {
   AccountProfile,
   AccountTokens,
 } from "@/jslib/common/src/models/domain/account";
-import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
 import { MessagingService } from "../../jslib/common/src/abstractions/messaging.service";
@@ -43,7 +42,6 @@ describe("AuthService", () => {
   let stateService: SubstituteOf<StateService>;
 
   let authService: AuthService;
-  let credentials: ApiLogInCredentials;
 
   beforeEach(async () => {
     apiService = Substitute.for();
@@ -61,13 +59,12 @@ describe("AuthService", () => {
       messagingService,
       stateService,
     );
-    credentials = new ApiLogInCredentials(clientId, clientSecret);
   });
 
   it("sets the local environment after a successful login", async () => {
     apiService.postIdentityToken(Arg.any()).resolves(identityTokenResponseFactory());
 
-    await authService.logIn(credentials);
+    await authService.logIn({ clientId, clientSecret });
 
     stateService.received(1).addAccount(
       new Account({

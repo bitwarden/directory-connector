@@ -1,6 +1,5 @@
 import * as inquirer from "inquirer";
 
-import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
 import { Response } from "@/jslib/node/src/cli/models/response";
 import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
 
@@ -26,7 +25,7 @@ export class LoginCommand {
     }
 
     try {
-      await this.authService.logIn(new ApiLogInCredentials(clientId, clientSecret));
+      await this.authService.logIn({ clientId, clientSecret });
 
       const res = new MessageResponse("You are logged in!", null);
       return Response.success(res);

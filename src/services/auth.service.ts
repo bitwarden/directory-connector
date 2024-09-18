@@ -7,7 +7,6 @@ import {
   AccountProfile,
   AccountTokens,
 } from "@/jslib/common/src/models/domain/account";
-import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
 import { DeviceRequest } from "@/jslib/common/src/models/request/deviceRequest";
 import { ApiTokenRequest } from "@/jslib/common/src/models/request/identityToken/apiTokenRequest";
 import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
@@ -25,7 +24,7 @@ export class AuthService {
     private stateService: StateService,
   ) {}
 
-  async logIn(credentials: ApiLogInCredentials) {
+  async logIn(credentials: { clientId: string; clientSecret: string }) {
     const tokenRequest = new ApiTokenRequest(
       credentials.clientId,
       credentials.clientSecret,

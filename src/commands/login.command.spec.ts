@@ -1,7 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
-
 import { AuthService } from "../abstractions/auth.service";
 
 import { LoginCommand } from "./login.command";
@@ -39,7 +37,7 @@ describe("LoginCommand", () => {
 
     const result = await loginCommand.run();
 
-    expect(authService.logIn).toHaveBeenCalledWith(new ApiLogInCredentials(clientId, clientSecret));
+    expect(authService.logIn).toHaveBeenCalledWith({ clientId, clientSecret });
     expect(result).toMatchObject({
       data: {
         title: "You are logged in!",
@@ -51,7 +49,7 @@ describe("LoginCommand", () => {
   it("uses client id and secret prompted from the user", async () => {
     const result = await loginCommand.run();
 
-    expect(authService.logIn).toHaveBeenCalledWith(new ApiLogInCredentials(clientId, clientSecret));
+    expect(authService.logIn).toHaveBeenCalledWith({ clientId, clientSecret });
     expect(result).toMatchObject({
       data: {
         title: "You are logged in!",
