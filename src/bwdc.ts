@@ -11,7 +11,6 @@ import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
-import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.service";
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
 import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
@@ -53,7 +52,6 @@ export class Main {
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
   syncService: SyncService;
-  keyConnectorService: KeyConnectorService;
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   organizationService: OrganizationService;
@@ -146,16 +144,6 @@ export class Main {
     this.containerService = new ContainerService(this.cryptoService);
 
     this.organizationService = new OrganizationService(this.stateService);
-
-    this.keyConnectorService = new KeyConnectorService(
-      this.stateService,
-      this.cryptoService,
-      this.apiService,
-      this.tokenService,
-      this.logService,
-      this.organizationService,
-      this.cryptoFunctionService,
-    );
 
     this.twoFactorService = new NoopTwoFactorService();
 
