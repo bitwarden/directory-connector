@@ -1,8 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
-import { AuthResult } from "@/jslib/common/src/models/domain/authResult";
-import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
+import { AuthService } from "../abstractions/auth.service";
 
 import { LoginCommand } from "./login.command";
 
@@ -37,11 +35,9 @@ describe("LoginCommand", () => {
     process.env.BW_CLIENTID = clientId;
     process.env.BW_CLIENTSECRET = clientSecret;
 
-    authService.logIn.mockResolvedValue(new AuthResult()); // logging in with api key does not set any flag on the authResult
-
     const result = await loginCommand.run();
 
-    expect(authService.logIn).toHaveBeenCalledWith(new ApiLogInCredentials(clientId, clientSecret));
+    expect(authService.logIn).toHaveBeenCalledWith({ clientId, clientSecret });
     expect(result).toMatchObject({
       data: {
         title: "You are logged in!",
@@ -51,11 +47,9 @@ describe("LoginCommand", () => {
   });
 
   it("uses client id and secret prompted from the user", async () => {
-    authService.logIn.mockResolvedValue(new AuthResult()); // logging in with api key does not set any flag on the authResult
-
     const result = await loginCommand.run();
 
-    expect(authService.logIn).toHaveBeenCalledWith(new ApiLogInCredentials(clientId, clientSecret));
+    expect(authService.logIn).toHaveBeenCalledWith({ clientId, clientSecret });
     expect(result).toMatchObject({
       data: {
         title: "You are logged in!",

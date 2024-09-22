@@ -1,65 +1,91 @@
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
-import { CryptoService } from "@/jslib/common/src/abstractions/crypto.service";
-import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { KeyConnectorService } from "@/jslib/common/src/abstractions/keyConnector.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { TokenService } from "@/jslib/common/src/abstractions/token.service";
-import { TwoFactorService } from "@/jslib/common/src/abstractions/twoFactor.service";
-import { AuthResult } from "@/jslib/common/src/models/domain/authResult";
-import { ApiLogInCredentials } from "@/jslib/common/src/models/domain/logInCredentials";
-import { AuthService as AuthServiceBase } from "@/jslib/common/src/services/auth.service";
+import {
+  AccountKeys,
+  AccountProfile,
+  AccountTokens,
+} from "@/jslib/common/src/models/domain/account";
+import { DeviceRequest } from "@/jslib/common/src/models/request/deviceRequest";
+import { ApiTokenRequest } from "@/jslib/common/src/models/request/identityToken/apiTokenRequest";
+import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
+import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
 import { StateService } from "../abstractions/state.service";
-import { OrganizationLogInStrategy } from "../misc/logInStrategies/organizationLogIn.strategy";
+import { Account, DirectoryConfigurations, DirectorySettings } from "../models/account";
 
-export class AuthService extends AuthServiceBase {
+export class AuthService {
   constructor(
-    cryptoService: CryptoService,
-    apiService: ApiService,
-    tokenService: TokenService,
-    appIdService: AppIdService,
-    platformUtilsService: PlatformUtilsService,
-    messagingService: MessagingService,
-    logService: LogService,
-    keyConnectorService: KeyConnectorService,
-    environmentService: EnvironmentService,
-    stateService: StateService,
-    twoFactorService: TwoFactorService,
-    i18nService: I18nService,
-  ) {
-    super(
-      cryptoService,
-      apiService,
-      tokenService,
-      appIdService,
-      platformUtilsService,
-      messagingService,
-      logService,
-      keyConnectorService,
-      environmentService,
-      stateService,
-      twoFactorService,
-      i18nService,
+    private apiService: ApiService,
+    private appIdService: AppIdService,
+    private platformUtilsService: PlatformUtilsService,
+    private messagingService: MessagingService,
+    private stateService: StateService,
+  ) {}
+
+  async logIn(credentials: { clientId: string; clientSecret: string }) {
+    const tokenRequest = new ApiTokenRequest(
+      credentials.clientId,
+      credentials.clientSecret,
+      new TokenRequestTwoFactor(), // unused
+      await this.buildDeviceRequest(),
     );
+
+    const response = await this.apiService.postIdentityToken(tokenRequest);
+
+    if (response instanceof IdentityTokenResponse) {
+      await this.saveAccountInformation(tokenRequest, response);
+      return;
+    }
+
+    throw new Error("Invalid response object.");
   }
 
-  async logIn(credentials: ApiLogInCredentials): Promise<AuthResult> {
-    const strategy = new OrganizationLogInStrategy(
-      this.cryptoService,
-      this.apiService,
-      this.tokenService,
-      this.appIdService,
-      this.platformUtilsService,
-      this.messagingService,
-      this.logService,
-      this.stateService,
-      this.twoFactorService,
-    );
+  logOut(callback: () => void) {
+    callback();
+    this.messagingService.send("loggedOut");
+  }
 
-    return strategy.logIn(credentials);
+  private async buildDeviceRequest() {
+    const appId = await this.appIdService.getAppId();
+    return new DeviceRequest(appId, this.platformUtilsService);
+  }
+
+  private async saveAccountInformation(
+    tokenRequest: ApiTokenRequest,
+    tokenResponse: IdentityTokenResponse,
+  ) {
+    const clientId = tokenRequest.clientId;
+    const entityId = clientId.split("organization.")[1];
+    const clientSecret = tokenRequest.clientSecret;
+
+    await this.stateService.addAccount(
+      new Account({
+        profile: {
+          ...new AccountProfile(),
+          ...{
+            userId: entityId,
+            apiKeyClientId: clientId,
+            entityId: entityId,
+          },
+        },
+        tokens: {
+          ...new AccountTokens(),
+          ...{
+            accessToken: tokenResponse.accessToken,
+            refreshToken: tokenResponse.refreshToken,
+          },
+        },
+        keys: {
+          ...new AccountKeys(),
+          ...{
+            apiKeyClientSecret: clientSecret,
+          },
+        },
+        directorySettings: new DirectorySettings(),
+        directoryConfigurations: new DirectoryConfigurations(),
+      }),
+    );
   }
 }

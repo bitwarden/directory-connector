@@ -2,7 +2,6 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
@@ -11,9 +10,7 @@ import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
-import { KeyConnectorService } from "@/jslib/common/src/services/keyConnector.service";
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
-import { OrganizationService } from "@/jslib/common/src/services/organization.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { CliPlatformUtilsService } from "@/jslib/node/src/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "@/jslib/node/src/cli/services/consoleLog.service";
@@ -26,7 +23,6 @@ import { AuthService } from "./services/auth.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
-import { NoopTwoFactorService } from "./services/noop/noopTwoFactor.service";
 import { StateService } from "./services/state.service";
 import { StateMigrationService } from "./services/stateMigration.service";
 import { SyncService } from "./services/sync.service";
@@ -53,11 +49,8 @@ export class Main {
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
   syncService: SyncService;
-  keyConnectorService: KeyConnectorService;
   stateService: StateService;
   stateMigrationService: StateMigrationService;
-  organizationService: OrganizationService;
-  twoFactorService: TwoFactorServiceAbstraction;
 
   constructor() {
     const applicationName = "Bitwarden Directory Connector";
@@ -145,33 +138,12 @@ export class Main {
     );
     this.containerService = new ContainerService(this.cryptoService);
 
-    this.organizationService = new OrganizationService(this.stateService);
-
-    this.keyConnectorService = new KeyConnectorService(
-      this.stateService,
-      this.cryptoService,
-      this.apiService,
-      this.tokenService,
-      this.logService,
-      this.organizationService,
-      this.cryptoFunctionService,
-    );
-
-    this.twoFactorService = new NoopTwoFactorService();
-
     this.authService = new AuthService(
-      this.cryptoService,
       this.apiService,
-      this.tokenService,
       this.appIdService,
       this.platformUtilsService,
       this.messagingService,
-      this.logService,
-      this.keyConnectorService,
-      this.environmentService,
       this.stateService,
-      this.twoFactorService,
-      this.i18nService,
     );
 
     this.syncService = new SyncService(
