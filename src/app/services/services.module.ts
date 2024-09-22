@@ -3,20 +3,17 @@ import { APP_INITIALIZER, NgModule } from "@angular/core";
 import { JslibServicesModule } from "@/jslib/angular/src/services/jslib-services.module";
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
-import { AuthService as AuthServiceAbstraction } from "@/jslib/common/src/abstractions/auth.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
 import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/abstractions/crypto.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstractions/i18n.service";
-import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@/jslib/common/src/abstractions/keyConnector.service";
 import { LogService as LogServiceAbstraction } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abstractions/token.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "@/jslib/common/src/abstractions/twoFactor.service";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
@@ -28,11 +25,11 @@ import { ElectronRendererStorageService } from "@/jslib/electron/src/services/el
 import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 
+import { AuthService as AuthServiceAbstraction } from "../../abstractions/auth.service";
 import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
 import { Account } from "../../models/account";
 import { AuthService } from "../../services/auth.service";
 import { I18nService } from "../../services/i18n.service";
-import { NoopTwoFactorService } from "../../services/noop/noopTwoFactor.service";
 import { StateService } from "../../services/state.service";
 import { StateMigrationService } from "../../services/stateMigration.service";
 import { SyncService } from "../../services/sync.service";
@@ -160,18 +157,11 @@ export function initFactory(
       provide: AuthServiceAbstraction,
       useClass: AuthService,
       deps: [
-        CryptoServiceAbstraction,
         ApiServiceAbstraction,
-        TokenServiceAbstraction,
         AppIdServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         MessagingServiceAbstraction,
-        LogServiceAbstraction,
-        KeyConnectorServiceAbstraction,
-        EnvironmentServiceAbstraction,
         StateServiceAbstraction,
-        TwoFactorServiceAbstraction,
-        I18nServiceAbstraction,
       ],
     }),
     safeProvider({
@@ -224,11 +214,6 @@ export function initFactory(
         LogServiceAbstraction,
         StateMigrationServiceAbstraction,
       ],
-    }),
-    safeProvider({
-      provide: TwoFactorServiceAbstraction,
-      useClass: NoopTwoFactorService,
-      deps: [],
     }),
   ] satisfies SafeProvider[],
 })

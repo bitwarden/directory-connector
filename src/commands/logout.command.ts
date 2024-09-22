@@ -1,13 +1,12 @@
-import { AuthService } from "@/jslib/common/src/abstractions/auth.service";
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 
-import { Response } from "../models/response";
-import { MessageResponse } from "../models/response/messageResponse";
+import { Response } from "@/jslib/node/src/cli/models/response";
+import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
+
+import { AuthService } from "../abstractions/auth.service";
 
 export class LogoutCommand {
   constructor(
     private authService: AuthService,
-    private i18nService: I18nService,
     private logoutCallback: () => Promise<void>,
   ) {}
 
