@@ -6,7 +6,8 @@
     {
       "groupName": "gh minor",
       "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch"]
+      "matchUpdateTypes": ["minor", "patch"],
+      "reviewers": ["team:team-admin-console-dev"]
     }
   ]
 }
