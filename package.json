@@ -162,6 +162,7 @@
     "inquirer": "8.2.6",
     "keytar": "7.9.0",
     "ldapjs": "2.3.3",
+    "ldapts": "7.2.0",
     "lowdb": "1.0.0",
     "ngx-toastr": "16.2.0",
     "node-fetch": "2.7.0",
