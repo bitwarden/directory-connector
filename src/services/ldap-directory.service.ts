@@ -334,7 +334,7 @@ export class LdapDirectoryService implements IDirectoryService {
   private async search<T>(
     path: string,
     filter: string,
-    processEntry: (searchEntry: any) => T,
+    processEntry: (searchEntry: ldapts.Entry) => T,
     controls: ldapts.Control[] = [],
   ): Promise<T[]> {
     const options: ldapts.SearchOptions = {
@@ -357,46 +357,9 @@ export class LdapDirectoryService implements IDirectoryService {
       url: url.trim().toLowerCase(),
     };
 
-    const tlsOptions: tls.ConnectionOptions = {};
     if (this.dirConfig.ssl) {
-      if (this.dirConfig.sslAllowUnauthorized) {
-        tlsOptions.rejectUnauthorized = !this.dirConfig.sslAllowUnauthorized;
-      }
-      if (!this.dirConfig.startTls) {
-        if (
-          this.dirConfig.sslCaPath != null &&
-          this.dirConfig.sslCaPath !== "" &&
-          fs.existsSync(this.dirConfig.sslCaPath)
-        ) {
-          tlsOptions.ca = [fs.readFileSync(this.dirConfig.sslCaPath)];
-        }
-        if (
-          this.dirConfig.sslCertPath != null &&
-          this.dirConfig.sslCertPath !== "" &&
-          fs.existsSync(this.dirConfig.sslCertPath)
-        ) {
-          tlsOptions.cert = fs.readFileSync(this.dirConfig.sslCertPath);
-        }
-        if (
-          this.dirConfig.sslKeyPath != null &&
-          this.dirConfig.sslKeyPath !== "" &&
-          fs.existsSync(this.dirConfig.sslKeyPath)
-        ) {
-          tlsOptions.key = fs.readFileSync(this.dirConfig.sslKeyPath);
-        }
-      } else {
-        if (
-          this.dirConfig.tlsCaPath != null &&
-          this.dirConfig.tlsCaPath !== "" &&
-          fs.existsSync(this.dirConfig.tlsCaPath)
-        ) {
-          tlsOptions.ca = [fs.readFileSync(this.dirConfig.tlsCaPath)];
-        }
-      }
+      options.tlsOptions = this.buildTlsOptions();
     }
-
-    tlsOptions.checkServerIdentity = this.checkServerIdentityAltNames;
-    options.tlsOptions = tlsOptions;
 
     this.client = new ldapts.Client(options);
 
@@ -419,9 +382,52 @@ export class LdapDirectoryService implements IDirectoryService {
 
     try {
       await this.client.bind(user, pass);
-    } finally {
+    } catch {
       await this.client.unbind();
     }
+  }
+
+  private buildTlsOptions(): tls.ConnectionOptions {
+    const tlsOptions: tls.ConnectionOptions = {};
+
+    if (this.dirConfig.sslAllowUnauthorized) {
+      tlsOptions.rejectUnauthorized = !this.dirConfig.sslAllowUnauthorized;
+    }
+    if (!this.dirConfig.startTls) {
+      if (
+        this.dirConfig.sslCaPath != null &&
+        this.dirConfig.sslCaPath !== "" &&
+        fs.existsSync(this.dirConfig.sslCaPath)
+      ) {
+        tlsOptions.ca = [fs.readFileSync(this.dirConfig.sslCaPath)];
+      }
+      if (
+        this.dirConfig.sslCertPath != null &&
+        this.dirConfig.sslCertPath !== "" &&
+        fs.existsSync(this.dirConfig.sslCertPath)
+      ) {
+        tlsOptions.cert = fs.readFileSync(this.dirConfig.sslCertPath);
+      }
+      if (
+        this.dirConfig.sslKeyPath != null &&
+        this.dirConfig.sslKeyPath !== "" &&
+        fs.existsSync(this.dirConfig.sslKeyPath)
+      ) {
+        tlsOptions.key = fs.readFileSync(this.dirConfig.sslKeyPath);
+      }
+    } else {
+      if (
+        this.dirConfig.tlsCaPath != null &&
+        this.dirConfig.tlsCaPath !== "" &&
+        fs.existsSync(this.dirConfig.tlsCaPath)
+      ) {
+        tlsOptions.ca = [fs.readFileSync(this.dirConfig.tlsCaPath)];
+      }
+    }
+
+    tlsOptions.checkServerIdentity = this.checkServerIdentityAltNames;
+
+    return tlsOptions;
   }
 
   private bufToGuid(buf: Buffer) {
