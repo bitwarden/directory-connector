@@ -121,7 +121,7 @@ export class LdapDirectoryService implements IDirectoryService {
 
   private buildUser(searchEntry: any, deleted: boolean): UserEntry {
     const user = new UserEntry();
-    user.referenceId = searchEntry.objectName;
+    user.referenceId = searchEntry.dn;
     user.deleted = deleted;
 
     if (user.referenceId == null) {
@@ -237,8 +237,8 @@ export class LdapDirectoryService implements IDirectoryService {
 
   private getExternalId(searchEntry: any, referenceId: string) {
     const attrObj = this.getAttrObj(searchEntry, "objectGUID");
-    if (attrObj != null && attrObj._vals != null && attrObj._vals.length > 0) {
-      return this.bufToGuid(attrObj._vals[0]);
+    if (attrObj != null && attrObj.vals != null && attrObj.vals.length > 0) {
+      return this.bufToGuid(attrObj.vals[0]);
     } else {
       return referenceId;
     }
@@ -282,24 +282,20 @@ export class LdapDirectoryService implements IDirectoryService {
     return null;
   }
 
-  private getAttrObj(searchEntry: any, attr: string): any {
-    if (searchEntry == null || searchEntry.attributes == null) {
+  // Returns the key - value[] pair of an attribute
+  private getAttrObj(searchEntry: ldapts.Entry, attr: string): { type: string; vals: any[] } {
+    if (searchEntry == null || searchEntry[attr] == null) {
       return null;
     }
 
-    const attrs = searchEntry.attributes.filter((a: any) => a.type === attr);
-    if (
-      attrs == null ||
-      attrs.length === 0 ||
-      attrs[0].vals == null ||
-      attrs[0].vals.length === 0
-    ) {
-      return null;
-    }
-
-    return attrs[0];
+    // Hack to fit in with previous object type, this should be rewritten
+    return {
+      type: attr,
+      vals: [searchEntry[attr]],
+    };
   }
 
+  // Returns the value[] of an attribute
   private getAttrVals(searchEntry: any, attr: string): string[] {
     const obj = this.getAttrObj(searchEntry, attr);
     if (obj == null) {
@@ -308,6 +304,7 @@ export class LdapDirectoryService implements IDirectoryService {
     return obj.vals;
   }
 
+  // Returns the first value of an attribute, i.e. value[0]
   private getAttr(searchEntry: any, attr: string): string {
     const vals = this.getAttrVals(searchEntry, attr);
     if (vals == null) {
