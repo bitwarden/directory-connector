@@ -128,6 +128,13 @@ export class WindowMain {
       },
     });
 
+    // TODO: verify this is a reasonable fix
+    this.win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+      details.responseHeaders["Cross-Origin-Opener-Policy"] = ["same-origin"];
+      details.responseHeaders["Cross-Origin-Embedder-Policy"] = ["require-corp"];
+      callback({ responseHeaders: details.responseHeaders });
+    });
+
     if (this.windowStates[mainWindowSizeKey].isMaximized) {
       this.win.maximize();
     }
