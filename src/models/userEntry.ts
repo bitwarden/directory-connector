@@ -1,3 +1,5 @@
+import { Jsonify } from "type-fest";
+
 import { Entry } from "./entry";
 
 export class UserEntry extends Entry {
@@ -11,5 +13,17 @@ export class UserEntry extends Entry {
     }
 
     return this.email;
+  }
+
+  static fromJSON(data: Jsonify<UserEntry>) {
+    const result = new UserEntry();
+    result.referenceId = data.referenceId;
+    result.externalId = data.externalId;
+
+    result.email = data.email;
+    result.disabled = data.disabled;
+    result.deleted = data.deleted;
+
+    return result;
   }
 }
