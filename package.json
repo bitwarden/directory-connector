@@ -67,6 +67,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
+    "test:integration": "jest .integration.spec.ts",
+    "test:integration:watch": "jest .integration.spec.ts --watch",
     "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {

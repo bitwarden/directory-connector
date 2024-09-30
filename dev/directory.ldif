@@ -1,0 +1,359 @@
+version: 1
+
+dn: ou=Accounting,dc=bitwarden, dc=com
+changetype: add
+ou: Accounting
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Product Development,dc=bitwarden, dc=com
+changetype: add
+ou: Product Development
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+ou: Product Testing
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+ou: Human Resources
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+ou: Payroll
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+ou: Janitorial
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Management,dc=bitwarden, dc=com
+changetype: add
+ou: Management
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+ou: Administrative
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Peons,dc=bitwarden, dc=com
+changetype: add
+ou: Peons
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Planning,dc=bitwarden, dc=com
+changetype: add
+ou: Planning
+objectClass: top
+objectClass: organizationalUnit
+
+dn: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Roland Dyke
+sn: Dyke
+description: This is Roland Dyke's description
+facsimileTelephoneNumber: +1 804 674-5794
+l: San Francisco
+ou: Human Resources
+postalAddress: Human Resources$San Francisco
+telephoneNumber: +1 804 831-5121
+title: Supreme Human Resources Writer
+userPassword: Password1
+uid: DykeR
+givenName: Roland
+mail: DykeR@220af87272f04218bb8dd81d50fb19f5.bitwarden.com
+carLicense: 4CMGOJ
+departmentNumber: 2838
+employeeType: Contract
+homePhone: +1 804 936-4965
+initials: R. D.
+mobile: +1 804 592-3734
+pager: +1 804 285-2962
+roomNumber: 9890
+secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
+manager: cn=Linnell Kinstley,ou=Product Development,dc=bitwarden, dc=com
+
+dn: cn=Charin Goulfine,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Charin Goulfine
+sn: Goulfine
+description: This is Charin Goulfine's description
+facsimileTelephoneNumber: +1 408 916-3906
+l: Redmond
+ou: Human Resources
+postalAddress: Human Resources$Redmond
+telephoneNumber: +1 408 551-2393
+title: Junior Human Resources Punk
+userPassword: Password1
+uid: GoulfinC
+givenName: Charin
+mail: GoulfinC@5fa9a69302a9422abedbd51aa69f472b.bitwarden.com
+carLicense: FVUOG5
+departmentNumber: 9411
+employeeType: Contract
+homePhone: +1 408 606-3616
+initials: C. G.
+mobile: +1 408 369-8824
+pager: +1 408 930-6584
+roomNumber: 9793
+
+dn: cn=Margit Peters,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Margit Peters
+sn: Peters
+description: This is Margit Peters's description
+facsimileTelephoneNumber: +1 804 822-1892
+l: Orem
+ou: Product Testing
+postalAddress: Product Testing$Orem
+telephoneNumber: +1 804 930-5577
+title: Supreme Product Testing Dictator
+userPassword: Password1
+uid: PetersM
+givenName: Margit
+mail: PetersM@909269ac94be4e5b9ff6809f52b1dda3.bitwarden.com
+carLicense: IKKDEY
+departmentNumber: 5202
+employeeType: Employee
+homePhone: +1 804 405-5226
+initials: M. P.
+mobile: +1 804 210-8735
+pager: +1 804 533-8191
+roomNumber: 9814
+manager: cn=Inga Schnirer,ou=Product Testing,dc=bitwarden, dc=com
+secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
+
+dn: cn=Shiela Harada,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Shiela Harada
+sn: Harada
+description: This is Shiela Harada's description
+facsimileTelephoneNumber: +1 510 773-7858
+l: Cambridge
+ou: Peons
+postalAddress: Peons$Cambridge
+telephoneNumber: +1 510 358-8117
+title: Supreme Peons Technician
+userPassword: Password1
+uid: HaradaS
+givenName: Shiela
+mail: HaradaS@2782a7fada1240d682fc754affb31519.bitwarden.com
+carLicense: 9KNKLC
+departmentNumber: 8729
+employeeType: Normal
+homePhone: +1 510 412-1076
+initials: S. H.
+mobile: +1 510 458-4453
+pager: +1 510 554-4842
+roomNumber: 9387
+manager: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
+
+dn: cn=Angelle Guarino,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Angelle Guarino
+sn: Guarino
+description: This is Angelle Guarino's description
+facsimileTelephoneNumber: +1 510 783-6849
+l: Armonk
+ou: Human Resources
+postalAddress: Human Resources$Armonk
+telephoneNumber: +1 510 560-4384
+title: Junior Human Resources Vice President
+userPassword: Password1
+uid: GuarinoA
+givenName: Angelle
+mail: GuarinoA@720ab4266da34c8e9ccf5ef3370b892b.bitwarden.com
+carLicense: K24T4G
+departmentNumber: 5102
+employeeType: Normal
+homePhone: +1 510 712-7834
+initials: A. G.
+mobile: +1 510 528-1331
+pager: +1 510 991-3515
+roomNumber: 8053
+manager: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Lynnea Dasilva,ou=Janitorial,dc=bitwarden, dc=com
+
+dn: cn=Shela Khoury,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Shela Khoury
+sn: Khoury
+description: This is Shela Khoury's description
+facsimileTelephoneNumber: +1 415 829-6000
+l: San Mateo
+ou: Peons
+postalAddress: Peons$San Mateo
+telephoneNumber: +1 415 518-4568
+title: Supreme Peons Sales Rep
+userPassword: Password1
+uid: KhouryS
+givenName: Shela
+mail: KhouryS@4dc1a2d970bb4c23aef0d860b6018ed6.bitwarden.com
+carLicense: VX8Y9Q
+departmentNumber: 5125
+employeeType: Contract
+homePhone: +1 415 368-5121
+initials: S. K.
+mobile: +1 415 224-9289
+pager: +1 415 722-7004
+roomNumber: 9511
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com
+
+dn: cn=Micaela Doud,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Micaela Doud
+sn: Doud
+description: This is Micaela Doud's description
+facsimileTelephoneNumber: +1 804 989-1007
+l: Sunnyvale
+ou: Janitorial
+postalAddress: Janitorial$Sunnyvale
+telephoneNumber: +1 804 763-6986
+title: Associate Janitorial Warrior
+userPassword: Password1
+uid: DoudM
+givenName: Micaela
+mail: DoudM@b2de0606c7904578b184a63046aa1a59.bitwarden.com
+carLicense: U51VUR
+departmentNumber: 3449
+employeeType: Employee
+homePhone: +1 804 833-8174
+initials: M. D.
+mobile: +1 804 255-5188
+pager: +1 804 908-3999
+roomNumber: 9336
+manager: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Lynnea Dasilva,ou=Janitorial,dc=bitwarden, dc=com
+
+dn: cn=Marthe Kenik,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Marthe Kenik
+sn: Kenik
+description: This is Marthe Kenik's description
+facsimileTelephoneNumber: +1 510 622-1104
+l: San Jose
+ou: Product Testing
+postalAddress: Product Testing$San Jose
+telephoneNumber: +1 510 752-7722
+title: Master Product Testing Director
+userPassword: Password1
+uid: KenikM
+givenName: Marthe
+mail: KenikM@5ce7099e829941498f32f6630dda9440.bitwarden.com
+carLicense: R07O7A
+departmentNumber: 4904
+employeeType: Employee
+homePhone: +1 510 326-5669
+initials: M. K.
+mobile: +1 510 270-2177
+pager: +1 510 375-6349
+roomNumber: 9653
+manager: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
+
+dn: cn=Angus Merizzi,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Angus Merizzi
+sn: Merizzi
+description: This is Angus Merizzi's description
+facsimileTelephoneNumber: +1 818 188-3223
+l: Palo Alto
+ou: Management
+postalAddress: Management$Palo Alto
+telephoneNumber: +1 818 210-9559
+title: Master Management Technician
+userPassword: Password1
+uid: MerizziA
+givenName: Angus
+mail: MerizziA@7f1912f54e7a4efa8a33a6ba82fc7102.bitwarden.com
+carLicense: W89F9T
+departmentNumber: 9737
+employeeType: Normal
+homePhone: +1 818 529-9985
+initials: A. M.
+mobile: +1 818 317-4882
+pager: +1 818 942-6439
+roomNumber: 9060
+manager: cn=Inga Schnirer,ou=Product Testing,dc=bitwarden, dc=com
+secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
+
+dn: cn=Edmund Kardos,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Edmund Kardos
+sn: Kardos
+description: This is Edmund Kardos's description
+facsimileTelephoneNumber: +1 804 374-4959
+l: Redwood Shores
+ou: Product Testing
+postalAddress: Product Testing$Redwood Shores
+telephoneNumber: +1 804 624-9693
+title: Supreme Product Testing Janitor
+userPassword: Password1
+uid: KardosE
+givenName: Edmund
+mail: KardosE@5f41ae90bad64d5e97b0ef849f0cfd8f.bitwarden.com
+carLicense: 7N9K02
+departmentNumber: 2240
+employeeType: Normal
+homePhone: +1 804 100-4518
+initials: E. K.
+mobile: +1 804 604-1454
+pager: +1 804 472-8093
+roomNumber: 9668
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Lynnea Dasilva,ou=Janitorial,dc=bitwarden, dc=com
