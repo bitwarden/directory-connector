@@ -64,9 +64,9 @@
     "publish:win": "npm run build:dist && npm run clean:dist && electron-builder --win --x64 --ia32 -p always -c.win.certificateSubjectName=\"8bit Solutions LLC\"",
     "prettier": "prettier --write .",
     "prepare": "husky install",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:watch:all": "jest --watchAll",
+    "test": "jest --testPathIgnorePatterns=.integration.spec.ts",
+    "test:watch": "jest --watch --testPathIgnorePatterns=.integration.spec.ts",
+    "test:watch:all": "jest --watchAll --testPathIgnorePatterns=.integration.spec.ts",
     "test:integration": "jest .integration.spec.ts",
     "test:integration:watch": "jest .integration.spec.ts --watch",
     "test:types": "npx tsc --noEmit"
