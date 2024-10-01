@@ -79,6 +79,13 @@ memberuid: cn=Micaela Doud,ou=Janitorial,dc=bitwarden,dc=com
 objectclass: posixGroup
 objectclass: top
 
+dn: cn=Cleaners,ou=Janitorial,dc=bitwarden,dc=com
+changetype: add
+cn: Cleaners
+gidnumber: 700
+objectclass: posixGroup
+objectclass: top
+
 dn: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
 changetype: add
 objectClass: top
