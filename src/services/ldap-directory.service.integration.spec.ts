@@ -32,7 +32,7 @@ describe("ldapDirectoryService", () => {
     stateService.getDirectory
       .calledWith(DirectoryType.Ldap)
       .mockResolvedValue(getLdapConfiguration());
-    stateService.getSync.mockResolvedValue(getSyncConfiguration());
+    stateService.getSync.mockResolvedValue(getSyncConfiguration({ users: true }));
 
     // Always return all users
     stateService.getLastUserSync.mockResolvedValue(null);
@@ -69,7 +69,7 @@ const getLdapConfiguration = (config?: Partial<LdapConfiguration>): LdapConfigur
  * @returns a basic sync configuration. Can be overridden by passing in a partial configuration.
  */
 const getSyncConfiguration = (config?: Partial<SyncConfiguration>): SyncConfiguration => ({
-  users: true,
+  users: false,
   groups: false,
   interval: 5,
   userFilter: null,
