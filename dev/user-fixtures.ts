@@ -1,7 +1,7 @@
 import { UserEntry } from "../src/models/userEntry";
 
 // These must match the ldap server seed data in directory.ldif
-const rawTestUserEntries = [
+const rawData = [
   {
     disabled: false,
     deleted: false,
@@ -144,4 +144,4 @@ const rawTestUserEntries = [
   },
 ];
 
-export const testUserEntries = rawTestUserEntries.map((v) => UserEntry.fromJSON(v));
+export const userFixtures = rawData.map((v) => UserEntry.fromJSON(v));

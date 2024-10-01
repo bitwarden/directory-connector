@@ -1,3 +1,5 @@
+import { Jsonify } from "type-fest";
+
 import { Entry } from "./entry";
 import { UserEntry } from "./userEntry";
 
@@ -13,5 +15,29 @@ export class GroupEntry extends Entry {
     }
 
     return this.name;
+  }
+
+  static fromJSON(
+    data: Jsonify<Omit<GroupEntry, "displayName">> & {
+      userMemberExternalIds: string[];
+      groupMemberReferenceIds: string[];
+    },
+  ) {
+    const result = new GroupEntry();
+    result.referenceId = data.referenceId;
+    result.externalId = data.externalId;
+
+    result.name = data.name;
+    if (data.userMemberExternalIds != null) {
+      result.userMemberExternalIds = new Set(data.userMemberExternalIds);
+    }
+
+    if (data.groupMemberReferenceIds != null) {
+      result.groupMemberReferenceIds = new Set(data.groupMemberReferenceIds);
+    }
+
+    result.users = data.users?.map((u) => UserEntry.fromJSON(u));
+
+    return result;
   }
 }

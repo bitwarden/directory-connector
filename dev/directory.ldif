@@ -60,6 +60,16 @@ ou: Planning
 objectClass: top
 objectClass: organizationalUnit
 
+dn: cn=Blue Team,dc=bitwarden,dc=com
+changetype: add
+cn: Blue Team
+gidnumber: 500
+memberuid: cn=Loella Mak,ou=Payroll,dc=bitwarden,dc=com
+memberuid: cn=Painterson Miki,ou=Product Development,dc=bitwarden,dc=com
+memberuid: cn=Roland Dyke,ou=Human Resources,dc=bitwarden,dc=com
+objectclass: posixGroup
+objectclass: top
+
 dn: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
 changetype: add
 objectClass: top

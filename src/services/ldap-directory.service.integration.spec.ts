@@ -1,6 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { testUserEntries } from "../../dev/directory";
+import { groupFixtures } from "../../dev/group-fixtures";
+import { userFixtures } from "../../dev/user-fixtures";
 import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../jslib/common/src/abstractions/log.service";
 import { DirectoryType } from "../enums/directoryType";
@@ -28,17 +29,17 @@ describe("ldapDirectoryService", () => {
     directoryService = new LdapDirectoryService(logService, i18nService, stateService);
   });
 
-  it("gets users without TLS", async () => {
+  it("gets users and groups without TLS", async () => {
     stateService.getDirectory
       .calledWith(DirectoryType.Ldap)
       .mockResolvedValue(getLdapConfiguration());
-    stateService.getSync.mockResolvedValue(getSyncConfiguration({ users: true }));
+    stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
 
     // Always return all users
     stateService.getLastUserSync.mockResolvedValue(null);
 
     const result = await directoryService.getEntries(true, true);
-    expect(result).toEqual([undefined, testUserEntries]);
+    expect(result).toEqual([groupFixtures, userFixtures]);
   });
 });
 
@@ -78,13 +79,13 @@ const getSyncConfiguration = (config?: Partial<SyncConfiguration>): SyncConfigur
   overwriteExisting: false,
   largeImport: false,
   // Ldap properties
-  groupObjectClass: "group",
+  groupObjectClass: "posixGroup",
   userObjectClass: "person",
   groupPath: null,
   userPath: null,
-  groupNameAttribute: "name",
+  groupNameAttribute: "cn",
   userEmailAttribute: "mail",
-  memberAttribute: "member",
+  memberAttribute: "memberUid",
   useEmailPrefixSuffix: false,
   emailPrefixAttribute: "sAMAccountName",
   emailSuffix: null,
