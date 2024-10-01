@@ -34,12 +34,26 @@ describe("ldapDirectoryService", () => {
       .calledWith(DirectoryType.Ldap)
       .mockResolvedValue(getLdapConfiguration());
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
-
-    // Always return all users
     stateService.getLastUserSync.mockResolvedValue(null);
 
     const result = await directoryService.getEntries(true, true);
     expect(result).toEqual([groupFixtures, userFixtures]);
+  });
+
+  it("filters users correctly", async () => {
+    stateService.getDirectory
+      .calledWith(DirectoryType.Ldap)
+      .mockResolvedValue(getLdapConfiguration());
+    stateService.getSync.mockResolvedValue(
+      getSyncConfiguration({ groups: false, users: true, userFilter: "(cn=Roland Dyke)" }),
+    );
+    stateService.getLastUserSync.mockResolvedValue(null);
+
+    const roland = userFixtures.find(
+      (u) => u.referenceId === "cn=Roland Dyke,ou=Human Resources,dc=bitwarden,dc=com",
+    );
+    const result = await directoryService.getEntries(true, true);
+    expect(result).toEqual([undefined, [roland]]);
   });
 });
 
