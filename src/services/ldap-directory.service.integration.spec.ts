@@ -40,78 +40,84 @@ describe("ldapDirectoryService", () => {
     expect(result).toEqual([groupFixtures, userFixtures]);
   });
 
-  it("respects the users path", async () => {
-    stateService.getDirectory
-      .calledWith(DirectoryType.Ldap)
-      .mockResolvedValue(getLdapConfiguration());
-    stateService.getSync.mockResolvedValue(
-      getSyncConfiguration({
-        users: true,
-        userPath: "ou=Human Resources",
-      }),
-    );
-    stateService.getLastUserSync.mockResolvedValue(null);
+  describe("users", () => {
+    it("respects the users path", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.Ldap)
+        .mockResolvedValue(getLdapConfiguration());
+      stateService.getSync.mockResolvedValue(
+        getSyncConfiguration({
+          users: true,
+          userPath: "ou=Human Resources",
+        }),
+      );
+      stateService.getLastUserSync.mockResolvedValue(null);
 
-    // These users are in the Human Resources ou
-    const hrUsers = userFixtures.filter(
-      (u) =>
-        u.referenceId === "cn=Roland Dyke,ou=Human Resources,dc=bitwarden,dc=com" ||
-        u.referenceId === "cn=Charin Goulfine,ou=Human Resources,dc=bitwarden,dc=com" ||
-        u.referenceId === "cn=Angelle Guarino,ou=Human Resources,dc=bitwarden,dc=com",
-    );
+      // These users are in the Human Resources ou
+      const hrUsers = userFixtures.filter(
+        (u) =>
+          u.referenceId === "cn=Roland Dyke,ou=Human Resources,dc=bitwarden,dc=com" ||
+          u.referenceId === "cn=Charin Goulfine,ou=Human Resources,dc=bitwarden,dc=com" ||
+          u.referenceId === "cn=Angelle Guarino,ou=Human Resources,dc=bitwarden,dc=com",
+      );
 
-    const result = await directoryService.getEntries(true, true);
-    expect(result[1]).toEqual(expect.arrayContaining(hrUsers));
-    expect(result[1].length).toEqual(hrUsers.length);
+      const result = await directoryService.getEntries(true, true);
+      expect(result[1]).toEqual(expect.arrayContaining(hrUsers));
+      expect(result[1].length).toEqual(hrUsers.length);
+    });
+
+    it("filters users", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.Ldap)
+        .mockResolvedValue(getLdapConfiguration());
+      stateService.getSync.mockResolvedValue(
+        getSyncConfiguration({ users: true, userFilter: "(cn=Roland Dyke)" }),
+      );
+      stateService.getLastUserSync.mockResolvedValue(null);
+
+      const roland = userFixtures.find(
+        (u) => u.referenceId === "cn=Roland Dyke,ou=Human Resources,dc=bitwarden,dc=com",
+      );
+      const result = await directoryService.getEntries(true, true);
+      expect(result).toEqual([undefined, [roland]]);
+    });
   });
 
-  it("respects the groups path", async () => {
-    stateService.getDirectory
-      .calledWith(DirectoryType.Ldap)
-      .mockResolvedValue(getLdapConfiguration());
-    stateService.getSync.mockResolvedValue(
-      getSyncConfiguration({
-        groups: true,
-        groupPath: "ou=Janitorial",
-      }),
-    );
-    stateService.getLastUserSync.mockResolvedValue(null);
+  describe("groups", () => {
+    it("respects the groups path", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.Ldap)
+        .mockResolvedValue(getLdapConfiguration());
+      stateService.getSync.mockResolvedValue(
+        getSyncConfiguration({
+          groups: true,
+          groupPath: "ou=Janitorial",
+        }),
+      );
+      stateService.getLastUserSync.mockResolvedValue(null);
 
-    // These groups are in the Janitorial ou
-    const janitorialGroups = groupFixtures.filter((g) => g.name === "Cleaners");
+      // These groups are in the Janitorial ou
+      const janitorialGroups = groupFixtures.filter((g) => g.name === "Cleaners");
 
-    const result = await directoryService.getEntries(true, true);
-    expect(result).toEqual([janitorialGroups, undefined]);
-  });
+      const result = await directoryService.getEntries(true, true);
+      expect(result).toEqual([janitorialGroups, undefined]);
+    });
 
-  it("filters users correctly", async () => {
-    stateService.getDirectory
-      .calledWith(DirectoryType.Ldap)
-      .mockResolvedValue(getLdapConfiguration());
-    stateService.getSync.mockResolvedValue(
-      getSyncConfiguration({ users: true, userFilter: "(cn=Roland Dyke)" }),
-    );
-    stateService.getLastUserSync.mockResolvedValue(null);
+    it("filters groups", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.Ldap)
+        .mockResolvedValue(getLdapConfiguration());
+      stateService.getSync.mockResolvedValue(
+        getSyncConfiguration({ groups: true, groupFilter: "(cn=Red Team)" }),
+      );
+      stateService.getLastUserSync.mockResolvedValue(null);
 
-    const roland = userFixtures.find(
-      (u) => u.referenceId === "cn=Roland Dyke,ou=Human Resources,dc=bitwarden,dc=com",
-    );
-    const result = await directoryService.getEntries(true, true);
-    expect(result).toEqual([undefined, [roland]]);
-  });
-
-  it("filters groups correctly", async () => {
-    stateService.getDirectory
-      .calledWith(DirectoryType.Ldap)
-      .mockResolvedValue(getLdapConfiguration());
-    stateService.getSync.mockResolvedValue(
-      getSyncConfiguration({ groups: true, groupFilter: "(cn=Red Team)" }),
-    );
-    stateService.getLastUserSync.mockResolvedValue(null);
-
-    const redTeam = groupFixtures.find((u) => u.referenceId === "cn=Red Team,dc=bitwarden,dc=com");
-    const result = await directoryService.getEntries(true, true);
-    expect(result).toEqual([[redTeam], undefined]);
+      const redTeam = groupFixtures.find(
+        (u) => u.referenceId === "cn=Red Team,dc=bitwarden,dc=com",
+      );
+      const result = await directoryService.getEntries(true, true);
+      expect(result).toEqual([[redTeam], undefined]);
+    });
   });
 });
 
