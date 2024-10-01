@@ -55,6 +55,20 @@ describe("ldapDirectoryService", () => {
     const result = await directoryService.getEntries(true, true);
     expect(result).toEqual([undefined, [roland]]);
   });
+
+  it("filters groups correctly", async () => {
+    stateService.getDirectory
+      .calledWith(DirectoryType.Ldap)
+      .mockResolvedValue(getLdapConfiguration());
+    stateService.getSync.mockResolvedValue(
+      getSyncConfiguration({ groups: true, users: false, groupFilter: "(cn=Red Team)" }),
+    );
+    stateService.getLastUserSync.mockResolvedValue(null);
+
+    const redTeam = groupFixtures.find((u) => u.referenceId === "cn=Red Team,dc=bitwarden,dc=com");
+    const result = await directoryService.getEntries(true, true);
+    expect(result).toEqual([[redTeam], undefined]);
+  });
 });
 
 /**
