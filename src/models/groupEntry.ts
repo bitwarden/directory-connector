@@ -17,12 +17,20 @@ export class GroupEntry extends Entry {
     return this.name;
   }
 
-  static fromJSON(
-    data: Jsonify<Omit<GroupEntry, "displayName">> & {
-      userMemberExternalIds: string[];
-      groupMemberReferenceIds: string[];
-    },
-  ) {
+  toJSON() {
+    return {
+      name: this.name,
+      referenceId: this.referenceId,
+      externalId: this.externalId,
+      userMemberExternalIds:
+        this.userMemberExternalIds == null ? null : [...this.userMemberExternalIds],
+      groupMemberReferenceIds:
+        this.groupMemberReferenceIds == null ? null : [...this.groupMemberReferenceIds],
+      users: this.users?.map((u) => u.toJSON()),
+    };
+  }
+
+  static fromJSON(data: Jsonify<GroupEntry>) {
     const result = new GroupEntry();
     result.referenceId = data.referenceId;
     result.externalId = data.externalId;

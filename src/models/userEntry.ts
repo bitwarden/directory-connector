@@ -15,6 +15,16 @@ export class UserEntry extends Entry {
     return this.email;
   }
 
+  toJSON() {
+    return {
+      referenceId: this.referenceId,
+      externalId: this.externalId,
+      email: this.email,
+      disabled: this.disabled,
+      deleted: this.deleted,
+    };
+  }
+
   static fromJSON(data: Jsonify<UserEntry>) {
     const result = new UserEntry();
     result.referenceId = data.referenceId;

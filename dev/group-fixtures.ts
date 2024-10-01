@@ -1,6 +1,9 @@
+import { Jsonify } from "type-fest";
+
 import { GroupEntry } from "../src/models/groupEntry";
 
-const rawData = [
+// These must match the ldap server seed data in directory.ldif
+const data: Jsonify<GroupEntry>[] = [
   {
     userMemberExternalIds: [
       "cn=Loella Mak,ou=Payroll,dc=bitwarden,dc=com",
@@ -15,4 +18,4 @@ const rawData = [
   },
 ];
 
-export const groupFixtures = rawData.map((g) => GroupEntry.fromJSON(g));
+export const groupFixtures = data.map((g) => GroupEntry.fromJSON(g));
