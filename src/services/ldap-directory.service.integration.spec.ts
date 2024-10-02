@@ -45,8 +45,7 @@ describe("ldapDirectoryService", () => {
       getLdapConfiguration({
         ssl: true,
         startTls: true,
-        sslCaPath: "/Users/thomasrittson/Projects/directory-connector/cert.pem",
-        sslAllowUnauthorized: true, // TODO: this could probably be more robust if we configured certs correctly
+        sslAllowUnauthorized: true, // TODO: this could be more robust if we configured certs correctly
       }),
     );
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
