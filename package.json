@@ -71,8 +71,8 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "16.2.12",
-    "@angular-eslint/eslint-plugin-template": "17.2.0",
-    "@angular-eslint/template-parser": "17.2.0",
+    "@angular-eslint/eslint-plugin-template": "17.5.3",
+    "@angular-eslint/template-parser": "17.5.3",
     "@angular/compiler-cli": "16.2.12",
     "@electron/notarize": "2.2.1",
     "@electron/rebuild": "3.6.0",
