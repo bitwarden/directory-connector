@@ -66,6 +66,12 @@ jobs:
       - name: Run tests
         run: npm run test --coverage
 
+      - name: Run integration tests
+        run: |
+          cd utils/integration-tests
+          docker compose --project-directory utils/integration-tests --profile server up -d
+          npm run test:integration
+
       - name: Report test results
         uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
         if: ${{ needs.check-test-secrets.outputs.available == 'true' && !cancelled() }}
