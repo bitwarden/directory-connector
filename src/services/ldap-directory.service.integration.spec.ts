@@ -55,8 +55,6 @@ describe("ldapDirectoryService", () => {
     expect(result).toEqual([groupFixtures, userFixtures]);
   });
 
-  it.todo("only gets users changed since last sync");
-
   describe("users", () => {
     it("respects the users path", async () => {
       stateService.getDirectory
