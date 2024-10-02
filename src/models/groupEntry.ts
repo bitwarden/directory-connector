@@ -34,8 +34,8 @@ export class GroupEntry extends Entry {
     const result = new GroupEntry();
     result.referenceId = data.referenceId;
     result.externalId = data.externalId;
-
     result.name = data.name;
+
     if (data.userMemberExternalIds != null) {
       result.userMemberExternalIds = new Set(data.userMemberExternalIds);
     }
@@ -44,7 +44,9 @@ export class GroupEntry extends Entry {
       result.groupMemberReferenceIds = new Set(data.groupMemberReferenceIds);
     }
 
-    result.users = data.users?.map((u) => UserEntry.fromJSON(u));
+    if (data.users != null) {
+      result.users = data.users.map((u) => UserEntry.fromJSON(u));
+    }
 
     return result;
   }

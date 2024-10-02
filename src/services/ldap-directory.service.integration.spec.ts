@@ -11,6 +11,12 @@ import { SyncConfiguration } from "../models/syncConfiguration";
 import { LdapDirectoryService } from "./ldap-directory.service";
 import { StateService } from "./state.service";
 
+// These tests integrate with the OpenLDAP docker image and seed data located in utils/integration-tests.
+// To start the docker container for local testing:
+//   cd utils/integration-tests
+//   docker compose --profile server up -d
+// The docker compose config also includes a PhpLdapAdmin container for inspecting the LDAP directory contents.
+
 describe("ldapDirectoryService", () => {
   let logService: MockProxy<LogService>;
   let i18nService: MockProxy<I18nService>;
@@ -24,7 +30,8 @@ describe("ldapDirectoryService", () => {
     stateService = mock();
 
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
-    i18nService.t.mockImplementation((id) => id);
+    stateService.getLastUserSync.mockResolvedValue(null); // do not filter results by last modified date
+    i18nService.t.mockImplementation((id) => id); // passthrough implementation for any error  messages
 
     directoryService = new LdapDirectoryService(logService, i18nService, stateService);
   });
@@ -34,7 +41,6 @@ describe("ldapDirectoryService", () => {
       .calledWith(DirectoryType.Ldap)
       .mockResolvedValue(getLdapConfiguration());
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
-    stateService.getLastUserSync.mockResolvedValue(null);
 
     const result = await directoryService.getEntries(true, true);
     expect(result).toEqual([groupFixtures, userFixtures]);
@@ -49,7 +55,6 @@ describe("ldapDirectoryService", () => {
       }),
     );
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
-    stateService.getLastUserSync.mockResolvedValue(null);
 
     const result = await directoryService.getEntries(true, true);
     expect(result).toEqual([groupFixtures, userFixtures]);
@@ -66,7 +71,6 @@ describe("ldapDirectoryService", () => {
           userPath: "ou=Human Resources",
         }),
       );
-      stateService.getLastUserSync.mockResolvedValue(null);
 
       // These users are in the Human Resources ou
       const hrUsers = userFixtures.filter(
@@ -88,7 +92,6 @@ describe("ldapDirectoryService", () => {
       stateService.getSync.mockResolvedValue(
         getSyncConfiguration({ users: true, userFilter: "(cn=Roland Dyke)" }),
       );
-      stateService.getLastUserSync.mockResolvedValue(null);
 
       const roland = userFixtures.find(
         (u) => u.referenceId === "cn=Roland Dyke,ou=Human Resources,dc=bitwarden,dc=com",
@@ -109,7 +112,6 @@ describe("ldapDirectoryService", () => {
           groupPath: "ou=Janitorial",
         }),
       );
-      stateService.getLastUserSync.mockResolvedValue(null);
 
       // These groups are in the Janitorial ou
       const janitorialGroups = groupFixtures.filter((g) => g.name === "Cleaners");
@@ -125,7 +127,6 @@ describe("ldapDirectoryService", () => {
       stateService.getSync.mockResolvedValue(
         getSyncConfiguration({ groups: true, groupFilter: "(cn=Red Team)" }),
       );
-      stateService.getLastUserSync.mockResolvedValue(null);
 
       const redTeam = groupFixtures.find(
         (u) => u.referenceId === "cn=Red Team,dc=bitwarden,dc=com",
