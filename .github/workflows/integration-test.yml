@@ -1,11 +1,17 @@
-name: Testing
+name: Integration Testing
 
 on:
   workflow_dispatch:
   push:
     branches:
       - "main"
+    paths:
+      - ".github/workflows/integration-test.yml" # this file
+      - "src/services/ldap-directory.service*" # we only have integration for LDAP testing at the moment
   pull_request:
+    paths:
+      - ".github/workflows/integration-test.yml" # this file
+      - "src/services/ldap-directory.service*" # we only have integration for LDAP testing at the moment
 
 jobs:
   check-test-secrets:
@@ -63,8 +69,12 @@ jobs:
       - name: Run typechecking
         run: npm run test:types --coverage
 
-      - name: Run tests
-        run: npm run test --coverage
+      - name: Start OpenLDAP docker container
+        run: docker compose --project-directory utils/integration-tests --profile server up -d
+
+      - name: Run integration tests
+        run: |
+          npm run test:integration --coverage
 
       - name: Report test results
         uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
