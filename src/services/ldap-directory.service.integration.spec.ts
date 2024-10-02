@@ -15,7 +15,9 @@ import { StateService } from "./state.service";
 // To start the docker container for local testing:
 //   cd utils/integration-tests
 //   docker compose --profile server up -d
-// The docker compose config also includes a PhpLdapAdmin container for inspecting the LDAP directory contents.
+// Once the docker container is running, these tests can be run using:
+//   npm run test:integration:watch
+// The docker compose config also includes a PhpLDAPAdmin container for inspecting the LDAP directory contents.
 
 describe("ldapDirectoryService", () => {
   let logService: MockProxy<LogService>;
