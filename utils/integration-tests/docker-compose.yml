@@ -6,6 +6,7 @@ services:
     environment:
       LDAP_ORGANISATION: "Bitwarden"
       LDAP_DOMAIN: "bitwarden.com"
+      LDAP_TLS_VERIFY_CLIENT: "try" # do not require a certificate from the client. The default is "demand"
     volumes:
       - ./directory.ldif:/container/service/slapd/assets/config/bootstrap/ldif/output.ldif
     ports:

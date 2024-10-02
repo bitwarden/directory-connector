@@ -40,7 +40,21 @@ describe("ldapDirectoryService", () => {
     expect(result).toEqual([groupFixtures, userFixtures]);
   });
 
-  it.todo("gets users and groups with TLS");
+  it("gets users and groups with TLS", async () => {
+    stateService.getDirectory.calledWith(DirectoryType.Ldap).mockResolvedValue(
+      getLdapConfiguration({
+        ssl: true,
+        startTls: true,
+        sslCaPath: "/Users/thomasrittson/Projects/directory-connector/cert.pem",
+        sslAllowUnauthorized: true, // TODO: this could probably be more robust if we configured certs correctly
+      }),
+    );
+    stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
+    stateService.getLastUserSync.mockResolvedValue(null);
+
+    const result = await directoryService.getEntries(true, true);
+    expect(result).toEqual([groupFixtures, userFixtures]);
+  });
 
   it.todo("only gets users changed since last sync");
 
