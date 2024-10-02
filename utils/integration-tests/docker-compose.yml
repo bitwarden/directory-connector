@@ -10,8 +10,8 @@ services:
     volumes:
       - ./directory.ldif:/container/service/slapd/assets/config/bootstrap/ldif/output.ldif
     ports:
-      - "389:389"
-      - "636:636"
+      - "127.0.0.1:1389:389"
+      - "127.0.0.1:1636:636"
     profiles:
       - all
       - server
