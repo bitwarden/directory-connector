@@ -150,7 +150,7 @@ const getLdapConfiguration = (config?: Partial<LdapConfiguration>): LdapConfigur
   sslCertPath: null,
   sslKeyPath: null,
   sslCaPath: null,
-  hostname: "localhost",
+  hostname: "127.0.0.1",
   port: 1389,
   domain: null,
   rootPath: "dc=bitwarden,dc=com",
