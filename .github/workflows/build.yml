@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Set up CLOC
         run: |
@@ -32,7 +32,7 @@ jobs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Get Package Version
         id: retrieve-version
@@ -51,10 +51,10 @@ jobs:
       _PKG_FETCH_VERSION: 3.4
     steps:
       - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Set up Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -122,14 +122,14 @@ jobs:
           fi
 
       - name: Upload Linux Zip to GitHub
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
       - name: Upload Linux checksum to GitHub
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
@@ -146,10 +146,10 @@ jobs:
       _PKG_FETCH_VERSION: 3.4
     steps:
       - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Set up Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -210,14 +210,14 @@ jobs:
           fi
 
       - name: Upload Mac Zip to GitHub
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
       - name: Upload Mac checksum to GitHub
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
@@ -233,7 +233,7 @@ jobs:
       _WIN_PKG_VERSION: 3.4
     steps:
       - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Setup Windows builder
         run: |
@@ -241,7 +241,7 @@ jobs:
           choco install reshack --no-progress
 
       - name: Set up Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -354,14 +354,14 @@ jobs:
             -t sha256 | Out-File ./dist-cli/bwdc-windows-sha256-${env:_PACKAGE_VERSION}.txt
 
       - name: Upload Windows Zip to GitHub
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
       - name: Upload Windows checksum to GitHub
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
           path: ./dist-cli/bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
@@ -378,10 +378,10 @@ jobs:
       HUSKY: 0
     steps:
       - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Set up Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -414,28 +414,28 @@ jobs:
           SIGNING_CERT_NAME: ${{ secrets.SIGNING_CERT_NAME }}
 
       - name: Upload Portable Executable to GitHub
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: Bitwarden-Connector-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Portable-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload Installer Executable to GitHub
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: ./dist/Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload Installer Executable Blockmap to GitHub
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe.blockmap
           path: ./dist/Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe.blockmap
           if-no-files-found: error
 
       - name: Upload latest auto-update artifact
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: latest.yml
           path: ./dist/latest.yml
@@ -452,10 +452,10 @@ jobs:
       HUSKY: 0
     steps:
       - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Set up Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -482,14 +482,14 @@ jobs:
         run: npm run dist:lin
 
       - name: Upload AppImage
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           if-no-files-found: error
 
       - name: Upload latest auto-update artifact
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: latest-linux.yml
           path: ./dist/latest-linux.yml
@@ -506,10 +506,10 @@ jobs:
       HUSKY: 0
     steps:
       - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Set up Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -593,28 +593,28 @@ jobs:
           CSC_FOR_PULL_REQUEST: true
 
       - name: Upload .zip artifact
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg
           if-no-files-found: error
 
       - name: Upload .dmg Blockmap artifact
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg.blockmap
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg.blockmap
           if-no-files-found: error
 
       - name: Upload latest auto-update artifact
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: latest-mac.yml
           path: ./dist/latest-mac.yml
