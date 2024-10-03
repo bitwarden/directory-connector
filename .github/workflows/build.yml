@@ -11,7 +11,7 @@ on:
 jobs:
   cloc:
     name: CLOC
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -27,7 +27,7 @@ jobs:
 
   setup:
     name: Setup
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
     steps:
@@ -43,7 +43,7 @@ jobs:
 
   linux-cli:
     name: Build Linux CLI
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -444,7 +444,7 @@ jobs:
 
   linux-gui:
     name: Build Linux GUI
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     env:
       NODE_OPTIONS: --max_old_space_size=4096
@@ -623,7 +623,7 @@ jobs:
 
   check-failures:
     name: Check for failures
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - cloc
       - setup
