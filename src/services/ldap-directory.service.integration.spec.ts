@@ -12,12 +12,10 @@ import { LdapDirectoryService } from "./ldap-directory.service";
 import { StateService } from "./state.service";
 
 // These tests integrate with the OpenLDAP docker image and seed data located in utils/integration-tests.
-// To start the docker container for local testing:
-//   cd utils/integration-tests
-//   docker compose --profile server up -d
+// To start the docker container for local testing (from the repository root):
+//   docker compose up -d
 // Once the docker container is running, these tests can be run using:
 //   npm run test:integration:watch
-// The docker compose config also includes a PhpLDAPAdmin container for inspecting the LDAP directory contents.
 
 describe("ldapDirectoryService", () => {
   let logService: MockProxy<LogService>;
