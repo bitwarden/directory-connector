@@ -53,7 +53,6 @@ describe("ldapDirectoryService", () => {
       getLdapConfiguration({
         ssl: true,
         startTls: true,
-        sslAllowUnauthorized: true, // TODO: this could be more robust if we configured certs correctly
       }),
     );
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));

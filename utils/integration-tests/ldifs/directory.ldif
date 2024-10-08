@@ -1,6 +1,12 @@
 version: 1
 
-dn: ou=Accounting,dc=bitwarden, dc=com
+dn: dc=bitwarden,dc=com
+dc: bitwarden
+objectClass: dcObject
+objectClass: organization
+o: Bitwarden
+
+dn: ou=Accounting,dc=bitwarden,dc=com
 changetype: add
 ou: Accounting
 objectClass: top
