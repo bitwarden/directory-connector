@@ -2,8 +2,8 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../jslib/common/src/abstractions/log.service";
-import { groupFixtures } from "../../utils/integration-tests/group-fixtures";
-import { userFixtures } from "../../utils/integration-tests/user-fixtures";
+import { groupFixtures } from "../../openldap/group-fixtures";
+import { userFixtures } from "../../openldap/user-fixtures";
 import { DirectoryType } from "../enums/directoryType";
 import { LdapConfiguration } from "../models/ldapConfiguration";
 import { SyncConfiguration } from "../models/syncConfiguration";

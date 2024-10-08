@@ -11,8 +11,8 @@ services:
       - LDAP_TLS_KEY_FILE=/certs/openldap-key.pem
       - LDAP_TLS_CA_FILE=/certs/rootCA.pem
     volumes:
-      - "./ldifs:/ldifs"
-      - "./certs:/certs"
+      - "./openldap/ldifs:/ldifs"
+      - "./openldap/certs:/certs"
     ports:
       - "1389:1389"
       - "1636:1636"
