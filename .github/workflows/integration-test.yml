@@ -63,6 +63,17 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - name: Install mkcert
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install mkcert
+
+      - name: Generate self-signed TLS certificates
+        run: |
+          mkcert -install
+          cp $(mkcert -CAROOT)/rootCA.pem ./openldap/certs/rootCA.pem
+          mkcert -key-file ./openldap/certs/openldap-key.pem -cert-file ./openldap/certs/openldap.pem localhost openldap
+
       - name: Start OpenLDAP docker container
         run: docker compose up -d
 
