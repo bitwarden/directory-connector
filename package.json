@@ -67,8 +67,8 @@
     "test": "jest --testPathIgnorePatterns=.integration.spec.ts",
     "test:watch": "jest --watch --testPathIgnorePatterns=.integration.spec.ts",
     "test:watch:all": "jest --watchAll --testPathIgnorePatterns=.integration.spec.ts",
-    "test:integration": "jest .integration.spec.ts",
-    "test:integration:watch": "jest .integration.spec.ts --watch",
+    "test:integration": "cross-env NODE_EXTRA_CA_CERTS='openldap/certs/rootCA.pem' jest .integration.spec.ts",
+    "test:integration:watch": "cross-env NODE_EXTRA_CA_CERTS='openldap/certs/rootCA.pem' jest .integration.spec.ts --watch",
     "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {
