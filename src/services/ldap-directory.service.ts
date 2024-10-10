@@ -1,7 +1,7 @@
 import * as fs from "fs";
-import { checkServerIdentity, PeerCertificate } from "tls";
+import * as tls from "tls";
 
-import * as ldap from "ldapjs";
+import * as ldapts from "ldapts";
 
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
@@ -19,7 +19,7 @@ import { IDirectoryService } from "./directory.service";
 const UserControlAccountDisabled = 2;
 
 export class LdapDirectoryService implements IDirectoryService {
-  private client: ldap.Client;
+  private client: ldapts.Client;
   private dirConfig: LdapConfiguration;
   private syncConfig: SyncConfiguration;
 
@@ -48,21 +48,25 @@ export class LdapDirectoryService implements IDirectoryService {
     await this.bind();
 
     let users: UserEntry[];
-    if (this.syncConfig.users) {
-      users = await this.getUsers(force, test);
-    }
-
     let groups: GroupEntry[];
-    if (this.syncConfig.groups) {
-      let groupForce = force;
-      if (!groupForce && users != null) {
-        const activeUsers = users.filter((u) => !u.deleted && !u.disabled);
-        groupForce = activeUsers.length > 0;
+
+    try {
+      if (this.syncConfig.users) {
+        users = await this.getUsers(force, test);
       }
-      groups = await this.getGroups(groupForce);
+
+      if (this.syncConfig.groups) {
+        let groupForce = force;
+        if (!groupForce && users != null) {
+          const activeUsers = users.filter((u) => !u.deleted && !u.disabled);
+          groupForce = activeUsers.length > 0;
+        }
+        groups = await this.getGroups(groupForce);
+      }
+    } finally {
+      await this.client.unbind();
     }
 
-    await this.unbind();
     return [groups, users];
   }
 
@@ -101,10 +105,7 @@ export class LdapDirectoryService implements IDirectoryService {
       const deletedPath = this.makeSearchPath("CN=Deleted Objects");
       this.logService.info("Deleted user search: " + deletedPath + " => " + deletedFilter);
 
-      const delControl = new (ldap as any).Control({
-        type: "1.2.840.113556.1.4.417",
-        criticality: true,
-      });
+      const delControl = new ldapts.Control("1.2.840.113556.1.4.417", { critical: true });
       const deletedUsers = await this.search<UserEntry>(
         deletedPath,
         deletedFilter,
@@ -120,7 +121,7 @@ export class LdapDirectoryService implements IDirectoryService {
 
   private buildUser(searchEntry: any, deleted: boolean): UserEntry {
     const user = new UserEntry();
-    user.referenceId = searchEntry.objectName;
+    user.referenceId = this.getReferenceId(searchEntry);
     user.deleted = deleted;
 
     if (user.referenceId == null) {
@@ -172,7 +173,7 @@ export class LdapDirectoryService implements IDirectoryService {
     let groupSearchEntries: any[] = [];
     const initialSearchGroupIds = await this.search<string>(path, filter, (se: any) => {
       groupSearchEntries.push(se);
-      return se.objectName;
+      return this.getReferenceId(se);
     });
 
     if (searchSinceRevision && initialSearchGroupIds.length === 0) {
@@ -188,7 +189,7 @@ export class LdapDirectoryService implements IDirectoryService {
     const userPath = this.makeSearchPath(this.syncConfig.userPath);
     const userIdMap = new Map<string, string>();
     await this.search<string>(userPath, userFilter, (se: any) => {
-      userIdMap.set(se.objectName, this.getExternalId(se, se.objectName));
+      userIdMap.set(this.getReferenceId(se), this.getExternalId(se, this.getReferenceId(se)));
       return se;
     });
 
@@ -204,7 +205,7 @@ export class LdapDirectoryService implements IDirectoryService {
 
   private buildGroup(searchEntry: any, userMap: Map<string, string>) {
     const group = new GroupEntry();
-    group.referenceId = searchEntry.objectName;
+    group.referenceId = this.getReferenceId(searchEntry);
     if (group.referenceId == null) {
       return null;
     }
@@ -220,7 +221,7 @@ export class LdapDirectoryService implements IDirectoryService {
       return null;
     }
 
-    const members = this.getAttrVals(searchEntry, this.syncConfig.memberAttribute);
+    const members = this.getAttrVals<string>(searchEntry, this.syncConfig.memberAttribute);
     if (members != null) {
       for (const memDn of members) {
         if (userMap.has(memDn) && !group.userMemberExternalIds.has(userMap.get(memDn))) {
@@ -234,13 +235,24 @@ export class LdapDirectoryService implements IDirectoryService {
     return group;
   }
 
-  private getExternalId(searchEntry: any, referenceId: string) {
-    const attrObj = this.getAttrObj(searchEntry, "objectGUID");
-    if (attrObj != null && attrObj._vals != null && attrObj._vals.length > 0) {
-      return this.bufToGuid(attrObj._vals[0]);
+  /**
+   * The externalId is the "objectGUID" property if present (a unique identifier used by Active Directory),
+   * otherwise it falls back to the provided referenceId.
+   */
+  private getExternalId(searchEntry: ldapts.Entry, referenceId: string) {
+    const attr = this.getAttr<Buffer>(searchEntry, "objectGUID");
+    if (attr != null) {
+      return this.bufToGuid(attr);
     } else {
       return referenceId;
     }
+  }
+
+  /**
+   * Gets the object's reference id (dn)
+   */
+  private getReferenceId(entry: ldapts.Entry): string {
+    return entry.dn;
   }
 
   private buildBaseFilter(objectClass: string, subFilter: string): string {
@@ -281,42 +293,48 @@ export class LdapDirectoryService implements IDirectoryService {
     return null;
   }
 
-  private getAttrObj(searchEntry: any, attr: string): any {
-    if (searchEntry == null || searchEntry.attributes == null) {
+  /**
+   */
+
+  /**
+   * Get all values for an ldap attribute
+   * @param searchEntry The ldap entry
+   * @param attr An attribute name on the ldap entry
+   * @returns An array containing all values of the attribute, or null if there are no values
+   */
+  private getAttrVals<T extends string | Buffer>(
+    searchEntry: ldapts.Entry,
+    attr: string,
+  ): T[] | null {
+    if (searchEntry == null || searchEntry[attr] == null) {
       return null;
     }
 
-    const attrs = searchEntry.attributes.filter((a: any) => a.type === attr);
-    if (
-      attrs == null ||
-      attrs.length === 0 ||
-      attrs[0].vals == null ||
-      attrs[0].vals.length === 0
-    ) {
-      return null;
+    const vals = searchEntry[attr];
+    if (!Array.isArray(vals)) {
+      return [vals] as T[];
     }
 
-    return attrs[0];
+    return vals as T[];
   }
 
-  private getAttrVals(searchEntry: any, attr: string): string[] {
-    const obj = this.getAttrObj(searchEntry, attr);
-    if (obj == null) {
-      return null;
-    }
-    return obj.vals;
-  }
-
-  private getAttr(searchEntry: any, attr: string): string {
+  /**
+   * Get the first value for an ldap attribute
+   * @param searchEntry The ldap entry
+   * @param attr An attribute name on the ldap entry
+   * @returns The first value of the attribute, or null if there is not at least 1 value
+   */
+  private getAttr<T extends string | Buffer>(searchEntry: ldapts.Entry, attr: string): T {
     const vals = this.getAttrVals(searchEntry, attr);
-    if (vals == null) {
+    if (vals == null || vals.length < 1) {
       return null;
     }
-    return vals[0];
+
+    return vals[0] as T;
   }
 
   private entryDisabled(searchEntry: any): boolean {
-    const c = this.getAttr(searchEntry, "userAccountControl");
+    const c = this.getAttr<string>(searchEntry, "userAccountControl");
     if (c != null) {
       try {
         const control = parseInt(c, null);
@@ -333,145 +351,103 @@ export class LdapDirectoryService implements IDirectoryService {
   private async search<T>(
     path: string,
     filter: string,
-    processEntry: (searchEntry: any) => T,
-    controls: ldap.Control[] = [],
+    processEntry: (searchEntry: ldapts.Entry) => T,
+    controls: ldapts.Control[] = [],
   ): Promise<T[]> {
-    const options: ldap.SearchOptions = {
+    const options: ldapts.SearchOptions = {
       filter: filter,
       scope: "sub",
       paged: this.dirConfig.pagedSearch,
     };
-    const entries: T[] = [];
-    return new Promise<T[]>((resolve, reject) => {
-      this.client.search(path, options, controls, (err, res) => {
-        if (err != null) {
-          reject(err);
-          return;
-        }
-
-        res.on("error", (resErr) => {
-          reject(resErr);
-        });
-
-        res.on("searchEntry", (entry) => {
-          const e = processEntry(entry);
-          if (e != null) {
-            entries.push(e);
-          }
-        });
-
-        res.on("end", (result) => {
-          resolve(entries);
-        });
-      });
-    });
+    const { searchEntries } = await this.client.search(path, options, controls);
+    return searchEntries.map((e) => processEntry(e)).filter((e) => e != null);
   }
 
   private async bind(): Promise<any> {
-    return new Promise<void>((resolve, reject) => {
-      if (this.dirConfig.hostname == null || this.dirConfig.port == null) {
-        reject(this.i18nService.t("dirConfigIncomplete"));
-        return;
-      }
-      const protocol = "ldap" + (this.dirConfig.ssl && !this.dirConfig.startTls ? "s" : "");
-      const url = protocol + "://" + this.dirConfig.hostname + ":" + this.dirConfig.port;
-      const options: ldap.ClientOptions = {
-        url: url.trim().toLowerCase(),
-      };
+    if (this.dirConfig.hostname == null || this.dirConfig.port == null) {
+      throw new Error(this.i18nService.t("dirConfigIncomplete"));
+    }
 
-      const tlsOptions: any = {};
-      if (this.dirConfig.ssl) {
-        if (this.dirConfig.sslAllowUnauthorized) {
-          tlsOptions.rejectUnauthorized = !this.dirConfig.sslAllowUnauthorized;
-        }
-        if (!this.dirConfig.startTls) {
-          if (
-            this.dirConfig.sslCaPath != null &&
-            this.dirConfig.sslCaPath !== "" &&
-            fs.existsSync(this.dirConfig.sslCaPath)
-          ) {
-            tlsOptions.ca = [fs.readFileSync(this.dirConfig.sslCaPath)];
-          }
-          if (
-            this.dirConfig.sslCertPath != null &&
-            this.dirConfig.sslCertPath !== "" &&
-            fs.existsSync(this.dirConfig.sslCertPath)
-          ) {
-            tlsOptions.cert = fs.readFileSync(this.dirConfig.sslCertPath);
-          }
-          if (
-            this.dirConfig.sslKeyPath != null &&
-            this.dirConfig.sslKeyPath !== "" &&
-            fs.existsSync(this.dirConfig.sslKeyPath)
-          ) {
-            tlsOptions.key = fs.readFileSync(this.dirConfig.sslKeyPath);
-          }
-        } else {
-          if (
-            this.dirConfig.tlsCaPath != null &&
-            this.dirConfig.tlsCaPath !== "" &&
-            fs.existsSync(this.dirConfig.tlsCaPath)
-          ) {
-            tlsOptions.ca = [fs.readFileSync(this.dirConfig.tlsCaPath)];
-          }
-        }
-      }
+    const protocol = this.dirConfig.ssl && !this.dirConfig.startTls ? "ldaps" : "ldap";
 
-      tlsOptions.checkServerIdentity = this.checkServerIdentityAltNames;
-      options.tlsOptions = tlsOptions;
+    const url = protocol + "://" + this.dirConfig.hostname + ":" + this.dirConfig.port;
+    const options: ldapts.ClientOptions = {
+      url: url.trim().toLowerCase(),
+    };
 
-      this.client = ldap.createClient(options);
+    // If using ldaps, TLS options are given to the client constructor
+    if (protocol === "ldaps") {
+      options.tlsOptions = this.buildTlsOptions();
+    }
 
-      const user =
-        this.dirConfig.username == null || this.dirConfig.username.trim() === ""
-          ? null
-          : this.dirConfig.username;
-      const pass =
-        this.dirConfig.password == null || this.dirConfig.password.trim() === ""
-          ? null
-          : this.dirConfig.password;
+    this.client = new ldapts.Client(options);
 
-      if (user == null || pass == null) {
-        reject(this.i18nService.t("usernamePasswordNotConfigured"));
-        return;
-      }
+    const user =
+      this.dirConfig.username == null || this.dirConfig.username.trim() === ""
+        ? null
+        : this.dirConfig.username;
+    const pass =
+      this.dirConfig.password == null || this.dirConfig.password.trim() === ""
+        ? null
+        : this.dirConfig.password;
 
-      if (this.dirConfig.startTls && this.dirConfig.ssl) {
-        this.client.starttls(options.tlsOptions, undefined, (err, res) => {
-          if (err != null) {
-            reject(err.message);
-          } else {
-            this.client.bind(user, pass, (err2) => {
-              if (err2 != null) {
-                reject(err2.message);
-              } else {
-                resolve();
-              }
-            });
-          }
-        });
-      } else {
-        this.client.bind(user, pass, (err) => {
-          if (err != null) {
-            reject(err.message);
-          } else {
-            resolve();
-          }
-        });
-      }
-    });
+    if (user == null || pass == null) {
+      throw new Error(this.i18nService.t("usernamePasswordNotConfigured"));
+    }
+
+    // If using StartTLS, TLS options are given to the StartTLS call
+    if (this.dirConfig.startTls && this.dirConfig.ssl) {
+      await this.client.startTLS(this.buildTlsOptions());
+    }
+
+    try {
+      await this.client.bind(user, pass);
+    } catch {
+      await this.client.unbind();
+    }
   }
 
-  private async unbind(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.client.unbind((err) => {
-        if (err != null) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+  private buildTlsOptions(): tls.ConnectionOptions {
+    const tlsOptions: tls.ConnectionOptions = {};
+
+    if (this.dirConfig.sslAllowUnauthorized) {
+      tlsOptions.rejectUnauthorized = !this.dirConfig.sslAllowUnauthorized;
+    }
+    if (!this.dirConfig.startTls) {
+      if (
+        this.dirConfig.sslCaPath != null &&
+        this.dirConfig.sslCaPath !== "" &&
+        fs.existsSync(this.dirConfig.sslCaPath)
+      ) {
+        tlsOptions.ca = [fs.readFileSync(this.dirConfig.sslCaPath)];
+      }
+      if (
+        this.dirConfig.sslCertPath != null &&
+        this.dirConfig.sslCertPath !== "" &&
+        fs.existsSync(this.dirConfig.sslCertPath)
+      ) {
+        tlsOptions.cert = fs.readFileSync(this.dirConfig.sslCertPath);
+      }
+      if (
+        this.dirConfig.sslKeyPath != null &&
+        this.dirConfig.sslKeyPath !== "" &&
+        fs.existsSync(this.dirConfig.sslKeyPath)
+      ) {
+        tlsOptions.key = fs.readFileSync(this.dirConfig.sslKeyPath);
+      }
+    } else {
+      if (
+        this.dirConfig.tlsCaPath != null &&
+        this.dirConfig.tlsCaPath !== "" &&
+        fs.existsSync(this.dirConfig.tlsCaPath)
+      ) {
+        tlsOptions.ca = [fs.readFileSync(this.dirConfig.tlsCaPath)];
+      }
+    }
+
+    tlsOptions.checkServerIdentity = this.checkServerIdentityAltNames;
+
+    return tlsOptions;
   }
 
   private bufToGuid(buf: Buffer) {
@@ -494,7 +470,7 @@ export class LdapDirectoryService implements IDirectoryService {
     return guid.toLowerCase();
   }
 
-  private checkServerIdentityAltNames(host: string, cert: PeerCertificate) {
+  private checkServerIdentityAltNames(host: string, cert: tls.PeerCertificate) {
     // Fixes the cert representation when subject is empty and altNames are present
     // Required for node versions < 12.14.1 (which could be used for bwdc cli)
     // Adapted from: https://github.com/auth0/ad-ldap-connector/commit/1f4dd2be6ed93dda591dd31ed5483a9b452a8d2a
@@ -510,6 +486,6 @@ export class LdapDirectoryService implements IDirectoryService {
       };
     }
 
-    return checkServerIdentity(host, cert);
+    return tls.checkServerIdentity(host, cert);
   }
 }
