@@ -221,7 +221,7 @@ export class LdapDirectoryService implements IDirectoryService {
       return null;
     }
 
-    const members = this.getAttrVals(searchEntry, this.syncConfig.memberAttribute);
+    const members = this.getAttrVals<string>(searchEntry, this.syncConfig.memberAttribute);
     if (members != null) {
       for (const memDn of members) {
         if (userMap.has(memDn) && !group.userMemberExternalIds.has(userMap.get(memDn))) {
@@ -236,9 +236,9 @@ export class LdapDirectoryService implements IDirectoryService {
   }
 
   private getExternalId(searchEntry: any, referenceId: string) {
-    const attrObj = this.getAttrObj(searchEntry, "objectGUID");
-    if (attrObj != null && attrObj.vals != null && attrObj.vals.length > 0) {
-      return this.bufToGuid(attrObj.vals[0]);
+    const attr = this.getAttr<Buffer>(searchEntry, "objectGUID");
+    if (attr != null) {
+      return this.bufToGuid(attr);
     } else {
       return referenceId;
     }
@@ -282,39 +282,48 @@ export class LdapDirectoryService implements IDirectoryService {
     return null;
   }
 
-  // Returns the key - value[] pair of an attribute
-  private getAttrObj(searchEntry: ldapts.Entry, attr: string): { type: string; vals: any[] } {
+  /**
+   */
+
+  /**
+   * Get all values for an ldap attribute
+   * @param searchEntry The ldap entry
+   * @param attr An attribute name on the ldap entry
+   * @returns An array containing all values of the attribute, or null if there are no values
+   */
+  private getAttrVals<T extends string | Buffer>(
+    searchEntry: ldapts.Entry,
+    attr: string,
+  ): T[] | null {
     if (searchEntry == null || searchEntry[attr] == null) {
       return null;
     }
 
-    // Hack to fit in with previous object type, this should be rewritten
-    return {
-      type: attr,
-      vals: [searchEntry[attr]],
-    };
-  }
-
-  // Returns the value[] of an attribute
-  private getAttrVals(searchEntry: any, attr: string): string[] {
-    const obj = this.getAttrObj(searchEntry, attr);
-    if (obj == null) {
-      return null;
+    const vals = searchEntry[attr];
+    if (!Array.isArray(vals)) {
+      return [vals] as T[];
     }
-    return obj.vals;
+
+    return vals as T[];
   }
 
-  // Returns the first value of an attribute, i.e. value[0]
-  private getAttr(searchEntry: any, attr: string): string {
+  /**
+   * Get the first value for an ldap attribute
+   * @param searchEntry The ldap entry
+   * @param attr An attribute name on the ldap entry
+   * @returns The first value of the attribute, or null if there is not at least 1 value
+   */
+  private getAttr<T extends string | Buffer>(searchEntry: ldapts.Entry, attr: string): T {
     const vals = this.getAttrVals(searchEntry, attr);
-    if (vals == null) {
+    if (vals == null || vals.length < 1) {
       return null;
     }
-    return vals[0];
+
+    return vals[0] as T;
   }
 
   private entryDisabled(searchEntry: any): boolean {
-    const c = this.getAttr(searchEntry, "userAccountControl");
+    const c = this.getAttr<string>(searchEntry, "userAccountControl");
     if (c != null) {
       try {
         const control = parseInt(c, null);
