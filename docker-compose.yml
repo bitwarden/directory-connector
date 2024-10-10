@@ -1,0 +1,18 @@
+services:
+  open-ldap:
+    image: bitnami/openldap:latest
+    hostname: openldap
+    environment:
+      - LDAP_ADMIN_USERNAME=admin
+      - LDAP_ADMIN_PASSWORD=admin
+      - LDAP_ROOT=dc=bitwarden,dc=com
+      - LDAP_ENABLE_TLS=yes
+      - LDAP_TLS_CERT_FILE=/certs/openldap.pem
+      - LDAP_TLS_KEY_FILE=/certs/openldap-key.pem
+      - LDAP_TLS_CA_FILE=/certs/rootCA.pem
+    volumes:
+      - "./openldap/ldifs:/ldifs"
+      - "./openldap/certs:/certs"
+    ports:
+      - "1389:1389"
+      - "1636:1636"
