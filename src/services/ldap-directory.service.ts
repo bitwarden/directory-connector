@@ -368,13 +368,15 @@ export class LdapDirectoryService implements IDirectoryService {
       throw new Error(this.i18nService.t("dirConfigIncomplete"));
     }
 
-    const protocol = "ldap" + (this.dirConfig.ssl && !this.dirConfig.startTls ? "s" : "");
+    const protocol = this.dirConfig.ssl && !this.dirConfig.startTls ? "ldaps" : "ldap";
+
     const url = protocol + "://" + this.dirConfig.hostname + ":" + this.dirConfig.port;
     const options: ldapts.ClientOptions = {
       url: url.trim().toLowerCase(),
     };
 
-    if (this.dirConfig.ssl) {
+    // If using ldaps, TLS options are given to the client constructor
+    if (protocol === "ldaps") {
       options.tlsOptions = this.buildTlsOptions();
     }
 
@@ -393,8 +395,9 @@ export class LdapDirectoryService implements IDirectoryService {
       throw new Error(this.i18nService.t("usernamePasswordNotConfigured"));
     }
 
+    // If using StartTLS, TLS options are given to the StartTLS call
     if (this.dirConfig.startTls && this.dirConfig.ssl) {
-      await this.client.startTLS(options.tlsOptions);
+      await this.client.startTLS(this.buildTlsOptions());
     }
 
     try {
