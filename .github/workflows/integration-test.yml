@@ -68,19 +68,11 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install mkcert
 
-      - name: Generate self-signed TLS certificates
-        run: |
-          mkcert -install
-          mkdir ./openldap/certs
-          cp $(mkcert -CAROOT)/rootCA.pem ./openldap/certs/rootCA.pem
-          mkcert -key-file ./openldap/certs/openldap-key.pem -cert-file ./openldap/certs/openldap.pem localhost openldap
-
-      - name: Start OpenLDAP docker container
-        run: docker compose up -d
+      - name: Setup integration tests
+        run: npm run test:integration:setup
 
       - name: Run integration tests
-        run: |
-          npm run test:integration --coverage
+        run: npm run test:integration --coverage
 
       - name: Report test results
         uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1

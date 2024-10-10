@@ -69,6 +69,7 @@
     "test:watch:all": "jest --watchAll --testPathIgnorePatterns=.integration.spec.ts",
     "test:integration": "cross-env NODE_EXTRA_CA_CERTS='openldap/certs/rootCA.pem' jest .integration.spec.ts",
     "test:integration:watch": "cross-env NODE_EXTRA_CA_CERTS='openldap/certs/rootCA.pem' jest .integration.spec.ts --watch",
+    "test:integration:setup": "sh ./openldap/mkcert.sh && docker compose up -d",
     "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {

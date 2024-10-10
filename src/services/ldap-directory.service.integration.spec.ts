@@ -11,11 +11,11 @@ import { SyncConfiguration } from "../models/syncConfiguration";
 import { LdapDirectoryService } from "./ldap-directory.service";
 import { StateService } from "./state.service";
 
-// These tests integrate with the OpenLDAP docker image and seed data located in utils/integration-tests.
-// To start the docker container for local testing (from the repository root):
-//   docker compose up -d
-// Once the docker container is running, these tests can be run using:
-//   npm run test:integration:watch
+// These tests integrate with the OpenLDAP docker image and seed data located in the openldap folder.
+// To run theses tests:
+//  Install mkcert, e.g.: brew install mkcert
+//  Configure the environment: npm run test:integration:setup
+//  Run tests: npm run test:integration:watch
 
 describe("ldapDirectoryService", () => {
   let logService: MockProxy<LogService>;
