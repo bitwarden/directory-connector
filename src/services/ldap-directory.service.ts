@@ -121,7 +121,7 @@ export class LdapDirectoryService implements IDirectoryService {
 
   private buildUser(searchEntry: any, deleted: boolean): UserEntry {
     const user = new UserEntry();
-    user.referenceId = searchEntry.dn;
+    user.referenceId = this.getReferenceId(searchEntry);
     user.deleted = deleted;
 
     if (user.referenceId == null) {
@@ -173,7 +173,7 @@ export class LdapDirectoryService implements IDirectoryService {
     let groupSearchEntries: any[] = [];
     const initialSearchGroupIds = await this.search<string>(path, filter, (se: any) => {
       groupSearchEntries.push(se);
-      return se.objectName;
+      return this.getReferenceId(se);
     });
 
     if (searchSinceRevision && initialSearchGroupIds.length === 0) {
@@ -189,7 +189,7 @@ export class LdapDirectoryService implements IDirectoryService {
     const userPath = this.makeSearchPath(this.syncConfig.userPath);
     const userIdMap = new Map<string, string>();
     await this.search<string>(userPath, userFilter, (se: any) => {
-      userIdMap.set(se.objectName, this.getExternalId(se, se.objectName));
+      userIdMap.set(this.getReferenceId(se), this.getExternalId(se, this.getReferenceId(se)));
       return se;
     });
 
@@ -205,7 +205,7 @@ export class LdapDirectoryService implements IDirectoryService {
 
   private buildGroup(searchEntry: any, userMap: Map<string, string>) {
     const group = new GroupEntry();
-    group.referenceId = searchEntry.objectName;
+    group.referenceId = this.getReferenceId(searchEntry);
     if (group.referenceId == null) {
       return null;
     }
@@ -235,13 +235,24 @@ export class LdapDirectoryService implements IDirectoryService {
     return group;
   }
 
-  private getExternalId(searchEntry: any, referenceId: string) {
+  /**
+   * The externalId is the "objectGUID" property if present (a unique identifier used by Active Directory),
+   * otherwise it falls back to the provided referenceId.
+   */
+  private getExternalId(searchEntry: ldapts.Entry, referenceId: string) {
     const attr = this.getAttr<Buffer>(searchEntry, "objectGUID");
     if (attr != null) {
       return this.bufToGuid(attr);
     } else {
       return referenceId;
     }
+  }
+
+  /**
+   * Gets the object's reference id (dn)
+   */
+  private getReferenceId(entry: ldapts.Entry): string {
+    return entry.dn;
   }
 
   private buildBaseFilter(objectClass: string, subFilter: string): string {
