@@ -36,28 +36,46 @@ describe("ldapDirectoryService", () => {
     directoryService = new LdapDirectoryService(logService, i18nService, stateService);
   });
 
-  it("gets users and groups without TLS", async () => {
-    stateService.getDirectory
-      .calledWith(DirectoryType.Ldap)
-      .mockResolvedValue(getLdapConfiguration());
-    stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
+  describe("basic sync fetching users and groups", () => {
+    it("with an unencrypted connection", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.Ldap)
+        .mockResolvedValue(getLdapConfiguration());
+      stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
 
-    const result = await directoryService.getEntries(true, true);
-    expect(result).toEqual([groupFixtures, userFixtures]);
-  });
+      const result = await directoryService.getEntries(true, true);
+      expect(result).toEqual([groupFixtures, userFixtures]);
+    });
 
-  it("gets users and groups with TLS", async () => {
-    stateService.getDirectory.calledWith(DirectoryType.Ldap).mockResolvedValue(
-      getLdapConfiguration({
-        ssl: true,
-        startTls: true,
-        tlsCaPath: "./openldap/certs/rootCA.pem",
-      }),
-    );
-    stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
+    // StartTLS opportunistically encrypts an otherwise unencrypted connection and therefore uses the same port
+    it("with StartTLS + SSL", async () => {
+      stateService.getDirectory.calledWith(DirectoryType.Ldap).mockResolvedValue(
+        getLdapConfiguration({
+          ssl: true,
+          startTls: true,
+          tlsCaPath: "./openldap/certs/rootCA.pem",
+        }),
+      );
+      stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
 
-    const result = await directoryService.getEntries(true, true);
-    expect(result).toEqual([groupFixtures, userFixtures]);
+      const result = await directoryService.getEntries(true, true);
+      expect(result).toEqual([groupFixtures, userFixtures]);
+    });
+
+    // The ldaps protocol requires use of SSL and uses the secure port
+    it("with SSL using the ldaps protocol", async () => {
+      stateService.getDirectory.calledWith(DirectoryType.Ldap).mockResolvedValue(
+        getLdapConfiguration({
+          port: 1636,
+          ssl: true,
+          sslCaPath: "./openldap/certs/rootCA.pem",
+        }),
+      );
+      stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
+
+      const result = await directoryService.getEntries(true, true);
+      expect(result).toEqual([groupFixtures, userFixtures]);
+    });
   });
 
   describe("users", () => {
@@ -148,7 +166,7 @@ const getLdapConfiguration = (config?: Partial<LdapConfiguration>): LdapConfigur
   sslCertPath: null,
   sslKeyPath: null,
   sslCaPath: null,
-  hostname: "127.0.0.1",
+  hostname: "localhost",
   port: 1389,
   domain: null,
   rootPath: "dc=bitwarden,dc=com",
