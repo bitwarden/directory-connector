@@ -51,6 +51,7 @@ describe("ldapDirectoryService", () => {
       getLdapConfiguration({
         ssl: true,
         startTls: true,
+        tlsCaPath: "./openldap/certs/rootCA.pem",
       }),
     );
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
