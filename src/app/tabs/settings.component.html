@@ -492,20 +492,6 @@
             <input
               class="form-check-input"
               type="checkbox"
-              id="overwriteExisting"
-              [(ngModel)]="sync.overwriteExisting"
-              name="OverwriteExisting"
-            />
-            <label class="form-check-label" for="overwriteExisting">{{
-              "overwriteExisting" | i18n
-            }}</label>
-          </div>
-        </div>
-        <div class="mb-3">
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
               id="largeImport"
               [(ngModel)]="sync.largeImport"
               name="LargeImport"
@@ -747,6 +733,31 @@
               />
               <div class="form-text">{{ "ex" | i18n }} name</div>
             </div>
+          </div>
+        </div>
+        <div class="tw-mb-3">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="overwriteExisting"
+              [(ngModel)]="sync.overwriteExisting"
+              name="OverwriteExisting"
+            />
+            <label class="form-check-label" for="overwriteExisting"
+              >{{ "overwriteExisting" | i18n }}
+              <a
+                bitLink
+                class="tw-ml-auto"
+                href="https://bitwarden.com/help/user-group-filters/#overwriting-syncs"
+                target="_blank"
+                rel="noreferrer"
+                appA11yTitle="{{ 'overwriteExistingTooltip' | i18n }}"
+                slot="end"
+              >
+                <i class="bwi bwi-question-circle"></i>
+              </a>
+            </label>
           </div>
         </div>
       </div>
