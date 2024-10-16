@@ -1,0 +1,3064 @@
+version: 1
+
+dn: dc=bitwarden,dc=com
+dc: bitwarden
+objectClass: dcObject
+objectClass: organization
+o: Bitwarden
+
+dn: ou=Accounting,dc=bitwarden, dc=com
+changetype: add
+ou: Accounting
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Product Development,dc=bitwarden, dc=com
+changetype: add
+ou: Product Development
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+ou: Product Testing
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+ou: Human Resources
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+ou: Payroll
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+ou: Janitorial
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Management,dc=bitwarden, dc=com
+changetype: add
+ou: Management
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+ou: Administrative
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Peons,dc=bitwarden, dc=com
+changetype: add
+ou: Peons
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Planning,dc=bitwarden, dc=com
+changetype: add
+ou: Planning
+objectClass: top
+objectClass: organizationalUnit
+
+dn: cn=Marice Au,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Marice Au
+sn: Au
+description: This is Marice Au's description
+facsimileTelephoneNumber: +1 206 313-7217
+l: Redmond
+ou: Management
+postalAddress: Management$Redmond
+telephoneNumber: +1 206 543-5270
+title: Master Management Technician
+userPassword: Password1
+uid: AuM
+givenName: Marice
+mail: AuM@97f0443039a24a91b1a9cfbdf5ae8e1e.bitwarden.com
+carLicense: NWC0LO
+departmentNumber: 3456
+employeeType: Normal
+homePhone: +1 206 944-5226
+initials: M. A.
+mobile: +1 206 468-6410
+pager: +1 206 573-6372
+roomNumber: 9762 
+
+dn: cn=Kunitaka Duplan,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Kunitaka Duplan
+sn: Duplan
+description: This is Kunitaka Duplan's description
+facsimileTelephoneNumber: +1 206 971-2493
+l: Cupertino
+ou: Management
+postalAddress: Management$Cupertino
+telephoneNumber: +1 206 763-4326
+title: Junior Management Writer
+userPassword: Password1
+uid: DuplanK
+givenName: Kunitaka
+mail: DuplanK@c72f77d8df544dfda8a24066a5992ad2.bitwarden.com
+carLicense: WWVWQC
+departmentNumber: 6882
+employeeType: Employee
+homePhone: +1 206 547-3357
+initials: K. D.
+mobile: +1 206 461-5851
+pager: +1 206 818-9586
+roomNumber: 8113
+manager: cn=Marice Au,ou=Management,dc=bitwarden, dc=com 
+
+dn: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Vicuong Dyba
+sn: Dyba
+description: This is Vicuong Dyba's description
+facsimileTelephoneNumber: +1 213 169-4485
+l: Armonk
+ou: Product Development
+postalAddress: Product Development$Armonk
+telephoneNumber: +1 213 482-9147
+title: Associate Product Development Figurehead
+userPassword: Password1
+uid: DybaV
+givenName: Vicuong
+mail: DybaV@69cfa5de8d574e7e93ee6f134eee78e1.bitwarden.com
+carLicense: 4B4N3K
+departmentNumber: 3628
+employeeType: Contract
+homePhone: +1 213 581-4137
+initials: V. D.
+mobile: +1 213 774-3956
+pager: +1 213 196-4781
+roomNumber: 9270
+secretary: cn=Kunitaka Duplan,ou=Management,dc=bitwarden, dc=com
+manager: cn=Marice Au,ou=Management,dc=bitwarden, dc=com 
+
+dn: cn=Lynnea Dasilva,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Lynnea Dasilva
+sn: Dasilva
+description: This is Lynnea Dasilva's description
+facsimileTelephoneNumber: +1 415 516-2049
+l: Sunnyvale
+ou: Janitorial
+postalAddress: Janitorial$Sunnyvale
+telephoneNumber: +1 415 855-5238
+title: Master Janitorial Assistant
+userPassword: Password1
+uid: DasilvaL
+givenName: Lynnea
+mail: DasilvaL@58ad0883939b4209a1c1bf6c7755ae5e.bitwarden.com
+carLicense: C8CLWE
+departmentNumber: 3742
+employeeType: Contract
+homePhone: +1 415 949-7908
+initials: L. D.
+mobile: +1 415 819-1732
+pager: +1 415 614-6101
+roomNumber: 8247
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com
+manager: cn=Marice Au,ou=Management,dc=bitwarden, dc=com 
+
+dn: cn=Deina Tosczak,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Deina Tosczak
+sn: Tosczak
+description: This is Deina Tosczak's description
+facsimileTelephoneNumber: +1 408 445-3965
+l: Fremont
+ou: Peons
+postalAddress: Peons$Fremont
+telephoneNumber: +1 408 822-8906
+title: Associate Peons Madonna
+userPassword: Password1
+uid: TosczakD
+givenName: Deina
+mail: TosczakD@7f9e6985348c418e8ff3641fece39e66.bitwarden.com
+carLicense: C1G563
+departmentNumber: 9779
+employeeType: Contract
+homePhone: +1 408 111-6472
+initials: D. T.
+mobile: +1 408 313-7909
+pager: +1 408 495-2367
+roomNumber: 9998
+secretary: cn=Lynnea Dasilva,ou=Janitorial,dc=bitwarden, dc=com
+manager: cn=Marice Au,ou=Management,dc=bitwarden, dc=com 
+
+dn: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Tilmon Kuzbary
+sn: Kuzbary
+description: This is Tilmon Kuzbary's description
+facsimileTelephoneNumber: +1 213 958-6999
+l: Orem
+ou: Human Resources
+postalAddress: Human Resources$Orem
+telephoneNumber: +1 213 648-4401
+title: Supreme Human Resources Janitor
+userPassword: Password1
+uid: KuzbaryT
+givenName: Tilmon
+mail: KuzbaryT@3240d1a2eaf04434a14261b96f6d2bb6.bitwarden.com
+carLicense: AW8QB6
+departmentNumber: 4046
+employeeType: Contract
+homePhone: +1 213 781-4347
+initials: T. K.
+mobile: +1 213 292-8463
+pager: +1 213 374-2827
+roomNumber: 8303
+secretary: cn=Kunitaka Duplan,ou=Management,dc=bitwarden, dc=com
+manager: cn=Marice Au,ou=Management,dc=bitwarden, dc=com 
+
+dn: cn=Esko Leoutsarakos,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Esko Leoutsarakos
+sn: Leoutsarakos
+description: This is Esko Leoutsarakos's description
+facsimileTelephoneNumber: +1 408 203-8927
+l: San Francisco
+ou: Janitorial
+postalAddress: Janitorial$San Francisco
+telephoneNumber: +1 408 429-3846
+title: Supreme Janitorial Visionary
+userPassword: Password1
+uid: LeoutsaE
+givenName: Esko
+mail: LeoutsaE@34a80c8185264cb488e9d77e0e48048a.bitwarden.com
+carLicense: OYT7MQ
+departmentNumber: 8145
+employeeType: Normal
+homePhone: +1 408 225-8714
+initials: E. L.
+mobile: +1 408 126-9412
+pager: +1 408 224-8111
+roomNumber: 9469
+secretary: cn=Lynnea Dasilva,ou=Janitorial,dc=bitwarden, dc=com
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com 
+
+dn: cn=Inga Schnirer,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Inga Schnirer
+sn: Schnirer
+description: This is Inga Schnirer's description
+facsimileTelephoneNumber: +1 510 280-5842
+l: Sunnyvale
+ou: Product Testing
+postalAddress: Product Testing$Sunnyvale
+telephoneNumber: +1 510 725-8106
+title: Chief Product Testing Figurehead
+userPassword: Password1
+uid: SchnireI
+givenName: Inga
+mail: SchnireI@edea5ed9373841ccafe37d0a8a108b8b.bitwarden.com
+carLicense: 37FUKT
+departmentNumber: 1647
+employeeType: Employee
+homePhone: +1 510 958-3513
+initials: I. S.
+mobile: +1 510 224-7519
+pager: +1 510 366-9415
+roomNumber: 8719
+secretary: cn=Kunitaka Duplan,ou=Management,dc=bitwarden, dc=com
+manager: cn=Marice Au,ou=Management,dc=bitwarden, dc=com 
+
+dn: cn=Moel Antkowiak,ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Moel Antkowiak
+sn: Antkowiak
+description: This is Moel Antkowiak's description
+facsimileTelephoneNumber: +1 206 985-3833
+l: Cupertino
+ou: Payroll
+postalAddress: Payroll$Cupertino
+telephoneNumber: +1 206 622-6063
+title: Master Payroll Sales Rep
+userPassword: Password1
+uid: AntkowiM
+givenName: Moel
+mail: AntkowiM@18f9b0170d63476f94e7865dfb12ad0a.bitwarden.com
+carLicense: Y5DWLB
+departmentNumber: 3769
+employeeType: Normal
+homePhone: +1 206 522-4627
+initials: M. A.
+mobile: +1 206 108-6232
+pager: +1 206 733-3818
+roomNumber: 9136
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com
+manager: cn=Inga Schnirer,ou=Product Testing,dc=bitwarden, dc=com 
+
+dn: cn=Truda Gothard,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Truda Gothard
+sn: Gothard
+description: This is Truda Gothard's description
+facsimileTelephoneNumber: +1 408 578-6158
+l: San Francisco
+ou: Human Resources
+postalAddress: Human Resources$San Francisco
+telephoneNumber: +1 408 408-9670
+title: Associate Human Resources Janitor
+userPassword: Password1
+uid: GothardT
+givenName: Truda
+mail: GothardT@4691b2eac8ba4d1390582076e407a460.bitwarden.com
+carLicense: DYPLHH
+departmentNumber: 5321
+employeeType: Normal
+homePhone: +1 408 907-3144
+initials: T. G.
+mobile: +1 408 347-4846
+pager: +1 408 785-5861
+roomNumber: 9415
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Amberly Tuan,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Amberly Tuan
+sn: Tuan
+description: This is Amberly Tuan's description
+facsimileTelephoneNumber: +1 213 467-5096
+l: Redmond
+ou: Product Testing
+postalAddress: Product Testing$Redmond
+telephoneNumber: +1 213 342-6913
+title: Master Product Testing Grunt
+userPassword: Password1
+uid: TuanA
+givenName: Amberly
+mail: TuanA@e6ecc40f4d2343039a82728f79fb14d2.bitwarden.com
+carLicense: KJ7ND3
+departmentNumber: 4216
+employeeType: Normal
+homePhone: +1 213 250-1833
+initials: A. T.
+mobile: +1 213 892-8020
+pager: +1 213 494-5078
+roomNumber: 9746
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Selime Zaia,ou=Product Development,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Selime Zaia
+sn: Zaia
+description: This is Selime Zaia's description
+facsimileTelephoneNumber: +1 408 793-2531
+l: Cupertino
+ou: Product Development
+postalAddress: Product Development$Cupertino
+telephoneNumber: +1 408 187-9668
+title: Supreme Product Development Madonna
+userPassword: Password1
+uid: ZaiaS
+givenName: Selime
+mail: ZaiaS@a6d782b2db80409c8d2165c0e3cd66a1.bitwarden.com
+carLicense: DP75RH
+departmentNumber: 3650
+employeeType: Contract
+homePhone: +1 408 109-9218
+initials: S. Z.
+mobile: +1 408 510-4465
+pager: +1 408 244-4279
+roomNumber: 9238
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Delcine Montelli,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Delcine Montelli
+sn: Montelli
+description: This is Delcine Montelli's description
+facsimileTelephoneNumber: +1 804 670-8076
+l: San Jose
+ou: Human Resources
+postalAddress: Human Resources$San Jose
+telephoneNumber: +1 804 874-4273
+title: Associate Human Resources Admin
+userPassword: Password1
+uid: MontellD
+givenName: Delcine
+mail: MontellD@833e553a182d4d97b32fe8230f6ff99c.bitwarden.com
+carLicense: ICQBIH
+departmentNumber: 4897
+employeeType: Employee
+homePhone: +1 804 844-5793
+initials: D. M.
+mobile: +1 804 928-7393
+pager: +1 804 829-3768
+roomNumber: 8446
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Melany DiPasquale,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Melany DiPasquale
+sn: DiPasquale
+description: This is Melany DiPasquale's description
+facsimileTelephoneNumber: +1 206 933-6828
+l: Menlo Park
+ou: Management
+postalAddress: Management$Menlo Park
+telephoneNumber: +1 206 897-9720
+title: Chief Management Engineer
+userPassword: Password1
+uid: DiPasquM
+givenName: Melany
+mail: DiPasquM@940a7593b88c4fb0afde713027fc2a16.bitwarden.com
+carLicense: OL10X6
+departmentNumber: 5950
+employeeType: Contract
+homePhone: +1 206 272-6736
+initials: M. D.
+mobile: +1 206 565-7824
+pager: +1 206 210-1014
+roomNumber: 8858
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Kiersten Cutrufello,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Kiersten Cutrufello
+sn: Cutrufello
+description: This is Kiersten Cutrufello's description
+facsimileTelephoneNumber: +1 510 510-9672
+l: San Francisco
+ou: Administrative
+postalAddress: Administrative$San Francisco
+telephoneNumber: +1 510 348-6472
+title: Associate Administrative Mascot
+userPassword: Password1
+uid: CutrufeK
+givenName: Kiersten
+mail: CutrufeK@c60b8ebb120748e9aeaff4e4a09ef9ba.bitwarden.com
+carLicense: 21BRTS
+departmentNumber: 5591
+employeeType: Employee
+homePhone: +1 510 223-2531
+initials: K. C.
+mobile: +1 510 522-4488
+pager: +1 510 442-6031
+roomNumber: 9790
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Hedda Butta,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Hedda Butta
+sn: Butta
+description: This is Hedda Butta's description
+facsimileTelephoneNumber: +1 804 368-5003
+l: Cambridge
+ou: Human Resources
+postalAddress: Human Resources$Cambridge
+telephoneNumber: +1 804 883-7444
+title: Junior Human Resources Visionary
+userPassword: Password1
+uid: ButtaH
+givenName: Hedda
+mail: ButtaH@7c673260c1654ab39a2cf9c0221276cf.bitwarden.com
+carLicense: 7USLXN
+departmentNumber: 5022
+employeeType: Contract
+homePhone: +1 804 187-2665
+initials: H. B.
+mobile: +1 804 343-9292
+pager: +1 804 460-2937
+roomNumber: 8171
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Beata Greaver,ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Beata Greaver
+sn: Greaver
+description: This is Beata Greaver's description
+facsimileTelephoneNumber: +1 804 974-2474
+l: Santa Clara
+ou: Payroll
+postalAddress: Payroll$Santa Clara
+telephoneNumber: +1 804 881-6052
+title: Supreme Payroll Stooge
+userPassword: Password1
+uid: GreaverB
+givenName: Beata
+mail: GreaverB@50a85f24c25d40e8a8c71e34d2304607.bitwarden.com
+carLicense: B1OK49
+departmentNumber: 8491
+employeeType: Contract
+homePhone: +1 804 470-9910
+initials: B. G.
+mobile: +1 804 405-2188
+pager: +1 804 505-9766
+roomNumber: 9928
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Freya Crews,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Freya Crews
+sn: Crews
+description: This is Freya Crews's description
+facsimileTelephoneNumber: +1 206 466-1136
+l: San Mateo
+ou: Product Testing
+postalAddress: Product Testing$San Mateo
+telephoneNumber: +1 206 867-1448
+title: Chief Product Testing Madonna
+userPassword: Password1
+uid: CrewsF
+givenName: Freya
+mail: CrewsF@a1c5f3dace7f4c6a90a2ba5a5cb191d5.bitwarden.com
+carLicense: QK6VBS
+departmentNumber: 2727
+employeeType: Normal
+homePhone: +1 206 426-1974
+initials: F. C.
+mobile: +1 206 319-6563
+pager: +1 206 811-9838
+roomNumber: 8716
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=La verne Garey,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: La verne Garey
+sn: Garey
+description: This is La verne Garey's description
+facsimileTelephoneNumber: +1 415 865-8304
+l: San Mateo
+ou: Peons
+postalAddress: Peons$San Mateo
+telephoneNumber: +1 415 982-6454
+title: Supreme Peons President
+userPassword: Password1
+uid: GareyL
+givenName: La verne
+mail: GareyL@09d4226229cf4675bcb5278420d93bf0.bitwarden.com
+carLicense: M36JCB
+departmentNumber: 9476
+employeeType: Contract
+homePhone: +1 415 567-6778
+initials: L. G.
+mobile: +1 415 495-9529
+pager: +1 415 511-2082
+roomNumber: 8644
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Ynes Quelch,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Ynes Quelch
+sn: Quelch
+description: This is Ynes Quelch's description
+facsimileTelephoneNumber: +1 818 709-8315
+l: Redwood Shores
+ou: Product Testing
+postalAddress: Product Testing$Redwood Shores
+telephoneNumber: +1 818 356-5614
+title: Master Product Testing Writer
+userPassword: Password1
+uid: QuelchY
+givenName: Ynes
+mail: QuelchY@32db4995a2be4288b5df3b1df82be694.bitwarden.com
+carLicense: 239FP1
+departmentNumber: 9775
+employeeType: Contract
+homePhone: +1 818 250-7049
+initials: Y. Q.
+mobile: +1 818 284-8727
+pager: +1 818 603-9960
+roomNumber: 9026
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Sedat Lakhian,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Sedat Lakhian
+sn: Lakhian
+description: This is Sedat Lakhian's description
+facsimileTelephoneNumber: +1 213 829-5690
+l: Milpitas
+ou: Product Testing
+postalAddress: Product Testing$Milpitas
+telephoneNumber: +1 213 877-9994
+title: Master Product Testing Warrior
+userPassword: Password1
+uid: LakhianS
+givenName: Sedat
+mail: LakhianS@26af69fab41b494098307b2326c9e58b.bitwarden.com
+carLicense: 0KYO1W
+departmentNumber: 1623
+employeeType: Normal
+homePhone: +1 213 463-5184
+initials: S. L.
+mobile: +1 213 681-9696
+pager: +1 213 660-5313
+roomNumber: 8357
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Amando Davalo,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Amando Davalo
+sn: Davalo
+description: This is Amando Davalo's description
+facsimileTelephoneNumber: +1 415 505-1139
+l: San Jose
+ou: Product Testing
+postalAddress: Product Testing$San Jose
+telephoneNumber: +1 415 497-7798
+title: Junior Product Testing Madonna
+userPassword: Password1
+uid: DavaloA
+givenName: Amando
+mail: DavaloA@0437e560df9b4466ac4b1814efe6272e.bitwarden.com
+carLicense: I625N0
+departmentNumber: 6145
+employeeType: Employee
+homePhone: +1 415 729-7700
+initials: A. D.
+mobile: +1 415 566-2304
+pager: +1 415 730-6424
+roomNumber: 8179
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Jackson Leapheart,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Jackson Leapheart
+sn: Leapheart
+description: This is Jackson Leapheart's description
+facsimileTelephoneNumber: +1 213 306-1088
+l: Redmond
+ou: Management
+postalAddress: Management$Redmond
+telephoneNumber: +1 213 995-8310
+title: Master Management Janitor
+userPassword: Password1
+uid: LeapheaJ
+givenName: Jackson
+mail: LeapheaJ@7c8896f33ac349c2b86974f2778c6898.bitwarden.com
+carLicense: 66M8RH
+departmentNumber: 9950
+employeeType: Employee
+homePhone: +1 213 461-2940
+initials: J. L.
+mobile: +1 213 439-1488
+pager: +1 213 736-8852
+roomNumber: 8778
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Jenica Sonier,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Jenica Sonier
+sn: Sonier
+description: This is Jenica Sonier's description
+facsimileTelephoneNumber: +1 415 248-5811
+l: Milpitas
+ou: Product Testing
+postalAddress: Product Testing$Milpitas
+telephoneNumber: +1 415 387-5278
+title: Supreme Product Testing Writer
+userPassword: Password1
+uid: SonierJ
+givenName: Jenica
+mail: SonierJ@0fe89eeff7dc4fc1a0f74df0bfbf040f.bitwarden.com
+carLicense: TT47WY
+departmentNumber: 6437
+employeeType: Normal
+homePhone: +1 415 812-2386
+initials: J. S.
+mobile: +1 415 886-4209
+pager: +1 415 213-8910
+roomNumber: 8228
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Keven Gilleland
+sn: Gilleland
+description: This is Keven Gilleland's description
+facsimileTelephoneNumber: +1 818 236-6529
+l: Cambridge
+ou: Administrative
+postalAddress: Administrative$Cambridge
+telephoneNumber: +1 818 658-9914
+title: Supreme Administrative Janitor
+userPassword: Password1
+uid: GillelaK
+givenName: Keven
+mail: GillelaK@1ceffa4df6984814a8feca5201aec1f4.bitwarden.com
+carLicense: 81MVS3
+departmentNumber: 7242
+employeeType: Employee
+homePhone: +1 818 657-1937
+initials: K. G.
+mobile: +1 818 967-8431
+pager: +1 818 866-4191
+roomNumber: 9065
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Brana Desmond,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Brana Desmond
+sn: Desmond
+description: This is Brana Desmond's description
+facsimileTelephoneNumber: +1 408 484-8962
+l: Cambridge
+ou: Janitorial
+postalAddress: Janitorial$Cambridge
+telephoneNumber: +1 408 943-6990
+title: Junior Janitorial Assistant
+userPassword: Password1
+uid: DesmondB
+givenName: Brana
+mail: DesmondB@9234e908da6b4934a2a4f1a748d0a8bb.bitwarden.com
+carLicense: K1L25J
+departmentNumber: 2848
+employeeType: Normal
+homePhone: +1 408 753-4757
+initials: B. D.
+mobile: +1 408 960-1744
+pager: +1 408 208-5052
+roomNumber: 9226
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Liz Larabie,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Liz Larabie
+sn: Larabie
+description: This is Liz Larabie's description
+facsimileTelephoneNumber: +1 206 450-8528
+l: Alameda
+ou: Product Testing
+postalAddress: Product Testing$Alameda
+telephoneNumber: +1 206 147-7100
+title: Associate Product Testing Punk
+userPassword: Password1
+uid: LarabieL
+givenName: Liz
+mail: LarabieL@ab02b314275e4768aaec0246297e34af.bitwarden.com
+carLicense: ALAEVT
+departmentNumber: 4430
+employeeType: Contract
+homePhone: +1 206 262-4388
+initials: L. L.
+mobile: +1 206 757-6484
+pager: +1 206 683-9963
+roomNumber: 9878
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Zhengyu Swact,ou=Product Development,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Zhengyu Swact
+sn: Swact
+description: This is Zhengyu Swact's description
+facsimileTelephoneNumber: +1 510 668-8208
+l: Palo Alto
+ou: Product Development
+postalAddress: Product Development$Palo Alto
+telephoneNumber: +1 510 342-6455
+title: Master Product Development Director
+userPassword: Password1
+uid: SwactZ
+givenName: Zhengyu
+mail: SwactZ@ff1a7b4761be4273abaf2ebcbaf85113.bitwarden.com
+carLicense: OSGVH9
+departmentNumber: 9647
+employeeType: Contract
+homePhone: +1 510 645-6671
+initials: Z. S.
+mobile: +1 510 135-5470
+pager: +1 510 580-5062
+roomNumber: 8614
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Rayshell MTL,ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Rayshell MTL
+sn: MTL
+description: This is Rayshell MTL's description
+facsimileTelephoneNumber: +1 408 644-5181
+l: San Francisco
+ou: Payroll
+postalAddress: Payroll$San Francisco
+telephoneNumber: +1 408 148-3770
+title: Associate Payroll Czar
+userPassword: Password1
+uid: MTLR
+givenName: Rayshell
+mail: MTLR@d3ae7595219f4362ae771d8c6dd5b1d0.bitwarden.com
+carLicense: MLDQOD
+departmentNumber: 4532
+employeeType: Contract
+homePhone: +1 408 881-6535
+initials: R. M.
+mobile: +1 408 957-4130
+pager: +1 408 733-5847
+roomNumber: 9915
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Debi Cegelski,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Debi Cegelski
+sn: Cegelski
+description: This is Debi Cegelski's description
+facsimileTelephoneNumber: +1 206 564-3582
+l: San Mateo
+ou: Peons
+postalAddress: Peons$San Mateo
+telephoneNumber: +1 206 758-7480
+title: Supreme Peons Sales Rep
+userPassword: Password1
+uid: CegelskD
+givenName: Debi
+mail: CegelskD@ac21668d43ba4692aab89cc64a9b9192.bitwarden.com
+carLicense: NSQ2I6
+departmentNumber: 3388
+employeeType: Contract
+homePhone: +1 206 961-7736
+initials: D. C.
+mobile: +1 206 931-4204
+pager: +1 206 776-1686
+roomNumber: 8867
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Gertrud Leima,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Gertrud Leima
+sn: Leima
+description: This is Gertrud Leima's description
+facsimileTelephoneNumber: +1 206 840-4361
+l: Cambridge
+ou: Management
+postalAddress: Management$Cambridge
+telephoneNumber: +1 206 743-4815
+title: Master Management Stooge
+userPassword: Password1
+uid: LeimaG
+givenName: Gertrud
+mail: LeimaG@459e2f62db0c40d5b3c7b2d6945ef874.bitwarden.com
+carLicense: OTHK19
+departmentNumber: 7436
+employeeType: Normal
+homePhone: +1 206 451-2818
+initials: G. L.
+mobile: +1 206 532-1171
+pager: +1 206 417-8364
+roomNumber: 9236
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Iteam Moomey,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Iteam Moomey
+sn: Moomey
+description: This is Iteam Moomey's description
+facsimileTelephoneNumber: +1 510 652-8773
+l: Santa Clara
+ou: Management
+postalAddress: Management$Santa Clara
+telephoneNumber: +1 510 976-6586
+title: Associate Management Stooge
+userPassword: Password1
+uid: MoomeyI
+givenName: Iteam
+mail: MoomeyI@dd5cfcee75de4e98844cbb2dd89a0b3c.bitwarden.com
+carLicense: 6MH8IF
+departmentNumber: 4171
+employeeType: Contract
+homePhone: +1 510 900-3412
+initials: I. M.
+mobile: +1 510 101-2638
+pager: +1 510 546-9968
+roomNumber: 8156
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Jagat Gell,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Jagat Gell
+sn: Gell
+description: This is Jagat Gell's description
+facsimileTelephoneNumber: +1 213 858-3834
+l: Cupertino
+ou: Human Resources
+postalAddress: Human Resources$Cupertino
+telephoneNumber: +1 213 972-9059
+title: Master Human Resources Pinhead
+userPassword: Password1
+uid: GellJ
+givenName: Jagat
+mail: GellJ@fcd97c4a8c3844f08b1e5ede745ae54d.bitwarden.com
+carLicense: 2CP9X6
+departmentNumber: 4311
+employeeType: Contract
+homePhone: +1 213 832-3447
+initials: J. G.
+mobile: +1 213 371-4628
+pager: +1 213 306-4971
+roomNumber: 8452
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Heidie Graff,ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Heidie Graff
+sn: Graff
+description: This is Heidie Graff's description
+facsimileTelephoneNumber: +1 510 358-9199
+l: Redwood Shores
+ou: Payroll
+postalAddress: Payroll$Redwood Shores
+telephoneNumber: +1 510 888-6044
+title: Junior Payroll Madonna
+userPassword: Password1
+uid: GraffH
+givenName: Heidie
+mail: GraffH@57b486c8d85c409689fd3730df4e5523.bitwarden.com
+carLicense: KHUX5S
+departmentNumber: 3878
+employeeType: Employee
+homePhone: +1 510 482-8641
+initials: H. G.
+mobile: +1 510 258-4421
+pager: +1 510 690-4425
+roomNumber: 8324
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Adrea Leistico,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Adrea Leistico
+sn: Leistico
+description: This is Adrea Leistico's description
+facsimileTelephoneNumber: +1 408 220-7509
+l: Redmond
+ou: Human Resources
+postalAddress: Human Resources$Redmond
+telephoneNumber: +1 408 347-2039
+title: Supreme Human Resources Evangelist
+userPassword: Password1
+uid: LeisticA
+givenName: Adrea
+mail: LeisticA@0141ad3c77b644be86ed8ec3561192af.bitwarden.com
+carLicense: BYGRF6
+departmentNumber: 8905
+employeeType: Contract
+homePhone: +1 408 761-5740
+initials: A. L.
+mobile: +1 408 820-5437
+pager: +1 408 475-8366
+roomNumber: 9702
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Te-Wei Cung,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Te-Wei Cung
+sn: Cung
+description: This is Te-Wei Cung's description
+facsimileTelephoneNumber: +1 213 746-7474
+l: San Francisco
+ou: Administrative
+postalAddress: Administrative$San Francisco
+telephoneNumber: +1 213 950-2815
+title: Associate Administrative President
+userPassword: Password1
+uid: CungT
+givenName: Te-Wei
+mail: CungT@910f877bb3744ec8a7fde724ecbc2355.bitwarden.com
+carLicense: EIVSYA
+departmentNumber: 2768
+employeeType: Normal
+homePhone: +1 213 921-3841
+initials: T. C.
+mobile: +1 213 298-2136
+pager: +1 213 310-3059
+roomNumber: 8540
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Balakrishna Sawczyn,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Balakrishna Sawczyn
+sn: Sawczyn
+description: This is Balakrishna Sawczyn's description
+facsimileTelephoneNumber: +1 818 881-2729
+l: Redwood Shores
+ou: Administrative
+postalAddress: Administrative$Redwood Shores
+telephoneNumber: +1 818 893-6001
+title: Associate Administrative Dictator
+userPassword: Password1
+uid: SawczynB
+givenName: Balakrishna
+mail: SawczynB@4fe8a2f655cd45aba545b0b74d8cdc26.bitwarden.com
+carLicense: 3LMOWV
+departmentNumber: 6217
+employeeType: Contract
+homePhone: +1 818 721-8089
+initials: B. S.
+mobile: +1 818 322-4951
+pager: +1 818 677-2558
+roomNumber: 8654
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Zsa zsa Upchurch,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Zsa zsa Upchurch
+sn: Upchurch
+description: This is Zsa zsa Upchurch's description
+facsimileTelephoneNumber: +1 206 498-2329
+l: Menlo Park
+ou: Administrative
+postalAddress: Administrative$Menlo Park
+telephoneNumber: +1 206 197-7783
+title: Master Administrative Sales Rep
+userPassword: Password1
+uid: UpchurcZ
+givenName: Zsa zsa
+mail: UpchurcZ@3c11f573de8f4908ada18c7fd8a1cb8d.bitwarden.com
+carLicense: 8VRK3R
+departmentNumber: 4604
+employeeType: Normal
+homePhone: +1 206 865-1380
+initials: Z. U.
+mobile: +1 206 832-8188
+pager: +1 206 616-2252
+roomNumber: 9286
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Mayasandra Alanis,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Mayasandra Alanis
+sn: Alanis
+description: This is Mayasandra Alanis's description
+facsimileTelephoneNumber: +1 510 216-4693
+l: Alameda
+ou: Human Resources
+postalAddress: Human Resources$Alameda
+telephoneNumber: +1 510 854-8527
+title: Associate Human Resources Madonna
+userPassword: Password1
+uid: AlanisM
+givenName: Mayasandra
+mail: AlanisM@d36f0da7bde1417c871787ddace3eaa5.bitwarden.com
+carLicense: UQLRHD
+departmentNumber: 5952
+employeeType: Contract
+homePhone: +1 510 750-4431
+initials: M. A.
+mobile: +1 510 898-8439
+pager: +1 510 581-7423
+roomNumber: 8567
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Shirley-Ann Grandmason,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Shirley-Ann Grandmason
+sn: Grandmason
+description: This is Shirley-Ann Grandmason's description
+facsimileTelephoneNumber: +1 206 390-2027
+l: Cupertino
+ou: Product Testing
+postalAddress: Product Testing$Cupertino
+telephoneNumber: +1 206 864-8676
+title: Chief Product Testing Admin
+userPassword: Password1
+uid: GrandmaS
+givenName: Shirley-Ann
+mail: GrandmaS@c5e991206b3e4544a3612af8077e26ce.bitwarden.com
+carLicense: XAY8T7
+departmentNumber: 4480
+employeeType: Contract
+homePhone: +1 206 915-1232
+initials: S. G.
+mobile: +1 206 528-3213
+pager: +1 206 732-9343
+roomNumber: 9140
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Tricord Banerjee,ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Tricord Banerjee
+sn: Banerjee
+description: This is Tricord Banerjee's description
+facsimileTelephoneNumber: +1 510 774-5954
+l: Santa Clara
+ou: Payroll
+postalAddress: Payroll$Santa Clara
+telephoneNumber: +1 510 149-3796
+title: Junior Payroll Director
+userPassword: Password1
+uid: BanerjeT
+givenName: Tricord
+mail: BanerjeT@0cf6d44baded4f949aa6f553554f8d65.bitwarden.com
+carLicense: XKVQT5
+departmentNumber: 8432
+employeeType: Normal
+homePhone: +1 510 263-9892
+initials: T. B.
+mobile: +1 510 739-9058
+pager: +1 510 950-3715
+roomNumber: 9914
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Wiebren Lampman,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Wiebren Lampman
+sn: Lampman
+description: This is Wiebren Lampman's description
+facsimileTelephoneNumber: +1 818 472-8688
+l: Armonk
+ou: Administrative
+postalAddress: Administrative$Armonk
+telephoneNumber: +1 818 918-3403
+title: Associate Administrative Vice President
+userPassword: Password1
+uid: LampmanW
+givenName: Wiebren
+mail: LampmanW@d0ea38ebac994dc19876844fd02c8f1a.bitwarden.com
+carLicense: 1MQFAA
+departmentNumber: 1705
+employeeType: Employee
+homePhone: +1 818 112-4293
+initials: W. L.
+mobile: +1 818 134-7146
+pager: +1 818 727-7914
+roomNumber: 8331
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Sergiu Bibr,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Sergiu Bibr
+sn: Bibr
+description: This is Sergiu Bibr's description
+facsimileTelephoneNumber: +1 408 806-1659
+l: San Jose
+ou: Management
+postalAddress: Management$San Jose
+telephoneNumber: +1 408 580-2521
+title: Chief Management Grunt
+userPassword: Password1
+uid: BibrS
+givenName: Sergiu
+mail: BibrS@dde38d4cf79a43e6be6fc2e886efaf99.bitwarden.com
+carLicense: N7A4L4
+departmentNumber: 8692
+employeeType: Employee
+homePhone: +1 408 578-4485
+initials: S. B.
+mobile: +1 408 113-2195
+pager: +1 408 638-2352
+roomNumber: 9914
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Norikazu Beneteau,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Norikazu Beneteau
+sn: Beneteau
+description: This is Norikazu Beneteau's description
+facsimileTelephoneNumber: +1 415 142-1367
+l: San Jose
+ou: Janitorial
+postalAddress: Janitorial$San Jose
+telephoneNumber: +1 415 212-2687
+title: Junior Janitorial Consultant
+userPassword: Password1
+uid: BeneteaN
+givenName: Norikazu
+mail: BeneteaN@fbbf050af39946ae96f1211bc6bcf697.bitwarden.com
+carLicense: 497B0D
+departmentNumber: 1303
+employeeType: Normal
+homePhone: +1 415 341-8902
+initials: N. B.
+mobile: +1 415 875-7231
+pager: +1 415 712-1899
+roomNumber: 8521
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Germain Burleigh,ou=Product Development,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Germain Burleigh
+sn: Burleigh
+description: This is Germain Burleigh's description
+facsimileTelephoneNumber: +1 213 307-9865
+l: Sunnyvale
+ou: Product Development
+postalAddress: Product Development$Sunnyvale
+telephoneNumber: +1 213 512-9792
+title: Associate Product Development Assistant
+userPassword: Password1
+uid: BurleigG
+givenName: Germain
+mail: BurleigG@961e076dc422493d887f975af917cc23.bitwarden.com
+carLicense: 7YMH8L
+departmentNumber: 4905
+employeeType: Employee
+homePhone: +1 213 835-7835
+initials: G. B.
+mobile: +1 213 729-7326
+pager: +1 213 316-5040
+roomNumber: 8802
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Nikos Fouret,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Nikos Fouret
+sn: Fouret
+description: This is Nikos Fouret's description
+facsimileTelephoneNumber: +1 510 838-6119
+l: San Mateo
+ou: Administrative
+postalAddress: Administrative$San Mateo
+telephoneNumber: +1 510 593-8122
+title: Supreme Administrative Artist
+userPassword: Password1
+uid: FouretN
+givenName: Nikos
+mail: FouretN@aca976004a314abfbb7dfda7c7926044.bitwarden.com
+carLicense: 41BI73
+departmentNumber: 7568
+employeeType: Employee
+homePhone: +1 510 539-7864
+initials: N. F.
+mobile: +1 510 937-3177
+pager: +1 510 226-5645
+roomNumber: 8073
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=King-Haut Glancey,ou=Product Development,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: King-Haut Glancey
+sn: Glancey
+description: This is King-Haut Glancey's description
+facsimileTelephoneNumber: +1 818 483-6869
+l: San Francisco
+ou: Product Development
+postalAddress: Product Development$San Francisco
+telephoneNumber: +1 818 288-5942
+title: Master Product Development Dictator
+userPassword: Password1
+uid: GlanceyK
+givenName: King-Haut
+mail: GlanceyK@bcef345c62a6428aa3475d808dc7e351.bitwarden.com
+carLicense: KXJN39
+departmentNumber: 5474
+employeeType: Contract
+homePhone: +1 818 983-5647
+initials: K. G.
+mobile: +1 818 750-5978
+pager: +1 818 555-2879
+roomNumber: 9230
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Kaminsky Seay,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Kaminsky Seay
+sn: Seay
+description: This is Kaminsky Seay's description
+facsimileTelephoneNumber: +1 213 772-5713
+l: San Jose
+ou: Peons
+postalAddress: Peons$San Jose
+telephoneNumber: +1 213 236-6317
+title: Associate Peons Warrior
+userPassword: Password1
+uid: SeayK
+givenName: Kaminsky
+mail: SeayK@7ea385d9791745059f886b750a2e50fb.bitwarden.com
+carLicense: WK5HKJ
+departmentNumber: 2748
+employeeType: Contract
+homePhone: +1 213 558-4532
+initials: K. S.
+mobile: +1 213 232-1253
+pager: +1 213 890-5106
+roomNumber: 8738
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Linnell Kinstley,ou=Product Development,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Linnell Kinstley
+sn: Kinstley
+description: This is Linnell Kinstley's description
+facsimileTelephoneNumber: +1 510 407-7558
+l: San Jose
+ou: Product Development
+postalAddress: Product Development$San Jose
+telephoneNumber: +1 510 475-3773
+title: Master Product Development Warrior
+userPassword: Password1
+uid: KinstleL
+givenName: Linnell
+mail: KinstleL@cd73f05f4ce24da39ba208c39afe4699.bitwarden.com
+carLicense: W6IDEN
+departmentNumber: 7535
+employeeType: Contract
+homePhone: +1 510 484-2447
+initials: L. K.
+mobile: +1 510 845-3903
+pager: +1 510 650-6584
+roomNumber: 8335
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Tish Tecklenburg,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Tish Tecklenburg
+sn: Tecklenburg
+description: This is Tish Tecklenburg's description
+facsimileTelephoneNumber: +1 804 295-4535
+l: San Mateo
+ou: Human Resources
+postalAddress: Human Resources$San Mateo
+telephoneNumber: +1 804 549-4946
+title: Chief Human Resources Consultant
+userPassword: Password1
+uid: TecklenT
+givenName: Tish
+mail: TecklenT@00b74fb6ef364737950ddfdf6aa8c176.bitwarden.com
+carLicense: FQYGR9
+departmentNumber: 3651
+employeeType: Contract
+homePhone: +1 804 915-9273
+initials: T. T.
+mobile: +1 804 995-9223
+pager: +1 804 450-9258
+roomNumber: 9027
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Vac-man Donovan,ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Vac-man Donovan
+sn: Donovan
+description: This is Vac-man Donovan's description
+facsimileTelephoneNumber: +1 818 753-5302
+l: San Mateo
+ou: Payroll
+postalAddress: Payroll$San Mateo
+telephoneNumber: +1 818 337-4931
+title: Chief Payroll Manager
+userPassword: Password1
+uid: DonovanV
+givenName: Vac-man
+mail: DonovanV@dd31f4ea6f0c44f4aa5f46684ef66e9a.bitwarden.com
+carLicense: V36XG1
+departmentNumber: 3770
+employeeType: Normal
+homePhone: +1 818 683-3596
+initials: V. D.
+mobile: +1 818 596-8782
+pager: +1 818 328-3603
+roomNumber: 8692
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Greta Ramsayer,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Greta Ramsayer
+sn: Ramsayer
+description: This is Greta Ramsayer's description
+facsimileTelephoneNumber: +1 415 696-1570
+l: San Jose
+ou: Management
+postalAddress: Management$San Jose
+telephoneNumber: +1 415 128-1408
+title: Junior Management Stooge
+userPassword: Password1
+uid: RamsayeG
+givenName: Greta
+mail: RamsayeG@a58f1d89c8df4bb585be88ea46688614.bitwarden.com
+carLicense: A53FYT
+departmentNumber: 7701
+employeeType: Normal
+homePhone: +1 415 417-5514
+initials: G. R.
+mobile: +1 415 739-9807
+pager: +1 415 610-4525
+roomNumber: 9583
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Rungroj Grazzini,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Rungroj Grazzini
+sn: Grazzini
+description: This is Rungroj Grazzini's description
+facsimileTelephoneNumber: +1 408 615-8823
+l: San Francisco
+ou: Peons
+postalAddress: Peons$San Francisco
+telephoneNumber: +1 408 470-8147
+title: Chief Peons Fellow
+userPassword: Password1
+uid: GrazzinR
+givenName: Rungroj
+mail: GrazzinR@7c9912a898274068a97bbe2d535d84de.bitwarden.com
+carLicense: V389MJ
+departmentNumber: 8371
+employeeType: Normal
+homePhone: +1 408 510-1529
+initials: R. G.
+mobile: +1 408 947-2660
+pager: +1 408 796-7075
+roomNumber: 8898
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Jacynth Jalilvand,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Jacynth Jalilvand
+sn: Jalilvand
+description: This is Jacynth Jalilvand's description
+facsimileTelephoneNumber: +1 818 423-5605
+l: San Francisco
+ou: Janitorial
+postalAddress: Janitorial$San Francisco
+telephoneNumber: +1 818 399-2057
+title: Junior Janitorial Artist
+userPassword: Password1
+uid: JalilvaJ
+givenName: Jacynth
+mail: JalilvaJ@2608713e69864fb986f222e7b3fdcdc8.bitwarden.com
+carLicense: HY4PYN
+departmentNumber: 7617
+employeeType: Normal
+homePhone: +1 818 530-2316
+initials: J. J.
+mobile: +1 818 602-4543
+pager: +1 818 303-8291
+roomNumber: 9722
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Miwa Afkham-ebrahimi,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Miwa Afkham-ebrahimi
+sn: Afkham-ebrahimi
+description: This is Miwa Afkham-ebrahimi's description
+facsimileTelephoneNumber: +1 804 994-1987
+l: San Jose
+ou: Janitorial
+postalAddress: Janitorial$San Jose
+telephoneNumber: +1 804 207-4302
+title: Associate Janitorial Visionary
+userPassword: Password1
+uid: Afkham-M
+givenName: Miwa
+mail: Afkham-M@8169b41b908f4581a543928bedc98fa2.bitwarden.com
+carLicense: N2FEH8
+departmentNumber: 1353
+employeeType: Contract
+homePhone: +1 804 489-1893
+initials: M. A.
+mobile: +1 804 132-6662
+pager: +1 804 674-7369
+roomNumber: 9479
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Harold Blumer,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Harold Blumer
+sn: Blumer
+description: This is Harold Blumer's description
+facsimileTelephoneNumber: +1 408 330-1513
+l: Cambridge
+ou: Peons
+postalAddress: Peons$Cambridge
+telephoneNumber: +1 408 555-3547
+title: Chief Peons President
+userPassword: Password1
+uid: BlumerH
+givenName: Harold
+mail: BlumerH@e5321dc62f134a59886737c8cd6060fd.bitwarden.com
+carLicense: E3WCBB
+departmentNumber: 9935
+employeeType: Normal
+homePhone: +1 408 713-3237
+initials: H. B.
+mobile: +1 408 656-2477
+pager: +1 408 131-4148
+roomNumber: 8143
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Gloriana Nill,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Gloriana Nill
+sn: Nill
+description: This is Gloriana Nill's description
+facsimileTelephoneNumber: +1 206 923-9887
+l: Redmond
+ou: Product Testing
+postalAddress: Product Testing$Redmond
+telephoneNumber: +1 206 942-5443
+title: Associate Product Testing Madonna
+userPassword: Password1
+uid: NillG
+givenName: Gloriana
+mail: NillG@bdc7052979ce43f2af94fc8fdd8de1f2.bitwarden.com
+carLicense: RFII0Q
+departmentNumber: 9214
+employeeType: Employee
+homePhone: +1 206 815-8057
+initials: G. N.
+mobile: +1 206 484-5009
+pager: +1 206 972-7119
+roomNumber: 9535
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Arlyne Fitzgibbons,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Arlyne Fitzgibbons
+sn: Fitzgibbons
+description: This is Arlyne Fitzgibbons's description
+facsimileTelephoneNumber: +1 213 117-2010
+l: Cupertino
+ou: Human Resources
+postalAddress: Human Resources$Cupertino
+telephoneNumber: +1 213 961-3501
+title: Supreme Human Resources Artist
+userPassword: Password1
+uid: FitzgibA
+givenName: Arlyne
+mail: FitzgibA@bdf4207a20c5486ca943568e769c8344.bitwarden.com
+carLicense: W8Q4P7
+departmentNumber: 8486
+employeeType: Contract
+homePhone: +1 213 772-7894
+initials: A. F.
+mobile: +1 213 254-5737
+pager: +1 213 159-6981
+roomNumber: 9092
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Melva Sabol,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Melva Sabol
+sn: Sabol
+description: This is Melva Sabol's description
+facsimileTelephoneNumber: +1 206 719-1758
+l: San Francisco
+ou: Janitorial
+postalAddress: Janitorial$San Francisco
+telephoneNumber: +1 206 641-4481
+title: Junior Janitorial Pinhead
+userPassword: Password1
+uid: SabolM
+givenName: Melva
+mail: SabolM@f6414ae4de9c48918d1c08fe0828695b.bitwarden.com
+carLicense: L97EAJ
+departmentNumber: 4085
+employeeType: Employee
+homePhone: +1 206 416-6347
+initials: M. S.
+mobile: +1 206 604-6696
+pager: +1 206 197-1167
+roomNumber: 9867
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Doretta Jobs,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Doretta Jobs
+sn: Jobs
+description: This is Doretta Jobs's description
+facsimileTelephoneNumber: +1 510 534-8755
+l: Santa Clara
+ou: Human Resources
+postalAddress: Human Resources$Santa Clara
+telephoneNumber: +1 510 657-4281
+title: Supreme Human Resources President
+userPassword: Password1
+uid: JobsD
+givenName: Doretta
+mail: JobsD@9cde21d54f45469eaa2726ba1c900158.bitwarden.com
+carLicense: 8OJWEO
+departmentNumber: 6131
+employeeType: Employee
+homePhone: +1 510 384-4102
+initials: D. J.
+mobile: +1 510 301-2764
+pager: +1 510 883-2922
+roomNumber: 9870
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Mer Rahm,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Mer Rahm
+sn: Rahm
+description: This is Mer Rahm's description
+facsimileTelephoneNumber: +1 804 576-9331
+l: Sunnyvale
+ou: Janitorial
+postalAddress: Janitorial$Sunnyvale
+telephoneNumber: +1 804 329-5877
+title: Supreme Janitorial Fellow
+userPassword: Password1
+uid: RahmM
+givenName: Mer
+mail: RahmM@4c3f9ac9725344988223c5450f40e73e.bitwarden.com
+carLicense: H0W1JU
+departmentNumber: 4101
+employeeType: Normal
+homePhone: +1 804 317-5814
+initials: M. R.
+mobile: +1 804 332-7449
+pager: +1 804 636-5895
+roomNumber: 8364
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Dorita Pearse,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Dorita Pearse
+sn: Pearse
+description: This is Dorita Pearse's description
+facsimileTelephoneNumber: +1 213 237-1269
+l: San Francisco
+ou: Janitorial
+postalAddress: Janitorial$San Francisco
+telephoneNumber: +1 213 935-6216
+title: Junior Janitorial Evangelist
+userPassword: Password1
+uid: PearseD
+givenName: Dorita
+mail: PearseD@5195582ba3484d529fcfafcfcd72f902.bitwarden.com
+carLicense: SNKEAO
+departmentNumber: 7285
+employeeType: Employee
+homePhone: +1 213 503-1899
+initials: D. P.
+mobile: +1 213 707-2242
+pager: +1 213 888-4349
+roomNumber: 8142
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Maddie Swinburne,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Maddie Swinburne
+sn: Swinburne
+description: This is Maddie Swinburne's description
+facsimileTelephoneNumber: +1 206 319-2256
+l: Menlo Park
+ou: Management
+postalAddress: Management$Menlo Park
+telephoneNumber: +1 206 343-4033
+title: Chief Management Vice President
+userPassword: Password1
+uid: SwinburM
+givenName: Maddie
+mail: SwinburM@92d79d50d4f14501ab948e4db6a5b9a6.bitwarden.com
+carLicense: YUYIWY
+departmentNumber: 2442
+employeeType: Contract
+homePhone: +1 206 328-1040
+initials: M. S.
+mobile: +1 206 207-5501
+pager: +1 206 491-9641
+roomNumber: 9191
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Ingrid Doncaster,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Ingrid Doncaster
+sn: Doncaster
+description: This is Ingrid Doncaster's description
+facsimileTelephoneNumber: +1 408 268-8595
+l: San Mateo
+ou: Peons
+postalAddress: Peons$San Mateo
+telephoneNumber: +1 408 225-1453
+title: Master Peons Figurehead
+userPassword: Password1
+uid: DoncastI
+givenName: Ingrid
+mail: DoncastI@7164110ce4464d668ff99d9d771b8186.bitwarden.com
+carLicense: BVWWX2
+departmentNumber: 2472
+employeeType: Contract
+homePhone: +1 408 170-7982
+initials: I. D.
+mobile: +1 408 619-6260
+pager: +1 408 793-9237
+roomNumber: 8871
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Rhea McCaugherty,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Rhea McCaugherty
+sn: McCaugherty
+description: This is Rhea McCaugherty's description
+facsimileTelephoneNumber: +1 213 502-2405
+l: Milpitas
+ou: Janitorial
+postalAddress: Janitorial$Milpitas
+telephoneNumber: +1 213 181-5067
+title: Chief Janitorial Sales Rep
+userPassword: Password1
+uid: McCaughR
+givenName: Rhea
+mail: McCaughR@533d2210586c4dbb9a710afc57023774.bitwarden.com
+carLicense: 3WGBUY
+departmentNumber: 4599
+employeeType: Normal
+homePhone: +1 213 681-9187
+initials: R. M.
+mobile: +1 213 257-7605
+pager: +1 213 605-7365
+roomNumber: 8774
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Emmye Thaker,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Emmye Thaker
+sn: Thaker
+description: This is Emmye Thaker's description
+facsimileTelephoneNumber: +1 213 864-5377
+l: Palo Alto
+ou: Human Resources
+postalAddress: Human Resources$Palo Alto
+telephoneNumber: +1 213 306-6732
+title: Junior Human Resources Mascot
+userPassword: Password1
+uid: ThakerE
+givenName: Emmye
+mail: ThakerE@1566f33b6a7c4a55a661acb56756703b.bitwarden.com
+carLicense: O6T3ED
+departmentNumber: 2618
+employeeType: Normal
+homePhone: +1 213 851-1719
+initials: E. T.
+mobile: +1 213 966-2866
+pager: +1 213 962-2601
+roomNumber: 9679
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Aziz Nahata,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Aziz Nahata
+sn: Nahata
+description: This is Aziz Nahata's description
+facsimileTelephoneNumber: +1 415 761-3984
+l: Orem
+ou: Peons
+postalAddress: Peons$Orem
+telephoneNumber: +1 415 791-2771
+title: Chief Peons Assistant
+userPassword: Password1
+uid: NahataA
+givenName: Aziz
+mail: NahataA@2153898ab7ac43e8a4cd26875e8f79f9.bitwarden.com
+carLicense: KRBAQS
+departmentNumber: 9013
+employeeType: Normal
+homePhone: +1 415 144-4568
+initials: A. N.
+mobile: +1 415 444-8413
+pager: +1 415 925-8152
+roomNumber: 8337
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Krishan Allan,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Krishan Allan
+sn: Allan
+description: This is Krishan Allan's description
+facsimileTelephoneNumber: +1 213 109-6388
+l: Orem
+ou: Peons
+postalAddress: Peons$Orem
+telephoneNumber: +1 213 847-4984
+title: Associate Peons Figurehead
+userPassword: Password1
+uid: AllanK
+givenName: Krishan
+mail: AllanK@51839782b883405494ef37e033aa89ea.bitwarden.com
+carLicense: AERXXD
+departmentNumber: 1216
+employeeType: Employee
+homePhone: +1 213 731-4979
+initials: K. A.
+mobile: +1 213 710-3868
+pager: +1 213 690-1041
+roomNumber: 8411
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Alvina Mesquita,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Alvina Mesquita
+sn: Mesquita
+description: This is Alvina Mesquita's description
+facsimileTelephoneNumber: +1 206 696-4563
+l: Cupertino
+ou: Product Testing
+postalAddress: Product Testing$Cupertino
+telephoneNumber: +1 206 355-4871
+title: Master Product Testing Grunt
+userPassword: Password1
+uid: MesquitA
+givenName: Alvina
+mail: MesquitA@79bdea6663dc4ac3a4257d4c21c7f0de.bitwarden.com
+carLicense: EVE4ER
+departmentNumber: 8965
+employeeType: Employee
+homePhone: +1 206 538-4202
+initials: A. M.
+mobile: +1 206 212-3553
+pager: +1 206 565-1573
+roomNumber: 8089
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Yettie O'Connor,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Yettie O'Connor
+sn: O'Connor
+description: This is Yettie O'Connor's description
+facsimileTelephoneNumber: +1 804 994-9453
+l: Armonk
+ou: Product Testing
+postalAddress: Product Testing$Armonk
+telephoneNumber: +1 804 527-5175
+title: Chief Product Testing Warrior
+userPassword: Password1
+uid: O'ConnoY
+givenName: Yettie
+mail: OConnoY@456ebf581a7049acb328b7146be81c90.bitwarden.com
+carLicense: IPEMMI
+departmentNumber: 7709
+employeeType: Employee
+homePhone: +1 804 599-8377
+initials: Y. O.
+mobile: +1 804 392-2291
+pager: +1 804 852-3420
+roomNumber: 8296
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Pierre-Alain Posthumus,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Pierre-Alain Posthumus
+sn: Posthumus
+description: This is Pierre-Alain Posthumus's description
+facsimileTelephoneNumber: +1 804 258-1810
+l: Alameda
+ou: Janitorial
+postalAddress: Janitorial$Alameda
+telephoneNumber: +1 804 718-8205
+title: Junior Janitorial Vice President
+userPassword: Password1
+uid: PosthumP
+givenName: Pierre-Alain
+mail: PosthumP@32d0178b6f2b403d8936b5cd553c552a.bitwarden.com
+carLicense: AGP24J
+departmentNumber: 3938
+employeeType: Contract
+homePhone: +1 804 370-2237
+initials: P. P.
+mobile: +1 804 540-6124
+pager: +1 804 644-6838
+roomNumber: 9517
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Avtar Siemer,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Avtar Siemer
+sn: Siemer
+description: This is Avtar Siemer's description
+facsimileTelephoneNumber: +1 213 916-8890
+l: Cupertino
+ou: Janitorial
+postalAddress: Janitorial$Cupertino
+telephoneNumber: +1 213 273-4799
+title: Junior Janitorial Punk
+userPassword: Password1
+uid: SiemerA
+givenName: Avtar
+mail: SiemerA@e2752a4c28bc42a699d53c38b2de9ff0.bitwarden.com
+carLicense: OWC8GD
+departmentNumber: 6970
+employeeType: Normal
+homePhone: +1 213 846-7489
+initials: A. S.
+mobile: +1 213 934-4617
+pager: +1 213 298-6908
+roomNumber: 9342
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Prem Goertz,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Prem Goertz
+sn: Goertz
+description: This is Prem Goertz's description
+facsimileTelephoneNumber: +1 510 768-1509
+l: Sunnyvale
+ou: Management
+postalAddress: Management$Sunnyvale
+telephoneNumber: +1 510 585-8762
+title: Chief Management Warrior
+userPassword: Password1
+uid: GoertzP
+givenName: Prem
+mail: GoertzP@086cd0723f0c4d19b12b0a6c52b08ed8.bitwarden.com
+carLicense: I3YBK1
+departmentNumber: 8399
+employeeType: Employee
+homePhone: +1 510 465-5687
+initials: P. G.
+mobile: +1 510 398-7596
+pager: +1 510 846-8742
+roomNumber: 8161
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Chandra Kneeshaw,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Chandra Kneeshaw
+sn: Kneeshaw
+description: This is Chandra Kneeshaw's description
+facsimileTelephoneNumber: +1 510 671-6269
+l: San Jose
+ou: Peons
+postalAddress: Peons$San Jose
+telephoneNumber: +1 510 578-3249
+title: Chief Peons Consultant
+userPassword: Password1
+uid: KneeshaC
+givenName: Chandra
+mail: KneeshaC@6d5fe521bb8c4ba3b0c6f19d5e349c09.bitwarden.com
+carLicense: CD4VT8
+departmentNumber: 2738
+employeeType: Normal
+homePhone: +1 510 474-8056
+initials: C. K.
+mobile: +1 510 585-6912
+pager: +1 510 601-5625
+roomNumber: 9862
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Ringo Kavanagh,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Ringo Kavanagh
+sn: Kavanagh
+description: This is Ringo Kavanagh's description
+facsimileTelephoneNumber: +1 415 917-4262
+l: Armonk
+ou: Human Resources
+postalAddress: Human Resources$Armonk
+telephoneNumber: +1 415 911-9221
+title: Junior Human Resources Stooge
+userPassword: Password1
+uid: KavanagR
+givenName: Ringo
+mail: KavanagR@a6010d4cf59f403c9d7f9d2a99b954e8.bitwarden.com
+carLicense: 49NDCQ
+departmentNumber: 8800
+employeeType: Contract
+homePhone: +1 415 458-2955
+initials: R. K.
+mobile: +1 415 852-4453
+pager: +1 415 502-5855
+roomNumber: 8827
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Vinnie Zoellner,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Vinnie Zoellner
+sn: Zoellner
+description: This is Vinnie Zoellner's description
+facsimileTelephoneNumber: +1 408 844-2511
+l: Cupertino
+ou: Janitorial
+postalAddress: Janitorial$Cupertino
+telephoneNumber: +1 408 320-4896
+title: Supreme Janitorial Consultant
+userPassword: Password1
+uid: ZoellneV
+givenName: Vinnie
+mail: ZoellneV@0989aaf9c0104bbbb2f202d6a2004237.bitwarden.com
+carLicense: Y4QGK3
+departmentNumber: 3089
+employeeType: Employee
+homePhone: +1 408 483-1940
+initials: V. Z.
+mobile: +1 408 765-5969
+pager: +1 408 453-6078
+roomNumber: 8375
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Krystalle Marui,ou=Product Development,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Krystalle Marui
+sn: Marui
+description: This is Krystalle Marui's description
+facsimileTelephoneNumber: +1 415 702-7577
+l: San Francisco
+ou: Product Development
+postalAddress: Product Development$San Francisco
+telephoneNumber: +1 415 271-5570
+title: Junior Product Development President
+userPassword: Password1
+uid: MaruiK
+givenName: Krystalle
+mail: MaruiK@8b57b0f28e5548f8a48c4d0a6a50fc68.bitwarden.com
+carLicense: P05MN0
+departmentNumber: 3890
+employeeType: Employee
+homePhone: +1 415 881-8806
+initials: K. M.
+mobile: +1 415 519-5598
+pager: +1 415 382-2171
+roomNumber: 8172
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Rafi Cripps,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Rafi Cripps
+sn: Cripps
+description: This is Rafi Cripps's description
+facsimileTelephoneNumber: +1 206 857-3905
+l: Cambridge
+ou: Janitorial
+postalAddress: Janitorial$Cambridge
+telephoneNumber: +1 206 384-1415
+title: Chief Janitorial Mascot
+userPassword: Password1
+uid: CrippsR
+givenName: Rafi
+mail: CrippsR@dd31f4ea6f0c44f4aa5f46684ef66e9a.bitwarden.com
+carLicense: TDDU4M
+departmentNumber: 8358
+employeeType: Normal
+homePhone: +1 206 707-9042
+initials: R. C.
+mobile: +1 206 293-5787
+pager: +1 206 914-1177
+roomNumber: 8095
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Doralynne Basu,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Doralynne Basu
+sn: Basu
+description: This is Doralynne Basu's description
+facsimileTelephoneNumber: +1 408 555-9534
+l: Fremont
+ou: Administrative
+postalAddress: Administrative$Fremont
+telephoneNumber: +1 408 731-6846
+title: Junior Administrative Admin
+userPassword: Password1
+uid: BasuD
+givenName: Doralynne
+mail: BasuD@5868dcc2878d429f81b86e9aecf3d38d.bitwarden.com
+carLicense: AXAVLY
+departmentNumber: 2145
+employeeType: Contract
+homePhone: +1 408 666-4049
+initials: D. B.
+mobile: +1 408 610-6187
+pager: +1 408 997-6564
+roomNumber: 8953
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Rosalinde Veedell,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Rosalinde Veedell
+sn: Veedell
+description: This is Rosalinde Veedell's description
+facsimileTelephoneNumber: +1 415 324-1491
+l: San Francisco
+ou: Administrative
+postalAddress: Administrative$San Francisco
+telephoneNumber: +1 415 779-2105
+title: Supreme Administrative Pinhead
+userPassword: Password1
+uid: VeedellR
+givenName: Rosalinde
+mail: VeedellR@1def41f5943b4e6f848af5ec02873b19.bitwarden.com
+carLicense: UVDN0D
+departmentNumber: 3205
+employeeType: Employee
+homePhone: +1 415 426-9458
+initials: R. V.
+mobile: +1 415 607-4864
+pager: +1 415 860-6901
+roomNumber: 8414
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Shutterbug Lacelle,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Shutterbug Lacelle
+sn: Lacelle
+description: This is Shutterbug Lacelle's description
+facsimileTelephoneNumber: +1 510 993-7257
+l: Santa Clara
+ou: Human Resources
+postalAddress: Human Resources$Santa Clara
+telephoneNumber: +1 510 233-9070
+title: Chief Human Resources Developer
+userPassword: Password1
+uid: LacelleS
+givenName: Shutterbug
+mail: LacelleS@7840e4c2a77e461f9d1ea50708464b2d.bitwarden.com
+carLicense: DIUBNK
+departmentNumber: 2563
+employeeType: Contract
+homePhone: +1 510 584-2320
+initials: S. L.
+mobile: +1 510 149-7470
+pager: +1 510 321-5231
+roomNumber: 9938
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Belva Winnipeg,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Belva Winnipeg
+sn: Winnipeg
+description: This is Belva Winnipeg's description
+facsimileTelephoneNumber: +1 206 478-9354
+l: Cambridge
+ou: Administrative
+postalAddress: Administrative$Cambridge
+telephoneNumber: +1 206 588-1250
+title: Junior Administrative Visionary
+userPassword: Password1
+uid: WinnipeB
+givenName: Belva
+mail: WinnipeB@ae33417800b74b1b8daa7b39ed5fdc57.bitwarden.com
+carLicense: W3XY4O
+departmentNumber: 3952
+employeeType: Contract
+homePhone: +1 206 265-7531
+initials: B. W.
+mobile: +1 206 709-2430
+pager: +1 206 828-2095
+roomNumber: 9517
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Leonardo McDougall,ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Leonardo McDougall
+sn: McDougall
+description: This is Leonardo McDougall's description
+facsimileTelephoneNumber: +1 408 327-6664
+l: Redwood Shores
+ou: Payroll
+postalAddress: Payroll$Redwood Shores
+telephoneNumber: +1 408 259-6643
+title: Chief Payroll Warrior
+userPassword: Password1
+uid: McDougaL
+givenName: Leonardo
+mail: McDougaL@98e58adba05c446c846da1ebe7623815.bitwarden.com
+carLicense: UOKEBX
+departmentNumber: 9138
+employeeType: Contract
+homePhone: +1 408 894-1689
+initials: L. M.
+mobile: +1 408 641-8891
+pager: +1 408 642-9140
+roomNumber: 9531
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Ammamaria Herring,ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Ammamaria Herring
+sn: Herring
+description: This is Ammamaria Herring's description
+facsimileTelephoneNumber: +1 408 543-4269
+l: Fremont
+ou: Payroll
+postalAddress: Payroll$Fremont
+telephoneNumber: +1 408 779-3448
+title: Chief Payroll Stooge
+userPassword: Password1
+uid: HerringA
+givenName: Ammamaria
+mail: HerringA@e3e39ba9c49a4a66982393d6f26bc8b1.bitwarden.com
+carLicense: VOEFHJ
+departmentNumber: 4949
+employeeType: Employee
+homePhone: +1 408 836-2265
+initials: A. H.
+mobile: +1 408 478-3707
+pager: +1 408 886-2989
+roomNumber: 8232
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Yueli Yakibchuk,ou=Human Resources,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Yueli Yakibchuk
+sn: Yakibchuk
+description: This is Yueli Yakibchuk's description
+facsimileTelephoneNumber: +1 818 440-6809
+l: Fremont
+ou: Human Resources
+postalAddress: Human Resources$Fremont
+telephoneNumber: +1 818 474-9288
+title: Associate Human Resources Consultant
+userPassword: Password1
+uid: YakibchY
+givenName: Yueli
+mail: YakibchY@91fa2aef7a0b4c569080332839d5512e.bitwarden.com
+carLicense: UL2UR6
+departmentNumber: 6685
+employeeType: Normal
+homePhone: +1 818 555-2177
+initials: Y. Y.
+mobile: +1 818 937-3259
+pager: +1 818 470-6931
+roomNumber: 8629
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Gerty Iguchi,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Gerty Iguchi
+sn: Iguchi
+description: This is Gerty Iguchi's description
+facsimileTelephoneNumber: +1 408 905-5899
+l: Fremont
+ou: Administrative
+postalAddress: Administrative$Fremont
+telephoneNumber: +1 408 188-4436
+title: Associate Administrative Mascot
+userPassword: Password1
+uid: IguchiG
+givenName: Gerty
+mail: IguchiG@bcc571e6ac214acc8539dd3e7ef4218f.bitwarden.com
+carLicense: AUQDTM
+departmentNumber: 7437
+employeeType: Contract
+homePhone: +1 408 506-6012
+initials: G. I.
+mobile: +1 408 223-3281
+pager: +1 408 568-1664
+roomNumber: 8696
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Yaser Callery,ou=Management,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Yaser Callery
+sn: Callery
+description: This is Yaser Callery's description
+facsimileTelephoneNumber: +1 415 454-2182
+l: Menlo Park
+ou: Management
+postalAddress: Management$Menlo Park
+telephoneNumber: +1 415 859-4899
+title: Master Management Madonna
+userPassword: Password1
+uid: CalleryY
+givenName: Yaser
+mail: CalleryY@6230ce48d06c4adba4fee16dacf3aacb.bitwarden.com
+carLicense: KXC4H9
+departmentNumber: 2067
+employeeType: Contract
+homePhone: +1 415 805-8864
+initials: Y. C.
+mobile: +1 415 776-6773
+pager: +1 415 286-1395
+roomNumber: 8796
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Mary-Pat Arbuckle,ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Mary-Pat Arbuckle
+sn: Arbuckle
+description: This is Mary-Pat Arbuckle's description
+facsimileTelephoneNumber: +1 408 480-2157
+l: Milpitas
+ou: Payroll
+postalAddress: Payroll$Milpitas
+telephoneNumber: +1 408 502-8397
+title: Supreme Payroll Admin
+userPassword: Password1
+uid: ArbucklM
+givenName: Mary-Pat
+mail: ArbucklM@2b23dbb27baf478681a802c2510dd0df.bitwarden.com
+carLicense: LWBUC9
+departmentNumber: 7698
+employeeType: Contract
+homePhone: +1 408 872-5405
+initials: M. A.
+mobile: +1 408 875-7047
+pager: +1 408 246-1362
+roomNumber: 9117
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Sayed Devore,ou=Payroll,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Sayed Devore
+sn: Devore
+description: This is Sayed Devore's description
+facsimileTelephoneNumber: +1 804 188-9669
+l: Milpitas
+ou: Payroll
+postalAddress: Payroll$Milpitas
+telephoneNumber: +1 804 858-2084
+title: Supreme Payroll Manager
+userPassword: Password1
+uid: DevoreS
+givenName: Sayed
+mail: DevoreS@97e0ce17a4af42e594025cdd4659fe64.bitwarden.com
+carLicense: 2PLORS
+departmentNumber: 3826
+employeeType: Contract
+homePhone: +1 804 368-5716
+initials: S. D.
+mobile: +1 804 276-5528
+pager: +1 804 798-9581
+roomNumber: 8409
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Bahram Younglove,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Bahram Younglove
+sn: Younglove
+description: This is Bahram Younglove's description
+facsimileTelephoneNumber: +1 206 284-8124
+l: Palo Alto
+ou: Product Testing
+postalAddress: Product Testing$Palo Alto
+telephoneNumber: +1 206 824-9222
+title: Master Product Testing Fellow
+userPassword: Password1
+uid: YoungloB
+givenName: Bahram
+mail: YoungloB@27d8549892a84dfab24d317e0ea5c6f9.bitwarden.com
+carLicense: 621G2O
+departmentNumber: 3739
+employeeType: Normal
+homePhone: +1 206 559-4226
+initials: B. Y.
+mobile: +1 206 471-6297
+pager: +1 206 618-4970
+roomNumber: 8925
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Ronnica Grimm,ou=Product Development,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Ronnica Grimm
+sn: Grimm
+description: This is Ronnica Grimm's description
+facsimileTelephoneNumber: +1 818 572-6911
+l: Santa Clara
+ou: Product Development
+postalAddress: Product Development$Santa Clara
+telephoneNumber: +1 818 831-3884
+title: Associate Product Development Evangelist
+userPassword: Password1
+uid: GrimmR
+givenName: Ronnica
+mail: GrimmR@e8afc87106b0471e80dc7004a3fb1034.bitwarden.com
+carLicense: W7R55X
+departmentNumber: 9890
+employeeType: Employee
+homePhone: +1 818 471-1670
+initials: R. G.
+mobile: +1 818 754-3991
+pager: +1 818 595-1298
+roomNumber: 8300
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Hr Arcouet,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Hr Arcouet
+sn: Arcouet
+description: This is Hr Arcouet's description
+facsimileTelephoneNumber: +1 415 615-5089
+l: Sunnyvale
+ou: Janitorial
+postalAddress: Janitorial$Sunnyvale
+telephoneNumber: +1 415 516-5617
+title: Supreme Janitorial Warrior
+userPassword: Password1
+uid: ArcouetH
+givenName: Hr
+mail: ArcouetH@db8f0754948548ad9c40eb006ee34f44.bitwarden.com
+carLicense: 3T0PEY
+departmentNumber: 3737
+employeeType: Normal
+homePhone: +1 415 464-6101
+initials: H. A.
+mobile: +1 415 495-6141
+pager: +1 415 950-8792
+roomNumber: 8779
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Susi Narron,ou=Janitorial,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Susi Narron
+sn: Narron
+description: This is Susi Narron's description
+facsimileTelephoneNumber: +1 804 573-2994
+l: Alameda
+ou: Janitorial
+postalAddress: Janitorial$Alameda
+telephoneNumber: +1 804 639-1157
+title: Junior Janitorial Writer
+userPassword: Password1
+uid: NarronS
+givenName: Susi
+mail: NarronS@c6a8d6d12ae045f8ba075455c769a929.bitwarden.com
+carLicense: 4S2XNI
+departmentNumber: 4356
+employeeType: Contract
+homePhone: +1 804 799-3569
+initials: S. N.
+mobile: +1 804 584-8386
+pager: +1 804 740-6820
+roomNumber: 8020
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Gayla Abdalla,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Gayla Abdalla
+sn: Abdalla
+description: This is Gayla Abdalla's description
+facsimileTelephoneNumber: +1 206 170-9902
+l: Cambridge
+ou: Administrative
+postalAddress: Administrative$Cambridge
+telephoneNumber: +1 206 692-5879
+title: Supreme Administrative Stooge
+userPassword: Password1
+uid: AbdallaG
+givenName: Gayla
+mail: AbdallaG@5ed2a85f8436420b8aa9acd30085ca22.bitwarden.com
+carLicense: AIUH59
+departmentNumber: 5365
+employeeType: Employee
+homePhone: +1 206 762-3273
+initials: G. A.
+mobile: +1 206 997-6207
+pager: +1 206 698-1230
+roomNumber: 8804
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Kiele Mullett,ou=Product Testing,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Kiele Mullett
+sn: Mullett
+description: This is Kiele Mullett's description
+facsimileTelephoneNumber: +1 206 875-1000
+l: Redmond
+ou: Product Testing
+postalAddress: Product Testing$Redmond
+telephoneNumber: +1 206 650-4620
+title: Supreme Product Testing Artist
+userPassword: Password1
+uid: MullettK
+givenName: Kiele
+mail: MullettK@4a4ab4cd5b354b88972dfc3ecc3c2dae.bitwarden.com
+carLicense: XUR00O
+departmentNumber: 1842
+employeeType: Contract
+homePhone: +1 206 277-6710
+initials: K. M.
+mobile: +1 206 476-7372
+pager: +1 206 543-9482
+roomNumber: 9868
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Otakar Menzel,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Otakar Menzel
+sn: Menzel
+description: This is Otakar Menzel's description
+facsimileTelephoneNumber: +1 415 343-7758
+l: San Francisco
+ou: Administrative
+postalAddress: Administrative$San Francisco
+telephoneNumber: +1 415 505-2401
+title: Junior Administrative Visionary
+userPassword: Password1
+uid: MenzelO
+givenName: Otakar
+mail: MenzelO@0163e1f0b0b44e11ba7d1bbab29d9f5b.bitwarden.com
+carLicense: DPXOUK
+departmentNumber: 1285
+employeeType: Normal
+homePhone: +1 415 957-5734
+initials: O. M.
+mobile: +1 415 723-8937
+pager: +1 415 290-9255
+roomNumber: 9191
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Becky Priestley,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Becky Priestley
+sn: Priestley
+description: This is Becky Priestley's description
+facsimileTelephoneNumber: +1 510 625-3934
+l: Santa Clara
+ou: Administrative
+postalAddress: Administrative$Santa Clara
+telephoneNumber: +1 510 761-8073
+title: Master Administrative Punk
+userPassword: Password1
+uid: PriestlB
+givenName: Becky
+mail: PriestlB@20dec23f741b4bdbb6cfe2ede2355e8a.bitwarden.com
+carLicense: 0NF53F
+departmentNumber: 4796
+employeeType: Normal
+homePhone: +1 510 871-1351
+initials: B. P.
+mobile: +1 510 423-6891
+pager: +1 510 539-5434
+roomNumber: 9729
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Josy Puddington,ou=Administrative,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Josy Puddington
+sn: Puddington
+description: This is Josy Puddington's description
+facsimileTelephoneNumber: +1 213 116-5752
+l: Cupertino
+ou: Administrative
+postalAddress: Administrative$Cupertino
+telephoneNumber: +1 213 834-8648
+title: Master Administrative Director
+userPassword: Password1
+uid: PuddingJ
+givenName: Josy
+mail: PuddingJ@6ed2cf3faa6c4ecda344d54729acd99e.bitwarden.com
+carLicense: O1AUEI
+departmentNumber: 7208
+employeeType: Employee
+homePhone: +1 213 485-7354
+initials: J. P.
+mobile: +1 213 589-7543
+pager: +1 213 622-7558
+roomNumber: 9123
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Glen Salyniuk,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Glen Salyniuk
+sn: Salyniuk
+description: This is Glen Salyniuk's description
+facsimileTelephoneNumber: +1 415 846-7382
+l: San Mateo
+ou: Peons
+postalAddress: Peons$San Mateo
+telephoneNumber: +1 415 340-9642
+title: Associate Peons Dictator
+userPassword: Password1
+uid: SalyniuG
+givenName: Glen
+mail: SalyniuG@32d0178b6f2b403d8936b5cd553c552a.bitwarden.com
+carLicense: YOL0BV
+departmentNumber: 3455
+employeeType: Contract
+homePhone: +1 415 555-8509
+initials: G. S.
+mobile: +1 415 720-2506
+pager: +1 415 569-6451
+roomNumber: 9880
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
+
+dn: cn=Sande Quizmaster,ou=Peons,dc=bitwarden, dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Sande Quizmaster
+sn: Quizmaster
+description: This is Sande Quizmaster's description
+facsimileTelephoneNumber: +1 510 292-7649
+l: Palo Alto
+ou: Peons
+postalAddress: Peons$Palo Alto
+telephoneNumber: +1 510 973-7771
+title: Associate Peons Vice President
+userPassword: Password1
+uid: QuizmasS
+givenName: Sande
+mail: QuizmasS@934cf7260248491e9b07a332cb7f8d2b.bitwarden.com
+carLicense: 888TW0
+departmentNumber: 2473
+employeeType: Contract
+homePhone: +1 510 579-3036
+initials: S. Q.
+mobile: +1 510 449-5989
+pager: +1 510 695-2386
+roomNumber: 8982
+manager: cn=Tilmon Kuzbary,ou=Human Resources,dc=bitwarden, dc=com
+secretary: cn=Vicuong Dyba,ou=Product Development,dc=bitwarden, dc=com 
