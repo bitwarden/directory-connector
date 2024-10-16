@@ -647,7 +647,10 @@
         "message": "More than 2000 users or groups are expected to sync."
     },
     "overwriteExisting": {
-        "message": "Overwrite existing organization users based on current sync settings."
+	"message": "Remove and re-add organization users during the next sync (For debugging purposes)"
+    },
+    "overwriteExistingTooltip":{
+	"message": "Learn more about Sync options"
     },
     "clientId": {
         "message": "Client ID"
