@@ -138,7 +138,7 @@
     "webpack": "5.95.0",
     "webpack-cli": "5.1.4",
     "webpack-merge": "6.0.1",
-    "zone.js": "0.14.10",
+    "zone.js": "0.15.0",
     "webpack-node-externals": "3.0.0"
   },
   "dependencies": {
@@ -171,7 +171,7 @@
     "proper-lockfile": "4.1.2",
     "rxjs": "7.8.1",
     "tldjs": "2.3.1",
-    "zone.js": "0.14.10"
+    "zone.js": "0.15.0"
   },
   "engines": {
     "node": "~20.18.0",
