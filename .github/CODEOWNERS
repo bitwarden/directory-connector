@@ -6,3 +6,6 @@
 
 # Default file owners.
 * @bitwarden/team-admin-console-dev
+
+# Needed for Version Bump Automation (DO NOT REMOVE) - BRE
+**/package.json
