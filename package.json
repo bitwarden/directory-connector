@@ -83,7 +83,7 @@
     "@microsoft/microsoft-graph-types": "2.40.0",
     "@ngtools/webpack": "17.3.10",
     "@types/inquirer": "8.2.10",
-    "@types/jest": "29.5.13",
+    "@types/jest": "29.5.14",
     "@types/lowdb": "1.0.15",
     "@types/node": "20.16.10",
     "@types/node-fetch": "2.6.11",
