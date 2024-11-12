@@ -73,7 +73,7 @@
     "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "17.3.10",
+    "@angular-devkit/build-angular": "17.3.11",
     "@angular-eslint/eslint-plugin-template": "17.5.3",
     "@angular-eslint/template-parser": "17.5.3",
     "@angular/compiler-cli": "17.3.12",
@@ -81,7 +81,7 @@
     "@electron/rebuild": "3.6.0",
     "@fluffy-spoon/substitute": "1.208.0",
     "@microsoft/microsoft-graph-types": "2.40.0",
-    "@ngtools/webpack": "17.3.10",
+    "@ngtools/webpack": "17.3.11",
     "@types/inquirer": "8.2.10",
     "@types/jest": "29.5.13",
     "@types/lowdb": "1.0.15",
