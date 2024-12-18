@@ -18,6 +18,11 @@ import { IDirectoryService } from "./directory.service";
 
 const UserControlAccountDisabled = 2;
 
+/**
+ * The attribute name for the unique identifier used by Active Directory.
+ */
+const ActiveDirectoryExternalId = "objectGUID";
+
 export class LdapDirectoryService implements IDirectoryService {
   private client: ldapts.Client;
   private dirConfig: LdapConfiguration;
@@ -240,7 +245,7 @@ export class LdapDirectoryService implements IDirectoryService {
    * otherwise it falls back to the provided referenceId.
    */
   private getExternalId(searchEntry: ldapts.Entry, referenceId: string) {
-    const attr = this.getAttr<Buffer>(searchEntry, "objectGUID");
+    const attr = this.getAttr<Buffer>(searchEntry, ActiveDirectoryExternalId);
     if (attr != null) {
       return this.bufToGuid(attr);
     } else {
@@ -358,6 +363,9 @@ export class LdapDirectoryService implements IDirectoryService {
       filter: filter,
       scope: "sub",
       paged: this.dirConfig.pagedSearch,
+      // We need to expressly tell ldapts what attributes to return as Buffer objects,
+      // otherwise they are returned as strings
+      explicitBufferAttributes: [ActiveDirectoryExternalId],
     };
     const { searchEntries } = await this.client.search(path, options, controls);
     return searchEntries.map((e) => processEntry(e)).filter((e) => e != null);
