@@ -1,4 +1,5 @@
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
+import { BatchingService } from "@/jslib/common/src/abstractions/batching.service";
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
@@ -31,6 +32,7 @@ export class SyncService {
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
     private stateService: StateService,
+    private batchingService: BatchingService,
   ) {}
 
   async sync(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
@@ -78,41 +80,22 @@ export class SyncService {
         return [groups, users];
       }
 
-      const req = this.buildRequest(
+      const reqs = this.buildRequest(
         groups,
         users,
         syncConfig.removeDisabled,
         syncConfig.overwriteExisting,
         syncConfig.largeImport,
       );
-      const reqJson = JSON.stringify(req);
 
-      const orgId = await this.stateService.getOrganizationId();
-      if (orgId == null) {
-        throw new Error("Organization not set.");
-      }
+      const reqJson = JSON.stringify(reqs);
 
-      // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
-      let hashLegacy: string = null;
-      const hashBuffLegacy = await this.cryptoFunctionService.hash(
-        this.environmentService.getApiUrl() + reqJson,
-        "sha256",
-      );
-      if (hashBuffLegacy != null) {
-        hashLegacy = Utils.fromBufferToB64(hashBuffLegacy);
-      }
-      let hash: string = null;
-      const hashBuff = await this.cryptoFunctionService.hash(
-        this.environmentService.getApiUrl() + orgId + reqJson,
-        "sha256",
-      );
-      if (hashBuff != null) {
-        hash = Utils.fromBufferToB64(hashBuff);
-      }
-      const lastHash = await this.stateService.getLastSyncHash();
+      const hash: string = await this.generateNewHash(reqJson);
 
-      if (lastHash == null || (hash !== lastHash && hashLegacy !== lastHash)) {
-        await this.apiService.postPublicImportDirectory(req);
+      if (hash) {
+        for (const req of reqs) {
+          await this.apiService.postPublicImportDirectory(req);
+        }
         await this.stateService.setLastSyncHash(hash);
       } else {
         groups = null;
@@ -131,6 +114,36 @@ export class SyncService {
       this.messagingService.send("dirSyncCompleted", { successfully: false });
       throw e;
     }
+  }
+
+  async generateNewHash(reqJson: string): Promise<string> {
+    const orgId = await this.stateService.getOrganizationId();
+    if (orgId == null) {
+      throw new Error("Organization not set.");
+    }
+
+    // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
+    let hashLegacy: string = null;
+    const hashBuffLegacy = await this.cryptoFunctionService.hash(
+      this.environmentService.getApiUrl() + reqJson,
+      "sha256",
+    );
+    if (hashBuffLegacy != null) {
+      hashLegacy = Utils.fromBufferToB64(hashBuffLegacy);
+    }
+    let hash: string = null;
+    const hashBuff = await this.cryptoFunctionService.hash(
+      this.environmentService.getApiUrl() + orgId + reqJson,
+      "sha256",
+    );
+    if (hashBuff != null) {
+      hash = Utils.fromBufferToB64(hashBuff);
+    }
+    const lastHash = await this.stateService.getLastSyncHash();
+
+    const hashIsNew = lastHash == null || (hash !== lastHash && hashLegacy !== lastHash);
+
+    return hashIsNew ? hash : "";
   }
 
   private removeDuplicateUsers(users: UserEntry[]) {
@@ -198,7 +211,7 @@ export class SyncService {
     return allUsers;
   }
 
-  private getDirectoryService(): IDirectoryService {
+  getDirectoryService(): IDirectoryService {
     switch (this.dirType) {
       case DirectoryType.GSuite:
         return new GSuiteDirectoryService(this.logService, this.i18nService, this.stateService);
@@ -221,25 +234,31 @@ export class SyncService {
     removeDisabled: boolean,
     overwriteExisting: boolean,
     largeImport = false,
-  ) {
-    return new OrganizationImportRequest({
-      groups: (groups ?? []).map((g) => {
-        return {
-          name: g.name,
-          externalId: g.externalId,
-          memberExternalIds: Array.from(g.userMemberExternalIds),
-        };
-      }),
-      users: (users ?? []).map((u) => {
-        return {
-          email: u.email,
-          externalId: u.externalId,
-          deleted: u.deleted || (removeDisabled && u.disabled),
-        };
-      }),
-      overwriteExisting: overwriteExisting,
-      largeImport: largeImport,
-    });
+  ): OrganizationImportRequest[] {
+    if (largeImport) {
+      return this.batchingService.batchRequests(groups, users, overwriteExisting, removeDisabled);
+    } else {
+      return [
+        new OrganizationImportRequest({
+          groups: (groups ?? []).map((g) => {
+            return {
+              name: g.name,
+              externalId: g.externalId,
+              memberExternalIds: Array.from(g.userMemberExternalIds),
+            };
+          }),
+          users: (users ?? []).map((u) => {
+            return {
+              email: u.email,
+              externalId: u.externalId,
+              deleted: u.deleted || (removeDisabled && u.disabled),
+            };
+          }),
+          overwriteExisting: overwriteExisting,
+          largeImport: largeImport,
+        }),
+      ];
+    }
   }
 
   private async saveSyncTimes(syncConfig: SyncConfiguration, time: Date) {

@@ -7,6 +7,7 @@ import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
+import { BatchingService } from "@/jslib/common/src/services/batching.service";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
@@ -51,6 +52,7 @@ export class Main {
   syncService: SyncService;
   stateService: StateService;
   stateMigrationService: StateMigrationService;
+  batchingService: BatchingService;
 
   constructor() {
     const applicationName = "Bitwarden Directory Connector";
@@ -154,6 +156,7 @@ export class Main {
       this.i18nService,
       this.environmentService,
       this.stateService,
+      this.batchingService,
     );
 
     this.program = new Program(this);

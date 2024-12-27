@@ -3,6 +3,7 @@ import { APP_INITIALIZER, NgModule } from "@angular/core";
 import { JslibServicesModule } from "@/jslib/angular/src/services/jslib-services.module";
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
+import { BatchingService as BatchingServiceAbstraction } from "@/jslib/common/src/abstractions/batching.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
 import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/abstractions/crypto.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
@@ -175,6 +176,7 @@ export function initFactory(
         I18nServiceAbstraction,
         EnvironmentServiceAbstraction,
         StateServiceAbstraction,
+        BatchingServiceAbstraction,
       ],
     }),
     safeProvider(AuthGuardService),

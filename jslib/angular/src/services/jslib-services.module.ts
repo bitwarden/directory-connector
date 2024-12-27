@@ -2,6 +2,7 @@ import { LOCALE_ID, NgModule } from "@angular/core";
 
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
+import { BatchingService as BatchingServiceAbstraction } from "@/jslib/common/src/abstractions/batching.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
 import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/abstractions/crypto.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
@@ -19,6 +20,7 @@ import { Account } from "@/jslib/common/src/models/domain/account";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
+import { BatchingService } from "@/jslib/common/src/services/batching.service";
 import { ConsoleLogService } from "@/jslib/common/src/services/consoleLog.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
@@ -137,6 +139,11 @@ import { ValidationService } from "./validation.service";
           new StateFactory(GlobalState, Account),
         ),
       deps: [StorageServiceAbstraction, SECURE_STORAGE],
+    }),
+    safeProvider({
+      provide: BatchingServiceAbstraction,
+      useClass: BatchingService,
+      useAngularDecorators: true,
     }),
   ] satisfies SafeProvider[],
 })
