@@ -3,10 +3,10 @@ import { APP_INITIALIZER, NgModule } from "@angular/core";
 import { JslibServicesModule } from "@/jslib/angular/src/services/jslib-services.module";
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
-import { BatchingService as BatchingServiceAbstraction } from "@/jslib/common/src/abstractions/batching.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
 import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/abstractions/crypto.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
+import { DirectoryFactoryAbstraction } from "@/jslib/common/src/abstractions/directory-factory.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@/jslib/common/src/abstractions/log.service";
@@ -17,7 +17,9 @@ import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/
 import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abstractions/token.service";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
+import { BatchRequestBuilder as BatchRequestAbstraction } from "@/jslib/common/src/services/batch-requests.service";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
+import { SingleRequestBuilder as SingleRequestAbstraction } from "@/jslib/common/src/services/single-request.service";
 import { ElectronLogService } from "@/jslib/electron/src/services/electronLog.service";
 import { ElectronPlatformUtilsService } from "@/jslib/electron/src/services/electronPlatformUtils.service";
 import { ElectronRendererMessagingService } from "@/jslib/electron/src/services/electronRendererMessaging.service";
@@ -176,7 +178,9 @@ export function initFactory(
         I18nServiceAbstraction,
         EnvironmentServiceAbstraction,
         StateServiceAbstraction,
-        BatchingServiceAbstraction,
+        BatchRequestAbstraction,
+        SingleRequestAbstraction,
+        DirectoryFactoryAbstraction,
       ],
     }),
     safeProvider(AuthGuardService),

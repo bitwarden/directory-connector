@@ -1,11 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
-import { BatchingService } from "@/jslib/common/src/abstractions/batching.service";
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
+import { DirectoryFactoryAbstraction } from "@/jslib/common/src/abstractions/directory-factory.service";
 import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
+import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
+import { BatchRequestBuilder } from "@/jslib/common/src/services/batch-requests.service";
+import { SingleRequestBuilder } from "@/jslib/common/src/services/single-request.service";
 
 import { group11k } from "../../openldap/group-fixtures-11000";
 import { users11k } from "../../openldap/user-fixtures-11000";
@@ -14,6 +17,7 @@ import { LdapConfiguration } from "../models/ldapConfiguration";
 import { SyncConfiguration } from "../models/syncConfiguration";
 
 import { I18nService } from "./i18n.service";
+import { LdapDirectoryService } from "./ldap-directory.service";
 import { StateService } from "./state.service";
 import { SyncService } from "./sync.service";
 
@@ -25,7 +29,9 @@ describe("SyncService", () => {
   let i18nService: MockProxy<I18nService>;
   let environmentService: MockProxy<EnvironmentService>;
   let stateService: MockProxy<StateService>;
-  let batchingService: MockProxy<BatchingService>;
+  let directoryFactory: MockProxy<DirectoryFactoryAbstraction>;
+  let batchRequestBuilder: MockProxy<BatchRequestBuilder>;
+  let singleRequestBuilder: MockProxy<SingleRequestBuilder>;
 
   let syncService: SyncService;
 
@@ -37,9 +43,15 @@ describe("SyncService", () => {
     i18nService = mock();
     environmentService = mock();
     stateService = mock();
-    batchingService = mock();
+    directoryFactory = mock();
+    batchRequestBuilder = mock();
+    singleRequestBuilder = mock();
 
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
+    stateService.getOrganizationId.mockResolvedValue("fakeId");
+    directoryFactory.createService.mockReturnValue(
+      new LdapDirectoryService(logService, i18nService, stateService),
+    );
 
     syncService = new SyncService(
       logService,
@@ -49,7 +61,9 @@ describe("SyncService", () => {
       i18nService,
       environmentService,
       stateService,
-      batchingService,
+      batchRequestBuilder,
+      singleRequestBuilder,
+      directoryFactory,
     );
   });
 
@@ -59,8 +73,18 @@ describe("SyncService", () => {
       .mockResolvedValue(getLdapConfiguration());
 
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
-    stateService.getOrganizationId.mockResolvedValue("fakeId");
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
+
+    const mockRequest: OrganizationImportRequest[] = [
+      {
+        members: [],
+        groups: [],
+        overwriteExisting: true,
+        largeImport: true,
+      },
+    ];
+
+    singleRequestBuilder.buildRequest.mockReturnValue(mockRequest);
 
     const results = await syncService.sync(true, false);
 
@@ -74,7 +98,6 @@ describe("SyncService", () => {
       .mockResolvedValue(getLdapConfiguration());
 
     stateService.getSync.mockResolvedValue(getLargeSyncConfiguration());
-    stateService.getOrganizationId.mockResolvedValue("fakeId");
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
 
     const batchSize = 2000;
@@ -90,7 +113,7 @@ describe("SyncService", () => {
       });
     }
 
-    batchingService.batchRequests.mockReturnValue(mockRequests);
+    batchRequestBuilder.buildRequest.mockReturnValue(mockRequests);
 
     const result = await syncService.sync(true, false);
 
@@ -108,7 +131,6 @@ describe("SyncService", () => {
       .mockResolvedValue(getLdapConfiguration());
 
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
-    stateService.getOrganizationId.mockResolvedValue("fakeId");
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(0));
 
     await syncService.sync(true, false);

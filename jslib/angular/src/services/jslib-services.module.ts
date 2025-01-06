@@ -2,10 +2,10 @@ import { LOCALE_ID, NgModule } from "@angular/core";
 
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
-import { BatchingService as BatchingServiceAbstraction } from "@/jslib/common/src/abstractions/batching.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
 import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/abstractions/crypto.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
+import { DirectoryFactoryAbstraction } from "@/jslib/common/src/abstractions/directory-factory.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
@@ -20,13 +20,16 @@ import { Account } from "@/jslib/common/src/models/domain/account";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { BatchingService } from "@/jslib/common/src/services/batching.service";
+import { BatchRequestBuilder } from "@/jslib/common/src/services/batch-requests.service";
 import { ConsoleLogService } from "@/jslib/common/src/services/consoleLog.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
+import { SingleRequestBuilder } from "@/jslib/common/src/services/single-request.service";
 import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
+
+import { DirectoryFactoryService } from "@/src/services/directory-factory.service";
 
 import {
   SafeInjectionToken,
@@ -141,8 +144,18 @@ import { ValidationService } from "./validation.service";
       deps: [StorageServiceAbstraction, SECURE_STORAGE],
     }),
     safeProvider({
-      provide: BatchingServiceAbstraction,
-      useClass: BatchingService,
+      provide: BatchRequestBuilder,
+      useClass: BatchRequestBuilder,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: SingleRequestBuilder,
+      useClass: SingleRequestBuilder,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: DirectoryFactoryAbstraction,
+      useClass: DirectoryFactoryService,
       useAngularDecorators: true,
     }),
   ] satisfies SafeProvider[],

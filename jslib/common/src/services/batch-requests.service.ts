@@ -1,13 +1,14 @@
-import { BatchingService as BatchingServiceAbstraction } from "@/jslib/common/src/abstractions/batching.service";
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 
 import { GroupEntry } from "@/src/models/groupEntry";
 import { UserEntry } from "@/src/models/userEntry";
 
-export class BatchingService implements BatchingServiceAbstraction {
-  batchSize = 2000;
+import { RequestBuilderAbstratction } from "../abstractions/request-builder.service";
 
-  batchRequests(
+export class BatchRequestBuilder implements RequestBuilderAbstratction {
+  constructor(private batchSize: number = 2000) {}
+
+  buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],
     removeDisabled: boolean,

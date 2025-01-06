@@ -3,8 +3,8 @@ import { UserEntry } from "@/src/models/userEntry";
 
 import { OrganizationImportRequest } from "../models/request/organizationImportRequest";
 
-export abstract class BatchingService {
-  batchRequests: (
+export abstract class RequestBuilderAbstratction {
+  buildRequest: (
     groups: GroupEntry[],
     users: UserEntry[],
     removeDisabled: boolean,

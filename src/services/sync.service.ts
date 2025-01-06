@@ -1,25 +1,21 @@
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
-import { BatchingService } from "@/jslib/common/src/abstractions/batching.service";
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
+import { DirectoryFactoryAbstraction } from "@/jslib/common/src/abstractions/directory-factory.service";
 import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
+import { BatchRequestBuilder } from "@/jslib/common/src/services/batch-requests.service";
+import { SingleRequestBuilder } from "@/jslib/common/src/services/single-request.service";
 
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 import { GroupEntry } from "../models/groupEntry";
+import { HashResult } from "../models/hashResult";
 import { SyncConfiguration } from "../models/syncConfiguration";
 import { UserEntry } from "../models/userEntry";
-
-import { AzureDirectoryService } from "./azure-directory.service";
-import { IDirectoryService } from "./directory.service";
-import { GSuiteDirectoryService } from "./gsuite-directory.service";
-import { LdapDirectoryService } from "./ldap-directory.service";
-import { OktaDirectoryService } from "./okta-directory.service";
-import { OneLoginDirectoryService } from "./onelogin-directory.service";
 
 export class SyncService {
   private dirType: DirectoryType;
@@ -32,7 +28,9 @@ export class SyncService {
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
     private stateService: StateService,
-    private batchingService: BatchingService,
+    private batchRequestBuilder: BatchRequestBuilder,
+    private singleRequestBuilder: SingleRequestBuilder,
+    private directoryFactory: DirectoryFactoryAbstraction,
   ) {}
 
   async sync(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
@@ -41,7 +39,12 @@ export class SyncService {
       throw new Error("No directory configured.");
     }
 
-    const directoryService = this.getDirectoryService();
+    const directoryService = this.directoryFactory.createService(
+      this.dirType,
+      this.logService,
+      this.i18nService,
+      this.stateService,
+    );
     if (directoryService == null) {
       throw new Error("Cannot load directory service.");
     }
@@ -90,13 +93,13 @@ export class SyncService {
 
       const reqJson = JSON.stringify(reqs);
 
-      const hash: string = await this.generateNewHash(reqJson);
+      const result: HashResult = await this.generateHash(reqJson);
 
-      if (hash) {
+      if (result.hash && (await this.compareToLastHash(result))) {
         for (const req of reqs) {
           await this.apiService.postPublicImportDirectory(req);
         }
-        await this.stateService.setLastSyncHash(hash);
+        await this.stateService.setLastSyncHash(result.hash);
       } else {
         groups = null;
         users = null;
@@ -116,7 +119,7 @@ export class SyncService {
     }
   }
 
-  async generateNewHash(reqJson: string): Promise<string> {
+  async generateHash(reqJson: string): Promise<HashResult> {
     const orgId = await this.stateService.getOrganizationId();
     if (orgId == null) {
       throw new Error("Organization not set.");
@@ -139,11 +142,14 @@ export class SyncService {
     if (hashBuff != null) {
       hash = Utils.fromBufferToB64(hashBuff);
     }
+
+    return { hash, hashLegacy };
+  }
+
+  async compareToLastHash(hashes: HashResult): Promise<boolean> {
     const lastHash = await this.stateService.getLastSyncHash();
 
-    const hashIsNew = lastHash == null || (hash !== lastHash && hashLegacy !== lastHash);
-
-    return hashIsNew ? hash : "";
+    return lastHash == null || (hashes.hash !== lastHash && hashes.hashLegacy !== lastHash);
   }
 
   private removeDuplicateUsers(users: UserEntry[]) {
@@ -211,23 +217,6 @@ export class SyncService {
     return allUsers;
   }
 
-  getDirectoryService(): IDirectoryService {
-    switch (this.dirType) {
-      case DirectoryType.GSuite:
-        return new GSuiteDirectoryService(this.logService, this.i18nService, this.stateService);
-      case DirectoryType.AzureActiveDirectory:
-        return new AzureDirectoryService(this.logService, this.i18nService, this.stateService);
-      case DirectoryType.Ldap:
-        return new LdapDirectoryService(this.logService, this.i18nService, this.stateService);
-      case DirectoryType.Okta:
-        return new OktaDirectoryService(this.logService, this.i18nService, this.stateService);
-      case DirectoryType.OneLogin:
-        return new OneLoginDirectoryService(this.logService, this.i18nService, this.stateService);
-      default:
-        return null;
-    }
-  }
-
   private buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],
@@ -235,29 +224,20 @@ export class SyncService {
     overwriteExisting: boolean,
     largeImport = false,
   ): OrganizationImportRequest[] {
-    if (largeImport) {
-      return this.batchingService.batchRequests(groups, users, overwriteExisting, removeDisabled);
+    if (largeImport && groups.length + users.length > 2000) {
+      return this.batchRequestBuilder.buildRequest(
+        groups,
+        users,
+        overwriteExisting,
+        removeDisabled,
+      );
     } else {
-      return [
-        new OrganizationImportRequest({
-          groups: (groups ?? []).map((g) => {
-            return {
-              name: g.name,
-              externalId: g.externalId,
-              memberExternalIds: Array.from(g.userMemberExternalIds),
-            };
-          }),
-          users: (users ?? []).map((u) => {
-            return {
-              email: u.email,
-              externalId: u.externalId,
-              deleted: u.deleted || (removeDisabled && u.disabled),
-            };
-          }),
-          overwriteExisting: overwriteExisting,
-          largeImport: largeImport,
-        }),
-      ];
+      return this.singleRequestBuilder.buildRequest(
+        groups,
+        users,
+        overwriteExisting,
+        removeDisabled,
+      );
     }
   }
 
