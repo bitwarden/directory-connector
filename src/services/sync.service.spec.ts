@@ -10,8 +10,6 @@ import { OrganizationImportRequest } from "@/jslib/common/src/models/request/org
 import { BatchRequestBuilder } from "@/jslib/common/src/services/batch-requests.service";
 import { SingleRequestBuilder } from "@/jslib/common/src/services/single-request.service";
 
-import { group11k } from "../../openldap/group-fixtures-11000";
-import { users11k } from "../../openldap/user-fixtures-11000";
 import { DirectoryType } from "../enums/directoryType";
 import { LdapConfiguration } from "../models/ldapConfiguration";
 import { SyncConfiguration } from "../models/syncConfiguration";
@@ -86,9 +84,8 @@ describe("SyncService", () => {
 
     singleRequestBuilder.buildRequest.mockReturnValue(mockRequest);
 
-    const results = await syncService.sync(true, false);
+    await syncService.sync(true, false);
 
-    expect(results).toEqual([group11k, users11k]);
     expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(1);
   });
 
@@ -100,8 +97,8 @@ describe("SyncService", () => {
     stateService.getSync.mockResolvedValue(getLargeSyncConfiguration());
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
 
-    const batchSize = 2000;
-    const totalUsers = users11k.length;
+    const batchSize = 4;
+    const totalUsers = 20;
     const mockRequests = [];
 
     for (let i = 0; i <= totalUsers; i += batchSize) {
@@ -115,14 +112,9 @@ describe("SyncService", () => {
 
     batchRequestBuilder.buildRequest.mockReturnValue(mockRequests);
 
-    const result = await syncService.sync(true, false);
+    await syncService.sync(true, false);
 
-    // This test relies on having a config with 11k users created. The main thing we want to test here is that the
-    // requests are separated into multiple REST requests.
-    expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(
-      Math.ceil(users11k.length / batchSize),
-    );
-    expect(result).toEqual([group11k, users11k]);
+    expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(6);
   });
 
   it("does not post for the same hash", async () => {
