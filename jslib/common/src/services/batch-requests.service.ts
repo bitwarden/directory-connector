@@ -6,7 +6,7 @@ import { UserEntry } from "@/src/models/userEntry";
 import { RequestBuilderAbstratction } from "../abstractions/request-builder.service";
 
 export class BatchRequestBuilder implements RequestBuilderAbstratction {
-  constructor(private batchSize: number = 2000) {}
+  batchSize = 2000;
 
   buildRequest(
     groups: GroupEntry[],
