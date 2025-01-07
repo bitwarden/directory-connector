@@ -146,10 +146,10 @@ export class SyncService {
     return { hash, hashLegacy };
   }
 
-  async compareToLastHash(hashes: HashResult): Promise<boolean> {
+  async compareToLastHash(hashResult: HashResult): Promise<boolean> {
     const lastHash = await this.stateService.getLastSyncHash();
 
-    return lastHash == null || (hashes.hash !== lastHash && hashes.hashLegacy !== lastHash);
+    return lastHash == null || (hashResult.hash !== lastHash && hashResult.hashLegacy !== lastHash);
   }
 
   private removeDuplicateUsers(users: UserEntry[]) {
