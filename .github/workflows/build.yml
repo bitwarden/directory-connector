@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - "main"
+      - "rc"
+      - "hotfix-rc"
   workflow_dispatch: {}
 
 jobs:
@@ -575,7 +577,7 @@ jobs:
 
       - name: Install Node dependencies
         run: npm install
-      
+
       - name: Set up private auth key
         run: |
           mkdir ~/private_keys
@@ -634,7 +636,11 @@ jobs:
       - macos-gui
     steps:
       - name: Check if any job failed
-        if: github.ref == 'refs/heads/main' && contains(needs.*.result, 'failure')
+        if: |
+          (github.ref == 'refs/heads/main'
+          || github.ref == 'refs/heads/rc'
+          || github.ref == 'refs/heads/hotfix-rc')
+          && contains(needs.*.result, 'failure')
         run: exit 1
 
       - name: Login to Azure - CI subscription
