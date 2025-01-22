@@ -7,22 +7,23 @@ import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { BatchRequestBuilder } from "@/jslib/common/src/services/batch-requests.service";
 import { ContainerService } from "@/jslib/common/src/services/container.service";
 import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
-import { SingleRequestBuilder } from "@/jslib/common/src/services/single-request.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
 import { CliPlatformUtilsService } from "@/jslib/node/src/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "@/jslib/node/src/cli/services/consoleLog.service";
 import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 
+import { DirectoryFactoryService } from "./abstractions/directory-factory.service";
 import { Account } from "./models/account";
 import { Program } from "./program";
 import { AuthService } from "./services/auth.service";
-import { DirectoryFactoryService } from "./services/directory-factory.service";
+import { DefaultBatchRequestBuilder } from "./services/default-batch-request-builder";
+import { DefaultSingleRequestBuilder } from "./services/default-single-request-builder";
+import { DefaultDirectoryFactoryService } from "./services/directory-factory.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
@@ -55,8 +56,8 @@ export class Main {
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   directoryFactoryService: DirectoryFactoryService;
-  batchRequestBuilder: BatchRequestBuilder;
-  singleRequestBuilder: SingleRequestBuilder;
+  batchRequestBuilder: DefaultBatchRequestBuilder;
+  singleRequestBuilder: DefaultSingleRequestBuilder;
 
   constructor() {
     const applicationName = "Bitwarden Directory Connector";
@@ -152,8 +153,16 @@ export class Main {
       this.stateService,
     );
 
-    this.syncService = new SyncService(
+    this.directoryFactoryService = new DefaultDirectoryFactoryService(
       this.logService,
+      this.i18nService,
+      this.stateService,
+    );
+
+    this.batchRequestBuilder = new DefaultBatchRequestBuilder();
+    this.singleRequestBuilder = new DefaultSingleRequestBuilder();
+
+    this.syncService = new SyncService(
       this.cryptoFunctionService,
       this.apiService,
       this.messagingService,

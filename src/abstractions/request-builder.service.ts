@@ -1,7 +1,7 @@
+import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
+
 import { GroupEntry } from "@/src/models/groupEntry";
 import { UserEntry } from "@/src/models/userEntry";
-
-import { OrganizationImportRequest } from "../models/request/organizationImportRequest";
 
 export abstract class RequestBuilderAbstratction {
   buildRequest: (

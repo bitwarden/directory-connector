@@ -2,21 +2,24 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { DirectoryFactoryAbstraction } from "@/jslib/common/src/abstractions/directory-factory.service";
 import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
-import { BatchRequestBuilder } from "@/jslib/common/src/services/batch-requests.service";
-import { SingleRequestBuilder } from "@/jslib/common/src/services/single-request.service";
 
+import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
 import { DirectoryType } from "../enums/directoryType";
-import { LdapConfiguration } from "../models/ldapConfiguration";
-import { SyncConfiguration } from "../models/syncConfiguration";
 
+import { DefaultBatchRequestBuilder } from "./default-batch-request-builder";
+import { DefaultSingleRequestBuilder } from "./default-single-request-builder";
 import { I18nService } from "./i18n.service";
 import { LdapDirectoryService } from "./ldap-directory.service";
 import { StateService } from "./state.service";
+import {
+  getLargeSyncConfiguration,
+  getLdapConfiguration,
+  getSyncConfiguration,
+} from "./sync-config-helpers";
 import { SyncService } from "./sync.service";
 
 describe("SyncService", () => {
@@ -27,9 +30,9 @@ describe("SyncService", () => {
   let i18nService: MockProxy<I18nService>;
   let environmentService: MockProxy<EnvironmentService>;
   let stateService: MockProxy<StateService>;
-  let directoryFactory: MockProxy<DirectoryFactoryAbstraction>;
-  let batchRequestBuilder: MockProxy<BatchRequestBuilder>;
-  let singleRequestBuilder: MockProxy<SingleRequestBuilder>;
+  let directoryFactory: MockProxy<DirectoryFactoryService>;
+  let batchRequestBuilder: MockProxy<DefaultBatchRequestBuilder>;
+  let singleRequestBuilder: MockProxy<DefaultSingleRequestBuilder>;
 
   let syncService: SyncService;
 
@@ -52,7 +55,6 @@ describe("SyncService", () => {
     );
 
     syncService = new SyncService(
-      logService,
       cryptoFunctionService,
       apiService,
       messagingService,
@@ -72,6 +74,8 @@ describe("SyncService", () => {
 
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
+    // This arranges the last hash to be differet from the ArrayBuffer after it is converted to b64
+    stateService.getLastSyncHash.mockResolvedValue("unique hash");
 
     const mockRequest: OrganizationImportRequest[] = [
       {
@@ -96,25 +100,27 @@ describe("SyncService", () => {
 
     stateService.getSync.mockResolvedValue(getLargeSyncConfiguration());
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
+    // This arranges the last hash to be differet from the ArrayBuffer after it is converted to b64
+    stateService.getLastSyncHash.mockResolvedValue("unique hash");
 
-    const batchSize = 4;
-    const totalUsers = 20;
-    const mockRequests = [];
-
-    for (let i = 0; i <= totalUsers; i += batchSize) {
-      mockRequests.push({
-        members: [],
-        groups: [],
-        overwriteExisting: true,
-        largeImport: true,
-      });
-    }
+    const mockRequests = new Array(6).fill({
+      members: [],
+      groups: [],
+      overwriteExisting: true,
+      largeImport: true,
+    });
 
     batchRequestBuilder.buildRequest.mockReturnValue(mockRequests);
 
     await syncService.sync(true, false);
 
     expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(6);
+    expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith({
+      members: [],
+      groups: [],
+      overwriteExisting: true,
+      largeImport: true,
+    });
   });
 
   it("does not post for the same hash", async () => {
@@ -123,66 +129,13 @@ describe("SyncService", () => {
       .mockResolvedValue(getLdapConfiguration());
 
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
-    cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(0));
+
+    cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
+    // This arranges the last hash to be the same as the ArrayBuffer after it is converted to b64
+    stateService.getLastSyncHash.mockResolvedValue("AA==");
 
     await syncService.sync(true, false);
 
-    expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(0);
+    expect(apiService.postPublicImportDirectory).not.toHaveBeenCalled();
   });
-});
-
-/**
- * @returns a basic ldap configuration without TLS/SSL enabled. Can be overridden by passing in a partial configuration.
- */
-const getLdapConfiguration = (config?: Partial<LdapConfiguration>): LdapConfiguration => ({
-  ssl: false,
-  startTls: false,
-  tlsCaPath: null,
-  sslAllowUnauthorized: false,
-  sslCertPath: null,
-  sslKeyPath: null,
-  sslCaPath: null,
-  hostname: "localhost",
-  port: 1389,
-  domain: null,
-  rootPath: "dc=bitwarden,dc=com",
-  currentUser: false,
-  username: "cn=admin,dc=bitwarden,dc=com",
-  password: "admin",
-  ad: false,
-  pagedSearch: false,
-  ...(config ?? {}),
-});
-
-/**
- * @returns a basic sync configuration. Can be overridden by passing in a partial configuration.
- */
-const getSyncConfiguration = (config?: Partial<SyncConfiguration>): SyncConfiguration => ({
-  users: false,
-  groups: false,
-  interval: 5,
-  userFilter: null,
-  groupFilter: null,
-  removeDisabled: false,
-  overwriteExisting: false,
-  largeImport: false,
-  // Ldap properties
-  groupObjectClass: "posixGroup",
-  userObjectClass: "person",
-  groupPath: null,
-  userPath: null,
-  groupNameAttribute: "cn",
-  userEmailAttribute: "mail",
-  memberAttribute: "memberUid",
-  useEmailPrefixSuffix: false,
-  emailPrefixAttribute: "sAMAccountName",
-  emailSuffix: null,
-  creationDateAttribute: "whenCreated",
-  revisionDateAttribute: "whenChanged",
-  ...(config ?? {}),
-});
-
-const getLargeSyncConfiguration = () => ({
-  ...getSyncConfiguration({ groups: true, users: true }),
-  largeImport: true,
 });

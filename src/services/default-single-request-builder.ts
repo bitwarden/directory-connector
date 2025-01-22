@@ -5,7 +5,13 @@ import { UserEntry } from "@/src/models/userEntry";
 
 import { RequestBuilderAbstratction } from "../abstractions/request-builder.service";
 
-export class SingleRequestBuilder implements RequestBuilderAbstratction {
+/**
+ * This class is responsible for building small (<2k users) syncs as a single
+ * request to the /import REST endpoint. This is done to be backwards compatiblle with
+ * existing functionality for sync requests that are sufficiently small enough to not
+ * exceed default maximum packet size limits on NGINX web servers.
+ * */
+export class DefaultSingleRequestBuilder implements RequestBuilderAbstratction {
   buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],

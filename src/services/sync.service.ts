@@ -1,36 +1,41 @@
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { DirectoryFactoryAbstraction } from "@/jslib/common/src/abstractions/directory-factory.service";
 import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
-import { BatchRequestBuilder } from "@/jslib/common/src/services/batch-requests.service";
-import { SingleRequestBuilder } from "@/jslib/common/src/services/single-request.service";
 
+import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 import { GroupEntry } from "../models/groupEntry";
-import { HashResult } from "../models/hashResult";
 import { SyncConfiguration } from "../models/syncConfiguration";
 import { UserEntry } from "../models/userEntry";
+
+import { DefaultBatchRequestBuilder } from "./default-batch-request-builder";
+import { DefaultSingleRequestBuilder } from "./default-single-request-builder";
+
+export interface HashResult {
+  hash: string;
+  hashLegacy: string;
+}
+
+export const batchSize = 2000;
 
 export class SyncService {
   private dirType: DirectoryType;
 
   constructor(
-    private logService: LogService,
     private cryptoFunctionService: CryptoFunctionService,
     private apiService: ApiService,
     private messagingService: MessagingService,
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
     private stateService: StateService,
-    private batchRequestBuilder: BatchRequestBuilder,
-    private singleRequestBuilder: SingleRequestBuilder,
-    private directoryFactory: DirectoryFactoryAbstraction,
+    private batchRequestBuilder: DefaultBatchRequestBuilder,
+    private singleRequestBuilder: DefaultSingleRequestBuilder,
+    private directoryFactory: DirectoryFactoryService,
   ) {}
 
   async sync(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
@@ -39,12 +44,7 @@ export class SyncService {
       throw new Error("No directory configured.");
     }
 
-    const directoryService = this.directoryFactory.createService(
-      this.dirType,
-      this.logService,
-      this.i18nService,
-      this.stateService,
-    );
+    const directoryService = this.directoryFactory.createService(this.dirType);
     if (directoryService == null) {
       throw new Error("Cannot load directory service.");
     }
@@ -91,11 +91,9 @@ export class SyncService {
         syncConfig.largeImport,
       );
 
-      const reqJson = JSON.stringify(reqs);
+      const result: HashResult = await this.generateHash(reqs);
 
-      const result: HashResult = await this.generateHash(reqJson);
-
-      if (result.hash && (await this.compareToLastHash(result))) {
+      if (result.hash && (await this.isNewHash(result))) {
         for (const req of reqs) {
           await this.apiService.postPublicImportDirectory(req);
         }
@@ -119,7 +117,8 @@ export class SyncService {
     }
   }
 
-  async generateHash(reqJson: string): Promise<HashResult> {
+  async generateHash(reqs: OrganizationImportRequest[]): Promise<HashResult> {
+    const reqJson = JSON.stringify(reqs?.length === 1 ? reqs[0] : reqs);
     const orgId = await this.stateService.getOrganizationId();
     if (orgId == null) {
       throw new Error("Organization not set.");
@@ -146,7 +145,7 @@ export class SyncService {
     return { hash, hashLegacy };
   }
 
-  async compareToLastHash(hashResult: HashResult): Promise<boolean> {
+  async isNewHash(hashResult: HashResult): Promise<boolean> {
     const lastHash = await this.stateService.getLastSyncHash();
 
     return lastHash == null || (hashResult.hash !== lastHash && hashResult.hashLegacy !== lastHash);
@@ -224,7 +223,7 @@ export class SyncService {
     overwriteExisting: boolean,
     largeImport = false,
   ): OrganizationImportRequest[] {
-    if (largeImport && groups.length + users.length > 2000) {
+    if (largeImport && groups.length + users.length > batchSize) {
       return this.batchRequestBuilder.buildRequest(
         groups,
         users,
