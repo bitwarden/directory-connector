@@ -7,7 +7,7 @@ import { RequestBuilderAbstratction } from "../abstractions/request-builder.serv
 
 /**
  * This class is responsible for building small (<2k users) syncs as a single
- * request to the /import REST endpoint. This is done to be backwards compatiblle with
+ * request to the /import endpoint. This is done to be backwards compatible with
  * existing functionality for sync requests that are sufficiently small enough to not
  * exceed default maximum packet size limits on NGINX web servers.
  * */
