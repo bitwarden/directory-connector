@@ -146,11 +146,11 @@ import { ValidationService } from "./validation.service";
     }),
     safeProvider({
       provide: DefaultBatchRequestBuilder,
-      useAngularDecorators: true,
+      deps: []
     }),
     safeProvider({
       provide: DefaultSingleRequestBuilder,
-      useAngularDecorators: true,
+      deps: []
     }),
     safeProvider({
       provide: DirectoryFactoryService,
