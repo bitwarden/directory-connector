@@ -8,7 +8,7 @@ import { RequestBuilderAbstratction } from "../abstractions/request-builder.serv
 import { batchSize } from "./sync.service";
 
 /**
- * This class is responsible for batching large sync requests (>=2k users) into multiple smaller
+ * This class is responsible for batching large sync requests (>2k users) into multiple smaller
  * requests to the /import REST endpoint. This is done to ensure we are under the default
  * maximum packet size for NGINX web servers to avoid the request potentially timing out
  * */
