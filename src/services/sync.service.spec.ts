@@ -37,7 +37,7 @@ describe("SyncService", () => {
 
   let syncService: SyncService;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     logService = mock();
     cryptoFunctionService = mock();
     apiService = mock();
