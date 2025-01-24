@@ -1,3 +1,4 @@
+import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
@@ -22,14 +23,10 @@ import { SingleRequestBuilder } from "./single-request-builder";
 import { StateService } from "./state.service";
 import { SyncService } from "./sync.service";
 
-class MockApiService {
-  postPublicImportDirectory() {}
-}
-
 describe("SyncService", () => {
   let logService: MockProxy<LogService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
-  let apiService: MockApiService;
+  let apiService: MockProxy<ApiService>;
   let messagingService: MockProxy<MessagingService>;
   let i18nService: MockProxy<I18nService>;
   let environmentService: MockProxy<EnvironmentService>;
@@ -38,7 +35,7 @@ describe("SyncService", () => {
   let batchRequestBuilder: MockProxy<BatchRequestBuilder>;
   let singleRequestBuilder: MockProxy<SingleRequestBuilder>;
 
-  let syncService: MockProxy<SyncService>;
+  let syncService: SyncService;
 
   beforeEach(async () => {
     logService = mock();
@@ -51,6 +48,57 @@ describe("SyncService", () => {
     directoryFactory = mock();
     batchRequestBuilder = mock();
     singleRequestBuilder = mock();
+
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: SyncService,
+          useValue: syncService,
+        },
+        {
+          provide: LogService,
+          useValue: logService,
+        },
+        {
+          provide: CryptoFunctionService,
+          useValue: cryptoFunctionService,
+        },
+        {
+          provide: ApiService,
+          useValue: apiService,
+        },
+        {
+          provide: MessagingService,
+          useValue: messagingService,
+        },
+        {
+          provide: I18nService,
+          useValue: i18nService,
+        },
+        {
+          provide: EnvironmentService,
+          useValue: environmentService,
+        },
+        {
+          provide: StateService,
+          useValue: stateService,
+        },
+        {
+          provide: DirectoryFactoryService,
+          useValue: directoryFactory,
+        },
+        {
+          provide: BatchRequestBuilder,
+          useValue: batchRequestBuilder,
+        },
+        {
+          provide: SingleRequestBuilder,
+          useValue: singleRequestBuilder,
+        },
+      ],
+    });
+
+    syncService = TestBed.inject(SyncService);
 
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
     stateService.getOrganizationId.mockResolvedValue("fakeId");
