@@ -5,10 +5,10 @@ import { LogService } from "../../jslib/common/src/abstractions/log.service";
 import { groupFixtures } from "../../openldap/group-fixtures";
 import { userFixtures } from "../../openldap/user-fixtures";
 import { DirectoryType } from "../enums/directoryType";
+import { getLdapConfiguration, getSyncConfiguration } from "../utils/test-fixtures";
 
 import { LdapDirectoryService } from "./ldap-directory.service";
 import { StateService } from "./state.service";
-import { getLdapConfiguration, getSyncConfiguration } from "./sync-config-helpers";
 
 // These tests integrate with the OpenLDAP docker image and seed data located in the openldap folder.
 // To run theses tests:

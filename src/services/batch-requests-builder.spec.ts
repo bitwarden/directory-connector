@@ -1,12 +1,12 @@
 import { GroupEntry } from "@/src/models/groupEntry";
 import { UserEntry } from "@/src/models/userEntry";
 
-import { DefaultBatchRequestBuilder } from "./default-batch-request-builder";
-import { DefaultSingleRequestBuilder } from "./default-single-request-builder";
+import { BatchRequestBuilder } from "./batch-request-builder";
+import { SingleRequestBuilder } from "./single-request-builder";
 
-describe("BatchingService", () => {
-  let batchRequestBuilder: DefaultBatchRequestBuilder;
-  let singleRequestBuilder: DefaultSingleRequestBuilder;
+describe("BatchRequestBuilder", () => {
+  let batchRequestBuilder: BatchRequestBuilder;
+  let singleRequestBuilder: SingleRequestBuilder;
 
   function userSimulator(userCount: number) {
     return Array(userCount).fill(new UserEntry());
@@ -17,8 +17,8 @@ describe("BatchingService", () => {
   }
 
   beforeEach(async () => {
-    batchRequestBuilder = new DefaultBatchRequestBuilder();
-    singleRequestBuilder = new DefaultSingleRequestBuilder();
+    batchRequestBuilder = new BatchRequestBuilder();
+    singleRequestBuilder = new SingleRequestBuilder();
   });
 
   it("BatchRequestBuilder batches requests for > 2000 users", () => {

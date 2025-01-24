@@ -21,12 +21,12 @@ import { DirectoryFactoryService } from "./abstractions/directory-factory.servic
 import { Account } from "./models/account";
 import { Program } from "./program";
 import { AuthService } from "./services/auth.service";
-import { DefaultBatchRequestBuilder } from "./services/default-batch-request-builder";
-import { DefaultSingleRequestBuilder } from "./services/default-single-request-builder";
+import { BatchRequestBuilder } from "./services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "./services/directory-factory.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
+import { SingleRequestBuilder } from "./services/single-request-builder";
 import { StateService } from "./services/state.service";
 import { StateMigrationService } from "./services/stateMigration.service";
 import { SyncService } from "./services/sync.service";
@@ -56,8 +56,8 @@ export class Main {
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   directoryFactoryService: DirectoryFactoryService;
-  batchRequestBuilder: DefaultBatchRequestBuilder;
-  singleRequestBuilder: DefaultSingleRequestBuilder;
+  batchRequestBuilder: BatchRequestBuilder;
+  singleRequestBuilder: SingleRequestBuilder;
 
   constructor() {
     const applicationName = "Bitwarden Directory Connector";
@@ -159,8 +159,8 @@ export class Main {
       this.stateService,
     );
 
-    this.batchRequestBuilder = new DefaultBatchRequestBuilder();
-    this.singleRequestBuilder = new DefaultSingleRequestBuilder();
+    this.batchRequestBuilder = new BatchRequestBuilder();
+    this.singleRequestBuilder = new SingleRequestBuilder();
 
     this.syncService = new SyncService(
       this.cryptoFunctionService,

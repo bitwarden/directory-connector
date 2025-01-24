@@ -26,8 +26,9 @@ import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 
 import { DirectoryFactoryService } from "@/src/abstractions/directory-factory.service";
-import { DefaultBatchRequestBuilder } from "@/src/services/default-batch-request-builder";
-import { DefaultSingleRequestBuilder } from "@/src/services/default-single-request-builder";
+import { BatchRequestBuilder } from "@/src/services/batch-request-builder";
+import { DefaultDirectoryFactoryService } from "@/src/services/directory-factory.service";
+import { SingleRequestBuilder } from "@/src/services/single-request-builder";
 
 import { AuthService as AuthServiceAbstraction } from "../../abstractions/auth.service";
 import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
@@ -178,8 +179,8 @@ export function initFactory(
         I18nServiceAbstraction,
         EnvironmentServiceAbstraction,
         StateServiceAbstraction,
-        DefaultBatchRequestBuilder,
-        DefaultSingleRequestBuilder,
+        BatchRequestBuilder,
+        SingleRequestBuilder,
         DirectoryFactoryService,
       ],
     }),
@@ -220,6 +221,19 @@ export function initFactory(
         LogServiceAbstraction,
         StateMigrationServiceAbstraction,
       ],
+    }),
+    safeProvider({
+      provide: SingleRequestBuilder,
+      deps: [],
+    }),
+    safeProvider({
+      provide: BatchRequestBuilder,
+      deps: [],
+    }),
+    safeProvider({
+      provide: DirectoryFactoryService,
+      useClass: DefaultDirectoryFactoryService,
+      deps: [LogServiceAbstraction, I18nServiceAbstraction, StateServiceAbstraction],
     }),
   ] satisfies SafeProvider[],
 })

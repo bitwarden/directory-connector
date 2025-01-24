@@ -26,12 +26,6 @@ import { StateService } from "@/jslib/common/src/services/state.service";
 import { StateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
 
-import { DirectoryFactoryService } from "@/src/abstractions/directory-factory.service";
-import { StateService as StateServiceExtended } from "@/src/abstractions/state.service";
-import { DefaultBatchRequestBuilder } from "@/src/services/default-batch-request-builder";
-import { DefaultSingleRequestBuilder } from "@/src/services/default-single-request-builder";
-import { DefaultDirectoryFactoryService } from "@/src/services/directory-factory.service";
-
 import {
   SafeInjectionToken,
   SECURE_STORAGE,
@@ -143,19 +137,6 @@ import { ValidationService } from "./validation.service";
           new StateFactory(GlobalState, Account),
         ),
       deps: [StorageServiceAbstraction, SECURE_STORAGE],
-    }),
-    safeProvider({
-      provide: DefaultBatchRequestBuilder,
-      deps: []
-    }),
-    safeProvider({
-      provide: DefaultSingleRequestBuilder,
-      deps: []
-    }),
-    safeProvider({
-      provide: DirectoryFactoryService,
-      useClass: DefaultDirectoryFactoryService,
-      deps: [LogService, I18nServiceAbstraction, StateServiceExtended],
     }),
   ] satisfies SafeProvider[],
 })

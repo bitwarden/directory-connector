@@ -13,8 +13,8 @@ import { GroupEntry } from "../models/groupEntry";
 import { SyncConfiguration } from "../models/syncConfiguration";
 import { UserEntry } from "../models/userEntry";
 
-import { DefaultBatchRequestBuilder } from "./default-batch-request-builder";
-import { DefaultSingleRequestBuilder } from "./default-single-request-builder";
+import { BatchRequestBuilder } from "./batch-request-builder";
+import { SingleRequestBuilder } from "./single-request-builder";
 
 export interface HashResult {
   hash: string;
@@ -33,8 +33,8 @@ export class SyncService {
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
     private stateService: StateService,
-    private batchRequestBuilder: DefaultBatchRequestBuilder,
-    private singleRequestBuilder: DefaultSingleRequestBuilder,
+    private batchRequestBuilder: BatchRequestBuilder,
+    private singleRequestBuilder: SingleRequestBuilder,
     private directoryFactory: DirectoryFactoryService,
   ) {}
 

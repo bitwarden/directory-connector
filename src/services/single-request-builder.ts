@@ -11,7 +11,7 @@ import { RequestBuilderAbstratction } from "../abstractions/request-builder.serv
  * existing functionality for sync requests that are sufficiently small enough to not
  * exceed default maximum packet size limits on NGINX web servers.
  * */
-export class DefaultSingleRequestBuilder implements RequestBuilderAbstratction {
+export class SingleRequestBuilder implements RequestBuilderAbstratction {
   buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],

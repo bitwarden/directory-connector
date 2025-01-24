@@ -9,17 +9,17 @@ import { OrganizationImportRequest } from "@/jslib/common/src/models/request/org
 
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
 import { DirectoryType } from "../enums/directoryType";
-
-import { DefaultBatchRequestBuilder } from "./default-batch-request-builder";
-import { DefaultSingleRequestBuilder } from "./default-single-request-builder";
-import { I18nService } from "./i18n.service";
-import { LdapDirectoryService } from "./ldap-directory.service";
-import { StateService } from "./state.service";
 import {
   getLargeSyncConfiguration,
   getLdapConfiguration,
   getSyncConfiguration,
-} from "./sync-config-helpers";
+} from "../utils/test-fixtures";
+
+import { BatchRequestBuilder } from "./batch-request-builder";
+import { I18nService } from "./i18n.service";
+import { LdapDirectoryService } from "./ldap-directory.service";
+import { SingleRequestBuilder } from "./single-request-builder";
+import { StateService } from "./state.service";
 import { SyncService } from "./sync.service";
 
 describe("SyncService", () => {
@@ -31,10 +31,10 @@ describe("SyncService", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let stateService: MockProxy<StateService>;
   let directoryFactory: MockProxy<DirectoryFactoryService>;
-  let batchRequestBuilder: MockProxy<DefaultBatchRequestBuilder>;
-  let singleRequestBuilder: MockProxy<DefaultSingleRequestBuilder>;
+  let batchRequestBuilder: MockProxy<BatchRequestBuilder>;
+  let singleRequestBuilder: MockProxy<SingleRequestBuilder>;
 
-  let syncService: SyncService;
+  let syncService: MockProxy<SyncService>;
 
   beforeEach(async () => {
     logService = mock();
@@ -54,16 +54,18 @@ describe("SyncService", () => {
       new LdapDirectoryService(logService, i18nService, stateService),
     );
 
-    syncService = new SyncService(
-      cryptoFunctionService,
-      apiService,
-      messagingService,
-      i18nService,
-      environmentService,
-      stateService,
-      batchRequestBuilder,
-      singleRequestBuilder,
-      directoryFactory,
+    syncService = mock(
+      new SyncService(
+        cryptoFunctionService,
+        apiService,
+        messagingService,
+        i18nService,
+        environmentService,
+        stateService,
+        batchRequestBuilder,
+        singleRequestBuilder,
+        directoryFactory,
+      ),
     );
   });
 
