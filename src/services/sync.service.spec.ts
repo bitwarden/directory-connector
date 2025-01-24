@@ -22,10 +22,14 @@ import { SingleRequestBuilder } from "./single-request-builder";
 import { StateService } from "./state.service";
 import { SyncService } from "./sync.service";
 
+class MockApiService {
+  postPublicImportDirectory() {}
+}
+
 describe("SyncService", () => {
   let logService: MockProxy<LogService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
-  let apiService: MockProxy<ApiService>;
+  let apiService: MockApiService;
   let messagingService: MockProxy<MessagingService>;
   let i18nService: MockProxy<I18nService>;
   let environmentService: MockProxy<EnvironmentService>;
@@ -57,7 +61,7 @@ describe("SyncService", () => {
     syncService = mock(
       new SyncService(
         cryptoFunctionService,
-        apiService,
+        apiService as ApiService,
         messagingService,
         i18nService,
         environmentService,
@@ -117,12 +121,12 @@ describe("SyncService", () => {
     await syncService.sync(true, false);
 
     expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(6);
-    expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith({
-      members: [],
-      groups: [],
-      overwriteExisting: true,
-      largeImport: true,
-    });
+    expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(mockRequests[0]);
+    expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(mockRequests[1]);
+    expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(mockRequests[2]);
+    expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(mockRequests[3]);
+    expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(mockRequests[4]);
+    expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(mockRequests[5]);
   });
 
   it("does not post for the same hash", async () => {
