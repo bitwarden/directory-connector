@@ -61,7 +61,7 @@ describe("SyncService", () => {
     syncService = mock(
       new SyncService(
         cryptoFunctionService,
-        apiService as ApiService,
+        apiService as unknown as ApiService,
         messagingService,
         i18nService,
         environmentService,
