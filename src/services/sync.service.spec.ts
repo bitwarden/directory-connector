@@ -51,21 +51,19 @@ describe("SyncService", () => {
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
     stateService.getOrganizationId.mockResolvedValue("fakeId");
     directoryFactory.createService.mockReturnValue(
-      new LdapDirectoryService(logService, i18nService, stateService),
+      mock(new LdapDirectoryService(logService, i18nService, stateService)),
     );
 
-    syncService = mock(
-      new SyncService(
-        cryptoFunctionService,
-        apiService as unknown as ApiService,
-        messagingService,
-        i18nService,
-        environmentService,
-        stateService,
-        batchRequestBuilder,
-        singleRequestBuilder,
-        directoryFactory,
-      ),
+    syncService = new SyncService(
+      cryptoFunctionService,
+      apiService as unknown as ApiService,
+      messagingService,
+      i18nService,
+      environmentService,
+      stateService,
+      batchRequestBuilder,
+      singleRequestBuilder,
+      directoryFactory,
     );
   });
 
