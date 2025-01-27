@@ -101,7 +101,7 @@ describe("SyncService", () => {
     // This arranges the last hash to be differet from the ArrayBuffer after it is converted to b64
     stateService.getLastSyncHash.mockResolvedValue("unique hash");
 
-    // This is a workaround to make the batchsize smaller to trigger the batching logic since its a const.
+    // @ts-expect-error This is a workaround to make the batchsize smaller to trigger the batching logic since its a const.
     constants.batchSize = 4;
 
     const mockRequests = new Array(6).fill({
@@ -125,6 +125,7 @@ describe("SyncService", () => {
   });
 
   it("does not post for the same hash", async () => {
+    // @ts-expect-error this sets the batch size back to its expexted value for this test.
     constants.batchSize = 2000;
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
