@@ -2,28 +2,32 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
 import { DirectoryType } from "../enums/directoryType";
-import {
-  getLargeSyncConfiguration,
-  getLdapConfiguration,
-  getSyncConfiguration,
-} from "../utils/test-fixtures";
+import { getSyncConfiguration } from "../utils/test-fixtures";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
+import { IDirectoryService } from "./directory.service";
 import { I18nService } from "./i18n.service";
-import { LdapDirectoryService } from "./ldap-directory.service";
 import { SingleRequestBuilder } from "./single-request-builder";
 import { StateService } from "./state.service";
 import { SyncService } from "./sync.service";
+import * as constants from "./sync.service";
+
+import { groupFixtures } from "@/openldap/group-fixtures";
+import { userFixtures } from "@/openldap/user-fixtures";
+
+class MockDirectoryService {
+  getEntries(force: boolean, test: boolean) {
+    return [groupFixtures, userFixtures];
+  }
+}
 
 describe("SyncService", () => {
-  let logService: MockProxy<LogService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let apiService: MockProxy<ApiService>;
   let messagingService: MockProxy<MessagingService>;
@@ -35,9 +39,9 @@ describe("SyncService", () => {
   let singleRequestBuilder: MockProxy<SingleRequestBuilder>;
 
   let syncService: SyncService;
+  const mockDirectoryService: MockDirectoryService = new MockDirectoryService();
 
   beforeEach(() => {
-    logService = mock();
     cryptoFunctionService = mock();
     apiService = mock();
     messagingService = mock();
@@ -51,7 +55,7 @@ describe("SyncService", () => {
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
     stateService.getOrganizationId.mockResolvedValue("fakeId");
     directoryFactory.createService.mockReturnValue(
-      mock(new LdapDirectoryService(logService, i18nService, stateService)),
+      mockDirectoryService as unknown as IDirectoryService,
     );
 
     syncService = new SyncService(
@@ -68,10 +72,6 @@ describe("SyncService", () => {
   });
 
   it("Sync posts single request successfully for unique hashes", async () => {
-    stateService.getDirectory
-      .calledWith(DirectoryType.Ldap)
-      .mockResolvedValue(getLdapConfiguration());
-
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
     // This arranges the last hash to be differet from the ArrayBuffer after it is converted to b64
@@ -94,14 +94,15 @@ describe("SyncService", () => {
   });
 
   it("Sync posts multiple request successfully for unique hashes", async () => {
-    stateService.getDirectory
-      .calledWith(DirectoryType.Ldap)
-      .mockResolvedValue(getLdapConfiguration());
-
-    stateService.getSync.mockResolvedValue(getLargeSyncConfiguration());
+    stateService.getSync.mockResolvedValue(
+      getSyncConfiguration({ groups: true, users: true, largeImport: true }),
+    );
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
     // This arranges the last hash to be differet from the ArrayBuffer after it is converted to b64
     stateService.getLastSyncHash.mockResolvedValue("unique hash");
+
+    // This is a workaround to make the batchsize smaller to trigger the batching logic since its a const.
+    constants.batchSize = 4;
 
     const mockRequests = new Array(6).fill({
       members: [],
@@ -124,12 +125,8 @@ describe("SyncService", () => {
   });
 
   it("does not post for the same hash", async () => {
-    stateService.getDirectory
-      .calledWith(DirectoryType.Ldap)
-      .mockResolvedValue(getLdapConfiguration());
-
+    constants.batchSize = 2000;
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
-
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
     // This arranges the last hash to be the same as the ArrayBuffer after it is converted to b64
     stateService.getLastSyncHash.mockResolvedValue("AA==");

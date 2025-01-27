@@ -51,8 +51,3 @@ export const getSyncConfiguration = (config?: Partial<SyncConfiguration>): SyncC
   revisionDateAttribute: "whenChanged",
   ...(config ?? {}),
 });
-
-export const getLargeSyncConfiguration = () => ({
-  ...getSyncConfiguration({ groups: true, users: true }),
-  largeImport: true,
-});
