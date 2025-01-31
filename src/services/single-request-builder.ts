@@ -3,7 +3,7 @@ import { OrganizationImportRequest } from "@/jslib/common/src/models/request/org
 import { GroupEntry } from "@/src/models/groupEntry";
 import { UserEntry } from "@/src/models/userEntry";
 
-import { RequestBuilderAbstratction } from "../abstractions/request-builder.service";
+import { RequestBuilder } from "../abstractions/request-builder.service";
 
 /**
  * This class is responsible for building small (<2k users) syncs as a single
@@ -11,7 +11,7 @@ import { RequestBuilderAbstratction } from "../abstractions/request-builder.serv
  * existing functionality for sync requests that are sufficiently small enough to not
  * exceed default maximum packet size limits on NGINX web servers.
  * */
-export class SingleRequestBuilder implements RequestBuilderAbstratction {
+export class SingleRequestBuilder implements RequestBuilder {
   buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],

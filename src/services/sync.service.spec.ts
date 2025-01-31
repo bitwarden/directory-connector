@@ -11,8 +11,8 @@ import { DirectoryType } from "../enums/directoryType";
 import { getSyncConfiguration } from "../utils/test-fixtures";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
-import { IDirectoryService } from "./directory.service";
 import { I18nService } from "./i18n.service";
+import { LdapDirectoryService } from "./ldap-directory.service";
 import { SingleRequestBuilder } from "./single-request-builder";
 import { StateService } from "./state.service";
 import { SyncService } from "./sync.service";
@@ -20,12 +20,6 @@ import * as constants from "./sync.service";
 
 import { groupFixtures } from "@/openldap/group-fixtures";
 import { userFixtures } from "@/openldap/user-fixtures";
-
-class MockDirectoryService {
-  getEntries(force: boolean, test: boolean) {
-    return [groupFixtures, userFixtures];
-  }
-}
 
 describe("SyncService", () => {
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
@@ -39,7 +33,6 @@ describe("SyncService", () => {
   let singleRequestBuilder: MockProxy<SingleRequestBuilder>;
 
   let syncService: SyncService;
-  const mockDirectoryService: MockDirectoryService = new MockDirectoryService();
 
   beforeEach(() => {
     cryptoFunctionService = mock();
@@ -54,13 +47,13 @@ describe("SyncService", () => {
 
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
     stateService.getOrganizationId.mockResolvedValue("fakeId");
-    directoryFactory.createService.mockReturnValue(
-      mockDirectoryService as unknown as IDirectoryService,
-    );
+    const mockDirectoryService = mock<LdapDirectoryService>();
+    mockDirectoryService.getEntries.mockResolvedValue([groupFixtures, userFixtures]);
+    directoryFactory.createService.mockReturnValue(mockDirectoryService);
 
     syncService = new SyncService(
       cryptoFunctionService,
-      apiService as unknown as ApiService,
+      apiService,
       messagingService,
       i18nService,
       environmentService,

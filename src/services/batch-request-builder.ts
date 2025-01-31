@@ -3,7 +3,7 @@ import { OrganizationImportRequest } from "@/jslib/common/src/models/request/org
 import { GroupEntry } from "@/src/models/groupEntry";
 import { UserEntry } from "@/src/models/userEntry";
 
-import { RequestBuilderAbstratction } from "../abstractions/request-builder.service";
+import { RequestBuilder } from "../abstractions/request-builder.service";
 
 import { batchSize } from "./sync.service";
 
@@ -12,7 +12,7 @@ import { batchSize } from "./sync.service";
  * requests to the /import endpoint. This is done to ensure we are under the default
  * maximum packet size for NGINX web servers to avoid the request potentially timing out
  * */
-export class BatchRequestBuilder implements RequestBuilderAbstratction {
+export class BatchRequestBuilder implements RequestBuilder {
   buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],

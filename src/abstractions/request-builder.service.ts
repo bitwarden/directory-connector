@@ -3,7 +3,7 @@ import { OrganizationImportRequest } from "@/jslib/common/src/models/request/org
 import { GroupEntry } from "@/src/models/groupEntry";
 import { UserEntry } from "@/src/models/userEntry";
 
-export abstract class RequestBuilderAbstratction {
+export abstract class RequestBuilder {
   buildRequest: (
     groups: GroupEntry[],
     users: UserEntry[],
