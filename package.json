@@ -135,7 +135,7 @@
     "typescript": "5.4.5",
     "typescript-transform-paths": "3.5.2",
     "webpack": "5.97.1",
-    "webpack-cli": "5.1.4",
+    "webpack-cli": "6.0.1",
     "webpack-merge": "6.0.1",
     "zone.js": "0.14.10",
     "webpack-node-externals": "3.0.0"
