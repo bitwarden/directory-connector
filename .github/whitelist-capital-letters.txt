@@ -153,6 +153,7 @@
 ./jslib/common/src/models/request/deviceRequest.ts
 ./jslib/common/src/models/request/importDirectoryRequest.ts
 ./jslib/common/src/models/request/captchaProtectedRequest.ts
+./jslib/common/src/models/request/identityToken
 ./jslib/common/src/models/request/identityToken/tokenRequest.ts
 ./jslib/common/src/models/request/identityToken/apiTokenRequest.ts
 ./jslib/common/src/models/request/identityToken/tokenRequestTwoFactor.ts
