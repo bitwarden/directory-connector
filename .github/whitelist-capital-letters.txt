@@ -236,7 +236,6 @@
 ./ISSUE_TEMPLATE.md
 ./CONTRIBUTING.md
 ./LICENSE.txt
-./openldap/certs/rootCA.pem
 ./SECURITY.md
 ./src/app/accounts/apiKey.component.ts
 ./src/app/accounts/apiKey.component.html
@@ -261,4 +260,3 @@
 ./src/services/stateMigration.service.ts
 ./src/services/lowdbStorage.service.ts
 ./src/services/keytarSecureStorage.service.ts
-./openldap/certs/rootCA.pem
