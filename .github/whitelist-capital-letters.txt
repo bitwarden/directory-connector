@@ -261,3 +261,4 @@
 ./src/services/stateMigration.service.ts
 ./src/services/lowdbStorage.service.ts
 ./src/services/keytarSecureStorage.service.ts
+./openldap/certs/rootCA.pem
