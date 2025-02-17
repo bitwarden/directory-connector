@@ -17,12 +17,7 @@
     "paths": {
       "tldjs": ["@/jslib/src/misc/tldjs.noop"],
       "@/*": ["./*"]
-    },
-    "plugins": [
-      {
-        "transform": "typescript-transform-paths"
-      }
-    ]
+    }
   },
   "include": ["src", "jslib", "scripts", "./*.ts"]
 }
