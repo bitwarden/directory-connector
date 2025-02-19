@@ -6,5 +6,5 @@ fi
 
 mkcert -install
 mkdir -p ./openldap/certs
-cp $(mkcert -CAROOT)/rootCA.pem ./openldap/certs/rootCA.pem
+cp "$(mkcert -CAROOT)/rootCA.pem" ./openldap/certs/rootCA.pem
 mkcert -key-file ./openldap/certs/openldap-key.pem -cert-file ./openldap/certs/openldap.pem localhost openldap
