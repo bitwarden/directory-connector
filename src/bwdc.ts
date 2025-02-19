@@ -17,12 +17,16 @@ import { ConsoleLogService } from "@/jslib/node/src/cli/services/consoleLog.serv
 import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 
+import { DirectoryFactoryService } from "./abstractions/directory-factory.service";
 import { Account } from "./models/account";
 import { Program } from "./program";
 import { AuthService } from "./services/auth.service";
+import { BatchRequestBuilder } from "./services/batch-request-builder";
+import { DefaultDirectoryFactoryService } from "./services/directory-factory.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
+import { SingleRequestBuilder } from "./services/single-request-builder";
 import { StateService } from "./services/state.service";
 import { StateMigrationService } from "./services/stateMigration.service";
 import { SyncService } from "./services/sync.service";
@@ -51,6 +55,9 @@ export class Main {
   syncService: SyncService;
   stateService: StateService;
   stateMigrationService: StateMigrationService;
+  directoryFactoryService: DirectoryFactoryService;
+  batchRequestBuilder: BatchRequestBuilder;
+  singleRequestBuilder: SingleRequestBuilder;
 
   constructor() {
     const applicationName = "Bitwarden Directory Connector";
@@ -146,14 +153,25 @@ export class Main {
       this.stateService,
     );
 
-    this.syncService = new SyncService(
+    this.directoryFactoryService = new DefaultDirectoryFactoryService(
       this.logService,
+      this.i18nService,
+      this.stateService,
+    );
+
+    this.batchRequestBuilder = new BatchRequestBuilder();
+    this.singleRequestBuilder = new SingleRequestBuilder();
+
+    this.syncService = new SyncService(
       this.cryptoFunctionService,
       this.apiService,
       this.messagingService,
       this.i18nService,
       this.environmentService,
       this.stateService,
+      this.batchRequestBuilder,
+      this.singleRequestBuilder,
+      this.directoryFactoryService,
     );
 
     this.program = new Program(this);
