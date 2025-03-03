@@ -26,12 +26,11 @@
         {{ "startSync" | i18n }}
       </button>
     </form>
-    <button type="button" (click)="stop()" class="btn btn-primary">
+    <button type="button" (click)="stop()" class="btn btn-danger text-white">
       {{ "stopSync" | i18n }}
     </button>
     <form #syncForm [appApiAction]="syncPromise" class="d-inline">
       <button type="button" (click)="sync()" class="btn btn-primary" [disabled]="syncForm.loading">
-        <i class="bwi bwi-refresh bwi-fw" [ngClass]="{ 'bwi-spin': syncForm.loading }"></i>
         {{ "syncNow" | i18n }}
       </button>
     </form>
@@ -49,7 +48,6 @@
         [disabled]="simForm.loading"
       >
         <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!simForm.loading"></i>
-        <i class="bwi bwi-bug bwi-fw" [hidden]="simForm.loading"></i>
         {{ "testNow" | i18n }}
       </button>
     </form>
