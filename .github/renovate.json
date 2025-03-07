@@ -7,6 +7,12 @@
       "groupName": "gh minor",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "groupName": "Google Libraries",
+      "matchPackagePatterns": ["google-auth-library", "googleapis"],
+      "matchManagers": ["npm"],
+      "groupSlug": "google-libraries"
     }
   ]
 }
