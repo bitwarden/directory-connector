@@ -141,7 +141,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     entry.referenceId = user.id;
     entry.externalId = user.id;
     entry.email = user.primaryEmail != null ? user.primaryEmail.trim().toLowerCase() : null;
-    entry.disabled = user.suspended || false;
+    entry.disabled = user.suspended || user.archived || false;
     entry.deleted = deleted;
     return entry;
   }
