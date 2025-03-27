@@ -134,7 +134,7 @@
     "ts-loader": "9.5.2",
     "tsconfig-paths-webpack-plugin": "4.2.0",
     "type-fest": "4.32.0",
-    "typescript": "5.4.5",
+    "typescript": "5.8.2",
     "webpack": "5.97.1",
     "webpack-cli": "6.0.1",
     "webpack-merge": "6.0.1",
