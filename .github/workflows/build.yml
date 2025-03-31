@@ -59,7 +59,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
@@ -154,7 +154,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
@@ -246,7 +246,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
@@ -386,7 +386,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
@@ -460,7 +460,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
@@ -514,7 +514,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
