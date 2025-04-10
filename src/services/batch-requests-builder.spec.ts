@@ -21,26 +21,40 @@ describe("BatchRequestBuilder", () => {
     singleRequestBuilder = new SingleRequestBuilder();
   });
 
+  const defaultOptions = { overwriteExisting: false, removeDisabled: false };
+
   it("BatchRequestBuilder batches requests for > 2000 users", () => {
     const mockGroups = groupSimulator(11000);
     const mockUsers = userSimulator(11000);
 
-    const requests = batchRequestBuilder.buildRequest(mockGroups, mockUsers, true, true);
+    const requests = batchRequestBuilder.buildRequest(mockGroups, mockUsers, defaultOptions);
 
     expect(requests.length).toEqual(12);
+  });
+
+  it("BatchRequestBuilder throws error when overwriteExisting is true", () => {
+    const mockGroups = groupSimulator(11000);
+    const mockUsers = userSimulator(11000);
+    const options = { ...defaultOptions, overwriteExisting: true };
+
+    const r = () => batchRequestBuilder.buildRequest(mockGroups, mockUsers, options);
+
+    expect(r).toThrow(
+      "You cannot use the 'Remove and re-add organization users during the next sync' option with large imports.",
+    );
   });
 
   it("SingleRequestBuilder returns single request for 200 users", () => {
     const mockGroups = groupSimulator(200);
     const mockUsers = userSimulator(200);
 
-    const requests = singleRequestBuilder.buildRequest(mockGroups, mockUsers, true, true);
+    const requests = singleRequestBuilder.buildRequest(mockGroups, mockUsers, defaultOptions);
 
     expect(requests.length).toEqual(1);
   });
 
   it("BatchRequestBuilder retuns an empty array when there are no users or groups", () => {
-    const requests = batchRequestBuilder.buildRequest([], [], true, true);
+    const requests = batchRequestBuilder.buildRequest([], [], defaultOptions);
 
     expect(requests).toEqual([]);
   });

@@ -16,9 +16,17 @@ export class BatchRequestBuilder implements RequestBuilder {
   buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],
-    removeDisabled: boolean,
-    overwriteExisting: boolean,
+    options: {
+      removeDisabled: boolean;
+      overwriteExisting: boolean;
+    },
   ): OrganizationImportRequest[] {
+    if (options.overwriteExisting) {
+      throw new Error(
+        "You cannot use the 'Remove and re-add organization users during the next sync' option with large imports.",
+      );
+    }
+
     const requests: OrganizationImportRequest[] = [];
 
     if (users.length > 0) {
@@ -26,7 +34,7 @@ export class BatchRequestBuilder implements RequestBuilder {
         return {
           email: u.email,
           externalId: u.externalId,
-          deleted: u.deleted || (removeDisabled && u.disabled),
+          deleted: u.deleted || (options.removeDisabled && u.disabled),
         };
       });
 
@@ -37,7 +45,7 @@ export class BatchRequestBuilder implements RequestBuilder {
           groups: [],
           users: u,
           largeImport: true,
-          overwriteExisting,
+          overwriteExisting: false,
         });
         requests.push(req);
       }
@@ -59,7 +67,7 @@ export class BatchRequestBuilder implements RequestBuilder {
           groups: g,
           users: [],
           largeImport: true,
-          overwriteExisting,
+          overwriteExisting: false,
         });
         requests.push(req);
       }
