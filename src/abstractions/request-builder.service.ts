@@ -7,7 +7,9 @@ export abstract class RequestBuilder {
   buildRequest: (
     groups: GroupEntry[],
     users: UserEntry[],
-    removeDisabled: boolean,
-    overwriteExisting: boolean,
+    options: {
+      removeDisabled: boolean;
+      overwriteExisting: boolean;
+    },
   ) => OrganizationImportRequest[];
 }

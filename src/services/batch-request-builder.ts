@@ -16,8 +16,10 @@ export class BatchRequestBuilder implements RequestBuilder {
   buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],
-    removeDisabled: boolean,
-    overwriteExisting: boolean,
+    options: {
+      removeDisabled: boolean;
+      overwriteExisting: boolean;
+    },
   ): OrganizationImportRequest[] {
     const requests: OrganizationImportRequest[] = [];
 
@@ -26,7 +28,7 @@ export class BatchRequestBuilder implements RequestBuilder {
         return {
           email: u.email,
           externalId: u.externalId,
-          deleted: u.deleted || (removeDisabled && u.disabled),
+          deleted: u.deleted || (options.removeDisabled && u.disabled),
         };
       });
 
@@ -37,7 +39,7 @@ export class BatchRequestBuilder implements RequestBuilder {
           groups: [],
           users: u,
           largeImport: true,
-          overwriteExisting,
+          overwriteExisting: options.overwriteExisting,
         });
         requests.push(req);
       }
@@ -59,7 +61,7 @@ export class BatchRequestBuilder implements RequestBuilder {
           groups: g,
           users: [],
           largeImport: true,
-          overwriteExisting,
+          overwriteExisting: options.overwriteExisting,
         });
         requests.push(req);
       }
