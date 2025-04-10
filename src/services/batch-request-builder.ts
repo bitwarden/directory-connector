@@ -21,6 +21,12 @@ export class BatchRequestBuilder implements RequestBuilder {
       overwriteExisting: boolean;
     },
   ): OrganizationImportRequest[] {
+    if (options.overwriteExisting) {
+      throw new Error(
+        "You cannot use the 'Remove and re-add organization users during the next sync' option with large imports.",
+      );
+    }
+
     const requests: OrganizationImportRequest[] = [];
 
     if (users.length > 0) {
