@@ -45,7 +45,7 @@ export class BatchRequestBuilder implements RequestBuilder {
           groups: [],
           users: u,
           largeImport: true,
-          overwriteExisting: options.overwriteExisting,
+          overwriteExisting: false,
         });
         requests.push(req);
       }
@@ -67,7 +67,7 @@ export class BatchRequestBuilder implements RequestBuilder {
           groups: g,
           users: [],
           largeImport: true,
-          overwriteExisting: options.overwriteExisting,
+          overwriteExisting: false,
         });
         requests.push(req);
       }
