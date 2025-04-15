@@ -15,8 +15,10 @@ export class SingleRequestBuilder implements RequestBuilder {
   buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],
-    removeDisabled: boolean,
-    overwriteExisting: boolean,
+    options: {
+      removeDisabled: boolean;
+      overwriteExisting: boolean;
+    },
   ): OrganizationImportRequest[] {
     return [
       new OrganizationImportRequest({
@@ -31,10 +33,10 @@ export class SingleRequestBuilder implements RequestBuilder {
           return {
             email: u.email,
             externalId: u.externalId,
-            deleted: u.deleted || (removeDisabled && u.disabled),
+            deleted: u.deleted || (options.removeDisabled && u.disabled),
           };
         }),
-        overwriteExisting: overwriteExisting,
+        overwriteExisting: options.overwriteExisting,
         largeImport: false,
       }),
     ];

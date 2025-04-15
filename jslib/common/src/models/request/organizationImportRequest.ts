@@ -8,16 +8,12 @@ export class OrganizationImportRequest {
   overwriteExisting = false;
   largeImport = false;
 
-  constructor(
-    model:
-      | {
-          groups: Required<OrganizationImportGroupRequest>[];
-          users: Required<OrganizationImportMemberRequest>[];
-          overwriteExisting: boolean;
-          largeImport: boolean;
-        }
-      | ImportDirectoryRequest,
-  ) {
+  constructor(model: {
+    groups: Required<OrganizationImportGroupRequest>[];
+    users: Required<OrganizationImportMemberRequest>[];
+    overwriteExisting: boolean;
+    largeImport: boolean;
+  }) {
     if (model instanceof ImportDirectoryRequest) {
       this.groups = model.groups.map((g) => new OrganizationImportGroupRequest(g));
       this.members = model.users.map((u) => new OrganizationImportMemberRequest(u));
