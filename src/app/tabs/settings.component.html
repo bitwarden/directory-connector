@@ -614,7 +614,7 @@
               {{ "ex" | i18n }} exclude:joe&#64;company.com | profile.firstName eq "John"
             </div>
             <div class="form-text" *ngIf="directory === directoryType.GSuite">
-              {{ "ex" | i18n }} exclude:joe&#64;company.com | orgName=Engineering
+              {{ "ex" | i18n }} exclude:joe&#64;company.com | orgUnitPath=/Engineering
             </div>
           </div>
           <div class="mb-3" [hidden]="directory != directoryType.Ldap">
