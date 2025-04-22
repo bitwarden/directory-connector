@@ -3,7 +3,7 @@ import { OrganizationImportRequest } from "@/jslib/common/src/models/request/org
 import { GroupEntry } from "@/src/models/groupEntry";
 import { UserEntry } from "@/src/models/userEntry";
 
-import { RequestBuilder } from "../abstractions/request-builder.service";
+import { RequestBuilder, RequestBuilderOptions } from "../abstractions/request-builder.service";
 
 /**
  * This class is responsible for building small (<2k users) syncs as a single
@@ -15,10 +15,7 @@ export class SingleRequestBuilder implements RequestBuilder {
   buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],
-    options: {
-      removeDisabled: boolean;
-      overwriteExisting: boolean;
-    },
+    options: RequestBuilderOptions,
   ): OrganizationImportRequest[] {
     return [
       new OrganizationImportRequest({
