@@ -3,14 +3,9 @@ import { OrganizationImportRequest } from "@/jslib/common/src/models/request/org
 import { GroupEntry } from "@/src/models/groupEntry";
 import { UserEntry } from "@/src/models/userEntry";
 
-export class RequestBuilderOptions {
-  constructor(options: { removeDisabled: boolean; overwriteExisting: boolean }) {
-    this.removeDisabled = options.removeDisabled;
-    this.overwriteExisting = options.overwriteExisting;
-  }
-
-  removeDisabled: boolean = false;
-  overwriteExisting: boolean = false;
+export interface RequestBuilderOptions {
+  removeDisabled: boolean;
+  overwriteExisting: boolean;
 }
 
 export abstract class RequestBuilder {

@@ -1,26 +1,20 @@
-import { GroupEntry } from "@/src/models/groupEntry";
+import { GetUniqueString } from "@/jslib/common/spec/utils";
+
 import { UserEntry } from "@/src/models/userEntry";
 
 import { RequestBuilderOptions } from "../abstractions/request-builder.service";
+import { groupSimulator, userSimulator } from "../utils/request-builder-helper";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 
 describe("BatchRequestBuilder", () => {
   let batchRequestBuilder: BatchRequestBuilder;
 
-  function userSimulator(userCount: number) {
-    return Array(userCount).fill(new UserEntry());
-  }
-
-  function groupSimulator(groupCount: number) {
-    return Array(groupCount).fill(new GroupEntry());
-  }
-
   beforeEach(async () => {
     batchRequestBuilder = new BatchRequestBuilder();
   });
 
-  const defaultOptions = new RequestBuilderOptions({
+  const defaultOptions: RequestBuilderOptions = Object.freeze({
     overwriteExisting: false,
     removeDisabled: false,
   });
@@ -28,7 +22,6 @@ describe("BatchRequestBuilder", () => {
   it("BatchRequestBuilder batches requests for > 2000 users", () => {
     const mockGroups = groupSimulator(11000);
     const mockUsers = userSimulator(11000);
-
     const requests = batchRequestBuilder.buildRequest(mockGroups, mockUsers, defaultOptions);
 
     expect(requests.length).toEqual(12);
@@ -37,7 +30,7 @@ describe("BatchRequestBuilder", () => {
   it("BatchRequestBuilder throws error when overwriteExisting is true", () => {
     const mockGroups = groupSimulator(11000);
     const mockUsers = userSimulator(11000);
-    const options = new RequestBuilderOptions({ ...defaultOptions, overwriteExisting: true });
+    const options = { ...defaultOptions, overwriteExisting: true };
 
     const r = () => batchRequestBuilder.buildRequest(mockGroups, mockUsers, options);
 
@@ -48,20 +41,34 @@ describe("BatchRequestBuilder", () => {
 
   it("BatchRequestBuilder returns requests with deleted users when removeDisabled is true", () => {
     const mockGroups = groupSimulator(11000);
-    const disabledUser = new UserEntry();
     const mockUsers = userSimulator(11000);
-    const options = new RequestBuilderOptions({ ...defaultOptions, removeDisabled: true });
 
-    disabledUser.disabled = true;
-    mockUsers[0] = disabledUser;
-    mockUsers.push(disabledUser);
+    const disabledUser1 = new UserEntry();
+    const disabledUserEmail1 = GetUniqueString() + "@email.com";
 
+    const disabledUser2 = new UserEntry();
+    const disabledUserEmail2 = GetUniqueString() + "@email.com";
+
+    disabledUser1.disabled = true;
+    disabledUser1.email = disabledUserEmail1;
+    disabledUser2.disabled = true;
+    disabledUser2.email = disabledUserEmail2;
+
+    mockUsers[0] = disabledUser1;
+    mockUsers.push(disabledUser2);
+
+    const options = { ...defaultOptions, removeDisabled: true };
     const requests = batchRequestBuilder.buildRequest(mockGroups, mockUsers, options);
-    expect(requests[0].members.find((m) => m.deleted)).toBeTruthy();
+
+    expect(requests[0].members.find((m) => m.deleted && m.email === disabledUserEmail1)).toEqual(
+      expect.objectContaining({ email: disabledUserEmail1, deleted: true }),
+    );
     expect(requests[1].members.find((m) => m.deleted)).toBeUndefined();
     expect(requests[3].members.find((m) => m.deleted)).toBeUndefined();
     expect(requests[4].members.find((m) => m.deleted)).toBeUndefined();
-    expect(requests[5].members.find((m) => m.deleted)).toBeTruthy();
+    expect(requests[5].members.find((m) => m.deleted && m.email === disabledUserEmail2)).toEqual(
+      expect.objectContaining({ email: disabledUserEmail2, deleted: true }),
+    );
   });
 
   it("BatchRequestBuilder retuns an empty array when there are no users or groups", () => {
