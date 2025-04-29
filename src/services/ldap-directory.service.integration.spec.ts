@@ -4,7 +4,6 @@ import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../jslib/common/src/abstractions/log.service";
 import { groupFixtures } from "../../openldap/group-fixtures";
 import { userFixtures } from "../../openldap/user-fixtures";
-import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
 import { DirectoryType } from "../enums/directoryType";
 import { getLdapConfiguration, getSyncConfiguration } from "../utils/test-fixtures";
 
@@ -21,7 +20,6 @@ describe("ldapDirectoryService", () => {
   let logService: MockProxy<LogService>;
   let i18nService: MockProxy<I18nService>;
   let stateService: MockProxy<StateService>;
-  let directoryFactory: MockProxy<DirectoryFactoryService>;
 
   let directoryService: LdapDirectoryService;
 
@@ -29,15 +27,12 @@ describe("ldapDirectoryService", () => {
     logService = mock();
     i18nService = mock();
     stateService = mock();
-    directoryFactory = mock();
 
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
-    stateService.getOrganizationId.mockResolvedValue("fakeId");
     stateService.getLastUserSync.mockResolvedValue(null); // do not filter results by last modified date
     i18nService.t.mockImplementation((id) => id); // passthrough implementation for any error  messages
 
     directoryService = new LdapDirectoryService(logService, i18nService, stateService);
-    directoryFactory.createService.mockReturnValue(directoryService);
   });
 
   describe("basic sync fetching users and groups", () => {
