@@ -34,6 +34,8 @@ describe("SyncService", () => {
 
   let syncService: SyncService;
 
+  const originalBatchSize = constants.batchSize;
+
   beforeEach(() => {
     cryptoFunctionService = mock();
     apiService = mock();
@@ -115,11 +117,12 @@ describe("SyncService", () => {
     expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(mockRequests[3]);
     expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(mockRequests[4]);
     expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(mockRequests[5]);
+
+    // @ts-expect-error Reset batch size back to original value.
+    constants.batchSize = originalBatchSize;
   });
 
   it("does not post for the same hash", async () => {
-    // @ts-expect-error this sets the batch size back to its expexted value for this test.
-    constants.batchSize = 2000;
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
     // This arranges the last hash to be the same as the ArrayBuffer after it is converted to b64
