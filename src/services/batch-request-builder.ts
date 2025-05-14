@@ -26,7 +26,7 @@ export class BatchRequestBuilder implements RequestBuilder {
 
     const requests: OrganizationImportRequest[] = [];
 
-    if (users.length > 0) {
+    if (users?.length > 0) {
       const usersRequest = users.map((u) => {
         return {
           email: u.email,
@@ -48,7 +48,7 @@ export class BatchRequestBuilder implements RequestBuilder {
       }
     }
 
-    if (groups.length > 0) {
+    if (groups?.length > 0) {
       const groupRequest = groups.map((g) => {
         return {
           name: g.name,
