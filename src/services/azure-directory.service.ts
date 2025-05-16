@@ -415,7 +415,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     const entry = new GroupEntry();
     entry.referenceId = group.id;
     entry.externalId = group.id;
-    entry.name = group.displayName;
+    entry.name = group.displayName.substring(0, 100);
 
     const memReq = this.client.api("/groups/" + group.id + "/members");
     let memRes = await memReq.get();
