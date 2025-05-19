@@ -215,7 +215,7 @@ export class SyncService {
     users: UserEntry[],
     syncConfig: SyncConfiguration,
   ): OrganizationImportRequest[] {
-    if (syncConfig.largeImport && groups.length + users.length > batchSize) {
+    if (syncConfig.largeImport && (groups?.length ?? 0) + (users?.length ?? 0) > batchSize) {
       return this.batchRequestBuilder.buildRequest(groups, users, syncConfig);
     } else {
       return this.singleRequestBuilder.buildRequest(groups, users, syncConfig);
