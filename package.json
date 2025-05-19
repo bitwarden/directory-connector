@@ -73,7 +73,7 @@
     "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "17.3.11",
+    "@angular-devkit/build-angular": "17.3.17",
     "@angular-eslint/eslint-plugin-template": "17.5.3",
     "@angular-eslint/template-parser": "17.5.3",
     "@angular/compiler-cli": "17.3.12",
@@ -81,7 +81,7 @@
     "@electron/rebuild": "3.7.1",
     "@fluffy-spoon/substitute": "1.208.0",
     "@microsoft/microsoft-graph-types": "2.40.0",
-    "@ngtools/webpack": "17.3.11",
+    "@ngtools/webpack": "17.3.17",
     "@types/inquirer": "8.2.10",
     "@types/jest": "29.5.14",
     "@types/lowdb": "1.0.15",
@@ -117,7 +117,7 @@
     "jest": "29.7.0",
     "jest-junit": "16.0.0",
     "jest-mock-extended": "3.0.7",
-    "jest-preset-angular": "14.5.0",
+    "jest-preset-angular": "14.5.5",
     "lint-staged": "15.4.1",
     "mini-css-extract-plugin": "2.9.2",
     "minimatch": "3.1.2",
