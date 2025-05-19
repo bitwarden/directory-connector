@@ -84,7 +84,7 @@
     "@ngtools/webpack": "17.3.17",
     "@types/inquirer": "8.2.10",
     "@types/jest": "29.5.14",
-    "@types/lowdb": "1.0.15",
+    "@types/lowdb": "2.0.3",
     "@types/node": "22.13.1",
     "@types/node-fetch": "2.6.12",
     "@types/node-forge": "1.3.11",
