@@ -83,13 +83,7 @@ export class SyncService {
         return [groups, users];
       }
 
-      const reqs = this.buildRequest(
-        groups,
-        users,
-        syncConfig.removeDisabled,
-        syncConfig.overwriteExisting,
-        syncConfig.largeImport,
-      );
+      const reqs = this.buildRequest(groups, users, syncConfig);
 
       const result: HashResult = await this.generateHash(reqs);
 
@@ -219,24 +213,12 @@ export class SyncService {
   private buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],
-    removeDisabled: boolean,
-    overwriteExisting: boolean,
-    largeImport = false,
+    syncConfig: SyncConfiguration,
   ): OrganizationImportRequest[] {
-    if (largeImport && groups.length + users.length > batchSize) {
-      return this.batchRequestBuilder.buildRequest(
-        groups,
-        users,
-        overwriteExisting,
-        removeDisabled,
-      );
+    if (syncConfig.largeImport && (groups?.length ?? 0) + (users?.length ?? 0) > batchSize) {
+      return this.batchRequestBuilder.buildRequest(groups, users, syncConfig);
     } else {
-      return this.singleRequestBuilder.buildRequest(
-        groups,
-        users,
-        overwriteExisting,
-        removeDisabled,
-      );
+      return this.singleRequestBuilder.buildRequest(groups, users, syncConfig);
     }
   }
 
