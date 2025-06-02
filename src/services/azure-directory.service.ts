@@ -18,7 +18,9 @@ import { BaseDirectoryService } from "./baseDirectory.service";
 import { IDirectoryService } from "./directory.service";
 
 const AzurePublicIdentityAuhtority = "login.microsoftonline.com";
+const AzurePublicGraphEndpoint = "https://graph.microsoft.com";
 const AzureGovermentIdentityAuhtority = "login.microsoftonline.us";
+const AzureGovernmentGraphEndpoint = "https://graph.microsoft.us";
 
 const NextLink = "@odata.nextLink";
 const DeltaLink = "@odata.deltaLink";
@@ -207,7 +209,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     if (keyword === "excludeadministrativeunit" || keyword === "includeadministrativeunit") {
       for (const p of pieces) {
         let auMembers = await this.client
-          .api(`https://graph.microsoft.com/v1.0/directory/administrativeUnits/${p}/members`)
+          .api(`${this.getGraphApiEndpoint()}/v1.0/directory/administrativeUnits/${p}/members`)
           .get();
         // eslint-disable-next-line
         while (true) {
@@ -478,7 +480,7 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
           client_id: this.dirConfig.applicationId,
           client_secret: this.dirConfig.key,
           grant_type: "client_credentials",
-          scope: "https://graph.microsoft.com/.default",
+          scope: `${this.getGraphApiEndpoint()}/.default`,
         });
 
         const req = https
@@ -541,5 +543,11 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
     const exp = new Date();
     exp.setSeconds(exp.getSeconds() + expSeconds);
     this.accessTokenExpiration = exp;
+  }
+
+  private getGraphApiEndpoint(): string {
+    return this.dirConfig.identityAuthority === AzureGovermentIdentityAuhtority
+      ? AzureGovernmentGraphEndpoint
+      : AzurePublicGraphEndpoint;
   }
 }
