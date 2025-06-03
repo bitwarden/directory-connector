@@ -48,8 +48,8 @@ jobs:
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _PKG_FETCH_NODE_VERSION: 18.5.0
-      _PKG_FETCH_VERSION: 3.4
+      _PKG_FETCH_NODE_VERSION: 22.13.1
+      _PKG_FETCH_VERSION: 3.5
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -59,7 +59,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
@@ -143,8 +143,8 @@ jobs:
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _PKG_FETCH_NODE_VERSION: 18.5.0
-      _PKG_FETCH_VERSION: 3.4
+      _PKG_FETCH_NODE_VERSION: 22.13.1
+      _PKG_FETCH_VERSION: 3.5
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -154,7 +154,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
@@ -230,8 +230,8 @@ jobs:
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _WIN_PKG_FETCH_VERSION: 18.5.0
-      _WIN_PKG_VERSION: 3.4
+      _WIN_PKG_FETCH_VERSION: 22.13.1
+      _WIN_PKG_VERSION: 3.5
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -246,7 +246,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
@@ -386,7 +386,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
@@ -476,7 +476,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
@@ -530,7 +530,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: '22'
 
       - name: Update NPM
         run: |
