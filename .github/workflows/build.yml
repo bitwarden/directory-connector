@@ -9,6 +9,9 @@ on:
       - "hotfix-rc"
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+
 jobs:
   cloc:
     name: CLOC
