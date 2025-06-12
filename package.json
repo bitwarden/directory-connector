@@ -159,7 +159,7 @@
     "core-js": "3.42.0",
     "form-data": "4.0.1",
     "google-auth-library": "9.15.1",
-    "googleapis": "144.0.0",
+    "googleapis": "150.0.1",
     "https-proxy-agent": "7.0.6",
     "inquirer": "8.2.6",
     "keytar": "7.9.0",
