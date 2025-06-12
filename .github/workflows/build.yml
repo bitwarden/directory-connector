@@ -9,6 +9,9 @@ on:
       - "hotfix-rc"
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+
 jobs:
   cloc:
     name: CLOC
@@ -95,11 +98,6 @@ jobs:
       - name: Zip
         run: zip -j dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip dist-cli/linux/bwdc keytar/linux/build/Release/keytar.node
 
-      - name: Create checksums
-        run: |
-          shasum -a 256 dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip | \
-            cut -d " " -f 1 > dist-cli/bwdc-linux-sha256-$_PACKAGE_VERSION.txt
-
       - name: Version Test
         run: |
           sudo apt-get update
@@ -127,13 +125,6 @@ jobs:
         with:
           name: bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-linux-${{ env._PACKAGE_VERSION }}.zip
-          if-no-files-found: error
-
-      - name: Upload Linux checksum to GitHub
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: ./dist-cli/bwdc-linux-sha256-${{ env._PACKAGE_VERSION }}.txt
           if-no-files-found: error
 
 
@@ -190,11 +181,6 @@ jobs:
       - name: Zip
         run: zip -j dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip dist-cli/macos/bwdc keytar/macos/build/Release/keytar.node
 
-      - name: Create checksums
-        run: |
-          shasum -a 256 dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip | \
-            cut -d " " -f 1 > dist-cli/bwdc-macos-sha256-$_PACKAGE_VERSION.txt
-
       - name: Version Test
         run: |
           mkdir -p test/macos
@@ -217,12 +203,6 @@ jobs:
           path: ./dist-cli/bwdc-macos-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
-      - name: Upload Mac checksum to GitHub
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: ./dist-cli/bwdc-macos-sha256-${{ env._PACKAGE_VERSION }}.txt
-          if-no-files-found: error
 
   windows-cli:
     name: Build Windows CLI
@@ -349,23 +329,11 @@ jobs:
             Throw "Version test failed."
           }
 
-      - name: Create checksums
-        run: |
-          checksum -f="./dist-cli/bwdc-windows-${env:_PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File ./dist-cli/bwdc-windows-sha256-${env:_PACKAGE_VERSION}.txt
-
       - name: Upload Windows Zip to GitHub
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
           path: ./dist-cli/bwdc-windows-${{ env._PACKAGE_VERSION }}.zip
-          if-no-files-found: error
-
-      - name: Upload Windows checksum to GitHub
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: ./dist-cli/bwdc-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
           if-no-files-found: error
 
 
