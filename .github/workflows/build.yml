@@ -569,7 +569,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-directory-connector
-          secrets: "KEYCHAIN_PASSWORD,APP_STORE_CONNECT_AUTH_KEY,APP_STORE_CONNECT_TEAM_ISSUER"
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Get certificates
         run: |
@@ -589,7 +589,7 @@ jobs:
 
       - name: Set up keychain
         env:
-          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -623,13 +623,13 @@ jobs:
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_UFD296548T.p8
-          ${{ steps.get-kv-secrets.outputs.APP_STORE_CONNECT_AUTH_KEY }}
+          ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           EOF
 
       - name: Build application
         run: npm run dist:mac
         env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: UFD296548T
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_UFD296548T.p8
           CSC_FOR_PULL_REQUEST: true
