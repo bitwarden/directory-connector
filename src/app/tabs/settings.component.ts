@@ -42,7 +42,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.directoryOptions = [
       { name: this.i18nService.t("select"), value: null },
       { name: "Active Directory / LDAP", value: DirectoryType.Ldap },
-      { name: "Azure Active Directory", value: DirectoryType.AzureActiveDirectory },
+      { name: "EntraID", value: DirectoryType.AzureActiveDirectory },
       { name: "G Suite (Google)", value: DirectoryType.GSuite },
       { name: "Okta", value: DirectoryType.Okta },
       { name: "OneLogin", value: DirectoryType.OneLogin },
