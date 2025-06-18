@@ -3,7 +3,7 @@ import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions"
 
 import { DirectoryType } from "@/src/enums/directoryType";
 import { Account } from "@/src/models/account";
-import { AzureConfiguration } from "@/src/models/azureConfiguration";
+import { EntraIdConfiguration } from "@/src/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/src/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/src/models/ldapConfiguration";
 import { OktaConfiguration } from "@/src/models/oktaConfiguration";
@@ -17,7 +17,7 @@ export abstract class StateService extends BaseStateServiceAbstraction<Account> 
     config:
       | LdapConfiguration
       | GSuiteConfiguration
-      | AzureConfiguration
+      | EntraIdConfiguration
       | OktaConfiguration
       | OneLoginConfiguration,
   ) => Promise<any>;
@@ -25,8 +25,8 @@ export abstract class StateService extends BaseStateServiceAbstraction<Account> 
   setLdapConfiguration: (value: LdapConfiguration, options?: StorageOptions) => Promise<void>;
   getGsuiteConfiguration: (options?: StorageOptions) => Promise<GSuiteConfiguration>;
   setGsuiteConfiguration: (value: GSuiteConfiguration, options?: StorageOptions) => Promise<void>;
-  getAzureConfiguration: (options?: StorageOptions) => Promise<AzureConfiguration>;
-  setAzureConfiguration: (value: AzureConfiguration, options?: StorageOptions) => Promise<void>;
+  getEntraConfiguration: (options?: StorageOptions) => Promise<EntraIdConfiguration>;
+  setEntraConfiguration: (value: EntraIdConfiguration, options?: StorageOptions) => Promise<void>;
   getOktaConfiguration: (options?: StorageOptions) => Promise<OktaConfiguration>;
   setOktaConfiguration: (value: OktaConfiguration, options?: StorageOptions) => Promise<void>;
   getOneLoginConfiguration: (options?: StorageOptions) => Promise<OneLoginConfiguration>;

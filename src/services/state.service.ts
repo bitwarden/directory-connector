@@ -11,7 +11,7 @@ import { StateService as StateServiceAbstraction } from "@/src/abstractions/stat
 import { DirectoryType } from "@/src/enums/directoryType";
 import { IConfiguration } from "@/src/models/IConfiguration";
 import { Account } from "@/src/models/account";
-import { AzureConfiguration } from "@/src/models/azureConfiguration";
+import { EntraIdConfiguration } from "@/src/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/src/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/src/models/ldapConfiguration";
 import { OktaConfiguration } from "@/src/models/oktaConfiguration";
@@ -68,7 +68,7 @@ export class StateService
         case DirectoryType.Ldap:
           (configWithSecrets as any).password = await this.getLdapKey();
           break;
-        case DirectoryType.AzureActiveDirectory:
+        case DirectoryType.EntraID:
           (configWithSecrets as any).key = await this.getAzureKey();
           break;
         case DirectoryType.Okta:
@@ -93,7 +93,7 @@ export class StateService
     config:
       | LdapConfiguration
       | GSuiteConfiguration
-      | AzureConfiguration
+      | EntraIdConfiguration
       | OktaConfiguration
       | OneLoginConfiguration,
   ): Promise<any> {
@@ -106,11 +106,11 @@ export class StateService
           await this.setLdapConfiguration(ldapConfig);
           break;
         }
-        case DirectoryType.AzureActiveDirectory: {
-          const azureConfig = config as AzureConfiguration;
+        case DirectoryType.EntraID: {
+          const azureConfig = config as EntraIdConfiguration;
           await this.setAzureKey(azureConfig.key);
           azureConfig.key = StoredSecurely;
-          await this.setAzureConfiguration(azureConfig);
+          await this.setEntraConfiguration(azureConfig);
           break;
         }
         case DirectoryType.Okta: {
@@ -259,8 +259,8 @@ export class StateService
         return await this.getLdapConfiguration();
       case DirectoryType.GSuite:
         return await this.getGsuiteConfiguration();
-      case DirectoryType.AzureActiveDirectory:
-        return await this.getAzureConfiguration();
+      case DirectoryType.EntraID:
+        return await this.getEntraConfiguration();
       case DirectoryType.Okta:
         return await this.getOktaConfiguration();
       case DirectoryType.OneLogin:
@@ -305,17 +305,20 @@ export class StateService
     );
   }
 
-  async getAzureConfiguration(options?: StorageOptions): Promise<AzureConfiguration> {
+  async getEntraConfiguration(options?: StorageOptions): Promise<EntraIdConfiguration> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directoryConfigurations?.azure;
+    )?.directoryConfigurations?.entra;
   }
 
-  async setAzureConfiguration(value: AzureConfiguration, options?: StorageOptions): Promise<void> {
+  async setEntraConfiguration(
+    value: EntraIdConfiguration,
+    options?: StorageOptions,
+  ): Promise<void> {
     const account = await this.getAccount(
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
-    account.directoryConfigurations.azure = value;
+    account.directoryConfigurations.entra = value;
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
