@@ -23,12 +23,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ldap = new LdapConfiguration();
   gsuite = new GSuiteConfiguration();
   azure = new EntraIdConfiguration();
+  entra = new EntraIdConfiguration();
   okta = new OktaConfiguration();
   oneLogin = new OneLoginConfiguration();
   sync = new SyncConfiguration();
   directoryOptions: any[];
   showLdapPassword = false;
-  showAzureKey = false;
+  showEntraKey = false;
   showOktaKey = false;
   showOneLoginSecret = false;
 
@@ -56,8 +57,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.gsuite =
       (await this.stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite)) ||
       this.gsuite;
-    this.azure =
+    this.entra =
       (await this.stateService.getDirectory<EntraIdConfiguration>(DirectoryType.EntraID)) ||
+      this.entra ||
       this.azure;
     this.okta =
       (await this.stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta)) || this.okta;
@@ -79,7 +81,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.stateService.setDirectoryType(this.directory);
     await this.stateService.setDirectory(DirectoryType.Ldap, this.ldap);
     await this.stateService.setDirectory(DirectoryType.GSuite, this.gsuite);
-    await this.stateService.setDirectory(DirectoryType.EntraID, this.azure);
+    await this.stateService.setDirectory(DirectoryType.EntraID, this.entra);
     await this.stateService.setDirectory(DirectoryType.Okta, this.okta);
     await this.stateService.setDirectory(DirectoryType.OneLogin, this.oneLogin);
     await this.stateService.setSync(this.sync);
@@ -135,7 +137,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   toggleAzureKey() {
-    this.showAzureKey = !this.showAzureKey;
+    this.showEntraKey = !this.showEntraKey;
     document.getElementById("secretKey").focus();
   }
 
