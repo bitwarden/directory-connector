@@ -3,7 +3,7 @@ import { StateMigrationService as BaseStateMigrationService } from "@/jslib/comm
 
 import { DirectoryType } from "@/src/enums/directoryType";
 import { Account, DirectoryConfigurations, DirectorySettings } from "@/src/models/account";
-import { AzureConfiguration } from "@/src/models/azureConfiguration";
+import { EntraIdConfiguration } from "@/src/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/src/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/src/models/ldapConfiguration";
 import { OktaConfiguration } from "@/src/models/oktaConfiguration";
@@ -14,6 +14,7 @@ const SecureStorageKeys: { [key: string]: any } = {
   ldap: "ldapPassword",
   gsuite: "gsuitePrivateKey",
   azure: "azureKey",
+  entra: "entraIdKey",
   okta: "oktaToken",
   oneLogin: "oneLoginClientSecret",
   directoryConfigPrefix: "directoryConfig_",
@@ -104,13 +105,13 @@ export class StateMigrationService extends BaseStateMigrationService {
       }
     };
 
-    // Initilize typed objects from key/value pairs in storage to either be saved temporarily until an account is authed or applied to the active account
+    // Initialize typed objects from key/value pairs in storage to either be saved temporarily until an account is authed or applied to the active account
     const getDirectoryConfig = async <T>(type: DirectoryType) =>
       await this.get<T>(SecureStorageKeys.directoryConfigPrefix + type);
     const directoryConfigs: DirectoryConfigurations = {
       ldap: await getDirectoryConfig<LdapConfiguration>(DirectoryType.Ldap),
       gsuite: await getDirectoryConfig<GSuiteConfiguration>(DirectoryType.GSuite),
-      azure: await getDirectoryConfig<AzureConfiguration>(DirectoryType.AzureActiveDirectory),
+      entra: await getDirectoryConfig<EntraIdConfiguration>(DirectoryType.EntraID),
       okta: await getDirectoryConfig<OktaConfiguration>(DirectoryType.Okta),
       oneLogin: await getDirectoryConfig<OneLoginConfiguration>(DirectoryType.OneLogin),
     };
