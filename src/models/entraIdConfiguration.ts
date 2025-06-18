@@ -1,6 +1,6 @@
 import { IConfiguration } from "./IConfiguration";
 
-export class AzureConfiguration implements IConfiguration {
+export class EntraIdConfiguration implements IConfiguration {
   identityAuthority: string;
   tenant: string;
   applicationId: string;

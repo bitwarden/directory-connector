@@ -5,7 +5,7 @@ import { DirectoryFactoryService } from "../abstractions/directory-factory.servi
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 
-import { AzureDirectoryService } from "./azure-directory.service";
+import { EntraIdDirectoryService } from "./entra-id-directory.service";
 import { GSuiteDirectoryService } from "./gsuite-directory.service";
 import { LdapDirectoryService } from "./ldap-directory.service";
 import { OktaDirectoryService } from "./okta-directory.service";
@@ -22,8 +22,8 @@ export class DefaultDirectoryFactoryService implements DirectoryFactoryService {
     switch (directoryType) {
       case DirectoryType.GSuite:
         return new GSuiteDirectoryService(this.logService, this.i18nService, this.stateService);
-      case DirectoryType.AzureActiveDirectory:
-        return new AzureDirectoryService(this.logService, this.i18nService, this.stateService);
+      case DirectoryType.EntraID:
+        return new EntraIdDirectoryService(this.logService, this.i18nService, this.stateService);
       case DirectoryType.Ldap:
         return new LdapDirectoryService(this.logService, this.i18nService, this.stateService);
       case DirectoryType.Okta:

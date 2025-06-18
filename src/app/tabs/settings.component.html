@@ -242,7 +242,7 @@
             </div>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.AzureActiveDirectory">
+        <div [hidden]="directory != directoryType.EntraID">
           <div class="mb-3">
             <label for="identityAuthority" class="form-label">{{
               "identityAuthority" | i18n
@@ -607,7 +607,7 @@
             <div class="form-text" *ngIf="directory === directoryType.Ldap">
               {{ "ex" | i18n }} (&amp;(givenName=John)(|(l=Dallas)(l=Austin)))
             </div>
-            <div class="form-text" *ngIf="directory === directoryType.AzureActiveDirectory">
+            <div class="form-text" *ngIf="directory === directoryType.EntraID">
               {{ "ex" | i18n }} exclude:joe&#64;company.com
             </div>
             <div class="form-text" *ngIf="directory === directoryType.Okta">
@@ -684,7 +684,7 @@
             <div class="form-text" *ngIf="directory === directoryType.Ldap">
               {{ "ex" | i18n }} (&amp;(objectClass=group)(!(cn=Sales*))(!(cn=IT*)))
             </div>
-            <div class="form-text" *ngIf="directory === directoryType.AzureActiveDirectory">
+            <div class="form-text" *ngIf="directory === directoryType.EntraID">
               {{ "ex" | i18n }} include:Sales,IT
             </div>
             <div class="form-text" *ngIf="directory === directoryType.Okta">
