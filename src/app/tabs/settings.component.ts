@@ -136,7 +136,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     document.getElementById("password").focus();
   }
 
-  toggleAzureKey() {
+  toggleEntraKey() {
     this.showEntraKey = !this.showEntraKey;
     document.getElementById("secretKey").focus();
   }

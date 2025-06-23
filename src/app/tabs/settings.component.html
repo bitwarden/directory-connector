@@ -253,8 +253,8 @@
               name="IdentityAuthority"
               [(ngModel)]="entra.identityAuthority"
             >
-              <option value="login.microsoftonline.com">Azure AD Public</option>
-              <option value="login.microsoftonline.us">Azure AD Government</option>
+              <option value="login.microsoftonline.com">Entra Id Public</option>
+              <option value="login.microsoftonline.us">Entra Id Government</option>
             </select>
           </div>
           <div class="mb-3">
@@ -292,7 +292,7 @@
                 type="button"
                 class="btn btn-outline-secondary"
                 appA11yTitle="{{ 'toggleVisibility' | i18n }}"
-                (click)="toggleAzureKey()"
+                (click)="toggleEntraKey()"
               >
                 <i
                   class="bwi bwi-lg"

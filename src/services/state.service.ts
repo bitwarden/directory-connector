@@ -22,6 +22,7 @@ const SecureStorageKeys = {
   ldap: "ldapPassword",
   gsuite: "gsuitePrivateKey",
   azure: "azureKey",
+  entra: "entrakey",
   okta: "oktaToken",
   oneLogin: "oneLoginClientSecret",
   userDelta: "userDeltaToken",
@@ -69,7 +70,7 @@ export class StateService
           (configWithSecrets as any).password = await this.getLdapKey();
           break;
         case DirectoryType.EntraID:
-          (configWithSecrets as any).key = await this.getAzureKey();
+          (configWithSecrets as any).key = await this.getEntraKey();
           break;
         case DirectoryType.Okta:
           (configWithSecrets as any).token = await this.getOktaKey();
@@ -108,7 +109,7 @@ export class StateService
         }
         case DirectoryType.EntraID: {
           const azureConfig = config as EntraIdConfiguration;
-          await this.setAzureKey(azureConfig.key);
+          await this.setEntraKey(azureConfig.key);
           azureConfig.key = StoredSecurely;
           await this.setEntraConfiguration(azureConfig);
           break;
@@ -187,23 +188,30 @@ export class StateService
     );
   }
 
-  private async getAzureKey(options?: StorageOptions): Promise<string> {
+  private async getEntraKey(options?: StorageOptions): Promise<string> {
     options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
     if (options?.userId == null) {
       return null;
     }
-    return await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.azure}`,
+
+    const entraKey = await this.secureStorageService.get<string>(
+      `${options.userId}_${SecureStorageKeys.entra}`,
     );
+
+    if (entraKey != null) {
+      return entraKey;
+    }
+
+    await this.secureStorageService.get<string>(`${options.userId}_${SecureStorageKeys.azure}`);
   }
 
-  private async setAzureKey(value: string, options?: StorageOptions): Promise<void> {
+  private async setEntraKey(value: string, options?: StorageOptions): Promise<void> {
     options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
     if (options?.userId == null) {
       return;
     }
     await this.secureStorageService.save(
-      `${options.userId}_${SecureStorageKeys.azure}`,
+      `${options.userId}_${SecureStorageKeys.entra}`,
       value,
       options,
     );

@@ -17,10 +17,10 @@ import { UserEntry } from "../models/userEntry";
 import { BaseDirectoryService } from "./baseDirectory.service";
 import { IDirectoryService } from "./directory.service";
 
-const AzurePublicIdentityAuthority = "login.microsoftonline.com";
-const AzurePublicGraphEndpoint = "https://graph.microsoft.com";
-const AzureGovernmentIdentityAuthority = "login.microsoftonline.us";
-const AzureGovernmentGraphEndpoint = "https://graph.microsoft.us";
+const EntraIdPublicIdentityAuthority = "login.microsoftonline.com";
+const EntraIdPublicGraphEndpoint = "https://graph.microsoft.com";
+const EntraIdGovernmentIdentityAuthority = "login.microsoftonline.us";
+const EntraIdGovernmentGraphEndpoint = "https://graph.microsoft.us";
 
 const NextLink = "@odata.nextLink";
 const DeltaLink = "@odata.deltaLink";
@@ -459,10 +459,10 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
         const identityAuthority =
           this.dirConfig.identityAuthority != null
             ? this.dirConfig.identityAuthority
-            : AzurePublicIdentityAuthority;
+            : EntraIdPublicIdentityAuthority;
         if (
-          identityAuthority !== AzurePublicIdentityAuthority &&
-          identityAuthority !== AzureGovernmentIdentityAuthority
+          identityAuthority !== EntraIdPublicIdentityAuthority &&
+          identityAuthority !== EntraIdGovernmentIdentityAuthority
         ) {
           done(new Error(this.i18nService.t("dirConfigIncomplete")), null);
           return;
@@ -546,8 +546,8 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
   }
 
   private getGraphApiEndpoint(): string {
-    return this.dirConfig.identityAuthority === AzureGovernmentIdentityAuthority
-      ? AzureGovernmentGraphEndpoint
-      : AzurePublicGraphEndpoint;
+    return this.dirConfig.identityAuthority === EntraIdGovernmentIdentityAuthority
+      ? EntraIdGovernmentGraphEndpoint
+      : EntraIdPublicGraphEndpoint;
   }
 }
