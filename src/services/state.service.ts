@@ -108,10 +108,10 @@ export class StateService
           break;
         }
         case DirectoryType.EntraID: {
-          const azureConfig = config as EntraIdConfiguration;
-          await this.setEntraKey(azureConfig.key);
-          azureConfig.key = StoredSecurely;
-          await this.setEntraConfiguration(azureConfig);
+          const entraConfig = config as EntraIdConfiguration;
+          await this.setEntraKey(entraConfig.key);
+          entraConfig.key = StoredSecurely;
+          await this.setEntraConfiguration(entraConfig);
           break;
         }
         case DirectoryType.Okta: {
