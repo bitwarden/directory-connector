@@ -55,6 +55,8 @@ export class ConfigCommand {
         case "gsuite.key":
           await this.setGSuiteKey(value);
           break;
+        // Azure Active Directory was renamed to Entra ID, but we've kept the old account property name
+        // to be backwards compatible with existing configurations.
         case "azure.key":
         case "entra.key":
           await this.setEntraIdKey(value);
@@ -131,8 +133,7 @@ export class ConfigCommand {
       this.gsuite;
     this.entra =
       (await this.stateService.getDirectory<EntraIdConfiguration>(DirectoryType.EntraID)) ||
-      this.entra ||
-      this.azure;
+      this.entra;
     this.okta =
       (await this.stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta)) || this.okta;
     this.oneLogin =

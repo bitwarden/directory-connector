@@ -21,6 +21,8 @@ import { SyncConfiguration } from "@/src/models/syncConfiguration";
 const SecureStorageKeys = {
   ldap: "ldapPassword",
   gsuite: "gsuitePrivateKey",
+  // Azure Active Directory was renamed to Entra ID, but we've kept the old property name
+  // to be backwards compatible with existing configurations.
   azure: "azureKey",
   entra: "entrakey",
   okta: "oktaToken",
