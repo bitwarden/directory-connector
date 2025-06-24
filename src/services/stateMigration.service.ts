@@ -111,6 +111,9 @@ export class StateMigrationService extends BaseStateMigrationService {
     const directoryConfigs: DirectoryConfigurations = {
       ldap: await getDirectoryConfig<LdapConfiguration>(DirectoryType.Ldap),
       gsuite: await getDirectoryConfig<GSuiteConfiguration>(DirectoryType.GSuite),
+      // Azure Active Directory was renamed to Entra ID, but we've kept the old property name
+      // to be backwards compatible with existing configurations.
+      azure: await getDirectoryConfig<EntraIdConfiguration>(DirectoryType.EntraID),
       entra: await getDirectoryConfig<EntraIdConfiguration>(DirectoryType.EntraID),
       okta: await getDirectoryConfig<OktaConfiguration>(DirectoryType.Okta),
       oneLogin: await getDirectoryConfig<OneLoginConfiguration>(DirectoryType.OneLogin),
