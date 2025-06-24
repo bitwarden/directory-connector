@@ -55,7 +55,7 @@ export class ConfigCommand {
         case "gsuite.key":
           await this.setGSuiteKey(value);
           break;
-        // Azure Active Directory was renamed to Entra ID, but we've kept the old account property name
+        // Azure Active Directory was renamed to Entra ID, but we've kept the old key name
         // to be backwards compatible with existing configurations.
         case "azure.key":
         case "entra.key":
