@@ -59,8 +59,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.gsuite;
     this.entra =
       (await this.stateService.getDirectory<EntraIdConfiguration>(DirectoryType.EntraID)) ||
-      this.entra ||
-      this.azure;
+      this.entra;
     this.okta =
       (await this.stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta)) || this.okta;
     this.oneLogin =
