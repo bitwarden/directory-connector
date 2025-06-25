@@ -20,7 +20,6 @@ export class ConfigCommand {
   private directory: DirectoryType;
   private ldap = new LdapConfiguration();
   private gsuite = new GSuiteConfiguration();
-  private azure = new EntraIdConfiguration();
   private entra = new EntraIdConfiguration();
   private okta = new OktaConfiguration();
   private oneLogin = new OneLoginConfiguration();

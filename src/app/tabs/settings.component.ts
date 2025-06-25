@@ -22,7 +22,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   directoryType = DirectoryType;
   ldap = new LdapConfiguration();
   gsuite = new GSuiteConfiguration();
-  azure = new EntraIdConfiguration();
   entra = new EntraIdConfiguration();
   okta = new OktaConfiguration();
   oneLogin = new OneLoginConfiguration();
