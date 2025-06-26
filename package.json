@@ -100,7 +100,7 @@
     "dotenv": "16.5.0",
     "electron": "34.1.1",
     "electron-builder": "24.13.3",
-    "electron-log": "5.2.4",
+    "electron-log": "5.4.1",
     "electron-reload": "2.0.0-alpha.1",
     "electron-store": "8.2.0",
     "electron-updater": "6.6.2",
