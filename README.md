@@ -9,7 +9,7 @@ Supported directories:
 
 - Active Directory
 - Any other LDAP-based directory
-- Azure Active Directory
+- Microsoft Entra ID
 - G Suite (Google)
 - Okta
 

@@ -2,7 +2,7 @@ import { Account as BaseAccount } from "@/jslib/common/src/models/domain/account
 
 import { DirectoryType } from "@/src/enums/directoryType";
 
-import { AzureConfiguration } from "./azureConfiguration";
+import { EntraIdConfiguration } from "./entraIdConfiguration";
 import { GSuiteConfiguration } from "./gsuiteConfiguration";
 import { LdapConfiguration } from "./ldapConfiguration";
 import { OktaConfiguration } from "./oktaConfiguration";
@@ -29,7 +29,10 @@ export class ClientKeys {
 export class DirectoryConfigurations {
   ldap: LdapConfiguration;
   gsuite: GSuiteConfiguration;
-  azure: AzureConfiguration;
+  entra: EntraIdConfiguration;
+  // Azure Active Directory was renamed to Entra ID, but we've kept the old account property name
+  // to be backwards compatible with existing configurations.
+  azure: EntraIdConfiguration;
   okta: OktaConfiguration;
   oneLogin: OneLoginConfiguration;
 }
