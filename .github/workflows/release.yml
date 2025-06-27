@@ -20,6 +20,8 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       release_version: ${{ steps.version.outputs.version }}
     steps:
@@ -48,6 +50,10 @@ jobs:
     name: Release
     runs-on: ubuntu-24.04
     needs: setup
+    permissions:
+      actions: read
+      packages: read
+      contents: write
     steps:
       - name: Download all artifacts
         if: ${{ inputs.release_type != 'Dry Run' }}
