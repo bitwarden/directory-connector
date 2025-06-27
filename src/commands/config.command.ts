@@ -8,7 +8,7 @@ import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageRes
 
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
-import { AzureConfiguration } from "../models/azureConfiguration";
+import { EntraIdConfiguration } from "../models/entraIdConfiguration";
 import { GSuiteConfiguration } from "../models/gsuiteConfiguration";
 import { LdapConfiguration } from "../models/ldapConfiguration";
 import { OktaConfiguration } from "../models/oktaConfiguration";
@@ -20,7 +20,7 @@ export class ConfigCommand {
   private directory: DirectoryType;
   private ldap = new LdapConfiguration();
   private gsuite = new GSuiteConfiguration();
-  private azure = new AzureConfiguration();
+  private entra = new EntraIdConfiguration();
   private okta = new OktaConfiguration();
   private oneLogin = new OneLoginConfiguration();
   private sync = new SyncConfiguration();
@@ -54,8 +54,11 @@ export class ConfigCommand {
         case "gsuite.key":
           await this.setGSuiteKey(value);
           break;
+        // Azure Active Directory was renamed to Entra ID, but we've kept the old key name
+        // to be backwards compatible with existing configurations.
         case "azure.key":
-          await this.setAzureKey(value);
+        case "entra.key":
+          await this.setEntraIdKey(value);
           break;
         case "okta.token":
           await this.setOktaToken(value);
@@ -102,9 +105,9 @@ export class ConfigCommand {
     await this.saveConfig();
   }
 
-  private async setAzureKey(key: string) {
+  private async setEntraIdKey(key: string) {
     await this.loadConfig();
-    this.azure.key = key;
+    this.entra.key = key;
     await this.saveConfig();
   }
 
@@ -127,10 +130,9 @@ export class ConfigCommand {
     this.gsuite =
       (await this.stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite)) ||
       this.gsuite;
-    this.azure =
-      (await this.stateService.getDirectory<AzureConfiguration>(
-        DirectoryType.AzureActiveDirectory,
-      )) || this.azure;
+    this.entra =
+      (await this.stateService.getDirectory<EntraIdConfiguration>(DirectoryType.EntraID)) ||
+      this.entra;
     this.okta =
       (await this.stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta)) || this.okta;
     this.oneLogin =
@@ -144,7 +146,7 @@ export class ConfigCommand {
     await this.stateService.setDirectoryType(this.directory);
     await this.stateService.setDirectory(DirectoryType.Ldap, this.ldap);
     await this.stateService.setDirectory(DirectoryType.GSuite, this.gsuite);
-    await this.stateService.setDirectory(DirectoryType.AzureActiveDirectory, this.azure);
+    await this.stateService.setDirectory(DirectoryType.EntraID, this.entra);
     await this.stateService.setDirectory(DirectoryType.Okta, this.okta);
     await this.stateService.setDirectory(DirectoryType.OneLogin, this.oneLogin);
     await this.stateService.setSync(this.sync);

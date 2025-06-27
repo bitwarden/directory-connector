@@ -242,7 +242,7 @@
             </div>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.AzureActiveDirectory">
+        <div [hidden]="directory != directoryType.EntraID">
           <div class="mb-3">
             <label for="identityAuthority" class="form-label">{{
               "identityAuthority" | i18n
@@ -251,10 +251,10 @@
               class="form-select"
               id="identityAuthority"
               name="IdentityAuthority"
-              [(ngModel)]="azure.identityAuthority"
+              [(ngModel)]="entra.identityAuthority"
             >
-              <option value="login.microsoftonline.com">Azure AD Public</option>
-              <option value="login.microsoftonline.us">Azure AD Government</option>
+              <option value="login.microsoftonline.com">Entra Id Public</option>
+              <option value="login.microsoftonline.us">Entra Id Government</option>
             </select>
           </div>
           <div class="mb-3">
@@ -264,7 +264,7 @@
               class="form-control"
               id="tenant"
               name="Tenant"
-              [(ngModel)]="azure.tenant"
+              [(ngModel)]="entra.tenant"
             />
             <div class="form-text">{{ "ex" | i18n }} companyad.onmicrosoft.com</div>
           </div>
@@ -275,29 +275,29 @@
               class="form-control"
               id="applicationId"
               name="ApplicationId"
-              [(ngModel)]="azure.applicationId"
+              [(ngModel)]="entra.applicationId"
             />
           </div>
           <div class="mb-3">
             <label for="secretKey" class="form-label">{{ "secretKey" | i18n }}</label>
             <div class="input-group">
               <input
-                type="{{ showAzureKey ? 'text' : 'password' }}"
+                type="{{ showEntraKey ? 'text' : 'password' }}"
                 class="form-control"
                 id="secretKey"
                 name="SecretKey"
-                [(ngModel)]="azure.key"
+                [(ngModel)]="entra.key"
               />
               <button
                 type="button"
                 class="btn btn-outline-secondary"
                 appA11yTitle="{{ 'toggleVisibility' | i18n }}"
-                (click)="toggleAzureKey()"
+                (click)="toggleEntraKey()"
               >
                 <i
                   class="bwi bwi-lg"
                   aria-hidden="true"
-                  [ngClass]="showAzureKey ? 'bwi-eye-slash' : 'bwi-eye'"
+                  [ngClass]="showEntraKey ? 'bwi-eye-slash' : 'bwi-eye'"
                 ></i>
               </button>
             </div>
@@ -607,7 +607,7 @@
             <div class="form-text" *ngIf="directory === directoryType.Ldap">
               {{ "ex" | i18n }} (&amp;(givenName=John)(|(l=Dallas)(l=Austin)))
             </div>
-            <div class="form-text" *ngIf="directory === directoryType.AzureActiveDirectory">
+            <div class="form-text" *ngIf="directory === directoryType.EntraID">
               {{ "ex" | i18n }} exclude:joe&#64;company.com
             </div>
             <div class="form-text" *ngIf="directory === directoryType.Okta">
@@ -684,7 +684,7 @@
             <div class="form-text" *ngIf="directory === directoryType.Ldap">
               {{ "ex" | i18n }} (&amp;(objectClass=group)(!(cn=Sales*))(!(cn=IT*)))
             </div>
-            <div class="form-text" *ngIf="directory === directoryType.AzureActiveDirectory">
+            <div class="form-text" *ngIf="directory === directoryType.EntraID">
               {{ "ex" | i18n }} include:Sales,IT
             </div>
             <div class="form-text" *ngIf="directory === directoryType.Okta">

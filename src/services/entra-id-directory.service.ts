@@ -9,7 +9,7 @@ import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
-import { AzureConfiguration } from "../models/azureConfiguration";
+import { EntraIdConfiguration } from "../models/entraIdConfiguration";
 import { GroupEntry } from "../models/groupEntry";
 import { SyncConfiguration } from "../models/syncConfiguration";
 import { UserEntry } from "../models/userEntry";
@@ -17,10 +17,10 @@ import { UserEntry } from "../models/userEntry";
 import { BaseDirectoryService } from "./baseDirectory.service";
 import { IDirectoryService } from "./directory.service";
 
-const AzurePublicIdentityAuhtority = "login.microsoftonline.com";
-const AzurePublicGraphEndpoint = "https://graph.microsoft.com";
-const AzureGovermentIdentityAuhtority = "login.microsoftonline.us";
-const AzureGovernmentGraphEndpoint = "https://graph.microsoft.us";
+const EntraIdPublicIdentityAuthority = "login.microsoftonline.com";
+const EntraIdPublicGraphEndpoint = "https://graph.microsoft.com";
+const EntraIdGovernmentIdentityAuthority = "login.microsoftonline.us";
+const EntraIdGovernmentGraphEndpoint = "https://graph.microsoft.us";
 
 const NextLink = "@odata.nextLink";
 const DeltaLink = "@odata.deltaLink";
@@ -34,9 +34,9 @@ enum UserSetType {
   ExcludeGroup,
 }
 
-export class AzureDirectoryService extends BaseDirectoryService implements IDirectoryService {
+export class EntraIdDirectoryService extends BaseDirectoryService implements IDirectoryService {
   private client: graph.Client;
-  private dirConfig: AzureConfiguration;
+  private dirConfig: EntraIdConfiguration;
   private syncConfig: SyncConfiguration;
   private accessToken: string;
   private accessTokenExpiration: Date;
@@ -52,12 +52,12 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
 
   async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
     const type = await this.stateService.getDirectoryType();
-    if (type !== DirectoryType.AzureActiveDirectory) {
+    if (type !== DirectoryType.EntraID) {
       return;
     }
 
-    this.dirConfig = await this.stateService.getDirectory<AzureConfiguration>(
-      DirectoryType.AzureActiveDirectory,
+    this.dirConfig = await this.stateService.getDirectory<EntraIdConfiguration>(
+      DirectoryType.EntraID,
     );
     if (this.dirConfig == null) {
       return;
@@ -459,10 +459,10 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
         const identityAuthority =
           this.dirConfig.identityAuthority != null
             ? this.dirConfig.identityAuthority
-            : AzurePublicIdentityAuhtority;
+            : EntraIdPublicIdentityAuthority;
         if (
-          identityAuthority !== AzurePublicIdentityAuhtority &&
-          identityAuthority !== AzureGovermentIdentityAuhtority
+          identityAuthority !== EntraIdPublicIdentityAuthority &&
+          identityAuthority !== EntraIdGovernmentIdentityAuthority
         ) {
           done(new Error(this.i18nService.t("dirConfigIncomplete")), null);
           return;
@@ -546,8 +546,8 @@ export class AzureDirectoryService extends BaseDirectoryService implements IDire
   }
 
   private getGraphApiEndpoint(): string {
-    return this.dirConfig.identityAuthority === AzureGovermentIdentityAuhtority
-      ? AzureGovernmentGraphEndpoint
-      : AzurePublicGraphEndpoint;
+    return this.dirConfig.identityAuthority === EntraIdGovernmentIdentityAuthority
+      ? EntraIdGovernmentGraphEndpoint
+      : EntraIdPublicGraphEndpoint;
   }
 }

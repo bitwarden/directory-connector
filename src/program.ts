@@ -190,7 +190,7 @@ export class Program extends BaseProgram {
         writeLn("    server - On-premise hosted installation URL.");
         writeLn("    directory - The type of directory to use.");
         writeLn("    ldap.password - The password for connection to this LDAP server.");
-        writeLn("    azure.key - The Azure AD secret key.");
+        writeLn("    entra.key - The Entra Id secret key.");
         writeLn("    gsuite.key - The G Suite private key.");
         writeLn("    okta.token - The Okta token.");
         writeLn("    onelogin.secret - The OneLogin client secret.");
@@ -202,7 +202,7 @@ export class Program extends BaseProgram {
         writeLn("    bwdc config directory 1");
         writeLn("    bwdc config ldap.password <password>");
         writeLn("    bwdc config ldap.password --secretenv LDAP_PWD");
-        writeLn("    bwdc config azure.key <key>");
+        writeLn("    bwdc config entra.key <key>");
         writeLn("    bwdc config gsuite.key <key>");
         writeLn("    bwdc config okta.token <token>");
         writeLn("    bwdc config onelogin.secret <secret>");
