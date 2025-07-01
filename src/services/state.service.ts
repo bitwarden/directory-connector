@@ -24,7 +24,7 @@ const SecureStorageKeys = {
   // Azure Active Directory was renamed to Entra ID, but we've kept the old property name
   // to be backwards compatible with existing configurations.
   azure: "azureKey",
-  entra: "entrakey",
+  entra: "entraKey",
   okta: "oktaToken",
   oneLogin: "oneLoginClientSecret",
   userDelta: "userDeltaToken",
