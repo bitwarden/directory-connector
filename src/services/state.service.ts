@@ -204,7 +204,9 @@ export class StateService
       return entraKey;
     }
 
-    await this.secureStorageService.get<string>(`${options.userId}_${SecureStorageKeys.azure}`);
+    return await this.secureStorageService.get<string>(
+      `${options.userId}_${SecureStorageKeys.azure}`,
+    );
   }
 
   private async setEntraKey(value: string, options?: StorageOptions): Promise<void> {
@@ -316,9 +318,17 @@ export class StateService
   }
 
   async getEntraConfiguration(options?: StorageOptions): Promise<EntraIdConfiguration> {
-    return (
+    const entraConfig = (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
     )?.directoryConfigurations?.entra;
+
+    if (entraConfig != null) {
+      return entraConfig;
+    }
+
+    return (
+      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
+    )?.directoryConfigurations?.azure;
   }
 
   async setEntraConfiguration(
