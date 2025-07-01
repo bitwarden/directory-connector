@@ -152,7 +152,7 @@
     "@angular/router": "17.3.12",
     "@microsoft/microsoft-graph-client": "3.0.7",
     "big-integer": "1.6.52",
-    "bootstrap": "5.3.3",
+    "bootstrap": "5.3.7",
     "browser-hrtime": "1.1.8",
     "chalk": "4.1.2",
     "commander": "13.1.0",
