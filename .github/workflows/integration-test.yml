@@ -16,17 +16,13 @@ on:
       - "src/services/ldap-directory.service*" # we only have integration for LDAP testing at the moment
       - "./openldap/**/*" # any change to test fixtures
       - "./docker-compose.yml" # any change to Docker configuration
-
+permissions:
+  contents: read
 jobs:
-
   testing:
     name: Run tests
     if: ${{ startsWith(github.head_ref, 'version_bump_') == false }}
     runs-on: ubuntu-22.04
-    permissions:
-      checks: write
-      contents: read
-      pull-requests: write
 
     steps:
       - name: Check out repo

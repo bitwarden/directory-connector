@@ -9,16 +9,15 @@ on:
       - "hotfix-rc"
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
 
   testing:
     name: Run tests
     if: ${{ startsWith(github.head_ref, 'version_bump_') == false }}
     runs-on: ubuntu-24.04
-    permissions:
-      checks: write
-      contents: read
-      pull-requests: write
 
     steps:
       - name: Check out repo
