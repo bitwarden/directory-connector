@@ -8,13 +8,15 @@ on:
         required: false
         type: string
 
-permissions:
-  contents: write
+permissions: {}
 
 jobs:
   bump_version:
     name: Bump Version
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - name: Validate version input
         if: ${{ inputs.version_number_override != '' }}
