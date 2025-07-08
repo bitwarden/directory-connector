@@ -235,9 +235,9 @@ jobs:
           cd $HOME
           $fetchedUrl = "https://github.com/yao-pkg/pkg-fetch/releases/download/v$env:_WIN_PKG_FETCH_VERSION/node-v$env:_WIN_PKG_FETCH_NODE_VERSION-win-x64"
           New-Item -ItemType directory -Path .\.pkg-cache
-          New-Item -ItemType directory -Path .\.pkg-cache\v$env:_WIN_PKG_VERSION
+          New-Item -ItemType directory -Path .\.pkg-cache\v$env:_WIN_PKG_FETCH_VERSION
           Invoke-RestMethod -Uri $fetchedUrl `
-            -OutFile ".\.pkg-cache\v$env:_WIN_PKG_VERSION\fetched-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
+            -OutFile ".\.pkg-cache\v$env:_WIN_PKG_FETCH_VERSION\fetched-v$env:_WIN_PKG_FETCH_NODE_VERSION-win-x64"
 
       - name: Keytar
         shell: pwsh
@@ -296,8 +296,8 @@ jobs:
         shell: cmd
         run: |
           set PATH=%PATH%;C:\Program Files (x86)\Resource Hacker
-          set WIN_PKG=C:\Users\runneradmin\.pkg-cache\v%_WIN_PKG_VERSION%\fetched-v%_WIN_PKG_FETCH_VERSION%-win-x64
-          set WIN_PKG_BUILT=C:\Users\runneradmin\.pkg-cache\v%_WIN_PKG_VERSION%\built-v%_WIN_PKG_FETCH_VERSION%-win-x64
+          set WIN_PKG=C:\Users\runneradmin\.pkg-cache\v%_WIN_PKG_FETCH_VERSION%\fetched-v%_WIN_PKG_FETCH_NODE_VERSION%-win-x64
+          set WIN_PKG_BUILT=C:\Users\runneradmin\.pkg-cache\v%_WIN_PKG_FETCH_VERSION%\built-v%_WIN_PKG_FETCH_NODE_VERSION%-win-x64
 
           ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
           ResourceHacker -open version-info.rc -save version-info.res -action compile
