@@ -1,4 +1,4 @@
-name: Release
+name: Release GUI
 
 on:
   workflow_dispatch:
@@ -53,7 +53,7 @@ jobs:
         if: ${{ inputs.release_type != 'Dry Run' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          workflow: build.yml
+          workflow: build-gui.yml
           workflow_conclusion: success
           branch: ${{ github.ref_name }}
 
@@ -61,7 +61,7 @@ jobs:
         if: ${{ inputs.release_type == 'Dry Run' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          workflow: build.yml
+          workflow: build-gui.yml
           workflow_conclusion: success
           branch: main
 
@@ -71,10 +71,7 @@ jobs:
         env:
           PKG_VERSION: ${{ needs.setup.outputs.release_version }}
         with:
-          artifacts: "./bwdc-windows-${{ env.PKG_VERSION }}.zip,
-                      ./bwdc-macos-${{ env.PKG_VERSION }}.zip,
-                      ./bwdc-linux-${{ env.PKG_VERSION }}.zip,
-                      ./Bitwarden-Connector-Portable-${{ env.PKG_VERSION }}.exe,
+          artifacts: " ./Bitwarden-Connector-Portable-${{ env.PKG_VERSION }}.exe,
                       ./Bitwarden-Connector-Installer-${{ env.PKG_VERSION }}.exe,
                       ./Bitwarden-Connector-Installer-${{ env.PKG_VERSION }}.exe.blockmap,
                       ./Bitwarden-Connector-${{ env.PKG_VERSION }}-x86_64.AppImage,
