@@ -13,22 +13,6 @@ permissions:
   contents: read
 
 jobs:
-  cloc:
-    name: CLOC
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Set up CLOC
-        run: |
-          sudo apt update
-          sudo apt -y install cloc
-
-      - name: Print lines of code
-        run: cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
-
-
   setup:
     name: Setup
     runs-on: ubuntu-24.04
@@ -610,7 +594,6 @@ jobs:
     name: Check for failures
     runs-on: ubuntu-24.04
     needs:
-      - cloc
       - setup
       - linux-cli
       - macos-cli
