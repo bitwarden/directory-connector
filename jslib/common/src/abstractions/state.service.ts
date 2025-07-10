@@ -63,15 +63,12 @@ export abstract class StateService<T extends Account = Account> {
   getDecodedToken: (options?: StorageOptions) => Promise<any>;
   setDecodedToken: (value: any, options?: StorageOptions) => Promise<void>;
 
-  getDecryptedCollections: (options?: StorageOptions) => Promise<any[]>;
-  setDecryptedCollections: (value: any[], options?: StorageOptions) => Promise<void>;
   getDecryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<SymmetricCryptoKey>;
   setDecryptedCryptoSymmetricKey: (
     value: SymmetricCryptoKey,
     options?: StorageOptions,
   ) => Promise<void>;
-  getDecryptedFolders: (options?: StorageOptions) => Promise<any[]>;
-  setDecryptedFolders: (value: any[], options?: StorageOptions) => Promise<void>;
+
   getDecryptedOrganizationKeys: (
     options?: StorageOptions,
   ) => Promise<Map<string, SymmetricCryptoKey>>;
@@ -121,15 +118,9 @@ export abstract class StateService<T extends Account = Account> {
   getEnableTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableTray: (value: boolean, options?: StorageOptions) => Promise<void>;
 
-  getEncryptedCollections: (options?: StorageOptions) => Promise<{ [id: string]: any }>;
-  setEncryptedCollections: (
-    value: { [id: string]: any },
-    options?: StorageOptions,
-  ) => Promise<void>;
   getEncryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<string>;
   setEncryptedCryptoSymmetricKey: (value: string, options?: StorageOptions) => Promise<void>;
-  getEncryptedFolders: (options?: StorageOptions) => Promise<{ [id: string]: any }>;
-  setEncryptedFolders: (value: { [id: string]: any }, options?: StorageOptions) => Promise<void>;
+
   getEncryptedOrganizationKeys: (options?: StorageOptions) => Promise<any>;
   setEncryptedOrganizationKeys: (
     value: Map<string, SymmetricCryptoKey>,

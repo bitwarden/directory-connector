@@ -10,15 +10,11 @@ import { StorageLocation } from "../enums/storageLocation";
 import { ThemeType } from "../enums/themeType";
 import { UriMatchType } from "../enums/uriMatchType";
 import { StateFactory } from "../factories/stateFactory";
-import { CollectionData } from "../models/data/collectionData";
-import { EventData } from "../models/data/eventData";
-import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
 import { ProviderData } from "../models/data/providerData";
 import { Account, AccountData } from "../models/domain/account";
 import { EncString } from "../models/domain/encString";
 import { EnvironmentUrls } from "../models/domain/environmentUrls";
-import { GeneratedPasswordHistory } from "../models/domain/generatedPasswordHistory";
 import { GlobalState } from "../models/domain/globalState";
 import { State } from "../models/domain/state";
 import { StorageOptions } from "../models/domain/storageOptions";
@@ -497,19 +493,6 @@ export class StateService<
     await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
   }
 
-  async getDecryptedCollections(options?: StorageOptions): Promise<any[]> {
-    return (await this.getAccount(this.reconcileOptions(options, this.defaultInMemoryOptions)))
-      ?.data?.collections?.decrypted;
-  }
-
-  async setDecryptedCollections(value: any[], options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, this.defaultInMemoryOptions),
-    );
-    account.data.collections.decrypted = value;
-    await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
-  }
-
   async getDecryptedCryptoSymmetricKey(options?: StorageOptions): Promise<SymmetricCryptoKey> {
     return (await this.getAccount(this.reconcileOptions(options, this.defaultInMemoryOptions)))
       ?.keys?.cryptoSymmetricKey?.decrypted;
@@ -523,19 +506,6 @@ export class StateService<
       this.reconcileOptions(options, this.defaultInMemoryOptions),
     );
     account.keys.cryptoSymmetricKey.decrypted = value;
-    await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
-  }
-
-  async getDecryptedFolders(options?: StorageOptions): Promise<any[]> {
-    return (await this.getAccount(this.reconcileOptions(options, this.defaultInMemoryOptions)))
-      ?.data?.folders?.decrypted;
-  }
-
-  async setDecryptedFolders(value: any[], options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, this.defaultInMemoryOptions),
-    );
-    account.data.folders.decrypted = value;
     await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
   }
 
@@ -554,22 +524,6 @@ export class StateService<
       this.reconcileOptions(options, this.defaultInMemoryOptions),
     );
     account.keys.organizationKeys.decrypted = value;
-    await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
-  }
-
-  async getDecryptedPasswordGenerationHistory(options?: StorageOptions): Promise<any[]> {
-    return (await this.getAccount(this.reconcileOptions(options, this.defaultInMemoryOptions)))
-      ?.data?.passwordGenerationHistory?.decrypted;
-  }
-
-  async setDecryptedPasswordGenerationHistory(
-    value: any[],
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, this.defaultInMemoryOptions),
-    );
-    account.data.passwordGenerationHistory.decrypted = value;
     await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
   }
 
@@ -1070,28 +1024,6 @@ export class StateService<
     );
   }
 
-  async getEncryptedCollections(
-    options?: StorageOptions,
-  ): Promise<{ [id: string]: CollectionData }> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()))
-    )?.data?.collections?.encrypted;
-  }
-
-  async setEncryptedCollections(
-    value: { [id: string]: CollectionData },
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-    account.data.collections.encrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-  }
-
   async getEncryptedCryptoSymmetricKey(options?: StorageOptions): Promise<string> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
@@ -1109,26 +1041,6 @@ export class StateService<
     );
   }
 
-  async getEncryptedFolders(options?: StorageOptions): Promise<{ [id: string]: FolderData }> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()))
-    )?.data?.folders?.encrypted;
-  }
-
-  async setEncryptedFolders(
-    value: { [id: string]: FolderData },
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-    account.data.folders.encrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-  }
-
   async getEncryptedOrganizationKeys(options?: StorageOptions): Promise<any> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
@@ -1143,28 +1055,6 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.keys.organizationKeys.encrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getEncryptedPasswordGenerationHistory(
-    options?: StorageOptions,
-  ): Promise<GeneratedPasswordHistory[]> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.data?.passwordGenerationHistory?.encrypted;
-  }
-
-  async setEncryptedPasswordGenerationHistory(
-    value: GeneratedPasswordHistory[],
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.data.passwordGenerationHistory.encrypted = value;
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
@@ -1260,23 +1150,6 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.settings.equivalentDomains = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getEventCollection(options?: StorageOptions): Promise<EventData[]> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.data?.eventCollection;
-  }
-
-  async setEventCollection(value: EventData[], options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.data.eventCollection = value;
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
