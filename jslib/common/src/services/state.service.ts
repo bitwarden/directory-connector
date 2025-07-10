@@ -10,24 +10,16 @@ import { StorageLocation } from "../enums/storageLocation";
 import { ThemeType } from "../enums/themeType";
 import { UriMatchType } from "../enums/uriMatchType";
 import { StateFactory } from "../factories/stateFactory";
-import { CollectionData } from "../models/data/collectionData";
-import { EventData } from "../models/data/eventData";
-import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
-import { PolicyData } from "../models/data/policyData";
 import { ProviderData } from "../models/data/providerData";
 import { Account, AccountData } from "../models/domain/account";
 import { EncString } from "../models/domain/encString";
 import { EnvironmentUrls } from "../models/domain/environmentUrls";
-import { GeneratedPasswordHistory } from "../models/domain/generatedPasswordHistory";
 import { GlobalState } from "../models/domain/globalState";
-import { Policy } from "../models/domain/policy";
 import { State } from "../models/domain/state";
 import { StorageOptions } from "../models/domain/storageOptions";
 import { SymmetricCryptoKey } from "../models/domain/symmetricCryptoKey";
 import { WindowState } from "../models/domain/windowState";
-import { CollectionView } from "../models/view/collectionView";
-import { FolderView } from "../models/view/folderView";
 
 const keys = {
   global: "global",
@@ -221,24 +213,6 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.settings.autoConfirmFingerPrints = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getAutoFillOnPageLoadDefault(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.settings?.autoFillOnPageLoadDefault ?? true
-    );
-  }
-
-  async setAutoFillOnPageLoadDefault(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.settings.autoFillOnPageLoadDefault = value;
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
@@ -519,12 +493,12 @@ export class StateService<
     await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
   }
 
-  async getDecryptedCollections(options?: StorageOptions): Promise<CollectionView[]> {
+  async getDecryptedCollections(options?: StorageOptions): Promise<any[]> {
     return (await this.getAccount(this.reconcileOptions(options, this.defaultInMemoryOptions)))
       ?.data?.collections?.decrypted;
   }
 
-  async setDecryptedCollections(value: CollectionView[], options?: StorageOptions): Promise<void> {
+  async setDecryptedCollections(value: any[], options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
       this.reconcileOptions(options, this.defaultInMemoryOptions),
     );
@@ -548,12 +522,12 @@ export class StateService<
     await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
   }
 
-  async getDecryptedFolders(options?: StorageOptions): Promise<FolderView[]> {
+  async getDecryptedFolders(options?: StorageOptions): Promise<any[]> {
     return (await this.getAccount(this.reconcileOptions(options, this.defaultInMemoryOptions)))
       ?.data?.folders?.decrypted;
   }
 
-  async setDecryptedFolders(value: FolderView[], options?: StorageOptions): Promise<void> {
+  async setDecryptedFolders(value: any[], options?: StorageOptions): Promise<void> {
     const account = await this.getAccount(
       this.reconcileOptions(options, this.defaultInMemoryOptions),
     );
@@ -579,15 +553,13 @@ export class StateService<
     await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
   }
 
-  async getDecryptedPasswordGenerationHistory(
-    options?: StorageOptions,
-  ): Promise<GeneratedPasswordHistory[]> {
+  async getDecryptedPasswordGenerationHistory(options?: StorageOptions): Promise<any[]> {
     return (await this.getAccount(this.reconcileOptions(options, this.defaultInMemoryOptions)))
       ?.data?.passwordGenerationHistory?.decrypted;
   }
 
   async setDecryptedPasswordGenerationHistory(
-    value: GeneratedPasswordHistory[],
+    value: any[],
     options?: StorageOptions,
   ): Promise<void> {
     const account = await this.getAccount(

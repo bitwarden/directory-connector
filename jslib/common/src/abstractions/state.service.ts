@@ -33,8 +33,7 @@ export abstract class StateService<T extends Account = Account> {
   setApiKeyClientSecret: (value: string, options?: StorageOptions) => Promise<void>;
   getAutoConfirmFingerPrints: (options?: StorageOptions) => Promise<boolean>;
   setAutoConfirmFingerprints: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getAutoFillOnPageLoadDefault: (options?: StorageOptions) => Promise<boolean>;
-  setAutoFillOnPageLoadDefault: (value: boolean, options?: StorageOptions) => Promise<void>;
+
   getBiometricAwaitingAcceptance: (options?: StorageOptions) => Promise<boolean>;
   setBiometricAwaitingAcceptance: (value: boolean, options?: StorageOptions) => Promise<void>;
   getBiometricFingerprintValidated: (options?: StorageOptions) => Promise<boolean>;
@@ -92,52 +91,29 @@ export abstract class StateService<T extends Account = Account> {
 
   getDefaultUriMatch: (options?: StorageOptions) => Promise<UriMatchType>;
   setDefaultUriMatch: (value: UriMatchType, options?: StorageOptions) => Promise<void>;
-  getDisableAddLoginNotification: (options?: StorageOptions) => Promise<boolean>;
-  setDisableAddLoginNotification: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableAutoBiometricsPrompt: (options?: StorageOptions) => Promise<boolean>;
   setDisableAutoBiometricsPrompt: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableAutoTotpCopy: (options?: StorageOptions) => Promise<boolean>;
   setDisableAutoTotpCopy: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableBadgeCounter: (options?: StorageOptions) => Promise<boolean>;
   setDisableBadgeCounter: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDisableChangedPasswordNotification: (options?: StorageOptions) => Promise<boolean>;
-  setDisableChangedPasswordNotification: (
-    value: boolean,
-    options?: StorageOptions,
-  ) => Promise<void>;
   getDisableContextMenuItem: (options?: StorageOptions) => Promise<boolean>;
   setDisableContextMenuItem: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDisableFavicon: (options?: StorageOptions) => Promise<boolean>;
-  setDisableFavicon: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableGa: (options?: StorageOptions) => Promise<boolean>;
   setDisableGa: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDontShowCardsCurrentTab: (options?: StorageOptions) => Promise<boolean>;
-  setDontShowCardsCurrentTab: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDontShowIdentitiesCurrentTab: (options?: StorageOptions) => Promise<boolean>;
-  setDontShowIdentitiesCurrentTab: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEmail: (options?: StorageOptions) => Promise<string>;
   setEmail: (value: string, options?: StorageOptions) => Promise<void>;
   getEmailVerified: (options?: StorageOptions) => Promise<boolean>;
   setEmailVerified: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableAlwaysOnTop: (options?: StorageOptions) => Promise<boolean>;
   setEnableAlwaysOnTop: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getEnableAutoFillOnPageLoad: (options?: StorageOptions) => Promise<boolean>;
-  setEnableAutoFillOnPageLoad: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableBiometric: (options?: StorageOptions) => Promise<boolean>;
   setEnableBiometric: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getEnableBrowserIntegration: (options?: StorageOptions) => Promise<boolean>;
-  setEnableBrowserIntegration: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getEnableBrowserIntegrationFingerprint: (options?: StorageOptions) => Promise<boolean>;
-  setEnableBrowserIntegrationFingerprint: (
-    value: boolean,
-    options?: StorageOptions,
-  ) => Promise<void>;
   getEnableCloseToTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableCloseToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableFullWidth: (options?: StorageOptions) => Promise<boolean>;
   setEnableFullWidth: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getEnableGravitars: (options?: StorageOptions) => Promise<boolean>;
-  setEnableGravitars: (value: boolean, options?: StorageOptions) => Promise<void>;
+
   getEnableMinimizeToTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableMinimizeToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableStartToTray: (options?: StorageOptions) => Promise<boolean>;
