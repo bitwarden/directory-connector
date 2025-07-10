@@ -1,14 +1,10 @@
 import { AuthenticationStatus } from "../../enums/authenticationStatus";
 import { KdfType } from "../../enums/kdfType";
 import { UriMatchType } from "../../enums/uriMatchType";
-import { CollectionData } from "../data/collectionData";
 import { EventData } from "../data/eventData";
-import { FolderData } from "../data/folderData";
 import { OrganizationData } from "../data/organizationData";
 import { PolicyData } from "../data/policyData";
 import { ProviderData } from "../data/providerData";
-import { CollectionView } from "../view/collectionView";
-import { FolderView } from "../view/folderView";
 
 import { EncString } from "./encString";
 import { EnvironmentUrls } from "./environmentUrls";
@@ -28,16 +24,10 @@ export class DataEncryptionPair<TEncrypted, TDecrypted> {
 
 export class AccountData {
   ciphers?: any = new DataEncryptionPair<any, any>();
-  folders?: DataEncryptionPair<FolderData, FolderView> = new DataEncryptionPair<
-    FolderData,
-    FolderView
-  >();
+  folders?: DataEncryptionPair<any, any> = new DataEncryptionPair<any, any>();
   localData?: any;
   sends?: any = new DataEncryptionPair<any, any>();
-  collections?: DataEncryptionPair<CollectionData, CollectionView> = new DataEncryptionPair<
-    CollectionData,
-    CollectionView
-  >();
+  collections?: DataEncryptionPair<any, any> = new DataEncryptionPair<any, any>();
   policies?: DataEncryptionPair<PolicyData, Policy> = new DataEncryptionPair<PolicyData, Policy>();
   passwordGenerationHistory?: EncryptionPair<
     GeneratedPasswordHistory[],

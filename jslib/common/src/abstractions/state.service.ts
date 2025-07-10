@@ -3,9 +3,7 @@ import { Observable } from "rxjs";
 import { KdfType } from "../enums/kdfType";
 import { ThemeType } from "../enums/themeType";
 import { UriMatchType } from "../enums/uriMatchType";
-import { CollectionData } from "../models/data/collectionData";
 import { EventData } from "../models/data/eventData";
-import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
 import { PolicyData } from "../models/data/policyData";
 import { ProviderData } from "../models/data/providerData";
@@ -17,8 +15,6 @@ import { Policy } from "../models/domain/policy";
 import { StorageOptions } from "../models/domain/storageOptions";
 import { SymmetricCryptoKey } from "../models/domain/symmetricCryptoKey";
 import { WindowState } from "../models/domain/windowState";
-import { CollectionView } from "../models/view/collectionView";
-import { FolderView } from "../models/view/folderView";
 
 export abstract class StateService<T extends Account = Account> {
   accounts$: Observable<{ [userId: string]: T }>;
@@ -72,15 +68,15 @@ export abstract class StateService<T extends Account = Account> {
   getDecodedToken: (options?: StorageOptions) => Promise<any>;
   setDecodedToken: (value: any, options?: StorageOptions) => Promise<void>;
 
-  getDecryptedCollections: (options?: StorageOptions) => Promise<CollectionView[]>;
-  setDecryptedCollections: (value: CollectionView[], options?: StorageOptions) => Promise<void>;
+  getDecryptedCollections: (options?: StorageOptions) => Promise<any[]>;
+  setDecryptedCollections: (value: any[], options?: StorageOptions) => Promise<void>;
   getDecryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<SymmetricCryptoKey>;
   setDecryptedCryptoSymmetricKey: (
     value: SymmetricCryptoKey,
     options?: StorageOptions,
   ) => Promise<void>;
-  getDecryptedFolders: (options?: StorageOptions) => Promise<FolderView[]>;
-  setDecryptedFolders: (value: FolderView[], options?: StorageOptions) => Promise<void>;
+  getDecryptedFolders: (options?: StorageOptions) => Promise<any[]>;
+  setDecryptedFolders: (value: any[], options?: StorageOptions) => Promise<void>;
   getDecryptedOrganizationKeys: (
     options?: StorageOptions,
   ) => Promise<Map<string, SymmetricCryptoKey>>;
@@ -162,18 +158,15 @@ export abstract class StateService<T extends Account = Account> {
   getEnableTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableTray: (value: boolean, options?: StorageOptions) => Promise<void>;
 
-  getEncryptedCollections: (options?: StorageOptions) => Promise<{ [id: string]: CollectionData }>;
+  getEncryptedCollections: (options?: StorageOptions) => Promise<{ [id: string]: any }>;
   setEncryptedCollections: (
-    value: { [id: string]: CollectionData },
+    value: { [id: string]: any },
     options?: StorageOptions,
   ) => Promise<void>;
   getEncryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<string>;
   setEncryptedCryptoSymmetricKey: (value: string, options?: StorageOptions) => Promise<void>;
-  getEncryptedFolders: (options?: StorageOptions) => Promise<{ [id: string]: FolderData }>;
-  setEncryptedFolders: (
-    value: { [id: string]: FolderData },
-    options?: StorageOptions,
-  ) => Promise<void>;
+  getEncryptedFolders: (options?: StorageOptions) => Promise<{ [id: string]: any }>;
+  setEncryptedFolders: (value: { [id: string]: any }, options?: StorageOptions) => Promise<void>;
   getEncryptedOrganizationKeys: (options?: StorageOptions) => Promise<any>;
   setEncryptedOrganizationKeys: (
     value: Map<string, SymmetricCryptoKey>,
