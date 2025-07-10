@@ -10,11 +10,15 @@ import { StorageLocation } from "../enums/storageLocation";
 import { ThemeType } from "../enums/themeType";
 import { UriMatchType } from "../enums/uriMatchType";
 import { StateFactory } from "../factories/stateFactory";
+import { CollectionData } from "../models/data/collectionData";
+import { EventData } from "../models/data/eventData";
+import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
 import { ProviderData } from "../models/data/providerData";
 import { Account, AccountData } from "../models/domain/account";
 import { EncString } from "../models/domain/encString";
 import { EnvironmentUrls } from "../models/domain/environmentUrls";
+import { GeneratedPasswordHistory } from "../models/domain/generatedPasswordHistory";
 import { GlobalState } from "../models/domain/globalState";
 import { State } from "../models/domain/state";
 import { StorageOptions } from "../models/domain/storageOptions";
@@ -579,19 +583,6 @@ export class StateService<
       this.reconcileOptions(options, this.defaultInMemoryOptions),
     );
     account.settings.pinProtected.decrypted = value;
-    await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
-  }
-
-  async getDecryptedPolicies(options?: StorageOptions): Promise<Policy[]> {
-    return (await this.getAccount(this.reconcileOptions(options, this.defaultInMemoryOptions)))
-      ?.data?.policies?.decrypted;
-  }
-
-  async setDecryptedPolicies(value: Policy[], options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, this.defaultInMemoryOptions),
-    );
-    account.data.policies.decrypted = value;
     await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
   }
 
@@ -1191,26 +1182,6 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.settings.pinProtected.encrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getEncryptedPolicies(options?: StorageOptions): Promise<{ [id: string]: PolicyData }> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.data?.policies?.encrypted;
-  }
-
-  async setEncryptedPolicies(
-    value: { [id: string]: PolicyData },
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.data.policies.encrypted = value;
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),

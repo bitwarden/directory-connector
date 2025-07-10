@@ -6,7 +6,6 @@ import { FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-import { CalloutComponent } from "@/jslib/angular/src/components/callout.component";
 import { BitwardenToastModule } from "@/jslib/angular/src/components/toastr.component";
 import { A11yTitleDirective } from "@/jslib/angular/src/directives/a11y-title.directive";
 import { ApiActionDirective } from "@/jslib/angular/src/directives/api-action.directive";
@@ -49,7 +48,7 @@ import { TabsComponent } from "./tabs/tabs.component";
     AutofocusDirective,
     BlurClickDirective,
     BoxRowDirective,
-    CalloutComponent,
+
     DashboardComponent,
     EnvironmentComponent,
     FallbackSrcDirective,
