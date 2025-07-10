@@ -48,7 +48,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     AutofocusDirective,
     BlurClickDirective,
     BoxRowDirective,
-
     DashboardComponent,
     EnvironmentComponent,
     FallbackSrcDirective,

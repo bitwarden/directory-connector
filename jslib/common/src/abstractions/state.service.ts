@@ -33,7 +33,6 @@ export abstract class StateService<T extends Account = Account> {
   setApiKeyClientSecret: (value: string, options?: StorageOptions) => Promise<void>;
   getAutoConfirmFingerPrints: (options?: StorageOptions) => Promise<boolean>;
   setAutoConfirmFingerprints: (value: boolean, options?: StorageOptions) => Promise<void>;
-
   getBiometricAwaitingAcceptance: (options?: StorageOptions) => Promise<boolean>;
   setBiometricAwaitingAcceptance: (value: boolean, options?: StorageOptions) => Promise<void>;
   getBiometricFingerprintValidated: (options?: StorageOptions) => Promise<boolean>;
@@ -62,13 +61,11 @@ export abstract class StateService<T extends Account = Account> {
   setCryptoMasterKeyBiometric: (value: string, options?: StorageOptions) => Promise<void>;
   getDecodedToken: (options?: StorageOptions) => Promise<any>;
   setDecodedToken: (value: any, options?: StorageOptions) => Promise<void>;
-
   getDecryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<SymmetricCryptoKey>;
   setDecryptedCryptoSymmetricKey: (
     value: SymmetricCryptoKey,
     options?: StorageOptions,
   ) => Promise<void>;
-
   getDecryptedOrganizationKeys: (
     options?: StorageOptions,
   ) => Promise<Map<string, SymmetricCryptoKey>>;
@@ -85,7 +82,6 @@ export abstract class StateService<T extends Account = Account> {
     value: Map<string, SymmetricCryptoKey>,
     options?: StorageOptions,
   ) => Promise<void>;
-
   getDefaultUriMatch: (options?: StorageOptions) => Promise<UriMatchType>;
   setDefaultUriMatch: (value: UriMatchType, options?: StorageOptions) => Promise<void>;
   getDisableAutoBiometricsPrompt: (options?: StorageOptions) => Promise<boolean>;
@@ -110,17 +106,14 @@ export abstract class StateService<T extends Account = Account> {
   setEnableCloseToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableFullWidth: (options?: StorageOptions) => Promise<boolean>;
   setEnableFullWidth: (value: boolean, options?: StorageOptions) => Promise<void>;
-
   getEnableMinimizeToTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableMinimizeToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableStartToTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableStartToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableTray: (value: boolean, options?: StorageOptions) => Promise<void>;
-
   getEncryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<string>;
   setEncryptedCryptoSymmetricKey: (value: string, options?: StorageOptions) => Promise<void>;
-
   getEncryptedOrganizationKeys: (options?: StorageOptions) => Promise<any>;
   setEncryptedOrganizationKeys: (
     value: Map<string, SymmetricCryptoKey>,
@@ -132,13 +125,11 @@ export abstract class StateService<T extends Account = Account> {
   setEncryptedPrivateKey: (value: string, options?: StorageOptions) => Promise<void>;
   getEncryptedProviderKeys: (options?: StorageOptions) => Promise<any>;
   setEncryptedProviderKeys: (value: any, options?: StorageOptions) => Promise<void>;
-
   getEntityId: (options?: StorageOptions) => Promise<string>;
   getEnvironmentUrls: (options?: StorageOptions) => Promise<EnvironmentUrls>;
   setEnvironmentUrls: (value: EnvironmentUrls, options?: StorageOptions) => Promise<void>;
   getEquivalentDomains: (options?: StorageOptions) => Promise<any>;
   setEquivalentDomains: (value: string, options?: StorageOptions) => Promise<void>;
-
   getEverBeenUnlocked: (options?: StorageOptions) => Promise<boolean>;
   setEverBeenUnlocked: (value: boolean, options?: StorageOptions) => Promise<void>;
   getForcePasswordReset: (options?: StorageOptions) => Promise<boolean>;
