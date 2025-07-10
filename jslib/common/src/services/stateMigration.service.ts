@@ -10,7 +10,6 @@ import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
 import { PolicyData } from "../models/data/policyData";
 import { ProviderData } from "../models/data/providerData";
-import { SendData } from "../models/data/sendData";
 import { Account, AccountSettings } from "../models/domain/account";
 import { EnvironmentUrls } from "../models/domain/environmentUrls";
 import { GeneratedPasswordHistory } from "../models/domain/generatedPasswordHistory";
@@ -356,7 +355,7 @@ export class StateMigrationService<
         providers: await this.get<{ [id: string]: ProviderData }>(v1KeyPrefixes.providers + userId),
         sends: {
           decrypted: null,
-          encrypted: await this.get<{ [id: string]: SendData }>(v1KeyPrefixes.sends + userId),
+          encrypted: await this.get<{ [id: string]: any }>(v1KeyPrefixes.sends + userId),
         },
       },
       keys: {

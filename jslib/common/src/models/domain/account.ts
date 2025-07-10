@@ -7,10 +7,8 @@ import { FolderData } from "../data/folderData";
 import { OrganizationData } from "../data/organizationData";
 import { PolicyData } from "../data/policyData";
 import { ProviderData } from "../data/providerData";
-import { SendData } from "../data/sendData";
 import { CollectionView } from "../view/collectionView";
 import { FolderView } from "../view/folderView";
-import { SendView } from "../view/sendView";
 
 import { EncString } from "./encString";
 import { EnvironmentUrls } from "./environmentUrls";
@@ -35,7 +33,7 @@ export class AccountData {
     FolderView
   >();
   localData?: any;
-  sends?: DataEncryptionPair<SendData, SendView> = new DataEncryptionPair<SendData, SendView>();
+  sends?: any = new DataEncryptionPair<any, any>();
   collections?: DataEncryptionPair<CollectionData, CollectionView> = new DataEncryptionPair<
     CollectionData,
     CollectionView

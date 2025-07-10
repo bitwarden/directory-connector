@@ -16,7 +16,6 @@ import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
 import { PolicyData } from "../models/data/policyData";
 import { ProviderData } from "../models/data/providerData";
-import { SendData } from "../models/data/sendData";
 import { Account, AccountData } from "../models/domain/account";
 import { EncString } from "../models/domain/encString";
 import { EnvironmentUrls } from "../models/domain/environmentUrls";
@@ -29,7 +28,6 @@ import { SymmetricCryptoKey } from "../models/domain/symmetricCryptoKey";
 import { WindowState } from "../models/domain/windowState";
 import { CollectionView } from "../models/view/collectionView";
 import { FolderView } from "../models/view/folderView";
-import { SendView } from "../models/view/sendView";
 
 const keys = {
   global: "global",
@@ -656,19 +654,6 @@ export class StateService<
     await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
   }
 
-  async getDecryptedSends(options?: StorageOptions): Promise<SendView[]> {
-    return (await this.getAccount(this.reconcileOptions(options, this.defaultInMemoryOptions)))
-      ?.data?.sends?.decrypted;
-  }
-
-  async setDecryptedSends(value: SendView[], options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, this.defaultInMemoryOptions),
-    );
-    account.data.sends.decrypted = value;
-    await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
-  }
-
   async getDefaultUriMatch(options?: StorageOptions): Promise<UriMatchType> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
@@ -1291,26 +1276,6 @@ export class StateService<
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getEncryptedSends(options?: StorageOptions): Promise<{ [id: string]: SendData }> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()))
-    )?.data?.sends.encrypted;
-  }
-
-  async setEncryptedSends(
-    value: { [id: string]: SendData },
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-    account.data.sends.encrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
     );
   }
 

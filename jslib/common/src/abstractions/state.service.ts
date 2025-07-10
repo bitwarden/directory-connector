@@ -9,7 +9,6 @@ import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
 import { PolicyData } from "../models/data/policyData";
 import { ProviderData } from "../models/data/providerData";
-import { SendData } from "../models/data/sendData";
 import { Account } from "../models/domain/account";
 import { EncString } from "../models/domain/encString";
 import { EnvironmentUrls } from "../models/domain/environmentUrls";
@@ -20,7 +19,6 @@ import { SymmetricCryptoKey } from "../models/domain/symmetricCryptoKey";
 import { WindowState } from "../models/domain/windowState";
 import { CollectionView } from "../models/view/collectionView";
 import { FolderView } from "../models/view/folderView";
-import { SendView } from "../models/view/sendView";
 
 export abstract class StateService<T extends Account = Account> {
   accounts$: Observable<{ [userId: string]: T }>;
@@ -108,8 +106,7 @@ export abstract class StateService<T extends Account = Account> {
     value: Map<string, SymmetricCryptoKey>,
     options?: StorageOptions,
   ) => Promise<void>;
-  getDecryptedSends: (options?: StorageOptions) => Promise<SendView[]>;
-  setDecryptedSends: (value: SendView[], options?: StorageOptions) => Promise<void>;
+
   getDefaultUriMatch: (options?: StorageOptions) => Promise<UriMatchType>;
   setDefaultUriMatch: (value: UriMatchType, options?: StorageOptions) => Promise<void>;
   getDisableAddLoginNotification: (options?: StorageOptions) => Promise<boolean>;
@@ -200,8 +197,7 @@ export abstract class StateService<T extends Account = Account> {
   setEncryptedPrivateKey: (value: string, options?: StorageOptions) => Promise<void>;
   getEncryptedProviderKeys: (options?: StorageOptions) => Promise<any>;
   setEncryptedProviderKeys: (value: any, options?: StorageOptions) => Promise<void>;
-  getEncryptedSends: (options?: StorageOptions) => Promise<{ [id: string]: SendData }>;
-  setEncryptedSends: (value: { [id: string]: SendData }, options?: StorageOptions) => Promise<void>;
+
   getEntityId: (options?: StorageOptions) => Promise<string>;
   getEnvironmentUrls: (options?: StorageOptions) => Promise<EnvironmentUrls>;
   setEnvironmentUrls: (value: EnvironmentUrls, options?: StorageOptions) => Promise<void>;
