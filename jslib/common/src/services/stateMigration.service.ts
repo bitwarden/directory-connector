@@ -4,7 +4,6 @@ import { KdfType } from "../enums/kdfType";
 import { StateVersion } from "../enums/stateVersion";
 import { ThemeType } from "../enums/themeType";
 import { StateFactory } from "../factories/stateFactory";
-import { CipherData } from "../models/data/cipherData";
 import { CollectionData } from "../models/data/collectionData";
 import { EventData } from "../models/data/eventData";
 import { FolderData } from "../models/data/folderData";
@@ -328,7 +327,7 @@ export class StateMigrationService<
         addEditCipherInfo: null,
         ciphers: {
           decrypted: null,
-          encrypted: await this.get<{ [id: string]: CipherData }>(v1KeyPrefixes.ciphers + userId),
+          encrypted: await this.get<{ [id: string]: any }>(v1KeyPrefixes.ciphers + userId),
         },
         collapsedGroupings: null,
         collections: {

@@ -1,5 +1,4 @@
 import { IdentityData } from "../data/identityData";
-import { IdentityView } from "../view/identityView";
 
 import Domain from "./domainBase";
 import { EncString } from "./encString";
@@ -58,9 +57,9 @@ export class Identity extends Domain {
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<IdentityView> {
+  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<any> {
     return this.decryptObj(
-      new IdentityView(),
+      {} as any,
       {
         title: null,
         firstName: null,

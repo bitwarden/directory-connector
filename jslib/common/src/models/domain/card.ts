@@ -1,5 +1,4 @@
 import { CardData } from "../data/cardData";
-import { CardView } from "../view/cardView";
 
 import Domain from "./domainBase";
 import { EncString } from "./encString";
@@ -34,9 +33,9 @@ export class Card extends Domain {
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<CardView> {
+  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<any> {
     return this.decryptObj(
-      new CardView(),
+      {} as any,
       {
         cardholderName: null,
         brand: null,
