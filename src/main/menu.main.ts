@@ -30,7 +30,7 @@ export class MenuMain extends BaseMenu {
     if (process.platform === "darwin") {
       const firstMenuPart: MenuItemConstructorOptions[] = [
         {
-          label: this.i18nService.t("aboutBitwarden"),
+          label: this.i18nService.t("about"),
           role: "about",
         },
       ];
