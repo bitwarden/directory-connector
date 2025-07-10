@@ -1,15 +1,11 @@
 import { AuthenticationStatus } from "../../enums/authenticationStatus";
 import { KdfType } from "../../enums/kdfType";
 import { UriMatchType } from "../../enums/uriMatchType";
-import { EventData } from "../data/eventData";
 import { OrganizationData } from "../data/organizationData";
-import { PolicyData } from "../data/policyData";
 import { ProviderData } from "../data/providerData";
 
 import { EncString } from "./encString";
 import { EnvironmentUrls } from "./environmentUrls";
-import { GeneratedPasswordHistory } from "./generatedPasswordHistory";
-import { Policy } from "./policy";
 import { SymmetricCryptoKey } from "./symmetricCryptoKey";
 
 export class EncryptionPair<TEncrypted, TDecrypted> {
@@ -28,13 +24,10 @@ export class AccountData {
   localData?: any;
   sends?: any = new DataEncryptionPair<any, any>();
   collections?: DataEncryptionPair<any, any> = new DataEncryptionPair<any, any>();
-  policies?: DataEncryptionPair<PolicyData, Policy> = new DataEncryptionPair<PolicyData, Policy>();
-  passwordGenerationHistory?: EncryptionPair<
-    GeneratedPasswordHistory[],
-    GeneratedPasswordHistory[]
-  > = new EncryptionPair<GeneratedPasswordHistory[], GeneratedPasswordHistory[]>();
+  policies?: DataEncryptionPair<any, any> = new DataEncryptionPair<any, any>();
+  passwordGenerationHistory?: EncryptionPair<any[], any[]> = new EncryptionPair<any[], any[]>();
   addEditCipherInfo?: any;
-  eventCollection?: EventData[];
+  eventCollection?: any[];
   organizations?: { [id: string]: OrganizationData };
   providers?: { [id: string]: ProviderData };
 }
