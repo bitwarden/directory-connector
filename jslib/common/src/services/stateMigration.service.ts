@@ -324,12 +324,27 @@ export class StateMigrationService<
           encrypted: await this.get<{ [id: string]: any }>(v1KeyPrefixes.ciphers + userId),
         },
         collapsedGroupings: null,
-
+        collections: {
+          decrypted: null,
+          encrypted: await this.get<{ [id: string]: any }>(v1KeyPrefixes.collections + userId),
+        },
+        eventCollection: await this.get<any[]>(v1Keys.eventCollection),
+        folders: {
+          decrypted: null,
+          encrypted: await this.get<{ [id: string]: any }>(v1KeyPrefixes.folders + userId),
+        },
         localData: null,
         organizations: await this.get<{ [id: string]: OrganizationData }>(
           v1KeyPrefixes.organizations + userId,
         ),
-
+        passwordGenerationHistory: {
+          decrypted: null,
+          encrypted: await this.get<any[]>(v1Keys.history),
+        },
+        policies: {
+          decrypted: null,
+          encrypted: await this.get<{ [id: string]: any }>(v1KeyPrefixes.policies + userId),
+        },
         providers: await this.get<{ [id: string]: ProviderData }>(v1KeyPrefixes.providers + userId),
         sends: {
           decrypted: null,
