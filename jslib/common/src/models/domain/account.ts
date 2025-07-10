@@ -1,7 +1,6 @@
 import { AuthenticationStatus } from "../../enums/authenticationStatus";
 import { KdfType } from "../../enums/kdfType";
 import { UriMatchType } from "../../enums/uriMatchType";
-import { CipherData } from "../data/cipherData";
 import { CollectionData } from "../data/collectionData";
 import { EventData } from "../data/eventData";
 import { FolderData } from "../data/folderData";
@@ -9,7 +8,6 @@ import { OrganizationData } from "../data/organizationData";
 import { PolicyData } from "../data/policyData";
 import { ProviderData } from "../data/providerData";
 import { SendData } from "../data/sendData";
-import { CipherView } from "../view/cipherView";
 import { CollectionView } from "../view/collectionView";
 import { FolderView } from "../view/folderView";
 import { SendView } from "../view/sendView";
@@ -31,10 +29,7 @@ export class DataEncryptionPair<TEncrypted, TDecrypted> {
 }
 
 export class AccountData {
-  ciphers?: DataEncryptionPair<CipherData, CipherView> = new DataEncryptionPair<
-    CipherData,
-    CipherView
-  >();
+  ciphers?: any = new DataEncryptionPair<any, any>();
   folders?: DataEncryptionPair<FolderData, FolderView> = new DataEncryptionPair<
     FolderData,
     FolderView

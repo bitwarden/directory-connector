@@ -3,7 +3,6 @@ import { Observable } from "rxjs";
 import { KdfType } from "../enums/kdfType";
 import { ThemeType } from "../enums/themeType";
 import { UriMatchType } from "../enums/uriMatchType";
-import { CipherData } from "../models/data/cipherData";
 import { CollectionData } from "../models/data/collectionData";
 import { EventData } from "../models/data/eventData";
 import { FolderData } from "../models/data/folderData";
@@ -19,7 +18,6 @@ import { Policy } from "../models/domain/policy";
 import { StorageOptions } from "../models/domain/storageOptions";
 import { SymmetricCryptoKey } from "../models/domain/symmetricCryptoKey";
 import { WindowState } from "../models/domain/windowState";
-import { CipherView } from "../models/view/cipherView";
 import { CollectionView } from "../models/view/collectionView";
 import { FolderView } from "../models/view/folderView";
 import { SendView } from "../models/view/sendView";
@@ -75,8 +73,7 @@ export abstract class StateService<T extends Account = Account> {
   setCryptoMasterKeyBiometric: (value: string, options?: StorageOptions) => Promise<void>;
   getDecodedToken: (options?: StorageOptions) => Promise<any>;
   setDecodedToken: (value: any, options?: StorageOptions) => Promise<void>;
-  getDecryptedCiphers: (options?: StorageOptions) => Promise<CipherView[]>;
-  setDecryptedCiphers: (value: CipherView[], options?: StorageOptions) => Promise<void>;
+
   getDecryptedCollections: (options?: StorageOptions) => Promise<CollectionView[]>;
   setDecryptedCollections: (value: CollectionView[], options?: StorageOptions) => Promise<void>;
   getDecryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<SymmetricCryptoKey>;
@@ -167,11 +164,7 @@ export abstract class StateService<T extends Account = Account> {
   setEnableStartToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableTray: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getEncryptedCiphers: (options?: StorageOptions) => Promise<{ [id: string]: CipherData }>;
-  setEncryptedCiphers: (
-    value: { [id: string]: CipherData },
-    options?: StorageOptions,
-  ) => Promise<void>;
+
   getEncryptedCollections: (options?: StorageOptions) => Promise<{ [id: string]: CollectionData }>;
   setEncryptedCollections: (
     value: { [id: string]: CollectionData },

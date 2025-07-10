@@ -10,7 +10,6 @@ import { StorageLocation } from "../enums/storageLocation";
 import { ThemeType } from "../enums/themeType";
 import { UriMatchType } from "../enums/uriMatchType";
 import { StateFactory } from "../factories/stateFactory";
-import { CipherData } from "../models/data/cipherData";
 import { CollectionData } from "../models/data/collectionData";
 import { EventData } from "../models/data/eventData";
 import { FolderData } from "../models/data/folderData";
@@ -28,7 +27,6 @@ import { State } from "../models/domain/state";
 import { StorageOptions } from "../models/domain/storageOptions";
 import { SymmetricCryptoKey } from "../models/domain/symmetricCryptoKey";
 import { WindowState } from "../models/domain/windowState";
-import { CipherView } from "../models/view/cipherView";
 import { CollectionView } from "../models/view/collectionView";
 import { FolderView } from "../models/view/folderView";
 import { SendView } from "../models/view/sendView";
@@ -520,19 +518,6 @@ export class StateService<
       this.reconcileOptions(options, this.defaultInMemoryOptions),
     );
     account.tokens.decodedToken = value;
-    await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
-  }
-
-  async getDecryptedCiphers(options?: StorageOptions): Promise<CipherView[]> {
-    return (await this.getAccount(this.reconcileOptions(options, this.defaultInMemoryOptions)))
-      ?.data?.ciphers?.decrypted;
-  }
-
-  async setDecryptedCiphers(value: CipherView[], options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, this.defaultInMemoryOptions),
-    );
-    account.data.ciphers.decrypted = value;
     await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
   }
 
@@ -1134,26 +1119,6 @@ export class StateService<
     await this.saveGlobals(
       globals,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getEncryptedCiphers(options?: StorageOptions): Promise<{ [id: string]: CipherData }> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()))
-    )?.data?.ciphers?.encrypted;
-  }
-
-  async setEncryptedCiphers(
-    value: { [id: string]: CipherData },
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-    account.data.ciphers.encrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
     );
   }
 
