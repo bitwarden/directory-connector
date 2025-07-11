@@ -8,6 +8,8 @@ on:
         required: false
         type: string
 
+permissions: {}
+
 jobs:
   bump_version:
     name: Bump Version
