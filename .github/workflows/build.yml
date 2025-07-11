@@ -16,6 +16,8 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
@@ -46,6 +48,8 @@ jobs:
       # PKG_FETCH versions must NOT be upgraded until clients has upgraded as we must verify the yao-pkg node builds ourselves
       _LINUX_PKG_FETCH_VERSION: 3.5 # pkg-fetch release
       _LINUX_PKG_FETCH_NODE_VERSION: 20.11.1 # node version in the pkg-fetch release
+    permissions:
+      contents: read
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -125,6 +129,8 @@ jobs:
     name: Build Mac CLI
     runs-on: macos-13
     needs: setup
+    permissions:
+      contents: read
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -203,6 +209,8 @@ jobs:
     name: Build Windows CLI
     runs-on: windows-2022
     needs: setup
+    permissions:
+      contents: read
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -337,6 +345,9 @@ jobs:
     name: Build Windows GUI
     runs-on: windows-2022
     needs: setup
+    permissions:
+      contents: read
+      id-token: write
     env:
       NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -368,10 +379,12 @@ jobs:
       - name: Install Node dependencies
         run: npm install
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -383,6 +396,9 @@ jobs:
             code-signing-tenant-id,
             code-signing-client-secret,
             code-signing-cert-name"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Build & Sign
         run: npm run dist:win
@@ -427,6 +443,8 @@ jobs:
     name: Build Linux GUI
     runs-on: ubuntu-24.04
     needs: setup
+    permissions:
+      contents: read
     env:
       NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -481,6 +499,9 @@ jobs:
     name: Build MacOS GUI
     runs-on: macos-13
     needs: setup
+    permissions:
+      contents: read
+      id-token: write
     env:
       NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -508,10 +529,19 @@ jobs:
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-directory-connector
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Get certificates
         run: |
@@ -526,9 +556,12 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -562,13 +595,13 @@ jobs:
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_UFD296548T.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           EOF
 
       - name: Build application
         run: npm run dist:mac
         env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: UFD296548T
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_UFD296548T.p8
           CSC_FOR_PULL_REQUEST: true
@@ -613,6 +646,8 @@ jobs:
       - windows-gui
       - linux-gui
       - macos-gui
+    permissions:
+      id-token: write
     steps:
       - name: Check if any job failed
         if: |
@@ -622,11 +657,13 @@ jobs:
           && contains(needs.*.result, 'failure')
         run: exit 1
 
-      - name: Login to Azure - CI subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
         if: failure()
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -635,6 +672,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Notify Slack on failure
         uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
