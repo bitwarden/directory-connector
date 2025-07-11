@@ -181,5 +181,8 @@
   "lint-staged": {
     "./!(jslib)**": "prettier --ignore-unknown --write",
     "*.ts": "eslint --fix"
+  },
+  "pkg": {
+    "assets": "keytar/**"
   }
 }
