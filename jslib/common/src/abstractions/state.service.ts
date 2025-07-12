@@ -3,26 +3,14 @@ import { Observable } from "rxjs";
 import { KdfType } from "../enums/kdfType";
 import { ThemeType } from "../enums/themeType";
 import { UriMatchType } from "../enums/uriMatchType";
-import { CipherData } from "../models/data/cipherData";
-import { CollectionData } from "../models/data/collectionData";
-import { EventData } from "../models/data/eventData";
-import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
-import { PolicyData } from "../models/data/policyData";
 import { ProviderData } from "../models/data/providerData";
-import { SendData } from "../models/data/sendData";
 import { Account } from "../models/domain/account";
 import { EncString } from "../models/domain/encString";
 import { EnvironmentUrls } from "../models/domain/environmentUrls";
-import { GeneratedPasswordHistory } from "../models/domain/generatedPasswordHistory";
-import { Policy } from "../models/domain/policy";
 import { StorageOptions } from "../models/domain/storageOptions";
 import { SymmetricCryptoKey } from "../models/domain/symmetricCryptoKey";
 import { WindowState } from "../models/domain/windowState";
-import { CipherView } from "../models/view/cipherView";
-import { CollectionView } from "../models/view/collectionView";
-import { FolderView } from "../models/view/folderView";
-import { SendView } from "../models/view/sendView";
 
 export abstract class StateService<T extends Account = Account> {
   accounts$: Observable<{ [userId: string]: T }>;
@@ -45,8 +33,6 @@ export abstract class StateService<T extends Account = Account> {
   setApiKeyClientSecret: (value: string, options?: StorageOptions) => Promise<void>;
   getAutoConfirmFingerPrints: (options?: StorageOptions) => Promise<boolean>;
   setAutoConfirmFingerprints: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getAutoFillOnPageLoadDefault: (options?: StorageOptions) => Promise<boolean>;
-  setAutoFillOnPageLoadDefault: (value: boolean, options?: StorageOptions) => Promise<void>;
   getBiometricAwaitingAcceptance: (options?: StorageOptions) => Promise<boolean>;
   setBiometricAwaitingAcceptance: (value: boolean, options?: StorageOptions) => Promise<void>;
   getBiometricFingerprintValidated: (options?: StorageOptions) => Promise<boolean>;
@@ -75,17 +61,11 @@ export abstract class StateService<T extends Account = Account> {
   setCryptoMasterKeyBiometric: (value: string, options?: StorageOptions) => Promise<void>;
   getDecodedToken: (options?: StorageOptions) => Promise<any>;
   setDecodedToken: (value: any, options?: StorageOptions) => Promise<void>;
-  getDecryptedCiphers: (options?: StorageOptions) => Promise<CipherView[]>;
-  setDecryptedCiphers: (value: CipherView[], options?: StorageOptions) => Promise<void>;
-  getDecryptedCollections: (options?: StorageOptions) => Promise<CollectionView[]>;
-  setDecryptedCollections: (value: CollectionView[], options?: StorageOptions) => Promise<void>;
   getDecryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<SymmetricCryptoKey>;
   setDecryptedCryptoSymmetricKey: (
     value: SymmetricCryptoKey,
     options?: StorageOptions,
   ) => Promise<void>;
-  getDecryptedFolders: (options?: StorageOptions) => Promise<FolderView[]>;
-  setDecryptedFolders: (value: FolderView[], options?: StorageOptions) => Promise<void>;
   getDecryptedOrganizationKeys: (
     options?: StorageOptions,
   ) => Promise<Map<string, SymmetricCryptoKey>>;
@@ -93,17 +73,8 @@ export abstract class StateService<T extends Account = Account> {
     value: Map<string, SymmetricCryptoKey>,
     options?: StorageOptions,
   ) => Promise<void>;
-  getDecryptedPasswordGenerationHistory: (
-    options?: StorageOptions,
-  ) => Promise<GeneratedPasswordHistory[]>;
-  setDecryptedPasswordGenerationHistory: (
-    value: GeneratedPasswordHistory[],
-    options?: StorageOptions,
-  ) => Promise<void>;
   getDecryptedPinProtected: (options?: StorageOptions) => Promise<EncString>;
   setDecryptedPinProtected: (value: EncString, options?: StorageOptions) => Promise<void>;
-  getDecryptedPolicies: (options?: StorageOptions) => Promise<Policy[]>;
-  setDecryptedPolicies: (value: Policy[], options?: StorageOptions) => Promise<void>;
   getDecryptedPrivateKey: (options?: StorageOptions) => Promise<ArrayBuffer>;
   setDecryptedPrivateKey: (value: ArrayBuffer, options?: StorageOptions) => Promise<void>;
   getDecryptedProviderKeys: (options?: StorageOptions) => Promise<Map<string, SymmetricCryptoKey>>;
@@ -111,111 +82,54 @@ export abstract class StateService<T extends Account = Account> {
     value: Map<string, SymmetricCryptoKey>,
     options?: StorageOptions,
   ) => Promise<void>;
-  getDecryptedSends: (options?: StorageOptions) => Promise<SendView[]>;
-  setDecryptedSends: (value: SendView[], options?: StorageOptions) => Promise<void>;
   getDefaultUriMatch: (options?: StorageOptions) => Promise<UriMatchType>;
   setDefaultUriMatch: (value: UriMatchType, options?: StorageOptions) => Promise<void>;
-  getDisableAddLoginNotification: (options?: StorageOptions) => Promise<boolean>;
-  setDisableAddLoginNotification: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableAutoBiometricsPrompt: (options?: StorageOptions) => Promise<boolean>;
   setDisableAutoBiometricsPrompt: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableAutoTotpCopy: (options?: StorageOptions) => Promise<boolean>;
   setDisableAutoTotpCopy: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableBadgeCounter: (options?: StorageOptions) => Promise<boolean>;
   setDisableBadgeCounter: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDisableChangedPasswordNotification: (options?: StorageOptions) => Promise<boolean>;
-  setDisableChangedPasswordNotification: (
-    value: boolean,
-    options?: StorageOptions,
-  ) => Promise<void>;
   getDisableContextMenuItem: (options?: StorageOptions) => Promise<boolean>;
   setDisableContextMenuItem: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDisableFavicon: (options?: StorageOptions) => Promise<boolean>;
-  setDisableFavicon: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableGa: (options?: StorageOptions) => Promise<boolean>;
   setDisableGa: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDontShowCardsCurrentTab: (options?: StorageOptions) => Promise<boolean>;
-  setDontShowCardsCurrentTab: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDontShowIdentitiesCurrentTab: (options?: StorageOptions) => Promise<boolean>;
-  setDontShowIdentitiesCurrentTab: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEmail: (options?: StorageOptions) => Promise<string>;
   setEmail: (value: string, options?: StorageOptions) => Promise<void>;
   getEmailVerified: (options?: StorageOptions) => Promise<boolean>;
   setEmailVerified: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableAlwaysOnTop: (options?: StorageOptions) => Promise<boolean>;
   setEnableAlwaysOnTop: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getEnableAutoFillOnPageLoad: (options?: StorageOptions) => Promise<boolean>;
-  setEnableAutoFillOnPageLoad: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableBiometric: (options?: StorageOptions) => Promise<boolean>;
   setEnableBiometric: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getEnableBrowserIntegration: (options?: StorageOptions) => Promise<boolean>;
-  setEnableBrowserIntegration: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getEnableBrowserIntegrationFingerprint: (options?: StorageOptions) => Promise<boolean>;
-  setEnableBrowserIntegrationFingerprint: (
-    value: boolean,
-    options?: StorageOptions,
-  ) => Promise<void>;
   getEnableCloseToTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableCloseToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableFullWidth: (options?: StorageOptions) => Promise<boolean>;
   setEnableFullWidth: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getEnableGravitars: (options?: StorageOptions) => Promise<boolean>;
-  setEnableGravitars: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableMinimizeToTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableMinimizeToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableStartToTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableStartToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableTray: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getEncryptedCiphers: (options?: StorageOptions) => Promise<{ [id: string]: CipherData }>;
-  setEncryptedCiphers: (
-    value: { [id: string]: CipherData },
-    options?: StorageOptions,
-  ) => Promise<void>;
-  getEncryptedCollections: (options?: StorageOptions) => Promise<{ [id: string]: CollectionData }>;
-  setEncryptedCollections: (
-    value: { [id: string]: CollectionData },
-    options?: StorageOptions,
-  ) => Promise<void>;
   getEncryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<string>;
   setEncryptedCryptoSymmetricKey: (value: string, options?: StorageOptions) => Promise<void>;
-  getEncryptedFolders: (options?: StorageOptions) => Promise<{ [id: string]: FolderData }>;
-  setEncryptedFolders: (
-    value: { [id: string]: FolderData },
-    options?: StorageOptions,
-  ) => Promise<void>;
   getEncryptedOrganizationKeys: (options?: StorageOptions) => Promise<any>;
   setEncryptedOrganizationKeys: (
     value: Map<string, SymmetricCryptoKey>,
     options?: StorageOptions,
   ) => Promise<void>;
-  getEncryptedPasswordGenerationHistory: (
-    options?: StorageOptions,
-  ) => Promise<GeneratedPasswordHistory[]>;
-  setEncryptedPasswordGenerationHistory: (
-    value: GeneratedPasswordHistory[],
-    options?: StorageOptions,
-  ) => Promise<void>;
   getEncryptedPinProtected: (options?: StorageOptions) => Promise<string>;
   setEncryptedPinProtected: (value: string, options?: StorageOptions) => Promise<void>;
-  getEncryptedPolicies: (options?: StorageOptions) => Promise<{ [id: string]: PolicyData }>;
-  setEncryptedPolicies: (
-    value: { [id: string]: PolicyData },
-    options?: StorageOptions,
-  ) => Promise<void>;
   getEncryptedPrivateKey: (options?: StorageOptions) => Promise<string>;
   setEncryptedPrivateKey: (value: string, options?: StorageOptions) => Promise<void>;
   getEncryptedProviderKeys: (options?: StorageOptions) => Promise<any>;
   setEncryptedProviderKeys: (value: any, options?: StorageOptions) => Promise<void>;
-  getEncryptedSends: (options?: StorageOptions) => Promise<{ [id: string]: SendData }>;
-  setEncryptedSends: (value: { [id: string]: SendData }, options?: StorageOptions) => Promise<void>;
   getEntityId: (options?: StorageOptions) => Promise<string>;
   getEnvironmentUrls: (options?: StorageOptions) => Promise<EnvironmentUrls>;
   setEnvironmentUrls: (value: EnvironmentUrls, options?: StorageOptions) => Promise<void>;
   getEquivalentDomains: (options?: StorageOptions) => Promise<any>;
   setEquivalentDomains: (value: string, options?: StorageOptions) => Promise<void>;
-  getEventCollection: (options?: StorageOptions) => Promise<EventData[]>;
-  setEventCollection: (value: EventData[], options?: StorageOptions) => Promise<void>;
   getEverBeenUnlocked: (options?: StorageOptions) => Promise<boolean>;
   setEverBeenUnlocked: (value: boolean, options?: StorageOptions) => Promise<void>;
   getForcePasswordReset: (options?: StorageOptions) => Promise<boolean>;

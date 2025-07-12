@@ -4,17 +4,10 @@ import { KdfType } from "../enums/kdfType";
 import { StateVersion } from "../enums/stateVersion";
 import { ThemeType } from "../enums/themeType";
 import { StateFactory } from "../factories/stateFactory";
-import { CipherData } from "../models/data/cipherData";
-import { CollectionData } from "../models/data/collectionData";
-import { EventData } from "../models/data/eventData";
-import { FolderData } from "../models/data/folderData";
 import { OrganizationData } from "../models/data/organizationData";
-import { PolicyData } from "../models/data/policyData";
 import { ProviderData } from "../models/data/providerData";
-import { SendData } from "../models/data/sendData";
 import { Account, AccountSettings } from "../models/domain/account";
 import { EnvironmentUrls } from "../models/domain/environmentUrls";
-import { GeneratedPasswordHistory } from "../models/domain/generatedPasswordHistory";
 import { GlobalState } from "../models/domain/globalState";
 import { StorageOptions } from "../models/domain/storageOptions";
 
@@ -328,19 +321,17 @@ export class StateMigrationService<
         addEditCipherInfo: null,
         ciphers: {
           decrypted: null,
-          encrypted: await this.get<{ [id: string]: CipherData }>(v1KeyPrefixes.ciphers + userId),
+          encrypted: await this.get<{ [id: string]: any }>(v1KeyPrefixes.ciphers + userId),
         },
         collapsedGroupings: null,
         collections: {
           decrypted: null,
-          encrypted: await this.get<{ [id: string]: CollectionData }>(
-            v1KeyPrefixes.collections + userId,
-          ),
+          encrypted: await this.get<{ [id: string]: any }>(v1KeyPrefixes.collections + userId),
         },
-        eventCollection: await this.get<EventData[]>(v1Keys.eventCollection),
+        eventCollection: await this.get<any[]>(v1Keys.eventCollection),
         folders: {
           decrypted: null,
-          encrypted: await this.get<{ [id: string]: FolderData }>(v1KeyPrefixes.folders + userId),
+          encrypted: await this.get<{ [id: string]: any }>(v1KeyPrefixes.folders + userId),
         },
         localData: null,
         organizations: await this.get<{ [id: string]: OrganizationData }>(
@@ -348,16 +339,16 @@ export class StateMigrationService<
         ),
         passwordGenerationHistory: {
           decrypted: null,
-          encrypted: await this.get<GeneratedPasswordHistory[]>(v1Keys.history),
+          encrypted: await this.get<any[]>(v1Keys.history),
         },
         policies: {
           decrypted: null,
-          encrypted: await this.get<{ [id: string]: PolicyData }>(v1KeyPrefixes.policies + userId),
+          encrypted: await this.get<{ [id: string]: any }>(v1KeyPrefixes.policies + userId),
         },
         providers: await this.get<{ [id: string]: ProviderData }>(v1KeyPrefixes.providers + userId),
         sends: {
           decrypted: null,
-          encrypted: await this.get<{ [id: string]: SendData }>(v1KeyPrefixes.sends + userId),
+          encrypted: await this.get<{ [id: string]: any }>(v1KeyPrefixes.sends + userId),
         },
       },
       keys: {
