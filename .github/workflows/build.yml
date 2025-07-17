@@ -13,24 +13,6 @@ permissions:
   contents: read
 
 jobs:
-  cloc:
-    name: CLOC
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Set up CLOC
-        run: |
-          sudo apt update
-          sudo apt -y install cloc
-
-      - name: Print lines of code
-        run: cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
-
-
   setup:
     name: Setup
     runs-on: ubuntu-24.04
@@ -38,6 +20,7 @@ jobs:
       contents: read
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
+      node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -48,6 +31,12 @@ jobs:
           PKG_VERSION=$(jq -r .version package.json)
           echo "package_version=$PKG_VERSION" >> $GITHUB_OUTPUT
 
+      - name: Get Node Version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
 
   linux-cli:
     name: Build Linux CLI
@@ -55,8 +44,7 @@ jobs:
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _PKG_FETCH_NODE_VERSION: 18.5.0
-      _PKG_FETCH_VERSION: 3.4
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     permissions:
       contents: read
     steps:
@@ -68,20 +56,12 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: ${{ env._NODE_VERSION }}
 
       - name: Update NPM
         run: |
           npm install -g node-gyp
           node-gyp install $(node -v)
-
-      - name: Get pkg-fetch
-        run: |
-          cd $HOME
-          fetchedUrl="https://github.com/vercel/pkg-fetch/releases/download/v$_PKG_FETCH_VERSION/node-v$_PKG_FETCH_NODE_VERSION-linux-x64"
-
-          mkdir -p .pkg-cache/v$_PKG_FETCH_VERSION
-          wget $fetchedUrl -O "./.pkg-cache/v$_PKG_FETCH_VERSION/fetched-v$_PKG_FETCH_NODE_VERSION-linux-x64"
 
       - name: Keytar
         run: |
@@ -142,8 +122,7 @@ jobs:
       contents: read
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _PKG_FETCH_NODE_VERSION: 18.5.0
-      _PKG_FETCH_VERSION: 3.4
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -153,20 +132,12 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: ${{ env._NODE_VERSION }}
 
       - name: Update NPM
         run: |
           npm install -g node-gyp
           node-gyp install $(node -v)
-
-      - name: Get pkg-fetch
-        run: |
-          cd $HOME
-          fetchedUrl="https://github.com/vercel/pkg-fetch/releases/download/v$_PKG_FETCH_VERSION/node-v$_PKG_FETCH_NODE_VERSION-macos-x64"
-
-          mkdir -p .pkg-cache/v$_PKG_FETCH_VERSION
-          wget $fetchedUrl -O "./.pkg-cache/v$_PKG_FETCH_VERSION/fetched-v$_PKG_FETCH_NODE_VERSION-macos-x64"
 
       - name: Keytar
         run: |
@@ -220,8 +191,7 @@ jobs:
       contents: read
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _WIN_PKG_FETCH_VERSION: 18.5.0
-      _WIN_PKG_VERSION: 3.4
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -229,30 +199,18 @@ jobs:
       - name: Setup Windows builder
         run: |
           choco install checksum --no-progress
-          choco install reshack --no-progress
 
       - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '18'
+          node-version: ${{ env._NODE_VERSION }}
 
       - name: Update NPM
         run: |
           npm install -g node-gyp
           node-gyp install $(node -v)
-
-      - name: Get pkg-fetch
-        shell: pwsh
-        run: |
-          cd $HOME
-          $fetchedUrl = "https://github.com/vercel/pkg-fetch/releases/download/v$env:_WIN_PKG_VERSION/node-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
-
-          New-Item -ItemType directory -Path ./.pkg-cache
-          New-Item -ItemType directory -Path ./.pkg-cache/v$env:_WIN_PKG_VERSION
-          Invoke-RestMethod -Uri $fetchedUrl `
-            -OutFile "./.pkg-cache/v$env:_WIN_PKG_VERSION/fetched-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
 
       - name: Keytar
         shell: pwsh
@@ -269,54 +227,6 @@ jobs:
           7z e "./keytar/windows/$($keytarTarGz -f "win32")" -o"./keytar/windows"
 
           7z e "./keytar/windows/$($keytarTar -f "win32")" -o"./keytar/windows"
-
-      - name: Setup Version Info
-        shell: pwsh
-        run: |
-          $major, $minor, $patch = $env:_PACKAGE_VERSION.split('.')
-
-          $versionInfo = @"
-
-          1 VERSIONINFO
-          FILEVERSION $major,$minor,$patch,0
-          PRODUCTVERSION $major,$minor,$patch,0
-          FILEOS 0x40004
-          FILETYPE 0x1
-          {
-          BLOCK "StringFileInfo"
-          {
-            BLOCK "040904b0"
-            {
-              VALUE "CompanyName", "Bitwarden Inc."
-              VALUE "ProductName", "Bitwarden"
-              VALUE "FileDescription", "Bitwarden Directory Connector CLI"
-              VALUE "FileVersion", "$env:_PACKAGE_VERSION"
-              VALUE "ProductVersion", "$env:_PACKAGE_VERSION"
-              VALUE "OriginalFilename", "bwdc.exe"
-              VALUE "InternalName", "bwdc"
-              VALUE "LegalCopyright", "Copyright Bitwarden Inc."
-            }
-          }
-
-          BLOCK "VarFileInfo"
-          {
-            VALUE "Translation", 0x0409 0x04B0
-          }
-          }
-          "@
-
-          $versionInfo | Out-File ./version-info.rc
-
-      - name: Resource Hacker
-        shell: cmd
-        run: |
-          set PATH=%PATH%;C:\Program Files (x86)\Resource Hacker
-          set WIN_PKG=C:\Users\runneradmin\.pkg-cache\v%_WIN_PKG_VERSION%\fetched-v%_WIN_PKG_FETCH_VERSION%-win-x64
-          set WIN_PKG_BUILT=C:\Users\runneradmin\.pkg-cache\v%_WIN_PKG_VERSION%\built-v%_WIN_PKG_FETCH_VERSION%-win-x64
-
-          ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action delete -mask ICONGROUP,1,
-          ResourceHacker -open version-info.rc -save version-info.res -action compile
-          ResourceHacker -open %WIN_PKG% -save %WIN_PKG% -action addoverwrite -resource version-info.res
 
       - name: Install
         run: npm install
@@ -645,7 +555,6 @@ jobs:
     name: Check for failures
     runs-on: ubuntu-24.04
     needs:
-      - cloc
       - setup
       - linux-cli
       - macos-cli
