@@ -73,9 +73,9 @@
     "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "19.2.14",
-    "@angular-eslint/eslint-plugin-template": "18.2.0",
-    "@angular-eslint/template-parser": "18.2.0",
+    "@angular-devkit/build-angular": "19.2.15",
+    "@angular-eslint/eslint-plugin-template": "19.8.0",
+    "@angular-eslint/template-parser": "19.8.0",
     "@angular/compiler-cli": "19.2.14",
     "@electron/notarize": "2.5.0",
     "@electron/rebuild": "3.7.2",
