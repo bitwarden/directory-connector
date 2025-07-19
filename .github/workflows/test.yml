@@ -9,34 +9,16 @@ on:
       - "hotfix-rc"
   pull_request:
 
-jobs:
-  check-test-secrets:
-    name: Check for test secrets
-    runs-on: ubuntu-24.04
-    outputs:
-      available: ${{ steps.check-test-secrets.outputs.available }}
-    permissions:
-      contents: read
+permissions:
+  contents: read
+  checks: write # required by dorny/test-reporter to upload its results
 
-    steps:
-      - name: Check
-        id: check-test-secrets
-        run: |
-          if [ "${{ secrets.CODECOV_TOKEN }}" != '' ]; then
-            echo "available=true" >> $GITHUB_OUTPUT;
-          else
-            echo "available=false" >> $GITHUB_OUTPUT;
-          fi
+jobs:
 
   testing:
     name: Run tests
     if: ${{ startsWith(github.head_ref, 'version_bump_') == false }}
     runs-on: ubuntu-24.04
-    needs: check-test-secrets
-    permissions:
-      checks: write
-      contents: read
-      pull-requests: write
 
     steps:
       - name: Check out repo
@@ -70,7 +52,7 @@ jobs:
 
       - name: Report test results
         uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
-        if: ${{ needs.check-test-secrets.outputs.available == 'true' && !cancelled() }}
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository && !cancelled() }}
         with:
           name: Test Results
           path: "junit.xml"
@@ -82,6 +64,3 @@ jobs:
 
       - name: Upload results to codecov.io
         uses: codecov/test-results-action@4e79e65778be1cecd5df25e14af1eafb6df80ea9 # v1.0.2
-        if: ${{ needs.check-test-secrets.outputs.available == 'true' }}
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

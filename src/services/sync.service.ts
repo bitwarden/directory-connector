@@ -2,35 +2,40 @@ import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 
+import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 import { GroupEntry } from "../models/groupEntry";
 import { SyncConfiguration } from "../models/syncConfiguration";
 import { UserEntry } from "../models/userEntry";
 
-import { AzureDirectoryService } from "./azure-directory.service";
-import { IDirectoryService } from "./directory.service";
-import { GSuiteDirectoryService } from "./gsuite-directory.service";
-import { LdapDirectoryService } from "./ldap-directory.service";
-import { OktaDirectoryService } from "./okta-directory.service";
-import { OneLoginDirectoryService } from "./onelogin-directory.service";
+import { BatchRequestBuilder } from "./batch-request-builder";
+import { SingleRequestBuilder } from "./single-request-builder";
+
+export interface HashResult {
+  hash: string;
+  hashLegacy: string;
+}
+
+export const batchSize = 2000;
 
 export class SyncService {
   private dirType: DirectoryType;
 
   constructor(
-    private logService: LogService,
     private cryptoFunctionService: CryptoFunctionService,
     private apiService: ApiService,
     private messagingService: MessagingService,
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
     private stateService: StateService,
+    private batchRequestBuilder: BatchRequestBuilder,
+    private singleRequestBuilder: SingleRequestBuilder,
+    private directoryFactory: DirectoryFactoryService,
   ) {}
 
   async sync(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
@@ -39,7 +44,7 @@ export class SyncService {
       throw new Error("No directory configured.");
     }
 
-    const directoryService = this.getDirectoryService();
+    const directoryService = this.directoryFactory.createService(this.dirType);
     if (directoryService == null) {
       throw new Error("Cannot load directory service.");
     }
@@ -78,42 +83,15 @@ export class SyncService {
         return [groups, users];
       }
 
-      const req = this.buildRequest(
-        groups,
-        users,
-        syncConfig.removeDisabled,
-        syncConfig.overwriteExisting,
-        syncConfig.largeImport,
-      );
-      const reqJson = JSON.stringify(req);
+      const reqs = this.buildRequest(groups, users, syncConfig);
 
-      const orgId = await this.stateService.getOrganizationId();
-      if (orgId == null) {
-        throw new Error("Organization not set.");
-      }
+      const result: HashResult = await this.generateHash(reqs);
 
-      // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
-      let hashLegacy: string = null;
-      const hashBuffLegacy = await this.cryptoFunctionService.hash(
-        this.environmentService.getApiUrl() + reqJson,
-        "sha256",
-      );
-      if (hashBuffLegacy != null) {
-        hashLegacy = Utils.fromBufferToB64(hashBuffLegacy);
-      }
-      let hash: string = null;
-      const hashBuff = await this.cryptoFunctionService.hash(
-        this.environmentService.getApiUrl() + orgId + reqJson,
-        "sha256",
-      );
-      if (hashBuff != null) {
-        hash = Utils.fromBufferToB64(hashBuff);
-      }
-      const lastHash = await this.stateService.getLastSyncHash();
-
-      if (lastHash == null || (hash !== lastHash && hashLegacy !== lastHash)) {
-        await this.apiService.postPublicImportDirectory(req);
-        await this.stateService.setLastSyncHash(hash);
+      if (result.hash && (await this.isNewHash(result))) {
+        for (const req of reqs) {
+          await this.apiService.postPublicImportDirectory(req);
+        }
+        await this.stateService.setLastSyncHash(result.hash);
       } else {
         groups = null;
         users = null;
@@ -131,6 +109,40 @@ export class SyncService {
       this.messagingService.send("dirSyncCompleted", { successfully: false });
       throw e;
     }
+  }
+
+  async generateHash(reqs: OrganizationImportRequest[]): Promise<HashResult> {
+    const reqJson = JSON.stringify(reqs?.length === 1 ? reqs[0] : reqs);
+    const orgId = await this.stateService.getOrganizationId();
+    if (orgId == null) {
+      throw new Error("Organization not set.");
+    }
+
+    // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
+    let hashLegacy: string = null;
+    const hashBuffLegacy = await this.cryptoFunctionService.hash(
+      this.environmentService.getApiUrl() + reqJson,
+      "sha256",
+    );
+    if (hashBuffLegacy != null) {
+      hashLegacy = Utils.fromBufferToB64(hashBuffLegacy);
+    }
+    let hash: string = null;
+    const hashBuff = await this.cryptoFunctionService.hash(
+      this.environmentService.getApiUrl() + orgId + reqJson,
+      "sha256",
+    );
+    if (hashBuff != null) {
+      hash = Utils.fromBufferToB64(hashBuff);
+    }
+
+    return { hash, hashLegacy };
+  }
+
+  async isNewHash(hashResult: HashResult): Promise<boolean> {
+    const lastHash = await this.stateService.getLastSyncHash();
+
+    return lastHash == null || (hashResult.hash !== lastHash && hashResult.hashLegacy !== lastHash);
   }
 
   private removeDuplicateUsers(users: UserEntry[]) {
@@ -198,48 +210,16 @@ export class SyncService {
     return allUsers;
   }
 
-  private getDirectoryService(): IDirectoryService {
-    switch (this.dirType) {
-      case DirectoryType.GSuite:
-        return new GSuiteDirectoryService(this.logService, this.i18nService, this.stateService);
-      case DirectoryType.AzureActiveDirectory:
-        return new AzureDirectoryService(this.logService, this.i18nService, this.stateService);
-      case DirectoryType.Ldap:
-        return new LdapDirectoryService(this.logService, this.i18nService, this.stateService);
-      case DirectoryType.Okta:
-        return new OktaDirectoryService(this.logService, this.i18nService, this.stateService);
-      case DirectoryType.OneLogin:
-        return new OneLoginDirectoryService(this.logService, this.i18nService, this.stateService);
-      default:
-        return null;
-    }
-  }
-
   private buildRequest(
     groups: GroupEntry[],
     users: UserEntry[],
-    removeDisabled: boolean,
-    overwriteExisting: boolean,
-    largeImport = false,
-  ) {
-    return new OrganizationImportRequest({
-      groups: (groups ?? []).map((g) => {
-        return {
-          name: g.name,
-          externalId: g.externalId,
-          memberExternalIds: Array.from(g.userMemberExternalIds),
-        };
-      }),
-      users: (users ?? []).map((u) => {
-        return {
-          email: u.email,
-          externalId: u.externalId,
-          deleted: u.deleted || (removeDisabled && u.disabled),
-        };
-      }),
-      overwriteExisting: overwriteExisting,
-      largeImport: largeImport,
-    });
+    syncConfig: SyncConfiguration,
+  ): OrganizationImportRequest[] {
+    if (syncConfig.largeImport && (groups?.length ?? 0) + (users?.length ?? 0) > batchSize) {
+      return this.batchRequestBuilder.buildRequest(groups, users, syncConfig);
+    } else {
+      return this.singleRequestBuilder.buildRequest(groups, users, syncConfig);
+    }
   }
 
   private async saveSyncTimes(syncConfig: SyncConfiguration, time: Date) {

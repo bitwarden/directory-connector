@@ -13,10 +13,15 @@ on:
           - Redeploy
           - Dry Run
 
+permissions:
+  contents: read
+
 jobs:
   setup:
     name: Setup
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       release_version: ${{ steps.version.outputs.version }}
     steps:
@@ -45,6 +50,10 @@ jobs:
     name: Release
     runs-on: ubuntu-24.04
     needs: setup
+    permissions:
+      actions: read
+      packages: read
+      contents: write
     steps:
       - name: Download all artifacts
         if: ${{ inputs.release_type != 'Dry Run' }}
@@ -71,9 +80,6 @@ jobs:
           artifacts: "./bwdc-windows-${{ env.PKG_VERSION }}.zip,
                       ./bwdc-macos-${{ env.PKG_VERSION }}.zip,
                       ./bwdc-linux-${{ env.PKG_VERSION }}.zip,
-                      ./bwdc-windows-sha256-${{ env.PKG_VERSION }}.txt,
-                      ./bwdc-macos-sha256-${{ env.PKG_VERSION }}.txt,
-                      ./bwdc-linux-sha256-${{ env.PKG_VERSION }}.txt,
                       ./Bitwarden-Connector-Portable-${{ env.PKG_VERSION }}.exe,
                       ./Bitwarden-Connector-Installer-${{ env.PKG_VERSION }}.exe,
                       ./Bitwarden-Connector-Installer-${{ env.PKG_VERSION }}.exe.blockmap,

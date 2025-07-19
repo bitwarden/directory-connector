@@ -60,9 +60,8 @@ export class TrayMain {
   }
 
   setupWindowListeners(win: BrowserWindow) {
-    win.on("minimize", async (e: Event) => {
+    win.on("minimize", async () => {
       if (await this.stateService.getEnableMinimizeToTray()) {
-        e.preventDefault();
         this.hideToTray();
       }
     });

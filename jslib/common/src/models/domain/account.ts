@@ -1,23 +1,11 @@
 import { AuthenticationStatus } from "../../enums/authenticationStatus";
 import { KdfType } from "../../enums/kdfType";
 import { UriMatchType } from "../../enums/uriMatchType";
-import { CipherData } from "../data/cipherData";
-import { CollectionData } from "../data/collectionData";
-import { EventData } from "../data/eventData";
-import { FolderData } from "../data/folderData";
 import { OrganizationData } from "../data/organizationData";
-import { PolicyData } from "../data/policyData";
 import { ProviderData } from "../data/providerData";
-import { SendData } from "../data/sendData";
-import { CipherView } from "../view/cipherView";
-import { CollectionView } from "../view/collectionView";
-import { FolderView } from "../view/folderView";
-import { SendView } from "../view/sendView";
 
 import { EncString } from "./encString";
 import { EnvironmentUrls } from "./environmentUrls";
-import { GeneratedPasswordHistory } from "./generatedPasswordHistory";
-import { Policy } from "./policy";
 import { SymmetricCryptoKey } from "./symmetricCryptoKey";
 
 export class EncryptionPair<TEncrypted, TDecrypted> {
@@ -31,27 +19,15 @@ export class DataEncryptionPair<TEncrypted, TDecrypted> {
 }
 
 export class AccountData {
-  ciphers?: DataEncryptionPair<CipherData, CipherView> = new DataEncryptionPair<
-    CipherData,
-    CipherView
-  >();
-  folders?: DataEncryptionPair<FolderData, FolderView> = new DataEncryptionPair<
-    FolderData,
-    FolderView
-  >();
+  ciphers?: any = new DataEncryptionPair<any, any>();
+  folders?: DataEncryptionPair<any, any> = new DataEncryptionPair<any, any>();
   localData?: any;
-  sends?: DataEncryptionPair<SendData, SendView> = new DataEncryptionPair<SendData, SendView>();
-  collections?: DataEncryptionPair<CollectionData, CollectionView> = new DataEncryptionPair<
-    CollectionData,
-    CollectionView
-  >();
-  policies?: DataEncryptionPair<PolicyData, Policy> = new DataEncryptionPair<PolicyData, Policy>();
-  passwordGenerationHistory?: EncryptionPair<
-    GeneratedPasswordHistory[],
-    GeneratedPasswordHistory[]
-  > = new EncryptionPair<GeneratedPasswordHistory[], GeneratedPasswordHistory[]>();
+  sends?: any = new DataEncryptionPair<any, any>();
+  collections?: DataEncryptionPair<any, any> = new DataEncryptionPair<any, any>();
+  policies?: DataEncryptionPair<any, any> = new DataEncryptionPair<any, any>();
+  passwordGenerationHistory?: EncryptionPair<any[], any[]> = new EncryptionPair<any[], any[]>();
   addEditCipherInfo?: any;
-  eventCollection?: EventData[];
+  eventCollection?: any[];
   organizations?: { [id: string]: OrganizationData };
   providers?: { [id: string]: ProviderData };
 }
