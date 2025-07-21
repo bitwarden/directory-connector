@@ -16,6 +16,7 @@ import { ConnectorUtils } from "../../utils";
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
+  standalone: false,
 })
 export class SettingsComponent implements OnInit, OnDestroy {
   directory: DirectoryType;
@@ -121,7 +122,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    (this.ldap as any)[id] = filePicker.files[0].path;
+    (this.ldap as any)[id] = filePicker.files[0];
     // reset file input
     // ref: https://stackoverflow.com/a/20552042
     filePicker.type = "";

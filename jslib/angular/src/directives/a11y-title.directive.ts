@@ -2,6 +2,7 @@ import { Directive, ElementRef, Input, Renderer2 } from "@angular/core";
 
 @Directive({
   selector: "[appA11yTitle]",
+  standalone: false,
 })
 export class A11yTitleDirective {
   @Input() set appA11yTitle(title: string) {

@@ -17,6 +17,7 @@ const BroadcasterSubscriptionId = "DashboardComponent";
 @Component({
   selector: "app-dashboard",
   templateUrl: "dashboard.component.html",
+  standalone: false,
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   simGroups: GroupEntry[];
@@ -111,7 +112,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.simEnabledUsers = result.enabledUsers;
       this.simDisabledUsers = result.disabledUsers;
       this.simDeletedUsers = result.deletedUsers;
-    } catch (e) {
+    } catch {
       this.simGroups = null;
       this.simUsers = null;
     }
