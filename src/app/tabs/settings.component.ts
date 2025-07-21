@@ -122,7 +122,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    (this.ldap as any)[id] = filePicker.files[0];
+    (this.ldap as any)[id] = filePicker.files[0].path;
     // reset file input
     // ref: https://stackoverflow.com/a/20552042
     filePicker.type = "";
