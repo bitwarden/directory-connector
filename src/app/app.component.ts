@@ -28,6 +28,7 @@ const BroadcasterSubscriptionId = "AppComponent";
   styles: [],
   template: ` <ng-template #settings></ng-template>
     <router-outlet></router-outlet>`,
+  standalone: false,
 })
 export class AppComponent implements OnInit {
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;

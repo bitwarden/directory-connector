@@ -5,6 +5,7 @@ import { Utils } from "@/jslib/common/src/misc/utils";
 
 @Directive({
   selector: "[appAutofocus]",
+  standalone: false,
 })
 export class AutofocusDirective {
   @Input() set appAutofocus(condition: boolean | string) {

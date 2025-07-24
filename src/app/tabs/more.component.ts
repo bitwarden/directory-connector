@@ -12,6 +12,7 @@ const BroadcasterSubscriptionId = "MoreComponent";
 @Component({
   selector: "app-more",
   templateUrl: "more.component.html",
+  standalone: false,
 })
 export class MoreComponent implements OnInit {
   version: string;
