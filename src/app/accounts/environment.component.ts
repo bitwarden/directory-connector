@@ -8,6 +8,7 @@ import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUt
 @Component({
   selector: "app-environment",
   templateUrl: "environment.component.html",
+  standalone: false,
 })
 export class EnvironmentComponent extends BaseEnvironmentComponent {
   constructor(

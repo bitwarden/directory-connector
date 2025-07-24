@@ -16,6 +16,7 @@ import { ConnectorUtils } from "../../utils";
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
+  standalone: false,
 })
 export class SettingsComponent implements OnInit, OnDestroy {
   directory: DirectoryType;

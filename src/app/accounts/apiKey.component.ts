@@ -16,6 +16,7 @@ import { EnvironmentComponent } from "./environment.component";
 @Component({
   selector: "app-apiKey",
   templateUrl: "apiKey.component.html",
+  standalone: false,
 })
 // There is an eslint exception made here due to semantics.
 // The eslint rule expects a typical takeUntil() pattern involving component destruction.

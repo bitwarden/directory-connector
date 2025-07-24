@@ -13,6 +13,7 @@ import { ValidationService } from "../services/validation.service";
  */
 @Directive({
   selector: "[appApiAction]",
+  standalone: false,
 })
 export class ApiActionDirective implements OnChanges {
   @Input() appApiAction: Promise<any>;

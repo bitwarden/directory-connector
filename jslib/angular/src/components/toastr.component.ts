@@ -60,6 +60,7 @@ import {
     ]),
   ],
   preserveWhitespaces: false,
+  standalone: false,
 })
 export class BitwardenToast extends BaseToast {
   constructor(

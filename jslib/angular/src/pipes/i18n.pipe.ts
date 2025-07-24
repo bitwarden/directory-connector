@@ -4,6 +4,7 @@ import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 
 @Pipe({
   name: "i18n",
+  standalone: false,
 })
 export class I18nPipe implements PipeTransform {
   constructor(private i18nService: I18nService) {}
