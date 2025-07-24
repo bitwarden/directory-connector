@@ -78,7 +78,7 @@
     "@angular-eslint/template-parser": "19.8.0",
     "@angular/compiler-cli": "19.2.14",
     "@electron/notarize": "2.5.0",
-    "@electron/rebuild": "3.7.2",
+    "@electron/rebuild": "4.0.1",
     "@fluffy-spoon/substitute": "1.208.0",
     "@microsoft/microsoft-graph-types": "2.40.0",
     "@ngtools/webpack": "19.2.14",
