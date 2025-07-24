@@ -160,6 +160,7 @@
     "form-data": "4.0.4",
     "google-auth-library": "10.1.0",
     "googleapis": "153.0.0",
+    "googleapis-common": "8.0.0",
     "https-proxy-agent": "7.0.6",
     "inquirer": "8.2.6",
     "keytar": "7.9.0",
