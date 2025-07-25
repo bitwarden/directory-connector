@@ -124,7 +124,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     (this.ldap as any)[id] = webUtils.getPathForFile(filePicker.files[0]);
-
     // reset file input
     // ref: https://stackoverflow.com/a/20552042
     filePicker.type = "";
