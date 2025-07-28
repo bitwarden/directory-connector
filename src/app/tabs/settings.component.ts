@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { webUtils } from "electron";
 
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
@@ -122,7 +123,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    (this.ldap as any)[id] = filePicker.files[0].path;
+    (this.ldap as any)[id] = webUtils.getPathForFile(filePicker.files[0]);
     // reset file input
     // ref: https://stackoverflow.com/a/20552042
     filePicker.type = "";
