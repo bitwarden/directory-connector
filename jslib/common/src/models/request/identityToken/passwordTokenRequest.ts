@@ -31,7 +31,4 @@ export class PasswordTokenRequest extends TokenRequest implements CaptchaProtect
     return obj;
   }
 
-  alterIdentityTokenHeaders(headers: Headers) {
-    headers.set("Auth-Email", Utils.fromUtf8ToUrlB64(this.email));
-  }
 }
