@@ -96,7 +96,7 @@
     "clean-webpack-plugin": "4.0.0",
     "concurrently": "9.2.0",
     "copy-webpack-plugin": "13.0.0",
-    "cross-env": "7.0.3",
+    "cross-env": "10.0.0",
     "css-loader": "7.1.2",
     "dotenv": "17.2.0",
     "electron": "^37.0.0",
