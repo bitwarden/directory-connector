@@ -118,7 +118,7 @@ export class LdapDirectoryService implements IDirectoryService {
         [delControl],
       );
       return regularUsers.concat(deletedUsers);
-    } catch (e) {
+    } catch {
       this.logService.warning("Cannot query deleted users.");
       return regularUsers;
     }
@@ -193,13 +193,20 @@ export class LdapDirectoryService implements IDirectoryService {
     );
     const userPath = this.makeSearchPath(this.syncConfig.userPath);
     const userIdMap = new Map<string, string>();
+    const userUidMap = new Map<string, string>();
     await this.search<string>(userPath, userFilter, (se: any) => {
-      userIdMap.set(this.getReferenceId(se), this.getExternalId(se, this.getReferenceId(se)));
+      const dn = this.getReferenceId(se);
+      const uid = this.getAttr<string>(se, "uid");
+      const externalId = this.getExternalId(se, dn);
+      userIdMap.set(dn, externalId);
+      if (uid != null) {
+        userUidMap.set(uid, externalId);
+      }
       return se;
     });
 
     for (const se of groupSearchEntries) {
-      const group = this.buildGroup(se, userIdMap);
+      const group = this.buildGroup(se, userIdMap, userUidMap);
       if (group != null) {
         entries.push(group);
       }
@@ -208,7 +215,11 @@ export class LdapDirectoryService implements IDirectoryService {
     return entries;
   }
 
-  private buildGroup(searchEntry: any, userMap: Map<string, string>) {
+  private buildGroup(
+    searchEntry: any,
+    userMap: Map<string, string>,
+    userUidMap: Map<string, string>,
+  ) {
     const group = new GroupEntry();
     group.referenceId = this.getReferenceId(searchEntry);
     if (group.referenceId == null) {
@@ -228,11 +239,24 @@ export class LdapDirectoryService implements IDirectoryService {
 
     const members = this.getAttrVals<string>(searchEntry, this.syncConfig.memberAttribute);
     if (members != null) {
-      for (const memDn of members) {
-        if (userMap.has(memDn) && !group.userMemberExternalIds.has(userMap.get(memDn))) {
-          group.userMemberExternalIds.add(userMap.get(memDn));
-        } else if (!group.groupMemberReferenceIds.has(memDn)) {
-          group.groupMemberReferenceIds.add(memDn);
+      for (const member of members) {
+        // Check if member is a DN (contains '=' and ',')
+        const isDn = member.includes("=") && member.includes(",");
+
+        if (isDn) {
+          // Member is a DN
+          if (userMap.has(member) && !group.userMemberExternalIds.has(userMap.get(member))) {
+            group.userMemberExternalIds.add(userMap.get(member));
+          } else if (!group.groupMemberReferenceIds.has(member)) {
+            group.groupMemberReferenceIds.add(member);
+          }
+        } else {
+          // Member is likely a UID
+          if (userUidMap.has(member) && !group.userMemberExternalIds.has(userUidMap.get(member))) {
+            group.userMemberExternalIds.add(userUidMap.get(member));
+          } else if (!group.groupMemberReferenceIds.has(member)) {
+            group.groupMemberReferenceIds.add(member);
+          }
         }
       }
     }
