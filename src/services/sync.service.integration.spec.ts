@@ -123,7 +123,7 @@ describe("SyncService", () => {
       expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(
         expect.objectContaining({ overwriteExisting: false }),
       );
-      expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(6);
+      expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(9);
 
       // @ts-expect-error Reset batch size to original state.
       constants.batchSize = originalBatchSize;
