@@ -1,4 +1,3 @@
-import "core-js/stable";
 import "zone.js";
 
 import { NgModule } from "@angular/core";
