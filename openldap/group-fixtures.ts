@@ -35,6 +35,29 @@ const data: Jsonify<GroupEntry>[] = [
     externalId: "cn=Cleaners,ou=Janitorial,dc=bitwarden,dc=com",
     name: "Cleaners",
   },
+  {
+    userMemberExternalIds: [
+      "cn=Benjamin Chen,ou=Product Development,dc=bitwarden,dc=com",
+      "cn=Karen Smith,ou=Product Development,dc=bitwarden,dc=com",
+      "cn=Robert Johnson,ou=Product Development,dc=bitwarden,dc=com",
+    ],
+    groupMemberReferenceIds: [],
+    users: [],
+    referenceId: "cn=DevOps Team,dc=bitwarden,dc=com",
+    externalId: "cn=DevOps Team,dc=bitwarden,dc=com",
+    name: "DevOps Team",
+  },
+  {
+    userMemberExternalIds: [
+      "cn=Thomas Williams,ou=Management,dc=bitwarden,dc=com",
+      "cn=Michelle Brown,ou=Management,dc=bitwarden,dc=com",
+    ],
+    groupMemberReferenceIds: [],
+    users: [],
+    referenceId: "cn=Security Team,dc=bitwarden,dc=com",
+    externalId: "cn=Security Team,dc=bitwarden,dc=com",
+    name: "Security Team",
+  },
 ];
 
 export const groupFixtures = data.map((g) => GroupEntry.fromJSON(g));

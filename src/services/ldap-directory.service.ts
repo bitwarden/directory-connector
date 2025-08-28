@@ -192,13 +192,13 @@ export class LdapDirectoryService implements IDirectoryService {
       this.syncConfig.userFilter,
     );
     const userPath = this.makeSearchPath(this.syncConfig.userPath);
-    const userIdMap = new Map<string, string>();
+    const userDnMap = new Map<string, string>();
     const userUidMap = new Map<string, string>();
     await this.search<string>(userPath, userFilter, (se: any) => {
       const dn = this.getReferenceId(se);
       const uid = this.getAttr<string>(se, "uid");
       const externalId = this.getExternalId(se, dn);
-      userIdMap.set(dn, externalId);
+      userDnMap.set(dn, externalId);
       if (uid != null) {
         userUidMap.set(uid, externalId);
       }
@@ -206,7 +206,7 @@ export class LdapDirectoryService implements IDirectoryService {
     });
 
     for (const se of groupSearchEntries) {
-      const group = this.buildGroup(se, userIdMap, userUidMap);
+      const group = this.buildGroup(se, userDnMap, userUidMap);
       if (group != null) {
         entries.push(group);
       }
@@ -217,7 +217,7 @@ export class LdapDirectoryService implements IDirectoryService {
 
   private buildGroup(
     searchEntry: any,
-    userMap: Map<string, string>,
+    userDnMap: Map<string, string>,
     userUidMap: Map<string, string>,
   ) {
     const group = new GroupEntry();
@@ -239,24 +239,33 @@ export class LdapDirectoryService implements IDirectoryService {
 
     const members = this.getAttrVals<string>(searchEntry, this.syncConfig.memberAttribute);
     if (members != null) {
-      for (const member of members) {
-        // Check if member is a DN (contains '=' and ',')
-        const isDn = member.includes("=") && member.includes(",");
+      const getMemberAttributeType = (member: string): "memberDn" | "memberUid" | "groupDn" => {
+        const isDnLike = member.includes("=") && member.includes(",");
+        if (isDnLike) {
+          return userDnMap.has(member) ? "memberDn" : "groupDn";
+        }
+        return "memberUid";
+      };
 
-        if (isDn) {
-          // Member is a DN
-          if (userMap.has(member) && !group.userMemberExternalIds.has(userMap.get(member))) {
-            group.userMemberExternalIds.add(userMap.get(member));
-          } else if (!group.groupMemberReferenceIds.has(member)) {
-            group.groupMemberReferenceIds.add(member);
+      for (const member of members) {
+        switch (getMemberAttributeType(member)) {
+          case "memberDn": {
+            const externalId = userDnMap.get(member);
+            if (externalId != null) {
+              group.userMemberExternalIds.add(externalId);
+            }
+            break;
           }
-        } else {
-          // Member is likely a UID
-          if (userUidMap.has(member) && !group.userMemberExternalIds.has(userUidMap.get(member))) {
-            group.userMemberExternalIds.add(userUidMap.get(member));
-          } else if (!group.groupMemberReferenceIds.has(member)) {
-            group.groupMemberReferenceIds.add(member);
+          case "memberUid": {
+            const externalId = userUidMap.get(member);
+            if (externalId != null) {
+              group.userMemberExternalIds.add(externalId);
+            }
+            break;
           }
+          case "groupDn":
+            group.groupMemberReferenceIds.add(member);
+            break;
         }
       }
     }
