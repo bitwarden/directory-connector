@@ -159,7 +159,7 @@
     "commander": "14.0.0",
     "form-data": "4.0.4",
     "google-auth-library": "10.3.0",
-    "googleapis": "153.0.0",
+    "googleapis": "159.0.0",
     "googleapis-common": "8.0.0",
     "https-proxy-agent": "7.0.6",
     "inquirer": "8.2.6",
