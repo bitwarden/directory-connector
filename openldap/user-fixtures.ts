@@ -144,6 +144,41 @@ const data: Jsonify<UserEntry>[] = [
     externalId: "cn=Loella Mak,ou=Payroll,dc=bitwarden,dc=com",
     email: "makl@6ab3e25ca49d4d64aaf44844288a8ef7.bitwarden.com",
   },
+  {
+    disabled: false,
+    deleted: false,
+    referenceId: "cn=Benjamin Chen,ou=Product Development,dc=bitwarden,dc=com",
+    externalId: "cn=Benjamin Chen,ou=Product Development,dc=bitwarden,dc=com",
+    email: "chenb@9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3.bitwarden.com",
+  },
+  {
+    disabled: false,
+    deleted: false,
+    referenceId: "cn=Karen Smith,ou=Product Development,dc=bitwarden,dc=com",
+    externalId: "cn=Karen Smith,ou=Product Development,dc=bitwarden,dc=com",
+    email: "smithk@3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9.bitwarden.com",
+  },
+  {
+    disabled: false,
+    deleted: false,
+    referenceId: "cn=Robert Johnson,ou=Product Development,dc=bitwarden,dc=com",
+    externalId: "cn=Robert Johnson,ou=Product Development,dc=bitwarden,dc=com",
+    email: "johnsonr@7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3.bitwarden.com",
+  },
+  {
+    disabled: false,
+    deleted: false,
+    referenceId: "cn=Thomas Williams,ou=Management,dc=bitwarden,dc=com",
+    externalId: "cn=Thomas Williams,ou=Management,dc=bitwarden,dc=com",
+    email: "williamst@1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7.bitwarden.com",
+  },
+  {
+    disabled: false,
+    deleted: false,
+    referenceId: "cn=Michelle Brown,ou=Management,dc=bitwarden,dc=com",
+    externalId: "cn=Michelle Brown,ou=Management,dc=bitwarden,dc=com",
+    email: "brownm@5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1.bitwarden.com",
+  },
 ];
 
 export const userFixtures = data.map((v) => UserEntry.fromJSON(v));
