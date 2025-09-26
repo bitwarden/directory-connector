@@ -200,7 +200,7 @@ export class LdapDirectoryService implements IDirectoryService {
       const externalId = this.getExternalId(se, dn);
       userDnMap.set(dn, externalId);
       if (uid != null) {
-        userUidMap.set(uid, externalId);
+        userUidMap.set(uid.toLowerCase(), externalId);
       }
       return se;
     });
@@ -215,6 +215,19 @@ export class LdapDirectoryService implements IDirectoryService {
     return entries;
   }
 
+  /**
+   * Builds a GroupEntry from an LDAP search entry, processing group members and determining member types.
+   *
+   * This method creates a group object with its basic properties (referenceId, externalId, name) and
+   * processes its members to categorize them as either user members (DN or UID format) or nested groups.
+   * Members are identified by their format: DN-like strings containing "=" and "," are checked against
+   * user maps to determine if they're user DNs or group DNs, while other strings are treated as UIDs.
+   *
+   * @param searchEntry - The LDAP search entry containing group data
+   * @param userDnMap - Map of user distinguished names to their external IDs
+   * @param userUidMap - Map of user UIDs to their external IDs
+   * @returns A populated GroupEntry object, or null if the group lacks required properties
+   */
   private buildGroup(
     searchEntry: any,
     userDnMap: Map<string, string>,
@@ -239,6 +252,7 @@ export class LdapDirectoryService implements IDirectoryService {
 
     const members = this.getAttrVals<string>(searchEntry, this.syncConfig.memberAttribute);
     if (members != null) {
+      // Parses a group member attribute and identifies it as a member DN, member Uid, or a group Dn
       const getMemberAttributeType = (member: string): "memberDn" | "memberUid" | "groupDn" => {
         const isDnLike = member.includes("=") && member.includes(",");
         if (isDnLike) {
@@ -257,7 +271,7 @@ export class LdapDirectoryService implements IDirectoryService {
             break;
           }
           case "memberUid": {
-            const externalId = userUidMap.get(member);
+            const externalId = userUidMap.get(member.toLowerCase());
             if (externalId != null) {
               group.userMemberExternalIds.add(externalId);
             }

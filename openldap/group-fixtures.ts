@@ -37,9 +37,9 @@ const data: Jsonify<GroupEntry>[] = [
   },
   {
     userMemberExternalIds: [
-      "cn=Benjamin Chen,ou=Product Development,dc=bitwarden,dc=com",
-      "cn=Karen Smith,ou=Product Development,dc=bitwarden,dc=com",
-      "cn=Robert Johnson,ou=Product Development,dc=bitwarden,dc=com",
+      "cn=Painterson Miki,ou=Product Development,dc=bitwarden,dc=com",
+      "cn=Virgina Pichocki,ou=Product Development,dc=bitwarden,dc=com",
+      "cn=Steffen Carsten,ou=Product Development,dc=bitwarden,dc=com",
     ],
     groupMemberReferenceIds: [],
     users: [],
@@ -49,8 +49,8 @@ const data: Jsonify<GroupEntry>[] = [
   },
   {
     userMemberExternalIds: [
-      "cn=Thomas Williams,ou=Management,dc=bitwarden,dc=com",
-      "cn=Michelle Brown,ou=Management,dc=bitwarden,dc=com",
+      "cn=Angus Merizzi,ou=Management,dc=bitwarden,dc=com",
+      "cn=Grissel Currer,ou=Management,dc=bitwarden,dc=com",
     ],
     groupMemberReferenceIds: [],
     users: [],

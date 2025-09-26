@@ -690,13 +690,17 @@ roomNumber: 9273
 manager: cn=Inga Schnirer,ou=Product Testing,dc=bitwarden, dc=com
 secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
 
+# DevOps Team and Security Team identify their members by the member uid attribute,
+# instead of the member Dn attribute.
+# These test that group membership by uid works correctly.
+
 dn: cn=DevOps Team,dc=bitwarden,dc=com
 changetype: add
 cn: DevOps Team
 gidnumber: 800
-memberuid: ChenB
-memberuid: SmithK
-memberuid: JohnsonR
+memberuid: mikip
+memberuid: pichockv
+memberuid: carstens
 objectclass: posixGroup
 objectclass: top
 
@@ -704,157 +708,9 @@ dn: cn=Security Team,dc=bitwarden,dc=com
 changetype: add
 cn: Security Team
 gidnumber: 900
-memberuid: WilliamsT
-memberuid: BrownM
+memberuid: merizzia
+memberuid: currerg
 objectclass: posixGroup
 objectclass: top
 
-dn: cn=Benjamin Chen,ou=Product Development,dc=bitwarden, dc=com
-changetype: add
-objectClass: top
-objectClass: person
-objectClass: organizationalPerson
-objectClass: inetOrgPerson
-cn: Benjamin Chen
-sn: Chen
-description: This is Benjamin Chen's description
-facsimileTelephoneNumber: +1 408 555-1234
-l: San Jose
-ou: Product Development
-postalAddress: Product Development$San Jose
-telephoneNumber: +1 408 555-5678
-title: Senior DevOps Engineer
-userPassword: Password1
-uid: ChenB
-givenName: Benjamin
-mail: ChenB@9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3.bitwarden.com
-carLicense: 2K8N9L
-departmentNumber: 1001
-employeeType: Employee
-homePhone: +1 408 555-9876
-initials: B. C.
-mobile: +1 408 555-4321
-pager: +1 408 555-7890
-roomNumber: 7125
-manager: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
-secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
-
-dn: cn=Karen Smith,ou=Product Development,dc=bitwarden, dc=com
-changetype: add
-objectClass: top
-objectClass: person
-objectClass: organizationalPerson
-objectClass: inetOrgPerson
-cn: Karen Smith
-sn: Smith
-description: This is Karen Smith's description
-facsimileTelephoneNumber: +1 415 555-2345
-l: San Francisco
-ou: Product Development
-postalAddress: Product Development$San Francisco
-telephoneNumber: +1 415 555-6789
-title: Senior Systems Administrator
-userPassword: Password1
-uid: SmithK
-givenName: Karen
-mail: SmithK@3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9.bitwarden.com
-carLicense: 5M3P7Q
-departmentNumber: 1002
-employeeType: Employee
-homePhone: +1 415 555-0987
-initials: K. S.
-mobile: +1 415 555-5432
-pager: +1 415 555-8901
-roomNumber: 7126
-manager: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
-secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
-
-dn: cn=Robert Johnson,ou=Product Development,dc=bitwarden, dc=com
-changetype: add
-objectClass: top
-objectClass: person
-objectClass: organizationalPerson
-objectClass: inetOrgPerson
-cn: Robert Johnson
-sn: Johnson
-description: This is Robert Johnson's description
-facsimileTelephoneNumber: +1 510 555-3456
-l: Oakland
-ou: Product Development
-postalAddress: Product Development$Oakland
-telephoneNumber: +1 510 555-7890
-title: Cloud Infrastructure Engineer
-userPassword: Password1
-uid: JohnsonR
-givenName: Robert
-mail: JohnsonR@7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3.bitwarden.com
-carLicense: 8X2Y4Z
-departmentNumber: 1003
-employeeType: Employee
-homePhone: +1 510 555-1098
-initials: R. J.
-mobile: +1 510 555-6543
-pager: +1 510 555-9012
-roomNumber: 7127
-manager: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
-secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
-
-dn: cn=Thomas Williams,ou=Management,dc=bitwarden, dc=com
-changetype: add
-objectClass: top
-objectClass: person
-objectClass: organizationalPerson
-objectClass: inetOrgPerson
-cn: Thomas Williams
-sn: Williams
-description: This is Thomas Williams's description
-facsimileTelephoneNumber: +1 650 555-4567
-l: Palo Alto
-ou: Management
-postalAddress: Management$Palo Alto
-telephoneNumber: +1 650 555-8901
-title: Chief Security Officer
-userPassword: Password1
-uid: WilliamsT
-givenName: Thomas
-mail: WilliamsT@1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7.bitwarden.com
-carLicense: 6H9J2K
-departmentNumber: 1004
-employeeType: Employee
-homePhone: +1 650 555-2109
-initials: T. W.
-mobile: +1 650 555-7654
-pager: +1 650 555-0123
-roomNumber: 7128
-manager: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
-secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
-
-dn: cn=Michelle Brown,ou=Management,dc=bitwarden, dc=com
-changetype: add
-objectClass: top
-objectClass: person
-objectClass: organizationalPerson
-objectClass: inetOrgPerson
-cn: Michelle Brown
-sn: Brown
-description: This is Michelle Brown's description
-facsimileTelephoneNumber: +1 408 555-5678
-l: Santa Clara
-ou: Management
-postalAddress: Management$Santa Clara
-telephoneNumber: +1 408 555-9012
-title: Security Analyst
-userPassword: Password1
-uid: BrownM
-givenName: Michelle
-mail: BrownM@5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1.bitwarden.com
-carLicense: 4T6U8V
-departmentNumber: 1005
-employeeType: Employee
-homePhone: +1 408 555-3210
-initials: M. B.
-mobile: +1 408 555-8765
-pager: +1 408 555-1234
-roomNumber: 7129
-manager: cn=Roland Dyke,ou=Human Resources,dc=bitwarden, dc=com
-secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com 
+ 

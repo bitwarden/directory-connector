@@ -164,13 +164,8 @@ export class SyncService {
         }
       } else {
         if (!u.deleted) {
-          // Check that active UserEntry does not conflict with a deleted UserEntry
-          if (processedDeletedUsers.has(u.email)) {
-            duplicateEmails.push(u.email);
-          } else {
-            processedActiveUsers.set(u.email, JSON.stringify(u));
-            uniqueUsers.push(u);
-          }
+          processedActiveUsers.set(u.email, JSON.stringify(u));
+          uniqueUsers.push(u);
         } else {
           // UserEntrys with duplicate email will not throw an error if they are all deleted. They will be synced.
           processedDeletedUsers.set(u.email, JSON.stringify(u));
