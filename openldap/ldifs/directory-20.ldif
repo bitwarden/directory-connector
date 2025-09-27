@@ -688,4 +688,27 @@ mobile: +1 804 319-5569
 pager: +1 804 815-3661
 roomNumber: 9273
 manager: cn=Inga Schnirer,ou=Product Testing,dc=bitwarden, dc=com
-secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com 
+secretary: cn=Keven Gilleland,ou=Administrative,dc=bitwarden, dc=com
+
+# DevOps Team and Security Team identify their members by the member uid attribute,
+# instead of the member Dn attribute.
+# These test that group membership by uid works correctly.
+
+dn: cn=DevOps Team,dc=bitwarden,dc=com
+changetype: add
+cn: DevOps Team
+gidnumber: 800
+memberuid: mikip
+memberuid: pichockv
+memberuid: carstens
+objectclass: posixGroup
+objectclass: top
+
+dn: cn=Security Team,dc=bitwarden,dc=com
+changetype: add
+cn: Security Team
+gidnumber: 900
+memberuid: merizzia
+memberuid: currerg
+objectclass: posixGroup
+objectclass: top
