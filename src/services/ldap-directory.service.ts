@@ -216,15 +216,11 @@ export class LdapDirectoryService implements IDirectoryService {
   }
 
   /**
-   * Builds a GroupEntry from an LDAP search entry, processing group members and determining member types.
-   *
-   * This method creates a group object with its basic properties (referenceId, externalId, name) and
-   * processes its members to categorize them as either user members (DN or UID format) or nested groups.
-   * Members are identified by their format: DN-like strings containing "=" and "," are checked against
-   * user maps to determine if they're user DNs or group DNs, while other strings are treated as UIDs.
+   * Builds a GroupEntry from LDAP search results, including membership.
+   * Supports user membership by DN or UID and nested group membership by DN.
    *
    * @param searchEntry - The LDAP search entry containing group data
-   * @param userDnMap - Map of user distinguished names to their external IDs
+   * @param userDnMap - Map of user DNs to their external IDs
    * @param userUidMap - Map of user UIDs to their external IDs
    * @returns A populated GroupEntry object, or null if the group lacks required properties
    */
