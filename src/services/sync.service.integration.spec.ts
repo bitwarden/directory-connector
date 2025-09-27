@@ -123,7 +123,10 @@ describe("SyncService", () => {
       expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(
         expect.objectContaining({ overwriteExisting: false }),
       );
-      expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(9);
+
+      // The expected number of calls may change if more data is added to the ldif
+      // Make sure it equals (number of users / 4) + (number of groups / 4)
+      expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(7);
 
       // @ts-expect-error Reset batch size to original state.
       constants.batchSize = originalBatchSize;
