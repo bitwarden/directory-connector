@@ -200,7 +200,7 @@ export class LdapDirectoryService implements IDirectoryService {
       const externalId = this.getExternalId(se, dn);
       userDnMap.set(dn, externalId);
       if (uid != null) {
-        userUidMap.set(uid, externalId);
+        userUidMap.set(uid.toLowerCase(), externalId);
       }
       return se;
     });
@@ -267,7 +267,7 @@ export class LdapDirectoryService implements IDirectoryService {
             break;
           }
           case "memberUid": {
-            const externalId = userUidMap.get(member);
+            const externalId = userUidMap.get(member.toLowerCase());
             if (externalId != null) {
               group.userMemberExternalIds.add(externalId);
             }
