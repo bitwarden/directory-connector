@@ -1,3 +1,6 @@
+// core-js is required for bwdc cli which appears to require these pollyfills for dynamic imports
+// see https://github.com/bitwarden/directory-connector/issues/878
+import "core-js/stable";
 import "zone.js";
 
 import { NgModule } from "@angular/core";
