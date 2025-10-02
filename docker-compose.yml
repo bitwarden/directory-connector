@@ -1,6 +1,6 @@
 services:
   open-ldap:
-    image: bitnami/openldap:latest
+    image: bitnamilegacy/openldap:latest
     hostname: openldap
     environment:
       - LDAP_ADMIN_USERNAME=admin
