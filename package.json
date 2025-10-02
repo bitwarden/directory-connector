@@ -157,6 +157,7 @@
     "browser-hrtime": "1.1.8",
     "chalk": "4.1.2",
     "commander": "14.0.0",
+    "core-js": "3.44.0",
     "form-data": "4.0.4",
     "google-auth-library": "10.3.0",
     "googleapis": "153.0.0",
