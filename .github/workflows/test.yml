@@ -23,13 +23,15 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Get Node version
         id: retrieve-node-version
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
