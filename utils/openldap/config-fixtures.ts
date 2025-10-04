@@ -1,6 +1,5 @@
-import { GSuiteConfiguration } from "../models/gsuiteConfiguration";
-import { LdapConfiguration } from "../models/ldapConfiguration";
-import { SyncConfiguration } from "../models/syncConfiguration";
+import { LdapConfiguration } from "../../src/models/ldapConfiguration";
+import { SyncConfiguration } from "../../src/models/syncConfiguration";
 
 /**
  * @returns a basic ldap configuration without TLS/SSL enabled. Can be overridden by passing in a partial configuration.
@@ -22,21 +21,6 @@ export const getLdapConfiguration = (config?: Partial<LdapConfiguration>): LdapC
   password: "admin",
   ad: false,
   pagedSearch: false,
-  ...(config ?? {}),
-});
-
-/**
- * @returns a basic GSuite configuration. Can be overridden by passing in a partial configuration.
- */
-export const getGSuiteConfiguration = (
-  config?: Partial<GSuiteConfiguration>,
-): GSuiteConfiguration => ({
-  // TODO
-  clientEmail: "",
-  privateKey: "",
-  domain: "",
-  adminUser: "",
-  customer: "",
   ...(config ?? {}),
 });
 
