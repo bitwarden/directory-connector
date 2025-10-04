@@ -1,3 +1,4 @@
+import { GSuiteConfiguration } from "../models/gsuiteConfiguration";
 import { LdapConfiguration } from "../models/ldapConfiguration";
 import { SyncConfiguration } from "../models/syncConfiguration";
 
@@ -21,6 +22,21 @@ export const getLdapConfiguration = (config?: Partial<LdapConfiguration>): LdapC
   password: "admin",
   ad: false,
   pagedSearch: false,
+  ...(config ?? {}),
+});
+
+/**
+ * @returns a basic GSuite configuration. Can be overridden by passing in a partial configuration.
+ */
+export const getGSuiteConfiguration = (
+  config?: Partial<GSuiteConfiguration>,
+): GSuiteConfiguration => ({
+  // TODO
+  clientEmail: "",
+  privateKey: "",
+  domain: "",
+  adminUser: "",
+  customer: "",
   ...(config ?? {}),
 });
 
