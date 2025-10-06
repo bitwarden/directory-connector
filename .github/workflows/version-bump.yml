@@ -52,6 +52,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: true
 
       - name: Setup git
         run: |
@@ -62,7 +63,7 @@ jobs:
         id: current-version
         run: |
           CURRENT_VERSION=$(cat package.json | jq -r '.version')
-          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Verify input version
         if: ${{ inputs.version_number_override != '' }}
@@ -77,8 +78,7 @@ jobs:
           fi
 
           # Check if version is newer.
-          printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V
-          if [ $? -eq 0 ]; then
+          if printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V; then
             echo "Version check successful."
           else
             echo "Version check failed."
@@ -110,26 +110,34 @@ jobs:
 
       - name: Set final version output
         id: set-final-version-output
+        env:
+          _BUMP_VERSION_OVERRIDE_OUTCOME: ${{ steps.bump-version-override.outcome }}
+          _INPUT_VERSION_NUMBER_OVERRIDE: ${{ inputs.version_number_override }}
+          _BUMP_VERSION_AUTOMATIC_OUTCOME: ${{ steps.bump-version-automatic.outcome }}
+          _CALCULATE_NEXT_VERSION: ${{ steps.calculate-next-version.outputs.version }}
+          
         run: |
-          if [[ "${{ steps.bump-version-override.outcome }}" == "success" ]]; then
-            echo "version=${{ inputs.version_number_override }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.bump-version-automatic.outcome }}" == "success" ]]; then
-            echo "version=${{ steps.calculate-next-version.outputs.version }}" >> $GITHUB_OUTPUT
+          if [[ "$_BUMP_VERSION_OVERRIDE_OUTCOME" == "success" ]]; then
+            echo "version=$_INPUT_VERSION_NUMBER_OVERRIDE" >> "$GITHUB_OUTPUT"
+          elif [[ "$_BUMP_VERSION_AUTOMATIC_OUTCOME" == "success" ]]; then
+            echo "version=$_CALCULATE_NEXT_VERSION" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check if version changed
         id: version-changed
         run: |
           if [ -n "$(git status --porcelain)" ]; then
-            echo "changes_to_commit=TRUE" >> $GITHUB_OUTPUT
+            echo "changes_to_commit=TRUE" >> "$GITHUB_OUTPUT"
           else
-            echo "changes_to_commit=FALSE" >> $GITHUB_OUTPUT
+            echo "changes_to_commit=FALSE" >> "$GITHUB_OUTPUT"
             echo "No changes to commit!";
           fi
 
       - name: Commit files
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
-        run: git commit -m "Bumped version to ${{ steps.set-final-version-output.outputs.version }}" -a
+        env:
+          _VERSION: ${{ steps.set-final-version-output.outputs.version }}
+        run: git commit -m "Bumped version to $_VERSION" -a
 
       - name: Push changes
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
