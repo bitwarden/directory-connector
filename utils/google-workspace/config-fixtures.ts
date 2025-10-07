@@ -6,21 +6,31 @@ import { SyncConfiguration } from "../../src/models/syncConfiguration";
  */
 export const getGSuiteConfiguration = (
   config?: Partial<GSuiteConfiguration>,
-): GSuiteConfiguration => ({
-  // TODO
-  clientEmail: "",
-  privateKey: "",
-  domain: "",
-  adminUser: "",
-  customer: "",
-  ...(config ?? {}),
-});
+): GSuiteConfiguration => {
+  const adminUser = process.env.GOOGLE_ADMIN_USER;
+  const clientEmail = process.env.GOOGLE_ADMIN_USER;
+  const privateKey = process.env.GOOGLE_PRIVATE_KEY;
+  const domain = process.env.GOOGLE_DOMAIN;
+
+  if (!adminUser || !clientEmail || !privateKey || !domain) {
+    throw new Error("Google Workspace variables not configured.");
+  }
+
+  return {
+    // TODO
+    adminUser,
+    clientEmail,
+    privateKey,
+    domain: domain,
+    customer: "",
+    ...(config ?? {}),
+  };
+};
 
 /**
  * @returns a basic Google Workspace sync configuration. Can be overridden by passing in a partial configuration.
  */
 export const getSyncConfiguration = (config?: Partial<SyncConfiguration>): SyncConfiguration => ({
-  // TODO
   users: false,
   groups: false,
   interval: 5,
@@ -29,18 +39,18 @@ export const getSyncConfiguration = (config?: Partial<SyncConfiguration>): SyncC
   removeDisabled: false,
   overwriteExisting: false,
   largeImport: false,
-  // Ldap properties
-  groupObjectClass: "posixGroup",
-  userObjectClass: "person",
+  // Ldap properties - not optional for some reason
+  groupObjectClass: "",
+  userObjectClass: "",
   groupPath: null,
   userPath: null,
-  groupNameAttribute: "cn",
-  userEmailAttribute: "mail",
-  memberAttribute: "memberUid",
+  groupNameAttribute: "",
+  userEmailAttribute: "",
+  memberAttribute: "",
   useEmailPrefixSuffix: false,
-  emailPrefixAttribute: "sAMAccountName",
+  emailPrefixAttribute: "",
   emailSuffix: null,
-  creationDateAttribute: "whenCreated",
-  revisionDateAttribute: "whenChanged",
+  creationDateAttribute: "",
+  revisionDateAttribute: "",
   ...(config ?? {}),
 });

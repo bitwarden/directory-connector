@@ -19,6 +19,8 @@ import { StateService } from "./state.service";
 //  Add the required settings to utils/.env
 //  Put the private key in utils/google-workspace.pem
 
+require("dotenv").config({ path: "utils/.env" });
+
 describe("gsuiteDirectoryService", () => {
   let logService: MockProxy<LogService>;
   let i18nService: MockProxy<I18nService>;
@@ -39,27 +41,26 @@ describe("gsuiteDirectoryService", () => {
   });
 
   it("performs a basic sync", async () => {
-    // TODO: make this get a valid config
-    return;
-
     stateService.getDirectory
       .calledWith(DirectoryType.GSuite)
       .mockResolvedValue(getGSuiteConfiguration());
 
-    // TODO: this sync config looks specific to ldap after all - need a gsuite one
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
 
     const result = await directoryService.getEntries(true, true);
+
+    console.log(result);
+
     expect(result).toEqual([groupFixtures, userFixtures]);
   });
 
-  describe("filters", () => {
-    it("include user by email", async () => {});
+  // describe("filters", () => {
+  //   it("include user by email", async () => {});
 
-    it("exclude user by email", async () => {});
+  //   it("exclude user by email", async () => {});
 
-    it("include group by name", async () => {});
+  //   it("include group by name", async () => {});
 
-    it("exclude group by name", async () => {});
-  });
+  //   it("exclude group by name", async () => {});
+  // });
 });
