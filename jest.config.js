@@ -19,13 +19,13 @@ module.exports = {
   coverageReporters: ["html", "lcov"],
   coverageDirectory: "coverage",
 
-  testEnvironment: "jsdom",
+  testEnvironment: "node",
   testMatch: ["**/+(*.)+(spec).+(ts)"],
 
   roots: ["<rootDir>"],
   modulePaths: [compilerOptions.baseUrl],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: "<rootDir>/" }),
-  setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
+  // setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
 
   // Workaround for a memory leak that crashes tests in CI:
   // https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
@@ -34,8 +34,8 @@ module.exports = {
 
   transform: {
     "^.+\\.tsx?$": [
-      "jest-preset-angular",
-      // 'ts-jest',
+      // "jest-preset-angular",
+      "ts-jest",
       {
         ...defaultTransformerOptions,
         tsconfig: "./tsconfig.json",

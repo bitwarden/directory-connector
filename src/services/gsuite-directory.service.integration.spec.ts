@@ -41,15 +41,13 @@ describe("gsuiteDirectoryService", () => {
   });
 
   it("performs a basic sync", async () => {
-    stateService.getDirectory
-      .calledWith(DirectoryType.GSuite)
-      .mockResolvedValue(getGSuiteConfiguration());
+    const directoryConfig = getGSuiteConfiguration();
+    stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
 
-    stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
+    const syncConfig = getSyncConfiguration({ groups: true, users: true });
+    stateService.getSync.mockResolvedValue(syncConfig);
 
     const result = await directoryService.getEntries(true, true);
-
-    console.log(result);
 
     expect(result).toEqual([groupFixtures, userFixtures]);
   });
