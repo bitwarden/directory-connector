@@ -8,7 +8,7 @@ export const getGSuiteConfiguration = (
   config?: Partial<GSuiteConfiguration>,
 ): GSuiteConfiguration => {
   const adminUser = process.env.GOOGLE_ADMIN_USER;
-  const clientEmail = process.env.GOOGLE_ADMIN_USER;
+  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
   const privateKey = process.env.GOOGLE_PRIVATE_KEY;
   const domain = process.env.GOOGLE_DOMAIN;
 
