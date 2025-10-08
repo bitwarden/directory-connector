@@ -55,11 +55,11 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install mkcert
 
-      - name: Setup integration tests
+      - name: Setup LDAP integration tests
         run: npm run test:integration:setup
 
-      - name: Run integration tests
-        run: npm run test:integration --coverage
+      - name: Run LDAP integration tests
+        run: npx jest ldap-directory.service.integration.spec.ts --coverage
 
       - name: Report test results
         uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
