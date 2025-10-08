@@ -8,12 +8,6 @@
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["minor", "patch"],
     },
-    {
-      groupName: "Google Libraries",
-      matchPackagePatterns: ["google-auth-library", "googleapis"],
-      matchManagers: ["npm"],
-      groupSlug: "google-libraries",
-    },
   ],
   ignoreDeps: [
     // yao-pkg is used to create a single executable application bundle for the CLI.
@@ -21,5 +15,10 @@
     // This must be manually vetted by our appsec team before upgrading.
     // It is excluded from renovate to avoid accidentally upgrading to a non-vetted version.
     "@yao-pkg/pkg",
+    // googleapis uses ESM after 149.0.0 so we are not upgrading it until we have ESM support.
+    // They release new versions every couple of weeks so ignoring it at the dependency dashboard
+    // level is not sufficient.
+    // FIXME: remove and upgrade when we have ESM support.
+    "googleapis",
   ],
 }
