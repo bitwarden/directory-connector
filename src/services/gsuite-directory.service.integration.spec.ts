@@ -45,7 +45,23 @@ describe("gsuiteDirectoryService", () => {
     directoryService = new GSuiteDirectoryService(logService, i18nService, stateService);
   });
 
-  it("performs a basic sync", async () => {
+  it("syncs without using filters (includes test data)", async () => {
+    const directoryConfig = getGSuiteConfiguration();
+    stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+
+    const syncConfig = getSyncConfiguration({
+      groups: true,
+      users: true,
+    });
+    stateService.getSync.mockResolvedValue(syncConfig);
+
+    const result = await directoryService.getEntries(true, true);
+
+    expect(result[0]).toEqual(expect.arrayContaining(groupFixtures));
+    expect(result[1]).toEqual(expect.arrayContaining(userFixtures));
+  });
+
+  it("syncs using user and group filters (exact match for test data)", async () => {
     const directoryConfig = getGSuiteConfiguration();
     stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
 
@@ -61,14 +77,4 @@ describe("gsuiteDirectoryService", () => {
 
     expect(result).toEqual([groupFixtures, userFixtures]);
   });
-
-  // describe("filters", () => {
-  //   it("include user by email", async () => {});
-
-  //   it("exclude user by email", async () => {});
-
-  //   it("include group by name", async () => {});
-
-  //   it("exclude group by name", async () => {});
-  // });
 });
