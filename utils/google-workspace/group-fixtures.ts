@@ -6,12 +6,20 @@ import { GroupEntry } from "../../src/models/groupEntry";
 
 const data: Jsonify<GroupEntry>[] = [
   {
-    userMemberExternalIds: [],
+    externalId: "0319y80a3anpxhj",
     groupMemberReferenceIds: [],
+    name: "Integration Test Group A",
+    referenceId: "0319y80a3anpxhj",
+    userMemberExternalIds: ["111605910541641314041", "111147009830456099026"],
     users: [],
-    referenceId: "",
-    externalId: "",
-    name: "",
+  },
+  {
+    externalId: "02afmg28317uyub",
+    groupMemberReferenceIds: [],
+    name: "Integration Test Group B",
+    referenceId: "02afmg28317uyub",
+    userMemberExternalIds: ["111147009830456099026", "100150970267699397306"],
+    users: [],
   },
 ];
 

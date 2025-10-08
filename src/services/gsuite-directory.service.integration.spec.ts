@@ -14,12 +14,17 @@ import { GSuiteDirectoryService } from "./gsuite-directory.service";
 import { StateService } from "./state.service";
 
 // These tests integrate with a test Google Workspace instance.
-// To run theses tests:
-//  Obtain the Google Workspace credentials from the shared collection
-//  Add the required settings to utils/.env
-//  Put the private key in utils/google-workspace.pem
+// Credentials are located in the "Google Workspace integration test service account"
+// shared Bitwarden item. Place the .env file attachment in the utils folder.
 
 require("dotenv").config({ path: "utils/.env" });
+
+// These filters target integration test data.
+// These should return data that matches the user and group fixtures exactly.
+// There may be additional data present if not used.
+const INTEGRATION_USER_FILTER =
+  "exclude:integration-user-a@bwrox.dev|orgUnitPath='/Integration testing'";
+const INTEGRATION_GROUP_FILTER = "|name:Integration*";
 
 describe("gsuiteDirectoryService", () => {
   let logService: MockProxy<LogService>;
@@ -44,7 +49,12 @@ describe("gsuiteDirectoryService", () => {
     const directoryConfig = getGSuiteConfiguration();
     stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
 
-    const syncConfig = getSyncConfiguration({ groups: true, users: true });
+    const syncConfig = getSyncConfiguration({
+      groups: true,
+      users: true,
+      userFilter: INTEGRATION_USER_FILTER,
+      groupFilter: INTEGRATION_GROUP_FILTER,
+    });
     stateService.getSync.mockResolvedValue(syncConfig);
 
     const result = await directoryService.getEntries(true, true);

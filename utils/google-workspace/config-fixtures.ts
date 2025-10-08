@@ -13,7 +13,7 @@ export const getGSuiteConfiguration = (
   const domain = process.env.GOOGLE_DOMAIN;
 
   if (!adminUser || !clientEmail || !privateKey || !domain) {
-    throw new Error("Google Workspace variables not configured.");
+    throw new Error("Google Workspace integration test credentials not configured.");
   }
 
   return {
@@ -34,8 +34,8 @@ export const getSyncConfiguration = (config?: Partial<SyncConfiguration>): SyncC
   users: false,
   groups: false,
   interval: 5,
-  userFilter: null,
-  groupFilter: null,
+  userFilter: "",
+  groupFilter: "",
   removeDisabled: false,
   overwriteExisting: false,
   largeImport: false,
