@@ -1,3 +1,4 @@
+import { config as dotenvConfig } from "dotenv";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
@@ -17,7 +18,8 @@ import { StateService } from "./state.service";
 // Credentials are located in the "Google Workspace integration test service account"
 // shared Bitwarden item. Place the .env file attachment in the utils folder.
 
-require("dotenv").config({ path: "utils/.env" });
+// Load .env variables
+dotenvConfig({ path: "utils/.env" });
 
 // These filters target integration test data.
 // These should return data that matches the user and group fixtures exactly.
