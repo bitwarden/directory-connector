@@ -42,8 +42,15 @@ describe("ldapDirectoryService", () => {
         .mockResolvedValue(getLdapConfiguration());
       stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
 
-      const result = await directoryService.getEntries(true, true);
-      expect(result).toEqual([groupFixtures, userFixtures]);
+      try {
+        const result = await directoryService.getEntries(true, true);
+        expect(result).toEqual([groupFixtures, userFixtures]);
+      } catch (e) {
+        const errMsg = e.errors
+          ? e.errors.map((err: any) => err.toString()).join(", ")
+          : e.toString();
+        throw errMsg;
+      }
     });
 
     // StartTLS opportunistically encrypts an otherwise unencrypted connection and therefore uses the same port
