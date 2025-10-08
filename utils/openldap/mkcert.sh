@@ -5,6 +5,6 @@ if ! [ -x "$(command -v mkcert)" ]; then
 fi
 
 mkcert -install
-mkdir -p ./openldap/certs
-cp "$(mkcert -CAROOT)/rootCA.pem" ./openldap/certs/rootCA.pem
-mkcert -key-file ./openldap/certs/openldap-key.pem -cert-file ./openldap/certs/openldap.pem localhost openldap
+mkdir -p ./utils/openldap/certs
+cp "$(mkcert -CAROOT)/rootCA.pem" ./utils/openldap/certs/rootCA.pem
+mkcert -key-file ./utils/openldap/certs/openldap-key.pem -cert-file ./utils/openldap/certs/openldap.pem localhost openldap
