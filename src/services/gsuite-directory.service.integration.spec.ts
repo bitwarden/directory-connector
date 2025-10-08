@@ -15,8 +15,8 @@ import { GSuiteDirectoryService } from "./gsuite-directory.service";
 import { StateService } from "./state.service";
 
 // These tests integrate with a test Google Workspace instance.
-// Credentials are located in the "Google Workspace integration test service account"
-// shared Bitwarden item. Place the .env file attachment in the utils folder.
+// Credentials are located in the shared Bitwarden collection for Directory Connector testing.
+// Place the .env file attachment in the utils folder.
 
 // Load .env variables
 dotenvConfig({ path: "utils/.env" });
