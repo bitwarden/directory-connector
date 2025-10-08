@@ -8,14 +8,14 @@ on:
     paths:
       - ".github/workflows/integration-test.yml" # this file
       - "src/services/ldap-directory.service*" # we only have integration for LDAP testing at the moment
-      - "./openldap/**/*" # any change to test fixtures
+      - "./utils/**/*" # any change to test fixtures
       - "./docker-compose.yml" # any change to Docker configuration
       - "./package.json" # dependencies
   pull_request:
     paths:
       - ".github/workflows/integration-test.yml" # this file
       - "src/services/ldap-directory.service*" # we only have integration for LDAP testing at the moment
-      - "./openldap/**/*" # any change to test fixtures
+      - "./utils/**/*" # any change to test fixtures
       - "./docker-compose.yml" # any change to Docker configuration
       - "./package.json" # dependencies
 permissions:
