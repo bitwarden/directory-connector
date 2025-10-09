@@ -2,10 +2,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../jslib/common/src/abstractions/log.service";
-import { groupFixtures } from "../../openldap/group-fixtures";
-import { userFixtures } from "../../openldap/user-fixtures";
+import { getLdapConfiguration, getSyncConfiguration } from "../../utils/openldap/config-fixtures";
+import { groupFixtures } from "../../utils/openldap/group-fixtures";
+import { userFixtures } from "../../utils/openldap/user-fixtures";
 import { DirectoryType } from "../enums/directoryType";
-import { getLdapConfiguration, getSyncConfiguration } from "../utils/test-fixtures";
 
 import { LdapDirectoryService } from "./ldap-directory.service";
 import { StateService } from "./state.service";
@@ -52,7 +52,7 @@ describe("ldapDirectoryService", () => {
         getLdapConfiguration({
           ssl: true,
           startTls: true,
-          tlsCaPath: "./openldap/certs/rootCA.pem",
+          tlsCaPath: "./utils/openldap/certs/rootCA.pem",
         }),
       );
       stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
@@ -67,7 +67,7 @@ describe("ldapDirectoryService", () => {
         getLdapConfiguration({
           port: 1636,
           ssl: true,
-          sslCaPath: "./openldap/certs/rootCA.pem",
+          sslCaPath: "./utils/openldap/certs/rootCA.pem",
         }),
       );
       stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
