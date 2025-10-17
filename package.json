@@ -166,7 +166,7 @@
     "keytar": "7.9.0",
     "ldapts": "8.0.1",
     "lowdb": "1.0.0",
-    "ngx-toastr": "19.0.0",
+    "ngx-toastr": "19.1.0",
     "node-fetch": "2.7.0",
     "parse5": "8.0.0",
     "proper-lockfile": "4.1.2",
