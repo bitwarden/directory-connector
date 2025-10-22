@@ -2,6 +2,9 @@
 .DS_Store
 Thumbs.db
 
+# Environment variables used for tests
+.env
+
 # IDEs and editors
 .idea/
 .project

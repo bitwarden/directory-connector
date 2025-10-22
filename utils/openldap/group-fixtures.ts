@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { GroupEntry } from "../src/models/groupEntry";
+import { GroupEntry } from "@/src/models/groupEntry";
 
 // These must match the ldap server seed data in directory.ldif
 const data: Jsonify<GroupEntry>[] = [
