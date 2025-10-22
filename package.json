@@ -112,7 +112,7 @@
     "eslint-plugin-rxjs": "5.0.3",
     "eslint-plugin-rxjs-angular": "2.0.1",
     "form-data": "4.0.4",
-    "glob": "8.1.0",
+    "glob": "11.0.3",
     "html-loader": "5.1.0",
     "html-webpack-plugin": "5.6.3",
     "husky": "9.1.7",
