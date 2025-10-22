@@ -14,6 +14,13 @@ import { UserEntry } from "../models/userEntry";
 import { BaseDirectoryService } from "./baseDirectory.service";
 import { IDirectoryService } from "./directory.service";
 
+enum UserSetType {
+  IncludeUser,
+  ExcludeUser,
+  IncludeGroup,
+  ExcludeGroup,
+}
+
 export class GSuiteDirectoryService extends BaseDirectoryService implements IDirectoryService {
   private client: JWT;
   private service: admin_directory_v1.Admin;
@@ -66,15 +73,55 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
   }
 
   private async getUsers(): Promise<UserEntry[]> {
-    const entries: UserEntry[] = [];
+    let entries: UserEntry[] = [];
+    let users: admin_directory_v1.Schema$User[];
+    const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
+    const userIdsToExclude = new Set<string>();
+
+    // Only get users for the groups provided in includeGroup filter
+    if (setFilter != null && setFilter[0] === UserSetType.IncludeGroup) {
+      users = await this.getUsersByGroups(setFilter);
+    } else if (setFilter != null && setFilter[0] === UserSetType.ExcludeGroup) {
+      // For excludeGroup, fetch users from excluded groups and add their IDs to exclusion set
+      // Then fetch all users and filter them out during buildUserEntries
+      (await this.getUsersByGroups(setFilter)).forEach((user: admin_directory_v1.Schema$User) =>
+        userIdsToExclude.add(user.id),
+      );
+      users = await this.getAllUsers();
+    } else {
+      users = await this.getAllUsers();
+    }
+    if (users != null) {
+      entries = await this.buildUserEntries(users, userIdsToExclude, setFilter);
+    }
+
+    const deletedUsers = await this.getDeletedUsers(setFilter);
+    entries = entries.concat(deletedUsers);
+
+    return entries;
+  }
+
+  /**
+   * Fetches all users from the Google Workspace domain.
+   * Applies any Google Directory API query filters if present in the user filter.
+   *
+   * @returns Array of all Google Workspace users in the domain
+   */
+  private async getAllUsers(): Promise<admin_directory_v1.Schema$User[]> {
+    const users: admin_directory_v1.Schema$User[] = [];
     const query = this.createDirectoryQuery(this.syncConfig.userFilter);
     let nextPageToken: string = null;
 
-    const filter = this.createCustomSet(this.syncConfig.userFilter);
     // eslint-disable-next-line
     while (true) {
       this.logService.info("Querying users - nextPageToken:" + nextPageToken);
-      const p = Object.assign({ query: query, pageToken: nextPageToken }, this.authParams);
+      // Only include query parameter if it's valid (avoids 400 errors for includeGroup/excludeGroup filters)
+      let p = null;
+      if (query == null) {
+        p = Object.assign({ pageToken: nextPageToken }, this.authParams);
+      } else {
+        p = Object.assign({ query: query, pageToken: nextPageToken }, this.authParams);
+      }
       const res = await this.service.users.list(p);
       if (res.status !== 200) {
         throw new Error("User list API failed: " + res.statusText);
@@ -82,15 +129,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
 
       nextPageToken = res.data.nextPageToken;
       if (res.data.users != null) {
-        for (const user of res.data.users) {
-          if (this.filterOutResult(filter, user.primaryEmail)) {
-            continue;
-          }
-          const entry = this.buildUser(user, false);
-          if (entry != null) {
-            entries.push(entry);
-          }
-        }
+        users.push(...res.data.users);
       }
 
       if (nextPageToken == null) {
@@ -98,14 +137,34 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
       }
     }
 
-    nextPageToken = null;
+    return users;
+  }
+
+  /**
+   * Fetches deleted users from the Google Workspace domain.
+   * Applies include/exclude user filters if present.
+   *
+   * @param setFilter Optional filter for include/exclude users
+   * @returns Array of UserEntry objects representing deleted users
+   */
+  private async getDeletedUsers(setFilter: [UserSetType, Set<string>]): Promise<UserEntry[]> {
+    const entries: UserEntry[] = [];
+    const query = this.createDirectoryQuery(this.syncConfig.userFilter);
+    let nextPageToken: string = null;
+
     // eslint-disable-next-line
     while (true) {
       this.logService.info("Querying deleted users - nextPageToken:" + nextPageToken);
-      const p = Object.assign(
-        { showDeleted: true, query: query, pageToken: nextPageToken },
-        this.authParams,
-      );
+      // Only include query parameter if it's valid (avoids 400 errors for includeGroup/excludeGroup filters)
+      let p = null;
+      if (query == null) {
+        p = Object.assign({ showDeleted: true, pageToken: nextPageToken }, this.authParams);
+      } else {
+        p = Object.assign(
+          { showDeleted: true, query: query, pageToken: nextPageToken },
+          this.authParams,
+        );
+      }
       const delRes = await this.service.users.list(p);
       if (delRes.status !== 200) {
         throw new Error("Deleted user list API failed: " + delRes.statusText);
@@ -114,10 +173,17 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
       nextPageToken = delRes.data.nextPageToken;
       if (delRes.data.users != null) {
         for (const user of delRes.data.users) {
-          if (this.filterOutResult(filter, user.primaryEmail)) {
+          const entry = this.buildUser(user, true);
+
+          if (
+            setFilter != null &&
+            (setFilter[0] === UserSetType.IncludeUser ||
+              setFilter[0] === UserSetType.ExcludeUser) &&
+            (await this.filterOutUserResult(setFilter, entry))
+          ) {
             continue;
           }
-          const entry = this.buildUser(user, true);
+
           if (entry != null) {
             entries.push(entry);
           }
@@ -230,6 +296,209 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     }
 
     return entry;
+  }
+
+  /**
+   * Parses the user filter to extract custom set filters for include/exclude users or groups.
+   * Supports filter formats:
+   * - include:user1@domain.com,user2@domain.com
+   * - exclude:user1@domain.com
+   * - includeGroup:GroupName1,GroupName2
+   * - excludeGroup:GroupName1
+   *
+   * @param filter The user filter string
+   * @returns A tuple of [UserSetType, Set<string>] or null if no valid filter found
+   */
+  private createCustomUserSet(filter: string): [UserSetType, Set<string>] {
+    if (filter == null || filter === "") {
+      return null;
+    }
+
+    const mainParts = filter.split("|");
+    if (mainParts.length < 1 || mainParts[0] == null || mainParts[0].trim() === "") {
+      return null;
+    }
+
+    const parts = mainParts[0].split(":");
+    if (parts.length !== 2) {
+      return null;
+    }
+
+    const keyword = parts[0].trim().toLowerCase();
+    let userSetType = UserSetType.IncludeUser;
+    if (keyword === "include") {
+      userSetType = UserSetType.IncludeUser;
+    } else if (keyword === "exclude") {
+      userSetType = UserSetType.ExcludeUser;
+    } else if (keyword === "includegroup") {
+      userSetType = UserSetType.IncludeGroup;
+    } else if (keyword === "excludegroup") {
+      userSetType = UserSetType.ExcludeGroup;
+    } else {
+      return null;
+    }
+
+    // Parse comma-separated values and normalize to lowercase for case-insensitive matching
+    const set = new Set<string>();
+    const pieces = parts[1].split(",");
+    for (const p of pieces) {
+      set.add(p.trim().toLowerCase());
+    }
+
+    return [userSetType, set];
+  }
+
+  /**
+   * Fetches users that are members of the specified groups.
+   * Retrieves all groups from the domain and filters by name to find matching groups,
+   * then fetches all active user members from those groups.
+   *
+   * @param setFilter Tuple containing UserSetType and Set of group names to match
+   * @returns Array of Google Workspace users from the matching groups
+   */
+  private async getUsersByGroups(
+    setFilter: [UserSetType, Set<string>],
+  ): Promise<admin_directory_v1.Schema$User[]> {
+    const users: admin_directory_v1.Schema$User[] = [];
+    const matchingGroups: admin_directory_v1.Schema$Group[] = [];
+
+    // Fetch all groups and filter by name in code
+    let nextPageToken: string = null;
+    // eslint-disable-next-line
+    while (true) {
+      this.logService.info("Querying all groups - nextPageToken:" + nextPageToken);
+      const groupsRes = await this.service.groups.list(
+        Object.assign({ pageToken: nextPageToken }, this.authParams),
+      );
+
+      if (groupsRes.status !== 200) {
+        throw new Error("Group list API failed: " + groupsRes.statusText);
+      }
+
+      nextPageToken = groupsRes.data.nextPageToken;
+      if (groupsRes.data.groups != null) {
+        for (const group of groupsRes.data.groups) {
+          // Match group name case-insensitively against the filter set
+          if (setFilter[1].has(group.name.trim().toLowerCase())) {
+            matchingGroups.push(group);
+          }
+        }
+      }
+
+      if (nextPageToken == null) {
+        break;
+      }
+    }
+
+    // Fetch members from matching groups
+    for (const group of matchingGroups) {
+      this.logService.info("Fetching members for group: " + group.name);
+      let memberPageToken: string = null;
+      // eslint-disable-next-line
+      while (true) {
+        const membersRes = await this.service.members.list(
+          Object.assign({ groupKey: group.id, pageToken: memberPageToken }, this.authParams),
+        );
+
+        if (membersRes.status !== 200) {
+          this.logService.warning("Member list failed for group: " + group.name);
+          break;
+        }
+
+        memberPageToken = membersRes.data.nextPageToken;
+        if (membersRes.data.members != null) {
+          for (const member of membersRes.data.members) {
+            if (member.type == null || member.type.toLowerCase() !== "user") {
+              continue;
+            }
+            if (member.status != null && member.status.toLowerCase() !== "active") {
+              continue;
+            }
+
+            const userRes = await this.service.users.get(
+              Object.assign({ userKey: member.id }, this.authParams),
+            );
+
+            if (userRes.status === 200 && userRes.data != null) {
+              users.push(userRes.data);
+            }
+          }
+        }
+
+        if (memberPageToken == null) {
+          break;
+        }
+      }
+    }
+    return users;
+  }
+
+  /**
+   * Builds UserEntry objects from Google Workspace users with filtering and deduplication.
+   * Filters out excluded users and applies include/exclude user filters if present.
+   *
+   * @param users Array of Google Workspace users to process
+   * @param userIdsToExclude Set of user IDs to exclude (e.g., from excludeGroup filter)
+   * @param setFilter Optional filter for include/exclude users
+   * @returns Array of UserEntry objects
+   */
+  private async buildUserEntries(
+    users: admin_directory_v1.Schema$User[],
+    userIdsToExclude: Set<string>,
+    setFilter: [UserSetType, Set<string>],
+  ) {
+    const entryIds = new Set<string>();
+    const entries: UserEntry[] = [];
+
+    for (const user of users) {
+      if (user.id == null || entryIds.has(user.id) || userIdsToExclude.has(user.id)) {
+        continue;
+      }
+      const entry = this.buildUser(user, false);
+
+      if (
+        setFilter != null &&
+        (setFilter[0] === UserSetType.IncludeUser || setFilter[0] === UserSetType.ExcludeUser) &&
+        (await this.filterOutUserResult(setFilter, entry))
+      ) {
+        continue;
+      }
+      if (entry != null) {
+        entries.push(entry);
+        entryIds.add(user.id);
+      }
+    }
+    return entries;
+  }
+
+  /**
+   * Determines if a user should be filtered out based on include/exclude user filters.
+   * Only applies to IncludeUser and ExcludeUser filters (not group-based filters).
+   *
+   * @param setFilter The filter containing UserSetType and set of user emails
+   * @param user The UserEntry to check
+   * @returns True if the user should be filtered out, false otherwise
+   */
+  private async filterOutUserResult(
+    setFilter: [UserSetType, Set<string>],
+    user: UserEntry,
+  ): Promise<boolean> {
+    if (setFilter == null) {
+      return false;
+    }
+
+    let userSetTypeExclude = null;
+    if (setFilter[0] === UserSetType.IncludeUser) {
+      userSetTypeExclude = false;
+    } else if (setFilter[0] === UserSetType.ExcludeUser) {
+      userSetTypeExclude = true;
+    }
+
+    if (userSetTypeExclude != null) {
+      return this.filterOutResult([userSetTypeExclude, setFilter[1]], user.email);
+    }
+
+    return false;
   }
 
   private async auth() {
