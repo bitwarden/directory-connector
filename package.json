@@ -74,8 +74,8 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "20.3.3",
-    "@angular-eslint/eslint-plugin-template": "20.3.0",
-    "@angular-eslint/template-parser": "20.3.0",
+    "@angular-eslint/eslint-plugin-template": "20.4.0",
+    "@angular-eslint/template-parser": "20.4.0",
     "@angular/compiler-cli": "20.3.3",
     "@electron/notarize": "2.5.0",
     "@electron/rebuild": "4.0.1",
