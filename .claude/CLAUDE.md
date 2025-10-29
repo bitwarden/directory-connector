@@ -45,63 +45,30 @@ jslib/                 # Legacy folder structure (mix of deprecated/unused and c
 3. **Directory Service Pattern**: Each directory provider implements `IDirectoryService` interface
 4. **Separation of Concerns**: GUI (Angular app) and CLI (commands) share the same service layer
 
-## Testing Conventions
+## Development Conventions
 
-- **Framework**: Jest with jest-preset-angular
-- **Mocking**: jest-mock-extended for type-safe mocks with `mock<Type>()`
-- **Location**: Tests colocated with source files
-- **Naming**: Descriptive, human-readable test names (e.g., `'should return empty array when no users exist in directory'`)
-- **Test Helpers**: Located in `utils/` directory
+### Code Organization
 
-## Directory Integration Patterns
+**File Naming:**
 
-### IDirectoryService Interface
+- kebab-case for files: `ldap-directory.service.ts`
+- Descriptive names that reflect purpose
 
-All directory services implement this core interface with methods:
+**Class/Function Naming:**
 
-- `getUsers()` - Retrieve users from directory
-- `getGroups()` - Retrieve groups from directory
-- Connection and authentication handling
+- PascalCase for classes and interfaces
+- camelCase for functions and variables
+- Descriptive names that indicate purpose
 
-### Service-Specific Implementations
+**File Structure:**
 
-Each directory service has unique authentication and query patterns:
-
-- **LDAP**: Direct LDAP queries, bind authentication
-- **Microsoft Entra ID**: Microsoft Graph API, OAuth tokens
-- **Google Workspace**: Google Admin SDK, service account credentials
-- **Okta/OneLogin**: REST APIs with API tokens
-
-## Code Review Guidelines
-
-### Security Considerations
-
-**Critical Security Areas:**
-
-1. **Credential Handling**
-   - Never log directory service credentials, API keys, or tokens
-   - Use secure storage mechanisms for sensitive data
-   - Credentials should never be hardcoded
-
-2. **Sensitive Data**
-   - User and group data from directories should be handled securely
-   - Avoid exposing sensitive information in error messages
-   - Sanitize data before logging
-   - Be cautious with data persistence
-
-3. **Input Validation**
-   - Validate and sanitize data from external directory services
-   - Check for injection vulnerabilities (LDAP injection, etc.)
-   - Validate configuration inputs from users
-
-4. **API Security**
-   - Ensure OAuth flows are implemented correctly
-   - Verify SSL/TLS is used for all external connections
-   - Check for secure token storage and refresh mechanisms
+- Keep files focused on single responsibility
+- Create new service files for distinct directory integrations
+- Separate models into individual files when complex
 
 ### TypeScript Conventions
 
-**Import patterns**
+**Import Patterns:**
 
 - Use path aliases (`@/`) for project imports
   - `@/` - project root
@@ -115,53 +82,49 @@ Each directory service has unique authentication and query patterns:
 - Use strict null checks - handle `null` and `undefined` explicitly
 - Leverage TypeScript's type inference where appropriate
 
-**Async Patterns:**
+**Configuration:**
 
-```typescript
-// Good - proper async/await with error handling
-async function syncUsers(): Promise<UserEntry[]> {
-  try {
-    const users = await directoryService.getUsers();
-    return users.filter((u) => u.enabled);
-  } catch (error) {
-    logger.error("Failed to sync users", error);
-    throw new SyncError("User sync failed", error);
-  }
-}
+- Use configuration files or environment variables
+- Never hardcode URLs or configuration values
 
-// Avoid - unhandled promises
-function syncUsers() {
-  directoryService.getUsers().then((users) => processUsers(users));
-}
-```
+## Security Best Practices
 
-### Error Handling Patterns
+**Credential Handling:**
 
-**Required Practices:**
+- Never log directory service credentials, API keys, or tokens
+- Use secure storage mechanisms for sensitive data
+- Credentials should never be hardcoded
+- Store credentials encrypted, never in plain text
+
+**Sensitive Data:**
+
+- User and group data from directories should be handled securely
+- Avoid exposing sensitive information in error messages
+- Sanitize data before logging
+- Be cautious with data persistence
+
+**Input Validation:**
+
+- Validate and sanitize data from external directory services
+- Check for injection vulnerabilities (LDAP injection, etc.)
+- Validate configuration inputs from users
+
+**API Security:**
+
+- Ensure authentication flows are implemented correctly
+- Verify SSL/TLS is used for all external connections
+- Check for secure token storage and refresh mechanisms
+
+## Error Handling
+
+**Best Practices:**
 
 1. **Try-catch for async operations** - Always wrap external API calls
 2. **Meaningful error messages** - Provide context for debugging
 3. **Error propagation** - Don't swallow errors silently
 4. **User-facing errors** - Separate user messages from developer logs
 
-```typescript
-// Good
-try {
-  await directoryService.connect();
-} catch (error) {
-  logger.error("Directory connection failed", { service: "ldap", error });
-  throw new ConnectionError("Unable to connect to directory service", error);
-}
-
-// Avoid - swallowing errors
-try {
-  await directoryService.connect();
-} catch (error) {
-  console.log("error"); // Too vague, no context
-}
-```
-
-### Performance Considerations
+## Performance Best Practices
 
 **Large Dataset Handling:**
 
@@ -180,73 +143,56 @@ try {
 - Remove event listeners when components are destroyed
 - Be cautious with caching large datasets
 
-### Testing Requirements
+## Testing
 
-**Test File Types:**
+**Framework:**
 
+- Jest with jest-preset-angular
+- jest-mock-extended for type-safe mocks with `mock<Type>()`
+
+**Test Organization:**
+
+- Tests colocated with source files
 - `*.spec.ts` - Unit tests for individual components/services
 - `*.integration.spec.ts` - Integration tests against live directory services
+- Test helpers located in `utils/` directory
 
-**When Tests Are Required:**
+**Test Naming:**
+
+- Descriptive, human-readable test names
+- Example: `'should return empty array when no users exist in directory'`
+
+**Test Coverage:**
 
 - New features must include tests
 - Bug fixes should include regression tests
 - Changes to core sync logic or directory specific logic require integration tests
 
-**Test Expectations:**
+**Testing Approach:**
 
 - **Unit tests**: Mock external API calls using jest-mock-extended
 - **Integration tests**: Use live directory services (Docker containers or configured cloud services)
-- **Coverage focus**: Critical paths (authentication, sync, data transformation)
-- **Test scenarios**: Error cases and edge cases (empty results, malformed data, connection failures), not just happy paths
+- Focus on critical paths (authentication, sync, data transformation)
+- Test error scenarios and edge cases (empty results, malformed data, connection failures), not just happy paths
 
-### Common Anti-Patterns to Flag
+## Directory Service Patterns
 
-1. **Hardcoded Values**
-   - No hardcoded credentials, URLs, or configuration
-   - Use configuration files or environment variables
+### IDirectoryService Interface
 
-2. **Synchronous Operations**
-   - Don't use sync file operations in production code
-   - Avoid blocking operations in main thread
+All directory services implement this core interface with methods:
 
-3. **Missing Error Handling**
-   - Every external call should have error handling
-   - API calls, file operations, and network requests must be wrapped
+- `getUsers()` - Retrieve users from directory and transform them into standard objects
+- `getGroups()` - Retrieve groups from directory and transform them into standard objects
+- Connection and authentication handling
 
-4. **Memory Leaks**
-   - Unclosed connections to directory services
-   - Event listeners not removed
-   - Large objects not released
+### Service-Specific Implementations
 
-5. **Insecure Patterns**
-   - Logging sensitive data
-   - Storing credentials in plain text
-   - Missing input validation
+Each directory service has unique authentication and query patterns:
 
-6. **Poor Performance Patterns**
-   - Loading entire directory into memory
-   - N+1 query patterns
-   - Inefficient loops with repeated operations
-
-### Code Organization Standards
-
-**File Naming:**
-
-- kebab-case for files: `ldap-directory.service.ts`
-- Descriptive names that reflect purpose
-
-**Class/Function Naming:**
-
-- PascalCase for classes and interfaces
-- camelCase for functions and variables
-- Descriptive names that indicate purpose
-
-**When to Create New Files:**
-
-- Keep files focused on single responsibility
-- Create new service files for distinct directory integrations
-- Separate models into individual files when complex
+- **LDAP**: Direct LDAP queries, bind authentication
+- **Microsoft Entra ID**: Microsoft Graph API, OAuth tokens
+- **Google Workspace**: Google Admin SDK, service account credentials
+- **Okta/OneLogin**: REST APIs with API tokens
 
 ## References
 
