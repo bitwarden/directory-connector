@@ -8,14 +8,14 @@ on:
     paths:
       - ".github/workflows/integration-test.yml" # this file
       - "src/services/ldap-directory.service*" # we only have integration for LDAP testing at the moment
-      - "./openldap/**/*" # any change to test fixtures
+      - "./utils/**/*" # any change to test fixtures
       - "./docker-compose.yml" # any change to Docker configuration
       - "./package.json" # dependencies
   pull_request:
     paths:
       - ".github/workflows/integration-test.yml" # this file
       - "src/services/ldap-directory.service*" # we only have integration for LDAP testing at the moment
-      - "./openldap/**/*" # any change to test fixtures
+      - "./utils/**/*" # any change to test fixtures
       - "./docker-compose.yml" # any change to Docker configuration
       - "./package.json" # dependencies
 permissions:
@@ -55,11 +55,11 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install mkcert
 
-      - name: Setup integration tests
+      - name: Setup LDAP integration tests
         run: npm run test:integration:setup
 
-      - name: Run integration tests
-        run: npm run test:integration --coverage
+      - name: Run LDAP integration tests
+        run: npx jest ldap-directory.service.integration.spec.ts --coverage
 
       - name: Report test results
         uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
