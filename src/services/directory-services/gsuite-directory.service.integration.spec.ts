@@ -1,18 +1,18 @@
 import { config as dotenvConfig } from "dotenv";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
-import { LogService } from "../../jslib/common/src/abstractions/log.service";
+import { I18nService } from "../../../jslib/common/src/abstractions/i18n.service";
+import { LogService } from "../../../jslib/common/src/abstractions/log.service";
 import {
   getGSuiteConfiguration,
   getSyncConfiguration,
-} from "../../utils/google-workspace/config-fixtures";
-import { groupFixtures } from "../../utils/google-workspace/group-fixtures";
-import { userFixtures } from "../../utils/google-workspace/user-fixtures";
-import { DirectoryType } from "../enums/directoryType";
+} from "../../../utils/google-workspace/config-fixtures";
+import { groupFixtures } from "../../../utils/google-workspace/group-fixtures";
+import { userFixtures } from "../../../utils/google-workspace/user-fixtures";
+import { DirectoryType } from "../../enums/directoryType";
+import { StateService } from "../state.service";
 
 import { GSuiteDirectoryService } from "./gsuite-directory.service";
-import { StateService } from "./state.service";
 
 // These tests integrate with a test Google Workspace instance.
 // Credentials are located in the shared Bitwarden collection for Directory Connector testing.

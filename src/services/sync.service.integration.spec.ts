@@ -12,7 +12,7 @@ import { DirectoryFactoryService } from "../abstractions/directory-factory.servi
 import { DirectoryType } from "../enums/directoryType";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
-import { LdapDirectoryService } from "./ldap-directory.service";
+import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
 import { SingleRequestBuilder } from "./single-request-builder";
 import { StateService } from "./state.service";
 import { SyncService } from "./sync.service";
