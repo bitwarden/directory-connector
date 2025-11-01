@@ -24,8 +24,7 @@ dotenvConfig({ path: "utils/.env" });
 // These filters target integration test data.
 // These should return data that matches the user and group fixtures exactly.
 // There may be additional data present if not used.
-const INTEGRATION_USER_FILTER =
-  "exclude:integration-user-a@bwrox.dev|orgUnitPath='/Integration testing'";
+const INTEGRATION_USER_FILTER = "|orgUnitPath='/Integration testing'";
 const INTEGRATION_GROUP_FILTER = "|name:Integration*";
 
 // These tests are slow!
