@@ -28,6 +28,10 @@ const INTEGRATION_USER_FILTER =
   "exclude:integration-user-a@bwrox.dev|orgUnitPath='/Integration testing'";
 const INTEGRATION_GROUP_FILTER = "|name:Integration*";
 
+// These tests are slow!
+// Increase the default timeout from 5s to 15s
+jest.setTimeout(15000);
+
 describe("gsuiteDirectoryService", () => {
   let logService: MockProxy<LogService>;
   let i18nService: MockProxy<I18nService>;
