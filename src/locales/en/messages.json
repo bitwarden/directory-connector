@@ -768,5 +768,8 @@
     },
     "launchWebVault": {
         "message": "Launch Web Vault"
+    },
+    "authenticationFailed": {
+        "message": "Authentication failed"
     }
 }
