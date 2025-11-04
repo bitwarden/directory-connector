@@ -70,7 +70,7 @@ jobs:
           filters: |
             common:
               - '.github/workflows/integration-test.yml'
-              - 'utils/**/*'
+              - 'utils/**'
               - 'package.json'
               - 'src/services/sync.service.ts'
             ldap:
