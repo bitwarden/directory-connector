@@ -6,6 +6,9 @@ on:
   # This is done at the workflow level and at the job level.
   # Make sure these triggers stay consistent with the 'changed-files' job.
   push:
+    branches:
+      - 'main'
+      - 'rc'
     paths:
       - ".github/workflows/integration-test.yml" # this file
       - "docker-compose.yml" # any change to Docker configuration
