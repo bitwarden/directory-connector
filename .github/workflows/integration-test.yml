@@ -11,6 +11,7 @@ on:
       - "docker-compose.yml" # any change to Docker configuration
       - "package.json" # dependencies
       - "utils/**" # any change to test fixtures
+      - "src/services/sync.service.ts" # core sync service used by all directory services
       - "src/services/directory-services/ldap-directory.service*" # LDAP directory service
       - "src/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
       # Add directory services here as we add test coverage
@@ -20,6 +21,7 @@ on:
       - "docker-compose.yml" # any change to Docker configuration
       - "package.json" # dependencies
       - "utils/**" # any change to test fixtures
+      - "src/services/sync.service.ts" # core sync service used by all directory services
       - "src/services/directory-services/ldap-directory.service*" # LDAP directory service
       - "src/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
       # Add directory services here as we add test coverage
@@ -70,6 +72,7 @@ jobs:
               - '.github/workflows/integration-test.yml'
               - 'utils/**/*'
               - 'package.json'
+              - 'src/services/sync.service.ts'
             ldap:
               - 'docker-compose.yml'
               - 'src/services/directory-services/ldap-directory.service*'
