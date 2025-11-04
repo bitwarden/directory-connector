@@ -3,22 +3,26 @@ name: Integration Testing
 on:
   workflow_dispatch:
   # Integration tests are slow, so only run them if relevant files have changed.
-  # This is done at the workflow level and at the job level -
-  # make sure this stays consistent with the changed-files job.
+  # This is done at the workflow level and at the job level.
+  # Make sure these triggers stay consistent with the 'changed-files' job.
   push:
     paths:
       - ".github/workflows/integration-test.yml" # this file
       - "docker-compose.yml" # any change to Docker configuration
       - "package.json" # dependencies
-      - "src/services/directory-services/**" # any directory service
       - "utils/**" # any change to test fixtures
+      - "src/services/directory-services/ldap-directory.service*" # LDAP directory service
+      - "src/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
+      # Add directory services here as we add test coverage
   pull_request:
     paths:
       - ".github/workflows/integration-test.yml" # this file
       - "docker-compose.yml" # any change to Docker configuration
       - "package.json" # dependencies
-      - "src/services/directory-services/**" # any directory service
       - "utils/**" # any change to test fixtures
+      - "src/services/directory-services/ldap-directory.service*" # LDAP directory service
+      - "src/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
+      # Add directory services here as we add test coverage
 permissions:
   contents: read
   checks: write # required by dorny/test-reporter to upload its results
@@ -53,12 +57,14 @@ jobs:
 
       # Only run relevant tests depending on what files have changed.
       # This should be kept consistent with the workflow level triggers.
+      # Note: docker-compose.yml is only used for ldap for now
       - name: Get changed files
         id: changed-files
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         with:
           list-files: shell
           token: ${{ secrets.GITHUB_TOKEN }}
+          # Add directory services here as we add test coverage
           filters: |
             common:
               - '.github/workflows/integration-test.yml'
@@ -66,9 +72,9 @@ jobs:
               - 'package.json'
             ldap:
               - 'docker-compose.yml'
-              - 'src/services/**/ldap-directory.service*'
+              - 'src/services/directory-services/ldap-directory.service*'
             google:
-              - 'src/services/**/gsuite-directory.service*'
+              - 'src/services/directory-services/gsuite-directory.service*'
 
       # LDAP
       - name: Setup LDAP integration tests
@@ -80,7 +86,7 @@ jobs:
 
       - name: Run LDAP integration tests
         if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.ldap == 'true'
-        run: npx jest ldap-directory.service.integration.spec.ts --coverage
+        run: npx jest ldap-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-ldap
 
       # Google Workspace
       - name: Run Google Workspace integration tests
@@ -91,15 +97,12 @@ jobs:
           GOOGLE_CLIENT_EMAIL: ${{ vars.GOOGLE_CLIENT_EMAIL }}
           GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
         run: |
-          GOOGLE_DOMAIN="$GOOGLE_DOMAIN" \
-          GOOGLE_ADMIN_USER="$GOOGLE_ADMIN_USER" \
-          GOOGLE_CLIENT_EMAIL="$GOOGLE_CLIENT_EMAIL" \
-          GOOGLE_PRIVATE_KEY="$GOOGLE_PRIVATE_KEY" \
-          npx jest gsuite-directory.service.integration.spec.ts --coverage
+          npx jest gsuite-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-google
 
       - name: Report test results
+        id: report
         uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
-        if: ${{ github.event.pull_request.head.repo.full_name == github.repository && !cancelled() }}
+        if: github.event.pull_request.head.repo.full_name == github.repository && !cancelled() && steps.changed-files.outputs.changes != '[]'
         with:
           name: Test Results
           path: "junit.xml"
@@ -107,7 +110,9 @@ jobs:
           fail-on-error: true
 
       - name: Upload coverage to codecov.io
+        if: steps.report.conclusion == 'success'
         uses: codecov/codecov-action@5a605bd92782ce0810fa3b8acc235c921b497052 # v5.2.0
 
       - name: Upload results to codecov.io
+        if: steps.report.conclusion == 'success'
         uses: codecov/test-results-action@4e79e65778be1cecd5df25e14af1eafb6df80ea9 # v1.0.2
