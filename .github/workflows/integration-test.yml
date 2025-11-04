@@ -89,6 +89,8 @@ jobs:
 
       - name: Run LDAP integration tests
         if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.ldap == 'true'
+        env:
+          JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
         run: npx jest ldap-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-ldap
 
       # Google Workspace
@@ -99,6 +101,7 @@ jobs:
           GOOGLE_ADMIN_USER: ${{ vars.GOOGLE_ADMIN_USER }}
           GOOGLE_CLIENT_EMAIL: ${{ vars.GOOGLE_CLIENT_EMAIL }}
           GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
+          JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
         run: |
           npx jest gsuite-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-google
 
@@ -108,7 +111,7 @@ jobs:
         if: github.event.pull_request.head.repo.full_name == github.repository && !cancelled() && steps.changed-files.outputs.changes != '[]'
         with:
           name: Test Results
-          path: "junit.xml"
+          path: "junit.xml*"
           reporter: jest-junit
           fail-on-error: true
 

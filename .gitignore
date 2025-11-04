@@ -33,8 +33,8 @@ build-cli
 .angular/cache
 
 # Testing
-coverage
-junit.xml
+coverage*
+junit.xml*
 
 # Misc
 *.crx
