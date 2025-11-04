@@ -108,7 +108,7 @@ jobs:
       - name: Report test results
         id: report
         uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
-        if: github.event.pull_request.head.repo.full_name == github.repository && !cancelled() && steps.changed-files.outputs.changes != '[]'
+        if: github.event.pull_request.head.repo.full_name == github.repository && !cancelled()
         with:
           name: Test Results
           path: "junit.xml*"
@@ -116,9 +116,7 @@ jobs:
           fail-on-error: true
 
       - name: Upload coverage to codecov.io
-        if: steps.report.conclusion == 'success'
         uses: codecov/codecov-action@5a605bd92782ce0810fa3b8acc235c921b497052 # v5.2.0
 
       - name: Upload results to codecov.io
-        if: steps.report.conclusion == 'success'
         uses: codecov/test-results-action@4e79e65778be1cecd5df25e14af1eafb6df80ea9 # v1.0.2
