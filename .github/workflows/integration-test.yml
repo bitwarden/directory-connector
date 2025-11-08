@@ -31,6 +31,7 @@ on:
 permissions:
   contents: read
   checks: write # required by dorny/test-reporter to upload its results
+  id-token: write # required to use OIDC to login to Azure Key Vault
 jobs:
   testing:
     name: Run tests
@@ -59,6 +60,24 @@ jobs:
 
       - name: Install Node dependencies
         run: npm ci
+
+      # Get secrets from Azure Key Vault
+      - name: Azure Login
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get KV Secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-directory-connector
+          secrets: "GOOGLE-ADMIN-USER,GOOGLE-CLIENT-EMAIL,GOOGLE-DOMAIN,GOOGLE-PRIVATE-KEY"
+
+      - name: Azure Logout
+        uses: bitwarden/gh-actions/azure-logout@main
 
       # Only run relevant tests depending on what files have changed.
       # This should be kept consistent with the workflow level triggers.
@@ -100,10 +119,10 @@ jobs:
       - name: Run Google Workspace integration tests
         if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.google == 'true'
         env:
-          GOOGLE_DOMAIN: ${{ vars.GOOGLE_DOMAIN }}
-          GOOGLE_ADMIN_USER: ${{ vars.GOOGLE_ADMIN_USER }}
-          GOOGLE_CLIENT_EMAIL: ${{ vars.GOOGLE_CLIENT_EMAIL }}
-          GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
+          GOOGLE_DOMAIN: ${{ steps.get-kv-secrets.output.GOOGLE-DOMAIN }}
+          GOOGLE_ADMIN_USER: ${{ steps.get-kv-secrets.output.GOOGLE-ADMIN-USER }}
+          GOOGLE_CLIENT_EMAIL: ${{ steps.get-kv-secrets.output.GOOGLE-CLIENT-EMAIL }}
+          GOOGLE_PRIVATE_KEY: ${{ steps.get-kv-secrets.output.GOOGLE-PRIVATE-KEY }}
           JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
         run: |
           npx jest gsuite-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-google
