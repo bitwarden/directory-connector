@@ -119,10 +119,10 @@ jobs:
       - name: Run Google Workspace integration tests
         if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.google == 'true'
         env:
-          GOOGLE_DOMAIN: ${{ steps.get-kv-secrets.output.GOOGLE-DOMAIN }}
-          GOOGLE_ADMIN_USER: ${{ steps.get-kv-secrets.output.GOOGLE-ADMIN-USER }}
-          GOOGLE_CLIENT_EMAIL: ${{ steps.get-kv-secrets.output.GOOGLE-CLIENT-EMAIL }}
-          GOOGLE_PRIVATE_KEY: ${{ steps.get-kv-secrets.output.GOOGLE-PRIVATE-KEY }}
+          GOOGLE_DOMAIN: ${{ steps.get-kv-secrets.outputs.GOOGLE-DOMAIN }}
+          GOOGLE_ADMIN_USER: ${{ steps.get-kv-secrets.outputs.GOOGLE-ADMIN-USER }}
+          GOOGLE_CLIENT_EMAIL: ${{ steps.get-kv-secrets.outputs.GOOGLE-CLIENT-EMAIL }}
+          GOOGLE_PRIVATE_KEY: ${{ steps.get-kv-secrets.outputs.GOOGLE-PRIVATE-KEY }}
           JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
         run: |
           npx jest gsuite-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-google
