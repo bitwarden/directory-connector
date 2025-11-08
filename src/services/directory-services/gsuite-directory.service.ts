@@ -255,9 +255,11 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
 
     try {
       await this.client.authorize();
-    } catch {
+    } catch (error) {
       // Catch and rethrow this to sanitize any sensitive info (e.g. private key) in the error message
-      this.logService.error("Google Workspace authentication failed");
+      this.logService.error(
+        `Google Workspace authentication failed: ${error?.name || "Unknown error"}`,
+      );
       throw new Error(this.i18nService.t("authenticationFailed"));
     }
 
