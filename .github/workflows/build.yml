@@ -148,7 +148,7 @@ jobs:
       - name: Keytar
         run: |
           keytarVersion=$(cat package.json | jq -r '.dependencies.keytar')
-          keytarTar="keytar-v$keytarVersion-napi-v3-darwin-x64.tar"
+          keytarTar="keytar-v$keytarVersion-napi-v3-darwin-arm64.tar"
 
           keytarTarGz="$keytarTar.gz"
           keytarUrl="https://github.com/atom/node-keytar/releases/download/v$keytarVersion/$keytarTarGz"
@@ -427,7 +427,7 @@ jobs:
 
   macos-gui:
     name: Build MacOS GUI
-    runs-on: macos-13
+    runs-on: macos-15
     needs: setup
     permissions:
       contents: read
