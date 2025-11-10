@@ -120,7 +120,7 @@
     "jest-junit": "16.0.0",
     "jest-mock-extended": "3.0.7",
     "jest-preset-angular": "14.6.0",
-    "lint-staged": "16.1.2",
+    "lint-staged": "16.2.6",
     "mini-css-extract-plugin": "2.9.2",
     "minimatch": "5.1.2",
     "node-abi": "3.78.0",
