@@ -54,7 +54,9 @@ jobs:
 
       - name: Report test results
         uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
-        if: ${{ github.event.pull_request.head.repo.full_name == github.repository && !cancelled() }}
+        # This will skip the job if it's a pull request from a fork, because that won't have permission to upload test results.
+        # PRs from the repository and all other events are OK.
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository) && !cancelled()
         with:
           name: Test Results
           path: "junit.xml"
