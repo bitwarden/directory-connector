@@ -6,20 +6,20 @@ import { MessagingService } from "@/jslib/common/src/abstractions/messaging.serv
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 
+import { getSyncConfiguration } from "../../utils/openldap/config-fixtures";
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
 import { DirectoryType } from "../enums/directoryType";
-import { getSyncConfiguration } from "../utils/test-fixtures";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
+import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
 import { I18nService } from "./i18n.service";
-import { LdapDirectoryService } from "./ldap-directory.service";
 import { SingleRequestBuilder } from "./single-request-builder";
 import { StateService } from "./state.service";
 import { SyncService } from "./sync.service";
 import * as constants from "./sync.service";
 
-import { groupFixtures } from "@/openldap/group-fixtures";
-import { userFixtures } from "@/openldap/user-fixtures";
+import { groupFixtures } from "@/utils/openldap/group-fixtures";
+import { userFixtures } from "@/utils/openldap/user-fixtures";
 
 describe("SyncService", () => {
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;

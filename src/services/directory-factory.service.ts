@@ -5,11 +5,11 @@ import { DirectoryFactoryService } from "../abstractions/directory-factory.servi
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 
-import { EntraIdDirectoryService } from "./entra-id-directory.service";
-import { GSuiteDirectoryService } from "./gsuite-directory.service";
-import { LdapDirectoryService } from "./ldap-directory.service";
-import { OktaDirectoryService } from "./okta-directory.service";
-import { OneLoginDirectoryService } from "./onelogin-directory.service";
+import { EntraIdDirectoryService } from "./directory-services/entra-id-directory.service";
+import { GSuiteDirectoryService } from "./directory-services/gsuite-directory.service";
+import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
+import { OktaDirectoryService } from "./directory-services/okta-directory.service";
+import { OneLoginDirectoryService } from "./directory-services/onelogin-directory.service";
 
 export class DefaultDirectoryFactoryService implements DirectoryFactoryService {
   constructor(
