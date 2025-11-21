@@ -70,11 +70,11 @@ body:
       description: What directory service(s) are you seeing the problem on?
       options:
         - label: LDAP - Active Directory
+        - label: Another LDAP implementation (please specify in "Additional Context" section)
         - label: Microsoft Entra ID
         - label: Google Workspace
         - label: Okta Universal Directory
         - label: OneLogin
-        - label: Another LDAP implementation (please specify in "Additional Context" section)
         - label: Other
     validations:
       required: true
