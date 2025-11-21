@@ -69,11 +69,12 @@ body:
       label: Directory Service
       description: What directory service(s) are you seeing the problem on?
       options:
-        - label: LDAP or Active Directory
+        - label: LDAP - Active Directory
         - label: Microsoft Entra ID
         - label: Google Workspace
         - label: Okta Universal Directory
         - label: OneLogin
+        - label: Another LDAP implementation (please specify in "Additional Context" section)
         - label: Other
     validations:
       required: true
@@ -83,8 +84,8 @@ body:
       label: Application Type
       description: Which Directory Connector application are you seeing the problem on?
       options:
-        - label: GUI
-        - label: CLI
+        - label: GUI (the desktop application)
+        - label: CLI (the bwdc command line application)
     validations:
       required: true
   - type: input
