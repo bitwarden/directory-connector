@@ -120,7 +120,7 @@ jobs:
 
   macos-cli:
     name: Build Mac CLI
-    runs-on: macos-13
+    runs-on: macos-15-intel
     needs: setup
     permissions:
       contents: read
@@ -427,7 +427,7 @@ jobs:
 
   macos-gui:
     name: Build MacOS GUI
-    runs-on: macos-13
+    runs-on: macos-15-intel
     needs: setup
     permissions:
       contents: read
