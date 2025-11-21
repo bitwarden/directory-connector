@@ -55,7 +55,7 @@ body:
         - label: Windows
         - label: macOS
         - label: Linux
-        - label: Other
+        - label: Other operating system (please specify in "Additional Context" section)
     validations:
       required: true
   - type: input
@@ -63,6 +63,8 @@ body:
     attributes:
       label: Operating System Version
       description: What version of the operating system(s) are you seeing the problem on?
+    validations:
+      required: true
   - type: checkboxes
     id: directories
     attributes:
@@ -75,7 +77,7 @@ body:
         - label: Google Workspace
         - label: Okta Universal Directory
         - label: OneLogin
-        - label: Other
+        - label: Other directory service (please specify in "Additional Context" section)
     validations:
       required: true
   - type: checkboxes
@@ -103,5 +105,4 @@ body:
         Make sure to acknowledge the following before submitting your report!
       options:
         - label: I understand that work is tracked outside of Github. A PR will be linked to this issue should one be opened to address it, but Bitwarden doesn't use fields like "assigned", "milestone", or "project" to track progress.
-    validations:
-      required: true
+          required: true
