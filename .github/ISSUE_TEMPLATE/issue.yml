@@ -46,16 +46,17 @@ body:
     attributes:
       label: Additional Context
       description: Add any other context about the problem here.
-  - type: checkboxes
+  - type: dropdown
     id: os
     attributes:
       label: Operating System
-      description: What operating system are you seeing the problem on?
+      description: What operating system(s) are you seeing the problem on?
+      multiple: true
       options:
-        - label: Windows
-        - label: macOS
-        - label: Linux
-        - label: Other operating system (please specify in "Additional Context" section)
+        - Windows
+        - macOS
+        - Linux
+        - Other operating system (please specify in "Additional Context" section)
     validations:
       required: true
   - type: input
@@ -65,29 +66,31 @@ body:
       description: What version of the operating system(s) are you seeing the problem on?
     validations:
       required: true
-  - type: checkboxes
+  - type: dropdown
     id: directories
     attributes:
       label: Directory Service
       description: What directory service(s) are you seeing the problem on?
+      multiple: true
       options:
-        - label: LDAP - Active Directory
-        - label: Another LDAP implementation (please specify in "Additional Context" section)
-        - label: Microsoft Entra ID
-        - label: Google Workspace
-        - label: Okta Universal Directory
-        - label: OneLogin
-        - label: Other directory service (please specify in "Additional Context" section)
+        - LDAP - Active Directory
+        - Another LDAP implementation (please specify in "Additional Context" section)
+        - Microsoft Entra ID
+        - Google Workspace
+        - Okta Universal Directory
+        - OneLogin
+        - Other directory service (please specify in "Additional Context" section)
     validations:
       required: true
-  - type: checkboxes
+  - type: dropdown
     id: application-type
     attributes:
       label: Application Type
-      description: Which Directory Connector application are you seeing the problem on?
+      description: Which Directory Connector application(s) are you seeing the problem on?
+      multiple: true
       options:
-        - label: GUI (the desktop application)
-        - label: CLI (the bwdc command line application)
+        - GUI (the desktop application)
+        - CLI (the bwdc command line application)
     validations:
       required: true
   - type: input
