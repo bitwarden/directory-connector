@@ -4,14 +4,14 @@ import { admin_directory_v1, google } from "googleapis";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
-import { StateService } from "../abstractions/state.service";
-import { DirectoryType } from "../enums/directoryType";
-import { GroupEntry } from "../models/groupEntry";
-import { GSuiteConfiguration } from "../models/gsuiteConfiguration";
-import { SyncConfiguration } from "../models/syncConfiguration";
-import { UserEntry } from "../models/userEntry";
+import { StateService } from "../../abstractions/state.service";
+import { DirectoryType } from "../../enums/directoryType";
+import { GroupEntry } from "../../models/groupEntry";
+import { GSuiteConfiguration } from "../../models/gsuiteConfiguration";
+import { SyncConfiguration } from "../../models/syncConfiguration";
+import { UserEntry } from "../../models/userEntry";
+import { BaseDirectoryService } from "../baseDirectory.service";
 
-import { BaseDirectoryService } from "./baseDirectory.service";
 import { IDirectoryService } from "./directory.service";
 
 export class GSuiteDirectoryService extends BaseDirectoryService implements IDirectoryService {
@@ -253,7 +253,15 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
       ],
     });
 
-    await this.client.authorize();
+    try {
+      await this.client.authorize();
+    } catch (error) {
+      // Catch and rethrow this to sanitize any sensitive info (e.g. private key) in the error message
+      this.logService.error(
+        `Google Workspace authentication failed: ${error?.name || "Unknown error"}`,
+      );
+      throw new Error(this.i18nService.t("authenticationFailed"));
+    }
 
     this.authParams = {
       auth: this.client,

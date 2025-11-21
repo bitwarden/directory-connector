@@ -2,8 +2,8 @@ import { GetUniqueString } from "@/jslib/common/spec/utils";
 
 import { UserEntry } from "@/src/models/userEntry";
 
+import { groupSimulator, userSimulator } from "../../utils/request-builder-helper";
 import { RequestBuilderOptions } from "../abstractions/request-builder.service";
-import { groupSimulator, userSimulator } from "../utils/request-builder-helper";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 

@@ -2,6 +2,9 @@
 .DS_Store
 Thumbs.db
 
+# Environment variables used for tests
+.env
+
 # IDEs and editors
 .idea/
 .project
@@ -30,8 +33,8 @@ build-cli
 .angular/cache
 
 # Testing
-coverage
-junit.xml
+coverage*
+junit.xml*
 
 # Misc
 *.crx

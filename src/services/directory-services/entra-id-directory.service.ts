@@ -7,14 +7,14 @@ import * as graphType from "@microsoft/microsoft-graph-types";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
-import { StateService } from "../abstractions/state.service";
-import { DirectoryType } from "../enums/directoryType";
-import { EntraIdConfiguration } from "../models/entraIdConfiguration";
-import { GroupEntry } from "../models/groupEntry";
-import { SyncConfiguration } from "../models/syncConfiguration";
-import { UserEntry } from "../models/userEntry";
+import { StateService } from "../../abstractions/state.service";
+import { DirectoryType } from "../../enums/directoryType";
+import { EntraIdConfiguration } from "../../models/entraIdConfiguration";
+import { GroupEntry } from "../../models/groupEntry";
+import { SyncConfiguration } from "../../models/syncConfiguration";
+import { UserEntry } from "../../models/userEntry";
+import { BaseDirectoryService } from "../baseDirectory.service";
 
-import { BaseDirectoryService } from "./baseDirectory.service";
 import { IDirectoryService } from "./directory.service";
 
 const EntraIdPublicIdentityAuthority = "login.microsoftonline.com";

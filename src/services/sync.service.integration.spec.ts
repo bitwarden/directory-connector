@@ -7,18 +7,19 @@ import { EnvironmentService } from "@/jslib/common/src/services/environment.serv
 
 import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../jslib/common/src/abstractions/log.service";
-import { groupFixtures } from "../../openldap/group-fixtures";
-import { userFixtures } from "../../openldap/user-fixtures";
+import { getLdapConfiguration, getSyncConfiguration } from "../../utils/openldap/config-fixtures";
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
 import { DirectoryType } from "../enums/directoryType";
-import { getLdapConfiguration, getSyncConfiguration } from "../utils/test-fixtures";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
-import { LdapDirectoryService } from "./ldap-directory.service";
+import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
 import { SingleRequestBuilder } from "./single-request-builder";
 import { StateService } from "./state.service";
 import { SyncService } from "./sync.service";
 import * as constants from "./sync.service";
+
+import { groupFixtures } from "@/utils/openldap/group-fixtures";
+import { userFixtures } from "@/utils/openldap/user-fixtures";
 
 describe("SyncService", () => {
   let logService: MockProxy<LogService>;
