@@ -128,7 +128,7 @@
     "prettier": "3.6.2",
     "rimraf": "6.1.0",
     "rxjs": "7.8.2",
-    "sass": "1.93.2",
+    "sass": "1.94.2",
     "sass-loader": "16.0.5",
     "ts-jest": "29.4.1",
     "ts-loader": "9.5.2",
