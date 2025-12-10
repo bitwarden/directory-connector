@@ -143,7 +143,7 @@
   },
   "dependencies": {
     "@angular/animations": "20.3.15",
-    "@angular/cdk": "20.2.14",
+    "@angular/cdk": "21.0.2",
     "@angular/cli": "20.3.3",
     "@angular/common": "20.3.15",
     "@angular/compiler": "20.3.15",
