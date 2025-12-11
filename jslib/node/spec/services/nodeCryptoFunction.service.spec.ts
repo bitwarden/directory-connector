@@ -1,4 +1,4 @@
-import { Utils } from "@/jslib/common/src/misc/utils";
+import Utils from "@/jslib/common/src/misc/utils";
 import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 
@@ -93,8 +93,9 @@ describe("NodeCrypto Function Service", () => {
 
     it("should fail with prk too small", async () => {
       const cryptoFunctionService = new NodeCryptoFunctionService();
+      const prk = Utils.fromB64ToArray(prk16Byte);
       const f = cryptoFunctionService.hkdfExpand(
-        Utils.fromB64ToArray(prk16Byte),
+        prk.buffer as ArrayBuffer,
         "info",
         32,
         "sha256",
@@ -104,8 +105,9 @@ describe("NodeCrypto Function Service", () => {
 
     it("should fail with outputByteSize is too large", async () => {
       const cryptoFunctionService = new NodeCryptoFunctionService();
+      const prk = Utils.fromB64ToArray(prk32Byte);
       const f = cryptoFunctionService.hkdfExpand(
-        Utils.fromB64ToArray(prk32Byte),
+        prk.buffer as ArrayBuffer,
         "info",
         8161,
         "sha256",
@@ -341,7 +343,8 @@ function testHkdf(
   utf8Key: string,
   unicodeKey: string,
 ) {
-  const ikm = Utils.fromB64ToArray("criAmKtfzxanbgea5/kelQ==");
+  const ikmArray = Utils.fromB64ToArray("criAmKtfzxanbgea5/kelQ==");
+  const ikm = ikmArray.buffer as ArrayBuffer;
 
   const regularSalt = "salt";
   const utf8Salt = "üser_salt";
@@ -392,8 +395,9 @@ function testHkdfExpand(
 
   it("should create valid " + algorithm + " " + outputByteSize + " byte okm", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
+    const prk = Utils.fromB64ToArray(b64prk);
     const okm = await cryptoFunctionService.hkdfExpand(
-      Utils.fromB64ToArray(b64prk),
+      prk.buffer as ArrayBuffer,
       info,
       outputByteSize,
       algorithm,

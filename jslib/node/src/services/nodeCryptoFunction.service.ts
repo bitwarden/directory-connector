@@ -3,7 +3,7 @@ import * as crypto from "crypto";
 import * as forge from "node-forge";
 
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { Utils } from "@/jslib/common/src/misc/utils";
+import Utils from "@/jslib/common/src/misc/utils";
 import { DecryptParameters } from "@/jslib/common/src/models/domain/decryptParameters";
 import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
 
@@ -215,7 +215,8 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     const publicKeyAsn1 = forge.pki.publicKeyToAsn1(forgePublicKey);
     const publicKeyByteString = forge.asn1.toDer(publicKeyAsn1).data;
     const publicKeyArray = Utils.fromByteStringToArray(publicKeyByteString);
-    return Promise.resolve(publicKeyArray.buffer);
+
+    return Promise.resolve(publicKeyArray.buffer as ArrayBuffer);
   }
 
   async rsaGenerateKeyPair(length: 1024 | 2048 | 4096): Promise<[ArrayBuffer, ArrayBuffer]> {
@@ -241,7 +242,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
           const privateKeyByteString = forge.asn1.toDer(privateKeyPkcs8).getBytes();
           const privateKey = Utils.fromByteStringToArray(privateKeyByteString);
 
-          resolve([publicKey.buffer, privateKey.buffer]);
+          resolve([publicKey.buffer as ArrayBuffer, privateKey.buffer as ArrayBuffer]);
         },
       );
     });

@@ -1,11 +1,13 @@
 /* eslint-disable no-useless-escape */
+import url from "url";
+
 import { I18nService } from "../abstractions/i18n.service";
 
 import * as tldjs from "tldjs";
 
-const nodeURL = typeof window === "undefined" ? require("url") : null;
+const nodeURL = typeof window === "undefined" ? url : null;
 
-export class Utils {
+class Utils {
   static inited = false;
   static isNode = false;
   static isBrowser = true;
@@ -34,9 +36,11 @@ export class Utils {
     Utils.global = Utils.isNode && !Utils.isBrowser ? global : window;
   }
 
-  static fromB64ToArray(str: string): Uint8Array {
+  static fromB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
-      return new Uint8Array(Buffer.from(str, "base64"));
+      const buffer = Buffer.from(str, "base64");
+
+      return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength) as Uint8Array<ArrayBuffer>;
     } else {
       const binaryString = window.atob(str);
       const bytes = new Uint8Array(binaryString.length);
@@ -47,7 +51,7 @@ export class Utils {
     }
   }
 
-  static fromUrlB64ToArray(str: string): Uint8Array {
+  static fromUrlB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     return Utils.fromB64ToArray(Utils.fromUrlB64ToB64(str));
   }
 
@@ -63,9 +67,11 @@ export class Utils {
     }
   }
 
-  static fromUtf8ToArray(str: string): Uint8Array {
+  static fromUtf8ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
-      return new Uint8Array(Buffer.from(str, "utf8"));
+      const buffer = Buffer.from(str, "utf8");
+
+      return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength) as Uint8Array<ArrayBuffer>;
     } else {
       const strUtf8 = unescape(encodeURIComponent(str));
       const arr = new Uint8Array(strUtf8.length);
@@ -84,12 +90,12 @@ export class Utils {
     return arr;
   }
 
-  static fromBufferToB64(buffer: ArrayBuffer): string {
+  static fromBufferToB64(buffer: BufferSource): string {
     if (Utils.isNode) {
-      return Buffer.from(buffer).toString("base64");
+      return Buffer.from(buffer as ArrayBuffer).toString("base64");
     } else {
       let binary = "";
-      const bytes = new Uint8Array(buffer);
+      const bytes = ArrayBuffer.isView(buffer) ? new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength) : new Uint8Array(buffer);
       for (let i = 0; i < bytes.byteLength; i++) {
         binary += String.fromCharCode(bytes[i]);
       }
@@ -97,7 +103,7 @@ export class Utils {
     }
   }
 
-  static fromBufferToUrlB64(buffer: ArrayBuffer): string {
+  static fromBufferToUrlB64(buffer: BufferSource): string {
     return Utils.fromB64toUrlB64(Utils.fromBufferToB64(buffer));
   }
 
@@ -247,7 +253,7 @@ export class Utils {
         const urlDomain =
           tldjs != null && tldjs.getDomain != null ? tldjs.getDomain(url.hostname) : null;
         return urlDomain != null ? urlDomain : url.hostname;
-      } catch (e) {
+      } catch {
         // Invalid domain, try another approach below.
       }
     }
@@ -395,12 +401,14 @@ export class Utils {
         anchor.href = uriString;
         return anchor as any;
       }
-    } catch (e) {
+    } catch {
       // Ignore error
     }
 
     return null;
   }
 }
+
+export default Utils;
 
 Utils.init();

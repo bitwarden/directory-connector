@@ -1,6 +1,7 @@
 dist
 build
 build-cli
+coverage
 webpack.cli.js
 webpack.main.js
 webpack.renderer.js
