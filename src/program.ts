@@ -3,7 +3,7 @@ import * as path from "path";
 import * as chalk from "chalk";
 import { Command, OptionValues } from "commander";
 
-import { Utils } from "@/jslib/common/src/misc/utils";
+import Utils from "@/jslib/common/src/misc/utils";
 import { BaseProgram } from "@/jslib/node/src/cli/baseProgram";
 import { UpdateCommand } from "@/jslib/node/src/cli/commands/update.command";
 import { Response } from "@/jslib/node/src/cli/models/response";
