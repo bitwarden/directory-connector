@@ -1,5 +1,4 @@
-import { Observable, Subject } from "rxjs";
-import { first } from "rxjs/operators";
+import { lastValueFrom, Observable, Subject } from "rxjs";
 
 export class ModalRef {
   onCreated: Observable<HTMLElement>; // Modal added to the DOM.
@@ -45,6 +44,6 @@ export class ModalRef {
   }
 
   onClosedPromise(): Promise<any> {
-    return this.onClosed.pipe(first()).toPromise();
+    return lastValueFrom(this.onClosed);
   }
 }

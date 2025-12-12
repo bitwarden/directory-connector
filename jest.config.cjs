@@ -26,7 +26,6 @@ module.exports = {
   modulePaths: [compilerOptions.baseUrl],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: "<rootDir>/" }),
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
-
   // Workaround for a memory leak that crashes tests in CI:
   // https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
   // Also anecdotally improves performance when run locally

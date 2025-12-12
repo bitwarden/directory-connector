@@ -132,7 +132,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     }
 
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
-    // eslint-disable-next-line
+
     while (true) {
       const users: graphType.User[] = res.value;
       if (users != null) {
@@ -211,7 +211,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
         let auMembers = await this.client
           .api(`${this.getGraphApiEndpoint()}/v1.0/directory/administrativeUnits/${p}/members`)
           .get();
-        // eslint-disable-next-line
+
         while (true) {
           for (const auMember of auMembers.value) {
             const groupId = auMember.id;
@@ -328,7 +328,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     const entries: GroupEntry[] = [];
     const groupsReq = this.client.api("/groups");
     let res = await groupsReq.get();
-    // eslint-disable-next-line
+
     while (true) {
       const groups: graphType.Group[] = res.value;
       if (groups != null) {
@@ -421,7 +421,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
 
     const memReq = this.client.api("/groups/" + group.id + "/members");
     let memRes = await memReq.get();
-    // eslint-disable-next-line
+
     while (true) {
       const members: any = memRes.value;
       if (members != null) {
