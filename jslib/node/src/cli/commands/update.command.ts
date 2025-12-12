@@ -26,6 +26,10 @@ export class UpdateCommand {
       "https://api.github.com/repos/bitwarden/" + this.repoName + "/releases/latest",
     );
     if (response.status === 200) {
+      // FIXME As of node-fetch v.3 this response has "unknown" type.
+      // Github provides type definitions for thier public api,
+      // but as of now we do not have them as a dependnecy. We
+      // should in the future consider adding this.
       const responseJson = (await response.json()) as any;
       const res = new MessageResponse(null, null);
 
