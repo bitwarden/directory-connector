@@ -67,7 +67,20 @@ const config = {
   },
   module: { rules: moduleRules },
   plugins: plugins,
-  externals: [nodeExternals()],
+  externals: [
+    nodeExternals({
+      allowlist: [
+        "node-fetch",
+        "data-uri-to-buffer",
+        "fetch-blob",
+        /^fetch-blob\/.*/,
+        "formdata-polyfill",
+        /^formdata-polyfill\/.*/,
+        "web-streams-polyfill",
+        /^web-streams-polyfill\/.*/,
+      ],
+    }),
+  ],
 };
 
 module.exports = config;
