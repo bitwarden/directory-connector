@@ -7,7 +7,7 @@ import { EnvironmentService } from "../abstractions/environment.service";
 import { PlatformUtilsService } from "../abstractions/platformUtils.service";
 import { TokenService } from "../abstractions/token.service";
 import { DeviceType } from "../enums/deviceType";
-import { Utils } from "../misc/utils";
+import Utils from "../misc/utils";
 import { ApiTokenRequest } from "../models/request/identityToken/apiTokenRequest";
 import { PasswordTokenRequest } from "../models/request/identityToken/passwordTokenRequest";
 import { SsoTokenRequest } from "../models/request/identityToken/ssoTokenRequest";

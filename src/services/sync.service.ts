@@ -3,7 +3,7 @@ import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFun
 import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
-import { Utils } from "@/jslib/common/src/misc/utils";
+import Utils from "@/jslib/common/src/misc/utils";
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
