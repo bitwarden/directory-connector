@@ -1,3 +1,4 @@
+import { components } from "@octokit/openapi-types";
 import * as fetch from "node-fetch";
 
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
@@ -5,6 +6,30 @@ import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUt
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/messageResponse";
+
+type GitHubRelease = components["schemas"]["release"];
+
+function isGitHubRelease(value: unknown): value is GitHubRelease {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const obj = value as Record<string, unknown>;
+
+  if (typeof obj.tag_name !== "string") {
+    return false;
+  }
+
+  if (obj.body !== undefined && obj.body !== null && typeof obj.body !== "string") {
+    return false;
+  }
+
+  if (obj.assets !== undefined && obj.assets !== null && !Array.isArray(obj.assets)) {
+    return false;
+  }
+
+  return true;
+}
 
 export class UpdateCommand {
   inPkg = false;
@@ -26,11 +51,12 @@ export class UpdateCommand {
       "https://api.github.com/repos/bitwarden/" + this.repoName + "/releases/latest",
     );
     if (response.status === 200) {
-      // FIXME As of node-fetch v.3 this response has "unknown" type.
-      // Github provides type definitions for thier public api,
-      // but as of now we do not have them as a dependnecy. We
-      // should in the future consider adding this.
-      const responseJson = (await response.json()) as any;
+      const responseJson = await response.json();
+
+      if (!isGitHubRelease(responseJson)) {
+        return Response.error("Invalid response from GitHub API");
+      }
+
       const res = new MessageResponse(null, null);
 
       const tagName: string = responseJson.tag_name;
