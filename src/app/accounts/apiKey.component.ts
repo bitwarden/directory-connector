@@ -23,7 +23,7 @@ import { EnvironmentComponent } from "./environment.component";
 // The only subscription in this component is closed from a child component, confusing eslint.
 // https://github.com/cartant/eslint-plugin-rxjs-angular/blob/main/docs/rules/prefer-takeuntil.md
 //
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
+// eslint-disable-next-line rxjs-angular-x/prefer-takeuntil
 export class ApiKeyComponent {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
   environmentModal: ViewContainerRef;
@@ -100,7 +100,7 @@ export class ApiKeyComponent {
       this.environmentModal,
     );
 
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
+    // eslint-disable-next-line rxjs-angular-x/prefer-takeuntil
     childComponent.onSaved.pipe(takeUntil(modalRef.onClosed)).subscribe(() => {
       modalRef.close();
     });

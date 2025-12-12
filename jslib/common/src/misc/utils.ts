@@ -1,9 +1,11 @@
 /* eslint-disable no-useless-escape */
+import * as url from "url";
+
 import { I18nService } from "../abstractions/i18n.service";
 
 import * as tldjs from "tldjs";
 
-const nodeURL = typeof window === "undefined" ? require("url") : null;
+const nodeURL = typeof window === "undefined" ? url : null;
 
 export class Utils {
   static inited = false;
@@ -247,7 +249,7 @@ export class Utils {
         const urlDomain =
           tldjs != null && tldjs.getDomain != null ? tldjs.getDomain(url.hostname) : null;
         return urlDomain != null ? urlDomain : url.hostname;
-      } catch (e) {
+      } catch {
         // Invalid domain, try another approach below.
       }
     }
@@ -395,7 +397,7 @@ export class Utils {
         anchor.href = uriString;
         return anchor as any;
       }
-    } catch (e) {
+    } catch {
       // Ignore error
     }
 

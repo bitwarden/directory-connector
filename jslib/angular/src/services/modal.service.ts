@@ -9,7 +9,7 @@ import {
   Type,
   ViewContainerRef,
 } from "@angular/core";
-import { first } from "rxjs/operators";
+import { first, firstValueFrom } from "rxjs";
 
 import { DynamicModalComponent } from "../components/modal/dynamic-modal.component";
 import { ModalInjector } from "../components/modal/modal-injector";
@@ -58,7 +58,7 @@ export class ModalService {
 
     viewContainerRef.insert(modalComponentRef.hostView);
 
-    await modalRef.onCreated.pipe(first()).toPromise();
+    await firstValueFrom(modalRef.onCreated);
 
     return [modalRef, modalComponentRef.instance.componentRef.instance];
   }

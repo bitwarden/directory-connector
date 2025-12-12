@@ -1,6 +1,14 @@
 import * as path from "path";
 
-import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray } from "electron";
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  MenuItemConstructorOptions,
+  NativeImage,
+  nativeImage,
+  Tray,
+} from "electron";
 
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { StateService } from "@/jslib/common/src/abstractions/state.service";
@@ -12,8 +20,8 @@ export class TrayMain {
 
   private appName: string;
   private tray: Tray;
-  private icon: string | Electron.NativeImage;
-  private pressedIcon: Electron.NativeImage;
+  private icon: string | NativeImage;
+  private pressedIcon: NativeImage;
 
   constructor(
     private windowMain: WindowMain,

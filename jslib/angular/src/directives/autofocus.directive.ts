@@ -1,5 +1,5 @@
 import { Directive, ElementRef, Input, NgZone } from "@angular/core";
-import { take } from "rxjs/operators";
+import { take } from "rxjs";
 
 import { Utils } from "@/jslib/common/src/misc/utils";
 

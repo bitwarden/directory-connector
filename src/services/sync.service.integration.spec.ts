@@ -116,6 +116,7 @@ describe("SyncService", () => {
       stateService.getLastSyncHash.mockResolvedValue("unique hash");
 
       // @ts-expect-error This is a workaround to make the batchsize smaller to trigger the batching logic since its a const.
+      // eslint-disable-next-line no-import-assign
       constants.batchSize = 4;
 
       const syncResult = await syncService.sync(false, false);
@@ -130,6 +131,7 @@ describe("SyncService", () => {
       expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(7);
 
       // @ts-expect-error Reset batch size to original state.
+      // eslint-disable-next-line no-import-assign
       constants.batchSize = originalBatchSize;
     });
   });
