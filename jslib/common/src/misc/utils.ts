@@ -92,7 +92,11 @@ class Utils {
 
   static fromBufferToB64(buffer: BufferSource): string {
     if (Utils.isNode) {
-      return Buffer.from(buffer as ArrayBuffer).toString("base64");
+      if (ArrayBuffer.isView(buffer)) {
+        return Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength).toString("base64");
+      } else {
+        return Buffer.from(buffer).toString("base64");
+      }
     } else {
       let binary = "";
       const bytes = ArrayBuffer.isView(buffer) ? new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength) : new Uint8Array(buffer);

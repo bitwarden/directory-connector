@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { notarize } from "@electron/notarize";
 import { config } from "dotenv";
 
 config();
 
-exports.default = async function notarizing(context) {
+export default async function notarizing(context) {
   const { electronPlatformName, appOutDir } = context;
   if (electronPlatformName !== "darwin") {
     return;
@@ -35,4 +34,4 @@ exports.default = async function notarizing(context) {
       appleIdPassword: appleIdPassword,
     });
   }
-};
+}

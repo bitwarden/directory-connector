@@ -95,7 +95,7 @@ describe("NodeCrypto Function Service", () => {
       const cryptoFunctionService = new NodeCryptoFunctionService();
       const prk = Utils.fromB64ToArray(prk16Byte);
       const f = cryptoFunctionService.hkdfExpand(
-        prk.buffer as ArrayBuffer,
+        prk.buffer,
         "info",
         32,
         "sha256",
@@ -107,7 +107,7 @@ describe("NodeCrypto Function Service", () => {
       const cryptoFunctionService = new NodeCryptoFunctionService();
       const prk = Utils.fromB64ToArray(prk32Byte);
       const f = cryptoFunctionService.hkdfExpand(
-        prk.buffer as ArrayBuffer,
+        prk.buffer,
         "info",
         8161,
         "sha256",
@@ -181,16 +181,16 @@ describe("NodeCrypto Function Service", () => {
 
     it("should successfully encrypt and then decrypt data", async () => {
       const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const iv = makeStaticByteArray(16);
-      const key = makeStaticByteArray(32);
+      const iv = makeStaticByteArray(16).buffer;
+      const key = makeStaticByteArray(32).buffer;
       const value = "EncryptMe!";
-      const data = Utils.fromUtf8ToArray(value);
+      const data = Utils.fromUtf8ToArray(value).buffer;
       const encValue = await nodeCryptoFunctionService.aesEncrypt(
-        data.buffer,
-        iv.buffer,
-        key.buffer,
+        data,
+        iv,
+        key
       );
-      const decValue = await nodeCryptoFunctionService.aesDecrypt(encValue, iv.buffer, key.buffer);
+      const decValue = await nodeCryptoFunctionService.aesDecrypt(encValue, iv, key);
       expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
     });
   });
@@ -198,8 +198,9 @@ describe("NodeCrypto Function Service", () => {
   describe("aesDecryptFast", () => {
     it("should successfully decrypt data", async () => {
       const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const iv = Utils.fromBufferToB64(makeStaticByteArray(16).buffer);
-      const symKey = new SymmetricCryptoKey(makeStaticByteArray(32).buffer);
+      const ivArray = makeStaticByteArray(16);
+      const iv = Utils.fromBufferToB64(ivArray);
+      const symKey = new SymmetricCryptoKey(makeStaticByteArray(32));
       const data = "ByUF8vhyX4ddU9gcooznwA==";
       const params = nodeCryptoFunctionService.aesDecryptFastParameters(data, iv, null, symKey);
       const decValue = await nodeCryptoFunctionService.aesDecryptFast(params);
@@ -210,13 +211,13 @@ describe("NodeCrypto Function Service", () => {
   describe("aesDecrypt", () => {
     it("should successfully decrypt data", async () => {
       const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const iv = makeStaticByteArray(16);
-      const key = makeStaticByteArray(32);
-      const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
+      const iv = makeStaticByteArray(16).buffer;
+      const key = makeStaticByteArray(32).buffer;
+      const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==").buffer;
       const decValue = await nodeCryptoFunctionService.aesDecrypt(
-        data.buffer,
-        iv.buffer,
-        key.buffer,
+        data,
+        iv,
+        key,
       );
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
     });
@@ -226,7 +227,7 @@ describe("NodeCrypto Function Service", () => {
     it("should successfully encrypt and then decrypt data", async () => {
       const nodeCryptoFunctionService = new NodeCryptoFunctionService();
       const pubKey = Utils.fromB64ToArray(RsaPublicKey);
-      const privKey = Utils.fromB64ToArray(RsaPrivateKey);
+      const privKey = Utils.fromB64ToArray(RsaPrivateKey).buffer;
       const value = "EncryptMe!";
       const data = Utils.fromUtf8ToArray(value);
       const encValue = await nodeCryptoFunctionService.rsaEncrypt(
@@ -234,7 +235,7 @@ describe("NodeCrypto Function Service", () => {
         pubKey.buffer,
         "sha1",
       );
-      const decValue = await nodeCryptoFunctionService.rsaDecrypt(encValue, privKey.buffer, "sha1");
+      const decValue = await nodeCryptoFunctionService.rsaDecrypt(encValue, privKey, "sha1");
       expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
     });
   });
@@ -261,8 +262,8 @@ describe("NodeCrypto Function Service", () => {
   describe("rsaExtractPublicKey", () => {
     it("should successfully extract key", async () => {
       const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const privKey = Utils.fromB64ToArray(RsaPrivateKey);
-      const publicKey = await nodeCryptoFunctionService.rsaExtractPublicKey(privKey.buffer);
+      const privKey = Utils.fromB64ToArray(RsaPrivateKey).buffer;
+      const publicKey = await nodeCryptoFunctionService.rsaExtractPublicKey(privKey);
       expect(Utils.fromBufferToB64(publicKey)).toBe(RsaPublicKey);
     });
   });
@@ -343,8 +344,7 @@ function testHkdf(
   utf8Key: string,
   unicodeKey: string,
 ) {
-  const ikmArray = Utils.fromB64ToArray("criAmKtfzxanbgea5/kelQ==");
-  const ikm = ikmArray.buffer as ArrayBuffer;
+  const ikm = Utils.fromB64ToArray("criAmKtfzxanbgea5/kelQ==");
 
   const regularSalt = "salt";
   const utf8Salt = "üser_salt";
@@ -356,26 +356,26 @@ function testHkdf(
 
   it("should create valid " + algorithm + " key from regular input", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
-    const key = await cryptoFunctionService.hkdf(ikm, regularSalt, regularInfo, 32, algorithm);
+    const key = await cryptoFunctionService.hkdf(ikm.buffer, regularSalt, regularInfo, 32, algorithm);
     expect(Utils.fromBufferToB64(key)).toBe(regularKey);
   });
 
   it("should create valid " + algorithm + " key from utf8 input", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
-    const key = await cryptoFunctionService.hkdf(ikm, utf8Salt, utf8Info, 32, algorithm);
+    const key = await cryptoFunctionService.hkdf(ikm.buffer, utf8Salt, utf8Info, 32, algorithm);
     expect(Utils.fromBufferToB64(key)).toBe(utf8Key);
   });
 
   it("should create valid " + algorithm + " key from unicode input", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
-    const key = await cryptoFunctionService.hkdf(ikm, unicodeSalt, unicodeInfo, 32, algorithm);
+    const key = await cryptoFunctionService.hkdf(ikm.buffer, unicodeSalt, unicodeInfo, 32, algorithm);
     expect(Utils.fromBufferToB64(key)).toBe(unicodeKey);
   });
 
   it("should create valid " + algorithm + " key from array buffer input", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const key = await cryptoFunctionService.hkdf(
-      ikm,
+      ikm.buffer,
       Utils.fromUtf8ToArray(regularSalt).buffer,
       Utils.fromUtf8ToArray(regularInfo).buffer,
       32,
@@ -397,7 +397,7 @@ function testHkdfExpand(
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const prk = Utils.fromB64ToArray(b64prk);
     const okm = await cryptoFunctionService.hkdfExpand(
-      prk.buffer as ArrayBuffer,
+      prk.buffer,
       info,
       outputByteSize,
       algorithm,

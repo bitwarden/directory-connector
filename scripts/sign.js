@@ -1,8 +1,11 @@
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
+/* eslint-disable no-console */
 import { execSync } from "child_process";
 
-exports.default = async function (configuration) {
-  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && configuration.path.slice(-4) == ".exe") {
+export default async function (configuration) {
+  if (
+    parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 &&
+    configuration.path.slice(-4) === ".exe"
+  ) {
     console.log(`[*] Signing file: ${configuration.path}`);
     execSync(
       `azuresigntool sign ` +
@@ -20,4 +23,4 @@ exports.default = async function (configuration) {
       },
     );
   }
-};
+}
