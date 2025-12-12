@@ -1,12 +1,11 @@
 import * as fs from "fs";
 
 import { ipcMain } from "electron";
+import Store from "electron-store";
 
 import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
 import { NodeUtils } from "@/jslib/common/src/misc/nodeUtils";
 
-// eslint-disable-next-line
-const Store = require("electron-store");
 
 export class ElectronStorageService implements StorageService {
   private store: any;
