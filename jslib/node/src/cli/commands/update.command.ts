@@ -26,7 +26,7 @@ export class UpdateCommand {
       "https://api.github.com/repos/bitwarden/" + this.repoName + "/releases/latest",
     );
     if (response.status === 200) {
-      const responseJson = await response.json();
+      const responseJson = (await response.json()) as any;
       const res = new MessageResponse(null, null);
 
       const tagName: string = responseJson.tag_name;
