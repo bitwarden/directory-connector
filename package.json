@@ -175,7 +175,7 @@
     "zone.js": "0.15.1"
   },
   "engines": {
-    "node": "~20",
+    "node": "~22",
     "npm": "~10"
   },
   "lint-staged": {
