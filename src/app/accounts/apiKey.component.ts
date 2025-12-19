@@ -6,7 +6,7 @@ import { ModalService } from "@/jslib/angular/src/services/modal.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { Utils } from "@/jslib/common/src/misc/utils";
+import Utils from "@/jslib/common/src/misc/utils";
 
 import { AuthService } from "../../abstractions/auth.service";
 import { StateService } from "../../abstractions/state.service";

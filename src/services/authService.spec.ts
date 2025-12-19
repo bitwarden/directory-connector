@@ -3,7 +3,7 @@ import { Arg, Substitute, SubstituteOf } from "@fluffy-spoon/substitute";
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { Utils } from "@/jslib/common/src/misc/utils";
+import Utils from "@/jslib/common/src/misc/utils";
 import {
   AccountKeys,
   AccountProfile,

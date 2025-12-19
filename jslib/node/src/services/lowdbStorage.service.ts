@@ -8,7 +8,7 @@ import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
 import { NodeUtils } from "@/jslib/common/src/misc/nodeUtils";
 import { sequentialize } from "@/jslib/common/src/misc/sequentialize";
-import { Utils } from "@/jslib/common/src/misc/utils";
+import Utils from "@/jslib/common/src/misc/utils";
 
 export class LowdbStorageService implements StorageService {
   protected dataFilePath: string;

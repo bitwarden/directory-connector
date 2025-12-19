@@ -3,7 +3,7 @@ import * as crypto from "crypto";
 import * as forge from "node-forge";
 
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { Utils } from "@/jslib/common/src/misc/utils";
+import Utils from "@/jslib/common/src/misc/utils";
 import { DecryptParameters } from "@/jslib/common/src/models/domain/decryptParameters";
 import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
 
@@ -147,19 +147,22 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   ): DecryptParameters<ArrayBuffer> {
     const p = new DecryptParameters<ArrayBuffer>();
     p.encKey = key.encKey;
-    p.data = Utils.fromB64ToArray(data).buffer;
-    p.iv = Utils.fromB64ToArray(iv).buffer;
+    const dataArr = Utils.fromB64ToArray(data);
+    p.data = dataArr.buffer.slice(dataArr.byteOffset, dataArr.byteOffset + dataArr.byteLength) as ArrayBuffer;
+    const ivArr = Utils.fromB64ToArray(iv);
+    p.iv = ivArr.buffer.slice(ivArr.byteOffset, ivArr.byteOffset + ivArr.byteLength) as ArrayBuffer;
 
     const macData = new Uint8Array(p.iv.byteLength + p.data.byteLength);
     macData.set(new Uint8Array(p.iv), 0);
     macData.set(new Uint8Array(p.data), p.iv.byteLength);
-    p.macData = macData.buffer;
+    p.macData = macData.buffer.slice(macData.byteOffset, macData.byteOffset + macData.byteLength) as ArrayBuffer;
 
     if (key.macKey != null) {
       p.macKey = key.macKey;
     }
     if (mac != null) {
-      p.mac = Utils.fromB64ToArray(mac).buffer;
+      const macArr = Utils.fromB64ToArray(mac);
+      p.mac = macArr.buffer.slice(macArr.byteOffset, macArr.byteOffset + macArr.byteLength) as ArrayBuffer;
     }
 
     return p;
@@ -215,7 +218,8 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     const publicKeyAsn1 = forge.pki.publicKeyToAsn1(forgePublicKey);
     const publicKeyByteString = forge.asn1.toDer(publicKeyAsn1).data;
     const publicKeyArray = Utils.fromByteStringToArray(publicKeyByteString);
-    return Promise.resolve(publicKeyArray.buffer);
+
+    return Promise.resolve(publicKeyArray.buffer as ArrayBuffer);
   }
 
   async rsaGenerateKeyPair(length: 1024 | 2048 | 4096): Promise<[ArrayBuffer, ArrayBuffer]> {
@@ -241,7 +245,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
           const privateKeyByteString = forge.asn1.toDer(privateKeyPkcs8).getBytes();
           const privateKey = Utils.fromByteStringToArray(privateKeyByteString);
 
-          resolve([publicKey.buffer, privateKey.buffer]);
+          resolve([publicKey.buffer as ArrayBuffer, privateKey.buffer as ArrayBuffer]);
         },
       );
     });
@@ -276,9 +280,12 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   private toArrayBuffer(value: Buffer | string | ArrayBuffer): ArrayBuffer {
     let buf: ArrayBuffer;
     if (typeof value === "string") {
-      buf = Utils.fromUtf8ToArray(value).buffer;
+      const arr = Utils.fromUtf8ToArray(value);
+      buf = arr.buffer.slice(arr.byteOffset, arr.byteOffset + arr.byteLength) as ArrayBuffer;
+    } else if (Buffer.isBuffer(value)) {
+      buf = value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength) as ArrayBuffer;
     } else {
-      buf = new Uint8Array(value).buffer;
+      buf = value;
     }
     return buf;
   }
