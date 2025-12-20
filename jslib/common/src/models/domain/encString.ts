@@ -53,7 +53,7 @@ export class EncString {
       try {
         this.encryptionType = parseInt(headerPieces[0], null);
         encPieces = headerPieces[1].split("|");
-      } catch (e) {
+      } catch {
         return;
       }
     } else {
@@ -114,7 +114,7 @@ export class EncString {
         key = await cryptoService.getOrgKey(orgId);
       }
       this.decryptedValue = await cryptoService.decryptToUtf8(this, key);
-    } catch (e) {
+    } catch {
       this.decryptedValue = "[error: cannot decrypt]";
     }
     return this.decryptedValue;

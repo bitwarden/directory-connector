@@ -3,8 +3,7 @@ import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 
 import { isDev } from "@/jslib/electron/src/utils";
 
-// tslint:disable-next-line
-require("../scss/styles.scss");
+import "../scss/styles.scss";
 
 import { AppModule } from "./app.module";
 

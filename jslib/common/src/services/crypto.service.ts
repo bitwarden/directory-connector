@@ -335,9 +335,11 @@ export class CryptoService implements CryptoServiceAbstraction {
   }
 
   async clearStoredKey(keySuffix: KeySuffixOptions) {
-    keySuffix === KeySuffixOptions.Auto
-      ? await this.stateService.setCryptoMasterKeyAuto(null)
-      : await this.stateService.setCryptoMasterKeyBiometric(null);
+    if (keySuffix === KeySuffixOptions.Auto) {
+      await this.stateService.setCryptoMasterKeyAuto(null);
+    } else {
+      await this.stateService.setCryptoMasterKeyBiometric(null);
+    }
   }
 
   async clearKeyHash(userId?: string): Promise<any> {
@@ -717,7 +719,7 @@ export class CryptoService implements CryptoServiceAbstraction {
 
       const privateKey = await this.decryptToBytes(new EncString(encPrivateKey), encKey);
       await this.cryptoFunctionService.rsaExtractPublicKey(privateKey);
-    } catch (e) {
+    } catch {
       return false;
     }
 
