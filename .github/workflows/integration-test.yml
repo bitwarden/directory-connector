@@ -52,7 +52,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -129,7 +129,7 @@ jobs:
 
       - name: Report test results
         id: report
-        uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
+        uses: dorny/test-reporter@fe45e9537387dac839af0d33ba56eed8e24189e8 # v2.3.0
         # This will skip the job if it's a pull request from a fork, because that won't have permission to upload test results.
         # PRs from the repository and all other events are OK.
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository) && !cancelled()
@@ -140,7 +140,7 @@ jobs:
           fail-on-error: true
 
       - name: Upload coverage to codecov.io
-        uses: codecov/codecov-action@5a605bd92782ce0810fa3b8acc235c921b497052 # v5.2.0
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
 
       - name: Upload results to codecov.io
-        uses: codecov/test-results-action@4e79e65778be1cecd5df25e14af1eafb6df80ea9 # v1.0.2
+        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # v1.2.1
