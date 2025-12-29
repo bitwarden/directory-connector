@@ -4,7 +4,7 @@
   },
   "productName": "Bitwarden Directory Connector",
   "appId": "com.bitwarden.directory-connector",
-  "copyright": "Copyright © 2015-2022 Bitwarden Inc.",
+  "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
   "directories": {
     "buildResources": "resources",
     "output": "dist",
