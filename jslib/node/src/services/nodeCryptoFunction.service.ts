@@ -67,14 +67,14 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
       t.set(previousT);
       t.set(infoArr, previousT.length);
       t.set([i + 1], t.length - 1);
-      previousT = new Uint8Array(await this.hmac(t.buffer, prk, algorithm));
+      previousT = new Uint8Array(await this.hmac(t.buffer as ArrayBuffer, prk, algorithm));
       okm.set(previousT, runningOkmLength);
       runningOkmLength += previousT.length;
       if (runningOkmLength >= outputByteSize) {
         break;
       }
     }
-    return okm.slice(0, outputByteSize).buffer;
+    return okm.slice(0, outputByteSize).buffer as ArrayBuffer;
   }
 
   hash(
@@ -147,19 +147,19 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   ): DecryptParameters<ArrayBuffer> {
     const p = new DecryptParameters<ArrayBuffer>();
     p.encKey = key.encKey;
-    p.data = Utils.fromB64ToArray(data).buffer;
-    p.iv = Utils.fromB64ToArray(iv).buffer;
+    p.data = Utils.fromB64ToArray(data).buffer as ArrayBuffer;
+    p.iv = Utils.fromB64ToArray(iv).buffer as ArrayBuffer;
 
     const macData = new Uint8Array(p.iv.byteLength + p.data.byteLength);
     macData.set(new Uint8Array(p.iv), 0);
     macData.set(new Uint8Array(p.data), p.iv.byteLength);
-    p.macData = macData.buffer;
+    p.macData = macData.buffer as ArrayBuffer;
 
     if (key.macKey != null) {
       p.macKey = key.macKey;
     }
     if (mac != null) {
-      p.mac = Utils.fromB64ToArray(mac).buffer;
+      p.mac = Utils.fromB64ToArray(mac).buffer as ArrayBuffer;
     }
 
     return p;
@@ -215,7 +215,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     const publicKeyAsn1 = forge.pki.publicKeyToAsn1(forgePublicKey);
     const publicKeyByteString = forge.asn1.toDer(publicKeyAsn1).data;
     const publicKeyArray = Utils.fromByteStringToArray(publicKeyByteString);
-    return Promise.resolve(publicKeyArray.buffer);
+    return Promise.resolve(publicKeyArray.buffer as ArrayBuffer);
   }
 
   async rsaGenerateKeyPair(length: 1024 | 2048 | 4096): Promise<[ArrayBuffer, ArrayBuffer]> {
@@ -241,7 +241,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
           const privateKeyByteString = forge.asn1.toDer(privateKeyPkcs8).getBytes();
           const privateKey = Utils.fromByteStringToArray(privateKeyByteString);
 
-          resolve([publicKey.buffer, privateKey.buffer]);
+          resolve([publicKey.buffer as ArrayBuffer, privateKey.buffer as ArrayBuffer]);
         },
       );
     });
@@ -276,9 +276,9 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   private toArrayBuffer(value: Buffer | string | ArrayBuffer): ArrayBuffer {
     let buf: ArrayBuffer;
     if (typeof value === "string") {
-      buf = Utils.fromUtf8ToArray(value).buffer;
+      buf = Utils.fromUtf8ToArray(value).buffer as ArrayBuffer;
     } else {
-      buf = new Uint8Array(value).buffer;
+      buf = new Uint8Array(value).buffer as ArrayBuffer;
     }
     return buf;
   }

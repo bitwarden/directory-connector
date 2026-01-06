@@ -94,7 +94,7 @@ describe("NodeCrypto Function Service", () => {
     it("should fail with prk too small", async () => {
       const cryptoFunctionService = new NodeCryptoFunctionService();
       const f = cryptoFunctionService.hkdfExpand(
-        Utils.fromB64ToArray(prk16Byte),
+        Utils.fromB64ToArray(prk16Byte).buffer as ArrayBuffer,
         "info",
         32,
         "sha256",
@@ -105,7 +105,7 @@ describe("NodeCrypto Function Service", () => {
     it("should fail with outputByteSize is too large", async () => {
       const cryptoFunctionService = new NodeCryptoFunctionService();
       const f = cryptoFunctionService.hkdfExpand(
-        Utils.fromB64ToArray(prk32Byte),
+        Utils.fromB64ToArray(prk32Byte).buffer as ArrayBuffer,
         "info",
         8161,
         "sha256",
@@ -170,9 +170,9 @@ describe("NodeCrypto Function Service", () => {
       const key = makeStaticByteArray(32);
       const data = Utils.fromUtf8ToArray("EncryptMe!");
       const encValue = await nodeCryptoFunctionService.aesEncrypt(
-        data.buffer,
-        iv.buffer,
-        key.buffer,
+        data.buffer as ArrayBuffer,
+        iv.buffer as ArrayBuffer,
+        key.buffer as ArrayBuffer,
       );
       expect(Utils.fromBufferToB64(encValue)).toBe("ByUF8vhyX4ddU9gcooznwA==");
     });
@@ -184,11 +184,11 @@ describe("NodeCrypto Function Service", () => {
       const value = "EncryptMe!";
       const data = Utils.fromUtf8ToArray(value);
       const encValue = await nodeCryptoFunctionService.aesEncrypt(
-        data.buffer,
-        iv.buffer,
-        key.buffer,
+        data.buffer as ArrayBuffer,
+        iv.buffer as ArrayBuffer,
+        key.buffer as ArrayBuffer,
       );
-      const decValue = await nodeCryptoFunctionService.aesDecrypt(encValue, iv.buffer, key.buffer);
+      const decValue = await nodeCryptoFunctionService.aesDecrypt(encValue, iv.buffer as ArrayBuffer, key.buffer as ArrayBuffer);
       expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
     });
   });
@@ -196,8 +196,8 @@ describe("NodeCrypto Function Service", () => {
   describe("aesDecryptFast", () => {
     it("should successfully decrypt data", async () => {
       const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const iv = Utils.fromBufferToB64(makeStaticByteArray(16).buffer);
-      const symKey = new SymmetricCryptoKey(makeStaticByteArray(32).buffer);
+      const iv = Utils.fromBufferToB64(makeStaticByteArray(16).buffer as ArrayBuffer);
+      const symKey = new SymmetricCryptoKey(makeStaticByteArray(32).buffer as ArrayBuffer);
       const data = "ByUF8vhyX4ddU9gcooznwA==";
       const params = nodeCryptoFunctionService.aesDecryptFastParameters(data, iv, null, symKey);
       const decValue = await nodeCryptoFunctionService.aesDecryptFast(params);
@@ -212,9 +212,9 @@ describe("NodeCrypto Function Service", () => {
       const key = makeStaticByteArray(32);
       const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
       const decValue = await nodeCryptoFunctionService.aesDecrypt(
-        data.buffer,
-        iv.buffer,
-        key.buffer,
+        data.buffer as ArrayBuffer,
+        iv.buffer as ArrayBuffer,
+        key.buffer as ArrayBuffer,
       );
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
     });
@@ -228,11 +228,11 @@ describe("NodeCrypto Function Service", () => {
       const value = "EncryptMe!";
       const data = Utils.fromUtf8ToArray(value);
       const encValue = await nodeCryptoFunctionService.rsaEncrypt(
-        data.buffer,
-        pubKey.buffer,
+        data.buffer as ArrayBuffer,
+        pubKey.buffer as ArrayBuffer,
         "sha1",
       );
-      const decValue = await nodeCryptoFunctionService.rsaDecrypt(encValue, privKey.buffer, "sha1");
+      const decValue = await nodeCryptoFunctionService.rsaDecrypt(encValue, privKey.buffer as ArrayBuffer, "sha1");
       expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
     });
   });
@@ -248,8 +248,8 @@ describe("NodeCrypto Function Service", () => {
           "/5jcercUtK2o+XrzNrL4UQ7yLZcFz6Bfwb/j6ICYvqd/YJwXNE6dwlL57OfwJyCdw2rRYf0/qI00t9u8Iitw==",
       );
       const decValue = await nodeCryptoFunctionService.rsaDecrypt(
-        data.buffer,
-        privKey.buffer,
+        data.buffer as ArrayBuffer,
+        privKey.buffer as ArrayBuffer,
         "sha1",
       );
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
@@ -260,7 +260,7 @@ describe("NodeCrypto Function Service", () => {
     it("should successfully extract key", async () => {
       const nodeCryptoFunctionService = new NodeCryptoFunctionService();
       const privKey = Utils.fromB64ToArray(RsaPrivateKey);
-      const publicKey = await nodeCryptoFunctionService.rsaExtractPublicKey(privKey.buffer);
+      const publicKey = await nodeCryptoFunctionService.rsaExtractPublicKey(privKey.buffer as ArrayBuffer);
       expect(Utils.fromBufferToB64(publicKey)).toBe(RsaPublicKey);
     });
   });
@@ -326,8 +326,8 @@ function testPbkdf2(
   it("should create valid " + algorithm + " key from array buffer input", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const key = await cryptoFunctionService.pbkdf2(
-      Utils.fromUtf8ToArray(regularPassword).buffer,
-      Utils.fromUtf8ToArray(regularEmail).buffer,
+      Utils.fromUtf8ToArray(regularPassword).buffer as ArrayBuffer,
+      Utils.fromUtf8ToArray(regularEmail).buffer as ArrayBuffer,
       algorithm,
       5000,
     );
@@ -341,7 +341,7 @@ function testHkdf(
   utf8Key: string,
   unicodeKey: string,
 ) {
-  const ikm = Utils.fromB64ToArray("criAmKtfzxanbgea5/kelQ==");
+  const ikm = Utils.fromB64ToArray("criAmKtfzxanbgea5/kelQ==").buffer as ArrayBuffer;
 
   const regularSalt = "salt";
   const utf8Salt = "üser_salt";
@@ -373,8 +373,8 @@ function testHkdf(
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const key = await cryptoFunctionService.hkdf(
       ikm,
-      Utils.fromUtf8ToArray(regularSalt).buffer,
-      Utils.fromUtf8ToArray(regularInfo).buffer,
+      Utils.fromUtf8ToArray(regularSalt).buffer as ArrayBuffer,
+      Utils.fromUtf8ToArray(regularInfo).buffer as ArrayBuffer,
       32,
       algorithm,
     );
@@ -393,7 +393,7 @@ function testHkdfExpand(
   it("should create valid " + algorithm + " " + outputByteSize + " byte okm", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const okm = await cryptoFunctionService.hkdfExpand(
-      Utils.fromB64ToArray(b64prk),
+      Utils.fromB64ToArray(b64prk).buffer as ArrayBuffer,
       info,
       outputByteSize,
       algorithm,
@@ -433,7 +433,7 @@ function testHash(
   it("should create valid " + algorithm + " hash from array buffer input", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const hash = await cryptoFunctionService.hash(
-      Utils.fromUtf8ToArray(regularValue).buffer,
+      Utils.fromUtf8ToArray(regularValue).buffer as ArrayBuffer,
       algorithm,
     );
     expect(Utils.fromBufferToHex(hash)).toBe(regularHash);
@@ -443,8 +443,8 @@ function testHash(
 function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string, fast = false) {
   it("should create valid " + algorithm + " hmac", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
-    const value = Utils.fromUtf8ToArray("SignMe!!").buffer;
-    const key = Utils.fromUtf8ToArray("secretkey").buffer;
+    const value = Utils.fromUtf8ToArray("SignMe!!").buffer as ArrayBuffer;
+    const key = Utils.fromUtf8ToArray("secretkey").buffer as ArrayBuffer;
     let computedMac: ArrayBuffer = null;
     if (fast) {
       computedMac = await cryptoFunctionService.hmacFast(value, key, algorithm);
@@ -462,8 +462,8 @@ function testCompare(fast = false) {
     a[0] = 1;
     a[1] = 2;
     const equal = fast
-      ? await cryptoFunctionService.compareFast(a.buffer, a.buffer)
-      : await cryptoFunctionService.compare(a.buffer, a.buffer);
+      ? await cryptoFunctionService.compareFast(a.buffer as ArrayBuffer, a.buffer as ArrayBuffer)
+      : await cryptoFunctionService.compare(a.buffer as ArrayBuffer, a.buffer as ArrayBuffer);
     expect(equal).toBe(true);
   });
 
@@ -476,8 +476,8 @@ function testCompare(fast = false) {
     b[0] = 3;
     b[1] = 4;
     const equal = fast
-      ? await cryptoFunctionService.compareFast(a.buffer, b.buffer)
-      : await cryptoFunctionService.compare(a.buffer, b.buffer);
+      ? await cryptoFunctionService.compareFast(a.buffer as ArrayBuffer, b.buffer as ArrayBuffer)
+      : await cryptoFunctionService.compare(a.buffer as ArrayBuffer, b.buffer as ArrayBuffer);
     expect(equal).toBe(false);
   });
 
@@ -489,8 +489,8 @@ function testCompare(fast = false) {
     const b = new Uint8Array(2);
     b[0] = 3;
     const equal = fast
-      ? await cryptoFunctionService.compareFast(a.buffer, b.buffer)
-      : await cryptoFunctionService.compare(a.buffer, b.buffer);
+      ? await cryptoFunctionService.compareFast(a.buffer as ArrayBuffer, b.buffer as ArrayBuffer)
+      : await cryptoFunctionService.compare(a.buffer as ArrayBuffer, b.buffer as ArrayBuffer);
     expect(equal).toBe(false);
   });
 }

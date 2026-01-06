@@ -15,7 +15,7 @@ describe("SymmetricCryptoKey", () => {
   describe("guesses encKey from key length", () => {
     it("AesCbc256_B64", () => {
       const key = makeStaticByteArray(32);
-      const cryptoKey = new SymmetricCryptoKey(key);
+      const cryptoKey = new SymmetricCryptoKey(key.buffer as ArrayBuffer);
 
       expect(cryptoKey).toEqual({
         encKey: key,
@@ -29,7 +29,7 @@ describe("SymmetricCryptoKey", () => {
 
     it("AesCbc128_HmacSha256_B64", () => {
       const key = makeStaticByteArray(32);
-      const cryptoKey = new SymmetricCryptoKey(key, EncryptionType.AesCbc128_HmacSha256_B64);
+      const cryptoKey = new SymmetricCryptoKey(key.buffer as ArrayBuffer, EncryptionType.AesCbc128_HmacSha256_B64);
 
       expect(cryptoKey).toEqual({
         encKey: key.slice(0, 16),
@@ -44,7 +44,7 @@ describe("SymmetricCryptoKey", () => {
 
     it("AesCbc256_HmacSha256_B64", () => {
       const key = makeStaticByteArray(64);
-      const cryptoKey = new SymmetricCryptoKey(key);
+      const cryptoKey = new SymmetricCryptoKey(key.buffer as ArrayBuffer);
 
       expect(cryptoKey).toEqual({
         encKey: key.slice(0, 32),
@@ -60,7 +60,7 @@ describe("SymmetricCryptoKey", () => {
 
     it("unknown length", () => {
       const t = () => {
-        new SymmetricCryptoKey(makeStaticByteArray(30));
+        new SymmetricCryptoKey(makeStaticByteArray(30).buffer as ArrayBuffer);
       };
 
       expect(t).toThrowError("Unable to determine encType.");
