@@ -36,7 +36,7 @@ export class Utils {
     Utils.global = Utils.isNode && !Utils.isBrowser ? global : window;
   }
 
-  static fromB64ToArray(str: string): Uint8Array {
+  static fromB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "base64"));
     } else {
@@ -49,11 +49,11 @@ export class Utils {
     }
   }
 
-  static fromUrlB64ToArray(str: string): Uint8Array {
+  static fromUrlB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     return Utils.fromB64ToArray(Utils.fromUrlB64ToB64(str));
   }
 
-  static fromHexToArray(str: string): Uint8Array {
+  static fromHexToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "hex"));
     } else {
@@ -65,7 +65,7 @@ export class Utils {
     }
   }
 
-  static fromUtf8ToArray(str: string): Uint8Array {
+  static fromUtf8ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "utf8"));
     } else {
@@ -78,7 +78,7 @@ export class Utils {
     }
   }
 
-  static fromByteStringToArray(str: string): Uint8Array {
+  static fromByteStringToArray(str: string): Uint8Array<ArrayBuffer> {
     const arr = new Uint8Array(str.length);
     for (let i = 0; i < str.length; i++) {
       arr[i] = str.charCodeAt(i);
@@ -99,8 +99,8 @@ export class Utils {
     }
   }
 
-  static fromBufferToUrlB64(buffer: ArrayBuffer): string {
-    return Utils.fromB64toUrlB64(Utils.fromBufferToB64(buffer));
+  static fromBufferToUrlB64(buffer: Uint8Array<ArrayBuffer>): string {
+    return Utils.fromB64toUrlB64(Utils.fromBufferToB64(buffer.buffer));
   }
 
   static fromB64toUrlB64(b64Str: string) {

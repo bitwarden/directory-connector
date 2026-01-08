@@ -94,7 +94,7 @@ describe("NodeCrypto Function Service", () => {
     it("should fail with prk too small", async () => {
       const cryptoFunctionService = new NodeCryptoFunctionService();
       const f = cryptoFunctionService.hkdfExpand(
-        Utils.fromB64ToArray(prk16Byte),
+        Utils.fromB64ToArray(prk16Byte).buffer,
         "info",
         32,
         "sha256",
@@ -105,7 +105,7 @@ describe("NodeCrypto Function Service", () => {
     it("should fail with outputByteSize is too large", async () => {
       const cryptoFunctionService = new NodeCryptoFunctionService();
       const f = cryptoFunctionService.hkdfExpand(
-        Utils.fromB64ToArray(prk32Byte),
+        Utils.fromB64ToArray(prk32Byte).buffer,
         "info",
         8161,
         "sha256",
@@ -341,7 +341,7 @@ function testHkdf(
   utf8Key: string,
   unicodeKey: string,
 ) {
-  const ikm = Utils.fromB64ToArray("criAmKtfzxanbgea5/kelQ==");
+  const ikm = Utils.fromB64ToArray("criAmKtfzxanbgea5/kelQ==").buffer;
 
   const regularSalt = "salt";
   const utf8Salt = "üser_salt";
@@ -393,7 +393,7 @@ function testHkdfExpand(
   it("should create valid " + algorithm + " " + outputByteSize + " byte okm", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const okm = await cryptoFunctionService.hkdfExpand(
-      Utils.fromB64ToArray(b64prk),
+      Utils.fromB64ToArray(b64prk).buffer,
       info,
       outputByteSize,
       algorithm,

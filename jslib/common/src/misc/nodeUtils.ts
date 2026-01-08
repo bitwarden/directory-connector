@@ -26,9 +26,4 @@ export class NodeUtils {
         .on("error", (err) => reject(err));
     });
   }
-
-  // https://stackoverflow.com/a/31394257
-  static bufferToArrayBuffer(buf: Buffer): ArrayBuffer {
-    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
-  }
 }

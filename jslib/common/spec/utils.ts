@@ -33,5 +33,5 @@ export function makeStaticByteArray(length: number, start = 0) {
   for (let i = 0; i < length; i++) {
     arr[i] = start + i;
   }
-  return arr;
+  return arr.buffer;
 }

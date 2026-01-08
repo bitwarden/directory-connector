@@ -636,9 +636,9 @@ export class CryptoService implements CryptoServiceAbstraction {
 
     const encBytes = new Uint8Array(encBuf);
     const encType = encBytes[0];
-    let ctBytes: Uint8Array = null;
-    let ivBytes: Uint8Array = null;
-    let macBytes: Uint8Array = null;
+    let ctBytes: Uint8Array<ArrayBuffer> = null;
+    let ivBytes: Uint8Array<ArrayBuffer> = null;
+    let macBytes: Uint8Array<ArrayBuffer> = null;
 
     switch (encType) {
       case EncryptionType.AesCbc128_HmacSha256_B64:
