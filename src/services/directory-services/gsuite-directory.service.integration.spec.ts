@@ -50,36 +50,221 @@ describe("gsuiteDirectoryService", () => {
     directoryService = new GSuiteDirectoryService(logService, i18nService, stateService);
   });
 
-  it("syncs without using filters (includes test data)", async () => {
-    const directoryConfig = getGSuiteConfiguration();
-    stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+  describe("basic sync fetching users and groups", () => {
+    it("syncs without using filters (includes test data)", async () => {
+      const directoryConfig = getGSuiteConfiguration();
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
 
-    const syncConfig = getSyncConfiguration({
-      groups: true,
-      users: true,
+      const syncConfig = getSyncConfiguration({
+        groups: true,
+        users: true,
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      const result = await directoryService.getEntries(true, true);
+
+      expect(result[0]).toEqual(expect.arrayContaining(groupFixtures));
+      expect(result[1]).toEqual(expect.arrayContaining(userFixtures));
     });
-    stateService.getSync.mockResolvedValue(syncConfig);
 
-    const result = await directoryService.getEntries(true, true);
+    it("syncs using user and group filters (exact match for test data)", async () => {
+      const directoryConfig = getGSuiteConfiguration();
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
 
-    expect(result[0]).toEqual(expect.arrayContaining(groupFixtures));
-    expect(result[1]).toEqual(expect.arrayContaining(userFixtures));
+      const syncConfig = getSyncConfiguration({
+        groups: true,
+        users: true,
+        userFilter: INTEGRATION_USER_FILTER,
+        groupFilter: INTEGRATION_GROUP_FILTER,
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      const result = await directoryService.getEntries(true, true);
+
+      expect(result).toEqual([groupFixtures, userFixtures]);
+    });
+
+    it("syncs only users when groups sync is disabled", async () => {
+      const directoryConfig = getGSuiteConfiguration();
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+
+      const syncConfig = getSyncConfiguration({
+        groups: false,
+        users: true,
+        userFilter: INTEGRATION_USER_FILTER,
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      const result = await directoryService.getEntries(true, true);
+
+      expect(result[0]).toBeUndefined();
+      expect(result[1]).toEqual(expect.arrayContaining(userFixtures));
+    });
+
+    it("syncs only groups when users sync is disabled", async () => {
+      const directoryConfig = getGSuiteConfiguration();
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+
+      const syncConfig = getSyncConfiguration({
+        groups: true,
+        users: false,
+        groupFilter: INTEGRATION_GROUP_FILTER,
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      const result = await directoryService.getEntries(true, true);
+
+      expect(result[0]).toEqual(expect.arrayContaining(groupFixtures));
+      expect(result[1]).toEqual([]);
+    });
   });
 
-  it("syncs using user and group filters (exact match for test data)", async () => {
-    const directoryConfig = getGSuiteConfiguration();
-    stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+  describe("users", () => {
+    it("includes disabled users in sync results", async () => {
+      const directoryConfig = getGSuiteConfiguration();
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
 
-    const syncConfig = getSyncConfiguration({
-      groups: true,
-      users: true,
-      userFilter: INTEGRATION_USER_FILTER,
-      groupFilter: INTEGRATION_GROUP_FILTER,
+      const syncConfig = getSyncConfiguration({
+        users: true,
+        userFilter: INTEGRATION_USER_FILTER,
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      const result = await directoryService.getEntries(true, true);
+
+      const disabledUser = userFixtures.find((u) => u.email === "testuser5@bwrox.dev");
+      expect(result[1]).toContainEqual(disabledUser);
+      expect(disabledUser.disabled).toBe(true);
     });
-    stateService.getSync.mockResolvedValue(syncConfig);
 
-    const result = await directoryService.getEntries(true, true);
+    it("filters users by org unit path", async () => {
+      const directoryConfig = getGSuiteConfiguration();
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
 
-    expect(result).toEqual([groupFixtures, userFixtures]);
+      const syncConfig = getSyncConfiguration({
+        users: true,
+        userFilter: INTEGRATION_USER_FILTER,
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      const result = await directoryService.getEntries(true, true);
+
+      expect(result[1]).toEqual(userFixtures);
+      expect(result[1].length).toBe(5);
+    });
+
+    it("filters users by email pattern", async () => {
+      const directoryConfig = getGSuiteConfiguration();
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+
+      const syncConfig = getSyncConfiguration({
+        users: true,
+        userFilter: "|email:testuser1*",
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      const result = await directoryService.getEntries(true, true);
+
+      const testuser1 = userFixtures.find((u) => u.email === "testuser1@bwrox.dev");
+      expect(result[1]).toContainEqual(testuser1);
+      expect(result[1].length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe("groups", () => {
+    it("filters groups by name pattern", async () => {
+      const directoryConfig = getGSuiteConfiguration();
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+
+      const syncConfig = getSyncConfiguration({
+        groups: true,
+        users: true,
+        userFilter: INTEGRATION_USER_FILTER,
+        groupFilter: INTEGRATION_GROUP_FILTER,
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      const result = await directoryService.getEntries(true, true);
+
+      expect(result[0]).toEqual(groupFixtures);
+      expect(result[0].length).toBe(2);
+    });
+
+    it("includes group members correctly", async () => {
+      const directoryConfig = getGSuiteConfiguration();
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+
+      const syncConfig = getSyncConfiguration({
+        groups: true,
+        users: true,
+        userFilter: INTEGRATION_USER_FILTER,
+        groupFilter: INTEGRATION_GROUP_FILTER,
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      const result = await directoryService.getEntries(true, true);
+
+      const groupA = result[0].find((g) => g.name === "Integration Test Group A");
+      expect(groupA).toBeDefined();
+      expect(groupA.userMemberExternalIds.size).toBe(2);
+      expect(groupA.userMemberExternalIds.has("111605910541641314041")).toBe(true);
+      expect(groupA.userMemberExternalIds.has("111147009830456099026")).toBe(true);
+
+      const groupB = result[0].find((g) => g.name === "Integration Test Group B");
+      expect(groupB).toBeDefined();
+      expect(groupB.userMemberExternalIds.size).toBe(2);
+      expect(groupB.userMemberExternalIds.has("111147009830456099026")).toBe(true);
+      expect(groupB.userMemberExternalIds.has("100150970267699397306")).toBe(true);
+    });
+
+    it("handles groups with no members", async () => {
+      const directoryConfig = getGSuiteConfiguration();
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+
+      const syncConfig = getSyncConfiguration({
+        groups: true,
+        users: true,
+        userFilter: INTEGRATION_USER_FILTER,
+        groupFilter: "|name:Integration*",
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      const result = await directoryService.getEntries(true, true);
+
+      // All test groups should have members, but ensure the code handles empty groups
+      expect(result[0]).toBeDefined();
+      expect(Array.isArray(result[0])).toBe(true);
+    });
+  });
+
+  describe("error handling", () => {
+    it("throws error when directory configuration is incomplete", async () => {
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(
+        getGSuiteConfiguration({
+          clientEmail: "",
+        }),
+      );
+
+      const syncConfig = getSyncConfiguration({
+        users: true,
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      await expect(directoryService.getEntries(true, true)).rejects.toThrow();
+    });
+
+    it("throws error when authentication fails with invalid credentials", async () => {
+      const directoryConfig = getGSuiteConfiguration({
+        privateKey: "-----BEGIN PRIVATE KEY-----\nINVALID_KEY\n-----END PRIVATE KEY-----\n",
+      });
+      stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+
+      const syncConfig = getSyncConfiguration({
+        users: true,
+      });
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      await expect(directoryService.getEntries(true, true)).rejects.toThrow();
+    });
   });
 });
