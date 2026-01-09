@@ -153,21 +153,31 @@ The service synchronizes the following group attributes:
 
 ### Filtering
 
-The service supports Google Workspace Directory API query syntax for filtering:
-
 #### User Filter Examples
 
 ```
-|orgUnitPath='/Engineering'                    # Users in Engineering OU
-|email:john*                                    # Users with email starting with "john"
-|orgUnitPath='/Sales' email:*@example.com      # Combined filter
+exclude:testuser1@bwrox.dev | testuser1@bwrox.dev                   # Exclude multiple users
+|orgUnitPath='/Integration testing'                                 # Users in Integration testing Organizational unit (OU)
+exclude:testuser1@bwrox.dev | orgUnitPath='/Integration testing'    # Combined filter: get users in OU excluding provided user
+|email:testuser*                                                    # Users with email starting with "testuser"
 ```
 
 #### Group Filter Examples
 
+An important note for group filters is that it implicitly only syncs users that are in groups. For example, in the case of
+the integration test data, `admin@bwrox.dev` is not a member of any group. Therefore, the first example filter below will
+also implicitly exclude `admin@bwrox.dev`, who is not in any group. This is important because when it is paired with an
+empty user filter, this query may semantically be understood as "sync everyone not in Integration Test Group A," while in
+practice it means "Only sync members of groups not in integration Test Groups A."
+
 ```
-|name:Engineering*                              # Groups starting with "Engineering"
-|email:team-*                                   # Groups with email starting with "team-"
+exclude:Integration Test Group A                                    # Get all users in groups excluding the provided group.
+```
+
+### User AND Group Filter Examples
+
+```
+
 ```
 
 **Filter Syntax:**
@@ -228,15 +238,14 @@ Integration tests are located in `src/services/directory-services/gsuite-directo
 
 Integration tests require live Google Workspace credentials:
 
-1. Obtain test credentials from the Bitwarden shared collection
-2. Create a `.env` file in the `utils/` folder with:
+1. Create a `.env` file in the `utils/` folder with:
    ```
    GOOGLE_ADMIN_USER=admin@example.com
    GOOGLE_CLIENT_EMAIL=service-account@project.iam.gserviceaccount.com
    GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
    GOOGLE_DOMAIN=example.com
    ```
-3. Run tests:
+2. Run tests:
 
    ```bash
    # Run all integration tests (includes LDAP, Google Workspace, etc.)
@@ -276,9 +285,9 @@ The integration tests expect specific test data in Google Workspace:
 
 ### Rate Limits
 
-Google Workspace Admin SDK has rate limits:
+Google Workspace Directory API rate limits:
 
-- Default: 1,500 queries per 100 seconds per user
+- Default: 2,400 queries per minute per user, per Google Cloud Project
 
 The service does not implement rate limiting logic; it relies on API error responses.
 
