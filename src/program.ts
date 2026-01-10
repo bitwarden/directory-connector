@@ -190,6 +190,11 @@ export class Program extends BaseProgram {
         writeLn("    server - On-premise hosted installation URL.");
         writeLn("    directory - The type of directory to use.");
         writeLn("    ldap.password - The password for connection to this LDAP server.");
+        writeLn("    ldap.auth - Authentication mode for LDAP (simple|kerberos).");
+        writeLn("    ldap.kerberos.principal - Kerberos principal (e.g. svc_bwdc@EXAMPLE.COM).");
+        writeLn("    ldap.kerberos.keytab - Path to keytab file.");
+        writeLn("    ldap.kerberos.ccache - Optional ccache path (e.g. /tmp/krb5cc_bwdc).");
+        writeLn("    ldap.ldapsearch.path - Optional ldapsearch binary path (default: ldapsearch).");
         writeLn("    entra.key - The Entra Id secret key.");
         writeLn("    gsuite.key - The G Suite private key.");
         writeLn("    okta.token - The Okta token.");

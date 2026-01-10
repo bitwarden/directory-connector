@@ -51,6 +51,24 @@ export class ConfigCommand {
         case "ldap.password":
           await this.setLdapPassword(value);
           break;
+        case "ldap.auth":
+          await this.setLdapAuth(value);
+          break;
+        case "ldap.kerberos.principal":
+          await this.setLdapKerberosPrincipal(value);
+          break;
+        case "ldap.kerberos.keytab":
+          await this.setLdapKerberosKeytab(value);
+          break;
+        case "ldap.kerberos.ccache":
+          await this.setLdapKerberosCcache(value);
+          break;
+        case "ldap.kerberos.mechanism":
+          await this.setLdapKerberosMechanism(value);
+          break;
+        case "ldap.ldapsearch.path":
+          await this.setLdapLdapsearchPath(value);
+          break;
         case "gsuite.key":
           await this.setGSuiteKey(value);
           break;
@@ -98,6 +116,61 @@ export class ConfigCommand {
     this.ldap.password = password;
     await this.saveConfig();
   }
+
+  private async setLdapAuth(auth: string) {
+    auth = auth?.trim()?.toLowerCase();
+    if (auth !== "simple" && auth !== "kerberos") {
+      throw new Error("Invalid ldap.auth value. Allowed values: simple, kerberos.");
+    }
+    await this.loadConfig();
+    (this.ldap as any).auth = auth;
+    await this.saveConfig();
+  }
+
+  private async setLdapKerberosPrincipal(principal: string) {
+    principal = principal === "null" ? null : principal;
+    await this.loadConfig();
+    (this.ldap as any).kerberosPrincipal = principal;
+    await this.saveConfig();
+  }
+
+  private async setLdapKerberosKeytab(keytabPath: string) {
+    keytabPath = keytabPath === "null" ? null : keytabPath;
+    await this.loadConfig();
+    (this.ldap as any).kerberosKeytabPath = keytabPath;
+    await this.saveConfig();
+  }
+
+  private async setLdapKerberosCcache(ccache: string) {
+    ccache = ccache === "null" ? null : ccache;
+    await this.loadConfig();
+    (this.ldap as any).kerberosCcache = ccache;
+    await this.saveConfig();
+  }
+
+  private async setLdapKerberosMechanism(mechanism: string) {
+    mechanism = mechanism?.trim();
+    const mechLower = mechanism?.toLowerCase();
+    let normalized: string;
+    if (mechLower === "gssapi") {
+      normalized = "GSSAPI";
+    } else if (mechLower === "gss-spnego" || mechLower === "gss_spnego" || mechLower === "gssspnego") {
+      normalized = "GSS-SPNEGO";
+    } else {
+      throw new Error("Invalid ldap.kerberos.mechanism value. Allowed values: GSSAPI, GSS-SPNEGO.");
+    }
+    await this.loadConfig();
+    (this.ldap as any).kerberosMechanism = normalized;
+    await this.saveConfig();
+  }
+
+  private async setLdapLdapsearchPath(ldapsearchPath: string) {
+    ldapsearchPath = ldapsearchPath === "null" ? null : ldapsearchPath;
+    await this.loadConfig();
+    (this.ldap as any).ldapsearchPath = ldapsearchPath;
+    await this.saveConfig();
+  }
+
 
   private async setGSuiteKey(key: string) {
     await this.loadConfig();
