@@ -48,6 +48,15 @@ export class ConfigCommand {
         case "directory":
           await this.setDirectory(value);
           break;
+        case "ldap.hostname":
+          await this.setLdapHostname(value);
+          break;
+        case "ldap.port":
+          await this.setLdapPort(value);
+          break;
+        case "ldap.rootpath":
+          await this.setLdapRootPath(value);
+          break;
         case "ldap.password":
           await this.setLdapPassword(value);
           break;
@@ -111,6 +120,47 @@ export class ConfigCommand {
     await this.saveConfig();
   }
 
+  private async setLdapHostname(hostname: string) {
+    hostname = hostname === "null" ? null : hostname;
+    if (hostname != null) {
+      hostname = hostname.trim();
+      if (hostname.length === 0) {
+        throw new Error('ldap.hostname cannot be empty (use "null" to clear).');
+      }
+    }
+    await this.loadConfig();
+    this.ldap.hostname = hostname;
+    await this.saveConfig();
+  }
+
+  private async setLdapPort(port: string) {
+    port = port === "null" ? null : port;
+    let parsed: number = null;
+    if (port != null) {
+      const p = parseInt(port, 10);
+      if (!Number.isFinite(p) || p < 1 || p > 65535) {
+        throw new Error('ldap.port must be an integer between 1 and 65535 (or "null" to clear).');
+      }
+      parsed = p;
+    }
+    await this.loadConfig();
+    this.ldap.port = parsed;
+    await this.saveConfig();
+  }
+
+  private async setLdapRootPath(rootPath: string) {
+    rootPath = rootPath === "null" ? null : rootPath;
+    if (rootPath != null) {
+      rootPath = rootPath.trim();
+      if (rootPath.length === 0) {
+        throw new Error('ldap.rootPath cannot be empty (use "null" to clear).');
+      }
+    }
+    await this.loadConfig();
+    this.ldap.rootPath = rootPath;
+    await this.saveConfig();
+  }
+
   private async setLdapPassword(password: string) {
     await this.loadConfig();
     this.ldap.password = password;
@@ -170,7 +220,6 @@ export class ConfigCommand {
     (this.ldap as any).ldapsearchPath = ldapsearchPath;
     await this.saveConfig();
   }
-
 
   private async setGSuiteKey(key: string) {
     await this.loadConfig();
