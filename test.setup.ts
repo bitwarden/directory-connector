@@ -1,5 +1,7 @@
 import { webcrypto } from "crypto";
+import { TextEncoder, TextDecoder } from "util";
 
+Object.assign(globalThis, { TextEncoder, TextDecoder });
 Object.defineProperty(window, "CSS", { value: null });
 Object.defineProperty(window, "getComputedStyle", {
   value: () => {
