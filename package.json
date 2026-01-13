@@ -73,8 +73,8 @@
     "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {
-    "@angular-eslint/eslint-plugin-template": "20.7.0",
-    "@angular-eslint/template-parser": "20.7.0",
+    "@angular-eslint/eslint-plugin-template": "21.1.0",
+    "@angular-eslint/template-parser": "21.1.0",
     "@angular/build": "^21.0.5",
     "@angular/compiler-cli": "21.0.8",
     "@electron/notarize": "2.5.0",
