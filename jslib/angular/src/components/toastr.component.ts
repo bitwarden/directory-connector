@@ -14,12 +14,7 @@ import {
   selector: "[toast-component2]",
   template: `
     @if (options.closeButton) {
-      <button
-        (click)="remove()"
-        type="button"
-        class="toast-close-button"
-        aria-label="Close"
-        >
+      <button (click)="remove()" type="button" class="toast-close-button" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
     }
@@ -29,36 +24,37 @@ import {
     <div>
       @if (title) {
         <div [class]="options.titleClass" [attr.aria-label]="title">
-          {{ title }} @if (duplicatesCount) {
-          [{{ duplicatesCount + 1 }}]
-        }
-      </div>
-    }
-    @if (message && options.enableHtml) {
-      <div
-        role="alertdialog"
-        aria-live="polite"
-        [class]="options.messageClass"
-        [innerHTML]="message"
-      ></div>
-    }
-    @if (message && !options.enableHtml) {
-      <div
-        role="alertdialog"
-        aria-live="polite"
-        [class]="options.messageClass"
-        [attr.aria-label]="message"
+          {{ title }}
+          @if (duplicatesCount) {
+            [{{ duplicatesCount + 1 }}]
+          }
+        </div>
+      }
+      @if (message && options.enableHtml) {
+        <div
+          role="alertdialog"
+          aria-live="polite"
+          [class]="options.messageClass"
+          [innerHTML]="message"
+        ></div>
+      }
+      @if (message && !options.enableHtml) {
+        <div
+          role="alertdialog"
+          aria-live="polite"
+          [class]="options.messageClass"
+          [attr.aria-label]="message"
         >
-        {{ message }}
-      </div>
-    }
+          {{ message }}
+        </div>
+      }
     </div>
     @if (options.progressBar) {
       <div>
         <div class="toast-progress" [style.width]="width + '%'"></div>
       </div>
     }
-    `,
+  `,
   animations: [
     trigger("flyInOut", [
       state("inactive", style({ opacity: 0 })),

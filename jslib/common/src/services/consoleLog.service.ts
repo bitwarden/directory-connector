@@ -1,4 +1,4 @@
-import * as hrtime from "browser-hrtime";
+import hrtime from "browser-hrtime";
 
 import { LogService as LogServiceAbstraction } from "../abstractions/log.service";
 import { LogLevelType } from "../enums/logLevelType";
