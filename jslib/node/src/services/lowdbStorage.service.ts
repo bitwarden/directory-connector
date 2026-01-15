@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import Lowdb from "lowdb";
-import FileSync from "lowdb/adapters/FileSync";
+import * as lowdb from "lowdb";
+import * as FileSync from "lowdb/adapters/FileSync";
 
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
@@ -12,7 +12,7 @@ import { Utils } from "@/jslib/common/src/misc/utils";
 
 export class LowdbStorageService implements StorageService {
   protected dataFilePath: string;
-  private db: Lowdb.LowdbSync<any>;
+  private db: lowdb.LowdbSync<any>;
   private defaults: any;
   private ready = false;
 
@@ -32,7 +32,7 @@ export class LowdbStorageService implements StorageService {
     }
 
     this.logService.info("Initializing lowdb storage service.");
-    let adapter: Lowdb.AdapterSync<any>;
+    let adapter: lowdb.AdapterSync<any>;
     if (Utils.isNode && this.dir != null) {
       if (!fs.existsSync(this.dir)) {
         this.logService.warning(`Could not find dir, "${this.dir}"; creating it instead.`);
@@ -56,7 +56,7 @@ export class LowdbStorageService implements StorageService {
     }
     try {
       this.logService.info("Attempting to create lowdb storage adapter.");
-      this.db = Lowdb(adapter);
+      this.db = lowdb(adapter);
       this.logService.info("Successfully created lowdb storage adapter.");
     } catch (e) {
       if (e instanceof SyntaxError) {
@@ -73,7 +73,7 @@ export class LowdbStorageService implements StorageService {
           });
         }
         adapter.write({});
-        this.db = Lowdb(adapter);
+        this.db = lowdb(adapter);
       } else {
         this.logService.error(`Error creating lowdb storage adapter, "${e.message}".`);
         throw e;
