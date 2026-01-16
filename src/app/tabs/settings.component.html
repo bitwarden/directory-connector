@@ -6,9 +6,11 @@
         <div class="mb-3">
           <label for="directory" class="form-label">{{ "type" | i18n }}</label>
           <select class="form-select" id="directory" name="Directory" [(ngModel)]="directory">
-            <option *ngFor="let o of directoryOptions" [ngValue]="o.value">
-              {{ o.name }}
-            </option>
+            @for (o of directoryOptions; track o) {
+              <option [ngValue]="o.value">
+                {{ o.name }}
+              </option>
+            }
           </select>
         </div>
         <div [hidden]="directory != directoryType.Ldap">
@@ -51,20 +53,22 @@
               <label class="form-check-label" for="ad">{{ "ldapAd" | i18n }}</label>
             </div>
           </div>
-          <div class="mb-3" *ngIf="!ldap.ad">
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="pagedSearch"
-                [(ngModel)]="ldap.pagedSearch"
-                name="PagedSearch"
-              />
-              <label class="form-check-label" for="pagedSearch">{{
-                "ldapPagedResults" | i18n
-              }}</label>
+          @if (!ldap.ad) {
+            <div class="mb-3">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="pagedSearch"
+                  [(ngModel)]="ldap.pagedSearch"
+                  name="PagedSearch"
+                />
+                <label class="form-check-label" for="pagedSearch">{{
+                  "ldapPagedResults" | i18n
+                }}</label>
+              </div>
             </div>
-          </div>
+          }
           <div class="mb-3">
             <div class="form-check">
               <input
@@ -79,116 +83,122 @@
               }}</label>
             </div>
           </div>
-          <div class="ms-4" *ngIf="ldap.ssl">
-            <div class="mb-3">
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  [value]="false"
-                  id="ssl"
-                  [(ngModel)]="ldap.startTls"
-                  name="SSL"
-                />
-                <label class="form-check-label" for="ssl">{{ "ldapSsl" | i18n }}</label>
+          @if (ldap.ssl) {
+            <div class="ms-4">
+              <div class="mb-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    [value]="false"
+                    id="ssl"
+                    [(ngModel)]="ldap.startTls"
+                    name="SSL"
+                  />
+                  <label class="form-check-label" for="ssl">{{ "ldapSsl" | i18n }}</label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    [value]="true"
+                    id="startTls"
+                    [(ngModel)]="ldap.startTls"
+                    name="StartTLS"
+                  />
+                  <label class="form-check-label" for="startTls">{{ "ldapTls" | i18n }}</label>
+                </div>
               </div>
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  [value]="true"
-                  id="startTls"
-                  [(ngModel)]="ldap.startTls"
-                  name="StartTLS"
-                />
-                <label class="form-check-label" for="startTls">{{ "ldapTls" | i18n }}</label>
+              @if (ldap.startTls) {
+                <div class="ms-4">
+                  <p>{{ "ldapTlsUntrustedDesc" | i18n }}</p>
+                  <div class="mb-3">
+                    <label for="tlsCaPath" class="form-label">{{ "ldapTlsCa" | i18n }}</label>
+                    <input
+                      type="file"
+                      class="form-control mb-2"
+                      id="tlsCaPath_file"
+                      (change)="setSslPath('tlsCaPath')"
+                    />
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="tlsCaPath"
+                      name="TLSCaPath"
+                      [(ngModel)]="ldap.tlsCaPath"
+                    />
+                  </div>
+                </div>
+              }
+              @if (!ldap.startTls) {
+                <div class="ms-4">
+                  <p>{{ "ldapSslUntrustedDesc" | i18n }}</p>
+                  <div class="mb-3">
+                    <label for="sslCertPath" class="form-label">{{ "ldapSslCert" | i18n }}</label>
+                    <input
+                      type="file"
+                      class="form-control mb-2"
+                      id="sslCertPath_file"
+                      (change)="setSslPath('sslCertPath')"
+                    />
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="sslCertPath"
+                      name="SSLCertPath"
+                      [(ngModel)]="ldap.sslCertPath"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="sslKeyPath" class="form-label">{{ "ldapSslKey" | i18n }}</label>
+                    <input
+                      type="file"
+                      class="form-control mb-2"
+                      id="sslKeyPath_file"
+                      (change)="setSslPath('sslKeyPath')"
+                    />
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="sslKeyPath"
+                      name="SSLKeyPath"
+                      [(ngModel)]="ldap.sslKeyPath"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="sslCaPath" class="form-label">{{ "ldapSslCa" | i18n }}</label>
+                    <input
+                      type="file"
+                      class="form-control mb-2"
+                      id="sslCaPath_file"
+                      (change)="setSslPath('sslCaPath')"
+                    />
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="sslCaPath"
+                      name="SSLCaPath"
+                      [(ngModel)]="ldap.sslCaPath"
+                    />
+                  </div>
+                </div>
+              }
+              <div class="mb-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="certDoNotVerify"
+                    [(ngModel)]="ldap.sslAllowUnauthorized"
+                    name="CertDoNoVerify"
+                  />
+                  <label class="form-check-label" for="certDoNotVerify">{{
+                    "ldapCertDoNotVerify" | i18n
+                  }}</label>
+                </div>
               </div>
             </div>
-            <div class="ms-4" *ngIf="ldap.startTls">
-              <p>{{ "ldapTlsUntrustedDesc" | i18n }}</p>
-              <div class="mb-3">
-                <label for="tlsCaPath" class="form-label">{{ "ldapTlsCa" | i18n }}</label>
-                <input
-                  type="file"
-                  class="form-control mb-2"
-                  id="tlsCaPath_file"
-                  (change)="setSslPath('tlsCaPath')"
-                />
-                <input
-                  type="text"
-                  class="form-control"
-                  id="tlsCaPath"
-                  name="TLSCaPath"
-                  [(ngModel)]="ldap.tlsCaPath"
-                />
-              </div>
-            </div>
-            <div class="ms-4" *ngIf="!ldap.startTls">
-              <p>{{ "ldapSslUntrustedDesc" | i18n }}</p>
-              <div class="mb-3">
-                <label for="sslCertPath" class="form-label">{{ "ldapSslCert" | i18n }}</label>
-                <input
-                  type="file"
-                  class="form-control mb-2"
-                  id="sslCertPath_file"
-                  (change)="setSslPath('sslCertPath')"
-                />
-                <input
-                  type="text"
-                  class="form-control"
-                  id="sslCertPath"
-                  name="SSLCertPath"
-                  [(ngModel)]="ldap.sslCertPath"
-                />
-              </div>
-              <div class="mb-3">
-                <label for="sslKeyPath" class="form-label">{{ "ldapSslKey" | i18n }}</label>
-                <input
-                  type="file"
-                  class="form-control mb-2"
-                  id="sslKeyPath_file"
-                  (change)="setSslPath('sslKeyPath')"
-                />
-                <input
-                  type="text"
-                  class="form-control"
-                  id="sslKeyPath"
-                  name="SSLKeyPath"
-                  [(ngModel)]="ldap.sslKeyPath"
-                />
-              </div>
-              <div class="mb-3">
-                <label for="sslCaPath" class="form-label">{{ "ldapSslCa" | i18n }}</label>
-                <input
-                  type="file"
-                  class="form-control mb-2"
-                  id="sslCaPath_file"
-                  (change)="setSslPath('sslCaPath')"
-                />
-                <input
-                  type="text"
-                  class="form-control"
-                  id="sslCaPath"
-                  name="SSLCaPath"
-                  [(ngModel)]="ldap.sslCaPath"
-                />
-              </div>
-            </div>
-            <div class="mb-3">
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="certDoNotVerify"
-                  [(ngModel)]="ldap.sslAllowUnauthorized"
-                  name="CertDoNoVerify"
-                />
-                <label class="form-check-label" for="certDoNotVerify">{{
-                  "ldapCertDoNotVerify" | i18n
-                }}</label>
-              </div>
-            </div>
-          </div>
+          }
           <div class="mb-3" [hidden]="true">
             <div class="form-check">
               <input
@@ -211,10 +221,12 @@
                 name="Username"
                 [(ngModel)]="ldap.username"
               />
-              <div class="form-text" *ngIf="ldap.ad">{{ "ex" | i18n }} company\admin</div>
-              <div class="form-text" *ngIf="!ldap.ad">
-                {{ "ex" | i18n }} cn=admin,dc=company,dc=com
-              </div>
+              @if (ldap.ad) {
+                <div class="form-text">{{ "ex" | i18n }} company\admin</div>
+              }
+              @if (!ldap.ad) {
+                <div class="form-text">{{ "ex" | i18n }} cn=admin,dc=company,dc=com</div>
+              }
             </div>
             <div class="mb-3">
               <label for="password" class="form-label">{{ "password" | i18n }}</label>
@@ -604,18 +616,24 @@
               name="UserFilter"
               [(ngModel)]="sync.userFilter"
             ></textarea>
-            <div class="form-text" *ngIf="directory === directoryType.Ldap">
-              {{ "ex" | i18n }} (&amp;(givenName=John)(|(l=Dallas)(l=Austin)))
-            </div>
-            <div class="form-text" *ngIf="directory === directoryType.EntraID">
-              {{ "ex" | i18n }} exclude:joe&#64;company.com
-            </div>
-            <div class="form-text" *ngIf="directory === directoryType.Okta">
-              {{ "ex" | i18n }} exclude:joe&#64;company.com | profile.firstName eq "John"
-            </div>
-            <div class="form-text" *ngIf="directory === directoryType.GSuite">
-              {{ "ex" | i18n }} exclude:joe&#64;company.com | orgUnitPath=/Engineering
-            </div>
+            @if (directory === directoryType.Ldap) {
+              <div class="form-text">
+                {{ "ex" | i18n }} (&amp;(givenName=John)(|(l=Dallas)(l=Austin)))
+              </div>
+            }
+            @if (directory === directoryType.EntraID) {
+              <div class="form-text">{{ "ex" | i18n }} exclude:joe&#64;company.com</div>
+            }
+            @if (directory === directoryType.Okta) {
+              <div class="form-text">
+                {{ "ex" | i18n }} exclude:joe&#64;company.com | profile.firstName eq "John"
+              </div>
+            }
+            @if (directory === directoryType.GSuite) {
+              <div class="form-text">
+                {{ "ex" | i18n }} exclude:joe&#64;company.com | orgUnitPath=/Engineering
+              </div>
+            }
           </div>
           <div class="mb-3" [hidden]="directory != directoryType.Ldap">
             <label for="userPath" class="form-label">{{ "userPath" | i18n }}</label>
@@ -681,18 +699,20 @@
               name="GroupFilter"
               [(ngModel)]="sync.groupFilter"
             ></textarea>
-            <div class="form-text" *ngIf="directory === directoryType.Ldap">
-              {{ "ex" | i18n }} (&amp;(objectClass=group)(!(cn=Sales*))(!(cn=IT*)))
-            </div>
-            <div class="form-text" *ngIf="directory === directoryType.EntraID">
-              {{ "ex" | i18n }} include:Sales,IT
-            </div>
-            <div class="form-text" *ngIf="directory === directoryType.Okta">
-              {{ "ex" | i18n }} include:Sales,IT | type eq "APP_GROUP"
-            </div>
-            <div class="form-text" *ngIf="directory === directoryType.GSuite">
-              {{ "ex" | i18n }} include:Sales,IT
-            </div>
+            @if (directory === directoryType.Ldap) {
+              <div class="form-text">
+                {{ "ex" | i18n }} (&amp;(objectClass=group)(!(cn=Sales*))(!(cn=IT*)))
+              </div>
+            }
+            @if (directory === directoryType.EntraID) {
+              <div class="form-text">{{ "ex" | i18n }} include:Sales,IT</div>
+            }
+            @if (directory === directoryType.Okta) {
+              <div class="form-text">{{ "ex" | i18n }} include:Sales,IT | type eq "APP_GROUP"</div>
+            }
+            @if (directory === directoryType.GSuite) {
+              <div class="form-text">{{ "ex" | i18n }} include:Sales,IT</div>
+            }
           </div>
           <div class="mb-3" [hidden]="directory != directoryType.Ldap">
             <label for="groupPath" class="form-label">{{ "groupPath" | i18n }}</label>
@@ -703,8 +723,12 @@
               name="GroupPath"
               [(ngModel)]="sync.groupPath"
             />
-            <div class="form-text" *ngIf="!ldap.ad">{{ "ex" | i18n }} CN=Groups</div>
-            <div class="form-text" *ngIf="ldap.ad">{{ "ex" | i18n }} CN=Users</div>
+            @if (!ldap.ad) {
+              <div class="form-text">{{ "ex" | i18n }} CN=Groups</div>
+            }
+            @if (ldap.ad) {
+              <div class="form-text">{{ "ex" | i18n }} CN=Users</div>
+            }
           </div>
           <div [hidden]="directory != directoryType.Ldap || ldap.ad">
             <div class="mb-3">

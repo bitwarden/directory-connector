@@ -18,15 +18,17 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist",
+            "outputPath": {
+              "base": "dist"
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
             "tsConfig": "tsconfig.json",
             "assets": [],
             "styles": [],
-            "scripts": []
+            "scripts": [],
+            "browser": "src/main.ts"
           }
         }
       }
