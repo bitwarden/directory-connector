@@ -73,7 +73,7 @@
     "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "20.3.3",
+    "@angular-devkit/build-angular": "21.0.5",
     "@angular-eslint/eslint-plugin-template": "20.7.0",
     "@angular-eslint/template-parser": "20.7.0",
     "@angular/compiler-cli": "20.3.16",
@@ -81,7 +81,7 @@
     "@electron/rebuild": "4.0.1",
     "@fluffy-spoon/substitute": "1.208.0",
     "@microsoft/microsoft-graph-types": "2.43.1",
-    "@ngtools/webpack": "20.3.3",
+    "@ngtools/webpack": "21.0.5",
     "@types/inquirer": "8.2.10",
     "@types/jest": "29.5.14",
     "@types/lowdb": "1.0.15",
@@ -145,7 +145,7 @@
   "dependencies": {
     "@angular/animations": "20.3.16",
     "@angular/cdk": "20.2.14",
-    "@angular/cli": "20.3.3",
+    "@angular/cli": "21.0.5",
     "@angular/common": "20.3.16",
     "@angular/compiler": "20.3.16",
     "@angular/core": "20.3.16",
