@@ -3,17 +3,25 @@
   <div class="card-body">
     <p>
       {{ "lastGroupSync" | i18n }}:
-      <span *ngIf="!lastGroupSync">-</span>
+      @if (!lastGroupSync) {
+        <span>-</span>
+      }
       {{ lastGroupSync | date: "medium" }}
       <br />
       {{ "lastUserSync" | i18n }}:
-      <span *ngIf="!lastUserSync">-</span>
+      @if (!lastUserSync) {
+        <span>-</span>
+      }
       {{ lastUserSync | date: "medium" }}
     </p>
     <p>
       {{ "syncStatus" | i18n }}:
-      <strong *ngIf="syncRunning" class="text-success">{{ "running" | i18n }}</strong>
-      <strong *ngIf="!syncRunning" class="text-danger">{{ "stopped" | i18n }}</strong>
+      @if (syncRunning) {
+        <strong class="text-success">{{ "running" | i18n }}</strong>
+      }
+      @if (!syncRunning) {
+        <strong class="text-danger">{{ "stopped" | i18n }}</strong>
+      }
     </p>
     <form #startForm [appApiAction]="startPromise" class="d-inline">
       <button
@@ -60,57 +68,85 @@
       />
       <label class="form-check-label" for="simSinceLast">{{ "testLastSync" | i18n }}</label>
     </div>
-    <ng-container *ngIf="!simForm.loading && (simUsers || simGroups)">
+    @if (!simForm.loading && (simUsers || simGroups)) {
       <hr />
       <div class="row">
         <div class="col-lg">
           <h4>{{ "users" | i18n }}</h4>
-          <ul class="bwi-ul testing-list" *ngIf="simEnabledUsers && simEnabledUsers.length">
-            <li *ngFor="let u of simEnabledUsers" title="{{ u.referenceId }}">
-              <i class="bwi bwi-li bwi-user"></i>
-              {{ u.displayName }}
-            </li>
-          </ul>
-          <p *ngIf="!simEnabledUsers || !simEnabledUsers.length">
-            {{ "noUsers" | i18n }}
-          </p>
+          @if (simEnabledUsers && simEnabledUsers.length) {
+            <ul class="bwi-ul testing-list">
+              @for (u of simEnabledUsers; track u) {
+                <li title="{{ u.referenceId }}">
+                  <i class="bwi bwi-li bwi-user"></i>
+                  {{ u.displayName }}
+                </li>
+              }
+            </ul>
+          }
+          @if (!simEnabledUsers || !simEnabledUsers.length) {
+            <p>
+              {{ "noUsers" | i18n }}
+            </p>
+          }
           <h4>{{ "disabledUsers" | i18n }}</h4>
-          <ul class="bwi-ul testing-list" *ngIf="simDisabledUsers && simDisabledUsers.length">
-            <li *ngFor="let u of simDisabledUsers" title="{{ u.referenceId }}">
-              <i class="bwi bwi-li bwi-user"></i>
-              {{ u.displayName }}
-            </li>
-          </ul>
-          <p *ngIf="!simDisabledUsers || !simDisabledUsers.length">
-            {{ "noUsers" | i18n }}
-          </p>
+          @if (simDisabledUsers && simDisabledUsers.length) {
+            <ul class="bwi-ul testing-list">
+              @for (u of simDisabledUsers; track u) {
+                <li title="{{ u.referenceId }}">
+                  <i class="bwi bwi-li bwi-user"></i>
+                  {{ u.displayName }}
+                </li>
+              }
+            </ul>
+          }
+          @if (!simDisabledUsers || !simDisabledUsers.length) {
+            <p>
+              {{ "noUsers" | i18n }}
+            </p>
+          }
           <h4>{{ "deletedUsers" | i18n }}</h4>
-          <ul class="bwi-ul testing-list" *ngIf="simDeletedUsers && simDeletedUsers.length">
-            <li *ngFor="let u of simDeletedUsers" title="{{ u.referenceId }}">
-              <i class="bwi bwi-li bwi-user"></i>
-              {{ u.displayName }}
-            </li>
-          </ul>
-          <p *ngIf="!simDeletedUsers || !simDeletedUsers.length">
-            {{ "noUsers" | i18n }}
-          </p>
+          @if (simDeletedUsers && simDeletedUsers.length) {
+            <ul class="bwi-ul testing-list">
+              @for (u of simDeletedUsers; track u) {
+                <li title="{{ u.referenceId }}">
+                  <i class="bwi bwi-li bwi-user"></i>
+                  {{ u.displayName }}
+                </li>
+              }
+            </ul>
+          }
+          @if (!simDeletedUsers || !simDeletedUsers.length) {
+            <p>
+              {{ "noUsers" | i18n }}
+            </p>
+          }
         </div>
         <div class="col-lg">
           <h4>{{ "groups" | i18n }}</h4>
-          <ul class="bwi-ul testing-list" *ngIf="simGroups && simGroups.length">
-            <li *ngFor="let g of simGroups" title="{{ g.referenceId }}">
-              <i class="bwi bwi-li bwi-sitemap"></i>
-              {{ g.displayName }}
-              <ul class="small" *ngIf="g.users && g.users.length">
-                <li *ngFor="let u of g.users" title="{{ u.referenceId }}">
-                  {{ u.displayName }}
+          @if (simGroups && simGroups.length) {
+            <ul class="bwi-ul testing-list">
+              @for (g of simGroups; track g) {
+                <li title="{{ g.referenceId }}">
+                  <i class="bwi bwi-li bwi-sitemap"></i>
+                  {{ g.displayName }}
+                  @if (g.users && g.users.length) {
+                    <ul class="small">
+                      @for (u of g.users; track u) {
+                        <li title="{{ u.referenceId }}">
+                          {{ u.displayName }}
+                        </li>
+                      }
+                    </ul>
+                  }
                 </li>
-              </ul>
-            </li>
-          </ul>
-          <p *ngIf="!simGroups || !simGroups.length">{{ "noGroups" | i18n }}</p>
+              }
+            </ul>
+          }
+          @if (!simGroups || !simGroups.length) {
+            <p>{{ "noGroups" | i18n }}</p>
+          }
         </div>
       </div>
-    </ng-container>
+    }
   </div>
 </div>

@@ -13,42 +13,47 @@ import {
 @Component({
   selector: "[toast-component2]",
   template: `
-    <button
-      *ngIf="options.closeButton"
-      (click)="remove()"
-      type="button"
-      class="toast-close-button"
-      aria-label="Close"
-    >
-      <span aria-hidden="true">&times;</span>
-    </button>
+    @if (options.closeButton) {
+      <button (click)="remove()" type="button" class="toast-close-button" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    }
     <div class="icon">
       <i></i>
     </div>
     <div>
-      <div *ngIf="title" [class]="options.titleClass" [attr.aria-label]="title">
-        {{ title }} <ng-container *ngIf="duplicatesCount">[{{ duplicatesCount + 1 }}]</ng-container>
-      </div>
-      <div
-        *ngIf="message && options.enableHtml"
-        role="alertdialog"
-        aria-live="polite"
-        [class]="options.messageClass"
-        [innerHTML]="message"
-      ></div>
-      <div
-        *ngIf="message && !options.enableHtml"
-        role="alertdialog"
-        aria-live="polite"
-        [class]="options.messageClass"
-        [attr.aria-label]="message"
-      >
-        {{ message }}
-      </div>
+      @if (title) {
+        <div [class]="options.titleClass" [attr.aria-label]="title">
+          {{ title }}
+          @if (duplicatesCount) {
+            [{{ duplicatesCount + 1 }}]
+          }
+        </div>
+      }
+      @if (message && options.enableHtml) {
+        <div
+          role="alertdialog"
+          aria-live="polite"
+          [class]="options.messageClass"
+          [innerHTML]="message"
+        ></div>
+      }
+      @if (message && !options.enableHtml) {
+        <div
+          role="alertdialog"
+          aria-live="polite"
+          [class]="options.messageClass"
+          [attr.aria-label]="message"
+        >
+          {{ message }}
+        </div>
+      }
     </div>
-    <div *ngIf="options.progressBar">
-      <div class="toast-progress" [style.width]="width + '%'"></div>
-    </div>
+    @if (options.progressBar) {
+      <div>
+        <div class="toast-progress" [style.width]="width + '%'"></div>
+      </div>
+    }
   `,
   animations: [
     trigger("flyInOut", [

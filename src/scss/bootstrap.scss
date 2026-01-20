@@ -28,4 +28,4 @@ $danger: map_get($theme-colors, "danger");
 $secondary: map_get($theme-colors, "secondary");
 $secondary-alt: map_get($theme-colors, "secondary-alt");
 
-@import "~bootstrap/scss/bootstrap.scss";
+@import "bootstrap/scss/bootstrap.scss";
