@@ -38,7 +38,7 @@ const common = {
   plugins: [],
   resolve: {
     extensions: [".tsx", ".ts", ".js", ".json"],
-    plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
+    plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.renderer.json" })],
     symlinks: false,
     modules: [path.resolve("node_modules")],
   },
@@ -113,7 +113,7 @@ const renderer = {
   },
   plugins: [
     new AngularWebpackPlugin({
-      tsConfigPath: "tsconfig.json",
+      tsConfigPath: "tsconfig.renderer.json",
       entryModule: "src/app/app.module#AppModule",
       sourceMap: true,
     }),

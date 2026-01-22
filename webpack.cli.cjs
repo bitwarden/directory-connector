@@ -14,7 +14,12 @@ const ENV = (process.env.ENV = process.env.NODE_ENV);
 const moduleRules = [
   {
     test: /\.ts$/,
-    use: "ts-loader",
+    use: {
+      loader: "ts-loader",
+      options: {
+        transpileOnly: true,
+      },
+    },
     exclude: path.resolve(__dirname, "node_modules"),
   },
   {
@@ -62,7 +67,7 @@ const config = {
     modules: [path.resolve("node_modules")],
   },
   output: {
-    filename: "[name].js",
+    filename: "[name].cjs",
     path: path.resolve(__dirname, "build-cli"),
   },
   module: { rules: moduleRules },

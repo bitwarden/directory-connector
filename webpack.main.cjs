@@ -10,7 +10,12 @@ const common = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: "ts-loader",
+        use: {
+          loader: "ts-loader",
+          options: {
+            transpileOnly: true,
+          },
+        },
         exclude: /node_modules\/(?!(@bitwarden)\/).*/,
       },
     ],
@@ -57,6 +62,9 @@ const main = {
       ],
     }),
   ],
+  output: {
+    filename: "[name].cjs",
+  },
   externals: {
     "electron-reload": "commonjs2 electron-reload",
     keytar: "commonjs2 keytar",

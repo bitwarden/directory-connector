@@ -24,12 +24,19 @@ module.exports = {
 
   roots: ["<rootDir>"],
   modulePaths: [compilerOptions.baseUrl],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: "<rootDir>/" }),
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(compilerOptions.paths, { prefix: "<rootDir>/" }),
+    // ESM compatibility: mock import.meta.url for tests
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
   // Workaround for a memory leak that crashes tests in CI:
   // https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
   // Also anecdotally improves performance when run locally
   maxWorkers: 3,
+
+  // ESM support
+  extensionsToTreatAsEsm: [".ts"],
 
   transform: {
     "^.+\\.tsx?$": [
@@ -43,6 +50,8 @@ module.exports = {
         // Makes tests run faster and reduces size/rate of leak, but loses typechecking on test code
         // See https://bitwarden.atlassian.net/browse/EC-497 for more info
         isolatedModules: true,
+        // ESM support
+        useESM: true,
       },
     ],
   },

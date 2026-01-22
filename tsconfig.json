@@ -7,7 +7,7 @@
     "pretty": true,
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "target": "ES2016",
+    "target": "ES2020",
     "module": "ES2020",
     "lib": ["es5", "es6", "es7", "dom"],
     "sourceMap": true,
@@ -18,6 +18,8 @@
     "outDir": "dist",
     "baseUrl": ".",
     "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmitOnError": false,
     "paths": {
       "tldjs": ["./jslib/common/src/misc/tldjs.noop"],
       "@/*": ["./*"]
