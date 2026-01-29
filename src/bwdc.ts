@@ -22,6 +22,7 @@ import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoF
 import packageJson from "../package.json";
 
 import { DirectoryFactoryService } from "./abstractions/directory-factory.service";
+import { StateServiceVNext } from "./abstractions/state-vNext.service";
 import { Account } from "./models/account";
 import { Program } from "./program";
 import { AuthService } from "./services/auth.service";
@@ -31,8 +32,9 @@ import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
 import { SingleRequestBuilder } from "./services/single-request-builder";
-import { StateService } from "./services/state.service";
-import { StateMigrationService } from "./services/stateMigration.service";
+import { StateServiceVNextImplementation } from "./services/state-service/state-vNext.service";
+import { StateService } from "./services/state-service/state.service";
+import { StateMigrationService } from "./services/state-service/stateMigration.service";
 import { SyncService } from "./services/sync.service";
 
 // ESM __dirname polyfill for Node 20
@@ -59,6 +61,7 @@ export class Main {
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
   syncService: SyncService;
+  stateServiceVNext: StateServiceVNext;
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   directoryFactoryService: DirectoryFactoryService;
@@ -122,6 +125,14 @@ export class Main {
       process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
       new StateFactory(GlobalState, Account),
     );
+    // Use new StateServiceVNext with flat key-value structure
+    this.stateServiceVNext = new StateServiceVNextImplementation(
+      this.storageService,
+      this.secureStorageService,
+      this.logService,
+      this.stateMigrationService,
+      process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
+    );
 
     this.cryptoService = new CryptoService(
       this.cryptoFunctionService,
@@ -163,6 +174,7 @@ export class Main {
       this.logService,
       this.i18nService,
       this.stateService,
+      this.stateServiceVNext,
     );
 
     this.batchRequestBuilder = new BatchRequestBuilder();

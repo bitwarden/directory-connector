@@ -8,47 +8,13 @@ import { GSuiteConfiguration } from "@/src/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/src/models/ldapConfiguration";
 import { OktaConfiguration } from "@/src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/src/models/oneLoginConfiguration";
+import {
+  MigrationClientKeys as ClientKeys,
+  MigrationKeys as Keys,
+  MigrationStateKeys as StateKeys,
+  SecureStorageKeysMigration as SecureStorageKeys,
+} from "@/src/models/state.model";
 import { SyncConfiguration } from "@/src/models/syncConfiguration";
-
-const SecureStorageKeys: { [key: string]: any } = {
-  ldap: "ldapPassword",
-  gsuite: "gsuitePrivateKey",
-  azure: "azureKey",
-  entra: "entraIdKey",
-  okta: "oktaToken",
-  oneLogin: "oneLoginClientSecret",
-  directoryConfigPrefix: "directoryConfig_",
-  sync: "syncConfig",
-  directoryType: "directoryType",
-  organizationId: "organizationId",
-};
-
-const Keys: { [key: string]: any } = {
-  entityId: "entityId",
-  directoryType: "directoryType",
-  organizationId: "organizationId",
-  lastUserSync: "lastUserSync",
-  lastGroupSync: "lastGroupSync",
-  lastSyncHash: "lastSyncHash",
-  syncingDir: "syncingDir",
-  syncConfig: "syncConfig",
-  userDelta: "userDeltaToken",
-  groupDelta: "groupDeltaToken",
-  tempDirectoryConfigs: "tempDirectoryConfigs",
-  tempDirectorySettings: "tempDirectorySettings",
-};
-
-const StateKeys = {
-  global: "global",
-  authenticatedAccounts: "authenticatedAccounts",
-};
-
-const ClientKeys: { [key: string]: any } = {
-  clientIdOld: "clientId",
-  clientId: "apikey_clientId",
-  clientSecretOld: "clientSecret",
-  clientSecret: "apikey_clientSecret",
-};
 
 export class StateMigrationService extends BaseStateMigrationService {
   async migrate(): Promise<void> {
@@ -311,6 +277,8 @@ export class StateMigrationService extends BaseStateMigrationService {
           if (value) {
             await this.secureStorageService.save(newKey, value);
           }
+          // @TODO Keep old key for now - will remove in future release
+          // await this.secureStorageService.remove(oldKey);
         }
       }
     }
