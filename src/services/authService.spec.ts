@@ -15,7 +15,7 @@ import { MessagingService } from "../../jslib/common/src/abstractions/messaging.
 import { Account, DirectoryConfigurations, DirectorySettings } from "../models/account";
 
 import { AuthService } from "./auth.service";
-import { StateService } from "./state.service";
+import { StateService } from "./state-service/state.service";
 
 const clientId = "organization.CLIENT_ID";
 const clientSecret = "CLIENT_SECRET";
