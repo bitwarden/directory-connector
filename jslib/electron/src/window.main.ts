@@ -127,6 +127,13 @@ export class WindowMain {
       },
     });
 
+    // Enable SharedArrayBuffer. See https://developer.chrome.com/blog/enabling-shared-array-buffer/#cross-origin-isolation
+    this.win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+      details.responseHeaders["Cross-Origin-Opener-Policy"] = ["same-origin"];
+      details.responseHeaders["Cross-Origin-Embedder-Policy"] = ["require-corp"];
+      callback({ responseHeaders: details.responseHeaders });
+    });
+
     if (this.windowStates[mainWindowSizeKey].isMaximized) {
       this.win.maximize();
     }
