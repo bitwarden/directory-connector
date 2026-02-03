@@ -1,19 +1,11 @@
-import { animate, state, style, transition, trigger } from "@angular/animations";
 import { CommonModule } from "@angular/common";
 import { Component, ModuleWithProviders, NgModule } from "@angular/core";
-import {
-  DefaultNoComponentGlobalConfig,
-  GlobalConfig,
-  Toast as BaseToast,
-  ToastPackage,
-  ToastrService,
-  TOAST_CONFIG,
-} from "ngx-toastr";
+import { DefaultNoComponentGlobalConfig, GlobalConfig, Toast, TOAST_CONFIG } from "ngx-toastr";
 
 @Component({
   selector: "[toast-component2]",
   template: `
-    @if (options.closeButton) {
+    @if (options().closeButton) {
       <button (click)="remove()" type="button" class="toast-close-button" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
@@ -22,59 +14,64 @@ import {
       <i></i>
     </div>
     <div>
-      @if (title) {
-        <div [class]="options.titleClass" [attr.aria-label]="title">
-          {{ title }}
+      @if (title()) {
+        <div [class]="options().titleClass" [attr.aria-label]="title()">
+          {{ title() }}
           @if (duplicatesCount) {
             [{{ duplicatesCount + 1 }}]
           }
         </div>
       }
-      @if (message && options.enableHtml) {
+      @if (message() && options().enableHtml) {
         <div
           role="alertdialog"
           aria-live="polite"
-          [class]="options.messageClass"
-          [innerHTML]="message"
+          [class]="options().messageClass"
+          [innerHTML]="message()"
         ></div>
       }
-      @if (message && !options.enableHtml) {
+      @if (message() && !options().enableHtml) {
         <div
           role="alertdialog"
           aria-live="polite"
-          [class]="options.messageClass"
-          [attr.aria-label]="message"
+          [class]="options().messageClass"
+          [attr.aria-label]="message()"
         >
-          {{ message }}
+          {{ message() }}
         </div>
       }
     </div>
-    @if (options.progressBar) {
+    @if (options().progressBar) {
       <div>
         <div class="toast-progress" [style.width]="width + '%'"></div>
       </div>
     }
   `,
-  animations: [
-    trigger("flyInOut", [
-      state("inactive", style({ opacity: 0 })),
-      state("active", style({ opacity: 1 })),
-      state("removed", style({ opacity: 0 })),
-      transition("inactive => active", animate("{{ easeTime }}ms {{ easing }}")),
-      transition("active => removed", animate("{{ easeTime }}ms {{ easing }}")),
-    ]),
-  ],
+  styles: `
+    :host {
+      &.toast-in {
+        animation: toast-animation var(--animation-duration) var(--animation-easing);
+      }
+
+      &.toast-out {
+        animation: toast-animation var(--animation-duration) var(--animation-easing) reverse
+          forwards;
+      }
+    }
+
+    @keyframes toast-animation {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  `,
   preserveWhitespaces: false,
   standalone: false,
 })
-export class BitwardenToast extends BaseToast {
-  constructor(
-    protected toastrService: ToastrService,
-    public toastPackage: ToastPackage,
-  ) {
-    super(toastrService, toastPackage);
-  }
-}
+export class BitwardenToast extends Toast {}
 
 export const BitwardenToastGlobalConfig: GlobalConfig = {
   ...DefaultNoComponentGlobalConfig,
