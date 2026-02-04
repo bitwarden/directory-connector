@@ -187,10 +187,14 @@ export class StateMigrationService extends BaseStateMigrationService {
     // Get the authenticated user IDs from v3 structure
     const authenticatedUserIds = await this.get<string[]>(StateKeys.authenticatedAccounts);
 
-    if (!authenticatedUserIds || authenticatedUserIds.length === 0) {
+    if (
+      !authenticatedUserIds ||
+      !Array.isArray(authenticatedUserIds) ||
+      authenticatedUserIds.length === 0
+    ) {
       // No accounts to migrate, just update version
       const globals = await this.getGlobals();
-      globals.stateVersion = StateVersion.Four;
+      globals.stateVersion = StateVersion.Five;
       await this.set(StateKeys.global, globals);
       return;
     }
@@ -202,7 +206,7 @@ export class StateMigrationService extends BaseStateMigrationService {
     if (!account) {
       // No account data found, just update version
       const globals = await this.getGlobals();
-      globals.stateVersion = StateVersion.Four;
+      globals.stateVersion = StateVersion.Five;
       await this.set(StateKeys.global, globals);
       return;
     }
