@@ -110,13 +110,20 @@ describe("StateServiceVNextImplementation", () => {
       const config: LdapConfiguration = {
         ssl: true,
         startTls: false,
+        tlsCaPath: null,
         sslAllowUnauthorized: false,
+        sslCertPath: null,
+        sslKeyPath: null,
+        sslCaPath: null,
         hostname: "ldap.example.com",
         port: 636,
+        domain: null,
+        rootPath: null,
         ad: true,
         username: "admin",
         password: "secret-password",
         currentUser: false,
+        pagedSearch: true,
       };
 
       secureStorageService.get.mockResolvedValue("secret-password");
@@ -150,13 +157,20 @@ describe("StateServiceVNextImplementation", () => {
       const config: LdapConfiguration = {
         ssl: true,
         startTls: false,
+        tlsCaPath: null,
         sslAllowUnauthorized: false,
+        sslCertPath: null,
+        sslKeyPath: null,
+        sslCaPath: null,
         hostname: "ldap.example.com",
         port: 636,
+        domain: null,
+        rootPath: null,
         ad: true,
         username: "admin",
         password: null,
         currentUser: false,
+        pagedSearch: true,
       };
 
       await stateService.setDirectory(DirectoryType.Ldap, config);
@@ -173,6 +187,7 @@ describe("StateServiceVNextImplementation", () => {
         clientEmail: "service@example.com",
         adminUser: "admin@example.com",
         privateKey: "private-key-content",
+        customer: "customer-id",
       };
 
       secureStorageService.get.mockResolvedValue("private-key-content");
@@ -194,6 +209,7 @@ describe("StateServiceVNextImplementation", () => {
         clientEmail: "service@example.com",
         adminUser: "admin@example.com",
         privateKey: null,
+        customer: "customer-id",
       };
 
       await stateService.setDirectory(DirectoryType.GSuite, config);
@@ -206,6 +222,7 @@ describe("StateServiceVNextImplementation", () => {
   describe("Entra ID Configuration", () => {
     it("should store and retrieve Entra ID configuration with key in secure storage", async () => {
       const config: EntraIdConfiguration = {
+        identityAuthority: "https://login.microsoftonline.com",
         tenant: "tenant-id",
         applicationId: "app-id",
         key: "secret-key",
@@ -226,6 +243,7 @@ describe("StateServiceVNextImplementation", () => {
 
     it("should maintain backwards compatibility with Azure key storage", async () => {
       const config: EntraIdConfiguration = {
+        identityAuthority: "https://login.microsoftonline.com",
         tenant: "tenant-id",
         applicationId: "app-id",
         key: StoredSecurely,
@@ -288,14 +306,26 @@ describe("StateServiceVNextImplementation", () => {
   describe("Sync Configuration", () => {
     it("should store and retrieve sync configuration", async () => {
       const syncConfig: SyncConfiguration = {
+        users: true,
+        groups: true,
+        interval: 5,
+        userFilter: null,
+        groupFilter: null,
         removeDisabled: true,
         overwriteExisting: false,
         largeImport: false,
+        groupObjectClass: null,
+        userObjectClass: null,
+        groupPath: null,
+        userPath: null,
+        groupNameAttribute: null,
+        userEmailAttribute: null,
         memberAttribute: "member",
         creationDateAttribute: "whenCreated",
         revisionDateAttribute: "whenChanged",
         useEmailPrefixSuffix: false,
         emailPrefixAttribute: null,
+        emailSuffix: null,
       };
 
       storageService.get.mockResolvedValue(syncConfig);
@@ -426,13 +456,20 @@ describe("StateServiceVNextImplementation", () => {
       const config: LdapConfiguration = {
         ssl: true,
         startTls: false,
+        tlsCaPath: null,
         sslAllowUnauthorized: false,
+        sslCertPath: null,
+        sslKeyPath: null,
+        sslCaPath: null,
         hostname: "ldap.example.com",
         port: 636,
+        domain: null,
+        rootPath: null,
         ad: true,
         username: "admin",
         password: "secret-password",
         currentUser: false,
+        pagedSearch: true,
       };
 
       storageService.get.mockResolvedValue(config);
