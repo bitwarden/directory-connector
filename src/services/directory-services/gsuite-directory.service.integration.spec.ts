@@ -47,7 +47,7 @@ describe("gsuiteDirectoryService", () => {
     stateService = mock();
     stateServiceVNext = mock();
 
-    stateService.getDirectoryType.mockResolvedValue(DirectoryType.GSuite);
+    stateServiceVNext.getDirectoryType.mockResolvedValue(DirectoryType.GSuite);
     stateService.getLastUserSync.mockResolvedValue(null); // do not filter results by last modified date
     i18nService.t.mockImplementation((id) => id); // passthrough implementation for any error  messages
 
@@ -61,13 +61,15 @@ describe("gsuiteDirectoryService", () => {
 
   it("syncs without using filters (includes test data)", async () => {
     const directoryConfig = getGSuiteConfiguration();
-    stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+    stateServiceVNext.getDirectory
+      .calledWith(DirectoryType.GSuite)
+      .mockResolvedValue(directoryConfig);
 
     const syncConfig = getSyncConfiguration({
       groups: true,
       users: true,
     });
-    stateService.getSync.mockResolvedValue(syncConfig);
+    stateServiceVNext.getSync.mockResolvedValue(syncConfig);
 
     const result = await directoryService.getEntries(true, true);
 
@@ -77,7 +79,9 @@ describe("gsuiteDirectoryService", () => {
 
   it("syncs using user and group filters (exact match for test data)", async () => {
     const directoryConfig = getGSuiteConfiguration();
-    stateService.getDirectory.calledWith(DirectoryType.GSuite).mockResolvedValue(directoryConfig);
+    stateServiceVNext.getDirectory
+      .calledWith(DirectoryType.GSuite)
+      .mockResolvedValue(directoryConfig);
 
     const syncConfig = getSyncConfiguration({
       groups: true,
@@ -85,7 +89,7 @@ describe("gsuiteDirectoryService", () => {
       userFilter: INTEGRATION_USER_FILTER,
       groupFilter: INTEGRATION_GROUP_FILTER,
     });
-    stateService.getSync.mockResolvedValue(syncConfig);
+    stateServiceVNext.getSync.mockResolvedValue(syncConfig);
 
     const result = await directoryService.getEntries(true, true);
 
