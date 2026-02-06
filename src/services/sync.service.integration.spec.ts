@@ -14,7 +14,7 @@ import { DirectoryType } from "../enums/directoryType";
 import { BatchRequestBuilder } from "./batch-request-builder";
 import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
 import { SingleRequestBuilder } from "./single-request-builder";
-import { StateService } from "./state.service";
+import { StateService } from "./state-service/state.service";
 import { SyncService } from "./sync.service";
 import * as constants from "./sync.service";
 
