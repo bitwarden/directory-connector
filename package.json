@@ -79,7 +79,6 @@
     "@angular/compiler-cli": "21.1.1",
     "@electron/notarize": "2.5.0",
     "@electron/rebuild": "4.0.1",
-    "@fluffy-spoon/substitute": "1.208.0",
     "@microsoft/microsoft-graph-types": "2.43.1",
     "@ngtools/webpack": "21.1.2",
     "@types/inquirer": "8.2.10",
