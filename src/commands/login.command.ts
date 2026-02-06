@@ -5,11 +5,26 @@ import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageRes
 
 import { Utils } from "../../jslib/common/src/misc/utils";
 import { AuthService } from "../abstractions/auth.service";
+import { StateService } from "../abstractions/state.service";
+
+function parseOrgIdFromClientId(clientId: string): string {
+  if (clientId == null) {
+    return null;
+  }
+
+  const prefix = "organization.";
+  if (!clientId.startsWith(prefix)) {
+    return null;
+  }
+
+  const orgId = clientId.substring(prefix.length).trim();
+  return orgId.length > 0 ? orgId : null;
+}
 
 export class LoginCommand {
   private canInteract: boolean;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private stateService: StateService) {}
 
   async run() {
     this.canInteract = process.env.BW_NOINTERACTION !== "true";
@@ -24,14 +39,31 @@ export class LoginCommand {
       return Response.error("Client Secret is required.");
     }
 
+    let alreadyLoggedInMessage: string = null;
+
     try {
       await this.authService.logIn({ clientId, clientSecret });
-
-      const res = new MessageResponse("You are logged in!", null);
-      return Response.success(res);
-    } catch (e) {
-      return Response.error(e);
+    } catch (e: any) {
+      // Treat "already logged in" as a non-fatal condition so we can still reconcile state.
+      const msg = String(e?.message ?? e ?? "");
+      if (msg.toLowerCase().includes("already logged in")) {
+        alreadyLoggedInMessage = msg;
+      } else {
+        return Response.error(e);
+      }
     }
+
+    const orgId = parseOrgIdFromClientId(clientId);
+    if (orgId != null) {
+      try {
+        await this.stateService.setOrganizationId(orgId);
+      } catch (e) {
+        return Response.error(e);
+      }
+    }
+
+    const res = new MessageResponse(alreadyLoggedInMessage ?? "You are logged in!", null);
+    return Response.success(res);
   }
 
   private async apiClientId(): Promise<string> {
