@@ -1,0 +1,308 @@
+version: 1
+
+dn: dc=bitwarden,dc=com
+dc: bitwarden
+objectClass: dcObject
+objectClass: organization
+o: Bitwarden
+
+# Organizational Units
+dn: ou=Human Resources,dc=bitwarden,dc=com
+changetype: add
+ou: Human Resources
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Engineering,dc=bitwarden,dc=com
+changetype: add
+ou: Engineering
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Marketing,dc=bitwarden,dc=com
+changetype: add
+ou: Marketing
+objectClass: top
+objectClass: organizationalUnit
+
+# Users - Human Resources
+dn: cn=Roland Dyke,ou=Human Resources,dc=bitwarden,dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Roland Dyke
+sn: Dyke
+description: This is Roland Dyke's description
+facsimileTelephoneNumber: +1 804 674-5794
+l: San Francisco
+ou: Human Resources
+postalAddress: Human Resources$San Francisco
+telephoneNumber: +1 804 831-5121
+title: Supreme Human Resources Writer
+userPassword: Password1
+uid: DykeR
+givenName: Roland
+mail: DykeR@220af87272f04218bb8dd81d50fb19f5.bitwarden.com
+carLicense: 4CMGOJ
+departmentNumber: 2838
+employeeType: Contract
+homePhone: +1 804 936-4965
+initials: R. D.
+mobile: +1 804 592-3734
+pager: +1 804 285-2962
+roomNumber: 9890
+
+dn: cn=Teirtza Kara,ou=Human Resources,dc=bitwarden,dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Teirtza Kara
+sn: Kara
+description: This is Teirtza Kara's description
+facsimileTelephoneNumber: +1 206 759-2040
+l: San Francisco
+ou: Human Resources
+postalAddress: Human Resources$San Francisco
+telephoneNumber: +1 206 562-1407
+title: Junior Human Resources President
+userPassword: Password1
+uid: KaraT
+givenName: Teirtza
+mail: KaraT@c2afe8b3509f4a20b2b784841685bd74.bitwarden.com
+carLicense: O9GAN2
+departmentNumber: 3880
+employeeType: Employee
+homePhone: +1 206 154-4842
+initials: T. K.
+mobile: +1 206 860-1835
+pager: +1 206 684-1438
+roomNumber: 9079
+
+# Users - Engineering
+dn: cn=Alice Chen,ou=Engineering,dc=bitwarden,dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Alice Chen
+sn: Chen
+description: Senior DevOps Engineer
+l: Seattle
+ou: Engineering
+telephoneNumber: +1 206 555-0101
+title: Senior DevOps Engineer
+userPassword: Password1
+uid: ChenA
+givenName: Alice
+mail: ChenA@bitwarden.com
+employeeType: Employee
+
+dn: cn=Bob Martinez,ou=Engineering,dc=bitwarden,dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Bob Martinez
+sn: Martinez
+description: Platform Engineer
+l: Austin
+ou: Engineering
+telephoneNumber: +1 512 555-0102
+title: Platform Engineer
+userPassword: Password1
+uid: MartinezB
+givenName: Bob
+mail: MartinezB@bitwarden.com
+employeeType: Employee
+
+dn: cn=Carol Williams,ou=Engineering,dc=bitwarden,dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Carol Williams
+sn: Williams
+description: QA Lead
+l: Denver
+ou: Engineering
+telephoneNumber: +1 303 555-0103
+title: QA Lead
+userPassword: Password1
+uid: WilliamsC
+givenName: Carol
+mail: WilliamsC@bitwarden.com
+employeeType: Employee
+
+dn: cn=David Kim,ou=Engineering,dc=bitwarden,dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: David Kim
+sn: Kim
+description: QA Engineer
+l: Portland
+ou: Engineering
+telephoneNumber: +1 503 555-0104
+title: QA Engineer
+userPassword: Password1
+uid: KimD
+givenName: David
+mail: KimD@bitwarden.com
+employeeType: Contractor
+
+# Users - Marketing
+dn: cn=Eva Johnson,ou=Marketing,dc=bitwarden,dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Eva Johnson
+sn: Johnson
+description: Marketing Director
+l: New York
+ou: Marketing
+telephoneNumber: +1 212 555-0105
+title: Marketing Director
+userPassword: Password1
+uid: JohnsonE
+givenName: Eva
+mail: JohnsonE@bitwarden.com
+employeeType: Employee
+
+dn: cn=Frank Lee,ou=Marketing,dc=bitwarden,dc=com
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Frank Lee
+sn: Lee
+description: Content Strategist
+l: Chicago
+ou: Marketing
+telephoneNumber: +1 312 555-0106
+title: Content Strategist
+userPassword: Password1
+uid: LeeF
+givenName: Frank
+mail: LeeF@bitwarden.com
+employeeType: Employee
+
+# ============================================================
+# GROUP HIERARCHY
+# ============================================================
+# Structure (arrows show "contains" relationship):
+#
+#   AllStaff
+#     ├── Engineering ◄────────────────┐ (CYCLE from Platform)
+#     │     ├── DevOps                 │
+#     │     │     └── Platform ────────┘
+#     │     └── QA
+#     ├── Marketing
+#     └── HR
+#
+#   Contractors ─── DevOps (diamond: second path to Platform)
+#
+#   TestNestA ◄──► TestNestB (simple bidirectional cycle)
+#
+# ============================================================
+
+# Leaf group - Platform team (CYCLES BACK to Engineering)
+dn: cn=Platform,dc=bitwarden,dc=com
+changetype: add
+cn: Platform
+member: cn=Bob Martinez,ou=Engineering,dc=bitwarden,dc=com
+member: cn=Engineering,dc=bitwarden,dc=com
+objectclass: groupOfNames
+objectclass: top
+
+# DevOps group - contains Platform subgroup
+dn: cn=DevOps,dc=bitwarden,dc=com
+changetype: add
+cn: DevOps
+member: cn=Alice Chen,ou=Engineering,dc=bitwarden,dc=com
+member: cn=Platform,dc=bitwarden,dc=com
+objectclass: groupOfNames
+objectclass: top
+
+# QA group
+dn: cn=QA,dc=bitwarden,dc=com
+changetype: add
+cn: QA
+member: cn=Carol Williams,ou=Engineering,dc=bitwarden,dc=com
+member: cn=David Kim,ou=Engineering,dc=bitwarden,dc=com
+objectclass: groupOfNames
+objectclass: top
+
+# Engineering group - contains DevOps and QA subgroups
+dn: cn=Engineering,dc=bitwarden,dc=com
+changetype: add
+cn: Engineering
+member: cn=DevOps,dc=bitwarden,dc=com
+member: cn=QA,dc=bitwarden,dc=com
+objectclass: groupOfNames
+objectclass: top
+
+# Marketing group
+dn: cn=Marketing,dc=bitwarden,dc=com
+changetype: add
+cn: Marketing
+member: cn=Eva Johnson,ou=Marketing,dc=bitwarden,dc=com
+member: cn=Frank Lee,ou=Marketing,dc=bitwarden,dc=com
+objectclass: groupOfNames
+objectclass: top
+
+# HR group
+dn: cn=HR,dc=bitwarden,dc=com
+changetype: add
+cn: HR
+member: cn=Roland Dyke,ou=Human Resources,dc=bitwarden,dc=com
+member: cn=Teirtza Kara,ou=Human Resources,dc=bitwarden,dc=com
+objectclass: groupOfNames
+objectclass: top
+
+# AllStaff - top-level group containing all departments
+dn: cn=AllStaff,dc=bitwarden,dc=com
+changetype: add
+cn: AllStaff
+member: cn=Engineering,dc=bitwarden,dc=com
+member: cn=Marketing,dc=bitwarden,dc=com
+member: cn=HR,dc=bitwarden,dc=com
+objectclass: groupOfNames
+objectclass: top
+
+# Contractors group - creates diamond pattern (second path to Platform via DevOps)
+dn: cn=Contractors,dc=bitwarden,dc=com
+changetype: add
+cn: Contractors
+member: cn=DevOps,dc=bitwarden,dc=com
+member: cn=David Kim,ou=Engineering,dc=bitwarden,dc=com
+objectclass: groupOfNames
+objectclass: top
+
+# Simple bidirectional cycle test groups (preserved from original)
+dn: cn=TestNestA,dc=bitwarden,dc=com
+changetype: add
+cn: TestNestA
+member: cn=TestNestB,dc=bitwarden,dc=com
+member: cn=Roland Dyke,ou=Human Resources,dc=bitwarden,dc=com
+objectclass: groupOfNames
+objectclass: top
+
+dn: cn=TestNestB,dc=bitwarden,dc=com
+changetype: add
+cn: TestNestB
+member: cn=TestNestA,dc=bitwarden,dc=com
+member: cn=Teirtza Kara,ou=Human Resources,dc=bitwarden,dc=com
+objectclass: groupOfNames
+objectclass: top
