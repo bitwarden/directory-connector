@@ -11,12 +11,14 @@ import { TrayMain } from "@/jslib/electron/src/tray.main";
 import { UpdaterMain } from "@/jslib/electron/src/updater.main";
 import { WindowMain } from "@/jslib/electron/src/window.main";
 
+import { StateServiceVNext } from "./abstractions/state-vNext.service";
 import { DCCredentialStorageListener } from "./main/credential-storage-listener";
 import { MenuMain } from "./main/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { Account } from "./models/account";
 import { I18nService } from "./services/i18n.service";
-import { StateService } from "./services/state.service";
+import { StateServiceVNextImplementation } from "./services/state-service/state-vNext.service";
+import { StateService } from "./services/state-service/state.service";
 
 export class Main {
   logService: ElectronLogService;
@@ -24,6 +26,7 @@ export class Main {
   storageService: ElectronStorageService;
   messagingService: ElectronMainMessagingService;
   credentialStorageListener: DCCredentialStorageListener;
+  stateServiceVNext: StateServiceVNext;
   stateService: StateService;
 
   windowMain: WindowMain;
@@ -65,6 +68,14 @@ export class Main {
       null,
       true,
       new StateFactory(GlobalState, Account),
+    );
+    // Use new StateServiceVNext with flat key-value structure
+    this.stateServiceVNext = new StateServiceVNextImplementation(
+      this.storageService,
+      null,
+      this.logService,
+      null,
+      true,
     );
 
     this.windowMain = new WindowMain(

@@ -16,31 +16,12 @@ import { GSuiteConfiguration } from "@/src/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/src/models/ldapConfiguration";
 import { OktaConfiguration } from "@/src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/src/models/oneLoginConfiguration";
+import {
+  SecureStorageKeysLegacy as SecureStorageKeys,
+  StoredSecurely,
+  TempKeys as keys,
+} from "@/src/models/state.model";
 import { SyncConfiguration } from "@/src/models/syncConfiguration";
-
-const SecureStorageKeys = {
-  ldap: "ldapPassword",
-  gsuite: "gsuitePrivateKey",
-  // Azure Active Directory was renamed to Entra ID, but we've kept the old property name
-  // to be backwards compatible with existing configurations.
-  azure: "azureKey",
-  entra: "entraKey",
-  okta: "oktaToken",
-  oneLogin: "oneLoginClientSecret",
-  userDelta: "userDeltaToken",
-  groupDelta: "groupDeltaToken",
-  lastUserSync: "lastUserSync",
-  lastGroupSync: "lastGroupSync",
-  lastSyncHash: "lastSyncHash",
-};
-
-const keys = {
-  tempAccountSettings: "tempAccountSettings",
-  tempDirectoryConfigs: "tempDirectoryConfigs",
-  tempDirectorySettings: "tempDirectorySettings",
-};
-
-const StoredSecurely = "[STORED SECURELY]";
 
 export class StateService
   extends BaseStateService<GlobalState, Account>

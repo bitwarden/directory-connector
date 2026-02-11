@@ -9,7 +9,7 @@ import {
 import { groupFixtures } from "../../../utils/openldap/group-fixtures";
 import { userFixtures } from "../../../utils/openldap/user-fixtures";
 import { DirectoryType } from "../../enums/directoryType";
-import { StateService } from "../state.service";
+import { StateService } from "../state-service/state.service";
 
 import { LdapDirectoryService } from "./ldap-directory.service";
 
