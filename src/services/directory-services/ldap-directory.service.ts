@@ -68,10 +68,12 @@ export class LdapDirectoryService implements IDirectoryService {
         }
         groups = await this.getGroups(groupForce);
       }
-    } finally {
+    } catch (e) {
       await this.client.unbind();
+      throw e;
     }
 
+    await this.client.unbind();
     return [groups, users];
   }
 
@@ -453,8 +455,9 @@ export class LdapDirectoryService implements IDirectoryService {
 
     try {
       await this.client.bind(user, pass);
-    } catch {
+    } catch (error) {
       await this.client.unbind();
+      throw error;
     }
   }
 
