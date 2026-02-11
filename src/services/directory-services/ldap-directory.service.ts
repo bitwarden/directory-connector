@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as tls from "tls";
+import { spawn } from "child_process";
 
 import * as ldapts from "ldapts";
 
@@ -27,6 +28,7 @@ export class LdapDirectoryService implements IDirectoryService {
   private client: ldapts.Client;
   private dirConfig: LdapConfiguration;
   private syncConfig: SyncConfiguration;
+  private useKerberosLdapSearch = false;
 
   constructor(
     private logService: LogService,
@@ -44,6 +46,11 @@ export class LdapDirectoryService implements IDirectoryService {
     if (this.dirConfig == null) {
       return;
     }
+
+    // Kerberos mode is an opt-in extension. Config is stored on the LDAP config object
+    // (written by the CLI config command). We treat unknown values as "simple".
+    const authMode = String((this.dirConfig as any).auth || "simple").trim().toLowerCase();
+    this.useKerberosLdapSearch = authMode === "kerberos";
 
     this.syncConfig = await this.stateService.getSync();
     if (this.syncConfig == null) {
@@ -69,7 +76,9 @@ export class LdapDirectoryService implements IDirectoryService {
         groups = await this.getGroups(groupForce);
       }
     } finally {
-      await this.client.unbind();
+      if (this.client != null) {
+        await this.client.unbind();
+      }
     }
 
     return [groups, users];
@@ -402,6 +411,11 @@ export class LdapDirectoryService implements IDirectoryService {
     processEntry: (searchEntry: ldapts.Entry) => T,
     controls: ldapts.Control[] = [],
   ): Promise<T[]> {
+    if (this.useKerberosLdapSearch) {
+      const entries = await this.ldapSearch(path, filter, controls);
+      return entries.map((e) => processEntry(e)).filter((e) => e != null);
+    }
+
     const options: ldapts.SearchOptions = {
       filter: filter,
       scope: "sub",
@@ -417,6 +431,18 @@ export class LdapDirectoryService implements IDirectoryService {
   private async bind(): Promise<any> {
     if (this.dirConfig.hostname == null || this.dirConfig.port == null) {
       throw new Error(this.i18nService.t("dirConfigIncomplete"));
+    }
+
+    // Kerberos + ldapsearch mode does not use an LDAP simple bind.
+    if (this.useKerberosLdapSearch) {
+      // Validate that we can at least construct the LDAP URL.
+      const protocol = this.dirConfig.ssl && !this.dirConfig.startTls ? "ldaps" : "ldap";
+      const url = protocol + "://" + this.dirConfig.hostname + ":" + this.dirConfig.port;
+      if (url.trim() === "") {
+        throw new Error(this.i18nService.t("dirConfigIncomplete"));
+      }
+      this.client = null;
+      return;
     }
 
     const protocol = this.dirConfig.ssl && !this.dirConfig.startTls ? "ldaps" : "ldap";
@@ -456,6 +482,233 @@ export class LdapDirectoryService implements IDirectoryService {
     } catch {
       await this.client.unbind();
     }
+  }
+
+  /**
+   * Kerberos LDAP querying via ldapsearch (SASL/GSSAPI or GSS-SPNEGO).
+   * This is used only when ldap.auth is set to "kerberos".
+   */
+  private async ldapSearch(
+    baseDn: string,
+    filter: string,
+    controls: ldapts.Control[] = [],
+  ): Promise<ldapts.Entry[]> {
+    const protocol = this.dirConfig.ssl && !this.dirConfig.startTls ? "ldaps" : "ldap";
+    const url = `${protocol}://${this.dirConfig.hostname}:${this.dirConfig.port}`.trim();
+
+    const ldapsearchPath = String((this.dirConfig as any).ldapsearchPath || "ldapsearch").trim();
+    const mechanism = String((this.dirConfig as any).kerberosMechanism || "GSSAPI").trim();
+    const ccache = (this.dirConfig as any).kerberosCcache;
+
+    const args: string[] = ["-LLL", "-Y", mechanism, "-H", url, "-b", baseDn, "-s", "sub"];
+
+    // StartTLS: ldapsearch uses -ZZ
+    if (this.dirConfig.startTls && this.dirConfig.ssl) {
+      args.push("-ZZ");
+    }
+
+    // Paged results: keep behavior close to ldapts pagedSearch.
+    if (this.dirConfig.pagedSearch) {
+      args.push("-E", "pr=1000/noprompt");
+    }
+
+    // Support the AD "Show Deleted Objects" control when requested.
+    // ldapts uses OID 1.2.840.113556.1.4.417 with critical=true for deleted queries.
+    for (const c of controls || []) {
+      const oid = (c as any)?.type || (c as any)?.oid;
+      if (oid === "1.2.840.113556.1.4.417") {
+        // OpenLDAP ldapsearch marks controls critical by prefixing '!'
+        args.push("-E", "!1.2.840.113556.1.4.417");
+      } else {
+        this.logService.warning(`ldapsearch mode: ignoring unsupported LDAP control ${oid || "(unknown)"}.`);
+      }
+    }
+
+    // Filter and attributes.
+    // We request only the attributes used by Directory Connector to reduce output size.
+    args.push(filter);
+    args.push(...this.getRequiredAttributes());
+
+    const env = this.buildLdapsearchEnv(protocol);
+    if (ccache != null && String(ccache).trim() !== "") {
+      env.KRB5CCNAME = String(ccache).trim();
+    }
+
+    const stdout = await this.spawnToString(ldapsearchPath, args, env);
+    return this.parseLdifToEntries(stdout);
+  }
+
+  private getRequiredAttributes(): string[] {
+    const attrs = new Set<string>();
+
+    // AD unique id
+    attrs.add(ActiveDirectoryExternalId);
+
+    // User fields
+    if (this.syncConfig?.userEmailAttribute) {
+      attrs.add(this.syncConfig.userEmailAttribute);
+    }
+    if (this.syncConfig?.emailPrefixAttribute) {
+      attrs.add(this.syncConfig.emailPrefixAttribute);
+    }
+    attrs.add("userAccountControl");
+    attrs.add("uid");
+
+    // Group fields
+    if (this.syncConfig?.groupNameAttribute) {
+      attrs.add(this.syncConfig.groupNameAttribute);
+    }
+    attrs.add("cn");
+    if (this.syncConfig?.memberAttribute) {
+      attrs.add(this.syncConfig.memberAttribute);
+    }
+
+    // Revision filtering attribute
+    if (this.syncConfig?.revisionDateAttribute) {
+      attrs.add(this.syncConfig.revisionDateAttribute);
+    }
+
+    // Some servers require at least one attribute even when filters match.
+    // ldapsearch allows "*" but we prefer the minimal explicit set.
+    return Array.from(attrs).filter((a) => a != null && a.trim() !== "");
+  }
+
+  private buildLdapsearchEnv(protocol: "ldap" | "ldaps"): NodeJS.ProcessEnv {
+    const env: NodeJS.ProcessEnv = { ...process.env };
+
+    if (this.dirConfig.sslAllowUnauthorized) {
+      // OpenLDAP client uses LDAPTLS_REQCERT=never to skip certificate validation.
+      env.LDAPTLS_REQCERT = "never";
+    }
+
+    // Map Directory Connector TLS settings onto OpenLDAP ldapsearch environment variables.
+    // Note: ldapsearch reads these env vars at runtime.
+    const caPath =
+      protocol === "ldaps"
+        ? this.dirConfig.sslCaPath
+        : this.dirConfig.startTls
+          ? this.dirConfig.tlsCaPath
+          : null;
+
+    if (caPath != null && caPath !== "" && fs.existsSync(caPath)) {
+      env.LDAPTLS_CACERT = caPath;
+    }
+
+    if (protocol === "ldaps") {
+      if (this.dirConfig.sslCertPath && fs.existsSync(this.dirConfig.sslCertPath)) {
+        env.LDAPTLS_CERT = this.dirConfig.sslCertPath;
+      }
+      if (this.dirConfig.sslKeyPath && fs.existsSync(this.dirConfig.sslKeyPath)) {
+        env.LDAPTLS_KEY = this.dirConfig.sslKeyPath;
+      }
+    }
+
+    return env;
+  }
+
+  private async spawnToString(
+    command: string,
+    args: string[],
+    env: NodeJS.ProcessEnv,
+  ): Promise<string> {
+    return await new Promise<string>((resolve, reject) => {
+      const child = spawn(command, args, { env });
+
+      let stdout = "";
+      let stderr = "";
+
+      child.stdout.setEncoding("utf8");
+      child.stderr.setEncoding("utf8");
+
+      child.stdout.on("data", (d) => (stdout += d));
+      child.stderr.on("data", (d) => (stderr += d));
+
+      child.on("error", (err) => reject(err));
+      child.on("close", (code) => {
+        if (code !== 0) {
+          reject(new Error(`ldapsearch failed (exit ${code}). ${stderr || ""}`.trim()));
+          return;
+        }
+        resolve(stdout);
+      });
+    });
+  }
+
+  private parseLdifToEntries(ldifText: string): ldapts.Entry[] {
+    const bufferAttrs = new Set<string>([ActiveDirectoryExternalId]);
+
+    // Unfold lines: a line starting with a space continues previous line.
+    const lines = ldifText.split(/\r?\n/);
+    const unfolded: string[] = [];
+    for (const line of lines) {
+      if (line.startsWith(" ") && unfolded.length > 0) {
+        unfolded[unfolded.length - 1] += line.slice(1);
+      } else {
+        unfolded.push(line);
+      }
+    }
+
+    const entries: any[] = [];
+    let current: any = null;
+
+    const flush = () => {
+      if (current?.dn) {
+        entries.push(current);
+      }
+      current = null;
+    };
+
+    for (const line of unfolded) {
+      if (line.trim() === "") {
+        flush();
+        continue;
+      }
+
+      const dnMatch = line.match(/^dn:\s*(.+)\s*$/i);
+      if (dnMatch) {
+        flush();
+        current = { dn: dnMatch[1] };
+        continue;
+      }
+
+      if (!current) {
+        continue;
+      }
+
+      // attr: value
+      // attr:: base64
+      const m = line.match(/^([^:]+)(::?)\s*(.*)$/);
+      if (!m) {
+        continue;
+      }
+
+      const rawAttr = m[1].trim();
+      const sep = m[2];
+      const rawValue = m[3] ?? "";
+
+      // Strip attribute options like ";binary"
+      const attr = rawAttr.split(";")[0];
+
+      let value: string | Buffer;
+      if (sep === "::") {
+        const buf = Buffer.from(rawValue, "base64");
+        value = bufferAttrs.has(attr) ? buf : buf.toString("utf8");
+      } else {
+        value = rawValue;
+      }
+
+      const existing = current[attr];
+      if (existing == null) {
+        current[attr] = value;
+      } else if (Array.isArray(existing)) {
+        existing.push(value);
+      } else {
+        current[attr] = [existing, value];
+      }
+    }
+
+    flush();
+    return entries as ldapts.Entry[];
   }
 
   private buildTlsOptions(): tls.ConnectionOptions {

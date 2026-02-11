@@ -383,9 +383,26 @@ export class StateService
   }
 
   async getOrganizationId(options?: StorageOptions): Promise<string> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directorySettings?.organizationId;
+    const account = await this.getAccount(
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
+    );
+
+    // Primary source: explicit directory settings (used by SyncService for hashing/import calls)
+    const explicit = account?.directorySettings?.organizationId;
+    if (explicit != null && explicit.trim().length > 0) {
+      return explicit;
+    }
+
+    // Fallback: derive from organization-scoped clientId (e.g., "organization.<orgId>")
+    const cid = (account as any)?.clientId as string | undefined;
+    if (cid != null && cid.startsWith("organization.")) {
+      const orgId = cid.substring("organization.".length).trim();
+      if (orgId.length > 0) {
+        return orgId;
+      }
+    }
+
+    return null;
   }
 
   async setOrganizationId(value: string, options?: StorageOptions): Promise<void> {
