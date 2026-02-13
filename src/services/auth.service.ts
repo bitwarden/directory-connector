@@ -2,11 +2,6 @@ import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import {
-  AccountKeys,
-  AccountProfile,
-  AccountTokens,
-} from "@/jslib/common/src/models/domain/account";
 import { DeviceRequest } from "@/jslib/common/src/models/request/deviceRequest";
 import { ApiTokenRequest } from "@/jslib/common/src/models/request/identityToken/apiTokenRequest";
 import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
@@ -62,27 +57,12 @@ export class AuthService {
 
     await this.stateService.addAccount(
       new Account({
-        profile: {
-          ...new AccountProfile(),
-          ...{
-            userId: entityId,
-            apiKeyClientId: clientId,
-            entityId: entityId,
-          },
-        },
-        tokens: {
-          ...new AccountTokens(),
-          ...{
-            accessToken: tokenResponse.accessToken,
-            refreshToken: tokenResponse.refreshToken,
-          },
-        },
-        keys: {
-          ...new AccountKeys(),
-          ...{
-            apiKeyClientSecret: clientSecret,
-          },
-        },
+        userId: entityId,
+        entityId: entityId,
+        apiKeyClientId: clientId,
+        accessToken: tokenResponse.accessToken,
+        refreshToken: tokenResponse.refreshToken,
+        apiKeyClientSecret: clientSecret,
         directorySettings: new DirectorySettings(),
         directoryConfigurations: new DirectoryConfigurations(),
       }),

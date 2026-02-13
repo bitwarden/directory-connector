@@ -539,18 +539,16 @@ export class StateService
 
   protected async scaffoldNewAccountDiskStorage(account: Account): Promise<void> {
     const storageOptions = this.reconcileOptions(
-      { userId: account.profile.userId },
+      { userId: account.userId },
       await this.defaultOnDiskLocalOptions(),
     );
 
     const storedAccount = await this.getAccount(storageOptions);
     if (storedAccount != null) {
-      account.settings = storedAccount.settings;
       account.directorySettings = storedAccount.directorySettings;
       account.directoryConfigurations = storedAccount.directoryConfigurations;
     } else if (await this.hasTemporaryStorage()) {
       // If migrating to state V2 with an no actively authed account we store temporary data to be copied on auth - this will only be run once.
-      account.settings = await this.storageService.get<any>(keys.tempAccountSettings);
       account.directorySettings = await this.storageService.get<any>(keys.tempDirectorySettings);
       account.directoryConfigurations = await this.storageService.get<any>(
         keys.tempDirectoryConfigs,
@@ -581,7 +579,7 @@ export class StateService
 
   protected resetAccount(account: Account) {
     const persistentAccountInformation = {
-      settings: account.settings,
+      settings: account.settings, // Required by base class (unused by DC)
       directorySettings: account.directorySettings,
       directoryConfigurations: account.directoryConfigurations,
     };

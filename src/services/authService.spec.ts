@@ -5,11 +5,6 @@ import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
-import {
-  AccountKeys,
-  AccountProfile,
-  AccountTokens,
-} from "@/jslib/common/src/models/domain/account";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
 import { Account, DirectoryConfigurations, DirectorySettings } from "../models/account";
@@ -69,27 +64,12 @@ describe("AuthService", () => {
     expect(stateService.addAccount).toHaveBeenCalledTimes(1);
     expect(stateService.addAccount).toHaveBeenCalledWith(
       new Account({
-        profile: {
-          ...new AccountProfile(),
-          ...{
-            userId: "CLIENT_ID",
-            apiKeyClientId: clientId, // with the "organization." prefix
-            entityId: "CLIENT_ID",
-          },
-        },
-        tokens: {
-          ...new AccountTokens(),
-          ...{
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-          },
-        },
-        keys: {
-          ...new AccountKeys(),
-          ...{
-            apiKeyClientSecret: clientSecret,
-          },
-        },
+        userId: "CLIENT_ID",
+        entityId: "CLIENT_ID",
+        apiKeyClientId: clientId, // with the "organization." prefix
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        apiKeyClientSecret: clientSecret,
         directorySettings: new DirectorySettings(),
         directoryConfigurations: new DirectoryConfigurations(),
       }),
