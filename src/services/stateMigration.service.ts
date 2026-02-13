@@ -61,6 +61,13 @@ export class StateMigrationService extends BaseStateMigrationService {
           break;
         case StateVersion.Two:
           await this.migrateStateFrom2To3();
+          break;
+        case StateVersion.Three:
+          await this.migrateStateFrom3To4();
+          break;
+        case StateVersion.Four:
+          await this.migrateStateFrom4To5();
+          break;
       }
       currentStateVersion += 1;
     }
@@ -143,15 +150,10 @@ export class StateMigrationService extends BaseStateMigrationService {
     const account = await this.get<Account>(userId);
     account.directoryConfigurations = directoryConfigs;
     account.directorySettings = directorySettings;
-    account.profile = {
-      userId: userId,
-      entityId: userId,
-      apiKeyClientId: clientId,
-    };
-    account.clientKeys = {
-      clientId: clientId,
-      clientSecret: clientSecret,
-    };
+    account.userId = userId;
+    account.entityId = userId;
+    account.apiKeyClientId = clientId;
+    account.apiKeyClientSecret = clientSecret;
 
     await this.set(userId, account);
     await clearDirectoryConnectorV1Keys();
@@ -196,6 +198,59 @@ export class StateMigrationService extends BaseStateMigrationService {
 
     const globals = await this.getGlobals();
     globals.stateVersion = StateVersion.Three;
+    await this.set(StateKeys.global, globals);
+  }
+
+  protected async migrateStateFrom3To4(): Promise<void> {
+    // Placeholder migration for v3→v4 (no changes needed for DC)
+    const globals = await this.getGlobals();
+    globals.stateVersion = StateVersion.Four;
+    await this.set(StateKeys.global, globals);
+  }
+
+  protected async migrateStateFrom4To5(): Promise<void> {
+    const authenticatedUserIds = await this.get<string[]>(StateKeys.authenticatedAccounts);
+
+    if (!authenticatedUserIds || authenticatedUserIds.length === 0) {
+      // No accounts to migrate, just update version
+      const globals = await this.getGlobals();
+      globals.stateVersion = StateVersion.Five;
+      await this.set(StateKeys.global, globals);
+      return;
+    }
+
+    await Promise.all(
+      authenticatedUserIds.map(async (userId) => {
+        const oldAccount = await this.get<any>(userId);
+
+        if (!oldAccount) {
+          return;
+        }
+
+        // Create new flattened account structure
+        const flattenedAccount = new Account({
+          // Extract from nested structures
+          userId: oldAccount.profile?.userId ?? userId,
+          entityId: oldAccount.profile?.entityId ?? userId,
+          apiKeyClientId: oldAccount.profile?.apiKeyClientId ?? null,
+          accessToken: oldAccount.tokens?.accessToken ?? null,
+          refreshToken: oldAccount.tokens?.refreshToken ?? null,
+          apiKeyClientSecret: oldAccount.keys?.apiKeyClientSecret ?? null,
+
+          // Preserve existing DC-specific data
+          directoryConfigurations:
+            oldAccount.directoryConfigurations ?? new DirectoryConfigurations(),
+          directorySettings: oldAccount.directorySettings ?? new DirectorySettings(),
+        });
+
+        // Save flattened account back to storage
+        await this.set(userId, flattenedAccount);
+      }),
+    );
+
+    // Update global state version
+    const globals = await this.getGlobals();
+    globals.stateVersion = StateVersion.Five;
     await this.set(StateKeys.global, globals);
   }
 }

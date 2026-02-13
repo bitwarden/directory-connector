@@ -3,5 +3,6 @@ export enum StateVersion {
   Two = 2, // Move to a typed State object
   Three = 3, // Fix migration of users' premium status
   Four = 4, // Fix 'Never Lock' option by removing stale data
-  Latest = Four,
+  Five = 5, // DC: Flatten Account model, remove BaseAccount inheritance
+  Latest = Five,
 }
