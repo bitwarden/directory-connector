@@ -22,7 +22,7 @@
   },
   "win": {
     "target": ["portable", "nsis"],
-    "sign": "scripts/sign.js"
+    "sign": "scripts/sign.mjs"
   },
   "linux": {
     "category": "Utility",
