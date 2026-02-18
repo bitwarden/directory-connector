@@ -8,6 +8,10 @@ on:
       - "rc"
       - "hotfix-rc"
   workflow_dispatch: {}
+  workflow_call:
+    secrets:
+      Azure-KV-CI-Service-Principal:
+        required: true
 
 permissions:
   contents: read
