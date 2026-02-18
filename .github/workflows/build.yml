@@ -50,22 +50,12 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          persist-credentials: false
-
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-        with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install "$(node -v)"
+          persist-credentials: false
+          platform: Linux
 
       - name: Keytar
         run: |
@@ -128,22 +118,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          persist-credentials: false
-
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-        with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install "$(node -v)"
+          persist-credentials: false
+          platform: macOS
 
       - name: Keytar
         run: |
@@ -199,26 +179,16 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
       - name: Setup Windows builder
         run: |
           choco install checksum --no-progress
 
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install $(node -v)
+          persist-credentials: false
+          platform: Windows
 
       - name: Keytar
         shell: pwsh
@@ -243,8 +213,8 @@ jobs:
         run: npm run dist:cli:win
 
       - name: Zip
-        shell: cmd
-        run: 7z a .\dist-cli\bwdc-windows-%_PACKAGE_VERSION%.zip .\dist-cli\windows\bwdc.exe .\keytar\windows\keytar.node
+        shell: pwsh
+        run: 7z a .\dist-cli\bwdc-windows-$env:_PACKAGE_VERSION.zip .\dist-cli\windows\bwdc.exe .\keytar\windows\keytar.node
 
       - name: Version Test
         shell: pwsh
@@ -278,22 +248,12 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          persist-credentials: false
-
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-        with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install $(node -v)
+          persist-credentials: false
+          platform: Windows
 
       - name: Print environment
         run: |
@@ -378,22 +338,12 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          persist-credentials: false
-
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-        with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install "$(node -v)"
+          persist-credentials: false
+          platform: Linux
 
       - name: Set up environment
         run: |
@@ -438,22 +388,12 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          persist-credentials: false
-
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-        with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install "$(node -v)"
+          persist-credentials: false
+          platform: macOS
 
       - name: Print environment
         run: |

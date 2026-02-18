@@ -1,0 +1,44 @@
+name: Setup Node Environment
+description: Common setup steps for Node.js environment including checkout, Node setup with npm caching, and node-gyp installation
+
+inputs:
+  node-version:
+    description: Node.js version to install
+    required: true
+  persist-credentials:
+    description: Whether to persist git credentials
+    required: false
+    default: "false"
+  platform:
+    description: Platform name for shell selection (Linux, macOS, Windows)
+    required: false
+    default: Linux
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout repo
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        persist-credentials: ${{ inputs.persist-credentials }}
+
+    - name: Set up Node
+      uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      with:
+        cache: "npm"
+        cache-dependency-path: "**/package-lock.json"
+        node-version: ${{ inputs.node-version }}
+
+    - name: Update NPM and install node-gyp (Unix)
+      if: inputs.platform != 'Windows'
+      shell: bash
+      run: |
+        npm install -g npm@latest node-gyp
+        node-gyp install "$(node -v)"
+
+    - name: Update NPM and install node-gyp (Windows)
+      if: inputs.platform == 'Windows'
+      shell: pwsh
+      run: |
+        npm install -g npm@latest node-gyp
+        node-gyp install $(node -v)
