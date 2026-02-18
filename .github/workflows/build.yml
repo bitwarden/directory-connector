@@ -50,11 +50,15 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
         with:
           node-version: ${{ env._NODE_VERSION }}
-          persist-credentials: false
           platform: Linux
 
       - name: Keytar
@@ -118,11 +122,15 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
         with:
           node-version: ${{ env._NODE_VERSION }}
-          persist-credentials: false
           platform: macOS
 
       - name: Keytar
@@ -179,6 +187,11 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
       - name: Setup Windows builder
         run: |
           choco install checksum --no-progress
@@ -187,7 +200,6 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           node-version: ${{ env._NODE_VERSION }}
-          persist-credentials: false
           platform: Windows
 
       - name: Keytar
@@ -248,11 +260,15 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
         with:
           node-version: ${{ env._NODE_VERSION }}
-          persist-credentials: false
           platform: Windows
 
       - name: Print environment
@@ -338,11 +354,15 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
         with:
           node-version: ${{ env._NODE_VERSION }}
-          persist-credentials: false
           platform: Linux
 
       - name: Set up environment
@@ -388,11 +408,15 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
         with:
           node-version: ${{ env._NODE_VERSION }}
-          persist-credentials: false
           platform: macOS
 
       - name: Print environment

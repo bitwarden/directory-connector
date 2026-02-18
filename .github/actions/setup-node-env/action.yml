@@ -4,10 +4,6 @@ inputs:
   node-version:
     description: "Node.js version to use"
     required: true
-  persist-credentials:
-    description: "Whether to persist git credentials"
-    required: false
-    default: "false"
   platform:
     description: "Platform name (Linux, macOS, Windows) - used for shell selection"
     required: false
@@ -16,11 +12,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout repo
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      with:
-        persist-credentials: ${{ inputs.persist-credentials }}
-
     - name: Set up Node
       uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
       with:
