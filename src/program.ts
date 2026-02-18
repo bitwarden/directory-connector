@@ -92,7 +92,7 @@ export class Program extends BaseProgram {
       })
       .action(async (clientId: string, clientSecret: string, options: OptionValues) => {
         await this.exitIfAuthed();
-        const command = new LoginCommand(this.main.authService);
+	const command = new LoginCommand(this.main.authService, this.main.stateService);
 
         if (!Utils.isNullOrWhitespace(clientId)) {
           process.env.BW_CLIENTID = clientId;
