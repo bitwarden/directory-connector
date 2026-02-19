@@ -1,7 +1,8 @@
-import { Arg, Substitute, SubstituteOf } from "@fluffy-spoon/substitute";
+import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
+import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
 import {
@@ -11,7 +12,6 @@ import {
 } from "@/jslib/common/src/models/domain/account";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
-import { MessagingService } from "../../jslib/common/src/abstractions/messaging.service";
 import { Account, DirectoryConfigurations, DirectorySettings } from "../models/account";
 
 import { AuthService } from "./auth.service";
@@ -35,22 +35,22 @@ export function identityTokenResponseFactory() {
 }
 
 describe("AuthService", () => {
-  let apiService: SubstituteOf<ApiService>;
-  let appIdService: SubstituteOf<AppIdService>;
-  let platformUtilsService: SubstituteOf<PlatformUtilsService>;
-  let messagingService: SubstituteOf<MessagingService>;
-  let stateService: SubstituteOf<StateService>;
+  let apiService: jest.Mocked<ApiService>;
+  let appIdService: jest.Mocked<AppIdService>;
+  let platformUtilsService: jest.Mocked<PlatformUtilsService>;
+  let messagingService: jest.Mocked<MessagingService>;
+  let stateService: jest.Mocked<StateService>;
 
   let authService: AuthService;
 
   beforeEach(async () => {
-    apiService = Substitute.for();
-    appIdService = Substitute.for();
-    platformUtilsService = Substitute.for();
-    stateService = Substitute.for();
-    messagingService = Substitute.for();
+    apiService = mock<ApiService>();
+    appIdService = mock<AppIdService>();
+    platformUtilsService = mock<PlatformUtilsService>();
+    stateService = mock<StateService>();
+    messagingService = mock<MessagingService>();
 
-    appIdService.getAppId().resolves(deviceId);
+    appIdService.getAppId.mockResolvedValue(deviceId);
 
     authService = new AuthService(
       apiService,
@@ -62,11 +62,12 @@ describe("AuthService", () => {
   });
 
   it("sets the local environment after a successful login", async () => {
-    apiService.postIdentityToken(Arg.any()).resolves(identityTokenResponseFactory());
+    apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
 
     await authService.logIn({ clientId, clientSecret });
 
-    stateService.received(1).addAccount(
+    expect(stateService.addAccount).toHaveBeenCalledTimes(1);
+    expect(stateService.addAccount).toHaveBeenCalledWith(
       new Account({
         profile: {
           ...new AccountProfile(),
