@@ -153,13 +153,9 @@ describe("SyncService", () => {
       });
     }
 
-    it("should handle simple circular reference (A ↔ B) without stack overflow", async () => {
-      const groupA = createGroup("GroupA", ["userA"], ["GroupB"]);
-      const groupB = createGroup("GroupB", ["userB"], ["GroupA"]);
-      const circularGroups = [groupA, groupB];
-
+    function setupSyncWithGroups(groups: GroupEntry[]) {
       const mockDirectoryService = mock<LdapDirectoryService>();
-      mockDirectoryService.getEntries.mockResolvedValue([circularGroups, []]);
+      mockDirectoryService.getEntries.mockResolvedValue([groups, []]);
       directoryFactory.createService.mockReturnValue(mockDirectoryService);
 
       stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
@@ -168,40 +164,31 @@ describe("SyncService", () => {
       singleRequestBuilder.buildRequest.mockReturnValue([
         { members: [], groups: [], overwriteExisting: true, largeImport: false },
       ]);
+    }
+
+    it("should handle simple circular reference (A ↔ B) without stack overflow", async () => {
+      const groupA = createGroup("GroupA", ["userA"], ["GroupB"]);
+      const groupB = createGroup("GroupB", ["userB"], ["GroupA"]);
+      setupSyncWithGroups([groupA, groupB]);
 
       const [groups] = await syncService.sync(true, true);
 
-      // Both groups should have both users after flattening
-      expect(groups[0].userMemberExternalIds).toContain("userA");
-      expect(groups[0].userMemberExternalIds).toContain("userB");
-      expect(groups[1].userMemberExternalIds).toContain("userA");
-      expect(groups[1].userMemberExternalIds).toContain("userB");
+      const [a, b] = groups;
+      expect(a.userMemberExternalIds).toEqual(new Set(["userA", "userB"]));
+      expect(b.userMemberExternalIds).toEqual(new Set(["userA", "userB"]));
     });
 
     it("should handle longer circular chain (A → B → C → A) without stack overflow", async () => {
       const groupA = createGroup("GroupA", ["userA"], ["GroupB"]);
       const groupB = createGroup("GroupB", ["userB"], ["GroupC"]);
       const groupC = createGroup("GroupC", ["userC"], ["GroupA"]);
-      const circularGroups = [groupA, groupB, groupC];
-
-      const mockDirectoryService = mock<LdapDirectoryService>();
-      mockDirectoryService.getEntries.mockResolvedValue([circularGroups, []]);
-      directoryFactory.createService.mockReturnValue(mockDirectoryService);
-
-      stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
-      cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
-      stateService.getLastSyncHash.mockResolvedValue("unique hash");
-      singleRequestBuilder.buildRequest.mockReturnValue([
-        { members: [], groups: [], overwriteExisting: true, largeImport: false },
-      ]);
+      setupSyncWithGroups([groupA, groupB, groupC]);
 
       const [groups] = await syncService.sync(true, true);
 
-      // All groups should have all users after flattening
+      const allUsers = new Set(["userA", "userB", "userC"]);
       for (const group of groups) {
-        expect(group.userMemberExternalIds).toContain("userA");
-        expect(group.userMemberExternalIds).toContain("userB");
-        expect(group.userMemberExternalIds).toContain("userC");
+        expect(group.userMemberExternalIds).toEqual(allUsers);
       }
     });
 
@@ -210,40 +197,15 @@ describe("SyncService", () => {
       const groupB = createGroup("GroupB", ["userB"], ["GroupD"]);
       const groupC = createGroup("GroupC", ["userC"], ["GroupD"]);
       const groupD = createGroup("GroupD", ["userD"], []);
-      const diamondGroups = [groupA, groupB, groupC, groupD];
-
-      const mockDirectoryService = mock<LdapDirectoryService>();
-      mockDirectoryService.getEntries.mockResolvedValue([diamondGroups, []]);
-      directoryFactory.createService.mockReturnValue(mockDirectoryService);
-
-      stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
-      cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
-      stateService.getLastSyncHash.mockResolvedValue("unique hash");
-      singleRequestBuilder.buildRequest.mockReturnValue([
-        { members: [], groups: [], overwriteExisting: true, largeImport: false },
-      ]);
+      setupSyncWithGroups([groupA, groupB, groupC, groupD]);
 
       const [groups] = await syncService.sync(true, true);
 
       const [a, b, c, d] = groups;
-
-      // A should have all users (through B and C, both containing D)
-      expect(a.userMemberExternalIds).toContain("userA");
-      expect(a.userMemberExternalIds).toContain("userB");
-      expect(a.userMemberExternalIds).toContain("userC");
-      expect(a.userMemberExternalIds).toContain("userD");
-
-      // B should have its own user plus D's user
-      expect(b.userMemberExternalIds).toContain("userB");
-      expect(b.userMemberExternalIds).toContain("userD");
-
-      // C should have its own user plus D's user
-      expect(c.userMemberExternalIds).toContain("userC");
-      expect(c.userMemberExternalIds).toContain("userD");
-
-      // D should only have its own user
-      expect(d.userMemberExternalIds).toContain("userD");
-      expect(d.userMemberExternalIds.size).toBe(1);
+      expect(a.userMemberExternalIds).toEqual(new Set(["userA", "userB", "userC", "userD"]));
+      expect(b.userMemberExternalIds).toEqual(new Set(["userB", "userD"]));
+      expect(c.userMemberExternalIds).toEqual(new Set(["userC", "userD"]));
+      expect(d.userMemberExternalIds).toEqual(new Set(["userD"]));
     });
 
     it("should handle deep nesting with circular reference at leaf", async () => {
@@ -251,39 +213,17 @@ describe("SyncService", () => {
       const groupA = createGroup("GroupA", ["userA"], ["GroupB"]);
       const groupB = createGroup("GroupB", ["userB"], ["GroupC"]);
       const groupC = createGroup("GroupC", ["userC"], ["GroupD"]);
-      const groupD = createGroup("GroupD", ["userD"], ["GroupB"]); // cycles back to B
-      const deepGroups = [groupA, groupB, groupC, groupD];
-
-      const mockDirectoryService = mock<LdapDirectoryService>();
-      mockDirectoryService.getEntries.mockResolvedValue([deepGroups, []]);
-      directoryFactory.createService.mockReturnValue(mockDirectoryService);
-
-      stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
-      cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
-      stateService.getLastSyncHash.mockResolvedValue("unique hash");
-      singleRequestBuilder.buildRequest.mockReturnValue([
-        { members: [], groups: [], overwriteExisting: true, largeImport: false },
-      ]);
+      const groupD = createGroup("GroupD", ["userD"], ["GroupB"]);
+      setupSyncWithGroups([groupA, groupB, groupC, groupD]);
 
       const [groups] = await syncService.sync(true, true);
 
       const [a, b, c, d] = groups;
-
-      // A should have all users
-      expect(a.userMemberExternalIds.size).toBe(4);
-
-      // B, C, D form a cycle, so they should all have each other's users
-      expect(b.userMemberExternalIds).toContain("userB");
-      expect(b.userMemberExternalIds).toContain("userC");
-      expect(b.userMemberExternalIds).toContain("userD");
-
-      expect(c.userMemberExternalIds).toContain("userB");
-      expect(c.userMemberExternalIds).toContain("userC");
-      expect(c.userMemberExternalIds).toContain("userD");
-
-      expect(d.userMemberExternalIds).toContain("userB");
-      expect(d.userMemberExternalIds).toContain("userC");
-      expect(d.userMemberExternalIds).toContain("userD");
+      const cycleUsers = new Set(["userB", "userC", "userD"]);
+      expect(a.userMemberExternalIds).toEqual(new Set(["userA", ...cycleUsers]));
+      expect(b.userMemberExternalIds).toEqual(cycleUsers);
+      expect(c.userMemberExternalIds).toEqual(cycleUsers);
+      expect(d.userMemberExternalIds).toEqual(cycleUsers);
     });
 
     it("should handle complex structure with multiple cycles and shared members", async () => {
@@ -297,37 +237,33 @@ describe("SyncService", () => {
       const groupA = createGroup("GroupA", ["userA"], ["GroupB", "GroupC"]);
       const groupB = createGroup("GroupB", ["userB"], ["GroupD", "GroupE"]);
       const groupC = createGroup("GroupC", ["userC"], ["GroupE", "GroupF"]);
-      const groupD = createGroup("GroupD", ["userD"], ["GroupA"]); // cycle to A
-      const groupE = createGroup("GroupE", ["userE"], ["GroupC"]); // cycle to C
+      const groupD = createGroup("GroupD", ["userD"], ["GroupA"]);
+      const groupE = createGroup("GroupE", ["userE"], ["GroupC"]);
       const groupF = createGroup("GroupF", ["userF"], []);
-      const complexGroups = [groupA, groupB, groupC, groupD, groupE, groupF];
+      setupSyncWithGroups([groupA, groupB, groupC, groupD, groupE, groupF]);
 
-      const mockDirectoryService = mock<LdapDirectoryService>();
-      mockDirectoryService.getEntries.mockResolvedValue([complexGroups, []]);
-      directoryFactory.createService.mockReturnValue(mockDirectoryService);
-
-      stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
-      cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
-      stateService.getLastSyncHash.mockResolvedValue("unique hash");
-      singleRequestBuilder.buildRequest.mockReturnValue([
-        { members: [], groups: [], overwriteExisting: true, largeImport: false },
-      ]);
-
-      // Should complete without stack overflow
       const [groups] = await syncService.sync(true, true);
 
-      expect(groups).toHaveLength(6);
-
-      // Verify A gets users from its descendants
+      const allUsers = new Set(["userA", "userB", "userC", "userD", "userE", "userF"]);
       const a = groups.find((g) => g.name === "GroupA");
-      expect(a.userMemberExternalIds).toContain("userA");
-      expect(a.userMemberExternalIds).toContain("userB");
-      expect(a.userMemberExternalIds).toContain("userC");
-
-      // F should only have its own user (it's a leaf)
+      const b = groups.find((g) => g.name === "GroupB");
+      const c = groups.find((g) => g.name === "GroupC");
+      const d = groups.find((g) => g.name === "GroupD");
+      const e = groups.find((g) => g.name === "GroupE");
       const f = groups.find((g) => g.name === "GroupF");
-      expect(f.userMemberExternalIds).toContain("userF");
-      expect(f.userMemberExternalIds.size).toBe(1);
+
+      // A can reach all groups, so it gets all users
+      expect(a.userMemberExternalIds).toEqual(allUsers);
+      // B reaches D, E, and through cycles reaches everything
+      expect(b.userMemberExternalIds).toEqual(allUsers);
+      // C reaches E (which cycles back to C) and F
+      expect(c.userMemberExternalIds).toEqual(new Set(["userC", "userE", "userF"]));
+      // D cycles to A, which reaches everything
+      expect(d.userMemberExternalIds).toEqual(allUsers);
+      // E cycles to C, picking up C's descendants
+      expect(e.userMemberExternalIds).toEqual(new Set(["userC", "userE", "userF"]));
+      // F is a leaf
+      expect(f.userMemberExternalIds).toEqual(new Set(["userF"]));
     });
   });
 });
