@@ -1,4 +1,6 @@
 import * as fs from "fs";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import * as path from "path";
 
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
@@ -17,6 +19,8 @@ import { ConsoleLogService } from "@/jslib/node/src/cli/services/consoleLog.serv
 import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 
+import packageJson from "../package.json";
+
 import { DirectoryFactoryService } from "./abstractions/directory-factory.service";
 import { StateServiceVNext } from "./abstractions/state-vNext.service";
 import { Account } from "./models/account";
@@ -33,8 +37,10 @@ import { StateService } from "./services/state-service/state.service";
 import { StateMigrationService } from "./services/state-service/stateMigration.service";
 import { SyncService } from "./services/sync.service";
 
-// eslint-disable-next-line
-const packageJson = require("../package.json");
+// ESM __dirname polyfill for Node 20
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export class Main {
   dataFilePath: string;
