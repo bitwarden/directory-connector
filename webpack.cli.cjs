@@ -1,6 +1,5 @@
 const path = require("path");
 
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
@@ -24,7 +23,6 @@ const moduleRules = [
 ];
 
 const plugins = [
-  new CleanWebpackPlugin(),
   new CopyWebpackPlugin({
     patterns: [{ from: "./src/locales", to: "locales" }],
   }),
@@ -64,6 +62,7 @@ const config = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build-cli"),
+    clean: true,
   },
   module: { rules: moduleRules },
   plugins: plugins,
