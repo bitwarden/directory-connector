@@ -19,6 +19,7 @@ export class DefaultDirectoryFactoryService implements DirectoryFactoryService {
   ) {}
 
   createService(directoryType: DirectoryType) {
+    console.log("test")
     switch (directoryType) {
       case DirectoryType.GSuite:
         return new GSuiteDirectoryService(this.logService, this.i18nService, this.stateService);
