@@ -11,6 +11,7 @@ import { GSuiteConfiguration } from "../../models/gsuiteConfiguration";
 import { SyncConfiguration } from "../../models/syncConfiguration";
 import { UserEntry } from "../../models/userEntry";
 import { BaseDirectoryService } from "../baseDirectory.service";
+import { Entry } from "type-fest";
 
 import { IDirectoryService } from "./directory.service";
 
@@ -31,6 +32,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
   }
 
   async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
+    const asdf = 1;
     const type = await this.stateService.getDirectoryType();
     if (type !== DirectoryType.GSuite) {
       return;
