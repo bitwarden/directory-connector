@@ -174,10 +174,26 @@ export class StateMigrationService extends BaseStateMigrationService {
     await this.set(StateKeys.global, globals);
   }
 
-  protected async migrateStateFrom4To5(): Promise<void> {
+  /**
+   * Migrate from State v4 (Account-based hierarchy) to v5 (flat key-value structure)
+   *
+   * This is a clean break from the Account-based structure. Data is extracted from
+   * the account and saved into flat keys for simpler access.
+   *
+   * Old structure: authenticatedAccounts -> userId -> account.directorySettings/directoryConfigurations
+   * New structure: flat keys like "directoryType", "organizationId", "directory_ldap", etc.
+   *
+   * Secrets migrate from: {userId}_{secretKey} -> secret_{secretKey}
+   */
+  protected async migrateStateFrom4To5(useSecureStorageForSecrets = true): Promise<void> {
+    // Get the authenticated user IDs from v3 structure
     const authenticatedUserIds = await this.get<string[]>(StateKeys.authenticatedAccounts);
 
-    if (!authenticatedUserIds || authenticatedUserIds.length === 0) {
+    if (
+      !authenticatedUserIds ||
+      !Array.isArray(authenticatedUserIds) ||
+      authenticatedUserIds.length === 0
+    ) {
       // No accounts to migrate, just update version
       const globals = await this.getGlobals();
       globals.stateVersion = StateVersion.Five;
@@ -185,36 +201,94 @@ export class StateMigrationService extends BaseStateMigrationService {
       return;
     }
 
-    await Promise.all(
-      authenticatedUserIds.map(async (userId) => {
-        const oldAccount = await this.get<any>(userId);
+    // DC is single-user, so we take the first (and likely only) account
+    const userId = authenticatedUserIds[0];
+    const account = await this.get<Account>(userId);
 
-        if (!oldAccount) {
-          return;
+    if (!account) {
+      // No account data found, just update version
+      const globals = await this.getGlobals();
+      globals.stateVersion = StateVersion.Five;
+      await this.set(StateKeys.global, globals);
+      return;
+    }
+
+    // Migrate directory configurations to flat structure
+    if (account.directoryConfigurations) {
+      if (account.directoryConfigurations.ldap) {
+        await this.set("directory_ldap", account.directoryConfigurations.ldap);
+      }
+      if (account.directoryConfigurations.gsuite) {
+        await this.set("directory_gsuite", account.directoryConfigurations.gsuite);
+      }
+      if (account.directoryConfigurations.entra) {
+        await this.set("directory_entra", account.directoryConfigurations.entra);
+      } else if (account.directoryConfigurations.azure) {
+        // Backwards compatibility: migrate azure to entra
+        await this.set("directory_entra", account.directoryConfigurations.azure);
+      }
+      if (account.directoryConfigurations.okta) {
+        await this.set("directory_okta", account.directoryConfigurations.okta);
+      }
+      if (account.directoryConfigurations.oneLogin) {
+        await this.set("directory_onelogin", account.directoryConfigurations.oneLogin);
+      }
+    }
+
+    // Migrate directory settings to flat structure
+    if (account.directorySettings) {
+      if (account.directorySettings.organizationId) {
+        await this.set("organizationId", account.directorySettings.organizationId);
+      }
+      if (account.directorySettings.directoryType != null) {
+        await this.set("directoryType", account.directorySettings.directoryType);
+      }
+      if (account.directorySettings.sync) {
+        await this.set("sync", account.directorySettings.sync);
+      }
+      if (account.directorySettings.lastUserSync) {
+        await this.set("lastUserSync", account.directorySettings.lastUserSync);
+      }
+      if (account.directorySettings.lastGroupSync) {
+        await this.set("lastGroupSync", account.directorySettings.lastGroupSync);
+      }
+      if (account.directorySettings.lastSyncHash) {
+        await this.set("lastSyncHash", account.directorySettings.lastSyncHash);
+      }
+      if (account.directorySettings.userDelta) {
+        await this.set("userDelta", account.directorySettings.userDelta);
+      }
+      if (account.directorySettings.groupDelta) {
+        await this.set("groupDelta", account.directorySettings.groupDelta);
+      }
+      if (account.directorySettings.syncingDir != null) {
+        await this.set("syncingDir", account.directorySettings.syncingDir);
+      }
+    }
+
+    // Migrate secrets from {userId}_* to secret_* pattern
+    if (useSecureStorageForSecrets) {
+      const oldSecretKeys = [
+        { old: `${userId}_${SecureStorageKeys.ldap}`, new: "secret_ldap" },
+        { old: `${userId}_${SecureStorageKeys.gsuite}`, new: "secret_gsuite" },
+        { old: `${userId}_${SecureStorageKeys.azure}`, new: "secret_azure" },
+        { old: `${userId}_${SecureStorageKeys.entra}`, new: "secret_entra" },
+        { old: `${userId}_${SecureStorageKeys.okta}`, new: "secret_okta" },
+        { old: `${userId}_${SecureStorageKeys.oneLogin}`, new: "secret_onelogin" },
+      ];
+
+      for (const { old: oldKey, new: newKey } of oldSecretKeys) {
+        if (await this.secureStorageService.has(oldKey)) {
+          const value = await this.secureStorageService.get(oldKey);
+          if (value) {
+            await this.secureStorageService.save(newKey, value);
+          }
+          // @TODO Keep old key for now - will remove in future release
+          // await this.secureStorageService.remove(oldKey);
         }
+      }
+    }
 
-        // Create new flattened account structure
-        const flattenedAccount = new Account({
-          // Extract from nested structures
-          userId: oldAccount.profile?.userId ?? userId,
-          entityId: oldAccount.profile?.entityId ?? userId,
-          apiKeyClientId: oldAccount.profile?.apiKeyClientId ?? null,
-          accessToken: oldAccount.tokens?.accessToken ?? null,
-          refreshToken: oldAccount.tokens?.refreshToken ?? null,
-          apiKeyClientSecret: oldAccount.keys?.apiKeyClientSecret ?? null,
-
-          // Preserve existing DC-specific data
-          directoryConfigurations:
-            oldAccount.directoryConfigurations ?? new DirectoryConfigurations(),
-          directorySettings: oldAccount.directorySettings ?? new DirectorySettings(),
-        });
-
-        // Save flattened account back to storage
-        await this.set(userId, flattenedAccount);
-      }),
-    );
-
-    // Update global state version
     const globals = await this.getGlobals();
     globals.stateVersion = StateVersion.Five;
     await this.set(StateKeys.global, globals);
