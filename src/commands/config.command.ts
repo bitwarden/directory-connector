@@ -6,7 +6,6 @@ import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrl
 import { Response } from "@/jslib/node/src/cli/models/response";
 import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
 
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 import { EntraIdConfiguration } from "../models/entraIdConfiguration";
@@ -27,9 +26,8 @@ export class ConfigCommand {
   private sync = new SyncConfiguration();
 
   constructor(
-    private stateServiceVNext: StateServiceVNext,
-    private i18nService: I18nService,
     private stateService: StateService,
+    private i18nService: I18nService,
   ) {}
 
   async run(setting: string, value: string, options: program.OptionValues): Promise<Response> {
@@ -81,7 +79,7 @@ export class ConfigCommand {
     url = url === "null" || url === "bitwarden.com" || url === "https://bitwarden.com" ? null : url;
     const urls = new EnvironmentUrls();
     urls.base = url;
-    await this.stateServiceVNext.setEnvironmentUrls(urls);
+    await this.stateService.setEnvironmentUrls(urls);
   }
 
   private async setDirectory(type: string) {

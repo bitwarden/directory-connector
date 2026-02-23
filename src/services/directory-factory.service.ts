@@ -2,7 +2,6 @@ import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 
@@ -17,18 +16,12 @@ export class DefaultDirectoryFactoryService implements DirectoryFactoryService {
     private logService: LogService,
     private i18nService: I18nService,
     private stateService: StateService,
-    private stateServiceVNext: StateServiceVNext,
   ) {}
 
   createService(directoryType: DirectoryType) {
     switch (directoryType) {
       case DirectoryType.GSuite:
-        return new GSuiteDirectoryService(
-          this.logService,
-          this.i18nService,
-          this.stateService,
-          this.stateServiceVNext,
-        );
+        return new GSuiteDirectoryService(this.logService, this.i18nService, this.stateService);
       case DirectoryType.EntraID:
         return new EntraIdDirectoryService(this.logService, this.i18nService, this.stateService);
       case DirectoryType.Ldap:

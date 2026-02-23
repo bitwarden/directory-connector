@@ -4,9 +4,8 @@ import { admin_directory_v1, google } from "googleapis";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
-import { StateServiceVNext } from "@/src/abstractions/state-vNext.service";
+import { StateService } from "@/src/abstractions/state.service";
 
-import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
 import { GSuiteConfiguration } from "../../models/gsuiteConfiguration";
@@ -27,26 +26,25 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     private logService: LogService,
     private i18nService: I18nService,
     private stateService: StateService,
-    private stateServiceVNext: StateServiceVNext,
   ) {
     super();
     this.service = google.admin("directory_v1");
   }
 
   async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
-    const type = await this.stateServiceVNext.getDirectoryType();
+    const type = await this.stateService.getDirectoryType();
     if (type !== DirectoryType.GSuite) {
       return;
     }
 
-    this.dirConfig = await this.stateServiceVNext.getDirectory<GSuiteConfiguration>(
+    this.dirConfig = await this.stateService.getDirectory<GSuiteConfiguration>(
       DirectoryType.GSuite,
     );
     if (this.dirConfig == null) {
       return;
     }
 
-    this.syncConfig = await this.stateServiceVNext.getSync();
+    this.syncConfig = await this.stateService.getSync();
     if (this.syncConfig == null) {
       return;
     }

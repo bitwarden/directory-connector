@@ -7,14 +7,13 @@ import { ApiService } from "@/jslib/common/src/services/api.service";
 
 import { getSyncConfiguration } from "../../utils/openldap/config-fixtures";
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
+import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
 import { I18nService } from "./i18n.service";
 import { SingleRequestBuilder } from "./single-request-builder";
-import { StateService } from "./state-service/state.service";
 import { SyncService } from "./sync.service";
 import * as constants from "./sync.service";
 
@@ -26,7 +25,6 @@ describe("SyncService", () => {
   let apiService: MockProxy<ApiService>;
   let messagingService: MockProxy<MessagingService>;
   let i18nService: MockProxy<I18nService>;
-  let stateServiceVNext: MockProxy<StateServiceVNext>;
   let stateService: MockProxy<StateService>;
   let directoryFactory: MockProxy<DirectoryFactoryService>;
   let batchRequestBuilder: MockProxy<BatchRequestBuilder>;
@@ -41,13 +39,12 @@ describe("SyncService", () => {
     apiService = mock();
     messagingService = mock();
     i18nService = mock();
-    stateServiceVNext = mock();
     stateService = mock();
     directoryFactory = mock();
     batchRequestBuilder = mock();
     singleRequestBuilder = mock();
 
-    stateServiceVNext.getApiUrl.mockResolvedValue("https://api.bitwarden.com");
+    stateService.getApiUrl.mockResolvedValue("https://api.bitwarden.com");
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
     stateService.getOrganizationId.mockResolvedValue("fakeId");
     const mockDirectoryService = mock<LdapDirectoryService>();
@@ -59,7 +56,6 @@ describe("SyncService", () => {
       apiService,
       messagingService,
       i18nService,
-      stateServiceVNext,
       stateService,
       batchRequestBuilder,
       singleRequestBuilder,

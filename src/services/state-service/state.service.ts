@@ -1,42 +1,57 @@
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
-import { StateMigrationService } from "@/jslib/common/src/abstractions/stateMigration.service";
 import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
-import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
-import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
-import { StateService as BaseStateService } from "@/jslib/common/src/services/state.service";
 
 import { StateService as StateServiceAbstraction } from "@/src/abstractions/state.service";
 import { DirectoryType } from "@/src/enums/directoryType";
 import { IConfiguration } from "@/src/models/IConfiguration";
-import { Account } from "@/src/models/account";
 import { EntraIdConfiguration } from "@/src/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/src/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/src/models/ldapConfiguration";
 import { OktaConfiguration } from "@/src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/src/models/oneLoginConfiguration";
 import {
-  SecureStorageKeysLegacy as SecureStorageKeys,
+  SecureStorageKeysVNext as SecureStorageKeys,
+  StorageKeysVNext as StorageKeys,
   StoredSecurely,
-  TempKeys as keys,
 } from "@/src/models/state.model";
 import { SyncConfiguration } from "@/src/models/syncConfiguration";
 
-export class StateService
-  extends BaseStateService<GlobalState, Account>
-  implements StateServiceAbstraction
-{
+import { StateMigrationService } from "./stateMigration.service";
+
+export class StateServiceImplementation implements StateServiceAbstraction {
   constructor(
     protected storageService: StorageService,
     protected secureStorageService: StorageService,
     protected logService: LogService,
     protected stateMigrationService: StateMigrationService,
     private useSecureStorageForSecrets = true,
-    protected stateFactory: StateFactory<GlobalState, Account>,
-  ) {
-    super(storageService, secureStorageService, logService, stateMigrationService, stateFactory);
+  ) {}
+
+  async init(): Promise<void> {
+    if (await this.stateMigrationService.needsMigration()) {
+      await this.stateMigrationService.migrate();
+    }
   }
+
+  async clean(options?: StorageOptions): Promise<void> {
+    // Clear all directory settings and configurations
+    // but preserve version and environment settings
+    await this.setDirectoryType(null);
+    await this.setOrganizationId(null);
+    await this.setSync(null);
+    await this.setLdapConfiguration(null);
+    await this.setGsuiteConfiguration(null);
+    await this.setEntraConfiguration(null);
+    await this.setOktaConfiguration(null);
+    await this.setOneLoginConfiguration(null);
+    await this.clearSyncSettings(true);
+  }
+
+  // ===================================================================
+  // Directory Configuration Methods
+  // ===================================================================
 
   async getDirectory<T extends IConfiguration>(type: DirectoryType): Promise<T> {
     const config = await this.getConfiguration(type);
@@ -45,24 +60,24 @@ export class StateService
     }
 
     if (this.useSecureStorageForSecrets) {
-      // Do not introduce secrets into the in-memory account object
+      // Create a copy to avoid modifying the cached config
       const configWithSecrets = Object.assign({}, config);
 
       switch (type) {
         case DirectoryType.Ldap:
-          (configWithSecrets as any).password = await this.getLdapKey();
+          (configWithSecrets as any).password = await this.getLdapSecret();
           break;
         case DirectoryType.EntraID:
-          (configWithSecrets as any).key = await this.getEntraKey();
+          (configWithSecrets as any).key = await this.getEntraSecret();
           break;
         case DirectoryType.Okta:
-          (configWithSecrets as any).token = await this.getOktaKey();
+          (configWithSecrets as any).token = await this.getOktaSecret();
           break;
         case DirectoryType.GSuite:
-          (configWithSecrets as any).privateKey = await this.getGsuiteKey();
+          (configWithSecrets as any).privateKey = await this.getGsuiteSecret();
           break;
         case DirectoryType.OneLogin:
-          (configWithSecrets as any).clientSecret = await this.getOneLoginKey();
+          (configWithSecrets as any).clientSecret = await this.getOneLoginSecret();
           break;
       }
 
@@ -85,21 +100,21 @@ export class StateService
       switch (type) {
         case DirectoryType.Ldap: {
           const ldapConfig = config as LdapConfiguration;
-          await this.setLdapKey(ldapConfig.password);
+          await this.setLdapSecret(ldapConfig.password);
           ldapConfig.password = StoredSecurely;
           await this.setLdapConfiguration(ldapConfig);
           break;
         }
         case DirectoryType.EntraID: {
           const entraConfig = config as EntraIdConfiguration;
-          await this.setEntraKey(entraConfig.key);
+          await this.setEntraSecret(entraConfig.key);
           entraConfig.key = StoredSecurely;
           await this.setEntraConfiguration(entraConfig);
           break;
         }
         case DirectoryType.Okta: {
           const oktaConfig = config as OktaConfiguration;
-          await this.setOktaKey(oktaConfig.token);
+          await this.setOktaSecret(oktaConfig.token);
           oktaConfig.token = StoredSecurely;
           await this.setOktaConfiguration(oktaConfig);
           break;
@@ -107,10 +122,10 @@ export class StateService
         case DirectoryType.GSuite: {
           const gsuiteConfig = config as GSuiteConfiguration;
           if (gsuiteConfig.privateKey == null) {
-            await this.setGsuiteKey(null);
+            await this.setGsuiteSecret(null);
           } else {
             const normalizedPrivateKey = gsuiteConfig.privateKey.replace(/\\n/g, "\n");
-            await this.setGsuiteKey(normalizedPrivateKey);
+            await this.setGsuiteSecret(normalizedPrivateKey);
             gsuiteConfig.privateKey = StoredSecurely;
           }
           await this.setGsuiteConfiguration(gsuiteConfig);
@@ -118,132 +133,13 @@ export class StateService
         }
         case DirectoryType.OneLogin: {
           const oneLoginConfig = config as OneLoginConfiguration;
-          await this.setOneLoginKey(oneLoginConfig.clientSecret);
+          await this.setOneLoginSecret(oneLoginConfig.clientSecret);
           oneLoginConfig.clientSecret = StoredSecurely;
           await this.setOneLoginConfiguration(oneLoginConfig);
           break;
         }
       }
     }
-  }
-
-  private async getLdapKey(options?: StorageOptions): Promise<string> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return null;
-    }
-    return await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.ldap}`,
-    );
-  }
-
-  private async setLdapKey(value: string, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return;
-    }
-    await this.secureStorageService.save(
-      `${options.userId}_${SecureStorageKeys.ldap}`,
-      value,
-      options,
-    );
-  }
-
-  private async getGsuiteKey(options?: StorageOptions): Promise<string> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return null;
-    }
-    return await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.gsuite}`,
-    );
-  }
-
-  private async setGsuiteKey(value: string, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return;
-    }
-    await this.secureStorageService.save(
-      `${options.userId}_${SecureStorageKeys.gsuite}`,
-      value,
-      options,
-    );
-  }
-
-  private async getEntraKey(options?: StorageOptions): Promise<string> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return null;
-    }
-
-    const entraKey = await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.entra}`,
-    );
-
-    if (entraKey != null) {
-      return entraKey;
-    }
-
-    return await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.azure}`,
-    );
-  }
-
-  private async setEntraKey(value: string, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return;
-    }
-    await this.secureStorageService.save(
-      `${options.userId}_${SecureStorageKeys.entra}`,
-      value,
-      options,
-    );
-  }
-
-  private async getOktaKey(options?: StorageOptions): Promise<string> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return null;
-    }
-    return await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.okta}`,
-    );
-  }
-
-  private async setOktaKey(value: string, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return;
-    }
-    await this.secureStorageService.save(
-      `${options.userId}_${SecureStorageKeys.okta}`,
-      value,
-      options,
-    );
-  }
-
-  private async getOneLoginKey(options?: StorageOptions): Promise<string> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return null;
-    }
-    return await this.secureStorageService.get<string>(
-      `${options.userId}_${SecureStorageKeys.oneLogin}`,
-    );
-  }
-
-  private async setOneLoginKey(value: string, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return;
-    }
-    await this.secureStorageService.save(
-      `${options.userId}_${SecureStorageKeys.oneLogin}`,
-      value,
-      options,
-    );
   }
 
   async getConfiguration(type: DirectoryType): Promise<IConfiguration> {
@@ -261,112 +157,135 @@ export class StateService
     }
   }
 
+  // ===================================================================
+  // Secret Storage Methods (Secure Storage)
+  // ===================================================================
+
+  private async getLdapSecret(): Promise<string> {
+    return await this.secureStorageService.get<string>(SecureStorageKeys.ldap);
+  }
+
+  private async setLdapSecret(value: string): Promise<void> {
+    if (value == null) {
+      await this.secureStorageService.remove(SecureStorageKeys.ldap);
+    } else {
+      await this.secureStorageService.save(SecureStorageKeys.ldap, value);
+    }
+  }
+
+  private async getGsuiteSecret(): Promise<string> {
+    return await this.secureStorageService.get<string>(SecureStorageKeys.gsuite);
+  }
+
+  private async setGsuiteSecret(value: string): Promise<void> {
+    if (value == null) {
+      await this.secureStorageService.remove(SecureStorageKeys.gsuite);
+    } else {
+      await this.secureStorageService.save(SecureStorageKeys.gsuite, value);
+    }
+  }
+
+  private async getEntraSecret(): Promise<string> {
+    // Try new key first, fall back to old azure key for backwards compatibility
+    const entraKey = await this.secureStorageService.get<string>(SecureStorageKeys.entra);
+    if (entraKey != null) {
+      return entraKey;
+    }
+    return await this.secureStorageService.get<string>(SecureStorageKeys.azure);
+  }
+
+  private async setEntraSecret(value: string): Promise<void> {
+    if (value == null) {
+      await this.secureStorageService.remove(SecureStorageKeys.entra);
+      await this.secureStorageService.remove(SecureStorageKeys.azure);
+    } else {
+      await this.secureStorageService.save(SecureStorageKeys.entra, value);
+    }
+  }
+
+  private async getOktaSecret(): Promise<string> {
+    return await this.secureStorageService.get<string>(SecureStorageKeys.okta);
+  }
+
+  private async setOktaSecret(value: string): Promise<void> {
+    if (value == null) {
+      await this.secureStorageService.remove(SecureStorageKeys.okta);
+    } else {
+      await this.secureStorageService.save(SecureStorageKeys.okta, value);
+    }
+  }
+
+  private async getOneLoginSecret(): Promise<string> {
+    return await this.secureStorageService.get<string>(SecureStorageKeys.oneLogin);
+  }
+
+  private async setOneLoginSecret(value: string): Promise<void> {
+    if (value == null) {
+      await this.secureStorageService.remove(SecureStorageKeys.oneLogin);
+    } else {
+      await this.secureStorageService.save(SecureStorageKeys.oneLogin, value);
+    }
+  }
+
+  // ===================================================================
+  // Directory-Specific Configuration Methods
+  // ===================================================================
+
   async getLdapConfiguration(options?: StorageOptions): Promise<LdapConfiguration> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directoryConfigurations?.ldap;
+    return await this.storageService.get<LdapConfiguration>(StorageKeys.directory_ldap);
   }
 
   async setLdapConfiguration(value: LdapConfiguration, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directoryConfigurations.ldap = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(StorageKeys.directory_ldap, value);
   }
 
   async getGsuiteConfiguration(options?: StorageOptions): Promise<GSuiteConfiguration> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directoryConfigurations?.gsuite;
+    return await this.storageService.get<GSuiteConfiguration>(StorageKeys.directory_gsuite);
   }
 
   async setGsuiteConfiguration(
     value: GSuiteConfiguration,
     options?: StorageOptions,
   ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directoryConfigurations.gsuite = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(StorageKeys.directory_gsuite, value);
   }
 
   async getEntraConfiguration(options?: StorageOptions): Promise<EntraIdConfiguration> {
-    const entraConfig = (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directoryConfigurations?.entra;
-
-    if (entraConfig != null) {
-      return entraConfig;
-    }
-
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directoryConfigurations?.azure;
+    return await this.storageService.get<EntraIdConfiguration>(StorageKeys.directory_entra);
   }
 
   async setEntraConfiguration(
     value: EntraIdConfiguration,
     options?: StorageOptions,
   ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directoryConfigurations.entra = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(StorageKeys.directory_entra, value);
   }
 
   async getOktaConfiguration(options?: StorageOptions): Promise<OktaConfiguration> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directoryConfigurations?.okta;
+    return await this.storageService.get<OktaConfiguration>(StorageKeys.directory_okta);
   }
 
   async setOktaConfiguration(value: OktaConfiguration, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directoryConfigurations.okta = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(StorageKeys.directory_okta, value);
   }
 
   async getOneLoginConfiguration(options?: StorageOptions): Promise<OneLoginConfiguration> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directoryConfigurations?.oneLogin;
+    return await this.storageService.get<OneLoginConfiguration>(StorageKeys.directory_onelogin);
   }
 
   async setOneLoginConfiguration(
     value: OneLoginConfiguration,
     options?: StorageOptions,
   ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directoryConfigurations.oneLogin = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(StorageKeys.directory_onelogin, value);
   }
 
+  // ===================================================================
+  // Directory Settings Methods
+  // ===================================================================
+
   async getOrganizationId(options?: StorageOptions): Promise<string> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directorySettings?.organizationId;
+    return await this.storageService.get<string>(StorageKeys.organizationId);
   }
 
   async setOrganizationId(value: string, options?: StorageOptions): Promise<void> {
@@ -374,38 +293,19 @@ export class StateService
     if (currentId !== value) {
       await this.clearSyncSettings();
     }
-
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directorySettings.organizationId = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(StorageKeys.organizationId, value);
   }
 
   async getSync(options?: StorageOptions): Promise<SyncConfiguration> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directorySettings?.sync;
+    return await this.storageService.get<SyncConfiguration>(StorageKeys.sync);
   }
 
   async setSync(value: SyncConfiguration, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directorySettings.sync = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(StorageKeys.sync, value);
   }
 
   async getDirectoryType(options?: StorageOptions): Promise<DirectoryType> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directorySettings?.directoryType;
+    return await this.storageService.get<DirectoryType>(StorageKeys.directoryType);
   }
 
   async setDirectoryType(value: DirectoryType, options?: StorageOptions): Promise<void> {
@@ -413,117 +313,60 @@ export class StateService
     if (value !== currentType) {
       await this.clearSyncSettings();
     }
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directorySettings.directoryType = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(StorageKeys.directoryType, value);
   }
 
   async getLastUserSync(options?: StorageOptions): Promise<Date> {
-    const userSyncDate = (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directorySettings?.lastUserSync;
-    return userSyncDate ? new Date(userSyncDate) : null;
+    const dateString = await this.storageService.get<string>(SecureStorageKeys.lastUserSync);
+    return dateString ? new Date(dateString) : null;
   }
 
   async setLastUserSync(value: Date, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directorySettings.lastUserSync = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(SecureStorageKeys.lastUserSync, value);
   }
 
   async getLastGroupSync(options?: StorageOptions): Promise<Date> {
-    const groupSyncDate = (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directorySettings?.lastGroupSync;
-    return groupSyncDate ? new Date(groupSyncDate) : null;
+    const dateString = await this.storageService.get<string>(SecureStorageKeys.lastGroupSync);
+    return dateString ? new Date(dateString) : null;
   }
 
   async setLastGroupSync(value: Date, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directorySettings.lastGroupSync = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(SecureStorageKeys.lastGroupSync, value);
   }
 
   async getLastSyncHash(options?: StorageOptions): Promise<string> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directorySettings?.lastSyncHash;
+    return await this.storageService.get<string>(SecureStorageKeys.lastSyncHash);
   }
 
   async setLastSyncHash(value: string, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directorySettings.lastSyncHash = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(SecureStorageKeys.lastSyncHash, value);
   }
 
   async getSyncingDir(options?: StorageOptions): Promise<boolean> {
-    return (await this.getAccount(this.reconcileOptions(options, this.defaultInMemoryOptions)))
-      ?.directorySettings?.syncingDir;
+    return await this.storageService.get<boolean>(StorageKeys.syncingDir);
   }
 
   async setSyncingDir(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, this.defaultInMemoryOptions),
-    );
-    account.directorySettings.syncingDir = value;
-    await this.saveAccount(account, this.reconcileOptions(options, this.defaultInMemoryOptions));
+    await this.storageService.save(StorageKeys.syncingDir, value);
   }
 
   async getUserDelta(options?: StorageOptions): Promise<string> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directorySettings?.userDelta;
+    return await this.storageService.get<string>(SecureStorageKeys.userDelta);
   }
 
   async setUserDelta(value: string, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directorySettings.userDelta = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(SecureStorageKeys.userDelta, value);
   }
 
   async getGroupDelta(options?: StorageOptions): Promise<string> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.directorySettings?.groupDelta;
+    return await this.storageService.get<string>(SecureStorageKeys.groupDelta);
   }
 
   async setGroupDelta(value: string, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.directorySettings.groupDelta = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
+    await this.storageService.save(SecureStorageKeys.groupDelta, value);
   }
 
-  async clearSyncSettings(hashToo = false) {
+  async clearSyncSettings(hashToo = false): Promise<void> {
     await this.setUserDelta(null);
     await this.setGroupDelta(null);
     await this.setLastGroupSync(null);
@@ -533,62 +376,194 @@ export class StateService
     }
   }
 
-  protected async scaffoldNewAccountStorage(account: Account): Promise<void> {
-    await this.scaffoldNewAccountDiskStorage(account);
-  }
-
-  protected async scaffoldNewAccountDiskStorage(account: Account): Promise<void> {
-    const storageOptions = this.reconcileOptions(
-      { userId: account.profile.userId },
-      await this.defaultOnDiskLocalOptions(),
-    );
-
-    const storedAccount = await this.getAccount(storageOptions);
-    if (storedAccount != null) {
-      account.settings = storedAccount.settings;
-      account.directorySettings = storedAccount.directorySettings;
-      account.directoryConfigurations = storedAccount.directoryConfigurations;
-    } else if (await this.hasTemporaryStorage()) {
-      // If migrating to state V2 with an no actively authed account we store temporary data to be copied on auth - this will only be run once.
-      account.settings = await this.storageService.get<any>(keys.tempAccountSettings);
-      account.directorySettings = await this.storageService.get<any>(keys.tempDirectorySettings);
-      account.directoryConfigurations = await this.storageService.get<any>(
-        keys.tempDirectoryConfigs,
-      );
-      await this.storageService.remove(keys.tempAccountSettings);
-      await this.storageService.remove(keys.tempDirectorySettings);
-      await this.storageService.remove(keys.tempDirectoryConfigs);
-    }
-
-    await this.saveAccount(account, storageOptions);
-  }
-
-  protected async pushAccounts(): Promise<void> {
-    if (this.state?.accounts == null || Object.keys(this.state.accounts).length < 1) {
-      this.accountsSubject.next(null);
-      return;
-    }
-    this.accountsSubject.next(this.state.accounts);
-  }
-
-  protected async hasTemporaryStorage(): Promise<boolean> {
-    return (
-      (await this.storageService.has(keys.tempAccountSettings)) ||
-      (await this.storageService.has(keys.tempDirectorySettings)) ||
-      (await this.storageService.has(keys.tempDirectoryConfigs))
-    );
-  }
-
-  protected resetAccount(account: Account) {
-    const persistentAccountInformation = {
-      settings: account.settings,
-      directorySettings: account.directorySettings,
-      directoryConfigurations: account.directoryConfigurations,
-    };
-    return Object.assign(this.createAccount(), persistentAccountInformation);
-  }
+  // ===================================================================
+  // Environment URLs
+  // ===================================================================
 
   async getEnvironmentUrls(options?: StorageOptions): Promise<EnvironmentUrls> {
-    return this.getGlobalEnvironmentUrls(options);
+    return await this.storageService.get<EnvironmentUrls>(StorageKeys.environmentUrls);
+  }
+
+  async setEnvironmentUrls(value: EnvironmentUrls): Promise<void> {
+    await this.storageService.save(StorageKeys.environmentUrls, value);
+  }
+
+  async getApiUrl(options?: StorageOptions): Promise<string> {
+    const urls = await this.getEnvironmentUrls(options);
+    if (urls?.api) {
+      return urls.api;
+    }
+    if (urls?.base) {
+      return urls.base + "/api";
+    }
+    return "https://api.bitwarden.com";
+  }
+
+  async getIdentityUrl(options?: StorageOptions): Promise<string> {
+    const urls = await this.getEnvironmentUrls(options);
+    if (urls?.identity) {
+      return urls.identity;
+    }
+    if (urls?.base) {
+      return urls.base + "/identity";
+    }
+    return "https://identity.bitwarden.com";
+  }
+
+  // ===================================================================
+  // Additional State Methods
+  // ===================================================================
+
+  async getLocale(options?: StorageOptions): Promise<string> {
+    return await this.storageService.get<string>("locale");
+  }
+
+  async setLocale(value: string, options?: StorageOptions): Promise<void> {
+    await this.storageService.save("locale", value);
+  }
+
+  async getInstalledVersion(options?: StorageOptions): Promise<string> {
+    return await this.storageService.get<string>("installedVersion");
+  }
+
+  async setInstalledVersion(value: string, options?: StorageOptions): Promise<void> {
+    await this.storageService.save("installedVersion", value);
+  }
+
+  // ===================================================================
+  // Window Settings (for WindowMain)
+  // ===================================================================
+
+  async getWindow(options?: StorageOptions): Promise<any> {
+    return await this.storageService.get(StorageKeys.window);
+  }
+
+  async setWindow(value: any, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.window, value);
+  }
+
+  async getEnableAlwaysOnTop(options?: StorageOptions): Promise<boolean> {
+    return (await this.storageService.get<boolean>(StorageKeys.enableAlwaysOnTop)) ?? false;
+  }
+
+  async setEnableAlwaysOnTop(value: boolean, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.enableAlwaysOnTop, value);
+  }
+
+  // ===================================================================
+  // Tray Settings (for TrayMain)
+  // ===================================================================
+
+  async getEnableTray(options?: StorageOptions): Promise<boolean> {
+    return (await this.storageService.get<boolean>(StorageKeys.enableTray)) ?? false;
+  }
+
+  async setEnableTray(value: boolean, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.enableTray, value);
+  }
+
+  async getEnableMinimizeToTray(options?: StorageOptions): Promise<boolean> {
+    return (await this.storageService.get<boolean>(StorageKeys.enableMinimizeToTray)) ?? false;
+  }
+
+  async setEnableMinimizeToTray(value: boolean, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.enableMinimizeToTray, value);
+  }
+
+  async getEnableCloseToTray(options?: StorageOptions): Promise<boolean> {
+    return (await this.storageService.get<boolean>(StorageKeys.enableCloseToTray)) ?? false;
+  }
+
+  async setEnableCloseToTray(value: boolean, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.enableCloseToTray, value);
+  }
+
+  async getAlwaysShowDock(options?: StorageOptions): Promise<boolean> {
+    return (await this.storageService.get<boolean>(StorageKeys.alwaysShowDock)) ?? false;
+  }
+
+  async setAlwaysShowDock(value: boolean, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.alwaysShowDock, value);
+  }
+
+  // ===================================================================
+  // Token Management (replaces TokenService.clearToken())
+  // ===================================================================
+
+  async clearAuthTokens(): Promise<void> {
+    await this.secureStorageService.remove("accessToken");
+    await this.secureStorageService.remove("refreshToken");
+    await this.secureStorageService.remove("apiKeyClientId");
+    await this.secureStorageService.remove("apiKeyClientSecret");
+    await this.secureStorageService.remove("twoFactorToken");
+  }
+
+  async getAccessToken(options?: StorageOptions): Promise<string> {
+    return await this.secureStorageService.get<string>("accessToken");
+  }
+
+  async setAccessToken(value: string, options?: StorageOptions): Promise<void> {
+    if (value == null) {
+      await this.secureStorageService.remove("accessToken");
+    } else {
+      await this.secureStorageService.save("accessToken", value);
+    }
+  }
+
+  async getRefreshToken(options?: StorageOptions): Promise<string> {
+    return await this.secureStorageService.get<string>("refreshToken");
+  }
+
+  async setRefreshToken(value: string, options?: StorageOptions): Promise<void> {
+    if (value == null) {
+      await this.secureStorageService.remove("refreshToken");
+    } else {
+      await this.secureStorageService.save("refreshToken", value);
+    }
+  }
+
+  async getApiKeyClientId(options?: StorageOptions): Promise<string> {
+    return await this.secureStorageService.get<string>("apiKeyClientId");
+  }
+
+  async setApiKeyClientId(value: string, options?: StorageOptions): Promise<void> {
+    if (value == null) {
+      await this.secureStorageService.remove("apiKeyClientId");
+    } else {
+      await this.secureStorageService.save("apiKeyClientId", value);
+    }
+  }
+
+  async getApiKeyClientSecret(options?: StorageOptions): Promise<string> {
+    return await this.secureStorageService.get<string>("apiKeyClientSecret");
+  }
+
+  async setApiKeyClientSecret(value: string, options?: StorageOptions): Promise<void> {
+    if (value == null) {
+      await this.secureStorageService.remove("apiKeyClientSecret");
+    } else {
+      await this.secureStorageService.save("apiKeyClientSecret", value);
+    }
+  }
+
+  async getIsAuthenticated(options?: StorageOptions): Promise<boolean> {
+    // Check if access token exists
+    const token = await this.getAccessToken(options);
+    return token != null;
+  }
+
+  async getEntityId(options?: StorageOptions): Promise<string> {
+    return await this.storageService.get<string>("entityId");
+  }
+
+  async setEntityId(value: string, options?: StorageOptions): Promise<void> {
+    if (value == null) {
+      await this.storageService.remove("entityId");
+    } else {
+      await this.storageService.save("entityId", value);
+    }
   }
 }
+
+// Re-export the abstraction for convenience
+export { StateService } from "@/src/abstractions/state.service";

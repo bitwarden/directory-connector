@@ -6,7 +6,6 @@ import { Utils } from "@/jslib/common/src/misc/utils";
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 import { GroupEntry } from "../models/groupEntry";
@@ -31,7 +30,6 @@ export class SyncService {
     private apiService: ApiService,
     private messagingService: MessagingService,
     private i18nService: I18nService,
-    private stateServiceVNext: StateServiceVNext,
     private stateService: StateService,
     private batchRequestBuilder: BatchRequestBuilder,
     private singleRequestBuilder: SingleRequestBuilder,
@@ -119,7 +117,7 @@ export class SyncService {
     }
 
     // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
-    const apiUrl = await this.stateServiceVNext.getApiUrl();
+    const apiUrl = await this.stateService.getApiUrl();
     let hashLegacy: string = null;
     const hashBuffLegacy = await this.cryptoFunctionService.hash(apiUrl + reqJson, "sha256");
     if (hashBuffLegacy != null) {

@@ -4,32 +4,30 @@ import * as path from "path";
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
 import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
-import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
-import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
-import { TokenService } from "@/jslib/common/src/services/token.service";
 import { CliPlatformUtilsService } from "@/jslib/node/src/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "@/jslib/node/src/cli/services/consoleLog.service";
 import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 
 import { DirectoryFactoryService } from "./abstractions/directory-factory.service";
-import { StateServiceVNext } from "./abstractions/state-vNext.service";
-import { Account } from "./models/account";
+import { EnvironmentService } from "./abstractions/environment.service";
+import { StateService } from "./abstractions/state.service";
+import { TokenService } from "./abstractions/token.service";
 import { Program } from "./program";
 import { AuthService } from "./services/auth.service";
 import { BatchRequestBuilder } from "./services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "./services/directory-factory.service";
+import { EnvironmentService as EnvironmentServiceImplementation } from "./services/environment/environment.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
 import { SingleRequestBuilder } from "./services/single-request-builder";
-import { StateServiceVNextImplementation } from "./services/state-service/state-vNext.service";
-import { StateService } from "./services/state-service/state.service";
+import { StateServiceImplementation } from "./services/state-service/state.service";
 import { StateMigrationService } from "./services/state-service/stateMigration.service";
 import { SyncService } from "./services/sync.service";
+import { TokenService as TokenServiceImplementation } from "./services/token/token.service";
 
 // eslint-disable-next-line
 const packageJson = require("../package.json");
@@ -51,7 +49,6 @@ export class Main {
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
   syncService: SyncService;
-  stateServiceVNext: StateServiceVNext;
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   directoryFactoryService: DirectoryFactoryService;
@@ -104,19 +101,10 @@ export class Main {
     this.stateMigrationService = new StateMigrationService(
       this.storageService,
       this.secureStorageService,
-      new StateFactory(GlobalState, Account),
     );
 
-    this.stateService = new StateService(
-      this.storageService,
-      this.secureStorageService,
-      this.logService,
-      this.stateMigrationService,
-      process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
-      new StateFactory(GlobalState, Account),
-    );
-    // Use new StateServiceVNext with flat key-value structure
-    this.stateServiceVNext = new StateServiceVNextImplementation(
+    // Use new StateService with flat key-value structure
+    this.stateService = new StateServiceImplementation(
       this.storageService,
       this.secureStorageService,
       this.logService,
@@ -125,9 +113,9 @@ export class Main {
     );
 
     this.appIdService = new AppIdService(this.storageService);
-    this.tokenService = new TokenService(this.stateService);
+    this.tokenService = new TokenServiceImplementation(this.secureStorageService);
     this.messagingService = new NoopMessagingService();
-    this.environmentService = new EnvironmentService(this.stateService);
+    this.environmentService = new EnvironmentServiceImplementation(this.stateService);
 
     const customUserAgent =
       "Bitwarden_DC/" +
@@ -156,7 +144,6 @@ export class Main {
       this.logService,
       this.i18nService,
       this.stateService,
-      this.stateServiceVNext,
     );
 
     this.batchRequestBuilder = new BatchRequestBuilder();
@@ -167,7 +154,6 @@ export class Main {
       this.apiService,
       this.messagingService,
       this.i18nService,
-      this.stateServiceVNext,
       this.stateService,
       this.batchRequestBuilder,
       this.singleRequestBuilder,
@@ -183,7 +169,7 @@ export class Main {
   }
 
   async logout() {
-    await this.stateServiceVNext.clearAuthTokens();
+    await this.stateService.clearAuthTokens();
     await this.stateService.clean();
   }
 

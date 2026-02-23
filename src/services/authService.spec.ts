@@ -4,15 +4,9 @@ import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
-import {
-  AccountKeys,
-  AccountProfile,
-  AccountTokens,
-} from "@/jslib/common/src/models/domain/account";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
 import { MessagingService } from "../../jslib/common/src/abstractions/messaging.service";
-import { Account, DirectoryConfigurations, DirectorySettings } from "../models/account";
 
 import { AuthService } from "./auth.service";
 import { StateService } from "./state-service/state.service";
@@ -66,32 +60,15 @@ describe("AuthService", () => {
 
     await authService.logIn({ clientId, clientSecret });
 
-    stateService.received(1).addAccount(
-      new Account({
-        profile: {
-          ...new AccountProfile(),
-          ...{
-            userId: "CLIENT_ID",
-            apiKeyClientId: clientId, // with the "organization." prefix
-            entityId: "CLIENT_ID",
-          },
-        },
-        tokens: {
-          ...new AccountTokens(),
-          ...{
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-          },
-        },
-        keys: {
-          ...new AccountKeys(),
-          ...{
-            apiKeyClientSecret: clientSecret,
-          },
-        },
-        directorySettings: new DirectorySettings(),
-        directoryConfigurations: new DirectoryConfigurations(),
-      }),
-    );
+    // Verify authentication tokens are saved
+    stateService.received(1).setAccessToken(accessToken);
+    stateService.received(1).setRefreshToken(refreshToken);
+
+    // Verify API key credentials are saved
+    stateService.received(1).setApiKeyClientId(clientId);
+    stateService.received(1).setApiKeyClientSecret(clientSecret);
+
+    // Verify entity ID is saved
+    stateService.received(1).setEntityId("CLIENT_ID");
   });
 });

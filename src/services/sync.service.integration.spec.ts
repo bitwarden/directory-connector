@@ -8,13 +8,12 @@ import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../jslib/common/src/abstractions/log.service";
 import { getLdapConfiguration, getSyncConfiguration } from "../../utils/openldap/config-fixtures";
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
+import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
 import { SingleRequestBuilder } from "./single-request-builder";
-import { StateService } from "./state-service/state.service";
 import { SyncService } from "./sync.service";
 import * as constants from "./sync.service";
 
@@ -25,7 +24,6 @@ describe("SyncService", () => {
   let logService: MockProxy<LogService>;
   let i18nService: MockProxy<I18nService>;
   let stateService: MockProxy<StateService>;
-  let stateServiceVNext: MockProxy<StateServiceVNext>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let apiService: MockProxy<ApiService>;
   let messagingService: MockProxy<MessagingService>;
@@ -42,13 +40,12 @@ describe("SyncService", () => {
     logService = mock();
     i18nService = mock();
     stateService = mock();
-    stateServiceVNext = mock();
     cryptoFunctionService = mock();
     apiService = mock();
     messagingService = mock();
     directoryFactory = mock();
 
-    stateServiceVNext.getApiUrl.mockResolvedValue("https://api.bitwarden.com");
+    stateService.getApiUrl.mockResolvedValue("https://api.bitwarden.com");
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
     stateService.getOrganizationId.mockResolvedValue("fakeId");
 
@@ -63,7 +60,6 @@ describe("SyncService", () => {
       apiService,
       messagingService,
       i18nService,
-      stateServiceVNext,
       stateService,
       batchRequestBuilder,
       singleRequestBuilder,

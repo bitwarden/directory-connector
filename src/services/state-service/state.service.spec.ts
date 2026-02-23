@@ -1,7 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
-import { StateMigrationService } from "@/jslib/common/src/abstractions/stateMigration.service";
 import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
 import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
 
@@ -14,14 +13,15 @@ import { OneLoginConfiguration } from "@/src/models/oneLoginConfiguration";
 import { StorageKeysVNext as StorageKeys, StoredSecurely } from "@/src/models/state.model";
 import { SyncConfiguration } from "@/src/models/syncConfiguration";
 
-import { StateServiceVNextImplementation } from "./state-vNext.service";
+import { StateServiceImplementation } from "./state.service";
+import { StateMigrationService } from "./stateMigration.service";
 
-describe("StateServiceVNextImplementation", () => {
+describe("StateServiceImplementation", () => {
   let storageService: MockProxy<StorageService>;
   let secureStorageService: MockProxy<StorageService>;
   let logService: MockProxy<LogService>;
   let stateMigrationService: MockProxy<StateMigrationService>;
-  let stateService: StateServiceVNextImplementation;
+  let stateService: StateServiceImplementation;
 
   beforeEach(() => {
     storageService = mock<StorageService>();
@@ -29,7 +29,7 @@ describe("StateServiceVNextImplementation", () => {
     logService = mock<LogService>();
     stateMigrationService = mock<StateMigrationService>();
 
-    stateService = new StateServiceVNextImplementation(
+    stateService = new StateServiceImplementation(
       storageService,
       secureStorageService,
       logService,
@@ -446,7 +446,7 @@ describe("StateServiceVNextImplementation", () => {
 
   describe("Secure Storage Flag", () => {
     it("should not separate secrets when useSecureStorageForSecrets is false", async () => {
-      const insecureStateService = new StateServiceVNextImplementation(
+      const insecureStateService = new StateServiceImplementation(
         storageService,
         secureStorageService,
         logService,
@@ -613,11 +613,7 @@ describe("StateServiceVNextImplementation", () => {
         base: "https://vault.example.com",
         api: "https://api.example.com",
         identity: "https://identity.example.com",
-        icons: "https://icons.example.com",
-        notifications: "https://notifications.example.com",
-        events: "https://events.example.com",
         webVault: "https://vault.example.com",
-        keyConnector: null,
       };
 
       storageService.get.mockResolvedValue(urls);
@@ -642,11 +638,7 @@ describe("StateServiceVNextImplementation", () => {
         base: null,
         api: "https://api.example.com",
         identity: null,
-        icons: null,
-        notifications: null,
-        events: null,
         webVault: null,
-        keyConnector: null,
       };
 
       storageService.get.mockResolvedValue(urls);
@@ -661,11 +653,7 @@ describe("StateServiceVNextImplementation", () => {
         base: "https://vault.example.com",
         api: null,
         identity: null,
-        icons: null,
-        notifications: null,
-        events: null,
         webVault: null,
-        keyConnector: null,
       };
 
       storageService.get.mockResolvedValue(urls);
@@ -688,11 +676,7 @@ describe("StateServiceVNextImplementation", () => {
         base: null,
         api: null,
         identity: "https://identity.example.com",
-        icons: null,
-        notifications: null,
-        events: null,
         webVault: null,
-        keyConnector: null,
       };
 
       storageService.get.mockResolvedValue(urls);
@@ -707,11 +691,7 @@ describe("StateServiceVNextImplementation", () => {
         base: "https://vault.example.com",
         api: null,
         identity: null,
-        icons: null,
-        notifications: null,
-        events: null,
         webVault: null,
-        keyConnector: null,
       };
 
       storageService.get.mockResolvedValue(urls);
@@ -746,6 +726,136 @@ describe("StateServiceVNextImplementation", () => {
 
       // Verify that all 5 token types are removed
       expect(secureStorageService.remove).toHaveBeenCalledTimes(5);
+    });
+
+    describe("Access Token", () => {
+      it("should get access token from secure storage", async () => {
+        const token = "test-access-token";
+        secureStorageService.get.mockResolvedValue(token);
+
+        const result = await stateService.getAccessToken();
+
+        expect(result).toBe(token);
+        expect(secureStorageService.get).toHaveBeenCalledWith("accessToken");
+      });
+
+      it("should set access token in secure storage", async () => {
+        const token = "test-access-token";
+
+        await stateService.setAccessToken(token);
+
+        expect(secureStorageService.save).toHaveBeenCalledWith("accessToken", token);
+      });
+
+      it("should remove access token when set to null", async () => {
+        await stateService.setAccessToken(null);
+
+        expect(secureStorageService.remove).toHaveBeenCalledWith("accessToken");
+      });
+    });
+
+    describe("Refresh Token", () => {
+      it("should get refresh token from secure storage", async () => {
+        const token = "test-refresh-token";
+        secureStorageService.get.mockResolvedValue(token);
+
+        const result = await stateService.getRefreshToken();
+
+        expect(result).toBe(token);
+        expect(secureStorageService.get).toHaveBeenCalledWith("refreshToken");
+      });
+
+      it("should set refresh token in secure storage", async () => {
+        const token = "test-refresh-token";
+
+        await stateService.setRefreshToken(token);
+
+        expect(secureStorageService.save).toHaveBeenCalledWith("refreshToken", token);
+      });
+
+      it("should remove refresh token when set to null", async () => {
+        await stateService.setRefreshToken(null);
+
+        expect(secureStorageService.remove).toHaveBeenCalledWith("refreshToken");
+      });
+    });
+
+    describe("API Key Client ID", () => {
+      it("should get API key client ID from secure storage", async () => {
+        const clientId = "organization.test-id";
+        secureStorageService.get.mockResolvedValue(clientId);
+
+        const result = await stateService.getApiKeyClientId();
+
+        expect(result).toBe(clientId);
+        expect(secureStorageService.get).toHaveBeenCalledWith("apiKeyClientId");
+      });
+
+      it("should set API key client ID in secure storage", async () => {
+        const clientId = "organization.test-id";
+
+        await stateService.setApiKeyClientId(clientId);
+
+        expect(secureStorageService.save).toHaveBeenCalledWith("apiKeyClientId", clientId);
+      });
+
+      it("should remove API key client ID when set to null", async () => {
+        await stateService.setApiKeyClientId(null);
+
+        expect(secureStorageService.remove).toHaveBeenCalledWith("apiKeyClientId");
+      });
+    });
+
+    describe("API Key Client Secret", () => {
+      it("should get API key client secret from secure storage", async () => {
+        const clientSecret = "test-secret";
+        secureStorageService.get.mockResolvedValue(clientSecret);
+
+        const result = await stateService.getApiKeyClientSecret();
+
+        expect(result).toBe(clientSecret);
+        expect(secureStorageService.get).toHaveBeenCalledWith("apiKeyClientSecret");
+      });
+
+      it("should set API key client secret in secure storage", async () => {
+        const clientSecret = "test-secret";
+
+        await stateService.setApiKeyClientSecret(clientSecret);
+
+        expect(secureStorageService.save).toHaveBeenCalledWith("apiKeyClientSecret", clientSecret);
+      });
+
+      it("should remove API key client secret when set to null", async () => {
+        await stateService.setApiKeyClientSecret(null);
+
+        expect(secureStorageService.remove).toHaveBeenCalledWith("apiKeyClientSecret");
+      });
+    });
+
+    describe("Entity ID", () => {
+      it("should get entity ID from storage", async () => {
+        const entityId = "test-entity-id";
+        storageService.get.mockResolvedValue(entityId);
+
+        const result = await stateService.getEntityId();
+
+        expect(result).toBe(entityId);
+        expect(storageService.get).toHaveBeenCalledWith("entityId");
+      });
+
+      it("should set entity ID in storage", async () => {
+        const entityId = "test-entity-id";
+
+        await stateService.setEntityId(entityId);
+
+        expect(storageService.save).toHaveBeenCalledWith("entityId", entityId);
+      });
+
+      it("should remove entity ID when set to null", async () => {
+        await stateService.setEntityId(null);
+
+        expect(storageService.remove).toHaveBeenCalledWith("entityId");
+      });
     });
   });
 });

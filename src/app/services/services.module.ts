@@ -1,20 +1,24 @@
-import { APP_INITIALIZER, NgModule } from "@angular/core";
+import {
+  APP_INITIALIZER,
+  ApplicationRef,
+  ComponentFactoryResolver,
+  Injector,
+  NgModule,
+} from "@angular/core";
 
-import { JslibServicesModule } from "@/jslib/angular/src/services/jslib-services.module";
+import { BroadcasterService as BroadcasterServiceImplementation } from "@/jslib/angular/src/services/broadcaster.service";
+import { ModalService } from "@/jslib/angular/src/services/modal.service";
+import { ValidationService } from "@/jslib/angular/src/services/validation.service";
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { StateMigrationService as StateMigrationServiceAbstraction } from "@/jslib/common/src/abstractions/stateMigration.service";
 import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
-import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abstractions/token.service";
-import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
-import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
+import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { ElectronLogService } from "@/jslib/electron/src/services/electronLog.service";
 import { ElectronPlatformUtilsService } from "@/jslib/electron/src/services/electronPlatformUtils.service";
 import { ElectronRendererMessagingService } from "@/jslib/electron/src/services/electronRendererMessaging.service";
@@ -24,32 +28,33 @@ import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 
 import { DirectoryFactoryService } from "@/src/abstractions/directory-factory.service";
+import { EnvironmentService as EnvironmentServiceAbstraction } from "@/src/abstractions/environment.service";
+import { TokenService as TokenServiceAbstraction } from "@/src/abstractions/token.service";
 import { BatchRequestBuilder } from "@/src/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/src/services/directory-factory.service";
 import { SingleRequestBuilder } from "@/src/services/single-request-builder";
+import { StateMigrationService } from "@/src/services/state-service/stateMigration.service";
 
 import { AuthService as AuthServiceAbstraction } from "../../abstractions/auth.service";
-import { StateServiceVNext } from "../../abstractions/state-vNext.service";
 import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
-import { Account } from "../../models/account";
 import { AuthService } from "../../services/auth.service";
+import { EnvironmentService as EnvironmentServiceImplementation } from "../../services/environment/environment.service";
 import { I18nService } from "../../services/i18n.service";
-import { StateServiceVNextImplementation } from "../../services/state-service/state-vNext.service";
-import { StateService } from "../../services/state-service/state.service";
-import { StateMigrationService } from "../../services/state-service/stateMigration.service";
+import { StateServiceImplementation } from "../../services/state-service/state.service";
 import { SyncService } from "../../services/sync.service";
+import { TokenService as TokenServiceImplementation } from "../../services/token/token.service";
 
 import { AuthGuardService } from "./auth-guard.service";
 import { SafeInjectionToken, SECURE_STORAGE, WINDOW } from "./injection-tokens";
 import { LaunchGuardService } from "./launch-guard.service";
 import { SafeProvider, safeProvider } from "./safe-provider";
 
-export function initFactory(
-  i18nService: I18nServiceAbstraction,
-  platformUtilsService: PlatformUtilsServiceAbstraction,
-  stateService: StateServiceAbstraction,
-): () => Promise<void> {
+export function initFactory(injector: Injector): () => Promise<void> {
   return async () => {
+    const stateService = injector.get(StateServiceAbstraction);
+    const i18nService = injector.get(I18nServiceAbstraction);
+    const platformUtilsService = injector.get(PlatformUtilsServiceAbstraction);
+
     await stateService.init();
     await (i18nService as I18nService).init();
     const htmlEl = window.document.documentElement;
@@ -73,20 +78,29 @@ export function initFactory(
 }
 
 @NgModule({
-  imports: [JslibServicesModule],
+  imports: [],
   declarations: [],
   providers: [
     safeProvider({
       provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
       useFactory: initFactory,
-      deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction, StateServiceAbstraction],
+      deps: [Injector],
       multi: true,
+    }),
+    safeProvider({
+      provide: WINDOW,
+      useValue: window,
     }),
     safeProvider({ provide: LogServiceAbstraction, useClass: ElectronLogService, deps: [] }),
     safeProvider({
       provide: I18nServiceAbstraction,
       useFactory: (window: Window) => new I18nService(window.navigator.language, "./locales"),
       deps: [WINDOW],
+    }),
+    safeProvider({
+      provide: BroadcasterServiceAbstraction,
+      useClass: BroadcasterServiceImplementation,
+      deps: [],
     }),
     safeProvider({
       provide: MessagingServiceAbstraction,
@@ -116,6 +130,11 @@ export function initFactory(
       provide: CryptoFunctionServiceAbstraction,
       useClass: NodeCryptoFunctionService,
       deps: [],
+    }),
+    safeProvider({
+      provide: AppIdServiceAbstraction,
+      useClass: AppIdService,
+      deps: [StorageServiceAbstraction],
     }),
     safeProvider({
       provide: ApiServiceAbstraction,
@@ -165,7 +184,6 @@ export function initFactory(
         ApiServiceAbstraction,
         MessagingServiceAbstraction,
         I18nServiceAbstraction,
-        StateServiceVNext,
         StateServiceAbstraction,
         BatchRequestBuilder,
         SingleRequestBuilder,
@@ -174,64 +192,50 @@ export function initFactory(
     }),
     safeProvider(AuthGuardService),
     safeProvider(LaunchGuardService),
+    // Provide StateMigrationService
     safeProvider({
-      provide: StateMigrationServiceAbstraction,
+      provide: StateMigrationService,
       useFactory: (
         storageService: StorageServiceAbstraction,
         secureStorageService: StorageServiceAbstraction,
-      ) =>
-        new StateMigrationService(
-          storageService,
-          secureStorageService,
-          new StateFactory(GlobalState, Account),
-        ),
+      ) => new StateMigrationService(storageService, secureStorageService),
       deps: [StorageServiceAbstraction, SECURE_STORAGE],
     }),
+    // Use new StateService with flat key-value structure
     safeProvider({
       provide: StateServiceAbstraction,
       useFactory: (
         storageService: StorageServiceAbstraction,
         secureStorageService: StorageServiceAbstraction,
         logService: LogServiceAbstraction,
-        stateMigrationService: StateMigrationServiceAbstraction,
+        stateMigrationService: StateMigrationService,
       ) =>
-        new StateService(
+        new StateServiceImplementation(
           storageService,
           secureStorageService,
           logService,
           stateMigrationService,
           true,
-          new StateFactory(GlobalState, Account),
         ),
       deps: [
         StorageServiceAbstraction,
         SECURE_STORAGE,
         LogServiceAbstraction,
-        StateMigrationServiceAbstraction,
+        StateMigrationService,
       ],
     }),
-    // Use new StateServiceVNext with flat key-value structure (new interface)
+    // Provide TokenService and EnvironmentService
     safeProvider({
-      provide: StateServiceVNext,
-      useFactory: (
-        storageService: StorageServiceAbstraction,
-        secureStorageService: StorageServiceAbstraction,
-        logService: LogServiceAbstraction,
-        stateMigrationService: StateMigrationServiceAbstraction,
-      ) =>
-        new StateServiceVNextImplementation(
-          storageService,
-          secureStorageService,
-          logService,
-          stateMigrationService,
-          true,
-        ),
-      deps: [
-        StorageServiceAbstraction,
-        SECURE_STORAGE,
-        LogServiceAbstraction,
-        StateMigrationServiceAbstraction,
-      ],
+      provide: TokenServiceAbstraction,
+      useFactory: (secureStorage: StorageServiceAbstraction) =>
+        new TokenServiceImplementation(secureStorage),
+      deps: [SECURE_STORAGE],
+    }),
+    safeProvider({
+      provide: EnvironmentServiceAbstraction,
+      useFactory: (stateService: StateServiceAbstraction) =>
+        new EnvironmentServiceImplementation(stateService),
+      deps: [StateServiceAbstraction],
     }),
     safeProvider({
       provide: SingleRequestBuilder,
@@ -244,12 +248,17 @@ export function initFactory(
     safeProvider({
       provide: DirectoryFactoryService,
       useClass: DefaultDirectoryFactoryService,
-      deps: [
-        LogServiceAbstraction,
-        I18nServiceAbstraction,
-        StateServiceAbstraction,
-        StateServiceVNext,
-      ],
+      deps: [LogServiceAbstraction, I18nServiceAbstraction, StateServiceAbstraction],
+    }),
+    safeProvider({
+      provide: ModalService,
+      useClass: ModalService,
+      deps: [ComponentFactoryResolver, ApplicationRef, Injector],
+    }),
+    safeProvider({
+      provide: ValidationService,
+      useClass: ValidationService,
+      deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction],
     }),
   ] satisfies SafeProvider[],
 })

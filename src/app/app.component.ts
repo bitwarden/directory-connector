@@ -17,7 +17,6 @@ import { MessagingService } from "@/jslib/common/src/abstractions/messaging.serv
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 
 import { AuthService } from "../abstractions/auth.service";
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
 import { StateService } from "../abstractions/state.service";
 import { SyncService } from "../services/sync.service";
 
@@ -35,7 +34,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private broadcasterService: BroadcasterService,
-    private stateServiceVNext: StateServiceVNext,
+    private stateService: StateService,
     private authService: AuthService,
     private router: Router,
     private toastrService: ToastrService,
@@ -45,7 +44,6 @@ export class AppComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private messagingService: MessagingService,
     private syncService: SyncService,
-    private stateService: StateService,
     private logService: LogService,
   ) {}
 
@@ -116,7 +114,7 @@ export class AppComponent implements OnInit {
   }
 
   private async logOut(expired: boolean) {
-    await this.stateServiceVNext.clearAuthTokens();
+    await this.stateService.clearAuthTokens();
     await this.stateService.clean();
 
     this.authService.logOut(async () => {
