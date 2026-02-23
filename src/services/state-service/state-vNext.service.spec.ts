@@ -3,6 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { StateMigrationService } from "@/jslib/common/src/abstractions/stateMigration.service";
 import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
+import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
 
 import { DirectoryType } from "@/src/enums/directoryType";
 import { EntraIdConfiguration } from "@/src/models/entraIdConfiguration";
@@ -483,6 +484,268 @@ describe("StateServiceVNextImplementation", () => {
       // Password should be retrieved directly from storage, not secure storage
       expect(result?.password).toBe("secret-password");
       expect(secureStorageService.get).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Window Settings", () => {
+    it("should store and retrieve window state", async () => {
+      const windowState = {
+        width: 1024,
+        height: 768,
+        x: 100,
+        y: 100,
+        isMaximized: false,
+      };
+
+      storageService.get.mockResolvedValue(windowState);
+
+      await stateService.setWindow(windowState);
+      const result = await stateService.getWindow();
+
+      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.window, windowState);
+      expect(result).toEqual(windowState);
+    });
+
+    it("should return null when window state is not set", async () => {
+      storageService.get.mockResolvedValue(null);
+
+      const result = await stateService.getWindow();
+
+      expect(result).toBeNull();
+    });
+
+    it("should store and retrieve enableAlwaysOnTop setting", async () => {
+      storageService.get.mockResolvedValue(true);
+
+      await stateService.setEnableAlwaysOnTop(true);
+      const result = await stateService.getEnableAlwaysOnTop();
+
+      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.enableAlwaysOnTop, true);
+      expect(result).toBe(true);
+    });
+
+    it("should return false when enableAlwaysOnTop is not set", async () => {
+      storageService.get.mockResolvedValue(null);
+
+      const result = await stateService.getEnableAlwaysOnTop();
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("Tray Settings", () => {
+    it("should store and retrieve enableTray setting", async () => {
+      storageService.get.mockResolvedValue(true);
+
+      await stateService.setEnableTray(true);
+      const result = await stateService.getEnableTray();
+
+      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.enableTray, true);
+      expect(result).toBe(true);
+    });
+
+    it("should return false when enableTray is not set", async () => {
+      storageService.get.mockResolvedValue(null);
+
+      const result = await stateService.getEnableTray();
+
+      expect(result).toBe(false);
+    });
+
+    it("should store and retrieve enableMinimizeToTray setting", async () => {
+      storageService.get.mockResolvedValue(true);
+
+      await stateService.setEnableMinimizeToTray(true);
+      const result = await stateService.getEnableMinimizeToTray();
+
+      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.enableMinimizeToTray, true);
+      expect(result).toBe(true);
+    });
+
+    it("should return false when enableMinimizeToTray is not set", async () => {
+      storageService.get.mockResolvedValue(null);
+
+      const result = await stateService.getEnableMinimizeToTray();
+
+      expect(result).toBe(false);
+    });
+
+    it("should store and retrieve enableCloseToTray setting", async () => {
+      storageService.get.mockResolvedValue(true);
+
+      await stateService.setEnableCloseToTray(true);
+      const result = await stateService.getEnableCloseToTray();
+
+      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.enableCloseToTray, true);
+      expect(result).toBe(true);
+    });
+
+    it("should return false when enableCloseToTray is not set", async () => {
+      storageService.get.mockResolvedValue(null);
+
+      const result = await stateService.getEnableCloseToTray();
+
+      expect(result).toBe(false);
+    });
+
+    it("should store and retrieve alwaysShowDock setting", async () => {
+      storageService.get.mockResolvedValue(true);
+
+      await stateService.setAlwaysShowDock(true);
+      const result = await stateService.getAlwaysShowDock();
+
+      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.alwaysShowDock, true);
+      expect(result).toBe(true);
+    });
+
+    it("should return false when alwaysShowDock is not set", async () => {
+      storageService.get.mockResolvedValue(null);
+
+      const result = await stateService.getAlwaysShowDock();
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("Environment URLs", () => {
+    it("should store and retrieve environment URLs", async () => {
+      const urls: EnvironmentUrls = {
+        base: "https://vault.example.com",
+        api: "https://api.example.com",
+        identity: "https://identity.example.com",
+        icons: "https://icons.example.com",
+        notifications: "https://notifications.example.com",
+        events: "https://events.example.com",
+        webVault: "https://vault.example.com",
+        keyConnector: null,
+      };
+
+      storageService.get.mockResolvedValue(urls);
+
+      await stateService.setEnvironmentUrls(urls);
+      const result = await stateService.getEnvironmentUrls();
+
+      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.environmentUrls, urls);
+      expect(result).toEqual(urls);
+    });
+
+    it("should return null when environment URLs are not set", async () => {
+      storageService.get.mockResolvedValue(null);
+
+      const result = await stateService.getEnvironmentUrls();
+
+      expect(result).toBeNull();
+    });
+
+    it("should return API URL from explicit api property", async () => {
+      const urls: EnvironmentUrls = {
+        base: null,
+        api: "https://api.example.com",
+        identity: null,
+        icons: null,
+        notifications: null,
+        events: null,
+        webVault: null,
+        keyConnector: null,
+      };
+
+      storageService.get.mockResolvedValue(urls);
+
+      const result = await stateService.getApiUrl();
+
+      expect(result).toBe("https://api.example.com");
+    });
+
+    it("should return API URL derived from base URL", async () => {
+      const urls: EnvironmentUrls = {
+        base: "https://vault.example.com",
+        api: null,
+        identity: null,
+        icons: null,
+        notifications: null,
+        events: null,
+        webVault: null,
+        keyConnector: null,
+      };
+
+      storageService.get.mockResolvedValue(urls);
+
+      const result = await stateService.getApiUrl();
+
+      expect(result).toBe("https://vault.example.com/api");
+    });
+
+    it("should return default API URL when no URLs are set", async () => {
+      storageService.get.mockResolvedValue(null);
+
+      const result = await stateService.getApiUrl();
+
+      expect(result).toBe("https://api.bitwarden.com");
+    });
+
+    it("should return Identity URL from explicit identity property", async () => {
+      const urls: EnvironmentUrls = {
+        base: null,
+        api: null,
+        identity: "https://identity.example.com",
+        icons: null,
+        notifications: null,
+        events: null,
+        webVault: null,
+        keyConnector: null,
+      };
+
+      storageService.get.mockResolvedValue(urls);
+
+      const result = await stateService.getIdentityUrl();
+
+      expect(result).toBe("https://identity.example.com");
+    });
+
+    it("should return Identity URL derived from base URL", async () => {
+      const urls: EnvironmentUrls = {
+        base: "https://vault.example.com",
+        api: null,
+        identity: null,
+        icons: null,
+        notifications: null,
+        events: null,
+        webVault: null,
+        keyConnector: null,
+      };
+
+      storageService.get.mockResolvedValue(urls);
+
+      const result = await stateService.getIdentityUrl();
+
+      expect(result).toBe("https://vault.example.com/identity");
+    });
+
+    it("should return default Identity URL when no URLs are set", async () => {
+      storageService.get.mockResolvedValue(null);
+
+      const result = await stateService.getIdentityUrl();
+
+      expect(result).toBe("https://identity.bitwarden.com");
+    });
+  });
+
+  describe("Token Management", () => {
+    it("should clear all auth tokens", async () => {
+      await stateService.clearAuthTokens();
+
+      expect(secureStorageService.remove).toHaveBeenCalledWith("accessToken");
+      expect(secureStorageService.remove).toHaveBeenCalledWith("refreshToken");
+      expect(secureStorageService.remove).toHaveBeenCalledWith("apiKeyClientId");
+      expect(secureStorageService.remove).toHaveBeenCalledWith("apiKeyClientSecret");
+      expect(secureStorageService.remove).toHaveBeenCalledWith("twoFactorToken");
+    });
+
+    it("should remove exactly 5 token types", async () => {
+      await stateService.clearAuthTokens();
+
+      // Verify that all 5 token types are removed
+      expect(secureStorageService.remove).toHaveBeenCalledTimes(5);
     });
   });
 });

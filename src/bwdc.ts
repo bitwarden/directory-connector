@@ -7,8 +7,6 @@ import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { ContainerService } from "@/jslib/common/src/services/container.service";
-import { CryptoService } from "@/jslib/common/src/services/crypto.service";
 import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
 import { TokenService } from "@/jslib/common/src/services/token.service";
@@ -46,12 +44,10 @@ export class Main {
   secureStorageService: StorageServiceAbstraction;
   i18nService: I18nService;
   platformUtilsService: CliPlatformUtilsService;
-  cryptoService: CryptoService;
   tokenService: TokenService;
   appIdService: AppIdService;
   apiService: NodeApiService;
   environmentService: EnvironmentService;
-  containerService: ContainerService;
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
   syncService: SyncService;
@@ -128,13 +124,6 @@ export class Main {
       process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
     );
 
-    this.cryptoService = new CryptoService(
-      this.cryptoFunctionService,
-      this.platformUtilsService,
-      this.logService,
-      this.stateService,
-    );
-
     this.appIdService = new AppIdService(this.storageService);
     this.tokenService = new TokenService(this.stateService);
     this.messagingService = new NoopMessagingService();
@@ -154,7 +143,6 @@ export class Main {
       async (expired: boolean) => await this.logout(),
       customUserAgent,
     );
-    this.containerService = new ContainerService(this.cryptoService);
 
     this.authService = new AuthService(
       this.apiService,
@@ -179,7 +167,7 @@ export class Main {
       this.apiService,
       this.messagingService,
       this.i18nService,
-      this.environmentService,
+      this.stateServiceVNext,
       this.stateService,
       this.batchRequestBuilder,
       this.singleRequestBuilder,
@@ -195,15 +183,13 @@ export class Main {
   }
 
   async logout() {
-    await this.tokenService.clearToken();
+    await this.stateServiceVNext.clearAuthTokens();
     await this.stateService.clean();
   }
 
   private async init() {
     await this.storageService.init();
     await this.stateService.init();
-    this.containerService.attachToWindow(global);
-    await this.environmentService.setUrlsFromStorage();
     // Dev Server URLs. Comment out the line above.
     // this.apiService.setUrls({
     //     base: null,

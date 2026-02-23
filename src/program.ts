@@ -210,7 +210,7 @@ export class Program extends BaseProgram {
       })
       .action(async (setting: string, value: string, options: OptionValues) => {
         const command = new ConfigCommand(
-          this.main.environmentService,
+          this.main.stateServiceVNext,
           this.main.i18nService,
           this.main.stateService,
         );

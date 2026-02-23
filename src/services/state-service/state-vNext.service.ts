@@ -376,15 +376,37 @@ export class StateServiceVNextImplementation implements StateServiceVNextAbstrac
   }
 
   // ===================================================================
-  // Environment URLs (inherited from base, simplified implementation)
+  // Environment URLs
   // ===================================================================
 
   async getEnvironmentUrls(options?: StorageOptions): Promise<EnvironmentUrls> {
-    return await this.storageService.get<EnvironmentUrls>("environmentUrls");
+    return await this.storageService.get<EnvironmentUrls>(StorageKeys.environmentUrls);
   }
 
   async setEnvironmentUrls(value: EnvironmentUrls): Promise<void> {
-    await this.storageService.save("environmentUrls", value);
+    await this.storageService.save(StorageKeys.environmentUrls, value);
+  }
+
+  async getApiUrl(options?: StorageOptions): Promise<string> {
+    const urls = await this.getEnvironmentUrls(options);
+    if (urls?.api) {
+      return urls.api;
+    }
+    if (urls?.base) {
+      return urls.base + "/api";
+    }
+    return "https://api.bitwarden.com";
+  }
+
+  async getIdentityUrl(options?: StorageOptions): Promise<string> {
+    const urls = await this.getEnvironmentUrls(options);
+    if (urls?.identity) {
+      return urls.identity;
+    }
+    if (urls?.base) {
+      return urls.base + "/identity";
+    }
+    return "https://identity.bitwarden.com";
   }
 
   // ===================================================================
@@ -405,5 +427,73 @@ export class StateServiceVNextImplementation implements StateServiceVNextAbstrac
 
   async setInstalledVersion(value: string, options?: StorageOptions): Promise<void> {
     await this.storageService.save("installedVersion", value);
+  }
+
+  // ===================================================================
+  // Window Settings (for WindowMain)
+  // ===================================================================
+
+  async getWindow(options?: StorageOptions): Promise<any> {
+    return await this.storageService.get(StorageKeys.window);
+  }
+
+  async setWindow(value: any, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.window, value);
+  }
+
+  async getEnableAlwaysOnTop(options?: StorageOptions): Promise<boolean> {
+    return (await this.storageService.get<boolean>(StorageKeys.enableAlwaysOnTop)) ?? false;
+  }
+
+  async setEnableAlwaysOnTop(value: boolean, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.enableAlwaysOnTop, value);
+  }
+
+  // ===================================================================
+  // Tray Settings (for TrayMain)
+  // ===================================================================
+
+  async getEnableTray(options?: StorageOptions): Promise<boolean> {
+    return (await this.storageService.get<boolean>(StorageKeys.enableTray)) ?? false;
+  }
+
+  async setEnableTray(value: boolean, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.enableTray, value);
+  }
+
+  async getEnableMinimizeToTray(options?: StorageOptions): Promise<boolean> {
+    return (await this.storageService.get<boolean>(StorageKeys.enableMinimizeToTray)) ?? false;
+  }
+
+  async setEnableMinimizeToTray(value: boolean, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.enableMinimizeToTray, value);
+  }
+
+  async getEnableCloseToTray(options?: StorageOptions): Promise<boolean> {
+    return (await this.storageService.get<boolean>(StorageKeys.enableCloseToTray)) ?? false;
+  }
+
+  async setEnableCloseToTray(value: boolean, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.enableCloseToTray, value);
+  }
+
+  async getAlwaysShowDock(options?: StorageOptions): Promise<boolean> {
+    return (await this.storageService.get<boolean>(StorageKeys.alwaysShowDock)) ?? false;
+  }
+
+  async setAlwaysShowDock(value: boolean, options?: StorageOptions): Promise<void> {
+    await this.storageService.save(StorageKeys.alwaysShowDock, value);
+  }
+
+  // ===================================================================
+  // Token Management (replaces TokenService.clearToken())
+  // ===================================================================
+
+  async clearAuthTokens(): Promise<void> {
+    await this.secureStorageService.remove("accessToken");
+    await this.secureStorageService.remove("refreshToken");
+    await this.secureStorageService.remove("apiKeyClientId");
+    await this.secureStorageService.remove("apiKeyClientSecret");
+    await this.secureStorageService.remove("twoFactorToken");
   }
 }

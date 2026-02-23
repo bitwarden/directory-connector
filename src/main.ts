@@ -79,7 +79,7 @@ export class Main {
     );
 
     this.windowMain = new WindowMain(
-      this.stateService,
+      this.stateServiceVNext,
       this.logService,
       false,
       800,
@@ -105,7 +105,7 @@ export class Main {
       "bitwardenDirectoryConnector",
     );
 
-    this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.stateService);
+    this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.stateServiceVNext);
 
     this.messagingMain = new MessagingMain(
       this.windowMain,

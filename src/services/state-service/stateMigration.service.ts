@@ -287,7 +287,34 @@ export class StateMigrationService extends BaseStateMigrationService {
       }
     }
 
+    // Migrate window/tray settings from globals object
     const globals = await this.getGlobals();
+    if (globals) {
+      if (globals.window) {
+        await this.set("window", globals.window);
+      }
+      if (globals.enableAlwaysOnTop !== undefined) {
+        await this.set("enableAlwaysOnTop", globals.enableAlwaysOnTop);
+      }
+      if (globals.enableTray !== undefined) {
+        await this.set("enableTray", globals.enableTray);
+      }
+      if (globals.enableMinimizeToTray !== undefined) {
+        await this.set("enableMinimizeToTray", globals.enableMinimizeToTray);
+      }
+      if (globals.enableCloseToTray !== undefined) {
+        await this.set("enableCloseToTray", globals.enableCloseToTray);
+      }
+      if (globals.alwaysShowDock !== undefined) {
+        await this.set("alwaysShowDock", globals.alwaysShowDock);
+      }
+    }
+
+    // Migrate environment URLs from account settings
+    if (account.settings?.environmentUrls) {
+      await this.set("environmentUrls", account.settings.environmentUrls);
+    }
+
     globals.stateVersion = StateVersion.Five;
     await this.set(StateKeys.global, globals);
   }

@@ -4,7 +4,6 @@ import { JslibServicesModule } from "@/jslib/angular/src/services/jslib-services
 import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
-import { CryptoService as CryptoServiceAbstraction } from "@/jslib/common/src/abstractions/crypto.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstractions/i18n.service";
@@ -16,7 +15,6 @@ import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/
 import { TokenService as TokenServiceAbstraction } from "@/jslib/common/src/abstractions/token.service";
 import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
-import { ContainerService } from "@/jslib/common/src/services/container.service";
 import { ElectronLogService } from "@/jslib/electron/src/services/electronLog.service";
 import { ElectronPlatformUtilsService } from "@/jslib/electron/src/services/electronPlatformUtils.service";
 import { ElectronRendererMessagingService } from "@/jslib/electron/src/services/electronRendererMessaging.service";
@@ -47,15 +45,12 @@ import { LaunchGuardService } from "./launch-guard.service";
 import { SafeProvider, safeProvider } from "./safe-provider";
 
 export function initFactory(
-  environmentService: EnvironmentServiceAbstraction,
   i18nService: I18nServiceAbstraction,
   platformUtilsService: PlatformUtilsServiceAbstraction,
   stateService: StateServiceAbstraction,
-  cryptoService: CryptoServiceAbstraction,
 ): () => Promise<void> {
   return async () => {
     await stateService.init();
-    await environmentService.setUrlsFromStorage();
     await (i18nService as I18nService).init();
     const htmlEl = window.document.documentElement;
     htmlEl.classList.add("os_" + platformUtilsService.getDeviceString());
@@ -74,9 +69,6 @@ export function initFactory(
     if (installAction != null) {
       await stateService.setInstalledVersion(currentVersion);
     }
-
-    const containerService = new ContainerService(cryptoService);
-    containerService.attachToWindow(window);
   };
 }
 
@@ -87,13 +79,7 @@ export function initFactory(
     safeProvider({
       provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
       useFactory: initFactory,
-      deps: [
-        EnvironmentServiceAbstraction,
-        I18nServiceAbstraction,
-        PlatformUtilsServiceAbstraction,
-        StateServiceAbstraction,
-        CryptoServiceAbstraction,
-      ],
+      deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction, StateServiceAbstraction],
       multi: true,
     }),
     safeProvider({ provide: LogServiceAbstraction, useClass: ElectronLogService, deps: [] }),
@@ -179,7 +165,7 @@ export function initFactory(
         ApiServiceAbstraction,
         MessagingServiceAbstraction,
         I18nServiceAbstraction,
-        EnvironmentServiceAbstraction,
+        StateServiceVNext,
         StateServiceAbstraction,
         BatchRequestBuilder,
         SingleRequestBuilder,

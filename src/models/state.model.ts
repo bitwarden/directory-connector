@@ -13,6 +13,17 @@ export const StorageKeysVNext = {
   directory_onelogin: "directory_onelogin",
   sync: "sync",
   syncingDir: "syncingDir",
+
+  // Window/Tray settings
+  window: "window",
+  enableAlwaysOnTop: "enableAlwaysOnTop",
+  enableTray: "enableTray",
+  enableMinimizeToTray: "enableMinimizeToTray",
+  enableCloseToTray: "enableCloseToTray",
+  alwaysShowDock: "alwaysShowDock",
+
+  // Environment URLs
+  environmentUrls: "environmentUrls",
 };
 
 export const SecureStorageKeysVNext: { [key: string]: any } = {

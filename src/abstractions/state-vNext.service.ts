@@ -1,3 +1,4 @@
+import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
 import { DirectoryType } from "@/src/enums/directoryType";
@@ -9,8 +10,8 @@ import { OneLoginConfiguration } from "@/src/models/oneLoginConfiguration";
 import { SyncConfiguration } from "@/src/models/syncConfiguration";
 
 export abstract class StateServiceVNext {
-  getDirectory: <IConfiguration>(type: DirectoryType) => Promise<IConfiguration>;
-  setDirectory: (
+  abstract getDirectory<IConfiguration>(type: DirectoryType): Promise<IConfiguration>;
+  abstract setDirectory(
     type: DirectoryType,
     config:
       | LdapConfiguration
@@ -18,37 +19,68 @@ export abstract class StateServiceVNext {
       | EntraIdConfiguration
       | OktaConfiguration
       | OneLoginConfiguration,
-  ) => Promise<any>;
-  getLdapConfiguration: (options?: StorageOptions) => Promise<LdapConfiguration>;
-  setLdapConfiguration: (value: LdapConfiguration, options?: StorageOptions) => Promise<void>;
-  getGsuiteConfiguration: (options?: StorageOptions) => Promise<GSuiteConfiguration>;
-  setGsuiteConfiguration: (value: GSuiteConfiguration, options?: StorageOptions) => Promise<void>;
-  getEntraConfiguration: (options?: StorageOptions) => Promise<EntraIdConfiguration>;
-  setEntraConfiguration: (value: EntraIdConfiguration, options?: StorageOptions) => Promise<void>;
-  getOktaConfiguration: (options?: StorageOptions) => Promise<OktaConfiguration>;
-  setOktaConfiguration: (value: OktaConfiguration, options?: StorageOptions) => Promise<void>;
-  getOneLoginConfiguration: (options?: StorageOptions) => Promise<OneLoginConfiguration>;
-  setOneLoginConfiguration: (
+  ): Promise<any>;
+  abstract getLdapConfiguration(options?: StorageOptions): Promise<LdapConfiguration>;
+  abstract setLdapConfiguration(value: LdapConfiguration, options?: StorageOptions): Promise<void>;
+  abstract getGsuiteConfiguration(options?: StorageOptions): Promise<GSuiteConfiguration>;
+  abstract setGsuiteConfiguration(
+    value: GSuiteConfiguration,
+    options?: StorageOptions,
+  ): Promise<void>;
+  abstract getEntraConfiguration(options?: StorageOptions): Promise<EntraIdConfiguration>;
+  abstract setEntraConfiguration(
+    value: EntraIdConfiguration,
+    options?: StorageOptions,
+  ): Promise<void>;
+  abstract getOktaConfiguration(options?: StorageOptions): Promise<OktaConfiguration>;
+  abstract setOktaConfiguration(value: OktaConfiguration, options?: StorageOptions): Promise<void>;
+  abstract getOneLoginConfiguration(options?: StorageOptions): Promise<OneLoginConfiguration>;
+  abstract setOneLoginConfiguration(
     value: OneLoginConfiguration,
     options?: StorageOptions,
-  ) => Promise<void>;
-  getOrganizationId: (options?: StorageOptions) => Promise<string>;
-  setOrganizationId: (value: string, options?: StorageOptions) => Promise<void>;
-  getSync: (options?: StorageOptions) => Promise<SyncConfiguration>;
-  setSync: (value: SyncConfiguration, options?: StorageOptions) => Promise<void>;
-  getDirectoryType: (options?: StorageOptions) => Promise<DirectoryType>;
-  setDirectoryType: (value: DirectoryType, options?: StorageOptions) => Promise<void>;
-  getUserDelta: (options?: StorageOptions) => Promise<string>;
-  setUserDelta: (value: string, options?: StorageOptions) => Promise<void>;
-  getLastUserSync: (options?: StorageOptions) => Promise<Date>;
-  setLastUserSync: (value: Date, options?: StorageOptions) => Promise<void>;
-  getLastGroupSync: (options?: StorageOptions) => Promise<Date>;
-  setLastGroupSync: (value: Date, options?: StorageOptions) => Promise<void>;
-  getGroupDelta: (options?: StorageOptions) => Promise<string>;
-  setGroupDelta: (value: string, options?: StorageOptions) => Promise<void>;
-  getLastSyncHash: (options?: StorageOptions) => Promise<string>;
-  setLastSyncHash: (value: string, options?: StorageOptions) => Promise<void>;
-  getSyncingDir: (options?: StorageOptions) => Promise<boolean>;
-  setSyncingDir: (value: boolean, options?: StorageOptions) => Promise<void>;
-  clearSyncSettings: (syncHashToo: boolean) => Promise<void>;
+  ): Promise<void>;
+  abstract getOrganizationId(options?: StorageOptions): Promise<string>;
+  abstract setOrganizationId(value: string, options?: StorageOptions): Promise<void>;
+  abstract getSync(options?: StorageOptions): Promise<SyncConfiguration>;
+  abstract setSync(value: SyncConfiguration, options?: StorageOptions): Promise<void>;
+  abstract getDirectoryType(options?: StorageOptions): Promise<DirectoryType>;
+  abstract setDirectoryType(value: DirectoryType, options?: StorageOptions): Promise<void>;
+  abstract getUserDelta(options?: StorageOptions): Promise<string>;
+  abstract setUserDelta(value: string, options?: StorageOptions): Promise<void>;
+  abstract getLastUserSync(options?: StorageOptions): Promise<Date>;
+  abstract setLastUserSync(value: Date, options?: StorageOptions): Promise<void>;
+  abstract getLastGroupSync(options?: StorageOptions): Promise<Date>;
+  abstract setLastGroupSync(value: Date, options?: StorageOptions): Promise<void>;
+  abstract getGroupDelta(options?: StorageOptions): Promise<string>;
+  abstract setGroupDelta(value: string, options?: StorageOptions): Promise<void>;
+  abstract getLastSyncHash(options?: StorageOptions): Promise<string>;
+  abstract setLastSyncHash(value: string, options?: StorageOptions): Promise<void>;
+  abstract getSyncingDir(options?: StorageOptions): Promise<boolean>;
+  abstract setSyncingDir(value: boolean, options?: StorageOptions): Promise<void>;
+  abstract clearSyncSettings(syncHashToo: boolean): Promise<void>;
+
+  // Window settings (for WindowMain)
+  abstract getWindow(options?: StorageOptions): Promise<any>;
+  abstract setWindow(value: any, options?: StorageOptions): Promise<void>;
+  abstract getEnableAlwaysOnTop(options?: StorageOptions): Promise<boolean>;
+  abstract setEnableAlwaysOnTop(value: boolean, options?: StorageOptions): Promise<void>;
+
+  // Tray settings (for TrayMain)
+  abstract getEnableTray(options?: StorageOptions): Promise<boolean>;
+  abstract setEnableTray(value: boolean, options?: StorageOptions): Promise<void>;
+  abstract getEnableMinimizeToTray(options?: StorageOptions): Promise<boolean>;
+  abstract setEnableMinimizeToTray(value: boolean, options?: StorageOptions): Promise<void>;
+  abstract getEnableCloseToTray(options?: StorageOptions): Promise<boolean>;
+  abstract setEnableCloseToTray(value: boolean, options?: StorageOptions): Promise<void>;
+  abstract getAlwaysShowDock(options?: StorageOptions): Promise<boolean>;
+  abstract setAlwaysShowDock(value: boolean, options?: StorageOptions): Promise<void>;
+
+  // Environment URLs (adding convenience methods)
+  abstract getEnvironmentUrls(options?: StorageOptions): Promise<EnvironmentUrls>;
+  abstract setEnvironmentUrls(value: EnvironmentUrls): Promise<void>;
+  abstract getApiUrl(options?: StorageOptions): Promise<string>;
+  abstract getIdentityUrl(options?: StorageOptions): Promise<string>;
+
+  // Token management (replaces TokenService.clearToken())
+  abstract clearAuthTokens(): Promise<void>;
 }
