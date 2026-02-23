@@ -7,7 +7,7 @@ import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
 
-import { StateService } from "../../abstractions/state.service";
+import { StateServiceVNext } from "../../abstractions/state-vNext.service";
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
 import { LdapConfiguration } from "../../models/ldapConfiguration";
@@ -31,7 +31,7 @@ export class LdapDirectoryService implements IDirectoryService {
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateService: StateService,
+    private stateService: StateServiceVNext,
   ) {}
 
   async getEntries(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {

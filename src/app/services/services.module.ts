@@ -50,7 +50,7 @@ export function initFactory(
   environmentService: EnvironmentServiceAbstraction,
   i18nService: I18nServiceAbstraction,
   platformUtilsService: PlatformUtilsServiceAbstraction,
-  stateService: StateServiceAbstraction,
+  stateService: StateServiceVNext,
   cryptoService: CryptoServiceAbstraction,
 ): () => Promise<void> {
   return async () => {
@@ -91,7 +91,7 @@ export function initFactory(
         EnvironmentServiceAbstraction,
         I18nServiceAbstraction,
         PlatformUtilsServiceAbstraction,
-        StateServiceAbstraction,
+        StateServiceVNext,
         CryptoServiceAbstraction,
       ],
       multi: true,
@@ -168,7 +168,7 @@ export function initFactory(
         AppIdServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         MessagingServiceAbstraction,
-        StateServiceAbstraction,
+        StateServiceVNext,
       ],
     }),
     safeProvider({
@@ -180,7 +180,7 @@ export function initFactory(
         MessagingServiceAbstraction,
         I18nServiceAbstraction,
         EnvironmentServiceAbstraction,
-        StateServiceAbstraction,
+        StateServiceVNext,
         BatchRequestBuilder,
         SingleRequestBuilder,
         DirectoryFactoryService,
@@ -258,12 +258,7 @@ export function initFactory(
     safeProvider({
       provide: DirectoryFactoryService,
       useClass: DefaultDirectoryFactoryService,
-      deps: [
-        LogServiceAbstraction,
-        I18nServiceAbstraction,
-        StateServiceAbstraction,
-        StateServiceVNext,
-      ],
+      deps: [LogServiceAbstraction, I18nServiceAbstraction, StateServiceVNext],
     }),
   ] satisfies SafeProvider[],
 })

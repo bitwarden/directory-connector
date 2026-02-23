@@ -7,10 +7,9 @@ import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUt
 import { Utils } from "@/jslib/common/src/misc/utils";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
-import { Account, DirectoryConfigurations, DirectorySettings } from "../models/account";
+import { StateServiceVNext } from "../abstractions/state-vNext.service";
 
 import { AuthService } from "./auth.service";
-import { StateService } from "./state-service/state.service";
 
 const clientId = "organization.CLIENT_ID";
 const clientSecret = "CLIENT_SECRET";
@@ -34,7 +33,7 @@ describe("AuthService", () => {
   let appIdService: jest.Mocked<AppIdService>;
   let platformUtilsService: jest.Mocked<PlatformUtilsService>;
   let messagingService: jest.Mocked<MessagingService>;
-  let stateService: jest.Mocked<StateService>;
+  let stateService: jest.Mocked<StateServiceVNext>;
 
   let authService: AuthService;
 
@@ -42,7 +41,7 @@ describe("AuthService", () => {
     apiService = mock<ApiService>();
     appIdService = mock<AppIdService>();
     platformUtilsService = mock<PlatformUtilsService>();
-    stateService = mock<StateService>();
+    stateService = mock<StateServiceVNext>();
     messagingService = mock<MessagingService>();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
@@ -56,23 +55,12 @@ describe("AuthService", () => {
     );
   });
 
-  it("sets the local environment after a successful login", async () => {
+  it("sets the organization ID after a successful login", async () => {
     apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
 
     await authService.logIn({ clientId, clientSecret });
 
-    expect(stateService.addAccount).toHaveBeenCalledTimes(1);
-    expect(stateService.addAccount).toHaveBeenCalledWith(
-      new Account({
-        userId: "CLIENT_ID",
-        entityId: "CLIENT_ID",
-        apiKeyClientId: clientId, // with the "organization." prefix
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-        apiKeyClientSecret: clientSecret,
-        directorySettings: new DirectorySettings(),
-        directoryConfigurations: new DirectoryConfigurations(),
-      }),
-    );
+    expect(stateService.setOrganizationId).toHaveBeenCalledTimes(1);
+    expect(stateService.setOrganizationId).toHaveBeenCalledWith("CLIENT_ID");
   });
 });

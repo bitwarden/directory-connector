@@ -1,10 +1,10 @@
 import { Response } from "@/jslib/node/src/cli/models/response";
 import { StringResponse } from "@/jslib/node/src/cli/models/response/stringResponse";
 
-import { StateService } from "../abstractions/state.service";
+import { StateServiceVNext } from "../abstractions/state-vNext.service";
 
 export class LastSyncCommand {
-  constructor(private stateService: StateService) {}
+  constructor(private stateService: StateServiceVNext) {}
 
   async run(object: string): Promise<Response> {
     try {

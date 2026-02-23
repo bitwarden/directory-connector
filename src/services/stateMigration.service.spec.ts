@@ -6,7 +6,7 @@ import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 
 import { Account, DirectoryConfigurations, DirectorySettings } from "../models/account";
 
-import { StateMigrationService } from "./stateMigration.service";
+import { StateMigrationService } from "./state-service/stateMigration.service";
 
 describe("StateMigrationService - v4 to v5 migration", () => {
   let storageService: jest.Mocked<StorageService>;
@@ -61,15 +61,8 @@ describe("StateMigrationService - v4 to v5 migration", () => {
     await migrationService["migrateStateFrom4To5"]();
 
     expect(storageService.save).toHaveBeenCalledWith(
-      userId,
-      expect.objectContaining({
-        userId: userId,
-        entityId: userId,
-        apiKeyClientId: "organization.CLIENT_ID",
-        accessToken: "test-access-token",
-        refreshToken: "test-refresh-token",
-        apiKeyClientSecret: "test-secret",
-      }),
+      "global",
+      expect.objectContaining({ stateVersion: StateVersion.Five }),
       expect.anything(),
     );
   });
@@ -97,12 +90,8 @@ describe("StateMigrationService - v4 to v5 migration", () => {
     await migrationService["migrateStateFrom4To5"]();
 
     expect(storageService.save).toHaveBeenCalledWith(
-      userId,
-      expect.objectContaining({
-        userId: userId,
-        apiKeyClientId: null,
-        accessToken: null,
-      }),
+      "global",
+      expect.objectContaining({ stateVersion: StateVersion.Five }),
       expect.anything(),
     );
   });
@@ -161,18 +150,16 @@ describe("StateMigrationService - v4 to v5 migration", () => {
     await migrationService["migrateStateFrom4To5"]();
 
     expect(storageService.save).toHaveBeenCalledWith(
-      userId,
-      expect.objectContaining({
-        directoryConfigurations: expect.objectContaining({
-          ldap: { host: "ldap.example.com" },
-        }),
-        directorySettings: expect.objectContaining({
-          organizationId: "org-123",
-          lastSyncHash: "hash-abc",
-        }),
-      }),
+      "directory_ldap",
+      { host: "ldap.example.com" },
       expect.anything(),
     );
+    expect(storageService.save).toHaveBeenCalledWith(
+      "organizationId",
+      "org-123",
+      expect.anything(),
+    );
+    expect(storageService.save).toHaveBeenCalledWith("lastSyncHash", "hash-abc", expect.anything());
   });
 
   it("should update state version after successful migration", async () => {

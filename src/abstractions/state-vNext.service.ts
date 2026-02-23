@@ -51,4 +51,10 @@ export abstract class StateServiceVNext {
   getSyncingDir: (options?: StorageOptions) => Promise<boolean>;
   setSyncingDir: (value: boolean, options?: StorageOptions) => Promise<void>;
   clearSyncSettings: (syncHashToo: boolean) => Promise<void>;
+  getIsAuthenticated: (options?: StorageOptions) => Promise<boolean>;
+  getEntityId: (options?: StorageOptions) => Promise<string>;
+  init: () => Promise<void>;
+  clean: () => Promise<void>;
+  getInstalledVersion: (options?: StorageOptions) => Promise<string>;
+  setInstalledVersion: (value: string, options?: StorageOptions) => Promise<void>;
 }

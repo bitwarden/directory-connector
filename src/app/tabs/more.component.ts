@@ -5,7 +5,7 @@ import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 
-import { StateService } from "../../abstractions/state.service";
+import { StateServiceVNext } from "../../abstractions/state-vNext.service";
 
 const BroadcasterSubscriptionId = "MoreComponent";
 
@@ -26,7 +26,7 @@ export class MoreComponent implements OnInit {
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
     private changeDetectorRef: ChangeDetectorRef,
-    private stateService: StateService,
+    private stateService: StateServiceVNext,
   ) {}
 
   async ngOnInit() {

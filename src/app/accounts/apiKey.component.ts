@@ -9,7 +9,7 @@ import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUt
 import { Utils } from "@/jslib/common/src/misc/utils";
 
 import { AuthService } from "../../abstractions/auth.service";
-import { StateService } from "../../abstractions/state.service";
+import { StateServiceVNext } from "../../abstractions/state-vNext.service";
 
 import { EnvironmentComponent } from "./environment.component";
 
@@ -41,7 +41,7 @@ export class ApiKeyComponent {
     private platformUtilsService: PlatformUtilsService,
     private modalService: ModalService,
     private logService: LogService,
-    private stateService: StateService,
+    private stateService: StateServiceVNext,
   ) {}
 
   async submit() {

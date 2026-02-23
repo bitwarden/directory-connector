@@ -7,8 +7,7 @@ import { ApiTokenRequest } from "@/jslib/common/src/models/request/identityToken
 import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
-import { StateService } from "../abstractions/state.service";
-import { Account, DirectoryConfigurations, DirectorySettings } from "../models/account";
+import { StateServiceVNext } from "../abstractions/state-vNext.service";
 
 export class AuthService {
   constructor(
@@ -16,7 +15,7 @@ export class AuthService {
     private appIdService: AppIdService,
     private platformUtilsService: PlatformUtilsService,
     private messagingService: MessagingService,
-    private stateService: StateService,
+    private stateService: StateServiceVNext,
   ) {}
 
   async logIn(credentials: { clientId: string; clientSecret: string }) {
@@ -53,19 +52,9 @@ export class AuthService {
   ) {
     const clientId = tokenRequest.clientId;
     const entityId = clientId.split("organization.")[1];
-    const clientSecret = tokenRequest.clientSecret;
 
-    await this.stateService.addAccount(
-      new Account({
-        userId: entityId,
-        entityId: entityId,
-        apiKeyClientId: clientId,
-        accessToken: tokenResponse.accessToken,
-        refreshToken: tokenResponse.refreshToken,
-        apiKeyClientSecret: clientSecret,
-        directorySettings: new DirectorySettings(),
-        directoryConfigurations: new DirectoryConfigurations(),
-      }),
-    );
+    // DC is single-organization, so we only need to set the organization ID
+    // TokenService handles token storage via its own StateService instance
+    await this.stateService.setOrganizationId(entityId);
   }
 }

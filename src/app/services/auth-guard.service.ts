@@ -2,12 +2,12 @@ import { Injectable } from "@angular/core";
 
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 
-import { StateService } from "../../abstractions/state.service";
+import { StateServiceVNext } from "../../abstractions/state-vNext.service";
 
 @Injectable()
 export class AuthGuardService {
   constructor(
-    private stateService: StateService,
+    private stateService: StateServiceVNext,
     private messagingService: MessagingService,
   ) {}
 

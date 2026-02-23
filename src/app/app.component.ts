@@ -18,7 +18,7 @@ import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUt
 import { TokenService } from "@/jslib/common/src/abstractions/token.service";
 
 import { AuthService } from "../abstractions/auth.service";
-import { StateService } from "../abstractions/state.service";
+import { StateServiceVNext } from "../abstractions/state-vNext.service";
 import { SyncService } from "../services/sync.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -45,7 +45,7 @@ export class AppComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private messagingService: MessagingService,
     private syncService: SyncService,
-    private stateService: StateService,
+    private stateService: StateServiceVNext,
     private logService: LogService,
   ) {}
 

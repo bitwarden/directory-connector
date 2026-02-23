@@ -48,6 +48,17 @@ export class StateServiceVNextImplementation implements StateServiceVNextAbstrac
     await this.clearSyncSettings(true);
   }
 
+  async getIsAuthenticated(options?: StorageOptions): Promise<boolean> {
+    // DC is authenticated if there's an organization ID
+    const orgId = await this.getOrganizationId(options);
+    return orgId != null;
+  }
+
+  async getEntityId(options?: StorageOptions): Promise<string> {
+    // In DC, entity ID is the same as organization ID
+    return await this.getOrganizationId(options);
+  }
+
   // ===================================================================
   // Directory Configuration Methods
   // ===================================================================

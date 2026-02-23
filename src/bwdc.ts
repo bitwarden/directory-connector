@@ -167,13 +167,12 @@ export class Main {
       this.appIdService,
       this.platformUtilsService,
       this.messagingService,
-      this.stateService,
+      this.stateServiceVNext,
     );
 
     this.directoryFactoryService = new DefaultDirectoryFactoryService(
       this.logService,
       this.i18nService,
-      this.stateService,
       this.stateServiceVNext,
     );
 
@@ -186,7 +185,7 @@ export class Main {
       this.messagingService,
       this.i18nService,
       this.environmentService,
-      this.stateService,
+      this.stateServiceVNext,
       this.batchRequestBuilder,
       this.singleRequestBuilder,
       this.directoryFactoryService,
