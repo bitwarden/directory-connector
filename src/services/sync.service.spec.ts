@@ -10,13 +10,13 @@ import { GroupEntry } from "@/src/models/groupEntry";
 
 import { getSyncConfiguration } from "../../utils/openldap/config-fixtures";
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
+import { StateServiceVNext } from "../abstractions/state-vNext.service";
 import { DirectoryType } from "../enums/directoryType";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
 import { I18nService } from "./i18n.service";
 import { SingleRequestBuilder } from "./single-request-builder";
-import { StateService } from "./state-service/state.service";
 import { SyncService } from "./sync.service";
 import * as constants from "./sync.service";
 
@@ -29,7 +29,7 @@ describe("SyncService", () => {
   let messagingService: MockProxy<MessagingService>;
   let i18nService: MockProxy<I18nService>;
   let environmentService: MockProxy<EnvironmentService>;
-  let stateService: MockProxy<StateService>;
+  let stateService: MockProxy<StateServiceVNext>;
   let directoryFactory: MockProxy<DirectoryFactoryService>;
   let batchRequestBuilder: MockProxy<BatchRequestBuilder>;
   let singleRequestBuilder: MockProxy<SingleRequestBuilder>;

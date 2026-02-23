@@ -9,12 +9,12 @@ import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../jslib/common/src/abstractions/log.service";
 import { getLdapConfiguration, getSyncConfiguration } from "../../utils/openldap/config-fixtures";
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
+import { StateServiceVNext } from "../abstractions/state-vNext.service";
 import { DirectoryType } from "../enums/directoryType";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
 import { SingleRequestBuilder } from "./single-request-builder";
-import { StateService } from "./state-service/state.service";
 import { SyncService } from "./sync.service";
 import * as constants from "./sync.service";
 
@@ -24,7 +24,7 @@ import { userFixtures } from "@/utils/openldap/user-fixtures";
 describe("SyncService", () => {
   let logService: MockProxy<LogService>;
   let i18nService: MockProxy<I18nService>;
-  let stateService: MockProxy<StateService>;
+  let stateService: MockProxy<StateServiceVNext>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let apiService: MockProxy<ApiService>;
   let messagingService: MockProxy<MessagingService>;

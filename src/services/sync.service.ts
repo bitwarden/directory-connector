@@ -7,7 +7,7 @@ import { Utils } from "@/jslib/common/src/misc/utils";
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
-import { StateService } from "../abstractions/state.service";
+import { StateServiceVNext } from "../abstractions/state-vNext.service";
 import { DirectoryType } from "../enums/directoryType";
 import { GroupEntry } from "../models/groupEntry";
 import { SyncConfiguration } from "../models/syncConfiguration";
@@ -32,7 +32,7 @@ export class SyncService {
     private messagingService: MessagingService,
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
-    private stateService: StateService,
+    private stateService: StateServiceVNext,
     private batchRequestBuilder: BatchRequestBuilder,
     private singleRequestBuilder: SingleRequestBuilder,
     private directoryFactory: DirectoryFactoryService,

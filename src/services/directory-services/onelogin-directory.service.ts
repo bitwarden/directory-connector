@@ -1,7 +1,7 @@
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
-import { StateService } from "../../abstractions/state.service";
+import { StateServiceVNext } from "../../abstractions/state-vNext.service";
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
 import { OneLoginConfiguration } from "../../models/oneLoginConfiguration";
@@ -23,7 +23,7 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateService: StateService,
+    private stateService: StateServiceVNext,
   ) {
     super();
   }

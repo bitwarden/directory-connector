@@ -5,7 +5,7 @@ import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 
-import { StateService } from "../../abstractions/state.service";
+import { StateServiceVNext } from "../../abstractions/state-vNext.service";
 import { GroupEntry } from "../../models/groupEntry";
 import { SimResult } from "../../models/simResult";
 import { UserEntry } from "../../models/userEntry";
@@ -41,7 +41,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private messagingService: MessagingService,
     private platformUtilsService: PlatformUtilsService,
     private changeDetectorRef: ChangeDetectorRef,
-    private stateService: StateService,
+    private stateService: StateServiceVNext,
   ) {}
 
   async ngOnInit() {
