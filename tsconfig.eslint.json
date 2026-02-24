@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "tldjs": ["@/jslib/src/misc/tldjs.noop"],
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "dc-native": ["./native/index.d.ts"]
     }
   },
   "include": ["src", "jslib", "scripts", "./*.ts"]

@@ -5,6 +5,9 @@
   "main": "index.js",
   "types": "index.d.ts",
   "license": "GPL-3.0",
+  "napi": {
+    "binaryName": "dc_native"
+  },
   "scripts": {
     "build": "napi build --platform",
     "build:release": "napi build --platform --release"

@@ -1,12 +1,13 @@
+import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
+
 import { passwords } from "dc-native";
 
-import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
 
 export class NativeSecureStorageService implements StorageService {
   constructor(private serviceName: string) {}
 
   get<T>(key: string): Promise<T> {
-    return passwords.getPassword(this.serviceName, key).then((val) => {
+    return passwords.getPassword(this.serviceName, key).then((val: string) => {
       return JSON.parse(val) as T;
     });
   }
