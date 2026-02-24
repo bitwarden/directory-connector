@@ -9,8 +9,8 @@
     "binaryName": "dc_native"
   },
   "scripts": {
-    "build": "napi build --platform",
-    "build:release": "napi build --platform --release"
+    "build": "napi build --platform --no-js",
+    "build:release": "napi build --platform --release --no-js"
   },
   "devDependencies": {
     "@napi-rs/cli": "^3.0.0"
