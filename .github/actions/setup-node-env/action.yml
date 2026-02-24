@@ -1,0 +1,34 @@
+name: "Setup Node Environment"
+description: "Sets up Node.js with npm cache and installs node-gyp"
+inputs:
+  node-version:
+    description: "Node.js version to use"
+    required: true
+  platform:
+    description: "Platform name (Linux, macOS, Windows) - used for shell selection"
+    required: false
+    default: "Linux"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Node
+      uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      with:
+        cache: "npm"
+        cache-dependency-path: "**/package-lock.json"
+        node-version: ${{ inputs.node-version }}
+
+    - name: Update NPM and install node-gyp (Unix)
+      if: inputs.platform != 'Windows'
+      shell: bash
+      run: |
+        npm install -g node-gyp
+        node-gyp install "$(node -v)"
+
+    - name: Update NPM and install node-gyp (Windows)
+      if: inputs.platform == 'Windows'
+      shell: pwsh
+      run: |
+        npm install -g node-gyp
+        node-gyp install $(node -v)
