@@ -24,8 +24,8 @@ import { AuthService } from "./services/auth.service";
 import { BatchRequestBuilder } from "./services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "./services/directory-factory.service";
 import { I18nService } from "./services/i18n.service";
-import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
+import { NativeSecureStorageService } from "./services/nativeSecureStorage.service";
 import { SingleRequestBuilder } from "./services/single-request-builder";
 import { StateService } from "./services/state.service";
 import { StateMigrationService } from "./services/stateMigration.service";
@@ -100,7 +100,7 @@ export class Main {
     );
     this.secureStorageService = plaintextSecrets
       ? this.storageService
-      : new KeytarSecureStorageService(applicationName);
+      : new NativeSecureStorageService(applicationName);
 
     this.stateMigrationService = new StateMigrationService(
       this.storageService,

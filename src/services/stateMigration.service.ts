@@ -1,3 +1,5 @@
+import { passwords } from "dc-native";
+
 import { StateVersion } from "@/jslib/common/src/enums/stateVersion";
 import { StateMigrationService as BaseStateMigrationService } from "@/jslib/common/src/services/stateMigration.service";
 
@@ -61,6 +63,13 @@ export class StateMigrationService extends BaseStateMigrationService {
           break;
         case StateVersion.Two:
           await this.migrateStateFrom2To3();
+          break;
+        case StateVersion.Three:
+          await this.migrateStateFrom3To4();
+          break;
+        case StateVersion.Four:
+          await this.migrateStateFrom4To5();
+          break;
       }
       currentStateVersion += 1;
     }
@@ -168,6 +177,50 @@ export class StateMigrationService extends BaseStateMigrationService {
       }
     }
   }
+  /**
+   * Migrates Windows credential store entries previously written by keytar (UTF-8 blob) to
+   * the UTF-16 format expected by desktop_core. No-ops on non-Windows platforms.
+   *
+   * This migration is needed because keytar used CredWriteA (storing blobs as raw UTF-8 bytes)
+   * while desktop_core uses CredWriteW (storing blobs as UTF-16). Reading old keytar credentials
+   * through desktop_core produces garbled output without this migration.
+   */
+  protected async migrateStateFrom3To4(useSecureStorageForSecrets = true): Promise<void> {
+    if (useSecureStorageForSecrets && process.platform === "win32") {
+      const serviceName = "Bitwarden Directory Connector";
+      const authenticatedUserIds = await this.get<string[]>(StateKeys.authenticatedAccounts);
+
+      if (authenticatedUserIds?.length) {
+        const credentialKeys = [
+          SecureStorageKeys.ldap,
+          SecureStorageKeys.gsuite,
+          SecureStorageKeys.azure,
+          SecureStorageKeys.entra,
+          SecureStorageKeys.okta,
+          SecureStorageKeys.oneLogin,
+        ];
+
+        await Promise.all(
+          authenticatedUserIds.flatMap((userId) =>
+            credentialKeys.map((key) =>
+              passwords.migrateKeytarPassword(serviceName, `${userId}_${key}`),
+            ),
+          ),
+        );
+      }
+    }
+
+    const globals = await this.getGlobals();
+    globals.stateVersion = StateVersion.Four;
+    await this.set(StateKeys.global, globals);
+  }
+
+  protected async migrateStateFrom4To5(): Promise<void> {
+    const globals = await this.getGlobals();
+    globals.stateVersion = StateVersion.Five;
+    await this.set(StateKeys.global, globals);
+  }
+
   protected async migrateStateFrom2To3(useSecureStorageForSecrets = true): Promise<void> {
     if (useSecureStorageForSecrets) {
       const authenticatedUserIds = await this.get<string[]>(StateKeys.authenticatedAccounts);

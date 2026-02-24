@@ -5,7 +5,7 @@ import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions"
 
 export class ElectronRendererSecureStorageService implements StorageService {
   async get<T>(key: string, options?: StorageOptions): Promise<T> {
-    const val = ipcRenderer.sendSync("keytar", {
+    const val = ipcRenderer.sendSync("nativeSecureStorage", {
       action: "getPassword",
       key: key,
       keySuffix: options?.keySuffix ?? "",
@@ -14,7 +14,7 @@ export class ElectronRendererSecureStorageService implements StorageService {
   }
 
   async has(key: string, options?: StorageOptions): Promise<boolean> {
-    const val = ipcRenderer.sendSync("keytar", {
+    const val = ipcRenderer.sendSync("nativeSecureStorage", {
       action: "hasPassword",
       key: key,
       keySuffix: options?.keySuffix ?? "",
@@ -23,7 +23,7 @@ export class ElectronRendererSecureStorageService implements StorageService {
   }
 
   async save(key: string, obj: any, options?: StorageOptions): Promise<any> {
-    ipcRenderer.sendSync("keytar", {
+    ipcRenderer.sendSync("nativeSecureStorage", {
       action: "setPassword",
       key: key,
       keySuffix: options?.keySuffix ?? "",
@@ -33,7 +33,7 @@ export class ElectronRendererSecureStorageService implements StorageService {
   }
 
   async remove(key: string, options?: StorageOptions): Promise<any> {
-    ipcRenderer.sendSync("keytar", {
+    ipcRenderer.sendSync("nativeSecureStorage", {
       action: "deletePassword",
       key: key,
       keySuffix: options?.keySuffix ?? "",

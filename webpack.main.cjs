@@ -58,7 +58,7 @@ const main = {
   ],
   externals: {
     "electron-reload": "commonjs2 electron-reload",
-    keytar: "commonjs2 keytar",
+    "dc-native": "commonjs2 dc-native",
   },
 };
 

@@ -1,0 +1,15 @@
+{
+  "name": "dc-native",
+  "version": "1.0.0",
+  "description": "Native keychain bindings for Bitwarden Directory Connector",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "GPL-3.0",
+  "scripts": {
+    "build": "napi build --platform",
+    "build:release": "napi build --platform --release"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.0.0"
+  }
+}

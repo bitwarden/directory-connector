@@ -1,0 +1,27 @@
+[package]
+name = "dc_native"
+version = "0.1.0"
+edition = "2021"
+description = "Native keychain bindings for Bitwarden Directory Connector"
+license = "GPL-3.0"
+
+[lib]
+crate-type = ["cdylib"]
+name = "dc_native"
+
+[dependencies]
+anyhow = "=1.0.100"
+desktop_core = { git = "https://github.com/bitwarden/clients", rev = "00cf24972d944638bbd1adc00a0ae3eeabb6eb9a", package = "desktop_core" }
+napi = { version = "=3.3.0", features = ["async"] }
+napi-derive = "=3.2.5"
+
+[target.'cfg(windows)'.dependencies]
+scopeguard = "=1.2.0"
+widestring = "=1.2.0"
+windows = { version = "=0.61.1", features = [
+    "Win32_Foundation",
+    "Win32_Security_Credentials",
+] }
+
+[build-dependencies]
+napi-build = "=2.2.3"
