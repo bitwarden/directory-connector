@@ -1,43 +1,53 @@
-import { ipcRenderer } from "electron";
 
 import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
+import { passwords } from "dc-native";
+
+const APPLICATION_NAME = "Bitwarden Directory Connector";
+
 export class ElectronRendererSecureStorageService implements StorageService {
   async get<T>(key: string, options?: StorageOptions): Promise<T> {
-    const val = ipcRenderer.sendSync("keytar", {
-      action: "getPassword",
-      key: key,
-      keySuffix: options?.keySuffix ?? "",
-    });
-    return Promise.resolve(val != null ? (JSON.parse(val) as T) : null);
+    return passwords
+      .getPassword(this.buildServiceName(options), key)
+      .then((val: string) => JSON.parse(val) as T)
+      .catch((e: Error): T => {
+        if (e.message === passwords.PASSWORD_NOT_FOUND) {
+          return null;
+        }
+        throw e;
+      });
   }
 
   async has(key: string, options?: StorageOptions): Promise<boolean> {
-    const val = ipcRenderer.sendSync("keytar", {
-      action: "hasPassword",
-      key: key,
-      keySuffix: options?.keySuffix ?? "",
-    });
-    return Promise.resolve(!!val);
+    return (await this.get(key, options)) != null;
   }
 
   async save(key: string, obj: any, options?: StorageOptions): Promise<any> {
-    ipcRenderer.sendSync("keytar", {
-      action: "setPassword",
-      key: key,
-      keySuffix: options?.keySuffix ?? "",
-      value: JSON.stringify(obj),
-    });
-    return Promise.resolve();
+    if (!obj) {
+      return this.remove(key, options);
+    }
+    return passwords.setPassword(
+      this.buildServiceName(options),
+      key,
+      JSON.stringify(obj),
+    );
   }
 
   async remove(key: string, options?: StorageOptions): Promise<any> {
-    ipcRenderer.sendSync("keytar", {
-      action: "deletePassword",
-      key: key,
-      keySuffix: options?.keySuffix ?? "",
+    return passwords.deletePassword(this.buildServiceName(options), key).catch((e: Error) => {
+      if (e.message === passwords.PASSWORD_NOT_FOUND) {
+        return;
+      }
+      throw e;
     });
-    return Promise.resolve();
+  }
+
+  private buildServiceName(options?: StorageOptions): string {
+    const suffix = options?.keySuffix;
+    if (suffix) {
+      return `${APPLICATION_NAME}_${suffix}`;
+    }
+    return APPLICATION_NAME;
   }
 }

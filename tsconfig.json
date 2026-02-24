@@ -20,7 +20,8 @@
     "resolveJsonModule": true,
     "paths": {
       "tldjs": ["./jslib/common/src/misc/tldjs.noop"],
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "dc-native": ["./native/index.d.ts"]
     },
     "useDefineForClassFields": false
   },

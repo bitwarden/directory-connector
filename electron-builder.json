@@ -11,6 +11,7 @@
     "app": "build"
   },
   "afterSign": "scripts/notarize.js",
+  "asarUnpack": ["node_modules/dc-native/*.node"],
   "mac": {
     "artifactName": "Bitwarden-Connector-${version}-mac.${ext}",
     "category": "public.app-category.productivity",

@@ -32,6 +32,10 @@ build
 build-cli
 .angular/cache
 
+# Rust build artifacts
+native/target
+native/*.node
+
 # Testing
 coverage*
 junit.xml*
