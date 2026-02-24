@@ -31,12 +31,14 @@ import { DefaultDirectoryFactoryService } from "@/src/services/directory-factory
 import { SingleRequestBuilder } from "@/src/services/single-request-builder";
 
 import { AuthService as AuthServiceAbstraction } from "../../abstractions/auth.service";
+import { StateServiceVNext } from "../../abstractions/state-vNext.service";
 import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
 import { Account } from "../../models/account";
 import { AuthService } from "../../services/auth.service";
 import { I18nService } from "../../services/i18n.service";
-import { StateService } from "../../services/state.service";
-import { StateMigrationService } from "../../services/stateMigration.service";
+import { StateServiceVNextImplementation } from "../../services/state-service/state-vNext.service";
+import { StateService } from "../../services/state-service/state.service";
+import { StateMigrationService } from "../../services/state-service/stateMigration.service";
 import { SyncService } from "../../services/sync.service";
 
 import { AuthGuardService } from "./auth-guard.service";
@@ -222,6 +224,29 @@ export function initFactory(
         StateMigrationServiceAbstraction,
       ],
     }),
+    // Use new StateServiceVNext with flat key-value structure (new interface)
+    safeProvider({
+      provide: StateServiceVNext,
+      useFactory: (
+        storageService: StorageServiceAbstraction,
+        secureStorageService: StorageServiceAbstraction,
+        logService: LogServiceAbstraction,
+        stateMigrationService: StateMigrationServiceAbstraction,
+      ) =>
+        new StateServiceVNextImplementation(
+          storageService,
+          secureStorageService,
+          logService,
+          stateMigrationService,
+          true,
+        ),
+      deps: [
+        StorageServiceAbstraction,
+        SECURE_STORAGE,
+        LogServiceAbstraction,
+        StateMigrationServiceAbstraction,
+      ],
+    }),
     safeProvider({
       provide: SingleRequestBuilder,
       deps: [],
@@ -233,7 +258,12 @@ export function initFactory(
     safeProvider({
       provide: DirectoryFactoryService,
       useClass: DefaultDirectoryFactoryService,
-      deps: [LogServiceAbstraction, I18nServiceAbstraction, StateServiceAbstraction],
+      deps: [
+        LogServiceAbstraction,
+        I18nServiceAbstraction,
+        StateServiceAbstraction,
+        StateServiceVNext,
+      ],
     }),
   ] satisfies SafeProvider[],
 })
