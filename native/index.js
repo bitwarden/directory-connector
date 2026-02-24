@@ -66,4 +66,17 @@ if (!nativeBinding) {
   throw new Error(`Failed to load dc-native binding`);
 }
 
-module.exports = nativeBinding;
+// Re-export flat native symbols as the `passwords` namespace so all
+// TypeScript callers (and the existing index.d.ts declarations) work unchanged.
+module.exports = {
+  passwords: {
+    getPassword: (service, account) => nativeBinding.getPassword(service, account),
+    setPassword: (service, account, password) =>
+      nativeBinding.setPassword(service, account, password),
+    deletePassword: (service, account) => nativeBinding.deletePassword(service, account),
+    isAvailable: () => nativeBinding.isAvailable(),
+    migrateKeytarPassword: (service, account) =>
+      nativeBinding.migrateKeytarPassword(service, account),
+    PASSWORD_NOT_FOUND: "Password not found.",
+  },
+};

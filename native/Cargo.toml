@@ -12,8 +12,8 @@ name = "dc_native"
 [dependencies]
 anyhow = "=1.0.100"
 desktop_core = { git = "https://github.com/bitwarden/clients", rev = "00cf24972d944638bbd1adc00a0ae3eeabb6eb9a", package = "desktop_core" }
-napi = { version = "=3.3.0", features = ["async"] }
-napi-derive = "=3.2.5"
+napi = { version = "2", features = ["async"] }
+napi-derive = "2"
 
 [target.'cfg(windows)'.dependencies]
 scopeguard = "=1.2.0"
@@ -24,4 +24,4 @@ windows = { version = "=0.61.1", features = [
 ] }
 
 [build-dependencies]
-napi-build = "=2.2.3"
+napi-build = "1"
