@@ -7,37 +7,9 @@ import { OktaConfiguration } from "./oktaConfiguration";
 import { OneLoginConfiguration } from "./oneLoginConfiguration";
 import { SyncConfiguration } from "./syncConfiguration";
 
-export class Account {
-  // Authentication fields (flattened from nested profile/tokens/keys structure)
-  userId: string;
-  entityId: string;
-  apiKeyClientId: string;
-  accessToken: string;
-  refreshToken: string;
-  apiKeyClientSecret: string;
-
-  // Directory Connector specific fields
-  directoryConfigurations: DirectoryConfigurations = new DirectoryConfigurations();
-  directorySettings: DirectorySettings = new DirectorySettings();
-
-  // FIXME: Remove these compatibility fields after StateServiceVNext migration (PR #990) is merged
-  // These fields are unused but required for type compatibility with jslib's StateService infrastructure
-  data?: any;
-  keys?: any;
-  profile?: any;
-  settings?: any;
-  tokens?: any;
-
-  constructor(init: Partial<Account>) {
-    this.userId = init?.userId;
-    this.entityId = init?.entityId;
-    this.apiKeyClientId = init?.apiKeyClientId;
-    this.accessToken = init?.accessToken;
-    this.refreshToken = init?.refreshToken;
-    this.apiKeyClientSecret = init?.apiKeyClientSecret;
-    this.directoryConfigurations = init?.directoryConfigurations ?? new DirectoryConfigurations();
-    this.directorySettings = init?.directorySettings ?? new DirectorySettings();
-  }
+export class ClientKeys {
+  clientId: string;
+  clientSecret: string;
 }
 
 export class DirectoryConfigurations {

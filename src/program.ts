@@ -209,11 +209,7 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .action(async (setting: string, value: string, options: OptionValues) => {
-        const command = new ConfigCommand(
-          this.main.environmentService,
-          this.main.i18nService,
-          this.main.stateService,
-        );
+        const command = new ConfigCommand(this.main.stateService, this.main.i18nService);
         const response = await command.run(setting, value, options);
         this.processResponse(response);
       });

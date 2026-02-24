@@ -3,13 +3,12 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
-import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
 
 import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../jslib/common/src/abstractions/log.service";
 import { getLdapConfiguration, getSyncConfiguration } from "../../utils/openldap/config-fixtures";
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
+import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
@@ -24,11 +23,10 @@ import { userFixtures } from "@/utils/openldap/user-fixtures";
 describe("SyncService", () => {
   let logService: MockProxy<LogService>;
   let i18nService: MockProxy<I18nService>;
-  let stateService: MockProxy<StateServiceVNext>;
+  let stateService: MockProxy<StateService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let apiService: MockProxy<ApiService>;
   let messagingService: MockProxy<MessagingService>;
-  let environmentService: MockProxy<EnvironmentService>;
   let directoryFactory: MockProxy<DirectoryFactoryService>;
 
   let batchRequestBuilder: BatchRequestBuilder;
@@ -45,9 +43,9 @@ describe("SyncService", () => {
     cryptoFunctionService = mock();
     apiService = mock();
     messagingService = mock();
-    environmentService = mock();
     directoryFactory = mock();
 
+    stateService.getApiUrl.mockResolvedValue("https://api.bitwarden.com");
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
     stateService.getOrganizationId.mockResolvedValue("fakeId");
 
@@ -62,7 +60,6 @@ describe("SyncService", () => {
       apiService,
       messagingService,
       i18nService,
-      environmentService,
       stateService,
       batchRequestBuilder,
       singleRequestBuilder,

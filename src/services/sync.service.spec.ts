@@ -1,14 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 
 import { getSyncConfiguration } from "../../utils/openldap/config-fixtures";
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
+import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
@@ -26,8 +25,7 @@ describe("SyncService", () => {
   let apiService: MockProxy<ApiService>;
   let messagingService: MockProxy<MessagingService>;
   let i18nService: MockProxy<I18nService>;
-  let environmentService: MockProxy<EnvironmentService>;
-  let stateService: MockProxy<StateServiceVNext>;
+  let stateService: MockProxy<StateService>;
   let directoryFactory: MockProxy<DirectoryFactoryService>;
   let batchRequestBuilder: MockProxy<BatchRequestBuilder>;
   let singleRequestBuilder: MockProxy<SingleRequestBuilder>;
@@ -41,12 +39,12 @@ describe("SyncService", () => {
     apiService = mock();
     messagingService = mock();
     i18nService = mock();
-    environmentService = mock();
     stateService = mock();
     directoryFactory = mock();
     batchRequestBuilder = mock();
     singleRequestBuilder = mock();
 
+    stateService.getApiUrl.mockResolvedValue("https://api.bitwarden.com");
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
     stateService.getOrganizationId.mockResolvedValue("fakeId");
     const mockDirectoryService = mock<LdapDirectoryService>();
@@ -58,7 +56,6 @@ describe("SyncService", () => {
       apiService,
       messagingService,
       i18nService,
-      environmentService,
       stateService,
       batchRequestBuilder,
       singleRequestBuilder,

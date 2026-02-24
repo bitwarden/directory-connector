@@ -3,7 +3,7 @@ import * as https from "https";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
-import { StateServiceVNext } from "../../abstractions/state-vNext.service";
+import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
 import { OktaConfiguration } from "../../models/oktaConfiguration";
@@ -23,7 +23,7 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateService: StateServiceVNext,
+    private stateService: StateService,
   ) {
     super();
   }

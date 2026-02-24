@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { StateServiceVNext } from "../../abstractions/state-vNext.service";
+import { StateService } from "../../abstractions/state.service";
 
 @Injectable()
 export class LaunchGuardService {
   constructor(
-    private stateService: StateServiceVNext,
+    private stateService: StateService,
     private router: Router,
   ) {}
 

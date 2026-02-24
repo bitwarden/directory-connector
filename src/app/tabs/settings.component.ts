@@ -4,7 +4,7 @@ import { webUtils } from "electron";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
-import { StateServiceVNext } from "../../abstractions/state-vNext.service";
+import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
 import { EntraIdConfiguration } from "../../models/entraIdConfiguration";
 import { GSuiteConfiguration } from "../../models/gsuiteConfiguration";
@@ -39,7 +39,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private logService: LogService,
-    private stateService: StateServiceVNext,
+    private stateService: StateService,
   ) {
     this.directoryOptions = [
       { name: this.i18nService.t("select"), value: null },

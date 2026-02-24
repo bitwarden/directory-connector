@@ -15,10 +15,9 @@ import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { TokenService } from "@/jslib/common/src/abstractions/token.service";
 
 import { AuthService } from "../abstractions/auth.service";
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
+import { StateService } from "../abstractions/state.service";
 import { SyncService } from "../services/sync.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -35,7 +34,6 @@ export class AppComponent implements OnInit {
 
   constructor(
     private broadcasterService: BroadcasterService,
-    private tokenService: TokenService,
     private authService: AuthService,
     private router: Router,
     private toastrService: ToastrService,
@@ -45,7 +43,7 @@ export class AppComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private messagingService: MessagingService,
     private syncService: SyncService,
-    private stateService: StateServiceVNext,
+    private stateService: StateService,
     private logService: LogService,
   ) {}
 
@@ -116,7 +114,7 @@ export class AppComponent implements OnInit {
   }
 
   private async logOut(expired: boolean) {
-    await this.tokenService.clearToken();
+    await this.stateService.clearAuthTokens();
     await this.stateService.clean();
 
     this.authService.logOut(async () => {

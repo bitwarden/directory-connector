@@ -7,7 +7,7 @@ import { ApiTokenRequest } from "@/jslib/common/src/models/request/identityToken
 import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
+import { StateService } from "../abstractions/state.service";
 
 export class AuthService {
   constructor(
@@ -15,7 +15,7 @@ export class AuthService {
     private appIdService: AppIdService,
     private platformUtilsService: PlatformUtilsService,
     private messagingService: MessagingService,
-    private stateService: StateServiceVNext,
+    private stateService: StateService,
   ) {}
 
   async logIn(credentials: { clientId: string; clientSecret: string }) {
@@ -51,10 +51,14 @@ export class AuthService {
     tokenResponse: IdentityTokenResponse,
   ) {
     const clientId = tokenRequest.clientId;
+    const clientSecret = tokenRequest.clientSecret;
     const entityId = clientId.split("organization.")[1];
 
-    // DC is single-organization, so we only need to set the organization ID
-    // TokenService handles token storage via its own StateService instance
+    await this.stateService.setAccessToken(tokenResponse.accessToken);
+    await this.stateService.setRefreshToken(tokenResponse.refreshToken);
+    await this.stateService.setApiKeyClientId(clientId);
+    await this.stateService.setApiKeyClientSecret(clientSecret);
+    await this.stateService.setEntityId(entityId);
     await this.stateService.setOrganizationId(entityId);
   }
 }

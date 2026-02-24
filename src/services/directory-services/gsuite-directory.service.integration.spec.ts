@@ -1,7 +1,7 @@
 import { config as dotenvConfig } from "dotenv";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { StateServiceVNext } from "@/src/abstractions/state-vNext.service";
+import { StateService } from "@/src/abstractions/state.service";
 
 import { I18nService } from "../../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../../jslib/common/src/abstractions/log.service";
@@ -35,7 +35,7 @@ jest.setTimeout(15000);
 describe("gsuiteDirectoryService", () => {
   let logService: MockProxy<LogService>;
   let i18nService: MockProxy<I18nService>;
-  let stateService: MockProxy<StateServiceVNext>;
+  let stateService: MockProxy<StateService>;
 
   let directoryService: GSuiteDirectoryService;
 
