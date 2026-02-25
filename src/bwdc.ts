@@ -182,6 +182,7 @@ export class Main {
   private async init() {
     await this.storageService.init();
     await this.stateService.init();
+    await this.environmentService.setUrlsFromStorage();
     // Dev Server URLs. Comment out the line above.
     // this.apiService.setUrls({
     //     base: null,

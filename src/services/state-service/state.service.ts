@@ -491,58 +491,58 @@ export class StateServiceImplementation implements StateServiceAbstraction {
   // ===================================================================
 
   async clearAuthTokens(): Promise<void> {
-    await this.secureStorageService.remove("accessToken");
-    await this.secureStorageService.remove("refreshToken");
-    await this.secureStorageService.remove("apiKeyClientId");
-    await this.secureStorageService.remove("apiKeyClientSecret");
-    await this.secureStorageService.remove("twoFactorToken");
+    await this.secureStorageService.remove(SecureStorageKeys.accessToken);
+    await this.secureStorageService.remove(SecureStorageKeys.refreshToken);
+    await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientId);
+    await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientSecret);
+    await this.secureStorageService.remove(SecureStorageKeys.twoFactorToken);
   }
 
   async getAccessToken(options?: StorageOptions): Promise<string> {
-    return await this.secureStorageService.get<string>("accessToken");
+    return await this.secureStorageService.get<string>(SecureStorageKeys.accessToken);
   }
 
   async setAccessToken(value: string, options?: StorageOptions): Promise<void> {
     if (value == null) {
-      await this.secureStorageService.remove("accessToken");
+      await this.secureStorageService.remove(SecureStorageKeys.accessToken);
     } else {
-      await this.secureStorageService.save("accessToken", value);
+      await this.secureStorageService.save(SecureStorageKeys.accessToken, value);
     }
   }
 
   async getRefreshToken(options?: StorageOptions): Promise<string> {
-    return await this.secureStorageService.get<string>("refreshToken");
+    return await this.secureStorageService.get<string>(SecureStorageKeys.refreshToken);
   }
 
   async setRefreshToken(value: string, options?: StorageOptions): Promise<void> {
     if (value == null) {
-      await this.secureStorageService.remove("refreshToken");
+      await this.secureStorageService.remove(SecureStorageKeys.refreshToken);
     } else {
-      await this.secureStorageService.save("refreshToken", value);
+      await this.secureStorageService.save(SecureStorageKeys.refreshToken, value);
     }
   }
 
   async getApiKeyClientId(options?: StorageOptions): Promise<string> {
-    return await this.secureStorageService.get<string>("apiKeyClientId");
+    return await this.secureStorageService.get<string>(SecureStorageKeys.apiKeyClientId);
   }
 
   async setApiKeyClientId(value: string, options?: StorageOptions): Promise<void> {
     if (value == null) {
-      await this.secureStorageService.remove("apiKeyClientId");
+      await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientId);
     } else {
-      await this.secureStorageService.save("apiKeyClientId", value);
+      await this.secureStorageService.save(SecureStorageKeys.apiKeyClientId, value);
     }
   }
 
   async getApiKeyClientSecret(options?: StorageOptions): Promise<string> {
-    return await this.secureStorageService.get<string>("apiKeyClientSecret");
+    return await this.secureStorageService.get<string>(SecureStorageKeys.apiKeyClientSecret);
   }
 
   async setApiKeyClientSecret(value: string, options?: StorageOptions): Promise<void> {
     if (value == null) {
-      await this.secureStorageService.remove("apiKeyClientSecret");
+      await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientSecret);
     } else {
-      await this.secureStorageService.save("apiKeyClientSecret", value);
+      await this.secureStorageService.save(SecureStorageKeys.apiKeyClientSecret, value);
     }
   }
 

@@ -10,7 +10,11 @@ import { GSuiteConfiguration } from "@/src/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/src/models/ldapConfiguration";
 import { OktaConfiguration } from "@/src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/src/models/oneLoginConfiguration";
-import { StorageKeysVNext as StorageKeys, StoredSecurely } from "@/src/models/state.model";
+import {
+  SecureStorageKeysVNext as SecureStorageKeys,
+  StorageKeysVNext as StorageKeys,
+  StoredSecurely,
+} from "@/src/models/state.model";
 import { SyncConfiguration } from "@/src/models/syncConfiguration";
 
 import { StateServiceImplementation } from "./state.service";
@@ -714,11 +718,13 @@ describe("StateServiceImplementation", () => {
     it("should clear all auth tokens", async () => {
       await stateService.clearAuthTokens();
 
-      expect(secureStorageService.remove).toHaveBeenCalledWith("accessToken");
-      expect(secureStorageService.remove).toHaveBeenCalledWith("refreshToken");
-      expect(secureStorageService.remove).toHaveBeenCalledWith("apiKeyClientId");
-      expect(secureStorageService.remove).toHaveBeenCalledWith("apiKeyClientSecret");
-      expect(secureStorageService.remove).toHaveBeenCalledWith("twoFactorToken");
+      expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.accessToken);
+      expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.refreshToken);
+      expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.apiKeyClientId);
+      expect(secureStorageService.remove).toHaveBeenCalledWith(
+        SecureStorageKeys.apiKeyClientSecret,
+      );
+      expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.twoFactorToken);
     });
 
     it("should remove exactly 5 token types", async () => {
@@ -736,7 +742,7 @@ describe("StateServiceImplementation", () => {
         const result = await stateService.getAccessToken();
 
         expect(result).toBe(token);
-        expect(secureStorageService.get).toHaveBeenCalledWith("accessToken");
+        expect(secureStorageService.get).toHaveBeenCalledWith(SecureStorageKeys.accessToken);
       });
 
       it("should set access token in secure storage", async () => {
@@ -744,13 +750,16 @@ describe("StateServiceImplementation", () => {
 
         await stateService.setAccessToken(token);
 
-        expect(secureStorageService.save).toHaveBeenCalledWith("accessToken", token);
+        expect(secureStorageService.save).toHaveBeenCalledWith(
+          SecureStorageKeys.accessToken,
+          token,
+        );
       });
 
       it("should remove access token when set to null", async () => {
         await stateService.setAccessToken(null);
 
-        expect(secureStorageService.remove).toHaveBeenCalledWith("accessToken");
+        expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.accessToken);
       });
     });
 
@@ -762,7 +771,7 @@ describe("StateServiceImplementation", () => {
         const result = await stateService.getRefreshToken();
 
         expect(result).toBe(token);
-        expect(secureStorageService.get).toHaveBeenCalledWith("refreshToken");
+        expect(secureStorageService.get).toHaveBeenCalledWith(SecureStorageKeys.refreshToken);
       });
 
       it("should set refresh token in secure storage", async () => {
@@ -770,13 +779,16 @@ describe("StateServiceImplementation", () => {
 
         await stateService.setRefreshToken(token);
 
-        expect(secureStorageService.save).toHaveBeenCalledWith("refreshToken", token);
+        expect(secureStorageService.save).toHaveBeenCalledWith(
+          SecureStorageKeys.refreshToken,
+          token,
+        );
       });
 
       it("should remove refresh token when set to null", async () => {
         await stateService.setRefreshToken(null);
 
-        expect(secureStorageService.remove).toHaveBeenCalledWith("refreshToken");
+        expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.refreshToken);
       });
     });
 
@@ -788,7 +800,7 @@ describe("StateServiceImplementation", () => {
         const result = await stateService.getApiKeyClientId();
 
         expect(result).toBe(clientId);
-        expect(secureStorageService.get).toHaveBeenCalledWith("apiKeyClientId");
+        expect(secureStorageService.get).toHaveBeenCalledWith(SecureStorageKeys.apiKeyClientId);
       });
 
       it("should set API key client ID in secure storage", async () => {
@@ -796,13 +808,16 @@ describe("StateServiceImplementation", () => {
 
         await stateService.setApiKeyClientId(clientId);
 
-        expect(secureStorageService.save).toHaveBeenCalledWith("apiKeyClientId", clientId);
+        expect(secureStorageService.save).toHaveBeenCalledWith(
+          SecureStorageKeys.apiKeyClientId,
+          clientId,
+        );
       });
 
       it("should remove API key client ID when set to null", async () => {
         await stateService.setApiKeyClientId(null);
 
-        expect(secureStorageService.remove).toHaveBeenCalledWith("apiKeyClientId");
+        expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.apiKeyClientId);
       });
     });
 
@@ -814,7 +829,7 @@ describe("StateServiceImplementation", () => {
         const result = await stateService.getApiKeyClientSecret();
 
         expect(result).toBe(clientSecret);
-        expect(secureStorageService.get).toHaveBeenCalledWith("apiKeyClientSecret");
+        expect(secureStorageService.get).toHaveBeenCalledWith(SecureStorageKeys.apiKeyClientSecret);
       });
 
       it("should set API key client secret in secure storage", async () => {
@@ -822,13 +837,18 @@ describe("StateServiceImplementation", () => {
 
         await stateService.setApiKeyClientSecret(clientSecret);
 
-        expect(secureStorageService.save).toHaveBeenCalledWith("apiKeyClientSecret", clientSecret);
+        expect(secureStorageService.save).toHaveBeenCalledWith(
+          SecureStorageKeys.apiKeyClientSecret,
+          clientSecret,
+        );
       });
 
       it("should remove API key client secret when set to null", async () => {
         await stateService.setApiKeyClientSecret(null);
 
-        expect(secureStorageService.remove).toHaveBeenCalledWith("apiKeyClientSecret");
+        expect(secureStorageService.remove).toHaveBeenCalledWith(
+          SecureStorageKeys.apiKeyClientSecret,
+        );
       });
     });
 

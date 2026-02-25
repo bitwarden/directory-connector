@@ -27,6 +27,7 @@ export const StorageKeysVNext = {
 };
 
 export const SecureStorageKeysVNext: { [key: string]: any } = {
+  // Directory service credentials
   ldap: "secret_ldap",
   gsuite: "secret_gsuite",
   // Azure Active Directory was renamed to Entra ID, but we've kept the old property name
@@ -35,11 +36,20 @@ export const SecureStorageKeysVNext: { [key: string]: any } = {
   entra: "secret_entra",
   okta: "secret_okta",
   oneLogin: "secret_oneLogin",
+
+  // Sync metadata
   userDelta: "userDeltaToken",
   groupDelta: "groupDeltaToken",
   lastUserSync: "lastUserSync",
   lastGroupSync: "lastGroupSync",
   lastSyncHash: "lastSyncHash",
+
+  // Authentication tokens
+  accessToken: "accessToken",
+  refreshToken: "refreshToken",
+  apiKeyClientId: "apiKeyClientId",
+  apiKeyClientSecret: "apiKeyClientSecret",
+  twoFactorToken: "twoFactorToken",
 };
 
 // ===================================================================

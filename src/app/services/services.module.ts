@@ -54,8 +54,10 @@ export function initFactory(injector: Injector): () => Promise<void> {
     const stateService = injector.get(StateServiceAbstraction);
     const i18nService = injector.get(I18nServiceAbstraction);
     const platformUtilsService = injector.get(PlatformUtilsServiceAbstraction);
+    const environmentService = injector.get(EnvironmentServiceAbstraction);
 
     await stateService.init();
+    await environmentService.setUrlsFromStorage();
     await (i18nService as I18nService).init();
     const htmlEl = window.document.documentElement;
     htmlEl.classList.add("os_" + platformUtilsService.getDeviceString());

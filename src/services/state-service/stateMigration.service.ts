@@ -214,28 +214,17 @@ export class StateMigrationService {
    *
    * This is a clean break from the Account-based structure. Data is extracted from
    * the account and saved into flat keys for simpler access.
-   *
-   * Old structure: authenticatedAccounts -> userId -> account.directorySettings/directoryConfigurations
-   * New structure: flat keys like "directoryType", "organizationId", "directory_ldap", etc.
-   *
-   * Secrets migrate from: {userId}_{secretKey} -> secret_{secretKey}
    */
   protected async migrateStateFrom4To5(useSecureStorageForSecrets = true): Promise<void> {
-    // Get the authenticated user IDs from v3 structure
-    const authenticatedUserIds = await this.get<string[]>(StateKeys.authenticatedAccounts);
+    // Get the client_id (entity ID) which represents the authenticated user from login.
+    let userId = await this.get<string>(ClientKeys.clientId);
 
-    if (
-      !authenticatedUserIds ||
-      !Array.isArray(authenticatedUserIds) ||
-      authenticatedUserIds.length === 0
-    ) {
+    if (!userId) {
       // No accounts to migrate, just update version
       await this.set(StorageKeysVNext.stateVersion, StateVersion.Five);
       return;
     }
 
-    // DC is single-user, so we take the first (and likely only) account
-    const userId = authenticatedUserIds[0];
     const account = await this.get<any>(userId);
 
     if (!account) {
