@@ -216,16 +216,8 @@ export class StateMigrationService {
    * the account and saved into flat keys for simpler access.
    */
   protected async migrateStateFrom4To5(useSecureStorageForSecrets = true): Promise<void> {
-    // Get the client_id (entity ID) which represents the authenticated user from login.
-    let userId = await this.get<string>(ClientKeys.clientId);
-
-    if (!userId) {
-      // No accounts to migrate, just update version
-      await this.set(StorageKeysVNext.stateVersion, StateVersion.Five);
-      return;
-    }
-
-    const account = await this.get<any>(userId);
+    const clientId = await this.storageService.get<string>("activeUserId");
+    const account = await this.get<any>(clientId);
 
     if (!account) {
       // No account data found, just update version
@@ -295,12 +287,12 @@ export class StateMigrationService {
     // Migrate secrets from {userId}_* to secret_* pattern
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
-        { old: `${userId}_${SecureStorageKeys.ldap}`, new: SecureStorageKeysVNext.ldap },
-        { old: `${userId}_${SecureStorageKeys.gsuite}`, new: SecureStorageKeysVNext.gsuite },
-        { old: `${userId}_${SecureStorageKeys.azure}`, new: SecureStorageKeysVNext.azure },
-        { old: `${userId}_${SecureStorageKeys.entra}`, new: SecureStorageKeysVNext.entra },
-        { old: `${userId}_${SecureStorageKeys.okta}`, new: SecureStorageKeysVNext.okta },
-        { old: `${userId}_${SecureStorageKeys.oneLogin}`, new: SecureStorageKeysVNext.oneLogin },
+        { old: `${clientId}_${SecureStorageKeys.ldap}`, new: SecureStorageKeysVNext.ldap },
+        { old: `${clientId}_${SecureStorageKeys.gsuite}`, new: SecureStorageKeysVNext.gsuite },
+        { old: `${clientId}_${SecureStorageKeys.azure}`, new: SecureStorageKeysVNext.azure },
+        { old: `${clientId}_${SecureStorageKeys.entra}`, new: SecureStorageKeysVNext.entra },
+        { old: `${clientId}_${SecureStorageKeys.okta}`, new: SecureStorageKeysVNext.okta },
+        { old: `${clientId}_${SecureStorageKeys.oneLogin}`, new: SecureStorageKeysVNext.oneLogin },
       ];
 
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {

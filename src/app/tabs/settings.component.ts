@@ -55,7 +55,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.directory = await this.stateService.getDirectoryType();
     this.ldap =
       (await this.stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)) || this.ldap;
-    this.gsuite = await this.stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+    this.gsuite =
+      (await this.stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite)) ||
+      this.gsuite;
     this.entra =
       (await this.stateService.getDirectory<EntraIdConfiguration>(DirectoryType.EntraID)) ||
       this.entra;
