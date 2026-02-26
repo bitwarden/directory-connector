@@ -29,7 +29,6 @@ const moduleRules = [
 ];
 
 const plugins = [
-  new CleanWebpackPlugin(),
   new CopyWebpackPlugin({
     patterns: [{ from: "./src/locales", to: "locales" }],
   }),
@@ -69,6 +68,7 @@ const config = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build-cli"),
+    clean: true,
   },
   module: { rules: moduleRules },
   plugins: plugins,

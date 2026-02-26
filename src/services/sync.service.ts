@@ -189,14 +189,27 @@ export class SyncService {
     return users == null ? null : users.filter((u) => u.email?.length <= 256);
   }
 
-  private flattenUsersToGroups(levelGroups: GroupEntry[], allGroups: GroupEntry[]): Set<string> {
+  private flattenUsersToGroups(
+    levelGroups: GroupEntry[],
+    allGroups: GroupEntry[],
+    visitedGroups?: Set<string>,
+  ): Set<string> {
     let allUsers = new Set<string>();
     if (allGroups == null) {
       return allUsers;
     }
+
     for (const group of levelGroups) {
+      const visited = visitedGroups ?? new Set<string>();
+
+      if (visited.has(group.referenceId)) {
+        continue;
+      }
+
+      visited.add(group.referenceId);
+
       const childGroups = allGroups.filter((g) => group.groupMemberReferenceIds.has(g.referenceId));
-      const childUsers = this.flattenUsersToGroups(childGroups, allGroups);
+      const childUsers = this.flattenUsersToGroups(childGroups, allGroups, visited);
       childUsers.forEach((id) => group.userMemberExternalIds.add(id));
       allUsers = new Set([...allUsers, ...group.userMemberExternalIds]);
     }

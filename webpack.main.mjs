@@ -29,6 +29,7 @@ const common = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build"),
+    clean: true,
   },
 };
 
@@ -54,7 +55,6 @@ const main = {
     ],
   },
   plugins: [
-    new CleanWebpackPlugin(),
     new CopyWebpackPlugin({
       patterns: [
         "./package.json",
