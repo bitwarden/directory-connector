@@ -1,5 +1,5 @@
-import { GSuiteConfiguration } from "../../src/models/gsuiteConfiguration";
-import { SyncConfiguration } from "../../src/models/syncConfiguration";
+import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
+import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
 /**
  * @returns a basic GSuite configuration. Can be overridden by passing in a partial configuration.

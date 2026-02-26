@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { UserEntry } from "../../src/models/userEntry";
+import { UserEntry } from "@/libs/models/userEntry";
 
 // These must match the Google Workspace seed data
 

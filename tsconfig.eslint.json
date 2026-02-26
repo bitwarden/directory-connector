@@ -15,9 +15,13 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "tldjs": ["@/jslib/src/misc/tldjs.noop"],
-      "@/*": ["./*"]
+      "tldjs": ["./jslib/common/src/misc/tldjs.noop"],
+      "@/*": ["./*"],
+      "@/src-gui/*": ["./src-gui/*"],
+      "@/src-cli/*": ["./src-cli/*"],
+      "@/libs/*": ["./libs/*"],
+      "@/jslib/*": ["./jslib/*"]
     }
   },
-  "include": ["src", "jslib", "scripts", "./*.ts"]
+  "include": ["src-gui", "src-cli", "libs", "jslib", "scripts", "utils", "./*.ts"]
 }
