@@ -109,6 +109,13 @@ jobs:
           sudo apt-get -y install mkcert
           npm run test:integration:setup
 
+      - name: Wait for LDAP container to be healthy
+        if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.ldap == 'true'
+        run: |
+          echo "Waiting for LDAP container to be healthy..."
+          timeout 60 bash -c 'until docker compose ps | grep open-ldap | grep -q "(healthy)"; do sleep 2; done'
+          echo "LDAP container is ready!"
+
       - name: Run LDAP integration tests
         if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.ldap == 'true'
         env:
