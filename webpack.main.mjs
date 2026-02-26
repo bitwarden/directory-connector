@@ -4,7 +4,6 @@ import { dirname } from "node:path";
 
 import { merge } from "webpack-merge";
 import CopyWebpackPlugin from "copy-webpack-plugin";
-import { CleanWebpackPlugin } from "clean-webpack-plugin";
 import nodeExternals from "webpack-node-externals";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 
