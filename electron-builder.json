@@ -10,7 +10,7 @@
     "output": "dist",
     "app": "build"
   },
-  "afterSign": "scripts/notarize.js",
+  "afterSign": "scripts/notarize.mjs",
   "mac": {
     "artifactName": "Bitwarden-Connector-${version}-mac.${ext}",
     "category": "public.app-category.productivity",
@@ -22,7 +22,7 @@
   },
   "win": {
     "target": ["portable", "nsis"],
-    "sign": "scripts/sign.js"
+    "sign": "scripts/sign.mjs"
   },
   "linux": {
     "category": "Utility",

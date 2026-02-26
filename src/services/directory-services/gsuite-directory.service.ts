@@ -4,7 +4,8 @@ import { admin_directory_v1, google } from "googleapis";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
-import { StateService } from "../../abstractions/state.service";
+import { StateService } from "@/src/abstractions/state.service";
+
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
 import { GSuiteConfiguration } from "../../models/gsuiteConfiguration";

@@ -8,8 +8,8 @@ import {
 } from "../../../utils/openldap/config-fixtures";
 import { groupFixtures } from "../../../utils/openldap/group-fixtures";
 import { userFixtures } from "../../../utils/openldap/user-fixtures";
+import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
-import { StateService } from "../state.service";
 
 import { LdapDirectoryService } from "./ldap-directory.service";
 

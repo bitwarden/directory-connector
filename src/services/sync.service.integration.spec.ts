@@ -3,18 +3,17 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
-import { EnvironmentService } from "@/jslib/common/src/services/environment.service";
 
 import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../jslib/common/src/abstractions/log.service";
 import { getLdapConfiguration, getSyncConfiguration } from "../../utils/openldap/config-fixtures";
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
+import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
 import { SingleRequestBuilder } from "./single-request-builder";
-import { StateService } from "./state.service";
 import { SyncService } from "./sync.service";
 import * as constants from "./sync.service";
 
@@ -28,7 +27,6 @@ describe("SyncService", () => {
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let apiService: MockProxy<ApiService>;
   let messagingService: MockProxy<MessagingService>;
-  let environmentService: MockProxy<EnvironmentService>;
   let directoryFactory: MockProxy<DirectoryFactoryService>;
 
   let batchRequestBuilder: BatchRequestBuilder;
@@ -45,9 +43,9 @@ describe("SyncService", () => {
     cryptoFunctionService = mock();
     apiService = mock();
     messagingService = mock();
-    environmentService = mock();
     directoryFactory = mock();
 
+    stateService.getApiUrl.mockResolvedValue("https://api.bitwarden.com");
     stateService.getDirectoryType.mockResolvedValue(DirectoryType.Ldap);
     stateService.getOrganizationId.mockResolvedValue("fakeId");
 
@@ -62,7 +60,6 @@ describe("SyncService", () => {
       apiService,
       messagingService,
       i18nService,
-      environmentService,
       stateService,
       batchRequestBuilder,
       singleRequestBuilder,

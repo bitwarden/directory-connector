@@ -2,18 +2,12 @@ import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import {
-  AccountKeys,
-  AccountProfile,
-  AccountTokens,
-} from "@/jslib/common/src/models/domain/account";
 import { DeviceRequest } from "@/jslib/common/src/models/request/deviceRequest";
 import { ApiTokenRequest } from "@/jslib/common/src/models/request/identityToken/apiTokenRequest";
 import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
 import { StateService } from "../abstractions/state.service";
-import { Account, DirectoryConfigurations, DirectorySettings } from "../models/account";
 
 export class AuthService {
   constructor(
@@ -57,35 +51,14 @@ export class AuthService {
     tokenResponse: IdentityTokenResponse,
   ) {
     const clientId = tokenRequest.clientId;
-    const entityId = clientId.split("organization.")[1];
     const clientSecret = tokenRequest.clientSecret;
+    const entityId = clientId.split("organization.")[1];
 
-    await this.stateService.addAccount(
-      new Account({
-        profile: {
-          ...new AccountProfile(),
-          ...{
-            userId: entityId,
-            apiKeyClientId: clientId,
-            entityId: entityId,
-          },
-        },
-        tokens: {
-          ...new AccountTokens(),
-          ...{
-            accessToken: tokenResponse.accessToken,
-            refreshToken: tokenResponse.refreshToken,
-          },
-        },
-        keys: {
-          ...new AccountKeys(),
-          ...{
-            apiKeyClientSecret: clientSecret,
-          },
-        },
-        directorySettings: new DirectorySettings(),
-        directoryConfigurations: new DirectoryConfigurations(),
-      }),
-    );
+    await this.stateService.setAccessToken(tokenResponse.accessToken);
+    await this.stateService.setRefreshToken(tokenResponse.refreshToken);
+    await this.stateService.setApiKeyClientId(clientId);
+    await this.stateService.setApiKeyClientSecret(clientSecret);
+    await this.stateService.setEntityId(entityId);
+    await this.stateService.setOrganizationId(entityId);
   }
 }

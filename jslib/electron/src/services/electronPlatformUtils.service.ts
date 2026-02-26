@@ -180,7 +180,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   async supportsBiometric(): Promise<boolean> {
-    return await this.stateService.getEnableBiometric();
+    return Promise.resolve(false);
   }
 
   authenticateBiometric(): Promise<boolean> {
@@ -203,12 +203,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   async getEffectiveTheme() {
-    const theme = await this.stateService.getTheme();
-    if (theme == null || theme === ThemeType.System) {
-      return this.getDefaultSystemTheme();
-    } else {
-      return theme;
-    }
+    return this.getDefaultSystemTheme();
   }
 
   supportsSecureStorage(): boolean {
