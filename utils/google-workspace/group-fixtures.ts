@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { GroupEntry } from "../../src/models/groupEntry";
+import { GroupEntry } from "@/libs/models/groupEntry";
 
 // These must match the Google Workspace seed data
 

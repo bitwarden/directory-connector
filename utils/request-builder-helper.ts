@@ -1,7 +1,7 @@
-import { GetUniqueString } from "@/jslib/common/spec/utils";
+import { GroupEntry } from "@/libs/models/groupEntry";
+import { UserEntry } from "@/libs/models/userEntry";
 
-import { GroupEntry } from "../src/models/groupEntry";
-import { UserEntry } from "../src/models/userEntry";
+import { GetUniqueString } from "@/jslib/common/spec/utils";
 
 export function userSimulator(userCount: number): UserEntry[] {
   const users: UserEntry[] = [];

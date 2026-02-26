@@ -63,7 +63,7 @@ const renderer = {
     __dirname: false,
   },
   entry: {
-    "app/main": "./src/app/main.ts",
+    "app/main": "./src-gui/app/main.ts",
   },
   optimization: {
     minimize: false,
@@ -121,16 +121,16 @@ const renderer = {
   plugins: [
     new AngularWebpackPlugin({
       tsConfigPath: "tsconfig.json",
-      entryModule: "src/app/app.module#AppModule",
+      entryModule: "src-gui/app/app.module#AppModule",
       sourceMap: true,
     }),
     // ref: https://github.com/angular/angular/issues/20357
     new webpack.ContextReplacementPlugin(
       /\@angular(\\|\/)core(\\|\/)fesm5/,
-      path.resolve(__dirname, "./src"),
+      path.resolve(__dirname, "./src-gui"),
     ),
     new HtmlWebpackPlugin({
-      template: "./src/index.html",
+      template: "./src-gui/index.html",
       filename: "index.html",
       chunks: ["app/vendor", "app/main"],
     }),
