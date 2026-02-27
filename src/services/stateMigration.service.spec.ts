@@ -6,7 +6,7 @@ import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
 
 import { Account, DirectoryConfigurations, DirectorySettings } from "../models/account";
 
-import { StateMigrationService } from "./stateMigration.service";
+import { StateMigrationService } from "./state-service/stateMigration.service";
 
 describe("StateMigrationService - v4 to v5 migration", () => {
   let storageService: jest.Mocked<StorageService>;
