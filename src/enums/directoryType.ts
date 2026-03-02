@@ -4,4 +4,5 @@ export enum DirectoryType {
   GSuite = 2,
   Okta = 3,
   OneLogin = 4,
+  
 }
