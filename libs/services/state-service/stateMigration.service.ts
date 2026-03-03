@@ -305,6 +305,23 @@ export class StateMigrationService {
           // await this.secureStorageService.remove(oldKey);
         }
       }
+
+      // migrateStateFrom1To2 stored ALL SecureStorageKeys under `${userId}_*`, including
+      // non-credential keys (sync config, directory type, org ID, directory config prefix).
+      // Their values are already migrated above via the account object into regular storage,
+      // so remove these stale credential-store entries unconditionally.
+      const staleSecureKeys = [
+        `${clientId}_${SecureStorageKeys.directoryConfigPrefix}`,
+        `${clientId}_${SecureStorageKeys.sync}`,
+        `${clientId}_${SecureStorageKeys.directoryType}`,
+        `${clientId}_${SecureStorageKeys.organizationId}`,
+      ];
+
+      for (const staleKey of staleSecureKeys) {
+        if (await this.secureStorageService.has(staleKey)) {
+          await this.secureStorageService.remove(staleKey);
+        }
+      }
     }
 
     // Migrate window/tray settings from globals object
