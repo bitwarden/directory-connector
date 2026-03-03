@@ -1,15 +1,13 @@
 name: Build
 
 on:
-  pull_request: {}
   push:
     branches:
       - "main"
       - "rc"
       - "hotfix-rc"
   workflow_dispatch: {}
-  workflow_call:
-    inputs: {}
+  workflow_call: {}
 
 permissions:
   contents: read
@@ -28,7 +26,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Get Package Version
@@ -63,7 +61,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Set up Node
@@ -142,7 +140,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Set up Node
@@ -214,12 +212,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Setup Windows builder
-        run: |
-          choco install checksum --no-progress
+        run: choco install checksum --no-progress
 
       - name: Set up Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -282,6 +279,7 @@ jobs:
     name: Build Windows GUI
     runs-on: windows-2022
     needs: setup
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     permissions:
       contents: read
       id-token: write
@@ -294,7 +292,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Set up Node
@@ -321,7 +319,6 @@ jobs:
         run: npm install
 
       - name: Log in to Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -330,7 +327,6 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
@@ -341,11 +337,9 @@ jobs:
             code-signing-cert-name"
 
       - name: Log out from Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Build & Sign
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: npm run dist:win
         env:
           ELECTRON_BUILDER_SIGN: 1
@@ -356,7 +350,6 @@ jobs:
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
 
       - name: Upload Portable Executable to GitHub
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-Connector-Portable-${{ env._PACKAGE_VERSION }}.exe
@@ -364,7 +357,6 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Installer Executable to GitHub
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe
@@ -372,7 +364,6 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Installer Executable Blockmap to GitHub
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-Connector-Installer-${{ env._PACKAGE_VERSION }}.exe.blockmap
@@ -380,7 +371,6 @@ jobs:
           if-no-files-found: error
 
       - name: Upload latest auto-update artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: latest.yml
@@ -403,7 +393,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Set up Node
@@ -452,6 +442,7 @@ jobs:
     name: Build MacOS GUI
     runs-on: macos-15-intel
     needs: setup
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     permissions:
       contents: read
       id-token: write
@@ -464,7 +455,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Set up Node
@@ -487,7 +478,6 @@ jobs:
           echo "GitHub event: $GITHUB_EVENT"
 
       - name: Log in to Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -496,14 +486,12 @@ jobs:
 
       - name: Get Azure Key Vault secrets
         id: get-kv-secrets
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-directory-connector
           secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Get certificates
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
           mkdir -p "$HOME/certificates"
 
@@ -517,11 +505,9 @@ jobs:
             jq -r .value | base64 -d > "$HOME/certificates/macdev-cert.p12"
 
       - name: Log out from Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Set up keychain
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
@@ -541,20 +527,10 @@ jobs:
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
-      - name: Load package version
-        run: |
-          $rootPath = $env:GITHUB_WORKSPACE;
-          $packageVersion = (Get-Content -Raw -Path "$rootPath\package.json" | ConvertFrom-Json).version;
-
-          Write-Output "Setting package version to $packageVersion";
-          Write-Output "PACKAGE_VERSION=$packageVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append;
-        shell: pwsh
-
       - name: Install Node dependencies
         run: npm install
 
       - name: Set up private auth key
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
@@ -564,7 +540,6 @@ jobs:
           EOF
 
       - name: Build application
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: npm run dist:mac
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
@@ -573,7 +548,6 @@ jobs:
           CSC_FOR_PULL_REQUEST: true
 
       - name: Upload .zip artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip
@@ -581,7 +555,6 @@ jobs:
           if-no-files-found: error
 
       - name: Upload .dmg artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg
@@ -589,7 +562,6 @@ jobs:
           if-no-files-found: error
 
       - name: Upload .dmg Blockmap artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg.blockmap
@@ -597,7 +569,6 @@ jobs:
           if-no-files-found: error
 
       - name: Upload latest auto-update artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: latest-mac.yml
@@ -628,7 +599,7 @@ jobs:
         run: exit 1
 
       - name: Log in to Azure
-        if: failure() && needs.setup.outputs.has_secrets == 'true'
+        if: ${{ failure() && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -637,19 +608,19 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        if: failure() && needs.setup.outputs.has_secrets == 'true'
+        if: ${{ failure() && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
 
       - name: Log out from Azure
-        if: failure() && needs.setup.outputs.has_secrets == 'true'
+        if: ${{ failure() && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Notify Slack on failure
         uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
-        if: failure()
+        if: ${{ failure() && needs.setup.outputs.has_secrets == 'true' }}
         env:
           SLACK_WEBHOOK_URL: ${{ steps.retrieve-secrets.outputs.devops-alerts-slack-webhook-url }}
         with:
