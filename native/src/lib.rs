@@ -1,6 +1,10 @@
 #[macro_use]
 extern crate napi_derive;
 
+/// The error message returned when a password is not found during retrieval or deletion.
+/// Re-exported from desktop_core so JS callers have a single authoritative source.
+#[napi]
+pub const PASSWORD_NOT_FOUND: &str = desktop_core::password::PASSWORD_NOT_FOUND;
 
 /// Fetch the stored password from the keychain.
 /// Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.

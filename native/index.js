@@ -77,6 +77,6 @@ module.exports = {
     isAvailable: () => nativeBinding.isAvailable(),
     migrateKeytarPassword: (service, account) =>
       nativeBinding.migrateKeytarPassword(service, account),
-    PASSWORD_NOT_FOUND: "Password not found.",
+    PASSWORD_NOT_FOUND: nativeBinding.PASSWORD_NOT_FOUND,
   },
 };
