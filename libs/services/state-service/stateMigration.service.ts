@@ -20,6 +20,12 @@ import { HtmlStorageLocation } from "@/jslib/common/src/enums/htmlStorageLocatio
 import { StateVersion } from "@/jslib/common/src/enums/stateVersion";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
+import { passwords } from "dc-native";
+
+// Must match the service name used by NativeSecureStorageService and
+// ElectronRendererSecureStorageService when writing credentials.
+const SECURE_STORAGE_SERVICE_NAME = "Bitwarden Directory Connector";
+
 export class StateMigrationService {
   constructor(
     protected storageService: StorageService,
@@ -47,6 +53,9 @@ export class StateMigrationService {
           break;
         case StateVersion.Four:
           await this.migrateStateFrom4To5();
+          break;
+        case StateVersion.Five:
+          await this.migrateStateFrom5To6();
           break;
       }
       currentStateVersion += 1;
@@ -284,6 +293,22 @@ export class StateMigrationService {
       }
     }
 
+    // On Windows, convert keytar (UTF-8 CredWriteA) entries to the UTF-16 format expected by
+    // desktop_core (CredWriteW) before reading them. Without this, desktop_core would
+    // misinterpret UTF-8 bytes as UTF-16, producing garbled credential values.
+    if (useSecureStorageForSecrets && process.platform === "win32") {
+      await Promise.all(
+        [
+          `${clientId}_${SecureStorageKeys.ldap}`,
+          `${clientId}_${SecureStorageKeys.gsuite}`,
+          `${clientId}_${SecureStorageKeys.azure}`,
+          `${clientId}_${SecureStorageKeys.entra}`,
+          `${clientId}_${SecureStorageKeys.okta}`,
+          `${clientId}_${SecureStorageKeys.oneLogin}`,
+        ].map((key) => passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key)),
+      );
+    }
+
     // Migrate secrets from {userId}_* to secret_* pattern
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
@@ -354,6 +379,48 @@ export class StateMigrationService {
 
     // Set final state version using the new flat key
     await this.set(StorageKeysVNext.stateVersion, StateVersion.Five);
+  }
+
+  /**
+   * Migrate from State v5 to v6 — convert any Windows Credential Manager entries that were
+   * written by keytar (UTF-8 via CredWriteA) to the UTF-16 format used by desktop_core
+   * (CredWriteW). This is a no-op on macOS and Linux; migrateKeytarPassword returns false
+   * immediately on those platforms.
+   *
+   * Keys migrated:
+   *   • The current VNext credential keys (secret_*)
+   *   • Any remaining old-format keys ({userId}_*) still present from the v1→v2 migration
+   */
+  protected async migrateStateFrom5To6(): Promise<void> {
+    const credentialKeys: string[] = [
+      SecureStorageKeysVNext.ldap,
+      SecureStorageKeysVNext.gsuite,
+      SecureStorageKeysVNext.azure,
+      SecureStorageKeysVNext.entra,
+      SecureStorageKeysVNext.okta,
+      SecureStorageKeysVNext.oneLogin,
+    ];
+
+    // Include any old {userId}_* keys still resident in the credential store.
+    const clientId = await this.storageService.get<string>("activeUserId");
+    if (clientId) {
+      credentialKeys.push(
+        `${clientId}_${SecureStorageKeys.ldap}`,
+        `${clientId}_${SecureStorageKeys.gsuite}`,
+        `${clientId}_${SecureStorageKeys.azure}`,
+        `${clientId}_${SecureStorageKeys.entra}`,
+        `${clientId}_${SecureStorageKeys.okta}`,
+        `${clientId}_${SecureStorageKeys.oneLogin}`,
+      );
+    }
+
+    await Promise.all(
+      credentialKeys.map((key) =>
+        passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
+      ),
+    );
+
+    await this.set(StorageKeysVNext.stateVersion, StateVersion.Six);
   }
 
   // ===================================================================
