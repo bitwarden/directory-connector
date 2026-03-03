@@ -30,13 +30,14 @@ pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<boo
         )
     };
 
-    scopeguard::defer! {{
-        unsafe { CredFree(credential as *mut _) };
-    }};
-
     if result.is_err() {
         // Credential does not exist; nothing to migrate.
         return Ok(false);
+    }
+
+    scopeguard::defer! {{
+        unsafe { CredFree(credential as *mut _) };
+    }};
     }
 
     let blob_bytes: Vec<u8> = unsafe {
