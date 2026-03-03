@@ -1,0 +1,44 @@
+$card-icons-base: "~@bitwarden/jslib-angular/src/images/cards/";
+$card-icons: (
+  "visa": $card-icons-base + "visa-light.png",
+  "amex": $card-icons-base + "amex-light.png",
+  "diners-club": $card-icons-base + "diners_club-light.png",
+  "discover": $card-icons-base + "discover-light.png",
+  "jcb": $card-icons-base + "jcb-light.png",
+  "maestro": $card-icons-base + "maestro-light.png",
+  "mastercard": $card-icons-base + "mastercard-light.png",
+  "union-pay": $card-icons-base + "union_pay-light.png",
+);
+
+$card-icons-dark: (
+  "visa": $card-icons-base + "visa-dark.png",
+  "amex": $card-icons-base + "amex-dark.png",
+  "diners-club": $card-icons-base + "diners_club-dark.png",
+  "discover": $card-icons-base + "discover-dark.png",
+  "jcb": $card-icons-base + "jcb-dark.png",
+  "maestro": $card-icons-base + "maestro-dark.png",
+  "mastercard": $card-icons-base + "mastercard-dark.png",
+  "union-pay": $card-icons-base + "union_pay-dark.png",
+);
+
+.credit-card-icon {
+  display: block; // Resolves the parent container being slighly to big
+  height: 19px;
+  width: 24px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+@each $name, $url in $card-icons {
+  .card-#{$name} {
+    background-image: url("#{$url}");
+  }
+}
+
+@each $theme in $dark-icon-themes {
+  @each $name, $url in $card-icons-dark {
+    .#{$theme} .card-#{$name} {
+      background-image: url("#{$url}");
+    }
+  }
+}

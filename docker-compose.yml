@@ -16,3 +16,22 @@ services:
     ports:
       - "1389:1389"
       - "1636:1636"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "ldapsearch",
+          "-x",
+          "-H",
+          "ldap://localhost:1389",
+          "-b",
+          "dc=bitwarden,dc=com",
+          "-D",
+          "cn=admin,dc=bitwarden,dc=com",
+          "-w",
+          "admin",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
