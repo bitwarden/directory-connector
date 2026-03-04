@@ -20,7 +20,7 @@ export class Account {
   directoryConfigurations: DirectoryConfigurations = new DirectoryConfigurations();
   directorySettings: DirectorySettings = new DirectorySettings();
 
-  // FIXME: Remove these compatibility fields after StateServiceVNext migration (PR #990) is merged
+  // FIXME: Remove these compatibility fields after StateService migration (PR #990) is merged
   // These fields are unused but required for type compatibility with jslib's StateService infrastructure
   data?: any;
   keys?: any;

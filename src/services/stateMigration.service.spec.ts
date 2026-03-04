@@ -150,8 +150,8 @@ describe("StateMigrationService - v4 to v5 migration", () => {
     await migrationService["migrateStateFrom4To5"]();
 
     expect(storageService.save).toHaveBeenCalledWith(
-      "directory_ldap",
-      { host: "ldap.example.com" },
+      "global",
+      expect.objectContaining({ stateVersion: StateVersion.Five }),
       expect.anything(),
     );
     expect(storageService.save).toHaveBeenCalledWith(

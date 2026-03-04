@@ -3,10 +3,11 @@ import { clipboard, ipcRenderer, shell } from "electron";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { StateService } from "@/jslib/common/src/abstractions/state.service";
 import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { DeviceType } from "@/jslib/common/src/enums/deviceType";
 import { ThemeType } from "@/jslib/common/src/enums/themeType";
+
+import { StateService } from "@/src/abstractions/state.service";
 
 import { isDev, isMacAppStore } from "../utils";
 
@@ -180,7 +181,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   async supportsBiometric(): Promise<boolean> {
-    return await this.stateService.getEnableBiometric();
+    return Promise.resolve(false);
   }
 
   authenticateBiometric(): Promise<boolean> {
@@ -203,12 +204,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   async getEffectiveTheme() {
-    const theme = await this.stateService.getTheme();
-    if (theme == null || theme === ThemeType.System) {
-      return this.getDefaultSystemTheme();
-    } else {
-      return theme;
-    }
+    return this.getDefaultSystemTheme();
   }
 
   supportsSecureStorage(): boolean {

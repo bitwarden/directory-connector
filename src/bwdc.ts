@@ -22,7 +22,6 @@ import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoF
 import packageJson from "../package.json";
 
 import { DirectoryFactoryService } from "./abstractions/directory-factory.service";
-import { StateServiceVNext } from "./abstractions/state-vNext.service";
 import { Account } from "./models/account";
 import { Program } from "./program";
 import { AuthService } from "./services/auth.service";
@@ -32,7 +31,6 @@ import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
 import { SingleRequestBuilder } from "./services/single-request-builder";
-import { StateServiceVNextImplementation } from "./services/state-service/state-vNext.service";
 import { StateService } from "./services/state-service/state.service";
 import { StateMigrationService } from "./services/state-service/stateMigration.service";
 import { SyncService } from "./services/sync.service";
@@ -61,7 +59,6 @@ export class Main {
   cryptoFunctionService: NodeCryptoFunctionService;
   authService: AuthService;
   syncService: SyncService;
-  stateServiceVNext: StateServiceVNext;
   stateService: StateService;
   stateMigrationService: StateMigrationService;
   directoryFactoryService: DirectoryFactoryService;
@@ -117,34 +114,17 @@ export class Main {
       new StateFactory(GlobalState, Account),
     );
 
+    // Use new StateService with flat key-value structure
     this.stateService = new StateService(
       this.storageService,
       this.secureStorageService,
       this.logService,
       this.stateMigrationService,
       process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
-      new StateFactory(GlobalState, Account),
-    );
-    // Use new StateServiceVNext with flat key-value structure
-    this.stateServiceVNext = new StateServiceVNextImplementation(
-      this.storageService,
-      this.secureStorageService,
-      this.logService,
-      this.stateMigrationService,
-      process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
-    );
-
-    this.cryptoService = new CryptoService(
-      this.cryptoFunctionService,
-      this.platformUtilsService,
-      this.logService,
-      this.stateService,
     );
 
     this.appIdService = new AppIdService(this.storageService);
-    this.tokenService = new TokenService(this.stateService);
     this.messagingService = new NoopMessagingService();
-    this.environmentService = new EnvironmentService(this.stateService);
 
     const customUserAgent =
       "Bitwarden_DC/" +
@@ -167,13 +147,13 @@ export class Main {
       this.appIdService,
       this.platformUtilsService,
       this.messagingService,
-      this.stateServiceVNext,
+      this.stateService,
     );
 
     this.directoryFactoryService = new DefaultDirectoryFactoryService(
       this.logService,
       this.i18nService,
-      this.stateServiceVNext,
+      this.stateService,
     );
 
     this.batchRequestBuilder = new BatchRequestBuilder();
@@ -185,7 +165,7 @@ export class Main {
       this.messagingService,
       this.i18nService,
       this.environmentService,
-      this.stateServiceVNext,
+      this.stateService,
       this.batchRequestBuilder,
       this.singleRequestBuilder,
       this.directoryFactoryService,

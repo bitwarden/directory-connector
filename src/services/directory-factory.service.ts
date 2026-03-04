@@ -2,7 +2,7 @@ import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
 import { DirectoryFactoryService } from "../abstractions/directory-factory.service";
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
+import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 
 import { EntraIdDirectoryService } from "./directory-services/entra-id-directory.service";
@@ -15,7 +15,7 @@ export class DefaultDirectoryFactoryService implements DirectoryFactoryService {
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateService: StateServiceVNext,
+    private stateService: StateService,
   ) {}
 
   createService(directoryType: DirectoryType) {

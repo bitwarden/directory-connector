@@ -4,8 +4,7 @@ import { admin_directory_v1, google } from "googleapis";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
-import { StateServiceVNext } from "@/src/abstractions/state-vNext.service";
-
+import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
 import { GSuiteConfiguration } from "../../models/gsuiteConfiguration";
@@ -25,7 +24,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateService: StateServiceVNext,
+    private stateService: StateService,
   ) {
     super();
     this.service = google.admin("directory_v1");

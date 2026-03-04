@@ -4,12 +4,12 @@ import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { Response } from "@/jslib/node/src/cli/models/response";
 import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
 
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
+import { StateService } from "../abstractions/state.service";
 
 export class ClearCacheCommand {
   constructor(
     private i18nService: I18nService,
-    private stateService: StateServiceVNext,
+    private stateService: StateService,
   ) {}
 
   async run(cmd: program.OptionValues): Promise<Response> {

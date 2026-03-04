@@ -26,17 +26,15 @@ import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 
 import { DirectoryFactoryService } from "@/src/abstractions/directory-factory.service";
+import { StateService as StateServiceAbstraction } from "@/src/abstractions/state.service";
 import { BatchRequestBuilder } from "@/src/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/src/services/directory-factory.service";
 import { SingleRequestBuilder } from "@/src/services/single-request-builder";
 
 import { AuthService as AuthServiceAbstraction } from "../../abstractions/auth.service";
-import { StateServiceVNext } from "../../abstractions/state-vNext.service";
-import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
 import { Account } from "../../models/account";
 import { AuthService } from "../../services/auth.service";
 import { I18nService } from "../../services/i18n.service";
-import { StateServiceVNextImplementation } from "../../services/state-service/state-vNext.service";
 import { StateService } from "../../services/state-service/state.service";
 import { StateMigrationService } from "../../services/state-service/stateMigration.service";
 import { SyncService } from "../../services/sync.service";
@@ -50,7 +48,7 @@ export function initFactory(
   environmentService: EnvironmentServiceAbstraction,
   i18nService: I18nServiceAbstraction,
   platformUtilsService: PlatformUtilsServiceAbstraction,
-  stateService: StateServiceVNext,
+  stateService: StateService,
   cryptoService: CryptoServiceAbstraction,
 ): () => Promise<void> {
   return async () => {
@@ -91,7 +89,7 @@ export function initFactory(
         EnvironmentServiceAbstraction,
         I18nServiceAbstraction,
         PlatformUtilsServiceAbstraction,
-        StateServiceVNext,
+        StateService,
         CryptoServiceAbstraction,
       ],
       multi: true,
@@ -122,9 +120,9 @@ export function initFactory(
       useFactory: (
         i18nService: I18nServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
-        stateService: StateServiceAbstraction,
+        stateService: StateService,
       ) => new ElectronPlatformUtilsService(i18nService, messagingService, false, stateService),
-      deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
+      deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateService],
     }),
     safeProvider({
       provide: CryptoFunctionServiceAbstraction,
@@ -168,7 +166,7 @@ export function initFactory(
         AppIdServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         MessagingServiceAbstraction,
-        StateServiceVNext,
+        StateService,
       ],
     }),
     safeProvider({
@@ -180,7 +178,7 @@ export function initFactory(
         MessagingServiceAbstraction,
         I18nServiceAbstraction,
         EnvironmentServiceAbstraction,
-        StateServiceVNext,
+        StateService,
         BatchRequestBuilder,
         SingleRequestBuilder,
         DirectoryFactoryService,
@@ -215,7 +213,6 @@ export function initFactory(
           logService,
           stateMigrationService,
           true,
-          new StateFactory(GlobalState, Account),
         ),
       deps: [
         StorageServiceAbstraction,
@@ -224,16 +221,16 @@ export function initFactory(
         StateMigrationServiceAbstraction,
       ],
     }),
-    // Use new StateServiceVNext with flat key-value structure (new interface)
+    // Use new StateService with flat key-value structure (new interface)
     safeProvider({
-      provide: StateServiceVNext,
+      provide: StateService,
       useFactory: (
         storageService: StorageServiceAbstraction,
         secureStorageService: StorageServiceAbstraction,
         logService: LogServiceAbstraction,
         stateMigrationService: StateMigrationServiceAbstraction,
       ) =>
-        new StateServiceVNextImplementation(
+        new StateService(
           storageService,
           secureStorageService,
           logService,
@@ -258,7 +255,7 @@ export function initFactory(
     safeProvider({
       provide: DirectoryFactoryService,
       useClass: DefaultDirectoryFactoryService,
-      deps: [LogServiceAbstraction, I18nServiceAbstraction, StateServiceVNext],
+      deps: [LogServiceAbstraction, I18nServiceAbstraction, StateServiceAbstraction],
     }),
   ] satisfies SafeProvider[],
 })

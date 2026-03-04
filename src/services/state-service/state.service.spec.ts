@@ -13,14 +13,14 @@ import { OneLoginConfiguration } from "@/src/models/oneLoginConfiguration";
 import { StorageKeysVNext as StorageKeys, StoredSecurely } from "@/src/models/state.model";
 import { SyncConfiguration } from "@/src/models/syncConfiguration";
 
-import { StateServiceVNextImplementation } from "./state-vNext.service";
+import { StateService } from "./state.service";
 
-describe("StateServiceVNextImplementation", () => {
+describe("StateService", () => {
   let storageService: MockProxy<StorageService>;
   let secureStorageService: MockProxy<StorageService>;
   let logService: MockProxy<LogService>;
   let stateMigrationService: MockProxy<StateMigrationService>;
-  let stateService: StateServiceVNextImplementation;
+  let stateService: StateService;
 
   beforeEach(() => {
     storageService = mock<StorageService>();
@@ -28,7 +28,7 @@ describe("StateServiceVNextImplementation", () => {
     logService = mock<LogService>();
     stateMigrationService = mock<StateMigrationService>();
 
-    stateService = new StateServiceVNextImplementation(
+    stateService = new StateService(
       storageService,
       secureStorageService,
       logService,
@@ -445,7 +445,7 @@ describe("StateServiceVNextImplementation", () => {
 
   describe("Secure Storage Flag", () => {
     it("should not separate secrets when useSecureStorageForSecrets is false", async () => {
-      const insecureStateService = new StateServiceVNextImplementation(
+      const insecureStateService = new StateService(
         storageService,
         secureStorageService,
         logService,

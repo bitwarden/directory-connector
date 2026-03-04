@@ -7,7 +7,7 @@ import * as graphType from "@microsoft/microsoft-graph-types";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
-import { StateServiceVNext } from "../../abstractions/state-vNext.service";
+import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
 import { EntraIdConfiguration } from "../../models/entraIdConfiguration";
 import { GroupEntry } from "../../models/groupEntry";
@@ -44,7 +44,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateService: StateServiceVNext,
+    private stateService: StateService,
   ) {
     super();
     this.init();

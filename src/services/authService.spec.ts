@@ -7,7 +7,7 @@ import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUt
 import { Utils } from "@/jslib/common/src/misc/utils";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
+import { StateService } from "../abstractions/state.service";
 
 import { AuthService } from "./auth.service";
 
@@ -33,7 +33,7 @@ describe("AuthService", () => {
   let appIdService: jest.Mocked<AppIdService>;
   let platformUtilsService: jest.Mocked<PlatformUtilsService>;
   let messagingService: jest.Mocked<MessagingService>;
-  let stateService: jest.Mocked<StateServiceVNext>;
+  let stateService: jest.Mocked<StateService>;
 
   let authService: AuthService;
 
@@ -41,7 +41,7 @@ describe("AuthService", () => {
     apiService = mock<ApiService>();
     appIdService = mock<AppIdService>();
     platformUtilsService = mock<PlatformUtilsService>();
-    stateService = mock<StateServiceVNext>();
+    stateService = mock<StateService>();
     messagingService = mock<MessagingService>();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
@@ -59,7 +59,6 @@ describe("AuthService", () => {
     apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
 
     await authService.logIn({ clientId, clientSecret });
-
     expect(stateService.setOrganizationId).toHaveBeenCalledTimes(1);
     expect(stateService.setOrganizationId).toHaveBeenCalledWith("CLIENT_ID");
   });

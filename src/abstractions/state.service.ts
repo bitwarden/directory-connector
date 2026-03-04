@@ -1,8 +1,6 @@
-import { StateService as BaseStateServiceAbstraction } from "@/jslib/common/src/abstractions/state.service";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
 import { DirectoryType } from "@/src/enums/directoryType";
-import { Account } from "@/src/models/account";
 import { EntraIdConfiguration } from "@/src/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/src/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/src/models/ldapConfiguration";
@@ -10,7 +8,7 @@ import { OktaConfiguration } from "@/src/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/src/models/oneLoginConfiguration";
 import { SyncConfiguration } from "@/src/models/syncConfiguration";
 
-export abstract class StateService extends BaseStateServiceAbstraction<Account> {
+export abstract class StateService {
   getDirectory: <IConfiguration>(type: DirectoryType) => Promise<IConfiguration>;
   setDirectory: (
     type: DirectoryType,
@@ -53,4 +51,10 @@ export abstract class StateService extends BaseStateServiceAbstraction<Account> 
   getSyncingDir: (options?: StorageOptions) => Promise<boolean>;
   setSyncingDir: (value: boolean, options?: StorageOptions) => Promise<void>;
   clearSyncSettings: (syncHashToo: boolean) => Promise<void>;
+  getIsAuthenticated: (options?: StorageOptions) => Promise<boolean>;
+  getEntityId: (options?: StorageOptions) => Promise<string>;
+  init: () => Promise<void>;
+  clean: () => Promise<void>;
+  getInstalledVersion: (options?: StorageOptions) => Promise<string>;
+  setInstalledVersion: (value: string, options?: StorageOptions) => Promise<void>;
 }

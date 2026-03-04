@@ -1,6 +1,6 @@
 import * as chalk from "chalk";
 
-import { StateService } from "@/jslib/common/src/abstractions/state.service";
+import { StateService } from "@/src/services/state-service/state.service";
 
 import { Response } from "./models/response";
 import { ListResponse } from "./models/response/listResponse";
@@ -99,8 +99,11 @@ export abstract class BaseProgram {
   protected async exitIfAuthed() {
     const authed = await this.stateService.getIsAuthenticated();
     if (authed) {
-      const email = await this.stateService.getEmail();
-      this.processResponse(Response.error("You are already logged in as " + email + "."), true);
+      const organizationId = await this.stateService.getEntityId();
+      this.processResponse(
+        Response.error("You are already logged into" + organizationId + "."),
+        true,
+      );
     }
   }
 

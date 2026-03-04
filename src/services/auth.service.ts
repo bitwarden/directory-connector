@@ -7,7 +7,7 @@ import { ApiTokenRequest } from "@/jslib/common/src/models/request/identityToken
 import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
-import { StateServiceVNext } from "../abstractions/state-vNext.service";
+import { StateService } from "../abstractions/state.service";
 
 export class AuthService {
   constructor(
@@ -15,7 +15,7 @@ export class AuthService {
     private appIdService: AppIdService,
     private platformUtilsService: PlatformUtilsService,
     private messagingService: MessagingService,
-    private stateService: StateServiceVNext,
+    private stateService: StateService,
   ) {}
 
   async logIn(credentials: { clientId: string; clientSecret: string }) {
@@ -29,7 +29,7 @@ export class AuthService {
     const response = await this.apiService.postIdentityToken(tokenRequest);
 
     if (response instanceof IdentityTokenResponse) {
-      await this.saveAccountInformation(tokenRequest, response);
+      await this.saveAccountInformation(tokenRequest);
       return;
     }
 
@@ -46,10 +46,7 @@ export class AuthService {
     return new DeviceRequest(appId, this.platformUtilsService);
   }
 
-  private async saveAccountInformation(
-    tokenRequest: ApiTokenRequest,
-    tokenResponse: IdentityTokenResponse,
-  ) {
+  private async saveAccountInformation(tokenRequest: ApiTokenRequest) {
     const clientId = tokenRequest.clientId;
     const entityId = clientId.split("organization.")[1];
 
