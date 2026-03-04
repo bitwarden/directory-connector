@@ -1,13 +1,13 @@
 name: Build
 
 on:
-  pull_request: {}
   push:
     branches:
       - "main"
       - "rc"
       - "hotfix-rc"
   workflow_dispatch: {}
+  workflow_call: {}
 
 permissions:
   contents: read
@@ -21,10 +21,12 @@ jobs:
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
+      has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Get Package Version
@@ -40,6 +42,12 @@ jobs:
           NODE_VERSION=${NODE_NVMRC/v/''}
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Check secrets
+        id: check-secrets
+        run: |
+          has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
+          echo "has_secrets=$has_secrets" >> "$GITHUB_OUTPUT"
+
   linux-cli:
     name: Build Linux CLI
     runs-on: ubuntu-24.04
@@ -53,19 +61,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install "$(node -v)"
+          platform: Linux
 
       - name: Keytar
         run: |
@@ -131,19 +134,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install "$(node -v)"
+          platform: macOS
 
       - name: Keytar
         run: |
@@ -202,23 +200,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Setup Windows builder
-        run: |
-          choco install checksum --no-progress
+        run: choco install checksum --no-progress
 
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install $(node -v)
+          platform: Windows
 
       - name: Keytar
         shell: pwsh
@@ -243,8 +235,8 @@ jobs:
         run: npm run dist:cli:win
 
       - name: Zip
-        shell: cmd
-        run: 7z a .\dist-cli\bwdc-windows-%_PACKAGE_VERSION%.zip .\dist-cli\windows\bwdc.exe .\keytar\windows\keytar.node
+        shell: pwsh
+        run: 7z a .\dist-cli\bwdc-windows-$env:_PACKAGE_VERSION.zip .\dist-cli\windows\bwdc.exe .\keytar\windows\keytar.node
 
       - name: Version Test
         shell: pwsh
@@ -269,6 +261,7 @@ jobs:
     name: Build Windows GUI
     runs-on: windows-2022
     needs: setup
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     permissions:
       contents: read
       id-token: write
@@ -281,19 +274,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install $(node -v)
+          platform: Windows
 
       - name: Print environment
         run: |
@@ -381,19 +369,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install "$(node -v)"
+          platform: Linux
 
       - name: Set up environment
         run: |
@@ -429,6 +412,7 @@ jobs:
     name: Build MacOS GUI
     runs-on: macos-15-intel
     needs: setup
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     permissions:
       contents: read
       id-token: write
@@ -441,19 +425,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
-      - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-
-      - name: Update NPM
-        run: |
-          npm install -g node-gyp
-          node-gyp install "$(node -v)"
+          platform: macOS
 
       - name: Print environment
         run: |
@@ -511,15 +490,6 @@ jobs:
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
-
-      - name: Load package version
-        run: |
-          $rootPath = $env:GITHUB_WORKSPACE;
-          $packageVersion = (Get-Content -Raw -Path "$rootPath\package.json" | ConvertFrom-Json).version;
-
-          Write-Output "Setting package version to $packageVersion";
-          Write-Output "PACKAGE_VERSION=$packageVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append;
-        shell: pwsh
 
       - name: Install Node dependencies
         run: npm install
@@ -593,7 +563,7 @@ jobs:
         run: exit 1
 
       - name: Log in to Azure
-        if: failure()
+        if: ${{ failure() && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -602,18 +572,19 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
+        if: ${{ failure() && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        if: failure()
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
 
       - name: Log out from Azure
+        if: ${{ failure() && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Notify Slack on failure
         uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
-        if: failure()
+        if: ${{ failure() && needs.setup.outputs.has_secrets == 'true' }}
         env:
           SLACK_WEBHOOK_URL: ${{ steps.retrieve-secrets.outputs.devops-alerts-slack-webhook-url }}
         with:

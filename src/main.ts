@@ -12,7 +12,6 @@ import { TrayMain } from "@/jslib/electron/src/tray.main";
 import { UpdaterMain } from "@/jslib/electron/src/updater.main";
 import { WindowMain } from "@/jslib/electron/src/window.main";
 
-import { StateService } from "./abstractions/state.service";
 import { DCCredentialStorageListener } from "./main/credential-storage-listener";
 import { MenuMain } from "./main/menu.main";
 import { MessagingMain } from "./main/messaging.main";
@@ -32,7 +31,7 @@ export class Main {
   storageService: ElectronStorageService;
   messagingService: ElectronMainMessagingService;
   credentialStorageListener: DCCredentialStorageListener;
-  stateService: StateService;
+  stateService: StateServiceImplementation;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -65,7 +64,6 @@ export class Main {
     this.logService.init();
     this.i18nService = new I18nService("en", "./locales/");
     this.storageService = new ElectronStorageService(app.getPath("userData"));
-    // Use new StateService with flat key-value structure
     this.stateService = new StateServiceImplementation(
       this.storageService,
       null,

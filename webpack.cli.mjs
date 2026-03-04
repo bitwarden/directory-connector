@@ -2,14 +2,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
-import { CleanWebpackPlugin } from "clean-webpack-plugin";
-import CopyWebpackPlugin from "copy-webpack-plugin";
-import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
-import webpack from "webpack";
-import nodeExternals from "webpack-node-externals";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const webpack = require("webpack");
+const nodeExternals = require("webpack-node-externals");
 
 if (process.env.NODE_ENV == null) {
   process.env.NODE_ENV = "development";
@@ -29,7 +25,6 @@ const moduleRules = [
 ];
 
 const plugins = [
-  new CleanWebpackPlugin(),
   new CopyWebpackPlugin({
     patterns: [{ from: "./src/locales", to: "locales" }],
   }),
@@ -69,6 +64,7 @@ const config = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build-cli"),
+    clean: true,
   },
   module: { rules: moduleRules },
   plugins: plugins,
