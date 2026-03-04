@@ -5,17 +5,11 @@ import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
-import {
-  AccountKeys,
-  AccountProfile,
-  AccountTokens,
-} from "@/jslib/common/src/models/domain/account";
 import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
 
-import { Account, DirectoryConfigurations, DirectorySettings } from "../models/account";
+import { StateService } from "../abstractions/state.service";
 
 import { AuthService } from "./auth.service";
-import { StateService } from "./state.service";
 
 const clientId = "organization.CLIENT_ID";
 const clientSecret = "CLIENT_SECRET";
@@ -61,38 +55,21 @@ describe("AuthService", () => {
     );
   });
 
-  it("sets the local environment after a successful login", async () => {
+  it("sets the organization ID after a successful login", async () => {
     apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
 
     await authService.logIn({ clientId, clientSecret });
 
-    expect(stateService.addAccount).toHaveBeenCalledTimes(1);
-    expect(stateService.addAccount).toHaveBeenCalledWith(
-      new Account({
-        profile: {
-          ...new AccountProfile(),
-          ...{
-            userId: "CLIENT_ID",
-            apiKeyClientId: clientId, // with the "organization." prefix
-            entityId: "CLIENT_ID",
-          },
-        },
-        tokens: {
-          ...new AccountTokens(),
-          ...{
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-          },
-        },
-        keys: {
-          ...new AccountKeys(),
-          ...{
-            apiKeyClientSecret: clientSecret,
-          },
-        },
-        directorySettings: new DirectorySettings(),
-        directoryConfigurations: new DirectoryConfigurations(),
-      }),
-    );
+    // Verify authentication tokens are saved
+    expect(stateService.setAccessToken).toHaveBeenCalledWith(accessToken);
+    expect(stateService.setRefreshToken).toHaveBeenCalledWith(refreshToken);
+
+    // Verify API key credentials are saved
+    expect(stateService.setApiKeyClientId).toHaveBeenCalledWith(clientId);
+    expect(stateService.setApiKeyClientSecret).toHaveBeenCalledWith(clientSecret);
+
+    // Verify entity ID and organization ID are saved
+    expect(stateService.setEntityId).toHaveBeenCalledWith("CLIENT_ID");
+    expect(stateService.setOrganizationId).toHaveBeenCalledWith("CLIENT_ID");
   });
 });

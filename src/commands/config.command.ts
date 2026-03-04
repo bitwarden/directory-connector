@@ -1,11 +1,11 @@
 import * as program from "commander";
 
-import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { NodeUtils } from "@/jslib/common/src/misc/nodeUtils";
 import { Response } from "@/jslib/node/src/cli/models/response";
 import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
 
+import { EnvironmentUrls } from "../abstractions/environment.service";
 import { StateService } from "../abstractions/state.service";
 import { DirectoryType } from "../enums/directoryType";
 import { EntraIdConfiguration } from "../models/entraIdConfiguration";
@@ -26,7 +26,6 @@ export class ConfigCommand {
   private sync = new SyncConfiguration();
 
   constructor(
-    private environmentService: EnvironmentService,
     private i18nService: I18nService,
     private stateService: StateService,
   ) {}
@@ -78,9 +77,9 @@ export class ConfigCommand {
 
   private async setServer(url: string) {
     url = url === "null" || url === "bitwarden.com" || url === "https://bitwarden.com" ? null : url;
-    await this.environmentService.setUrls({
-      base: url,
-    });
+    const urls = new EnvironmentUrls();
+    urls.base = url;
+    await this.stateService.setEnvironmentUrls(urls);
   }
 
   private async setDirectory(type: string) {
