@@ -1,9 +1,9 @@
+import { APPLICATION_NAME } from "@/libs/constants";
+
 import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
 import { passwords } from "dc-native";
-
-const APPLICATION_NAME = "Bitwarden Directory Connector";
 
 export class ElectronRendererSecureStorageService implements StorageService {
   async get<T>(key: string, options?: StorageOptions): Promise<T> {

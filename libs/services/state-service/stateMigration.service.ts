@@ -1,3 +1,4 @@
+import { APPLICATION_NAME } from "@/libs/constants";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { DirectoryConfigurations, DirectorySettings } from "@/libs/models/account";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
@@ -20,11 +21,10 @@ import { HtmlStorageLocation } from "@/jslib/common/src/enums/htmlStorageLocatio
 import { StateVersion } from "@/jslib/common/src/enums/stateVersion";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
+
 import { passwords } from "dc-native";
 
-// Must match the service name used by NativeSecureStorageService and
-// ElectronRendererSecureStorageService when writing credentials.
-const SECURE_STORAGE_SERVICE_NAME = "Bitwarden Directory Connector";
+const SECURE_STORAGE_SERVICE_NAME = APPLICATION_NAME;
 
 export class StateMigrationService {
   constructor(

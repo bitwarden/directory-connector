@@ -7,6 +7,7 @@ import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.s
 import { EnvironmentService } from "@/libs/abstractions/environment.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { TokenService } from "@/libs/abstractions/token.service";
+import { APPLICATION_NAME } from "@/libs/constants";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
@@ -25,6 +26,7 @@ import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
+
 
 import { CliPlatformUtilsService } from "@/src-cli/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "@/src-cli/cli/services/consoleLog.service";
@@ -64,7 +66,7 @@ export class Main {
   singleRequestBuilder: SingleRequestBuilder;
 
   constructor() {
-    const applicationName = "Bitwarden Directory Connector";
+    const applicationName = APPLICATION_NAME;
     if (process.env.BITWARDENCLI_CONNECTOR_APPDATA_DIR) {
       this.dataFilePath = path.resolve(process.env.BITWARDENCLI_CONNECTOR_APPDATA_DIR);
     } else if (process.env.BITWARDEN_CONNECTOR_APPDATA_DIR) {
