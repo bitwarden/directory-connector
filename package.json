@@ -35,7 +35,7 @@
     "build:main": "webpack --config webpack.main.mjs",
     "build:renderer": "webpack --config webpack.renderer.mjs",
     "build:renderer:watch": "webpack --config webpack.renderer.mjs --watch",
-    "build:dist": "npm run reset && npm run rebuild && npm run build",
+    "build:dist": "npm run rebuild && npm run build",
     "build:cli": "webpack --config webpack.cli.mjs",
     "build:cli:watch": "webpack --config webpack.cli.mjs --watch",
     "build:cli:prod": "cross-env NODE_ENV=production webpack --config webpack.cli.mjs",
