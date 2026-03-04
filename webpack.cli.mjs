@@ -2,7 +2,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
-import { CleanWebpackPlugin } from "clean-webpack-plugin";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import webpack from "webpack";
@@ -29,7 +28,6 @@ const moduleRules = [
 ];
 
 const plugins = [
-  new CleanWebpackPlugin(),
   new CopyWebpackPlugin({
     patterns: [{ from: "./src-gui/locales", to: "locales" }],
   }),
@@ -69,6 +67,7 @@ const config = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build-cli"),
+    clean: true,
   },
   module: { rules: moduleRules },
   plugins: plugins,

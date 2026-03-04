@@ -4,7 +4,6 @@ import { dirname } from "node:path";
 
 import { merge } from "webpack-merge";
 import CopyWebpackPlugin from "copy-webpack-plugin";
-import { CleanWebpackPlugin } from "clean-webpack-plugin";
 import nodeExternals from "webpack-node-externals";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 
@@ -29,6 +28,7 @@ const common = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build"),
+    clean: true,
   },
 };
 
@@ -54,7 +54,6 @@ const main = {
     ],
   },
   plugins: [
-    new CleanWebpackPlugin(),
     new CopyWebpackPlugin({
       patterns: [
         "./package.json",
@@ -65,7 +64,6 @@ const main = {
   ],
   externals: {
     "electron-reload": "commonjs2 electron-reload",
-    keytar: "commonjs2 keytar",
   },
 };
 
