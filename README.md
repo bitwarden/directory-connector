@@ -1,5 +1,4 @@
 ![Build](https://github.com/bitwarden/directory-connector/workflows/Build/badge.svg)
-[![Join the chat at https://gitter.im/bitwarden/Lobby](https://badges.gitter.im/bitwarden/Lobby.svg)](https://gitter.im/bitwarden/Lobby)
 
 # Bitwarden Directory Connector
 
@@ -16,8 +15,6 @@ Supported directories:
 The application is written using Electron with Angular and installs on Windows, macOS, and Linux distributions.
 
 [![Platforms](https://imgur.com/SLv9paA.png "Windows, macOS, and Linux")](https://bitwarden.com/help/directory-sync/#download-and-install)
-
-![Directory Connector](https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/directory-connector-macos.png "Dashboard")
 
 ## Command-line Interface
 
