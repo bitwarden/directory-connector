@@ -1,4 +1,4 @@
-import { DecodedToken } from "../services/utils/jwt.util";
+import { DecodedToken } from "../utils/jwt.util";
 
 export abstract class TokenService {
   // Token storage

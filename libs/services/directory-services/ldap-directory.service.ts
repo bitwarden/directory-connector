@@ -3,6 +3,8 @@ import * as tls from "tls";
 
 import * as ldapts from "ldapts";
 
+import { StateService } from "@/libs/abstractions/state.service";
+
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
@@ -14,8 +16,6 @@ import { SyncConfiguration } from "../../models/syncConfiguration";
 import { UserEntry } from "../../models/userEntry";
 
 import { IDirectoryService } from "./directory.service";
-
-import { StateService } from "@/src/abstractions/state.service";
 
 const UserControlAccountDisabled = 2;
 

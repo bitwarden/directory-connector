@@ -1,5 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { StateService } from "@/libs/abstractions/state.service";
+
 import { I18nService } from "../../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../../jslib/common/src/abstractions/log.service";
 import {
@@ -11,8 +13,6 @@ import { userFixtures } from "../../../utils/openldap/user-fixtures";
 import { DirectoryType } from "../../enums/directoryType";
 
 import { LdapDirectoryService } from "./ldap-directory.service";
-
-import { StateService } from "@/src/abstractions/state.service";
 
 // These tests integrate with the OpenLDAP docker image and seed data located in the openldap folder.
 // To run theses tests:

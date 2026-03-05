@@ -1,7 +1,9 @@
+import { EnvironmentService } from "@/libs/abstractions/environment.service";
+import { TokenService } from "@/libs/abstractions/token.service";
+
 import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { DeviceRequest } from "@/jslib/common/src/models/request/deviceRequest";
 import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
-
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { PlatformUtilsService } from "../abstractions/platformUtils.service";
@@ -16,8 +18,6 @@ import { IdentityCaptchaResponse } from "../models/response/identityCaptchaRespo
 import { IdentityTokenResponse } from "../models/response/identityTokenResponse";
 import { IdentityTwoFactorResponse } from "../models/response/identityTwoFactorResponse";
 
-import { EnvironmentService } from "@/src/abstractions/environment.service";
-import { TokenService } from "@/src/abstractions/token.service";
 
 export class ApiService implements ApiServiceAbstraction {
   private device: DeviceType;

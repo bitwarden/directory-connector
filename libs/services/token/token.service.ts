@@ -1,8 +1,8 @@
+import { TokenService as TokenServiceAbstraction } from "@/libs/abstractions/token.service";
+
 import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
 
-import { DecodedToken, decodeJwt, tokenNeedsRefresh } from "../utils/jwt.util";
-
-import { TokenService as TokenServiceAbstraction } from "@/src/abstractions/token.service";
+import { DecodedToken, decodeJwt, tokenNeedsRefresh } from "../../utils/jwt.util";
 
 export class TokenService implements TokenServiceAbstraction {
   // Storage keys
