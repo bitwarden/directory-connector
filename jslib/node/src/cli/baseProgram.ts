@@ -7,7 +7,6 @@ import { ListResponse } from "./models/response/listResponse";
 import { MessageResponse } from "./models/response/messageResponse";
 import { StringResponse } from "./models/response/stringResponse";
 
-
 export abstract class BaseProgram {
   constructor(
     protected stateService: StateService,
