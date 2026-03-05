@@ -40,7 +40,7 @@ const common = {
     extensions: [".tsx", ".ts", ".js", ".json"],
     plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
     symlinks: false,
-    modules: [path.resolve("node_modules")],
+    modules: ["node_modules"],
   },
   output: {
     filename: "[name].js",
