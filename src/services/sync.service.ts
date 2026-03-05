@@ -116,8 +116,8 @@ export class SyncService {
       throw new Error("Organization not set.");
     }
 
-    // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
     const apiUrl = await this.stateService.getApiUrl();
+    // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
     let hashLegacy: string = null;
     const hashBuffLegacy = await this.cryptoFunctionService.hash(apiUrl + reqJson, "sha256");
     if (hashBuffLegacy != null) {

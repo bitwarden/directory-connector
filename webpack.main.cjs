@@ -1,13 +1,8 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { dirname } from "node:path";
-
-import { merge } from "webpack-merge";
-import CopyWebpackPlugin from "copy-webpack-plugin";
-import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const path = require("path");
+const { merge } = require("webpack-merge");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const nodeExternals = require("webpack-node-externals");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 const common = {
   module: {
@@ -67,4 +62,4 @@ const main = {
   },
 };
 
-export default merge(common, main);
+module.exports = merge(common, main);

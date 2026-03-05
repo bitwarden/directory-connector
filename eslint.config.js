@@ -20,7 +20,7 @@ export default [
       "build-cli/**",
       "coverage/**",
       "**/*.cjs",
-      "eslint.config.mjs",
+      "eslint.config.js",
       "scripts/**/*.js",
       "**/node_modules/**",
     ],

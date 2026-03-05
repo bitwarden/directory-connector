@@ -1,9 +1,6 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 import * as path from "path";
 
 import { app } from "electron";
-import electronReload from "electron-reload";
 
 import { ElectronLogService } from "@/jslib/electron/src/services/electronLog.service";
 import { ElectronMainMessagingService } from "@/jslib/electron/src/services/electronMainMessaging.service";
@@ -17,13 +14,6 @@ import { MenuMain } from "./main/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { I18nService } from "./services/i18n.service";
 import { StateServiceImplementation } from "./services/state-service/state.service";
-
-// ESM __dirname polyfill for Node 20
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Import electron-reload for dev mode hot reload
 
 export class Main {
   logService: ElectronLogService;
@@ -57,7 +47,8 @@ export class Main {
     const watch = args.some((val) => val === "--watch");
 
     if (watch) {
-      electronReload(__dirname, {});
+      // eslint-disable-next-line
+      require("electron-reload")(__dirname, {});
     }
 
     this.logService = new ElectronLogService(null, app.getPath("userData"));
