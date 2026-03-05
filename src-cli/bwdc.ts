@@ -1,11 +1,8 @@
 import * as fs from "fs";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 import * as path from "path";
 
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
 import { EnvironmentService } from "@/libs/abstractions/environment.service";
-import { StateService } from "@/libs/abstractions/state.service";
 import { TokenService } from "@/libs/abstractions/token.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
@@ -15,7 +12,10 @@ import { I18nService } from "@/libs/services/i18n.service";
 import { KeytarSecureStorageService } from "@/libs/services/keytarSecureStorage.service";
 import { LowdbStorageService } from "@/libs/services/lowdbStorage.service";
 import { SingleRequestBuilder } from "@/libs/services/single-request-builder";
-import { StateServiceImplementation } from "@/libs/services/state-service/state.service";
+import {
+  StateService,
+  StateServiceImplementation,
+} from "@/libs/services/state-service/state.service";
 import { StateMigrationService } from "@/libs/services/state-service/stateMigration.service";
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
@@ -31,14 +31,10 @@ import { ConsoleLogService } from "@/src-cli/cli/services/consoleLog.service";
 import { NodeApiService } from "@/src-cli/services/node/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/src-cli/services/node/nodeCryptoFunction.service";
 
-import packageJson from "../package.json";
-
 import { Program } from "./program";
 
-// ESM __dirname polyfill for Node 20
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// eslint-disable-next-line
+const packageJson = require("../package.json");
 
 export class Main {
   dataFilePath: string;

@@ -51,8 +51,8 @@ export class AuthService {
     tokenResponse: IdentityTokenResponse,
   ) {
     const clientId = tokenRequest.clientId;
-    const clientSecret = tokenRequest.clientSecret;
     const entityId = clientId.split("organization.")[1];
+    const clientSecret = tokenRequest.clientSecret;
 
     await this.stateService.setAccessToken(tokenResponse.accessToken);
     await this.stateService.setRefreshToken(tokenResponse.refreshToken);

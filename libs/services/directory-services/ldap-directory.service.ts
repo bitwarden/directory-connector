@@ -7,7 +7,6 @@ import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
 
-import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
 import { LdapConfiguration } from "../../models/ldapConfiguration";
@@ -15,6 +14,8 @@ import { SyncConfiguration } from "../../models/syncConfiguration";
 import { UserEntry } from "../../models/userEntry";
 
 import { IDirectoryService } from "./directory.service";
+
+import { StateService } from "@/src/abstractions/state.service";
 
 const UserControlAccountDisabled = 2;
 
@@ -68,10 +69,12 @@ export class LdapDirectoryService implements IDirectoryService {
         }
         groups = await this.getGroups(groupForce);
       }
-    } finally {
+    } catch (e) {
       await this.client.unbind();
+      throw e;
     }
 
+    await this.client.unbind();
     return [groups, users];
   }
 
@@ -453,8 +456,9 @@ export class LdapDirectoryService implements IDirectoryService {
 
     try {
       await this.client.bind(user, pass);
-    } catch {
+    } catch (error) {
       await this.client.unbind();
+      throw error;
     }
   }
 

@@ -1,5 +1,6 @@
 import * as program from "commander";
 
+import { EnvironmentUrls } from "@/libs/abstractions/environment.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
@@ -12,10 +13,8 @@ import { ConnectorUtils } from "@/libs/utils";
 
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { NodeUtils } from "@/jslib/common/src/misc/nodeUtils";
-import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
-
-import { Response } from "@/src-cli/cli/models/response";
-import { MessageResponse } from "@/src-cli/cli/models/response/messageResponse";
+import { Response } from "@/jslib/node/src/cli/models/response";
+import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";
 
 export class ConfigCommand {
   private directory: DirectoryType;
@@ -27,8 +26,8 @@ export class ConfigCommand {
   private sync = new SyncConfiguration();
 
   constructor(
-    private stateService: StateService,
     private i18nService: I18nService,
+    private stateService: StateService,
   ) {}
 
   async run(setting: string, value: string, options: program.OptionValues): Promise<Response> {

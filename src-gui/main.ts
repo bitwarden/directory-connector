@@ -1,11 +1,7 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 import * as path from "path";
 
 import { app } from "electron";
-import electronReload from "electron-reload";
 
-import { StateService } from "@/libs/abstractions/state.service";
 import { I18nService } from "@/libs/services/i18n.service";
 import { StateServiceImplementation } from "@/libs/services/state-service/state.service";
 
@@ -20,20 +16,13 @@ import { DCCredentialStorageListener } from "./main/credential-storage-listener"
 import { MenuMain } from "./main/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 
-// ESM __dirname polyfill for Node 20
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Import electron-reload for dev mode hot reload
-
 export class Main {
   logService: ElectronLogService;
   i18nService: I18nService;
   storageService: ElectronStorageService;
   messagingService: ElectronMainMessagingService;
   credentialStorageListener: DCCredentialStorageListener;
-  stateService: StateService;
+  stateService: StateServiceImplementation;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -59,14 +48,14 @@ export class Main {
     const watch = args.some((val) => val === "--watch");
 
     if (watch) {
-      electronReload(__dirname, {});
+      // eslint-disable-next-line
+      require("electron-reload")(__dirname, {});
     }
 
     this.logService = new ElectronLogService(null, app.getPath("userData"));
     this.logService.init();
     this.i18nService = new I18nService("en", "./locales/");
     this.storageService = new ElectronStorageService(app.getPath("userData"));
-    // Use new StateService with flat key-value structure
     this.stateService = new StateServiceImplementation(
       this.storageService,
       null,

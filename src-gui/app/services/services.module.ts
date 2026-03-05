@@ -124,9 +124,8 @@ export function initFactory(injector: Injector): () => Promise<void> {
       useFactory: (
         i18nService: I18nServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
-        stateService: StateServiceAbstraction,
-      ) => new ElectronPlatformUtilsService(i18nService, messagingService, false, stateService),
-      deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
+      ) => new ElectronPlatformUtilsService(i18nService, messagingService, false),
+      deps: [I18nServiceAbstraction, MessagingServiceAbstraction],
     }),
     safeProvider({
       provide: CryptoFunctionServiceAbstraction,

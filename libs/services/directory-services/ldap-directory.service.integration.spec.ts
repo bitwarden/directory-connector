@@ -8,10 +8,11 @@ import {
 } from "../../../utils/openldap/config-fixtures";
 import { groupFixtures } from "../../../utils/openldap/group-fixtures";
 import { userFixtures } from "../../../utils/openldap/user-fixtures";
-import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
 
 import { LdapDirectoryService } from "./ldap-directory.service";
+
+import { StateService } from "@/src/abstractions/state.service";
 
 // These tests integrate with the OpenLDAP docker image and seed data located in the openldap folder.
 // To run theses tests:
