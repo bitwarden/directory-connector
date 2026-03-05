@@ -9,7 +9,6 @@ import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 
-
 (global as any).fetch = fe.default;
 (global as any).Request = fe.Request;
 (global as any).Response = fe.Response;

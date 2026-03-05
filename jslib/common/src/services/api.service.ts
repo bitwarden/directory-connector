@@ -18,7 +18,6 @@ import { IdentityCaptchaResponse } from "../models/response/identityCaptchaRespo
 import { IdentityTokenResponse } from "../models/response/identityTokenResponse";
 import { IdentityTwoFactorResponse } from "../models/response/identityTwoFactorResponse";
 
-
 export class ApiService implements ApiServiceAbstraction {
   private device: DeviceType;
   private deviceType: string;
