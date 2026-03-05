@@ -2,10 +2,11 @@ import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
 import { DeviceRequest } from "@/jslib/common/src/models/request/deviceRequest";
 import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
 
+import { EnvironmentService } from "@/src/abstractions/environment.service";
+import { TokenService } from "@/src/abstractions/token.service";
+
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
-import { EnvironmentService } from "../abstractions/environment.service";
 import { PlatformUtilsService } from "../abstractions/platformUtils.service";
-import { TokenService } from "../abstractions/token.service";
 import { DeviceType } from "../enums/deviceType";
 import { Utils } from "../misc/utils";
 import { ApiTokenRequest } from "../models/request/identityToken/apiTokenRequest";

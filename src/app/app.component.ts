@@ -114,6 +114,7 @@ export class AppComponent implements OnInit {
   }
 
   private async logOut(expired: boolean) {
+    await this.stateService.clearAuthTokens();
     await this.stateService.clean();
 
     this.authService.logOut(async () => {
