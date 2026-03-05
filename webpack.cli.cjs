@@ -57,7 +57,7 @@ const config = {
     extensions: [".ts", ".js", ".json"],
     plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
     symlinks: false,
-    modules: ["node_modules"],
+    modules: [path.resolve("node_modules")],
   },
   output: {
     filename: "[name].js",
