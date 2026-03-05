@@ -20,8 +20,6 @@ Directory Connector is a TypeScript application that synchronizes users and grou
 - Node
 - Jest for testing
 
-\*Important:\*\* When switching between developing the desktop app and CLI, run `npm run reset` to avoid native module conflicts.
-
 ## Code Architecture & Structure
 
 ### Directory Organization
