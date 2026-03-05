@@ -1,6 +1,5 @@
 import { ApiService } from "@/jslib/common/src/abstractions/api.service";
 import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { EnvironmentService } from "@/jslib/common/src/abstractions/environment.service";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
@@ -31,7 +30,6 @@ export class SyncService {
     private apiService: ApiService,
     private messagingService: MessagingService,
     private i18nService: I18nService,
-    private environmentService: EnvironmentService,
     private stateService: StateService,
     private batchRequestBuilder: BatchRequestBuilder,
     private singleRequestBuilder: SingleRequestBuilder,
@@ -119,19 +117,14 @@ export class SyncService {
     }
 
     // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
+    const apiUrl = await this.stateService.getApiUrl();
     let hashLegacy: string = null;
-    const hashBuffLegacy = await this.cryptoFunctionService.hash(
-      this.environmentService.getApiUrl() + reqJson,
-      "sha256",
-    );
+    const hashBuffLegacy = await this.cryptoFunctionService.hash(apiUrl + reqJson, "sha256");
     if (hashBuffLegacy != null) {
       hashLegacy = Utils.fromBufferToB64(hashBuffLegacy);
     }
     let hash: string = null;
-    const hashBuff = await this.cryptoFunctionService.hash(
-      this.environmentService.getApiUrl() + orgId + reqJson,
-      "sha256",
-    );
+    const hashBuff = await this.cryptoFunctionService.hash(apiUrl + orgId + reqJson, "sha256");
     if (hashBuff != null) {
       hash = Utils.fromBufferToB64(hashBuff);
     }
