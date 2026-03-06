@@ -1,6 +1,7 @@
 import * as lock from "proper-lockfile";
 
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { LogService } from "@/libs/abstractions/log.service";
+
 import { Utils } from "@/jslib/common/src/misc/utils";
 import { LowdbStorageService as LowdbStorageServiceBase } from "@/jslib/node/src/services/lowdbStorage.service";
 

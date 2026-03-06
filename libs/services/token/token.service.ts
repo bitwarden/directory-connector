@@ -1,6 +1,6 @@
+import { StorageService } from "@/libs/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "@/libs/abstractions/token.service";
 
-import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
 
 import { DecodedToken, decodeJwt, tokenNeedsRefresh } from "../../utils/jwt.util";
 

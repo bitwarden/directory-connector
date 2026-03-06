@@ -1,3 +1,4 @@
+import { StorageService } from "@/libs/abstractions/storage.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { DirectoryConfigurations, DirectorySettings } from "@/libs/models/account";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
@@ -15,7 +16,6 @@ import {
 } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
 import { HtmlStorageLocation } from "@/jslib/common/src/enums/htmlStorageLocation";
 import { StateVersion } from "@/jslib/common/src/enums/stateVersion";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";

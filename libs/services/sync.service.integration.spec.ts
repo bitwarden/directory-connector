@@ -1,15 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+
+import { ApiService } from "@/libs/abstractions/api.service";
+import { CryptoFunctionService } from "@/libs/abstractions/cryptoFunction.service";
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { LogService } from "@/libs/abstractions/log.service";
+import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
-
-import { ApiService } from "@/jslib/common/src/abstractions/api.service";
-import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
-
-import { I18nService } from "../../jslib/common/src/abstractions/i18n.service";
-import { LogService } from "../../jslib/common/src/abstractions/log.service";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 import { LdapDirectoryService } from "./directory-services/ldap-directory.service";

@@ -1,4 +1,5 @@
-import { PlatformUtilsService } from "../../abstractions/platformUtils.service";
+import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
+
 import { DeviceType } from "../../enums/deviceType";
 
 export class DeviceRequest {

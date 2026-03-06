@@ -1,10 +1,9 @@
 import { Component, EventEmitter, OnInit, Output } from "@angular/core";
 
 import { EnvironmentService, EnvironmentUrls } from "@/libs/abstractions/environment.service";
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
-
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 
 @Component({
   selector: "app-environment",

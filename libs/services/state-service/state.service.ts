@@ -1,4 +1,6 @@
+import { LogService } from "@/libs/abstractions/log.service";
 import { StateService as StateServiceAbstraction } from "@/libs/abstractions/state.service";
+import { StorageService } from "@/libs/abstractions/storage.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { IConfiguration } from "@/libs/models/IConfiguration";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
@@ -13,8 +15,7 @@ import {
 } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
-import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
+
 import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 

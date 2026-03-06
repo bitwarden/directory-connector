@@ -1,4 +1,4 @@
-import { I18nService as I18nServiceAbstraction } from "../abstractions/i18n.service";
+import { I18nService as I18nServiceAbstraction } from "@/libs/abstractions/i18n.service";
 
 export class I18nService implements I18nServiceAbstraction {
   locale: string;

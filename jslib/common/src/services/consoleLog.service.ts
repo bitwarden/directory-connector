@@ -1,6 +1,7 @@
 import * as hrtime from "browser-hrtime";
 
-import { LogService as LogServiceAbstraction } from "../abstractions/log.service";
+import { LogService as LogServiceAbstraction } from "@/libs/abstractions/log.service";
+
 import { LogLevelType } from "../enums/logLevelType";
 
 export class ConsoleLogService implements LogServiceAbstraction {

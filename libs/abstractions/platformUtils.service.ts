@@ -1,6 +1,6 @@
-import { ClientType } from "../enums/clientType";
-import { DeviceType } from "../enums/deviceType";
-import { ThemeType } from "../enums/themeType";
+import { ClientType } from "@/jslib/common/src/enums/clientType";
+import { DeviceType } from "@/jslib/common/src/enums/deviceType";
+import { ThemeType } from "@/jslib/common/src/enums/themeType";
 
 interface ToastOptions {
   timeout?: number;

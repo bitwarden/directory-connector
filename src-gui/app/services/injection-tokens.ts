@@ -1,6 +1,6 @@
 import { InjectionToken } from "@angular/core";
 
-import { StorageService } from "../../../jslib/common/src/abstractions/storage.service";
+import { StorageService } from "@/libs/abstractions/storage.service";
 
 declare const tag: unique symbol;
 /**

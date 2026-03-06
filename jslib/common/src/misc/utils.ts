@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-escape */
 import * as url from "url";
 
-import { I18nService } from "../abstractions/i18n.service";
+import { I18nService } from "@/libs/abstractions/i18n.service";
 
 import * as tldjs from "tldjs";
 

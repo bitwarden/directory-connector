@@ -1,6 +1,7 @@
 import { Directive, ElementRef, Input, OnChanges } from "@angular/core";
 
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { LogService } from "@/libs/abstractions/log.service";
+
 import { ErrorResponse } from "@/jslib/common/src/models/response/errorResponse";
 
 import { ValidationService } from "@/src-gui/angular/services/validation.service";

@@ -1,11 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { CryptoFunctionService } from "@/libs/abstractions/cryptoFunction.service";
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
+import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 
-import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
+
 import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 import { ApiService } from "@/jslib/common/src/services/api.service";
 

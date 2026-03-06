@@ -1,5 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { LogService } from "@/libs/abstractions/log.service";
+import { StorageService } from "@/libs/abstractions/storage.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
@@ -13,8 +15,7 @@ import {
 } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
-import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
+
 import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
 
 import { StateServiceImplementation } from "./state.service";

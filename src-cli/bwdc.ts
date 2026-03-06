@@ -3,6 +3,7 @@ import * as path from "path";
 
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
 import { EnvironmentService } from "@/libs/abstractions/environment.service";
+import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
 import { TokenService } from "@/libs/abstractions/token.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
@@ -20,7 +21,6 @@ import { StateMigrationService } from "@/libs/services/state-service/stateMigrat
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
 
-import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
 import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
 import { AppIdService } from "@/jslib/common/src/services/appId.service";

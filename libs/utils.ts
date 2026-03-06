@@ -1,3 +1,4 @@
+import { I18nService } from "@/libs/abstractions/i18n.service";
 import { Entry } from "@/libs/models/entry";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
 import { SimResult } from "@/libs/models/simResult";
@@ -5,7 +6,6 @@ import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 import { UserEntry } from "@/libs/models/userEntry";
 import { SyncService } from "@/libs/services/sync.service";
 
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 
 export class ConnectorUtils {
   static async simulate(

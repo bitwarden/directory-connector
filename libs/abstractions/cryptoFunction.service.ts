@@ -1,5 +1,5 @@
-import { DecryptParameters } from "../models/domain/decryptParameters";
-import { SymmetricCryptoKey } from "../models/domain/symmetricCryptoKey";
+import { DecryptParameters } from "@/jslib/common/src/models/domain/decryptParameters";
+import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
 
 export abstract class CryptoFunctionService {
   pbkdf2: (

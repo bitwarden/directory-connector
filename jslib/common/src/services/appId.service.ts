@@ -1,5 +1,6 @@
-import { AppIdService as AppIdServiceAbstraction } from "../abstractions/appId.service";
-import { StorageService } from "../abstractions/storage.service";
+import { AppIdService as AppIdServiceAbstraction } from "@/libs/abstractions/appId.service";
+import { StorageService } from "@/libs/abstractions/storage.service";
+
 import { HtmlStorageLocation } from "../enums/htmlStorageLocation";
 import { Utils } from "../misc/utils";
 

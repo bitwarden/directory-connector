@@ -1,6 +1,7 @@
 import * as program from "commander";
 
 import { EnvironmentUrls } from "@/libs/abstractions/environment.service";
+import { I18nService } from "@/libs/abstractions/i18n.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
@@ -11,7 +12,6 @@ import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 import { ConnectorUtils } from "@/libs/utils";
 
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { NodeUtils } from "@/jslib/common/src/misc/nodeUtils";
 import { Response } from "@/jslib/node/src/cli/models/response";
 import { MessageResponse } from "@/jslib/node/src/cli/models/response/messageResponse";

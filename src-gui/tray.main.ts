@@ -10,9 +10,9 @@ import {
   Tray,
 } from "electron";
 
+import { I18nService } from "@/libs/abstractions/i18n.service";
 import { StateService } from "@/libs/abstractions/state.service";
 
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 
 import { WindowMain } from "./window.main";
 

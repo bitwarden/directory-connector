@@ -1,9 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { LogService } from "@/libs/abstractions/log.service";
 import { StateService } from "@/libs/abstractions/state.service";
 
-import { I18nService } from "../../../jslib/common/src/abstractions/i18n.service";
-import { LogService } from "../../../jslib/common/src/abstractions/log.service";
 import {
   getLdapConfiguration,
   getSyncConfiguration,

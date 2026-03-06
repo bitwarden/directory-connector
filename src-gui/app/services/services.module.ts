@@ -6,10 +6,19 @@ import {
   NgModule,
 } from "@angular/core";
 
+import { ApiService as ApiServiceAbstraction } from "@/libs/abstractions/api.service";
+import { AppIdService as AppIdServiceAbstraction } from "@/libs/abstractions/appId.service";
 import { AuthService as AuthServiceAbstraction } from "@/libs/abstractions/auth.service";
+import { BroadcasterService as BroadcasterServiceAbstraction } from "@/libs/abstractions/broadcaster.service";
+import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/libs/abstractions/cryptoFunction.service";
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/libs/abstractions/environment.service";
+import { I18nService as I18nServiceAbstraction } from "@/libs/abstractions/i18n.service";
+import { LogService as LogServiceAbstraction } from "@/libs/abstractions/log.service";
+import { MessagingService as MessagingServiceAbstraction } from "@/libs/abstractions/messaging.service";
+import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/libs/abstractions/platformUtils.service";
 import { StateService as StateServiceAbstraction } from "@/libs/abstractions/state.service";
+import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "@/libs/abstractions/token.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
@@ -22,15 +31,7 @@ import { StateMigrationService } from "@/libs/services/state-service/stateMigrat
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
 
-import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
-import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
-import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService as LogServiceAbstraction } from "@/jslib/common/src/abstractions/log.service";
-import { MessagingService as MessagingServiceAbstraction } from "@/jslib/common/src/abstractions/messaging.service";
-import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
+
 import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";

@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 
+import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { StateService } from "@/libs/abstractions/state.service";
 
-import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 
 @Injectable()
 export class AuthGuardService {

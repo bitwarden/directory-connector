@@ -2,7 +2,8 @@ import * as crypto from "crypto";
 
 import * as forge from "node-forge";
 
-import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
+import { CryptoFunctionService } from "@/libs/abstractions/cryptoFunction.service";
+
 import { Utils } from "@/jslib/common/src/misc/utils";
 import { DecryptParameters } from "@/jslib/common/src/models/domain/decryptParameters";
 import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";

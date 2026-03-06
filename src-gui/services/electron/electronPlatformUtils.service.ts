@@ -1,8 +1,9 @@
 import { clipboard, ipcRenderer, shell } from "electron";
 
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
-import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { MessagingService } from "@/libs/abstractions/messaging.service";
+import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
+
 import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { DeviceType } from "@/jslib/common/src/enums/deviceType";
 import { ThemeType } from "@/jslib/common/src/enums/themeType";

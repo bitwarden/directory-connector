@@ -4,8 +4,9 @@ import * as path from "path";
 import * as lowdb from "lowdb";
 import * as FileSync from "lowdb/adapters/FileSync";
 
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
-import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
+import { LogService } from "@/libs/abstractions/log.service";
+import { StorageService } from "@/libs/abstractions/storage.service";
+
 import { NodeUtils } from "@/jslib/common/src/misc/nodeUtils";
 import { sequentialize } from "@/jslib/common/src/misc/sequentialize";
 import { Utils } from "@/jslib/common/src/misc/utils";

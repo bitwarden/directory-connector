@@ -1,4 +1,5 @@
-import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
+import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
+
 import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { DeviceType } from "@/jslib/common/src/enums/deviceType";
 import { ThemeType } from "@/jslib/common/src/enums/themeType";

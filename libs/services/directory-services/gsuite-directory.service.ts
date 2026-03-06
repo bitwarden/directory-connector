@@ -1,10 +1,10 @@
 import { JWT } from "google-auth-library";
 import { admin_directory_v1, google } from "googleapis";
 
-import { StateService } from "@/libs/abstractions/state.service";
 
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { LogService } from "@/libs/abstractions/log.service";
+import { StateService } from "@/libs/abstractions/state.service";
 
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
