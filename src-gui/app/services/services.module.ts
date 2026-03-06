@@ -20,20 +20,19 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/libs/
 import { StateService as StateServiceAbstraction } from "@/libs/abstractions/state.service";
 import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "@/libs/abstractions/token.service";
-import { NodeApiService } from "@/libs/jslib/node/src/services/nodeApi.service";
-import { NodeCryptoFunctionService } from "@/libs/jslib/node/src/services/nodeCryptoFunction.service";
 import { AppIdService } from "@/libs/services/appId.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
 import { EnvironmentService as EnvironmentServiceImplementation } from "@/libs/services/environment/environment.service";
 import { I18nService } from "@/libs/services/i18n.service";
+import { NodeApiService } from "@/libs/services/nodeApi.service";
+import { NodeCryptoFunctionService } from "@/libs/services/nodeCryptoFunction.service";
 import { SingleRequestBuilder } from "@/libs/services/single-request-builder";
 import { StateServiceImplementation } from "@/libs/services/state-service/state.service";
 import { StateMigrationService } from "@/libs/services/state-service/stateMigration.service";
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
-
 
 import { BroadcasterService as BroadcasterServiceImplementation } from "@/src-gui/angular/services/broadcaster.service";
 import { ModalService } from "@/src-gui/angular/services/modal.service";

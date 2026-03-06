@@ -1,9 +1,8 @@
 import * as lock from "proper-lockfile";
 
 import { LogService } from "@/libs/abstractions/log.service";
-import { LowdbStorageService as LowdbStorageServiceBase } from "@/libs/jslib/node/src/services/baseLowdbStorage.service";
+import { LowdbStorageService as LowdbStorageServiceBase } from "@/libs/services/baseLowdbStorage.service";
 import { Utils } from "@/libs/utils/utils";
-
 
 export class LowdbStorageService extends LowdbStorageServiceBase {
   constructor(
