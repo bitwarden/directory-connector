@@ -1,4 +1,4 @@
-import { ImportDirectoryRequestGroup } from "./importDirectoryRequestGroup";
+import { ImportDirectoryRequestGroup } from "@/libs/models/request/importDirectoryRequestGroup";
 
 export class OrganizationImportGroupRequest {
   name: string;

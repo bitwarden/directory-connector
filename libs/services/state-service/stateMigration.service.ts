@@ -1,6 +1,9 @@
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
+import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
+import { StateVersion } from "@/libs/enums/stateVersion";
 import { DirectoryConfigurations, DirectorySettings } from "@/libs/models/account";
+import { StorageOptions } from "@/libs/models/domain/storageOptions";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
@@ -16,9 +19,6 @@ import {
 } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-import { HtmlStorageLocation } from "@/jslib/common/src/enums/htmlStorageLocation";
-import { StateVersion } from "@/jslib/common/src/enums/stateVersion";
-import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
 export class StateMigrationService {
   constructor(

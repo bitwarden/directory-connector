@@ -1,4 +1,4 @@
-import { ImportDirectoryRequestUser } from "./importDirectoryRequestUser";
+import { ImportDirectoryRequestUser } from "@/libs/models/request/importDirectoryRequestUser";
 
 export class OrganizationImportMemberRequest {
   email: string;

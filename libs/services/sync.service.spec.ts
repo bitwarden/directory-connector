@@ -5,10 +5,8 @@ import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.s
 import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
-
-
-import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
-import { ApiService } from "@/jslib/common/src/services/api.service";
+import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
+import { ApiService } from "@/libs/services/api.service";
 
 import { getSyncConfiguration } from "../../utils/openldap/config-fixtures";
 import { GroupEntry } from "../models/groupEntry";

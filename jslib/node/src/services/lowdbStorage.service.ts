@@ -6,10 +6,9 @@ import * as FileSync from "lowdb/adapters/FileSync";
 
 import { LogService } from "@/libs/abstractions/log.service";
 import { StorageService } from "@/libs/abstractions/storage.service";
-
-import { NodeUtils } from "@/jslib/common/src/misc/nodeUtils";
-import { sequentialize } from "@/jslib/common/src/misc/sequentialize";
-import { Utils } from "@/jslib/common/src/misc/utils";
+import { NodeUtils } from "@/libs/utils/nodeUtils";
+import { sequentialize } from "@/libs/utils/sequentialize";
+import { Utils } from "@/libs/utils/utils";
 
 export class LowdbStorageService implements StorageService {
   protected dataFilePath: string;

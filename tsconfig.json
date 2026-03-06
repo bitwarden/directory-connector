@@ -19,7 +19,7 @@
     "baseUrl": ".",
     "resolveJsonModule": true,
     "paths": {
-      "tldjs": ["./jslib/common/src/misc/tldjs.noop"],
+      "tldjs": ["./libs/utils/tldjs.noop"],
       "@/*": ["./*"],
       "@/src-gui/*": ["./src-gui/*"],
       "@/src-cli/*": ["./src-cli/*"],

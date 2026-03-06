@@ -5,6 +5,9 @@ import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.s
 import { EnvironmentService } from "@/libs/abstractions/environment.service";
 import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
 import { TokenService } from "@/libs/abstractions/token.service";
+import { ClientType } from "@/libs/enums/clientType";
+import { LogLevelType } from "@/libs/enums/logLevelType";
+import { AppIdService } from "@/libs/services/appId.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
@@ -12,6 +15,7 @@ import { EnvironmentService as EnvironmentServiceImplementation } from "@/libs/s
 import { I18nService } from "@/libs/services/i18n.service";
 import { KeytarSecureStorageService } from "@/libs/services/keytarSecureStorage.service";
 import { LowdbStorageService } from "@/libs/services/lowdbStorage.service";
+import { NoopMessagingService } from "@/libs/services/noopMessaging.service";
 import { SingleRequestBuilder } from "@/libs/services/single-request-builder";
 import {
   StateService,
@@ -21,10 +25,6 @@ import { StateMigrationService } from "@/libs/services/state-service/stateMigrat
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
 
-import { ClientType } from "@/jslib/common/src/enums/clientType";
-import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
-import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
 
 import { CliPlatformUtilsService } from "@/src-cli/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "@/src-cli/cli/services/consoleLog.service";

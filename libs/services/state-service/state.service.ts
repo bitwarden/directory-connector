@@ -3,6 +3,8 @@ import { StateService as StateServiceAbstraction } from "@/libs/abstractions/sta
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { IConfiguration } from "@/libs/models/IConfiguration";
+import { EnvironmentUrls } from "@/libs/models/domain/environmentUrls";
+import { StorageOptions } from "@/libs/models/domain/storageOptions";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
@@ -15,9 +17,6 @@ import {
 } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-
-import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
-import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
 import { StateMigrationService } from "./stateMigration.service";
 

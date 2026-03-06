@@ -1,5 +1,5 @@
-import { HtmlStorageLocation } from "../../enums/htmlStorageLocation";
-import { StorageLocation } from "../../enums/storageLocation";
+import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
+import { StorageLocation } from "@/libs/enums/storageLocation";
 
 export type StorageOptions = {
   storageLocation?: StorageLocation;

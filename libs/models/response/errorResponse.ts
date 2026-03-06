@@ -1,6 +1,6 @@
-import { Utils } from "../../misc/utils";
+import { BaseResponse } from "@/libs/models/response/baseResponse";
+import { Utils } from "@/libs/utils/utils";
 
-import { BaseResponse } from "./baseResponse";
 
 export class ErrorResponse extends BaseResponse {
   message: string;

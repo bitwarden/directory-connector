@@ -1,5 +1,5 @@
-import { EncryptionType } from "../../enums/encryptionType";
-import { Utils } from "../../misc/utils";
+import { EncryptionType } from "@/libs/enums/encryptionType";
+import { Utils } from "@/libs/utils/utils";
 
 export class SymmetricCryptoKey {
   key: ArrayBuffer;

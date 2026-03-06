@@ -4,8 +4,7 @@ import { ipcMain } from "electron";
 import Store from "electron-store";
 
 import { StorageService } from "@/libs/abstractions/storage.service";
-
-import { NodeUtils } from "@/jslib/common/src/misc/nodeUtils";
+import { NodeUtils } from "@/libs/utils/nodeUtils";
 
 export class ElectronStorageService implements StorageService {
   private store: any;

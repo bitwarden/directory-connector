@@ -3,10 +3,9 @@ import { clipboard, ipcRenderer, shell } from "electron";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
-
-import { ClientType } from "@/jslib/common/src/enums/clientType";
-import { DeviceType } from "@/jslib/common/src/enums/deviceType";
-import { ThemeType } from "@/jslib/common/src/enums/themeType";
+import { ClientType } from "@/libs/enums/clientType";
+import { DeviceType } from "@/libs/enums/deviceType";
+import { ThemeType } from "@/libs/enums/themeType";
 
 import { isDev, isMacAppStore } from "@/src-gui/utils";
 

@@ -1,10 +1,10 @@
-import { ApiTokenRequest } from "@/jslib/common/src/models/request/identityToken/apiTokenRequest";
-import { PasswordTokenRequest } from "@/jslib/common/src/models/request/identityToken/passwordTokenRequest";
-import { SsoTokenRequest } from "@/jslib/common/src/models/request/identityToken/ssoTokenRequest";
-import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
-import { IdentityCaptchaResponse } from "@/jslib/common/src/models/response/identityCaptchaResponse";
-import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
-import { IdentityTwoFactorResponse } from "@/jslib/common/src/models/response/identityTwoFactorResponse";
+import { ApiTokenRequest } from "@/libs/models/request/identityToken/apiTokenRequest";
+import { PasswordTokenRequest } from "@/libs/models/request/identityToken/passwordTokenRequest";
+import { SsoTokenRequest } from "@/libs/models/request/identityToken/ssoTokenRequest";
+import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
+import { IdentityCaptchaResponse } from "@/libs/models/response/identityCaptchaResponse";
+import { IdentityTokenResponse } from "@/libs/models/response/identityTokenResponse";
+import { IdentityTwoFactorResponse } from "@/libs/models/response/identityTwoFactorResponse";
 
 export abstract class ApiService {
   postIdentityToken: (

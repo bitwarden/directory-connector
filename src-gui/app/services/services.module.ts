@@ -20,6 +20,7 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/libs/
 import { StateService as StateServiceAbstraction } from "@/libs/abstractions/state.service";
 import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "@/libs/abstractions/token.service";
+import { AppIdService } from "@/libs/services/appId.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
@@ -31,8 +32,6 @@ import { StateMigrationService } from "@/libs/services/state-service/stateMigrat
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
 
-
-import { AppIdService } from "@/jslib/common/src/services/appId.service";
 import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 

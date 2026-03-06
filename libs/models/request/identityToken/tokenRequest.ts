@@ -1,6 +1,5 @@
-import { DeviceRequest } from "../deviceRequest";
-
-import { TokenRequestTwoFactor } from "./tokenRequestTwoFactor";
+import { DeviceRequest } from "@/libs/models/request/deviceRequest";
+import { TokenRequestTwoFactor } from "@/libs/models/request/identityToken/tokenRequestTwoFactor";
 
 export abstract class TokenRequest {
   protected device?: DeviceRequest;

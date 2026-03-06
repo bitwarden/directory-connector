@@ -1,4 +1,4 @@
-import { BaseResponse } from "./baseResponse";
+import { BaseResponse } from "@/libs/models/response/baseResponse";
 
 export class IdentityCaptchaResponse extends BaseResponse {
   siteKey: string;

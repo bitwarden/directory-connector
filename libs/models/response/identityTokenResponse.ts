@@ -1,6 +1,5 @@
-import { KdfType } from "../../enums/kdfType";
-
-import { BaseResponse } from "./baseResponse";
+import { KdfType } from "@/libs/enums/kdfType";
+import { BaseResponse } from "@/libs/models/response/baseResponse";
 
 export class IdentityTokenResponse extends BaseResponse {
   accessToken: string;

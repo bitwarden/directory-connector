@@ -1,14 +1,12 @@
 import { mock } from "jest-mock-extended";
 
-
 import { ApiService } from "@/libs/abstractions/api.service";
 import { AppIdService } from "@/libs/abstractions/appId.service";
 import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
-
-import { Utils } from "@/jslib/common/src/misc/utils";
-import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
+import { IdentityTokenResponse } from "@/libs/models/response/identityTokenResponse";
+import { Utils } from "@/libs/utils/utils";
 
 import { AuthService } from "./auth.service";
 

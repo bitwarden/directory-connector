@@ -1,4 +1,4 @@
-import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
+import { EnvironmentUrls } from "@/libs/models/domain/environmentUrls";
 
 export { EnvironmentUrls };
 

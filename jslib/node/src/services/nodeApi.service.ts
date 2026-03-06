@@ -6,9 +6,7 @@ import { AppIdService } from "@/libs/abstractions/appId.service";
 import { EnvironmentService } from "@/libs/abstractions/environment.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { TokenService } from "@/libs/abstractions/token.service";
-
-
-import { ApiService } from "@/jslib/common/src/services/api.service";
+import { ApiService } from "@/libs/services/api.service";
 
 (global as any).fetch = fe.default;
 (global as any).Request = fe.Request;

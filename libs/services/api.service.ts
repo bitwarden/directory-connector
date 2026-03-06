@@ -3,21 +3,18 @@ import { AppIdService } from "@/libs/abstractions/appId.service";
 import { EnvironmentService } from "@/libs/abstractions/environment.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { TokenService } from "@/libs/abstractions/token.service";
-
-import { DeviceRequest } from "@/jslib/common/src/models/request/deviceRequest";
-import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
-
-
-import { DeviceType } from "../enums/deviceType";
-import { Utils } from "../misc/utils";
-import { ApiTokenRequest } from "../models/request/identityToken/apiTokenRequest";
-import { PasswordTokenRequest } from "../models/request/identityToken/passwordTokenRequest";
-import { SsoTokenRequest } from "../models/request/identityToken/ssoTokenRequest";
-import { OrganizationImportRequest } from "../models/request/organizationImportRequest";
-import { ErrorResponse } from "../models/response/errorResponse";
-import { IdentityCaptchaResponse } from "../models/response/identityCaptchaResponse";
-import { IdentityTokenResponse } from "../models/response/identityTokenResponse";
-import { IdentityTwoFactorResponse } from "../models/response/identityTwoFactorResponse";
+import { DeviceType } from "@/libs/enums/deviceType";
+import { DeviceRequest } from "@/libs/models/request/deviceRequest";
+import { ApiTokenRequest } from "@/libs/models/request/identityToken/apiTokenRequest";
+import { PasswordTokenRequest } from "@/libs/models/request/identityToken/passwordTokenRequest";
+import { SsoTokenRequest } from "@/libs/models/request/identityToken/ssoTokenRequest";
+import { TokenRequestTwoFactor } from "@/libs/models/request/identityToken/tokenRequestTwoFactor";
+import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
+import { ErrorResponse } from "@/libs/models/response/errorResponse";
+import { IdentityCaptchaResponse } from "@/libs/models/response/identityCaptchaResponse";
+import { IdentityTokenResponse } from "@/libs/models/response/identityTokenResponse";
+import { IdentityTwoFactorResponse } from "@/libs/models/response/identityTwoFactorResponse";
+import { Utils } from "@/libs/utils/utils";
 
 export class ApiService implements ApiServiceAbstraction {
   private device: DeviceType;

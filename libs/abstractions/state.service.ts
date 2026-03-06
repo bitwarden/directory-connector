@@ -1,4 +1,6 @@
 import { DirectoryType } from "@/libs/enums/directoryType";
+import { EnvironmentUrls } from "@/libs/models/domain/environmentUrls";
+import { StorageOptions } from "@/libs/models/domain/storageOptions";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
@@ -6,8 +8,6 @@ import { OktaConfiguration } from "@/libs/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
-import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
 export abstract class StateService {
   abstract getDirectory<IConfiguration>(type: DirectoryType): Promise<IConfiguration>;

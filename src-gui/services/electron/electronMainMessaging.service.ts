@@ -1,8 +1,7 @@
 import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme } from "electron";
 
 import { MessagingService } from "@/libs/abstractions/messaging.service";
-
-import { ThemeType } from "@/jslib/common/src/enums/themeType";
+import { ThemeType } from "@/libs/enums/themeType";
 
 import { RendererMenuItem } from "@/src-gui/utils";
 import { WindowMain } from "@/src-gui/window.main";

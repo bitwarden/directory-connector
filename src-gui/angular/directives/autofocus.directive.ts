@@ -1,7 +1,7 @@
 import { Directive, ElementRef, Input, NgZone } from "@angular/core";
 import { take } from "rxjs";
 
-import { Utils } from "@/jslib/common/src/misc/utils";
+import { Utils } from "@/libs/utils/utils";
 
 @Directive({
   selector: "[appAutofocus]",

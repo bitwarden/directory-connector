@@ -1,7 +1,6 @@
-import { DeviceRequest } from "../deviceRequest";
-
-import { TokenRequest } from "./tokenRequest";
-import { TokenRequestTwoFactor } from "./tokenRequestTwoFactor";
+import { DeviceRequest } from "@/libs/models/request/deviceRequest";
+import { TokenRequest } from "@/libs/models/request/identityToken/tokenRequest";
+import { TokenRequestTwoFactor } from "@/libs/models/request/identityToken/tokenRequestTwoFactor";
 
 export class SsoTokenRequest extends TokenRequest {
   constructor(

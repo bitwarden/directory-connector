@@ -1,4 +1,4 @@
-import { TwoFactorProviderType } from "@/jslib/common/src/enums/twoFactorProviderType";
+import { TwoFactorProviderType } from "@/libs/enums/twoFactorProviderType";
 
 export class TokenRequestTwoFactor {
   constructor(

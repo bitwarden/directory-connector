@@ -3,10 +3,9 @@ import * as crypto from "crypto";
 import * as forge from "node-forge";
 
 import { CryptoFunctionService } from "@/libs/abstractions/cryptoFunction.service";
-
-import { Utils } from "@/jslib/common/src/misc/utils";
-import { DecryptParameters } from "@/jslib/common/src/models/domain/decryptParameters";
-import { SymmetricCryptoKey } from "@/jslib/common/src/models/domain/symmetricCryptoKey";
+import { DecryptParameters } from "@/libs/models/domain/decryptParameters";
+import { SymmetricCryptoKey } from "@/libs/models/domain/symmetricCryptoKey";
+import { Utils } from "@/libs/utils/utils";
 
 export class NodeCryptoFunctionService implements CryptoFunctionService {
   pbkdf2(

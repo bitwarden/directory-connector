@@ -1,4 +1,4 @@
-import { VerificationType } from "../enums/verificationType";
+import { VerificationType } from "@/libs/enums/verificationType";
 
 export type Verification = {
   type: VerificationType;

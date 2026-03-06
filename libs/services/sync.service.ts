@@ -6,12 +6,10 @@ import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { GroupEntry } from "@/libs/models/groupEntry";
+import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 import { UserEntry } from "@/libs/models/userEntry";
-
-
-import { Utils } from "@/jslib/common/src/misc/utils";
-import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
+import { Utils } from "@/libs/utils/utils";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 import { SingleRequestBuilder } from "./single-request-builder";
