@@ -6,7 +6,8 @@ import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUt
 import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { DeviceType } from "@/jslib/common/src/enums/deviceType";
 import { ThemeType } from "@/jslib/common/src/enums/themeType";
-import { isDev, isMacAppStore } from "@/jslib/electron/src/utils";
+
+import { isDev, isMacAppStore } from "@/src-gui/utils";
 
 export class ElectronPlatformUtilsService implements PlatformUtilsService {
   private clientType: ClientType;
