@@ -108,8 +108,6 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install mkcert
           npm run test:integration:setup
-          echo "Waiting for LDAP container to be healthy..."
-          timeout 60 bash -c 'until docker compose ps | grep open-ldap | grep -q "(healthy)"; do sleep 2; done'
           echo "LDAP container is ready!"
 
       - name: Run LDAP integration tests
