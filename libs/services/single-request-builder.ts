@@ -3,7 +3,6 @@ import { GroupEntry } from "@/libs/models/groupEntry";
 import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { UserEntry } from "@/libs/models/userEntry";
 
-
 /**
  * This class is responsible for building small (<2k users) syncs as a single
  * request to the /import endpoint. This is done to be backwards compatible with

@@ -6,7 +6,6 @@ import { Utils } from "@/libs/utils/utils";
 import { Response } from "@/src-cli/cli/models/response";
 import { MessageResponse } from "@/src-cli/cli/models/response/messageResponse";
 
-
 export class LoginCommand {
   private canInteract: boolean;
 

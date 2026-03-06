@@ -13,7 +13,6 @@ import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 import { ConnectorUtils } from "@/libs/utils";
 
-
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",

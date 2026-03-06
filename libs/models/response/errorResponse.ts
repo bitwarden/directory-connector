@@ -1,7 +1,6 @@
 import { BaseResponse } from "@/libs/models/response/baseResponse";
 import { Utils } from "@/libs/utils/utils";
 
-
 export class ErrorResponse extends BaseResponse {
   message: string;
   validationErrors: { [key: string]: string[] };

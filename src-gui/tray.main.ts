@@ -13,7 +13,6 @@ import {
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { StateService } from "@/libs/abstractions/state.service";
 
-
 import { WindowMain } from "./window.main";
 
 export class TrayMain {

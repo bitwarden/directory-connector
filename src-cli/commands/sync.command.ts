@@ -1,7 +1,6 @@
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { SyncService } from "@/libs/services/sync.service";
 
-
 import { Response } from "@/src-cli/cli/models/response";
 import { MessageResponse } from "@/src-cli/cli/models/response/messageResponse";
 

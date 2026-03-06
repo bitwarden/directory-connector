@@ -8,7 +8,6 @@ import { OktaConfiguration } from "@/libs/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-
 export abstract class StateService {
   abstract getDirectory<IConfiguration>(type: DirectoryType): Promise<IConfiguration>;
   abstract setDirectory(

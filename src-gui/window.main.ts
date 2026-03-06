@@ -6,7 +6,6 @@ import { app, BrowserWindow, Rectangle, screen } from "electron";
 import { LogService } from "@/libs/abstractions/log.service";
 import { StateService } from "@/libs/abstractions/state.service";
 
-
 import { cleanUserAgent, isDev, isMacAppStore, isSnapStore } from "./utils";
 
 const mainWindowSizeKey = "mainWindowSize";

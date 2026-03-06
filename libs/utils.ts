@@ -6,7 +6,6 @@ import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 import { UserEntry } from "@/libs/models/userEntry";
 import { SyncService } from "@/libs/services/sync.service";
 
-
 export class ConnectorUtils {
   static async simulate(
     syncService: SyncService,

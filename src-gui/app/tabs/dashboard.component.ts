@@ -11,7 +11,6 @@ import { UserEntry } from "@/libs/models/userEntry";
 import { SyncService } from "@/libs/services/sync.service";
 import { ConnectorUtils } from "@/libs/utils";
 
-
 const BroadcasterSubscriptionId = "DashboardComponent";
 
 @Component({

@@ -16,7 +16,6 @@ import {
 } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-
 import { StateServiceImplementation } from "./state.service";
 import { StateMigrationService } from "./stateMigration.service";
 

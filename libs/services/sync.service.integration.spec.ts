@@ -1,6 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-
 import { ApiService } from "@/libs/abstractions/api.service";
 import { CryptoFunctionService } from "@/libs/abstractions/cryptoFunction.service";
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";

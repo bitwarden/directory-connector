@@ -19,7 +19,6 @@ import {
 } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-
 export class StateMigrationService {
   constructor(
     protected storageService: StorageService,

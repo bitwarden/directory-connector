@@ -1,6 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
 import { StateService } from "@/libs/abstractions/state.service";

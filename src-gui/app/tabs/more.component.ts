@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, NgZone, OnInit } from "@angular/core";
 
-
 import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { MessagingService } from "@/libs/abstractions/messaging.service";

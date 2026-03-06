@@ -17,7 +17,6 @@ import {
 } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-
 import { StateMigrationService } from "./stateMigration.service";
 
 export class StateServiceImplementation implements StateServiceAbstraction {

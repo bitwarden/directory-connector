@@ -25,7 +25,6 @@ import { StateMigrationService } from "@/libs/services/state-service/stateMigrat
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
 
-
 import { CliPlatformUtilsService } from "@/src-cli/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "@/src-cli/cli/services/consoleLog.service";
 import { NodeApiService } from "@/src-cli/services/node/nodeApi.service";

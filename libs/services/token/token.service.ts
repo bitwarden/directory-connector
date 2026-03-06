@@ -1,7 +1,6 @@
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "@/libs/abstractions/token.service";
 
-
 import { DecodedToken, decodeJwt, tokenNeedsRefresh } from "../../utils/jwt.util";
 
 export class TokenService implements TokenServiceAbstraction {
