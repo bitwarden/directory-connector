@@ -19,9 +19,8 @@
       "@/*": ["./*"],
       "@/src-gui/*": ["./src-gui/*"],
       "@/src-cli/*": ["./src-cli/*"],
-      "@/libs/*": ["./libs/*"],
-      "@/jslib/*": ["./jslib/*"]
+      "@/libs/*": ["./libs/*"]
     }
   },
-  "include": ["src-gui", "src-cli", "libs", "jslib", "scripts", "utils", "./*.ts"]
+  "include": ["src-gui", "src-cli", "libs", "scripts", "utils", "./*.ts"]
 }

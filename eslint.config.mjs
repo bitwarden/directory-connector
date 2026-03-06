@@ -92,11 +92,6 @@ export default [
               position: "after",
             },
             {
-              pattern: "@/jslib/**",
-              group: "external",
-              position: "after",
-            },
-            {
               pattern: "@/src-gui/**",
               group: "external",
               position: "after",
