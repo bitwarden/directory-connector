@@ -3,11 +3,11 @@ import * as tls from "tls";
 
 import * as ldapts from "ldapts";
 
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
-import { Utils } from "@/jslib/common/src/misc/utils";
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { LogService } from "@/libs/abstractions/log.service";
+import { StateService } from "@/libs/abstractions/state.service";
+import { Utils } from "@/libs/utils/utils";
 
-import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
 import { LdapConfiguration } from "../../models/ldapConfiguration";

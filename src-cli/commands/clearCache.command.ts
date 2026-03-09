@@ -1,8 +1,7 @@
 import * as program from "commander";
 
+import { I18nService } from "@/libs/abstractions/i18n.service";
 import { StateService } from "@/libs/abstractions/state.service";
-
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 
 import { Response } from "@/src-cli/cli/models/response";
 import { MessageResponse } from "@/src-cli/cli/models/response/messageResponse";

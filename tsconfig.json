@@ -19,14 +19,13 @@
     "baseUrl": ".",
     "resolveJsonModule": true,
     "paths": {
-      "tldjs": ["./jslib/common/src/misc/tldjs.noop"],
+      "tldjs": ["./libs/utils/tldjs.noop"],
       "@/*": ["./*"],
       "@/src-gui/*": ["./src-gui/*"],
       "@/src-cli/*": ["./src-cli/*"],
-      "@/libs/*": ["./libs/*"],
-      "@/jslib/*": ["./jslib/*"]
+      "@/libs/*": ["./libs/*"]
     },
     "useDefineForClassFields": false
   },
-  "include": ["src-gui", "src-cli", "libs", "jslib"]
+  "include": ["src-gui", "src-cli", "libs"]
 }

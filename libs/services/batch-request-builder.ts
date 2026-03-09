@@ -1,8 +1,7 @@
 import { RequestBuilder, RequestBuilderOptions } from "@/libs/abstractions/request-builder.service";
 import { GroupEntry } from "@/libs/models/groupEntry";
+import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { UserEntry } from "@/libs/models/userEntry";
-
-import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 
 import { batchSize } from "./sync.service";
 

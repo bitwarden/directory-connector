@@ -1,9 +1,0 @@
-.vs
-.idea
-node_modules
-npm-debug.log
-vwd.webinfo
-*.crx
-*.pem
-dist
-coverage

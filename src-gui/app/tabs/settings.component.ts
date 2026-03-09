@@ -1,6 +1,8 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { webUtils } from "electron";
 
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { LogService } from "@/libs/abstractions/log.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
@@ -10,9 +12,6 @@ import { OktaConfiguration } from "@/libs/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 import { ConnectorUtils } from "@/libs/utils";
-
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
 @Component({
   selector: "app-settings",

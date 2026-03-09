@@ -1,7 +1,6 @@
 import { GroupEntry } from "@/libs/models/groupEntry";
+import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { UserEntry } from "@/libs/models/userEntry";
-
-import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 
 export interface RequestBuilderOptions {
   removeDisabled: boolean;

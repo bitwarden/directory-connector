@@ -1,11 +1,10 @@
 import * as inquirer from "inquirer";
 
 import { AuthService } from "@/libs/abstractions/auth.service";
+import { Utils } from "@/libs/utils/utils";
 
 import { Response } from "@/src-cli/cli/models/response";
 import { MessageResponse } from "@/src-cli/cli/models/response/messageResponse";
-
-import { Utils } from "../../jslib/common/src/misc/utils";
 
 export class LoginCommand {
   private canInteract: boolean;

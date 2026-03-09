@@ -3,12 +3,11 @@ import { Router } from "@angular/router";
 import { takeUntil } from "rxjs";
 
 import { AuthService } from "@/libs/abstractions/auth.service";
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { LogService } from "@/libs/abstractions/log.service";
+import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
-
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
-import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { Utils } from "@/jslib/common/src/misc/utils";
+import { Utils } from "@/libs/utils/utils";
 
 import { ModalService } from "@/src-gui/angular/services/modal.service";
 

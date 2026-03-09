@@ -3,9 +3,8 @@ import * as url from "url";
 
 import { app, BrowserWindow, Rectangle, screen } from "electron";
 
+import { LogService } from "@/libs/abstractions/log.service";
 import { StateService } from "@/libs/abstractions/state.service";
-
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
 import { cleanUserAgent, isDev, isMacAppStore, isSnapStore } from "./utils";
 

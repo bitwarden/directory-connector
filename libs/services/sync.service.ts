@@ -1,16 +1,15 @@
+import { ApiService } from "@/libs/abstractions/api.service";
+import { CryptoFunctionService } from "@/libs/abstractions/cryptoFunction.service";
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { GroupEntry } from "@/libs/models/groupEntry";
+import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 import { UserEntry } from "@/libs/models/userEntry";
-
-import { ApiService } from "@/jslib/common/src/abstractions/api.service";
-import { CryptoFunctionService } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
-import { Utils } from "@/jslib/common/src/misc/utils";
-import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
+import { Utils } from "@/libs/utils/utils";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 import { SingleRequestBuilder } from "./single-request-builder";
@@ -116,8 +115,8 @@ export class SyncService {
       throw new Error("Organization not set.");
     }
 
-    // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
     const apiUrl = await this.stateService.getApiUrl();
+    // TODO: Remove hashLegacy once we're sure clients have had time to sync new hashes
     let hashLegacy: string = null;
     const hashBuffLegacy = await this.cryptoFunctionService.hash(apiUrl + reqJson, "sha256");
     if (hashBuffLegacy != null) {

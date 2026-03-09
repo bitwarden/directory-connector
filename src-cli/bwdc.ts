@@ -1,13 +1,14 @@
 import * as fs from "fs";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 import * as path from "path";
 
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
 import { EnvironmentService } from "@/libs/abstractions/environment.service";
-import { StateService } from "@/libs/abstractions/state.service";
+import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
 import { TokenService } from "@/libs/abstractions/token.service";
 import { APPLICATION_NAME } from "@/libs/constants";
+import { ClientType } from "@/libs/enums/clientType";
+import { LogLevelType } from "@/libs/enums/logLevelType";
+import { AppIdService } from "@/libs/services/appId.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
@@ -15,32 +16,25 @@ import { EnvironmentService as EnvironmentServiceImplementation } from "@/libs/s
 import { I18nService } from "@/libs/services/i18n.service";
 import { LowdbStorageService } from "@/libs/services/lowdbStorage.service";
 import { NativeSecureStorageService } from "@/libs/services/nativeSecureStorage.service";
+import { NoopMessagingService } from "@/libs/services/noopMessaging.service";
 import { SingleRequestBuilder } from "@/libs/services/single-request-builder";
-import { StateServiceImplementation } from "@/libs/services/state-service/state.service";
+import {
+  StateService,
+  StateServiceImplementation,
+} from "@/libs/services/state-service/state.service";
 import { StateMigrationService } from "@/libs/services/state-service/stateMigration.service";
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
-
-import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
-import { ClientType } from "@/jslib/common/src/enums/clientType";
-import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
-import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { NoopMessagingService } from "@/jslib/common/src/services/noopMessaging.service";
-
 
 import { CliPlatformUtilsService } from "@/src-cli/cli/services/cliPlatformUtils.service";
 import { ConsoleLogService } from "@/src-cli/cli/services/consoleLog.service";
 import { NodeApiService } from "@/src-cli/services/node/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/src-cli/services/node/nodeCryptoFunction.service";
 
-import packageJson from "../package.json";
-
 import { Program } from "./program";
 
-// ESM __dirname polyfill for Node 20
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// eslint-disable-next-line
+const packageJson = require("../package.json");
 
 export class Main {
   dataFilePath: string;

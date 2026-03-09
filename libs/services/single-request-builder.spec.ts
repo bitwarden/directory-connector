@@ -1,7 +1,6 @@
 import { RequestBuilderOptions } from "@/libs/abstractions/request-builder.service";
 import { UserEntry } from "@/libs/models/userEntry";
-
-import { GetUniqueString } from "@/jslib/common/spec/utils";
+import { GetUniqueString } from "@/libs/utils/test.utils";
 
 import { SingleRequestBuilder } from "./single-request-builder";
 

@@ -11,14 +11,13 @@ import { Router } from "@angular/router";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
 
 import { AuthService } from "@/libs/abstractions/auth.service";
+import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { LogService } from "@/libs/abstractions/log.service";
+import { MessagingService } from "@/libs/abstractions/messaging.service";
+import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { SyncService } from "@/libs/services/sync.service";
-
-import { BroadcasterService } from "@/jslib/common/src/abstractions/broadcaster.service";
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
-import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
-import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
 

@@ -1,9 +1,8 @@
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { LogService } from "@/libs/abstractions/log.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
-
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService } from "@/jslib/common/src/abstractions/log.service";
 
 import { EntraIdDirectoryService } from "./directory-services/entra-id-directory.service";
 import { GSuiteDirectoryService } from "./directory-services/gsuite-directory.service";

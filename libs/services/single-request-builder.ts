@@ -1,8 +1,7 @@
 import { RequestBuilder, RequestBuilderOptions } from "@/libs/abstractions/request-builder.service";
 import { GroupEntry } from "@/libs/models/groupEntry";
+import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { UserEntry } from "@/libs/models/userEntry";
-
-import { OrganizationImportRequest } from "@/jslib/common/src/models/request/organizationImportRequest";
 
 /**
  * This class is responsible for building small (<2k users) syncs as a single

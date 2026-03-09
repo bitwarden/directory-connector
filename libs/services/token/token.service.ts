@@ -1,13 +1,9 @@
-import { TokenService as ITokenService } from "@/libs/abstractions/token.service";
-import {
-  DecodedToken,
-  decodeJwt,
-  tokenNeedsRefresh as checkTokenNeedsRefresh,
-} from "@/libs/utils/jwt.util";
+import { StorageService } from "@/libs/abstractions/storage.service";
+import { TokenService as TokenServiceAbstraction } from "@/libs/abstractions/token.service";
 
-import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
+import { DecodedToken, decodeJwt, tokenNeedsRefresh } from "../../utils/jwt.util";
 
-export class TokenService implements ITokenService {
+export class TokenService implements TokenServiceAbstraction {
   // Storage keys
   private TOKEN_KEY = "accessToken";
   private REFRESH_TOKEN_KEY = "refreshToken";
@@ -82,7 +78,7 @@ export class TokenService implements ITokenService {
     }
 
     try {
-      return checkTokenNeedsRefresh(token, minutesBeforeExpiration);
+      return tokenNeedsRefresh(token, minutesBeforeExpiration);
     } catch {
       return true;
     }

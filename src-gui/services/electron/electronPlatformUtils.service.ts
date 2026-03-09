@@ -1,13 +1,13 @@
 import { clipboard, ipcRenderer, shell } from "electron";
 
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
-import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { StateService } from "@/jslib/common/src/abstractions/state.service";
-import { ClientType } from "@/jslib/common/src/enums/clientType";
-import { DeviceType } from "@/jslib/common/src/enums/deviceType";
-import { ThemeType } from "@/jslib/common/src/enums/themeType";
-import { isDev, isMacAppStore } from "@/jslib/electron/src/utils";
+import { I18nService } from "@/libs/abstractions/i18n.service";
+import { MessagingService } from "@/libs/abstractions/messaging.service";
+import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
+import { ClientType } from "@/libs/enums/clientType";
+import { DeviceType } from "@/libs/enums/deviceType";
+import { ThemeType } from "@/libs/enums/themeType";
+
+import { isDev, isMacAppStore } from "@/src-gui/utils";
 
 export class ElectronPlatformUtilsService implements PlatformUtilsService {
   private clientType: ClientType;
@@ -17,7 +17,6 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     protected i18nService: I18nService,
     private messagingService: MessagingService,
     private isDesktopApp: boolean,
-    private stateService: StateService,
   ) {
     this.clientType = isDesktopApp ? ClientType.Desktop : ClientType.DirectoryConnector;
   }

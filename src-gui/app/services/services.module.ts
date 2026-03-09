@@ -6,34 +6,33 @@ import {
   NgModule,
 } from "@angular/core";
 
+import { ApiService as ApiServiceAbstraction } from "@/libs/abstractions/api.service";
+import { AppIdService as AppIdServiceAbstraction } from "@/libs/abstractions/appId.service";
 import { AuthService as AuthServiceAbstraction } from "@/libs/abstractions/auth.service";
+import { BroadcasterService as BroadcasterServiceAbstraction } from "@/libs/abstractions/broadcaster.service";
+import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/libs/abstractions/cryptoFunction.service";
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/libs/abstractions/environment.service";
+import { I18nService as I18nServiceAbstraction } from "@/libs/abstractions/i18n.service";
+import { LogService as LogServiceAbstraction } from "@/libs/abstractions/log.service";
+import { MessagingService as MessagingServiceAbstraction } from "@/libs/abstractions/messaging.service";
+import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/libs/abstractions/platformUtils.service";
 import { StateService as StateServiceAbstraction } from "@/libs/abstractions/state.service";
+import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "@/libs/abstractions/token.service";
+import { AppIdService } from "@/libs/services/appId.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
 import { EnvironmentService as EnvironmentServiceImplementation } from "@/libs/services/environment/environment.service";
 import { I18nService } from "@/libs/services/i18n.service";
+import { NodeApiService } from "@/libs/services/nodeApi.service";
+import { NodeCryptoFunctionService } from "@/libs/services/nodeCryptoFunction.service";
 import { SingleRequestBuilder } from "@/libs/services/single-request-builder";
 import { StateServiceImplementation } from "@/libs/services/state-service/state.service";
 import { StateMigrationService } from "@/libs/services/state-service/stateMigration.service";
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
-
-import { ApiService as ApiServiceAbstraction } from "@/jslib/common/src/abstractions/api.service";
-import { AppIdService as AppIdServiceAbstraction } from "@/jslib/common/src/abstractions/appId.service";
-import { BroadcasterService as BroadcasterServiceAbstraction } from "@/jslib/common/src/abstractions/broadcaster.service";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/jslib/common/src/abstractions/cryptoFunction.service";
-import { I18nService as I18nServiceAbstraction } from "@/jslib/common/src/abstractions/i18n.service";
-import { LogService as LogServiceAbstraction } from "@/jslib/common/src/abstractions/log.service";
-import { MessagingService as MessagingServiceAbstraction } from "@/jslib/common/src/abstractions/messaging.service";
-import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { StorageService as StorageServiceAbstraction } from "@/jslib/common/src/abstractions/storage.service";
-import { AppIdService } from "@/jslib/common/src/services/appId.service";
-import { NodeApiService } from "@/jslib/node/src/services/nodeApi.service";
-import { NodeCryptoFunctionService } from "@/jslib/node/src/services/nodeCryptoFunction.service";
 
 import { BroadcasterService as BroadcasterServiceImplementation } from "@/src-gui/angular/services/broadcaster.service";
 import { ModalService } from "@/src-gui/angular/services/modal.service";
@@ -124,9 +123,8 @@ export function initFactory(injector: Injector): () => Promise<void> {
       useFactory: (
         i18nService: I18nServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
-        stateService: StateServiceAbstraction,
-      ) => new ElectronPlatformUtilsService(i18nService, messagingService, false, stateService),
-      deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
+      ) => new ElectronPlatformUtilsService(i18nService, messagingService, false),
+      deps: [I18nServiceAbstraction, MessagingServiceAbstraction],
     }),
     safeProvider({
       provide: CryptoFunctionServiceAbstraction,

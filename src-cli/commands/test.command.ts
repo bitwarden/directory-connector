@@ -1,10 +1,9 @@
 import * as program from "commander";
 
+import { I18nService } from "@/libs/abstractions/i18n.service";
 import { TestResponse } from "@/libs/models/response/testResponse";
 import { SyncService } from "@/libs/services/sync.service";
 import { ConnectorUtils } from "@/libs/utils";
-
-import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 
 import { Response } from "@/src-cli/cli/models/response";
 

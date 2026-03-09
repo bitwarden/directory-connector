@@ -1,7 +1,6 @@
 import { EnvironmentService as IEnvironmentService } from "@/libs/abstractions/environment.service";
 import { StateService } from "@/libs/abstractions/state.service";
-
-import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
+import { EnvironmentUrls } from "@/libs/models/domain/environmentUrls";
 
 export class EnvironmentService implements IEnvironmentService {
   private readonly DEFAULT_URLS = {

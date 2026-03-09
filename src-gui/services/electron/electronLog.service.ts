@@ -2,9 +2,10 @@ import * as path from "path";
 
 import log from "electron-log";
 
-import { LogLevelType } from "@/jslib/common/src/enums/logLevelType";
-import { ConsoleLogService as BaseLogService } from "@/jslib/common/src/services/consoleLog.service";
-import { isDev } from "@/jslib/electron/src/utils";
+import { LogLevelType } from "@/libs/enums/logLevelType";
+import { ConsoleLogService as BaseLogService } from "@/libs/services/consoleLog.service";
+
+import { isDev } from "@/src-gui/utils";
 
 export class ElectronLogService extends BaseLogService {
   constructor(

@@ -3,7 +3,7 @@ import * as path from "path";
 import * as chalk from "chalk";
 import { Command, OptionValues } from "commander";
 
-import { Utils } from "@/jslib/common/src/misc/utils";
+import { Utils } from "@/libs/utils/utils";
 
 import { BaseProgram } from "@/src-cli/cli/baseProgram";
 import { UpdateCommand } from "@/src-cli/cli/commands/update.command";
@@ -210,7 +210,7 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .action(async (setting: string, value: string, options: OptionValues) => {
-        const command = new ConfigCommand(this.main.stateService, this.main.i18nService);
+        const command = new ConfigCommand(this.main.i18nService, this.main.stateService);
         const response = await command.run(setting, value, options);
         this.processResponse(response);
       });

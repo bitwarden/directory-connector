@@ -23,23 +23,21 @@
     "sub:pull": "git submodule foreach git pull origin master",
     "sub:commit": "npm run sub:pull && git commit -am \"update submodule\"",
     "preinstall": "npm run sub:init",
-    "symlink:win": "rm -rf ./jslib && cmd /c mklink /J .\\jslib ..\\jslib",
     "symlink:mac": "npm run symlink:lin",
-    "symlink:lin": "rm -rf ./jslib && ln -s ../jslib ./jslib",
     "build:native": "cd native && npm install && npm run build",
     "build:native:release": "cd native && npm install && npm run build:release",
     "rebuild": "npm run build:native:release",
     "lint": "eslint . && prettier --check .",
     "lint:fix": "eslint . --fix",
     "build": "concurrently -n Main,Rend -c yellow,cyan \"npm run build:main\" \"npm run build:renderer\"",
-    "build:main": "webpack --config webpack.main.mjs",
-    "build:renderer": "webpack --config webpack.renderer.mjs",
-    "build:renderer:watch": "webpack --config webpack.renderer.mjs --watch",
+    "build:main": "webpack --config webpack.main.cjs",
+    "build:renderer": "webpack --config webpack.renderer.cjs",
+    "build:renderer:watch": "webpack --config webpack.renderer.cjs --watch",
     "build:dist": "npm run rebuild && npm run build",
-    "build:cli": "webpack --config webpack.cli.mjs",
-    "build:cli:watch": "webpack --config webpack.cli.mjs --watch",
-    "build:cli:prod": "cross-env NODE_ENV=production webpack --config webpack.cli.mjs",
-    "build:cli:prod:watch": "cross-env NODE_ENV=production webpack --config webpack.cli.mjs --watch",
+    "build:cli": "webpack --config webpack.cli.cjs",
+    "build:cli:watch": "webpack --config webpack.cli.cjs --watch",
+    "build:cli:prod": "cross-env NODE_ENV=production webpack --config webpack.cli.cjs",
+    "build:cli:prod:watch": "cross-env NODE_ENV=production webpack --config webpack.cli.cjs --watch",
     "electron": "npm run build:main && concurrently -k -n Main,Rend -c yellow,cyan \"electron --inspect=5858 ./build --watch\" \"npm run build:renderer:watch\"",
     "electron:ignore": "npm run build:main && concurrently -k -n Main,Rend -c yellow,cyan \"electron --inspect=5858 --ignore-certificate-errors ./build --watch\" \"npm run build:renderer:watch\"",
     "clean:dist": "rimraf --glob ./dist/*",
@@ -70,7 +68,7 @@
     "test:watch:all": "jest --watchAll --testPathIgnorePatterns=.integration.spec.ts",
     "test:integration": "jest .integration.spec.ts",
     "test:integration:watch": "jest .integration.spec.ts --watch",
-    "test:integration:setup": "sh ./utils/openldap/mkcert.sh && docker compose up -d",
+    "test:integration:setup": "sh ./utils/openldap/mkcert.sh && docker compose up -d --wait",
     "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {
@@ -179,7 +177,6 @@
     "npm": "~10"
   },
   "lint-staged": {
-    "./!(jslib)**": "prettier --ignore-unknown --write",
     "*.ts": "eslint --fix"
   }
 }

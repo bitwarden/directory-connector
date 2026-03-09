@@ -1,13 +1,12 @@
+import { ApiService } from "@/libs/abstractions/api.service";
+import { AppIdService } from "@/libs/abstractions/appId.service";
+import { MessagingService } from "@/libs/abstractions/messaging.service";
+import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
-
-import { ApiService } from "@/jslib/common/src/abstractions/api.service";
-import { AppIdService } from "@/jslib/common/src/abstractions/appId.service";
-import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
-import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { DeviceRequest } from "@/jslib/common/src/models/request/deviceRequest";
-import { ApiTokenRequest } from "@/jslib/common/src/models/request/identityToken/apiTokenRequest";
-import { TokenRequestTwoFactor } from "@/jslib/common/src/models/request/identityToken/tokenRequestTwoFactor";
-import { IdentityTokenResponse } from "@/jslib/common/src/models/response/identityTokenResponse";
+import { DeviceRequest } from "@/libs/models/request/deviceRequest";
+import { ApiTokenRequest } from "@/libs/models/request/identityToken/apiTokenRequest";
+import { TokenRequestTwoFactor } from "@/libs/models/request/identityToken/tokenRequestTwoFactor";
+import { IdentityTokenResponse } from "@/libs/models/response/identityTokenResponse";
 
 export class AuthService {
   constructor(
@@ -51,8 +50,8 @@ export class AuthService {
     tokenResponse: IdentityTokenResponse,
   ) {
     const clientId = tokenRequest.clientId;
-    const clientSecret = tokenRequest.clientSecret;
     const entityId = clientId.split("organization.")[1];
+    const clientSecret = tokenRequest.clientSecret;
 
     await this.stateService.setAccessToken(tokenResponse.accessToken);
     await this.stateService.setRefreshToken(tokenResponse.refreshToken);
