@@ -103,7 +103,6 @@ export class Main {
       this.secureStorageService,
     );
 
-    // Use new StateService with flat key-value structure
     this.stateService = new StateServiceImplementation(
       this.storageService,
       this.secureStorageService,

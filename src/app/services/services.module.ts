@@ -194,16 +194,11 @@ export function initFactory(injector: Injector): () => Promise<void> {
     }),
     safeProvider(AuthGuardService),
     safeProvider(LaunchGuardService),
-    // Provide StateMigrationService
     safeProvider({
       provide: StateMigrationService,
-      useFactory: (
-        storageService: StorageServiceAbstraction,
-        secureStorageService: StorageServiceAbstraction,
-      ) => new StateMigrationService(storageService, secureStorageService),
+      useClass: StateMigrationService,
       deps: [StorageServiceAbstraction, SECURE_STORAGE],
     }),
-    // Use new StateService with flat key-value structure
     safeProvider({
       provide: StateServiceAbstraction,
       useFactory: (
@@ -226,11 +221,9 @@ export function initFactory(injector: Injector): () => Promise<void> {
         StateMigrationService,
       ],
     }),
-    // Provide TokenService and EnvironmentService
     safeProvider({
       provide: TokenServiceAbstraction,
-      useFactory: (secureStorage: StorageServiceAbstraction) =>
-        new TokenServiceImplementation(secureStorage),
+      useClass: TokenServiceImplementation,
       deps: [SECURE_STORAGE],
     }),
     safeProvider({

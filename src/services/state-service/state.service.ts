@@ -35,9 +35,11 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     }
   }
 
+  /**
+   * Clears all directory settings and configurations
+   * but preserve version and environment settings
+   */
   async clean(options?: StorageOptions): Promise<void> {
-    // Clear all directory settings and configurations
-    // but preserve version and environment settings
     await this.setDirectoryType(null);
     await this.setOrganizationId(null);
     await this.setSync(null);
@@ -60,7 +62,7 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     }
 
     if (this.useSecureStorageForSecrets) {
-      // Create a copy to avoid modifying the cached config
+      // Do not introduce secrets into the in-memory account object
       const configWithSecrets = Object.assign({}, config);
 
       switch (type) {
@@ -485,10 +487,6 @@ export class StateServiceImplementation implements StateServiceAbstraction {
   async setAlwaysShowDock(value: boolean, options?: StorageOptions): Promise<void> {
     await this.storageService.save(StorageKeys.alwaysShowDock, value);
   }
-
-  // ===================================================================
-  // Token Management (replaces TokenService.clearToken())
-  // ===================================================================
 
   async clearAuthTokens(): Promise<void> {
     await this.secureStorageService.remove(SecureStorageKeys.accessToken);
