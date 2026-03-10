@@ -1,4 +1,4 @@
-import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
+import { StorageService } from "@/libs/abstractions/storage.service";
 
 import { passwords } from "dc-native";
 
