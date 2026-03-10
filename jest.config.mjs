@@ -1,14 +1,14 @@
-const { pathsToModuleNameMapper } = require("ts-jest");
-const { compilerOptions } = require("./tsconfig");
+import { pathsToModuleNameMapper } from "ts-jest";
+import tsconfig from "./tsconfig.json" with { type: "json" };
 
-const tsPreset = require("ts-jest/jest-preset");
-const angularPreset = require("jest-preset-angular/jest-preset");
-const { defaultTransformerOptions } = require("jest-preset-angular/presets");
+import angularPresetsModule from "jest-preset-angular/presets/index.js";
+
+const { defaultTransformerOptions } = angularPresetsModule;
+
+const { compilerOptions } = tsconfig;
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-module.exports = {
-  // ...tsPreset,
-  // ...angularPreset,
+export default {
   preset: "jest-preset-angular",
 
   reporters: ["default", "jest-junit"],
