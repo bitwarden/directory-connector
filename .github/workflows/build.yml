@@ -295,7 +295,7 @@ jobs:
         run: dotnet tool install --global AzureSignTool --version 4.0.1
 
       - name: Install Node dependencies
-        run: npm install
+        run: npm ci
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -388,7 +388,7 @@ jobs:
           sudo apt-get -y install rpm
 
       - name: NPM Install
-        run: npm install
+        run: npm ci
 
       - name: NPM Rebuild
         run: npm run rebuild
@@ -495,7 +495,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
       - name: Install Node dependencies
-        run: npm install
+        run: npm ci
 
       - name: Set up private auth key
         env:
