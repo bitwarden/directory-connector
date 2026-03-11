@@ -108,7 +108,6 @@ export class Main {
       this.secureStorageService,
       this.logService,
       this.stateMigrationService,
-      process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
     );
 
     this.appIdService = new AppIdService(this.storageService);
