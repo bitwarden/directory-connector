@@ -21,8 +21,6 @@ export class DefaultStateService implements StateService {
     protected secureStorageService: StorageService,
     protected logService: LogService,
     protected stateMigrationService: StateMigrationService,
-
-    protected useSecureStorageForSecrets?: boolean,
   ) {}
 
   async init(): Promise<void> {
@@ -326,7 +324,7 @@ export class DefaultStateService implements StateService {
   }
 
   async setLastSyncHash(value: string): Promise<void> {
-    await this.storageService.save(SecureStorageKeys.lastSyncHash, value);
+    await this.storageService.save(StorageKeys.lastSyncHash, value);
   }
 
   async getSyncingDir(): Promise<boolean> {

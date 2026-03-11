@@ -212,7 +212,6 @@ export function initFactory(injector: Injector): () => Promise<void> {
           secureStorageService,
           logService,
           stateMigrationService,
-          true,
         ),
       deps: [
         StorageServiceAbstraction,
@@ -228,8 +227,7 @@ export function initFactory(injector: Injector): () => Promise<void> {
     }),
     safeProvider({
       provide: EnvironmentServiceAbstraction,
-      useFactory: (stateService: StateService) =>
-        new EnvironmentServiceImplementation(stateService),
+      useClass: EnvironmentServiceImplementation,
       deps: [StateService],
     }),
     safeProvider({

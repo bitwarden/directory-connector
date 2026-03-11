@@ -139,7 +139,7 @@ export class StateMigrationService {
         await this.set(SecureStorageKeys.lastGroupSync, account.directorySettings.lastGroupSync);
       }
       if (account.directorySettings.lastSyncHash) {
-        await this.set(SecureStorageKeys.lastSyncHash, account.directorySettings.lastSyncHash);
+        await this.set(StorageKeys.lastSyncHash, account.directorySettings.lastSyncHash);
       }
       if (account.directorySettings.userDelta) {
         await this.set(SecureStorageKeys.userDelta, account.directorySettings.userDelta);
@@ -154,6 +154,7 @@ export class StateMigrationService {
 
     // Migrate secrets from {userId}_* to their new flat keys.
     // The old key names are the legacy values used before this migration.
+    // Old keys are intentionally kept — they will be removed in the v5→v6 migration.
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
@@ -173,7 +174,6 @@ export class StateMigrationService {
           if (value) {
             await this.secureStorageService.save(newKey, value);
           }
-          await this.secureStorageService.remove(oldKey);
         }
       }
 

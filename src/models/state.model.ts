@@ -48,7 +48,6 @@ export const SecureStorageKeys: { [key: string]: any } = {
   groupDelta: "groupDeltaToken",
   lastUserSync: "lastUserSync",
   lastGroupSync: "lastGroupSync",
-  lastSyncHash: "lastSyncHash",
 
   // Authentication tokens
   accessToken: "accessToken",

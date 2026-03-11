@@ -191,7 +191,7 @@ describe("StateMigrationService", () => {
         // These are written via this.set() → regular storageService, using the SecureStorageKeys value as the key string
         expect(storage.store.get(SecureStorageKeys.lastUserSync)).toBe("2024-01-01T00:00:00.000Z");
         expect(storage.store.get(SecureStorageKeys.lastGroupSync)).toBe("2024-06-15T12:00:00.000Z");
-        expect(storage.store.get(SecureStorageKeys.lastSyncHash)).toBe("hash-abc");
+        expect(storage.store.get(StorageKeys.lastSyncHash)).toBe("hash-abc");
         expect(storage.store.get(SecureStorageKeys.userDelta)).toBe("user-delta-token");
         expect(storage.store.get(SecureStorageKeys.groupDelta)).toBe("group-delta-token");
       });
@@ -215,7 +215,7 @@ describe("StateMigrationService", () => {
         });
       });
 
-      it("migrates old {userId}_* secure storage keys to flat keys and removes old keys", async () => {
+      it("migrates old {userId}_* secure storage keys to flat keys", async () => {
         await svc.migrate();
 
         // New flat keys present
@@ -229,16 +229,9 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.get(SecureStorageKeys.refreshToken)).toBe("refresh-tok");
         expect(secureStorage.store.get(SecureStorageKeys.twoFactorToken)).toBe("2fa-tok");
 
-        // Old prefixed keys removed
-        expect(secureStorage.store.has(`${userId}_ldapPassword`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_gsuitePrivateKey`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_entraIdKey`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_azureKey`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_oktaToken`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_oneLoginClientSecret`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_accessToken`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_refreshToken`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_twoFactorToken`)).toBe(false);
+        // Old prefixed keys intentionally kept — will be removed in a future migration
+        expect(secureStorage.store.has(`${userId}_ldapPassword`)).toBe(true);
+        expect(secureStorage.store.has(`${userId}_accessToken`)).toBe(true);
       });
 
       it("migrates apiKeyClientId and apiKeyClientSecret from account to secure storage", async () => {
