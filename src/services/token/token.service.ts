@@ -1,87 +1,106 @@
 import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
+import { Utils } from "@/jslib/common/src/misc/utils";
 
 import { TokenService as TokenServiceAbstraction } from "@/src/abstractions/token.service";
-
-import { DecodedToken, decodeJwt, tokenNeedsRefresh } from "../utils/jwt.util";
+import { SecureStorageKeys } from "@/src/models/state.model";
 
 export class TokenService implements TokenServiceAbstraction {
-  // Storage keys
-  private TOKEN_KEY = "accessToken";
-  private REFRESH_TOKEN_KEY = "refreshToken";
-  private CLIENT_ID_KEY = "apiKeyClientId";
-  private CLIENT_SECRET_KEY = "apiKeyClientSecret";
-  private TWO_FACTOR_TOKEN_KEY = "twoFactorToken";
-
   constructor(private secureStorageService: StorageService) {}
+
+  static decodeToken(token: string): Promise<any> {
+    if (token == null) {
+      throw new Error("Token not provided.");
+    }
+
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      throw new Error("JWT must have 3 parts");
+    }
+
+    const decoded = Utils.fromUrlB64ToUtf8(parts[1]);
+    if (decoded == null) {
+      throw new Error("Cannot decode the token");
+    }
+
+    const decodedToken = JSON.parse(decoded);
+    return decodedToken;
+  }
 
   async setTokens(
     accessToken: string,
     refreshToken: string,
     clientIdClientSecret?: [string, string],
   ): Promise<void> {
-    await this.secureStorageService.save(this.TOKEN_KEY, accessToken);
-    await this.secureStorageService.save(this.REFRESH_TOKEN_KEY, refreshToken);
+    await this.secureStorageService.save(SecureStorageKeys.accessToken, accessToken);
+    await this.secureStorageService.save(SecureStorageKeys.refreshToken, refreshToken);
 
     if (clientIdClientSecret) {
-      await this.secureStorageService.save(this.CLIENT_ID_KEY, clientIdClientSecret[0]);
-      await this.secureStorageService.save(this.CLIENT_SECRET_KEY, clientIdClientSecret[1]);
+      await this.secureStorageService.save(
+        SecureStorageKeys.apiKeyClientId,
+        clientIdClientSecret[0],
+      );
+      await this.secureStorageService.save(
+        SecureStorageKeys.apiKeyClientSecret,
+        clientIdClientSecret[1],
+      );
     }
   }
 
   async getToken(): Promise<string | null> {
-    return await this.secureStorageService.get<string>(this.TOKEN_KEY);
+    return await this.secureStorageService.get<string>(SecureStorageKeys.accessToken);
   }
 
   async getRefreshToken(): Promise<string | null> {
-    return await this.secureStorageService.get<string>(this.REFRESH_TOKEN_KEY);
-  }
-
-  async clearToken(): Promise<void> {
-    await this.secureStorageService.remove(this.TOKEN_KEY);
-    await this.secureStorageService.remove(this.REFRESH_TOKEN_KEY);
-    await this.secureStorageService.remove(this.CLIENT_ID_KEY);
-    await this.secureStorageService.remove(this.CLIENT_SECRET_KEY);
+    return await this.secureStorageService.get<string>(SecureStorageKeys.refreshToken);
   }
 
   async getClientId(): Promise<string | null> {
-    return await this.secureStorageService.get<string>(this.CLIENT_ID_KEY);
+    return await this.secureStorageService.get<string>(SecureStorageKeys.apiKeyClientId);
   }
 
   async getClientSecret(): Promise<string | null> {
-    return await this.secureStorageService.get<string>(this.CLIENT_SECRET_KEY);
+    return await this.secureStorageService.get<string>(SecureStorageKeys.apiKeyClientSecret);
   }
 
   async getTwoFactorToken(): Promise<string | null> {
-    return await this.secureStorageService.get<string>(this.TWO_FACTOR_TOKEN_KEY);
+    return await this.secureStorageService.get<string>(SecureStorageKeys.twoFactorToken);
   }
 
   async clearTwoFactorToken(): Promise<void> {
-    await this.secureStorageService.remove(this.TWO_FACTOR_TOKEN_KEY);
+    await this.secureStorageService.remove(SecureStorageKeys.twoFactorToken);
   }
 
-  async decodeToken(token?: string): Promise<DecodedToken | null> {
-    const tokenToUse = token ?? (await this.getToken());
-    if (!tokenToUse) {
-      return null;
-    }
+  // jwthelper methods
+  // ref https://github.com/auth0/angular-jwt/blob/master/src/angularJwt/services/jwt.js
 
-    try {
-      return decodeJwt(tokenToUse);
-    } catch {
-      return null;
-    }
-  }
-
-  async tokenNeedsRefresh(minutesBeforeExpiration = 5): Promise<boolean> {
+  async getDecodedToken(): Promise<any> {
     const token = await this.getToken();
-    if (!token) {
-      return true;
+    return TokenService.decodeToken(token);
+  }
+
+  async getTokenExpirationDate(): Promise<Date> {
+    const decoded = await this.getDecodedToken();
+    if (typeof decoded.exp === "undefined") {
+      return null;
     }
 
-    try {
-      return tokenNeedsRefresh(token, minutesBeforeExpiration);
-    } catch {
-      return true;
+    const d = new Date(0); // The 0 here is the key, which sets the date to the epoch
+    d.setUTCSeconds(decoded.exp);
+    return d;
+  }
+
+  async tokenSecondsRemaining(offsetSeconds = 0): Promise<number> {
+    const d = await this.getTokenExpirationDate();
+    if (d == null) {
+      return 0;
     }
+
+    const msRemaining = d.valueOf() - (new Date().valueOf() + offsetSeconds * 1000);
+    return Math.round(msRemaining / 1000);
+  }
+
+  async tokenNeedsRefresh(minutes = 5): Promise<boolean> {
+    const sRemaining = await this.tokenSecondsRemaining();
+    return sRemaining < 60 * minutes;
   }
 }

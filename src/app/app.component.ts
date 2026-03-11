@@ -18,6 +18,7 @@ import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUt
 
 import { AuthService } from "../abstractions/auth.service";
 import { StateService } from "../abstractions/state.service";
+import { TokenService } from "../abstractions/token.service";
 import { SyncService } from "../services/sync.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -34,6 +35,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private broadcasterService: BroadcasterService,
+    private tokenService: TokenService,
     private authService: AuthService,
     private router: Router,
     private toastrService: ToastrService,
@@ -114,6 +116,7 @@ export class AppComponent implements OnInit {
   }
 
   private async logOut(expired: boolean) {
+    await this.stateService.clearAuthTokens();
     await this.stateService.clean();
 
     this.authService.logOut(async () => {

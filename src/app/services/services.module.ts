@@ -36,11 +36,11 @@ import { SingleRequestBuilder } from "@/src/services/single-request-builder";
 import { StateMigrationService } from "@/src/services/state-service/stateMigration.service";
 
 import { AuthService as AuthServiceAbstraction } from "../../abstractions/auth.service";
-import { StateService as StateServiceAbstraction } from "../../abstractions/state.service";
+import { StateService } from "../../abstractions/state.service";
 import { AuthService } from "../../services/auth.service";
 import { EnvironmentService as EnvironmentServiceImplementation } from "../../services/environment/environment.service";
 import { I18nService } from "../../services/i18n.service";
-import { StateServiceImplementation } from "../../services/state-service/state.service";
+import { DefaultStateService } from "../../services/state-service/state.service";
 import { SyncService } from "../../services/sync.service";
 import { TokenService as TokenServiceImplementation } from "../../services/token/token.service";
 
@@ -51,7 +51,7 @@ import { SafeProvider, safeProvider } from "./safe-provider";
 
 export function initFactory(injector: Injector): () => Promise<void> {
   return async () => {
-    const stateService = injector.get(StateServiceAbstraction);
+    const stateService = injector.get(StateService);
     const i18nService = injector.get(I18nServiceAbstraction);
     const platformUtilsService = injector.get(PlatformUtilsServiceAbstraction);
     const environmentService = injector.get(EnvironmentServiceAbstraction);
@@ -124,9 +124,9 @@ export function initFactory(injector: Injector): () => Promise<void> {
       useFactory: (
         i18nService: I18nServiceAbstraction,
         messagingService: MessagingServiceAbstraction,
-        stateService: StateServiceAbstraction,
+        stateService: StateService,
       ) => new ElectronPlatformUtilsService(i18nService, messagingService, false, stateService),
-      deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateServiceAbstraction],
+      deps: [I18nServiceAbstraction, MessagingServiceAbstraction, StateService],
     }),
     safeProvider({
       provide: CryptoFunctionServiceAbstraction,
@@ -175,7 +175,7 @@ export function initFactory(injector: Injector): () => Promise<void> {
         AppIdServiceAbstraction,
         PlatformUtilsServiceAbstraction,
         MessagingServiceAbstraction,
-        StateServiceAbstraction,
+        StateService,
       ],
     }),
     safeProvider({
@@ -186,7 +186,7 @@ export function initFactory(injector: Injector): () => Promise<void> {
         ApiServiceAbstraction,
         MessagingServiceAbstraction,
         I18nServiceAbstraction,
-        StateServiceAbstraction,
+        StateService,
         BatchRequestBuilder,
         SingleRequestBuilder,
         DirectoryFactoryService,
@@ -200,14 +200,14 @@ export function initFactory(injector: Injector): () => Promise<void> {
       deps: [StorageServiceAbstraction, SECURE_STORAGE],
     }),
     safeProvider({
-      provide: StateServiceAbstraction,
+      provide: StateService,
       useFactory: (
         storageService: StorageServiceAbstraction,
         secureStorageService: StorageServiceAbstraction,
         logService: LogServiceAbstraction,
         stateMigrationService: StateMigrationService,
       ) =>
-        new StateServiceImplementation(
+        new DefaultStateService(
           storageService,
           secureStorageService,
           logService,
@@ -228,9 +228,9 @@ export function initFactory(injector: Injector): () => Promise<void> {
     }),
     safeProvider({
       provide: EnvironmentServiceAbstraction,
-      useFactory: (stateService: StateServiceAbstraction) =>
+      useFactory: (stateService: StateService) =>
         new EnvironmentServiceImplementation(stateService),
-      deps: [StateServiceAbstraction],
+      deps: [StateService],
     }),
     safeProvider({
       provide: SingleRequestBuilder,
@@ -243,7 +243,7 @@ export function initFactory(injector: Injector): () => Promise<void> {
     safeProvider({
       provide: DirectoryFactoryService,
       useClass: DefaultDirectoryFactoryService,
-      deps: [LogServiceAbstraction, I18nServiceAbstraction, StateServiceAbstraction],
+      deps: [LogServiceAbstraction, I18nServiceAbstraction, StateService],
     }),
     safeProvider({
       provide: ModalService,

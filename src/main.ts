@@ -13,7 +13,7 @@ import { DCCredentialStorageListener } from "./main/credential-storage-listener"
 import { MenuMain } from "./main/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { I18nService } from "./services/i18n.service";
-import { StateServiceImplementation } from "./services/state-service/state.service";
+import { DefaultStateService } from "./services/state-service/state.service";
 
 export class Main {
   logService: ElectronLogService;
@@ -21,7 +21,7 @@ export class Main {
   storageService: ElectronStorageService;
   messagingService: ElectronMainMessagingService;
   credentialStorageListener: DCCredentialStorageListener;
-  stateService: StateServiceImplementation;
+  stateService: DefaultStateService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -55,7 +55,7 @@ export class Main {
     this.logService.init();
     this.i18nService = new I18nService("en", "./locales/");
     this.storageService = new ElectronStorageService(app.getPath("userData"));
-    this.stateService = new StateServiceImplementation(
+    this.stateService = new DefaultStateService(
       this.storageService,
       null,
       this.logService,

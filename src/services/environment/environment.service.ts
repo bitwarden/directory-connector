@@ -15,26 +15,27 @@ export class EnvironmentService implements IEnvironmentService {
   constructor(private stateService: StateService) {}
 
   async setUrls(urls: EnvironmentUrls): Promise<void> {
-    // Normalize URLs: trim whitespace, remove trailing slashes, add https:// if missing
     const normalized = new EnvironmentUrls();
 
     for (const [key, value] of Object.entries(urls)) {
       if (!value || typeof value !== "string") {
         continue;
       }
-
-      let url = value.trim();
-      url = url.replace(/\/+$/, ""); // Remove trailing slashes
-
-      if (!/^https?:\/\//i.test(url)) {
-        url = `https://${url}`;
-      }
-
-      normalized[key as keyof EnvironmentUrls] = url;
+      normalized[key as keyof EnvironmentUrls] = this.formatUrl(value);
     }
 
     this.urls = normalized;
     await this.stateService.setEnvironmentUrls(normalized);
+  }
+
+  private formatUrl(url: string): string {
+    url = url.trim().replace(/\/+$/, "");
+
+    if (!/^https?:\/\//i.test(url)) {
+      url = `https://${url}`;
+    }
+
+    return url;
   }
 
   async setUrlsFromStorage(): Promise<void> {
