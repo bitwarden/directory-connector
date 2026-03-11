@@ -257,6 +257,119 @@ describe("StateMigrationService", () => {
       });
     });
 
+    describe("GSuite privateKey embedded in config object", () => {
+      it("extracts privateKey from gsuite config into secure storage and replaces with StoredSecurely", async () => {
+        const userId = "user-gsuite-key";
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
+        storage.store.set("activeUserId", userId);
+        storage.store.set(userId, {
+          directoryConfigurations: {
+            gsuite: {
+              domain: "example.com",
+              clientEmail: "sa@example.com",
+              privateKey: "-----BEGIN RSA PRIVATE KEY-----\nMIIEo...",
+            },
+          },
+          directorySettings: {},
+          settings: {},
+        });
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(
+          "-----BEGIN RSA PRIVATE KEY-----\nMIIEo...",
+        );
+        const gsuiteConfig = storage.store.get(StorageKeys.directoryGsuite) as any;
+        expect(gsuiteConfig.privateKey).toBe("[STORED SECURELY]");
+        expect(gsuiteConfig.domain).toBe("example.com");
+      });
+    });
+
+    describe("Entra key embedded in config object", () => {
+      it("extracts key from entra config into secure storage and replaces with StoredSecurely", async () => {
+        const userId = "user-entra-key";
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
+        storage.store.set("activeUserId", userId);
+        storage.store.set(userId, {
+          directoryConfigurations: {
+            entra: { tenant: "my-tenant", applicationId: "app-id", key: "entra-secret-key" },
+          },
+          directorySettings: {},
+          settings: {},
+        });
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("entra-secret-key");
+        const entraConfig = storage.store.get(StorageKeys.directoryEntra) as any;
+        expect(entraConfig.key).toBe("[STORED SECURELY]");
+        expect(entraConfig.tenant).toBe("my-tenant");
+      });
+
+      it("extracts key from azure fallback config into secure storage", async () => {
+        const userId = "user-azure-key";
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
+        storage.store.set("activeUserId", userId);
+        storage.store.set(userId, {
+          directoryConfigurations: {
+            azure: { tenant: "azure-tenant", applicationId: "azure-app", key: "azure-secret-key" },
+          },
+          directorySettings: {},
+          settings: {},
+        });
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("azure-secret-key");
+        const entraConfig = storage.store.get(StorageKeys.directoryEntra) as any;
+        expect(entraConfig.key).toBe("[STORED SECURELY]");
+      });
+    });
+
+    describe("Okta token embedded in config object", () => {
+      it("extracts token from okta config into secure storage and replaces with StoredSecurely", async () => {
+        const userId = "user-okta-token";
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
+        storage.store.set("activeUserId", userId);
+        storage.store.set(userId, {
+          directoryConfigurations: {
+            okta: { orgUrl: "https://example.okta.com", token: "okta-api-token" },
+          },
+          directorySettings: {},
+          settings: {},
+        });
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-api-token");
+        const oktaConfig = storage.store.get(StorageKeys.directoryOkta) as any;
+        expect(oktaConfig.token).toBe("[STORED SECURELY]");
+        expect(oktaConfig.orgUrl).toBe("https://example.okta.com");
+      });
+    });
+
+    describe("OneLogin clientSecret embedded in config object", () => {
+      it("extracts clientSecret from oneLogin config into secure storage and replaces with StoredSecurely", async () => {
+        const userId = "user-onelogin-secret";
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
+        storage.store.set("activeUserId", userId);
+        storage.store.set(userId, {
+          directoryConfigurations: {
+            oneLogin: { clientId: "ol-client-id", clientSecret: "ol-client-secret", region: "us" },
+          },
+          directorySettings: {},
+          settings: {},
+        });
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.oneLogin)).toBe("ol-client-secret");
+        const oneLoginConfig = storage.store.get(StorageKeys.directoryOnelogin) as any;
+        expect(oneLoginConfig.clientSecret).toBe("[STORED SECURELY]");
+        expect(oneLoginConfig.clientId).toBe("ol-client-id");
+      });
+    });
+
     describe("LDAP password embedded in config object", () => {
       it("extracts password from ldap config into secure storage and replaces with StoredSecurely", async () => {
         const userId = "user-ldap-pass";
