@@ -93,7 +93,8 @@ export abstract class StateService {
 
   // Lifecycle methods
   abstract init(): Promise<void>;
-  abstract clean(options?: StorageOptions): Promise<void>;
+  abstract clean(): Promise<void>;
+  abstract clearDirectoryConfigurations(): Promise<void>;
 
   // Additional state methods
   abstract getLocale(options?: StorageOptions): Promise<string>;

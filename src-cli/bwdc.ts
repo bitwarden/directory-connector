@@ -17,10 +17,7 @@ import { KeytarSecureStorageService } from "@/libs/services/keytarSecureStorage.
 import { LowdbStorageService } from "@/libs/services/lowdbStorage.service";
 import { NoopMessagingService } from "@/libs/services/noopMessaging.service";
 import { SingleRequestBuilder } from "@/libs/services/single-request-builder";
-import {
-  StateService,
-  StateServiceImplementation,
-} from "@/libs/services/state-service/state.service";
+import { DefaultStateService, StateService } from "@/libs/services/state-service/state.service";
 import { StateMigrationService } from "@/libs/services/state-service/stateMigration.service";
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
@@ -106,13 +103,11 @@ export class Main {
       this.secureStorageService,
     );
 
-    // Use new StateService with flat key-value structure
-    this.stateService = new StateServiceImplementation(
+    this.stateService = new DefaultStateService(
       this.storageService,
       this.secureStorageService,
       this.logService,
       this.stateMigrationService,
-      process.env.BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS !== "true",
     );
 
     this.appIdService = new AppIdService(this.storageService);

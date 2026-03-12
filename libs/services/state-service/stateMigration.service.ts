@@ -1,23 +1,10 @@
 import { StorageService } from "@/libs/abstractions/storage.service";
-import { DirectoryType } from "@/libs/enums/directoryType";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
 import { StateVersion } from "@/libs/enums/stateVersion";
-import { DirectoryConfigurations, DirectorySettings } from "@/libs/models/account";
 import { StorageOptions } from "@/libs/models/domain/storageOptions";
-import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
-import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
-import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
-import { OktaConfiguration } from "@/libs/models/oktaConfiguration";
-import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
-import {
-  MigrationClientKeys as ClientKeys,
-  MigrationKeys as Keys,
-  MigrationStateKeys as StateKeys,
-  SecureStorageKeysMigration as SecureStorageKeys,
-  SecureStorageKeysVNext,
-  StorageKeysVNext,
-} from "@/libs/models/state.model";
-import { SyncConfiguration } from "@/libs/models/syncConfiguration";
+import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/libs/models/state.model";
+
+const MinSupportedStateVersion = StateVersion.Four;
 
 export class StateMigrationService {
   constructor(
@@ -32,179 +19,21 @@ export class StateMigrationService {
 
   async migrate(): Promise<void> {
     let currentStateVersion = await this.getCurrentStateVersion();
+
+    if (currentStateVersion < MinSupportedStateVersion) {
+      throw new Error(
+        `Your Directory Connector data is too old to migrate (state version ${currentStateVersion}). ` +
+          `Please download a fresh copy of Directory Connector and reconfigure it.`,
+      );
+    }
+
     while (currentStateVersion < StateVersion.Latest) {
       switch (currentStateVersion) {
-        case StateVersion.One:
-          await this.migrateClientKeys();
-          await this.migrateStateFrom1To2();
-          break;
-        case StateVersion.Two:
-          await this.migrateStateFrom2To3();
-          break;
-        case StateVersion.Three:
-          await this.migrateStateFrom3To4();
-          break;
         case StateVersion.Four:
           await this.migrateStateFrom4To5();
           break;
       }
       currentStateVersion += 1;
-    }
-  }
-
-  // TODO: remove this migration when we are confident existing api keys are all migrated. Probably 1-2 releases.
-  protected async migrateClientKeys() {
-    const oldClientId = await this.storageService.get<string>(ClientKeys.clientIdOld);
-    const oldClientSecret = await this.storageService.get<string>(ClientKeys.clientSecretOld);
-
-    if (oldClientId != null) {
-      await this.storageService.save(ClientKeys.clientId, oldClientId);
-      await this.storageService.remove(ClientKeys.clientIdOld);
-    }
-
-    if (oldClientSecret != null) {
-      await this.storageService.save(ClientKeys.clientSecret, oldClientSecret);
-      await this.storageService.remove(ClientKeys.clientSecretOld);
-    }
-  }
-
-  protected async migrateStateFrom1To2(useSecureStorageForSecrets = true): Promise<void> {
-    // Grabbing a couple of key settings before they get cleared by the migration
-    const userId = await this.get<string>(Keys.entityId);
-    const clientId = await this.get<string>(ClientKeys.clientId);
-    const clientSecret = await this.get<string>(ClientKeys.clientSecret);
-
-    // Setup reusable method for clearing keys
-    const clearDirectoryConnectorV1Keys = async () => {
-      for (const key in Keys) {
-        if (key == null) {
-          continue;
-        }
-        for (const directoryType in DirectoryType) {
-          if (directoryType == null) {
-            continue;
-          }
-          await this.set(SecureStorageKeys.directoryConfigPrefix + directoryType, null);
-        }
-      }
-    };
-
-    // Initialize typed objects from key/value pairs in storage
-    const getDirectoryConfig = async <T>(type: DirectoryType) =>
-      await this.get<T>(SecureStorageKeys.directoryConfigPrefix + type);
-    const directoryConfigs: DirectoryConfigurations = {
-      ldap: await getDirectoryConfig<LdapConfiguration>(DirectoryType.Ldap),
-      gsuite: await getDirectoryConfig<GSuiteConfiguration>(DirectoryType.GSuite),
-      // Azure Active Directory was renamed to Entra ID, but we've kept the old property name
-      // to be backwards compatible with existing configurations.
-      azure: await getDirectoryConfig<EntraIdConfiguration>(DirectoryType.EntraID),
-      entra: await getDirectoryConfig<EntraIdConfiguration>(DirectoryType.EntraID),
-      okta: await getDirectoryConfig<OktaConfiguration>(DirectoryType.Okta),
-      oneLogin: await getDirectoryConfig<OneLoginConfiguration>(DirectoryType.OneLogin),
-    };
-
-    const directorySettings: DirectorySettings = {
-      directoryType: await this.get<DirectoryType>(Keys.directoryType),
-      organizationId: await this.get<string>(Keys.organizationId),
-      lastUserSync: await this.get<Date>(Keys.lastUserSync),
-      lastGroupSync: await this.get<Date>(Keys.lastGroupSync),
-      lastSyncHash: await this.get<string>(Keys.lastSyncHash),
-      syncingDir: await this.get<boolean>(Keys.syncingDir),
-      sync: await this.get<SyncConfiguration>(Keys.syncConfig),
-      userDelta: await this.get<string>(Keys.userDelta),
-      groupDelta: await this.get<string>(Keys.groupDelta),
-    };
-
-    // (userId == null) = no authed account, store data temporarily to be applied on next auth
-    // (userId != null) = authed account known, apply stored data to it
-    if (userId == null) {
-      await this.set(Keys.tempDirectoryConfigs, directoryConfigs);
-      await this.set(Keys.tempDirectorySettings, directorySettings);
-      await clearDirectoryConnectorV1Keys();
-
-      // Set initial state version
-      await this.set(StorageKeysVNext.stateVersion, StateVersion.Two);
-      return;
-    }
-
-    const account = await this.get<any>(userId);
-    account.directoryConfigurations = directoryConfigs;
-    account.directorySettings = directorySettings;
-    account.userId = userId;
-    account.entityId = userId;
-    account.apiKeyClientId = clientId;
-    account.apiKeyClientSecret = clientSecret;
-
-    await this.set(userId, account);
-    await clearDirectoryConnectorV1Keys();
-
-    if (useSecureStorageForSecrets) {
-      for (const key in SecureStorageKeys) {
-        if (await this.secureStorageService.has(SecureStorageKeys[key])) {
-          await this.secureStorageService.save(
-            `${userId}_${SecureStorageKeys[key]}`,
-            await this.secureStorageService.get(SecureStorageKeys[key]),
-          );
-          await this.secureStorageService.remove(SecureStorageKeys[key]);
-        }
-      }
-    }
-
-    // Update state version
-    const globals = await this.getGlobals();
-    if (globals) {
-      globals.stateVersion = StateVersion.Two;
-      await this.set(StateKeys.global, globals);
-    } else {
-      await this.set(StorageKeysVNext.stateVersion, StateVersion.Two);
-    }
-  }
-
-  protected async migrateStateFrom2To3(useSecureStorageForSecrets = true): Promise<void> {
-    if (useSecureStorageForSecrets) {
-      const authenticatedUserIds = await this.get<string[]>(StateKeys.authenticatedAccounts);
-
-      if (authenticatedUserIds && authenticatedUserIds.length > 0) {
-        await Promise.all(
-          authenticatedUserIds.map(async (userId) => {
-            const account = await this.get<any>(userId);
-
-            // Fix for userDelta and groupDelta being put into secure storage when they should not have
-            if (await this.secureStorageService.has(`${userId}_${Keys.userDelta}`)) {
-              account.directorySettings.userDelta = await this.secureStorageService.get(
-                `${userId}_${Keys.userDelta}`,
-              );
-              await this.secureStorageService.remove(`${userId}_${Keys.userDelta}`);
-            }
-            if (await this.secureStorageService.has(`${userId}_${Keys.groupDelta}`)) {
-              account.directorySettings.groupDelta = await this.secureStorageService.get(
-                `${userId}_${Keys.groupDelta}`,
-              );
-              await this.secureStorageService.remove(`${userId}_${Keys.groupDelta}`);
-            }
-            await this.set(userId, account);
-          }),
-        );
-      }
-    }
-
-    const globals = await this.getGlobals();
-    if (globals) {
-      globals.stateVersion = StateVersion.Three;
-      await this.set(StateKeys.global, globals);
-    } else {
-      await this.set(StorageKeysVNext.stateVersion, StateVersion.Three);
-    }
-  }
-
-  protected async migrateStateFrom3To4(): Promise<void> {
-    // Placeholder migration for v3→v4 (no changes needed for DC)
-    const globals = await this.getGlobals();
-    if (globals) {
-      globals.stateVersion = StateVersion.Four;
-      await this.set(StateKeys.global, globals);
-    } else {
-      await this.set(StorageKeysVNext.stateVersion, StateVersion.Four);
     }
   }
 
@@ -220,78 +49,122 @@ export class StateMigrationService {
 
     if (!account) {
       // No account data found, just update version
-      await this.set(StorageKeysVNext.stateVersion, StateVersion.Five);
+      await this.set(StorageKeys.stateVersion, StateVersion.Five);
       return;
     }
 
     // Migrate directory configurations to flat structure
     if (account.directoryConfigurations) {
       if (account.directoryConfigurations.ldap) {
-        await this.set(StorageKeysVNext.directory_ldap, account.directoryConfigurations.ldap);
+        const ldapConfig = { ...account.directoryConfigurations.ldap };
+        if (
+          useSecureStorageForSecrets &&
+          ldapConfig.password &&
+          ldapConfig.password !== StoredSecurely
+        ) {
+          await this.secureStorageService.save(SecureStorageKeys.ldap, ldapConfig.password);
+          ldapConfig.password = StoredSecurely;
+        }
+        await this.set(StorageKeys.directoryLdap, ldapConfig);
       }
       if (account.directoryConfigurations.gsuite) {
-        await this.set(StorageKeysVNext.directory_gsuite, account.directoryConfigurations.gsuite);
+        const gsuiteConfig = { ...account.directoryConfigurations.gsuite };
+        if (
+          useSecureStorageForSecrets &&
+          gsuiteConfig.privateKey &&
+          gsuiteConfig.privateKey !== StoredSecurely
+        ) {
+          await this.secureStorageService.save(SecureStorageKeys.gsuite, gsuiteConfig.privateKey);
+          gsuiteConfig.privateKey = StoredSecurely;
+        }
+        await this.set(StorageKeys.directoryGsuite, gsuiteConfig);
       }
       if (account.directoryConfigurations.entra) {
-        await this.set(StorageKeysVNext.directory_entra, account.directoryConfigurations.entra);
+        const entraConfig = { ...account.directoryConfigurations.entra };
+        if (useSecureStorageForSecrets && entraConfig.key && entraConfig.key !== StoredSecurely) {
+          await this.secureStorageService.save(SecureStorageKeys.entra, entraConfig.key);
+          entraConfig.key = StoredSecurely;
+        }
+        await this.set(StorageKeys.directoryEntra, entraConfig);
       } else if (account.directoryConfigurations.azure) {
         // Backwards compatibility: migrate azure to entra
-        await this.set(StorageKeysVNext.directory_entra, account.directoryConfigurations.azure);
+        const azureConfig = { ...account.directoryConfigurations.azure };
+        if (useSecureStorageForSecrets && azureConfig.key && azureConfig.key !== StoredSecurely) {
+          await this.secureStorageService.save(SecureStorageKeys.entra, azureConfig.key);
+          azureConfig.key = StoredSecurely;
+        }
+        await this.set(StorageKeys.directoryEntra, azureConfig);
       }
       if (account.directoryConfigurations.okta) {
-        await this.set(StorageKeysVNext.directory_okta, account.directoryConfigurations.okta);
+        const oktaConfig = { ...account.directoryConfigurations.okta };
+        if (useSecureStorageForSecrets && oktaConfig.token && oktaConfig.token !== StoredSecurely) {
+          await this.secureStorageService.save(SecureStorageKeys.okta, oktaConfig.token);
+          oktaConfig.token = StoredSecurely;
+        }
+        await this.set(StorageKeys.directoryOkta, oktaConfig);
       }
       if (account.directoryConfigurations.oneLogin) {
-        await this.set(
-          StorageKeysVNext.directory_onelogin,
-          account.directoryConfigurations.oneLogin,
-        );
+        const oneLoginConfig = { ...account.directoryConfigurations.oneLogin };
+        if (
+          useSecureStorageForSecrets &&
+          oneLoginConfig.clientSecret &&
+          oneLoginConfig.clientSecret !== StoredSecurely
+        ) {
+          await this.secureStorageService.save(
+            SecureStorageKeys.oneLogin,
+            oneLoginConfig.clientSecret,
+          );
+          oneLoginConfig.clientSecret = StoredSecurely;
+        }
+        await this.set(StorageKeys.directoryOnelogin, oneLoginConfig);
       }
     }
 
     // Migrate directory settings to flat structure
     if (account.directorySettings) {
       if (account.directorySettings.organizationId) {
-        await this.set(StorageKeysVNext.organizationId, account.directorySettings.organizationId);
+        await this.set(StorageKeys.organizationId, account.directorySettings.organizationId);
       }
       if (account.directorySettings.directoryType != null) {
-        await this.set(StorageKeysVNext.directoryType, account.directorySettings.directoryType);
+        await this.set(StorageKeys.directoryType, account.directorySettings.directoryType);
       }
       if (account.directorySettings.sync) {
-        await this.set(StorageKeysVNext.sync, account.directorySettings.sync);
+        await this.set(StorageKeys.sync, account.directorySettings.sync);
       }
       if (account.directorySettings.lastUserSync) {
-        await this.set(SecureStorageKeysVNext.lastUserSync, account.directorySettings.lastUserSync);
+        await this.set(SecureStorageKeys.lastUserSync, account.directorySettings.lastUserSync);
       }
       if (account.directorySettings.lastGroupSync) {
-        await this.set(
-          SecureStorageKeysVNext.lastGroupSync,
-          account.directorySettings.lastGroupSync,
-        );
+        await this.set(SecureStorageKeys.lastGroupSync, account.directorySettings.lastGroupSync);
       }
       if (account.directorySettings.lastSyncHash) {
-        await this.set(SecureStorageKeysVNext.lastSyncHash, account.directorySettings.lastSyncHash);
+        await this.set(StorageKeys.lastSyncHash, account.directorySettings.lastSyncHash);
       }
       if (account.directorySettings.userDelta) {
-        await this.set(SecureStorageKeysVNext.userDelta, account.directorySettings.userDelta);
+        await this.set(SecureStorageKeys.userDelta, account.directorySettings.userDelta);
       }
       if (account.directorySettings.groupDelta) {
-        await this.set(SecureStorageKeysVNext.groupDelta, account.directorySettings.groupDelta);
+        await this.set(SecureStorageKeys.groupDelta, account.directorySettings.groupDelta);
       }
       if (account.directorySettings.syncingDir != null) {
-        await this.set(StorageKeysVNext.syncingDir, account.directorySettings.syncingDir);
+        await this.set(StorageKeys.syncingDir, account.directorySettings.syncingDir);
       }
     }
 
-    // Migrate secrets from {userId}_* to secret_* pattern
+    // Migrate secrets from {userId}_* to their new flat keys.
+    // The old key names are the legacy values used before this migration.
+    // Old keys are intentionally kept — they will be removed in the v5→v6 migration.
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
-        { old: `${clientId}_${SecureStorageKeys.ldap}`, new: SecureStorageKeysVNext.ldap },
-        { old: `${clientId}_${SecureStorageKeys.gsuite}`, new: SecureStorageKeysVNext.gsuite },
-        { old: `${clientId}_${SecureStorageKeys.azure}`, new: SecureStorageKeysVNext.azure },
-        { old: `${clientId}_${SecureStorageKeys.entra}`, new: SecureStorageKeysVNext.entra },
-        { old: `${clientId}_${SecureStorageKeys.okta}`, new: SecureStorageKeysVNext.okta },
-        { old: `${clientId}_${SecureStorageKeys.oneLogin}`, new: SecureStorageKeysVNext.oneLogin },
+        { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
+        { old: `${clientId}_gsuitePrivateKey`, new: SecureStorageKeys.gsuite },
+        { old: `${clientId}_azureKey`, new: SecureStorageKeys.azure },
+        { old: `${clientId}_entraIdKey`, new: SecureStorageKeys.entra },
+        { old: `${clientId}_oktaToken`, new: SecureStorageKeys.okta },
+        { old: `${clientId}_oneLoginClientSecret`, new: SecureStorageKeys.oneLogin },
+        { old: `${clientId}_accessToken`, new: SecureStorageKeys.accessToken },
+        { old: `${clientId}_refreshToken`, new: SecureStorageKeys.refreshToken },
+        { old: `${clientId}_twoFactorToken`, new: SecureStorageKeys.twoFactorToken },
       ];
 
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
@@ -300,9 +173,21 @@ export class StateMigrationService {
           if (value) {
             await this.secureStorageService.save(newKey, value);
           }
-          // @TODO Keep old key for now - will remove in future release
-          // await this.secureStorageService.remove(oldKey);
         }
+      }
+
+      // Migrate apiKeyClientId and apiKeyClientSecret from account object to secure storage
+      if (account.apiKeyClientId) {
+        await this.secureStorageService.save(
+          SecureStorageKeys.apiKeyClientId,
+          account.apiKeyClientId,
+        );
+      }
+      if (account.apiKeyClientSecret) {
+        await this.secureStorageService.save(
+          SecureStorageKeys.apiKeyClientSecret,
+          account.apiKeyClientSecret,
+        );
       }
     }
 
@@ -310,32 +195,32 @@ export class StateMigrationService {
     const globals = await this.getGlobals();
     if (globals) {
       if (globals.window) {
-        await this.set(StorageKeysVNext.window, globals.window);
+        await this.set(StorageKeys.window, globals.window);
       }
       if (globals.enableAlwaysOnTop !== undefined) {
-        await this.set(StorageKeysVNext.enableAlwaysOnTop, globals.enableAlwaysOnTop);
+        await this.set(StorageKeys.enableAlwaysOnTop, globals.enableAlwaysOnTop);
       }
       if (globals.enableTray !== undefined) {
-        await this.set(StorageKeysVNext.enableTray, globals.enableTray);
+        await this.set(StorageKeys.enableTray, globals.enableTray);
       }
       if (globals.enableMinimizeToTray !== undefined) {
-        await this.set(StorageKeysVNext.enableMinimizeToTray, globals.enableMinimizeToTray);
+        await this.set(StorageKeys.enableMinimizeToTray, globals.enableMinimizeToTray);
       }
       if (globals.enableCloseToTray !== undefined) {
-        await this.set(StorageKeysVNext.enableCloseToTray, globals.enableCloseToTray);
+        await this.set(StorageKeys.enableCloseToTray, globals.enableCloseToTray);
       }
       if (globals.alwaysShowDock !== undefined) {
-        await this.set(StorageKeysVNext.alwaysShowDock, globals.alwaysShowDock);
+        await this.set(StorageKeys.alwaysShowDock, globals.alwaysShowDock);
       }
     }
 
     // Migrate environment URLs from account settings
     if (account.settings?.environmentUrls) {
-      await this.set(StorageKeysVNext.environmentUrls, account.settings.environmentUrls);
+      await this.set(StorageKeys.environmentUrls, account.settings.environmentUrls);
     }
 
     // Set final state version using the new flat key
-    await this.set(StorageKeysVNext.stateVersion, StateVersion.Five);
+    await this.set(StorageKeys.stateVersion, StateVersion.Five);
   }
 
   // ===================================================================
@@ -358,12 +243,12 @@ export class StateMigrationService {
   }
 
   protected async getGlobals(): Promise<any> {
-    return await this.get<any>(StateKeys.global);
+    return await this.get<any>("global");
   }
 
   protected async getCurrentStateVersion(): Promise<StateVersion> {
     // Try new flat structure first
-    const flatVersion = await this.get<StateVersion>(StorageKeysVNext.stateVersion);
+    const flatVersion = await this.get<StateVersion>(StorageKeys.stateVersion);
     if (flatVersion != null) {
       return flatVersion;
     }

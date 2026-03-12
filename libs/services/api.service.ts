@@ -165,7 +165,7 @@ export class ApiService implements ApiServiceAbstraction {
       headers.set("User-Agent", this.customUserAgent);
     }
 
-    const decodedToken = await this.tokenService.decodeToken();
+    const decodedToken = await this.tokenService.getDecodedToken();
     const response = await this.fetch(
       new Request(this.environmentService.getIdentityUrl() + "/connect/token", {
         body: this.qsStringify({

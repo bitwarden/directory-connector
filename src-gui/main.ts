@@ -3,7 +3,7 @@ import * as path from "path";
 import { app } from "electron";
 
 import { I18nService } from "@/libs/services/i18n.service";
-import { StateServiceImplementation } from "@/libs/services/state-service/state.service";
+import { DefaultStateService } from "@/libs/services/state-service/state.service";
 
 import { ElectronLogService } from "@/src-gui/services/electron/electronLog.service";
 import { ElectronMainMessagingService } from "@/src-gui/services/electron/electronMainMessaging.service";
@@ -22,7 +22,7 @@ export class Main {
   storageService: ElectronStorageService;
   messagingService: ElectronMainMessagingService;
   credentialStorageListener: DCCredentialStorageListener;
-  stateService: StateServiceImplementation;
+  stateService: DefaultStateService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -56,13 +56,7 @@ export class Main {
     this.logService.init();
     this.i18nService = new I18nService("en", "./locales/");
     this.storageService = new ElectronStorageService(app.getPath("userData"));
-    this.stateService = new StateServiceImplementation(
-      this.storageService,
-      null,
-      this.logService,
-      null,
-      true,
-    );
+    this.stateService = new DefaultStateService(this.storageService, null, this.logService, null);
 
     this.windowMain = new WindowMain(
       this.stateService,

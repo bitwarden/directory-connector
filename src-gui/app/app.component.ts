@@ -17,6 +17,7 @@ import { LogService } from "@/libs/abstractions/log.service";
 import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
+import { TokenService } from "@/libs/abstractions/token.service";
 import { SyncService } from "@/libs/services/sync.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -33,6 +34,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private broadcasterService: BroadcasterService,
+    private tokenService: TokenService,
     private authService: AuthService,
     private router: Router,
     private toastrService: ToastrService,
