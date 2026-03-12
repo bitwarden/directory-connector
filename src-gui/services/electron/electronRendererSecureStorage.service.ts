@@ -1,9 +1,9 @@
-import { passwords } from "dc-native";
 
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
 import { StorageOptions } from "@/libs/models/domain/storageOptions";
 
+import { passwords } from "dc-native";
 
 export class ElectronRendererSecureStorageService implements StorageService {
   async get<T>(key: string, options?: StorageOptions): Promise<T> {

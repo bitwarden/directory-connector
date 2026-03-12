@@ -8,9 +8,8 @@ import { DirectoryType } from "@/libs/enums/directoryType";
 import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { ApiService } from "@/libs/services/api.service";
 
-import { getSyncConfiguration } from "../../utils/openldap/config-fixtures";
-import { GroupEntry } from "../models/groupEntry";
 
+import { GroupEntry } from "../models/groupEntry";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
@@ -19,6 +18,7 @@ import { SingleRequestBuilder } from "./single-request-builder";
 import { SyncService } from "./sync.service";
 import * as constants from "./sync.service";
 
+import { getSyncConfiguration } from "@/utils/openldap/config-fixtures";
 import { groupFixtures } from "@/utils/openldap/group-fixtures";
 import { userFixtures } from "@/utils/openldap/user-fixtures";
 
