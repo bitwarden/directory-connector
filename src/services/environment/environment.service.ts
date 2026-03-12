@@ -63,13 +63,13 @@ export class DefaultEnvironmentService implements EnvironmentService {
   }
 
   async setUrlsFromStorage(): Promise<void> {
-    const urls: any = await this.stateService.getEnvironmentUrls();
+    const urls = await this.stateService.getEnvironmentUrls();
     const envUrls = new EnvironmentUrls();
 
-    this.baseUrl = envUrls.base = this.formatUrl(urls.base);
-    this.webVaultUrl = this.formatUrl(urls.webVault);
-    this.apiUrl = envUrls.api = this.formatUrl(urls.api);
-    this.identityUrl = envUrls.identity = this.formatUrl(urls.identity);
+    this.baseUrl = envUrls.base = urls.base;
+    this.webVaultUrl = urls.webVault;
+    this.apiUrl = envUrls.api = urls.api;
+    this.identityUrl = envUrls.identity = urls.identity;
   }
 
   async setUrls(urls: EnvironmentUrls): Promise<void> {
