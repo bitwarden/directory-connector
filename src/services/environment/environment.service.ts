@@ -1,79 +1,117 @@
-import { EnvironmentUrls } from "@/jslib/common/src/models/domain/environmentUrls";
+import { Observable, Subject } from "rxjs";
 
-import { EnvironmentService as IEnvironmentService } from "@/src/abstractions/environment.service";
-import { StateService } from "@/src/abstractions/state.service";
+import { EnvironmentService, EnvironmentUrls } from "@/src/abstractions/environment.service";
 
-export class EnvironmentService implements IEnvironmentService {
-  private readonly DEFAULT_URLS = {
-    api: "https://api.bitwarden.com",
-    identity: "https://identity.bitwarden.com",
-    webVault: "https://vault.bitwarden.com",
-  };
+import { StateService } from "../state-service/state.service";
 
-  private urls: EnvironmentUrls = new EnvironmentUrls();
+export class DefaultEnvironmentService implements EnvironmentService {
+  private readonly urlsSubject = new Subject<EnvironmentUrls>();
+  urls: Observable<EnvironmentUrls> = this.urlsSubject;
 
-  constructor(private stateService: StateService) {}
+  private baseUrl: string;
+  private webVaultUrl: string;
+  private apiUrl: string;
+  private identityUrl: string;
 
-  async setUrls(urls: EnvironmentUrls): Promise<void> {
-    const normalized = new EnvironmentUrls();
-
-    for (const [key, value] of Object.entries(urls)) {
-      if (!value || typeof value !== "string") {
-        continue;
-      }
-      normalized[key as keyof EnvironmentUrls] = this.formatUrl(value);
-    }
-
-    this.urls = normalized;
-    await this.stateService.setEnvironmentUrls(normalized);
+  constructor(private stateService: StateService) {
+    this.setUrlsFromStorage();
   }
 
-  private formatUrl(url: string): string {
-    url = url.trim().replace(/\/+$/, "");
+  hasBaseUrl() {
+    return this.baseUrl != null;
+  }
 
-    if (!/^https?:\/\//i.test(url)) {
-      url = `https://${url}`;
+  getWebVaultUrl() {
+    if (this.webVaultUrl != null) {
+      return this.webVaultUrl;
     }
 
-    return url;
+    if (this.baseUrl) {
+      return this.baseUrl;
+    }
+    return "https://vault.bitwarden.com";
+  }
+
+  getSendUrl() {
+    return this.getWebVaultUrl() === "https://vault.bitwarden.com"
+      ? "https://send.bitwarden.com/#"
+      : this.getWebVaultUrl() + "/#/send/";
+  }
+
+  getApiUrl() {
+    if (this.apiUrl != null) {
+      return this.apiUrl;
+    }
+
+    if (this.baseUrl) {
+      return this.baseUrl + "/api";
+    }
+
+    return "https://api.bitwarden.com";
+  }
+
+  getIdentityUrl() {
+    if (this.identityUrl != null) {
+      return this.identityUrl;
+    }
+
+    if (this.baseUrl) {
+      return this.baseUrl + "/identity";
+    }
+
+    return "https://identity.bitwarden.com";
   }
 
   async setUrlsFromStorage(): Promise<void> {
-    const stored = await this.stateService.getEnvironmentUrls();
-    this.urls = stored ?? new EnvironmentUrls();
+    const urls: any = await this.stateService.getEnvironmentUrls();
+    const envUrls = new EnvironmentUrls();
+
+    this.baseUrl = envUrls.base = this.formatUrl(urls.base);
+    this.webVaultUrl = this.formatUrl(urls.webVault);
+    this.apiUrl = envUrls.api = this.formatUrl(urls.api);
+    this.identityUrl = envUrls.identity = this.formatUrl(urls.identity);
   }
 
-  hasBaseUrl(): boolean {
-    return !!this.urls.base;
+  async setUrls(urls: EnvironmentUrls): Promise<void> {
+    urls.base = this.formatUrl(urls.base);
+    urls.webVault = this.formatUrl(urls.webVault);
+    urls.api = this.formatUrl(urls.api);
+    urls.identity = this.formatUrl(urls.identity);
+
+    await this.stateService.setEnvironmentUrls({
+      base: urls.base,
+      api: urls.api,
+      identity: urls.identity,
+      webVault: urls.webVault,
+    });
+
+    this.baseUrl = urls.base;
+    this.webVaultUrl = urls.webVault;
+    this.apiUrl = urls.api;
+    this.identityUrl = urls.identity;
+
+    this.urlsSubject.next(urls);
   }
 
-  getApiUrl(): string {
-    if (this.urls.api) {
-      return this.urls.api;
-    }
-    if (this.urls.base) {
-      return this.urls.base + "/api";
-    }
-    return this.DEFAULT_URLS.api;
+  getUrls() {
+    return {
+      base: this.baseUrl,
+      webVault: this.webVaultUrl,
+      api: this.apiUrl,
+      identity: this.identityUrl,
+    };
   }
 
-  getIdentityUrl(): string {
-    if (this.urls.identity) {
-      return this.urls.identity;
+  private formatUrl(url: string): string {
+    if (url == null || url === "") {
+      return null;
     }
-    if (this.urls.base) {
-      return this.urls.base + "/identity";
-    }
-    return this.DEFAULT_URLS.identity;
-  }
 
-  getWebVaultUrl(): string {
-    if (this.urls.webVault) {
-      return this.urls.webVault;
+    url = url.replace(/\/+$/g, "");
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      url = "https://" + url;
     }
-    if (this.urls.base) {
-      return this.urls.base;
-    }
-    return this.DEFAULT_URLS.webVault;
+
+    return url.trim();
   }
 }

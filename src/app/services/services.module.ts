@@ -38,7 +38,7 @@ import { StateMigrationService } from "@/src/services/state-service/stateMigrati
 import { AuthService as AuthServiceAbstraction } from "../../abstractions/auth.service";
 import { StateService } from "../../abstractions/state.service";
 import { AuthService } from "../../services/auth.service";
-import { EnvironmentService as EnvironmentServiceImplementation } from "../../services/environment/environment.service";
+import { DefaultEnvironmentService as EnvironmentServiceImplementation } from "../../services/environment/environment.service";
 import { I18nService } from "../../services/i18n.service";
 import { DefaultStateService } from "../../services/state-service/state.service";
 import { SyncService } from "../../services/sync.service";
