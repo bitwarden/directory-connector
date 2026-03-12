@@ -9,11 +9,10 @@ import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
 import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-
 import { DefaultStateService } from "./state.service";
 import { StateMigrationService } from "./stateMigration.service";
 
-import { FakeStorageService } from "@/src/utils/fakeStorageService";
+import { FakeStorageService } from "@/utils/fakeStorageService";
 
 const noopLog: LogService = {
   debug: jest.fn(),

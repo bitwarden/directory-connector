@@ -4,8 +4,7 @@ import { SecureStorageKeys, StorageKeys } from "@/libs/models/state.model";
 
 import { StateMigrationService } from "./stateMigration.service";
 
-import { FakeStorageService } from "@/src/utils/fakeStorageService";
-
+import { FakeStorageService } from "@/utils/fakeStorageService";
 
 function makeService(
   storage: FakeStorageService,
