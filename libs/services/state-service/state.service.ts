@@ -1,31 +1,26 @@
 import { LogService } from "@/libs/abstractions/log.service";
-import { StateService as StateServiceAbstraction } from "@/libs/abstractions/state.service";
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { IConfiguration } from "@/libs/models/IConfiguration";
 import { EnvironmentUrls } from "@/libs/models/domain/environmentUrls";
-import { StorageOptions } from "@/libs/models/domain/storageOptions";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
 import { OktaConfiguration } from "@/libs/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
-import {
-  SecureStorageKeysVNext as SecureStorageKeys,
-  StorageKeysVNext as StorageKeys,
-  StoredSecurely,
-} from "@/libs/models/state.model";
+import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
+import { StateService } from "./state.service";
 import { StateMigrationService } from "./stateMigration.service";
 
-export class StateServiceImplementation implements StateServiceAbstraction {
+export class DefaultStateService implements StateService {
   constructor(
     protected storageService: StorageService,
     protected secureStorageService: StorageService,
     protected logService: LogService,
     protected stateMigrationService: StateMigrationService,
-    private useSecureStorageForSecrets = true,
+    protected useSecureStorageForSecrets = true,
   ) {}
 
   async init(): Promise<void> {
@@ -34,9 +29,15 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     }
   }
 
-  async clean(options?: StorageOptions): Promise<void> {
-    // Clear all directory settings and configurations
-    // but preserve version and environment settings
+  async clean(): Promise<void> {
+    await this.clearDirectoryConfigurations();
+  }
+
+  /**
+   * Clears all directory settings and configurations
+   * but preserve version and environment settings
+   */
+  async clearDirectoryConfigurations(): Promise<void> {
     await this.setDirectoryType(null);
     await this.setOrganizationId(null);
     await this.setSync(null);
@@ -59,7 +60,7 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     }
 
     if (this.useSecureStorageForSecrets) {
-      // Create a copy to avoid modifying the cached config
+      // Do not introduce secrets into the in-memory account object
       const configWithSecrets = Object.assign({}, config);
 
       switch (type) {
@@ -137,6 +138,24 @@ export class StateServiceImplementation implements StateServiceAbstraction {
           await this.setOneLoginConfiguration(oneLoginConfig);
           break;
         }
+      }
+    } else {
+      switch (type) {
+        case DirectoryType.Ldap:
+          await this.setLdapConfiguration(config as LdapConfiguration);
+          break;
+        case DirectoryType.EntraID:
+          await this.setEntraConfiguration(config as EntraIdConfiguration);
+          break;
+        case DirectoryType.Okta:
+          await this.setOktaConfiguration(config as OktaConfiguration);
+          break;
+        case DirectoryType.GSuite:
+          await this.setGsuiteConfiguration(config as GSuiteConfiguration);
+          break;
+        case DirectoryType.OneLogin:
+          await this.setOneLoginConfiguration(config as OneLoginConfiguration);
+          break;
       }
     }
   }
@@ -230,64 +249,55 @@ export class StateServiceImplementation implements StateServiceAbstraction {
   // Directory-Specific Configuration Methods
   // ===================================================================
 
-  async getLdapConfiguration(options?: StorageOptions): Promise<LdapConfiguration> {
-    return await this.storageService.get<LdapConfiguration>(StorageKeys.directory_ldap);
+  async getLdapConfiguration(): Promise<LdapConfiguration> {
+    return await this.storageService.get<LdapConfiguration>(StorageKeys.directoryLdap);
   }
 
-  async setLdapConfiguration(value: LdapConfiguration, options?: StorageOptions): Promise<void> {
-    await this.storageService.save(StorageKeys.directory_ldap, value);
+  async setLdapConfiguration(value: LdapConfiguration): Promise<void> {
+    await this.storageService.save(StorageKeys.directoryLdap, value);
   }
 
-  async getGsuiteConfiguration(options?: StorageOptions): Promise<GSuiteConfiguration> {
-    return await this.storageService.get<GSuiteConfiguration>(StorageKeys.directory_gsuite);
+  async getGsuiteConfiguration(): Promise<GSuiteConfiguration> {
+    return await this.storageService.get<GSuiteConfiguration>(StorageKeys.directoryGsuite);
   }
 
-  async setGsuiteConfiguration(
-    value: GSuiteConfiguration,
-    options?: StorageOptions,
-  ): Promise<void> {
-    await this.storageService.save(StorageKeys.directory_gsuite, value);
+  async setGsuiteConfiguration(value: GSuiteConfiguration): Promise<void> {
+    await this.storageService.save(StorageKeys.directoryGsuite, value);
   }
 
-  async getEntraConfiguration(options?: StorageOptions): Promise<EntraIdConfiguration> {
-    return await this.storageService.get<EntraIdConfiguration>(StorageKeys.directory_entra);
+  async getEntraConfiguration(): Promise<EntraIdConfiguration> {
+    return await this.storageService.get<EntraIdConfiguration>(StorageKeys.directoryEntra);
   }
 
-  async setEntraConfiguration(
-    value: EntraIdConfiguration,
-    options?: StorageOptions,
-  ): Promise<void> {
-    await this.storageService.save(StorageKeys.directory_entra, value);
+  async setEntraConfiguration(value: EntraIdConfiguration): Promise<void> {
+    await this.storageService.save(StorageKeys.directoryEntra, value);
   }
 
-  async getOktaConfiguration(options?: StorageOptions): Promise<OktaConfiguration> {
-    return await this.storageService.get<OktaConfiguration>(StorageKeys.directory_okta);
+  async getOktaConfiguration(): Promise<OktaConfiguration> {
+    return await this.storageService.get<OktaConfiguration>(StorageKeys.directoryOkta);
   }
 
-  async setOktaConfiguration(value: OktaConfiguration, options?: StorageOptions): Promise<void> {
-    await this.storageService.save(StorageKeys.directory_okta, value);
+  async setOktaConfiguration(value: OktaConfiguration): Promise<void> {
+    await this.storageService.save(StorageKeys.directoryOkta, value);
   }
 
-  async getOneLoginConfiguration(options?: StorageOptions): Promise<OneLoginConfiguration> {
-    return await this.storageService.get<OneLoginConfiguration>(StorageKeys.directory_onelogin);
+  async getOneLoginConfiguration(): Promise<OneLoginConfiguration> {
+    return await this.storageService.get<OneLoginConfiguration>(StorageKeys.directoryOnelogin);
   }
 
-  async setOneLoginConfiguration(
-    value: OneLoginConfiguration,
-    options?: StorageOptions,
-  ): Promise<void> {
-    await this.storageService.save(StorageKeys.directory_onelogin, value);
+  async setOneLoginConfiguration(value: OneLoginConfiguration): Promise<void> {
+    await this.storageService.save(StorageKeys.directoryOnelogin, value);
   }
 
   // ===================================================================
   // Directory Settings Methods
   // ===================================================================
 
-  async getOrganizationId(options?: StorageOptions): Promise<string> {
+  async getOrganizationId(): Promise<string> {
     return await this.storageService.get<string>(StorageKeys.organizationId);
   }
 
-  async setOrganizationId(value: string, options?: StorageOptions): Promise<void> {
+  async setOrganizationId(value: string): Promise<void> {
     const currentId = await this.getOrganizationId();
     if (currentId !== value) {
       await this.clearSyncSettings();
@@ -295,19 +305,19 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     await this.storageService.save(StorageKeys.organizationId, value);
   }
 
-  async getSync(options?: StorageOptions): Promise<SyncConfiguration> {
+  async getSync(): Promise<SyncConfiguration> {
     return await this.storageService.get<SyncConfiguration>(StorageKeys.sync);
   }
 
-  async setSync(value: SyncConfiguration, options?: StorageOptions): Promise<void> {
+  async setSync(value: SyncConfiguration): Promise<void> {
     await this.storageService.save(StorageKeys.sync, value);
   }
 
-  async getDirectoryType(options?: StorageOptions): Promise<DirectoryType> {
+  async getDirectoryType(): Promise<DirectoryType> {
     return await this.storageService.get<DirectoryType>(StorageKeys.directoryType);
   }
 
-  async setDirectoryType(value: DirectoryType, options?: StorageOptions): Promise<void> {
+  async setDirectoryType(value: DirectoryType): Promise<void> {
     const currentType = await this.getDirectoryType();
     if (value !== currentType) {
       await this.clearSyncSettings();
@@ -315,53 +325,53 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     await this.storageService.save(StorageKeys.directoryType, value);
   }
 
-  async getLastUserSync(options?: StorageOptions): Promise<Date> {
+  async getLastUserSync(): Promise<Date> {
     const dateString = await this.storageService.get<string>(SecureStorageKeys.lastUserSync);
     return dateString ? new Date(dateString) : null;
   }
 
-  async setLastUserSync(value: Date, options?: StorageOptions): Promise<void> {
+  async setLastUserSync(value: Date): Promise<void> {
     await this.storageService.save(SecureStorageKeys.lastUserSync, value);
   }
 
-  async getLastGroupSync(options?: StorageOptions): Promise<Date> {
+  async getLastGroupSync(): Promise<Date> {
     const dateString = await this.storageService.get<string>(SecureStorageKeys.lastGroupSync);
     return dateString ? new Date(dateString) : null;
   }
 
-  async setLastGroupSync(value: Date, options?: StorageOptions): Promise<void> {
+  async setLastGroupSync(value: Date): Promise<void> {
     await this.storageService.save(SecureStorageKeys.lastGroupSync, value);
   }
 
-  async getLastSyncHash(options?: StorageOptions): Promise<string> {
-    return await this.storageService.get<string>(SecureStorageKeys.lastSyncHash);
+  async getLastSyncHash(): Promise<string> {
+    return await this.storageService.get<string>(StorageKeys.lastSyncHash);
   }
 
-  async setLastSyncHash(value: string, options?: StorageOptions): Promise<void> {
-    await this.storageService.save(SecureStorageKeys.lastSyncHash, value);
+  async setLastSyncHash(value: string): Promise<void> {
+    await this.storageService.save(StorageKeys.lastSyncHash, value);
   }
 
-  async getSyncingDir(options?: StorageOptions): Promise<boolean> {
+  async getSyncingDir(): Promise<boolean> {
     return await this.storageService.get<boolean>(StorageKeys.syncingDir);
   }
 
-  async setSyncingDir(value: boolean, options?: StorageOptions): Promise<void> {
+  async setSyncingDir(value: boolean): Promise<void> {
     await this.storageService.save(StorageKeys.syncingDir, value);
   }
 
-  async getUserDelta(options?: StorageOptions): Promise<string> {
+  async getUserDelta(): Promise<string> {
     return await this.storageService.get<string>(SecureStorageKeys.userDelta);
   }
 
-  async setUserDelta(value: string, options?: StorageOptions): Promise<void> {
+  async setUserDelta(value: string): Promise<void> {
     await this.storageService.save(SecureStorageKeys.userDelta, value);
   }
 
-  async getGroupDelta(options?: StorageOptions): Promise<string> {
+  async getGroupDelta(): Promise<string> {
     return await this.storageService.get<string>(SecureStorageKeys.groupDelta);
   }
 
-  async setGroupDelta(value: string, options?: StorageOptions): Promise<void> {
+  async setGroupDelta(value: string): Promise<void> {
     await this.storageService.save(SecureStorageKeys.groupDelta, value);
   }
 
@@ -379,7 +389,7 @@ export class StateServiceImplementation implements StateServiceAbstraction {
   // Environment URLs
   // ===================================================================
 
-  async getEnvironmentUrls(options?: StorageOptions): Promise<EnvironmentUrls> {
+  async getEnvironmentUrls(): Promise<EnvironmentUrls> {
     return await this.storageService.get<EnvironmentUrls>(StorageKeys.environmentUrls);
   }
 
@@ -387,8 +397,8 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     await this.storageService.save(StorageKeys.environmentUrls, value);
   }
 
-  async getApiUrl(options?: StorageOptions): Promise<string> {
-    const urls = await this.getEnvironmentUrls(options);
+  async getApiUrl(): Promise<string> {
+    const urls = await this.getEnvironmentUrls();
     if (urls?.api) {
       return urls.api;
     }
@@ -398,8 +408,8 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     return "https://api.bitwarden.com";
   }
 
-  async getIdentityUrl(options?: StorageOptions): Promise<string> {
-    const urls = await this.getEnvironmentUrls(options);
+  async getIdentityUrl(): Promise<string> {
+    const urls = await this.getEnvironmentUrls();
     if (urls?.identity) {
       return urls.identity;
     }
@@ -413,39 +423,39 @@ export class StateServiceImplementation implements StateServiceAbstraction {
   // Additional State Methods
   // ===================================================================
 
-  async getLocale(options?: StorageOptions): Promise<string> {
-    return await this.storageService.get<string>("locale");
+  async getLocale(): Promise<string> {
+    return await this.storageService.get<string>(StorageKeys.locale);
   }
 
-  async setLocale(value: string, options?: StorageOptions): Promise<void> {
-    await this.storageService.save("locale", value);
+  async setLocale(value: string): Promise<void> {
+    await this.storageService.save(StorageKeys.locale, value);
   }
 
-  async getInstalledVersion(options?: StorageOptions): Promise<string> {
-    return await this.storageService.get<string>("installedVersion");
+  async getInstalledVersion(): Promise<string> {
+    return await this.storageService.get<string>(StorageKeys.installedVersion);
   }
 
-  async setInstalledVersion(value: string, options?: StorageOptions): Promise<void> {
-    await this.storageService.save("installedVersion", value);
+  async setInstalledVersion(value: string): Promise<void> {
+    await this.storageService.save(StorageKeys.installedVersion, value);
   }
 
   // ===================================================================
   // Window Settings (for WindowMain)
   // ===================================================================
 
-  async getWindow(options?: StorageOptions): Promise<any> {
+  async getWindow(): Promise<any> {
     return await this.storageService.get(StorageKeys.window);
   }
 
-  async setWindow(value: any, options?: StorageOptions): Promise<void> {
+  async setWindow(value: any): Promise<void> {
     await this.storageService.save(StorageKeys.window, value);
   }
 
-  async getEnableAlwaysOnTop(options?: StorageOptions): Promise<boolean> {
+  async getEnableAlwaysOnTop(): Promise<boolean> {
     return (await this.storageService.get<boolean>(StorageKeys.enableAlwaysOnTop)) ?? false;
   }
 
-  async setEnableAlwaysOnTop(value: boolean, options?: StorageOptions): Promise<void> {
+  async setEnableAlwaysOnTop(value: boolean): Promise<void> {
     await this.storageService.save(StorageKeys.enableAlwaysOnTop, value);
   }
 
@@ -453,41 +463,37 @@ export class StateServiceImplementation implements StateServiceAbstraction {
   // Tray Settings (for TrayMain)
   // ===================================================================
 
-  async getEnableTray(options?: StorageOptions): Promise<boolean> {
+  async getEnableTray(): Promise<boolean> {
     return (await this.storageService.get<boolean>(StorageKeys.enableTray)) ?? false;
   }
 
-  async setEnableTray(value: boolean, options?: StorageOptions): Promise<void> {
+  async setEnableTray(value: boolean): Promise<void> {
     await this.storageService.save(StorageKeys.enableTray, value);
   }
 
-  async getEnableMinimizeToTray(options?: StorageOptions): Promise<boolean> {
+  async getEnableMinimizeToTray(): Promise<boolean> {
     return (await this.storageService.get<boolean>(StorageKeys.enableMinimizeToTray)) ?? false;
   }
 
-  async setEnableMinimizeToTray(value: boolean, options?: StorageOptions): Promise<void> {
+  async setEnableMinimizeToTray(value: boolean): Promise<void> {
     await this.storageService.save(StorageKeys.enableMinimizeToTray, value);
   }
 
-  async getEnableCloseToTray(options?: StorageOptions): Promise<boolean> {
+  async getEnableCloseToTray(): Promise<boolean> {
     return (await this.storageService.get<boolean>(StorageKeys.enableCloseToTray)) ?? false;
   }
 
-  async setEnableCloseToTray(value: boolean, options?: StorageOptions): Promise<void> {
+  async setEnableCloseToTray(value: boolean): Promise<void> {
     await this.storageService.save(StorageKeys.enableCloseToTray, value);
   }
 
-  async getAlwaysShowDock(options?: StorageOptions): Promise<boolean> {
+  async getAlwaysShowDock(): Promise<boolean> {
     return (await this.storageService.get<boolean>(StorageKeys.alwaysShowDock)) ?? false;
   }
 
-  async setAlwaysShowDock(value: boolean, options?: StorageOptions): Promise<void> {
+  async setAlwaysShowDock(value: boolean): Promise<void> {
     await this.storageService.save(StorageKeys.alwaysShowDock, value);
   }
-
-  // ===================================================================
-  // Token Management (replaces TokenService.clearToken())
-  // ===================================================================
 
   async clearAuthTokens(): Promise<void> {
     await this.secureStorageService.remove(SecureStorageKeys.accessToken);
@@ -497,11 +503,11 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     await this.secureStorageService.remove(SecureStorageKeys.twoFactorToken);
   }
 
-  async getAccessToken(options?: StorageOptions): Promise<string> {
+  async getAccessToken(): Promise<string> {
     return await this.secureStorageService.get<string>(SecureStorageKeys.accessToken);
   }
 
-  async setAccessToken(value: string, options?: StorageOptions): Promise<void> {
+  async setAccessToken(value: string): Promise<void> {
     if (value == null) {
       await this.secureStorageService.remove(SecureStorageKeys.accessToken);
     } else {
@@ -509,11 +515,11 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     }
   }
 
-  async getRefreshToken(options?: StorageOptions): Promise<string> {
+  async getRefreshToken(): Promise<string> {
     return await this.secureStorageService.get<string>(SecureStorageKeys.refreshToken);
   }
 
-  async setRefreshToken(value: string, options?: StorageOptions): Promise<void> {
+  async setRefreshToken(value: string): Promise<void> {
     if (value == null) {
       await this.secureStorageService.remove(SecureStorageKeys.refreshToken);
     } else {
@@ -521,11 +527,11 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     }
   }
 
-  async getApiKeyClientId(options?: StorageOptions): Promise<string> {
+  async getApiKeyClientId(): Promise<string> {
     return await this.secureStorageService.get<string>(SecureStorageKeys.apiKeyClientId);
   }
 
-  async setApiKeyClientId(value: string, options?: StorageOptions): Promise<void> {
+  async setApiKeyClientId(value: string): Promise<void> {
     if (value == null) {
       await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientId);
     } else {
@@ -533,11 +539,11 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     }
   }
 
-  async getApiKeyClientSecret(options?: StorageOptions): Promise<string> {
+  async getApiKeyClientSecret(): Promise<string> {
     return await this.secureStorageService.get<string>(SecureStorageKeys.apiKeyClientSecret);
   }
 
-  async setApiKeyClientSecret(value: string, options?: StorageOptions): Promise<void> {
+  async setApiKeyClientSecret(value: string): Promise<void> {
     if (value == null) {
       await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientSecret);
     } else {
@@ -545,24 +551,25 @@ export class StateServiceImplementation implements StateServiceAbstraction {
     }
   }
 
-  async getIsAuthenticated(options?: StorageOptions): Promise<boolean> {
+  async getIsAuthenticated(): Promise<boolean> {
     // Check if access token exists
-    const token = await this.getAccessToken(options);
+    const token = await this.getAccessToken();
     return token != null;
   }
 
-  async getEntityId(options?: StorageOptions): Promise<string> {
-    return await this.storageService.get<string>("entityId");
+  async getEntityId(): Promise<string> {
+    return await this.storageService.get<string>(StorageKeys.entityId);
   }
 
-  async setEntityId(value: string, options?: StorageOptions): Promise<void> {
+  async setEntityId(value: string): Promise<void> {
     if (value == null) {
-      await this.storageService.remove("entityId");
+      await this.storageService.remove(StorageKeys.entityId);
     } else {
-      await this.storageService.save("entityId", value);
+      await this.storageService.save(StorageKeys.entityId, value);
     }
   }
 }
 
 // Re-export the abstraction for convenience
 export { StateService } from "@/libs/abstractions/state.service";
+export { DefaultStateService as StateServiceImplementation };

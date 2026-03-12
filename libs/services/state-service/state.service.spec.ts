@@ -1,7 +1,4 @@
-import { mock, MockProxy } from "jest-mock-extended";
-
 import { LogService } from "@/libs/abstractions/log.service";
-import { StorageService } from "@/libs/abstractions/storage.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { EnvironmentUrls } from "@/libs/models/domain/environmentUrls";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
@@ -9,871 +6,694 @@ import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
 import { OktaConfiguration } from "@/libs/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
-import {
-  SecureStorageKeysVNext as SecureStorageKeys,
-  StorageKeysVNext as StorageKeys,
-  StoredSecurely,
-} from "@/libs/models/state.model";
+import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-import { StateServiceImplementation } from "./state.service";
+import { DefaultStateService } from "./state.service";
 import { StateMigrationService } from "./stateMigration.service";
 
-describe("StateServiceImplementation", () => {
-  let storageService: MockProxy<StorageService>;
-  let secureStorageService: MockProxy<StorageService>;
-  let logService: MockProxy<LogService>;
-  let stateMigrationService: MockProxy<StateMigrationService>;
-  let stateService: StateServiceImplementation;
+import { FakeStorageService } from "@/utils/fakeStorageService";
+
+const noopLog: LogService = {
+  debug: jest.fn(),
+  info: jest.fn(),
+  warning: jest.fn(),
+  error: jest.fn(),
+  write: jest.fn(),
+  time: jest.fn(),
+  timeEnd: jest.fn(),
+};
+
+function makeMigrationService(needsMigration = false): StateMigrationService {
+  return {
+    needsMigration: jest.fn().mockResolvedValue(needsMigration),
+    migrate: jest.fn().mockResolvedValue(undefined),
+  } as unknown as StateMigrationService;
+}
+
+function makeStateService(
+  storage: FakeStorageService,
+  secureStorage: FakeStorageService,
+  useSecureStorageForSecrets = true,
+  migrationService?: StateMigrationService,
+) {
+  return new DefaultStateService(
+    storage,
+    secureStorage,
+    noopLog,
+    migrationService ?? makeMigrationService(),
+    useSecureStorageForSecrets,
+  );
+}
+
+const ldapConfig: LdapConfiguration = {
+  ssl: true,
+  startTls: false,
+  tlsCaPath: null,
+  sslAllowUnauthorized: false,
+  sslCertPath: null,
+  sslKeyPath: null,
+  sslCaPath: null,
+  hostname: "ldap.example.com",
+  port: 636,
+  domain: null,
+  rootPath: null,
+  ad: true,
+  username: "admin",
+  password: "secret-password",
+  currentUser: false,
+  pagedSearch: true,
+};
+
+describe("DefaultStateService", () => {
+  let storage: FakeStorageService;
+  let secureStorage: FakeStorageService;
+  let stateService: DefaultStateService;
 
   beforeEach(() => {
-    storageService = mock<StorageService>();
-    secureStorageService = mock<StorageService>();
-    logService = mock<LogService>();
-    stateMigrationService = mock<StateMigrationService>();
-
-    stateService = new StateServiceImplementation(
-      storageService,
-      secureStorageService,
-      logService,
-      stateMigrationService,
-      true, // useSecureStorageForSecrets
-    );
+    storage = new FakeStorageService();
+    secureStorage = new FakeStorageService();
+    stateService = makeStateService(storage, secureStorage);
   });
 
   describe("init", () => {
-    it("should run migration if needed", async () => {
-      stateMigrationService.needsMigration.mockResolvedValue(true);
+    it("runs migration when needed", async () => {
+      const migrationService = makeMigrationService(true);
+      const svc = makeStateService(storage, secureStorage, true, migrationService);
 
-      await stateService.init();
+      await svc.init();
 
-      expect(stateMigrationService.needsMigration).toHaveBeenCalled();
-      expect(stateMigrationService.migrate).toHaveBeenCalled();
+      expect(migrationService.needsMigration).toHaveBeenCalled();
+      expect(migrationService.migrate).toHaveBeenCalled();
     });
 
-    it("should not run migration if not needed", async () => {
-      stateMigrationService.needsMigration.mockResolvedValue(false);
+    it("skips migration when not needed", async () => {
+      const migrationService = makeMigrationService(false);
+      const svc = makeStateService(storage, secureStorage, true, migrationService);
 
-      await stateService.init();
+      await svc.init();
 
-      expect(stateMigrationService.needsMigration).toHaveBeenCalled();
-      expect(stateMigrationService.migrate).not.toHaveBeenCalled();
+      expect(migrationService.needsMigration).toHaveBeenCalled();
+      expect(migrationService.migrate).not.toHaveBeenCalled();
     });
   });
 
   describe("clean", () => {
-    it("should clear all directory settings and configurations", async () => {
+    it("clears directory type, org ID, and sync from regular storage", async () => {
+      await stateService.setDirectoryType(DirectoryType.Ldap);
+      await stateService.setOrganizationId("org-123");
+      await stateService.setSync({ users: true } as SyncConfiguration);
+
       await stateService.clean();
 
-      // Verify all directory types are cleared
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.directoryType, null);
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.organizationId, null);
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.sync, null);
+      expect(await stateService.getDirectoryType()).toBeNull();
+      expect(await stateService.getOrganizationId()).toBeNull();
+      expect(await stateService.getSync()).toBeNull();
+    });
+
+    it("does not touch secure storage during clean", async () => {
+      await stateService.setAccessToken("tok");
+
+      await stateService.clean();
+
+      // secure storage still has the access token — clean only clears directory state
+      expect(secureStorage.store.get(SecureStorageKeys.accessToken)).toBe("tok");
     });
   });
 
   describe("Directory Type", () => {
-    it("should store and retrieve directory type", async () => {
-      storageService.get.mockResolvedValue(DirectoryType.Ldap);
-
+    it("round-trips the directory type", async () => {
       await stateService.setDirectoryType(DirectoryType.Ldap);
-      const result = await stateService.getDirectoryType();
 
-      expect(storageService.save).toHaveBeenCalledWith(
-        StorageKeys.directoryType,
-        DirectoryType.Ldap,
-      );
-      expect(result).toBe(DirectoryType.Ldap);
+      expect(await stateService.getDirectoryType()).toBe(DirectoryType.Ldap);
     });
 
-    it("should return null when directory type is not set", async () => {
-      storageService.get.mockResolvedValue(null);
+    it("returns null when not set", async () => {
+      expect(await stateService.getDirectoryType()).toBeNull();
+    });
 
-      const result = await stateService.getDirectoryType();
+    it("stores value in regular storage, not secure storage", async () => {
+      await stateService.setDirectoryType(DirectoryType.Okta);
 
-      expect(result).toBeNull();
+      expect(storage.store.get(StorageKeys.directoryType)).toBe(DirectoryType.Okta);
+      expect(secureStorage.store.size).toBe(0);
     });
   });
 
-  describe("Organization Id", () => {
-    it("should store and retrieve organization ID", async () => {
-      const orgId = "test-org-123";
+  describe("Organization ID", () => {
+    it("stores and retrieves the organization ID", async () => {
+      await stateService.setOrganizationId("test-org-123");
 
-      storageService.get.mockResolvedValue(orgId);
-
-      await stateService.setOrganizationId(orgId);
-      const result = await stateService.getOrganizationId();
-
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.organizationId, orgId);
-      expect(result).toBe(orgId);
+      expect(await stateService.getOrganizationId()).toBe("test-org-123");
     });
   });
 
   describe("LDAP Configuration", () => {
-    it("should store and retrieve LDAP configuration with secrets in secure storage", async () => {
-      const config: LdapConfiguration = {
-        ssl: true,
-        startTls: false,
-        tlsCaPath: null,
-        sslAllowUnauthorized: false,
-        sslCertPath: null,
-        sslKeyPath: null,
-        sslCaPath: null,
-        hostname: "ldap.example.com",
-        port: 636,
-        domain: null,
-        rootPath: null,
-        ad: true,
-        username: "admin",
-        password: "secret-password",
-        currentUser: false,
-        pagedSearch: true,
-      };
-
-      secureStorageService.get.mockResolvedValue("secret-password");
-      storageService.get.mockResolvedValue({
-        ...config,
-        password: StoredSecurely,
-      });
-
-      await stateService.setDirectory(DirectoryType.Ldap, config);
+    it("round-trips LDAP config; secret is in secure storage, not regular storage", async () => {
+      await stateService.setDirectory(DirectoryType.Ldap, { ...ldapConfig });
       const result = await stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
 
-      // Verify password is stored in secure storage
-      expect(secureStorageService.save).toHaveBeenCalled();
-
-      // Verify configuration is stored
-      expect(storageService.save).toHaveBeenCalled();
-
-      // Verify retrieved config has real password from secure storage
-      expect(result?.password).toBe("secret-password");
+      expect(result.password).toBe("secret-password");
+      // Regular storage must not contain the plaintext password
+      const stored = storage.store.get(StorageKeys.directoryLdap) as LdapConfiguration;
+      expect(stored.password).toBe(StoredSecurely);
+      // Secure storage must hold the real password
+      expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("secret-password");
     });
 
-    it("should return null when LDAP configuration is not set", async () => {
-      storageService.get.mockResolvedValue(null);
-
-      const result = await stateService.getLdapConfiguration();
-
-      expect(result).toBeNull();
+    it("returns null when LDAP configuration is not set", async () => {
+      expect(await stateService.getLdapConfiguration()).toBeNull();
     });
 
-    it("should handle null password in LDAP configuration", async () => {
-      const config: LdapConfiguration = {
-        ssl: true,
-        startTls: false,
-        tlsCaPath: null,
-        sslAllowUnauthorized: false,
-        sslCertPath: null,
-        sslKeyPath: null,
-        sslCaPath: null,
-        hostname: "ldap.example.com",
-        port: 636,
-        domain: null,
-        rootPath: null,
-        ad: true,
-        username: "admin",
-        password: null,
-        currentUser: false,
-        pagedSearch: true,
-      };
+    it("removes secret from secure storage when password is null", async () => {
+      // First set a password, then clear it
+      await stateService.setDirectory(DirectoryType.Ldap, { ...ldapConfig });
+      await stateService.setDirectory(DirectoryType.Ldap, { ...ldapConfig, password: null });
 
-      await stateService.setDirectory(DirectoryType.Ldap, config);
-
-      // Null passwords should call remove on the secure storage secret key
-      expect(secureStorageService.remove).toHaveBeenCalled();
+      expect(secureStorage.store.has(SecureStorageKeys.ldap)).toBe(false);
     });
   });
+
+  // -------------------------------------------------------------------------
 
   describe("GSuite Configuration", () => {
-    it("should store and retrieve GSuite configuration with privateKey in secure storage", async () => {
-      const config: GSuiteConfiguration = {
-        domain: "example.com",
-        clientEmail: "service@example.com",
-        adminUser: "admin@example.com",
-        privateKey: "private-key-content",
-        customer: "customer-id",
-      };
+    const gsuiteConfig: GSuiteConfiguration = {
+      domain: "example.com",
+      clientEmail: "service@example.com",
+      adminUser: "admin@example.com",
+      privateKey: "private-key-content",
+      customer: "customer-id",
+    };
 
-      secureStorageService.get.mockResolvedValue("private-key-content");
-      storageService.get.mockResolvedValue({
-        ...config,
-        privateKey: StoredSecurely,
-      });
-
-      await stateService.setDirectory(DirectoryType.GSuite, config);
+    it("round-trips GSuite config; privateKey is in secure storage, not regular storage", async () => {
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
       const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
 
-      expect(secureStorageService.save).toHaveBeenCalled();
-      expect(result?.privateKey).toBe("private-key-content");
+      expect(result.privateKey).toBe("private-key-content");
+      const stored = storage.store.get(StorageKeys.directoryGsuite) as GSuiteConfiguration;
+      expect(stored.privateKey).toBe(StoredSecurely);
+      expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("private-key-content");
     });
 
-    it("should handle null privateKey in GSuite configuration", async () => {
-      const config: GSuiteConfiguration = {
-        domain: "example.com",
-        clientEmail: "service@example.com",
-        adminUser: "admin@example.com",
-        privateKey: null,
-        customer: "customer-id",
-      };
+    it("normalizes escaped newlines in privateKey", async () => {
+      const keyWithEscapedNewlines = "line1\\nline2\\nline3";
+      await stateService.setDirectory(DirectoryType.GSuite, {
+        ...gsuiteConfig,
+        privateKey: keyWithEscapedNewlines,
+      });
 
-      await stateService.setDirectory(DirectoryType.GSuite, config);
+      expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("line1\nline2\nline3");
+    });
 
-      // Null privateKey should call remove on the secure storage secret key
-      expect(secureStorageService.remove).toHaveBeenCalled();
+    it("removes secret from secure storage when privateKey is null", async () => {
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig, privateKey: null });
+
+      expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
     });
   });
+
+  // -------------------------------------------------------------------------
 
   describe("Entra ID Configuration", () => {
-    it("should store and retrieve Entra ID configuration with key in secure storage", async () => {
-      const config: EntraIdConfiguration = {
-        identityAuthority: "https://login.microsoftonline.com",
-        tenant: "tenant-id",
-        applicationId: "app-id",
-        key: "secret-key",
-      };
+    const entraConfig: EntraIdConfiguration = {
+      identityAuthority: "https://login.microsoftonline.com",
+      tenant: "tenant-id",
+      applicationId: "app-id",
+      key: "secret-key",
+    };
 
-      secureStorageService.get.mockResolvedValue("secret-key");
-      storageService.get.mockResolvedValue({
-        ...config,
-        key: StoredSecurely,
-      });
-
-      await stateService.setDirectory(DirectoryType.EntraID, config);
+    it("round-trips Entra ID config; key is in secure storage, not regular storage", async () => {
+      await stateService.setDirectory(DirectoryType.EntraID, { ...entraConfig });
       const result = await stateService.getDirectory<EntraIdConfiguration>(DirectoryType.EntraID);
 
-      expect(secureStorageService.save).toHaveBeenCalled();
-      expect(result?.key).toBe("secret-key");
+      expect(result.key).toBe("secret-key");
+      const stored = storage.store.get(StorageKeys.directoryEntra) as EntraIdConfiguration;
+      expect(stored.key).toBe(StoredSecurely);
+      expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("secret-key");
     });
 
-    it("should maintain backwards compatibility with Azure key storage", async () => {
-      const config: EntraIdConfiguration = {
-        identityAuthority: "https://login.microsoftonline.com",
-        tenant: "tenant-id",
-        applicationId: "app-id",
-        key: StoredSecurely,
-      };
-
-      storageService.get.mockResolvedValue(config);
-      secureStorageService.get.mockResolvedValueOnce(null); // entra key not found
-      secureStorageService.get.mockResolvedValueOnce("azure-secret-key"); // fallback to azure key
+    it("falls back to legacy azure key when entra key is absent", async () => {
+      // Simulate a legacy record: config stored with StoredSecurely, azure key present
+      storage.store.set(StorageKeys.directoryEntra, { ...entraConfig, key: StoredSecurely });
+      secureStorage.store.set(SecureStorageKeys.azure, "azure-secret-key");
+      // entra key is absent
 
       const result = await stateService.getDirectory<EntraIdConfiguration>(DirectoryType.EntraID);
 
-      expect(secureStorageService.get).toHaveBeenCalled();
-      expect(result?.key).toBe("azure-secret-key");
+      expect(result.key).toBe("azure-secret-key");
+    });
+
+    it("clears both entra and azure keys from secure storage when key is null", async () => {
+      secureStorage.store.set(SecureStorageKeys.entra, "entra-key");
+      secureStorage.store.set(SecureStorageKeys.azure, "azure-key");
+
+      await stateService.setDirectory(DirectoryType.EntraID, { ...entraConfig, key: null });
+
+      expect(secureStorage.store.has(SecureStorageKeys.entra)).toBe(false);
+      expect(secureStorage.store.has(SecureStorageKeys.azure)).toBe(false);
     });
   });
+
+  // -------------------------------------------------------------------------
 
   describe("Okta Configuration", () => {
-    it("should store and retrieve Okta configuration with token in secure storage", async () => {
-      const config: OktaConfiguration = {
-        orgUrl: "https://example.okta.com",
-        token: "okta-token",
-      };
+    const oktaConfig: OktaConfiguration = {
+      orgUrl: "https://example.okta.com",
+      token: "okta-token",
+    };
 
-      secureStorageService.get.mockResolvedValue("okta-token");
-      storageService.get.mockResolvedValue({
-        ...config,
-        token: StoredSecurely,
-      });
-
-      await stateService.setDirectory(DirectoryType.Okta, config);
+    it("round-trips Okta config; token is in secure storage, not regular storage", async () => {
+      await stateService.setDirectory(DirectoryType.Okta, { ...oktaConfig });
       const result = await stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta);
 
-      expect(secureStorageService.save).toHaveBeenCalled();
-      expect(result?.token).toBe("okta-token");
+      expect(result.token).toBe("okta-token");
+      const stored = storage.store.get(StorageKeys.directoryOkta) as OktaConfiguration;
+      expect(stored.token).toBe(StoredSecurely);
+      expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
     });
   });
+
+  // -------------------------------------------------------------------------
 
   describe("OneLogin Configuration", () => {
-    it("should store and retrieve OneLogin configuration with clientSecret in secure storage", async () => {
-      const config: OneLoginConfiguration = {
-        region: "us",
-        clientId: "client-id",
-        clientSecret: "client-secret",
-      };
+    const oneLoginConfig: OneLoginConfiguration = {
+      region: "us",
+      clientId: "client-id",
+      clientSecret: "client-secret",
+    };
 
-      secureStorageService.get.mockResolvedValue("client-secret");
-      storageService.get.mockResolvedValue({
-        ...config,
-        clientSecret: StoredSecurely,
-      });
-
-      await stateService.setDirectory(DirectoryType.OneLogin, config);
+    it("round-trips OneLogin config; clientSecret is in secure storage, not regular storage", async () => {
+      await stateService.setDirectory(DirectoryType.OneLogin, { ...oneLoginConfig });
       const result = await stateService.getDirectory<OneLoginConfiguration>(DirectoryType.OneLogin);
 
-      expect(secureStorageService.save).toHaveBeenCalled();
-      expect(result?.clientSecret).toBe("client-secret");
+      expect(result.clientSecret).toBe("client-secret");
+      const stored = storage.store.get(StorageKeys.directoryOnelogin) as OneLoginConfiguration;
+      expect(stored.clientSecret).toBe(StoredSecurely);
+      expect(secureStorage.store.get(SecureStorageKeys.oneLogin)).toBe("client-secret");
     });
   });
+
+  // -------------------------------------------------------------------------
+
+  describe("Secure Storage Flag (useSecureStorageForSecrets = false)", () => {
+    it("stores secrets in regular storage when secure storage is disabled", async () => {
+      const insecureSvc = makeStateService(storage, secureStorage, false);
+
+      await insecureSvc.setDirectory(DirectoryType.Ldap, { ...ldapConfig });
+      const result = await insecureSvc.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
+
+      // With useSecureStorageForSecrets=false the config is stored as-is and
+      // returned directly — no secure storage round-trip.
+      expect(result?.password).toBe("secret-password");
+      // Secure storage should not have been used for directory secrets
+      expect(secureStorage.store.has(SecureStorageKeys.ldap)).toBe(false);
+    });
+  });
+
+  // -------------------------------------------------------------------------
 
   describe("Sync Configuration", () => {
-    it("should store and retrieve sync configuration", async () => {
-      const syncConfig: SyncConfiguration = {
-        users: true,
-        groups: true,
-        interval: 5,
-        userFilter: null,
-        groupFilter: null,
-        removeDisabled: true,
-        overwriteExisting: false,
-        largeImport: false,
-        groupObjectClass: null,
-        userObjectClass: null,
-        groupPath: null,
-        userPath: null,
-        groupNameAttribute: null,
-        userEmailAttribute: null,
-        memberAttribute: "member",
-        creationDateAttribute: "whenCreated",
-        revisionDateAttribute: "whenChanged",
-        useEmailPrefixSuffix: false,
-        emailPrefixAttribute: null,
-        emailSuffix: null,
-      };
+    const syncConfig: SyncConfiguration = {
+      users: true,
+      groups: true,
+      interval: 5,
+      userFilter: null,
+      groupFilter: null,
+      removeDisabled: true,
+      overwriteExisting: false,
+      largeImport: false,
+      groupObjectClass: null,
+      userObjectClass: null,
+      groupPath: null,
+      userPath: null,
+      groupNameAttribute: null,
+      userEmailAttribute: null,
+      memberAttribute: "member",
+      creationDateAttribute: "whenCreated",
+      revisionDateAttribute: "whenChanged",
+      useEmailPrefixSuffix: false,
+      emailPrefixAttribute: null,
+      emailSuffix: null,
+    };
 
-      storageService.get.mockResolvedValue(syncConfig);
-
+    it("round-trips sync configuration", async () => {
       await stateService.setSync(syncConfig);
-      const result = await stateService.getSync();
 
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.sync, syncConfig);
-      expect(result).toEqual(syncConfig);
+      expect(await stateService.getSync()).toEqual(syncConfig);
+    });
+
+    it("stores in regular storage, not secure storage", async () => {
+      await stateService.setSync(syncConfig);
+
+      expect(storage.store.get(StorageKeys.sync)).toEqual(syncConfig);
+      expect(secureStorage.store.size).toBe(0);
     });
   });
 
-  describe("Sync Settings", () => {
-    it("should clear sync settings when clearSyncSettings is called", async () => {
-      await stateService.clearSyncSettings(false);
+  // -------------------------------------------------------------------------
 
-      // Should set delta and sync values to null
-      expect(storageService.save).toHaveBeenCalled();
+  describe("clearSyncSettings", () => {
+    beforeEach(async () => {
+      await stateService.setUserDelta("user-delta");
+      await stateService.setGroupDelta("group-delta");
+      await stateService.setLastUserSync(new Date("2024-01-01"));
+      await stateService.setLastGroupSync(new Date("2024-01-01"));
+      await stateService.setLastSyncHash("hash-abc");
     });
 
-    it("should clear lastSyncHash when hashToo is true", async () => {
+    it("clears deltas and last sync timestamps but preserves hash by default", async () => {
+      await stateService.clearSyncSettings(false);
+
+      expect(await stateService.getUserDelta()).toBeNull();
+      expect(await stateService.getGroupDelta()).toBeNull();
+      expect(await stateService.getLastUserSync()).toBeNull();
+      expect(await stateService.getLastGroupSync()).toBeNull();
+      // hash preserved
+      expect(await stateService.getLastSyncHash()).toBe("hash-abc");
+    });
+
+    it("also clears hash when hashToo is true", async () => {
       await stateService.clearSyncSettings(true);
 
-      // Should set all values including lastSyncHash to null
-      expect(storageService.save).toHaveBeenCalled();
-    });
-
-    it("should not clear lastSyncHash when hashToo is false", async () => {
-      await stateService.clearSyncSettings(false);
-
-      // Should set delta and sync values but not lastSyncHash
-      expect(storageService.save).toHaveBeenCalled();
+      expect(await stateService.getLastSyncHash()).toBeNull();
     });
   });
+
+  // -------------------------------------------------------------------------
 
   describe("Last Sync Hash", () => {
-    it("should store and retrieve last sync hash", async () => {
-      const hash = "hash";
+    it("round-trips last sync hash", async () => {
+      await stateService.setLastSyncHash("hash-abc");
 
-      storageService.get.mockResolvedValue(hash);
-
-      await stateService.setLastSyncHash(hash);
-      const result = await stateService.getLastSyncHash();
-
-      expect(storageService.save).toHaveBeenCalled();
-      expect(result).toBe(hash);
+      expect(await stateService.getLastSyncHash()).toBe("hash-abc");
     });
   });
+
+  // -------------------------------------------------------------------------
 
   describe("Delta Tokens", () => {
-    it("should store and retrieve user delta token", async () => {
-      const token = "user-delta-token";
+    it("round-trips user delta token", async () => {
+      await stateService.setUserDelta("user-delta-token");
 
-      storageService.get.mockResolvedValue(token);
-
-      await stateService.setUserDelta(token);
-      const result = await stateService.getUserDelta();
-
-      expect(storageService.save).toHaveBeenCalled();
-      expect(result).toBe(token);
+      expect(await stateService.getUserDelta()).toBe("user-delta-token");
     });
 
-    it("should store and retrieve group delta token", async () => {
-      const token = "group-delta-token";
+    it("round-trips group delta token", async () => {
+      await stateService.setGroupDelta("group-delta-token");
 
-      storageService.get.mockResolvedValue(token);
-
-      await stateService.setGroupDelta(token);
-      const result = await stateService.getGroupDelta();
-
-      expect(storageService.save).toHaveBeenCalled();
-      expect(result).toBe(token);
+      expect(await stateService.getGroupDelta()).toBe("group-delta-token");
     });
   });
+
+  // -------------------------------------------------------------------------
 
   describe("Last Sync Timestamps", () => {
-    it("should store and retrieve last user sync timestamp", async () => {
+    it("round-trips last user sync timestamp", async () => {
       const timestamp = new Date("2024-01-01T00:00:00Z");
-
-      storageService.get.mockResolvedValue(timestamp.toISOString());
-
       await stateService.setLastUserSync(timestamp);
-      const result = await stateService.getLastUserSync();
 
-      expect(storageService.save).toHaveBeenCalled();
-      expect(result?.toISOString()).toBe(timestamp.toISOString());
+      expect((await stateService.getLastUserSync()).toISOString()).toBe(timestamp.toISOString());
     });
 
-    it("should store and retrieve last group sync timestamp", async () => {
-      const timestamp = new Date("2024-01-01T00:00:00Z");
-
-      storageService.get.mockResolvedValue(timestamp.toISOString());
-
+    it("round-trips last group sync timestamp", async () => {
+      const timestamp = new Date("2024-06-15T12:00:00Z");
       await stateService.setLastGroupSync(timestamp);
-      const result = await stateService.getLastGroupSync();
 
-      expect(storageService.save).toHaveBeenCalled();
-      expect(result?.toISOString()).toBe(timestamp.toISOString());
+      expect((await stateService.getLastGroupSync()).toISOString()).toBe(timestamp.toISOString());
     });
 
-    it("should return null when last user sync timestamp is not set", async () => {
-      storageService.get.mockResolvedValue(null);
-
-      const result = await stateService.getLastUserSync();
-
-      expect(result).toBeNull();
+    it("returns null when last user sync is not set", async () => {
+      expect(await stateService.getLastUserSync()).toBeNull();
     });
 
-    it("should return null when last group sync timestamp is not set", async () => {
-      storageService.get.mockResolvedValue(null);
-
-      const result = await stateService.getLastGroupSync();
-
-      expect(result).toBeNull();
+    it("returns null when last group sync is not set", async () => {
+      expect(await stateService.getLastGroupSync()).toBeNull();
     });
   });
 
-  describe("Secure Storage Flag", () => {
-    it("should not separate secrets when useSecureStorageForSecrets is false", async () => {
-      const insecureStateService = new StateServiceImplementation(
-        storageService,
-        secureStorageService,
-        logService,
-        stateMigrationService,
-        false, // useSecureStorageForSecrets = false
-      );
-
-      const config: LdapConfiguration = {
-        ssl: true,
-        startTls: false,
-        tlsCaPath: null,
-        sslAllowUnauthorized: false,
-        sslCertPath: null,
-        sslKeyPath: null,
-        sslCaPath: null,
-        hostname: "ldap.example.com",
-        port: 636,
-        domain: null,
-        rootPath: null,
-        ad: true,
-        username: "admin",
-        password: "secret-password",
-        currentUser: false,
-        pagedSearch: true,
-      };
-
-      storageService.get.mockResolvedValue(config);
-
-      // When useSecureStorageForSecrets is false, setDirectory doesn't process secrets
-      await insecureStateService.setDirectory(DirectoryType.Ldap, config);
-
-      // Retrieve config - should return password as-is from storage (not from secure storage)
-      const result = await insecureStateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
-
-      // Password should be retrieved directly from storage, not secure storage
-      expect(result?.password).toBe("secret-password");
-      expect(secureStorageService.get).not.toHaveBeenCalled();
-    });
-  });
+  // -------------------------------------------------------------------------
 
   describe("Window Settings", () => {
-    it("should store and retrieve window state", async () => {
-      const windowState = {
-        width: 1024,
-        height: 768,
-        x: 100,
-        y: 100,
-        isMaximized: false,
-      };
-
-      storageService.get.mockResolvedValue(windowState);
-
+    it("round-trips window state", async () => {
+      const windowState = { width: 1024, height: 768, x: 100, y: 100, isMaximized: false };
       await stateService.setWindow(windowState);
-      const result = await stateService.getWindow();
 
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.window, windowState);
-      expect(result).toEqual(windowState);
+      expect(await stateService.getWindow()).toEqual(windowState);
     });
 
-    it("should return null when window state is not set", async () => {
-      storageService.get.mockResolvedValue(null);
-
-      const result = await stateService.getWindow();
-
-      expect(result).toBeNull();
+    it("returns null when window state is not set", async () => {
+      expect(await stateService.getWindow()).toBeNull();
     });
 
-    it("should store and retrieve enableAlwaysOnTop setting", async () => {
-      storageService.get.mockResolvedValue(true);
+    it("stores in regular storage, not secure storage", async () => {
+      const windowState = { width: 800, height: 600 };
+      await stateService.setWindow(windowState);
 
+      expect(storage.store.get(StorageKeys.window)).toEqual(windowState);
+      expect(secureStorage.store.size).toBe(0);
+    });
+
+    it("round-trips enableAlwaysOnTop", async () => {
       await stateService.setEnableAlwaysOnTop(true);
-      const result = await stateService.getEnableAlwaysOnTop();
 
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.enableAlwaysOnTop, true);
-      expect(result).toBe(true);
+      expect(await stateService.getEnableAlwaysOnTop()).toBe(true);
     });
 
-    it("should return false when enableAlwaysOnTop is not set", async () => {
-      storageService.get.mockResolvedValue(null);
-
-      const result = await stateService.getEnableAlwaysOnTop();
-
-      expect(result).toBe(false);
+    it("defaults enableAlwaysOnTop to false when not set", async () => {
+      expect(await stateService.getEnableAlwaysOnTop()).toBe(false);
     });
   });
+
+  // -------------------------------------------------------------------------
 
   describe("Tray Settings", () => {
-    it("should store and retrieve enableTray setting", async () => {
-      storageService.get.mockResolvedValue(true);
-
+    it("round-trips enableTray", async () => {
       await stateService.setEnableTray(true);
-      const result = await stateService.getEnableTray();
 
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.enableTray, true);
-      expect(result).toBe(true);
+      expect(await stateService.getEnableTray()).toBe(true);
     });
 
-    it("should return false when enableTray is not set", async () => {
-      storageService.get.mockResolvedValue(null);
-
-      const result = await stateService.getEnableTray();
-
-      expect(result).toBe(false);
+    it("defaults enableTray to false when not set", async () => {
+      expect(await stateService.getEnableTray()).toBe(false);
     });
 
-    it("should store and retrieve enableMinimizeToTray setting", async () => {
-      storageService.get.mockResolvedValue(true);
-
+    it("round-trips enableMinimizeToTray", async () => {
       await stateService.setEnableMinimizeToTray(true);
-      const result = await stateService.getEnableMinimizeToTray();
 
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.enableMinimizeToTray, true);
-      expect(result).toBe(true);
+      expect(await stateService.getEnableMinimizeToTray()).toBe(true);
     });
 
-    it("should return false when enableMinimizeToTray is not set", async () => {
-      storageService.get.mockResolvedValue(null);
-
-      const result = await stateService.getEnableMinimizeToTray();
-
-      expect(result).toBe(false);
+    it("defaults enableMinimizeToTray to false when not set", async () => {
+      expect(await stateService.getEnableMinimizeToTray()).toBe(false);
     });
 
-    it("should store and retrieve enableCloseToTray setting", async () => {
-      storageService.get.mockResolvedValue(true);
-
+    it("round-trips enableCloseToTray", async () => {
       await stateService.setEnableCloseToTray(true);
-      const result = await stateService.getEnableCloseToTray();
 
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.enableCloseToTray, true);
-      expect(result).toBe(true);
+      expect(await stateService.getEnableCloseToTray()).toBe(true);
     });
 
-    it("should return false when enableCloseToTray is not set", async () => {
-      storageService.get.mockResolvedValue(null);
-
-      const result = await stateService.getEnableCloseToTray();
-
-      expect(result).toBe(false);
+    it("defaults enableCloseToTray to false when not set", async () => {
+      expect(await stateService.getEnableCloseToTray()).toBe(false);
     });
 
-    it("should store and retrieve alwaysShowDock setting", async () => {
-      storageService.get.mockResolvedValue(true);
-
+    it("round-trips alwaysShowDock", async () => {
       await stateService.setAlwaysShowDock(true);
-      const result = await stateService.getAlwaysShowDock();
 
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.alwaysShowDock, true);
-      expect(result).toBe(true);
+      expect(await stateService.getAlwaysShowDock()).toBe(true);
     });
 
-    it("should return false when alwaysShowDock is not set", async () => {
-      storageService.get.mockResolvedValue(null);
-
-      const result = await stateService.getAlwaysShowDock();
-
-      expect(result).toBe(false);
+    it("defaults alwaysShowDock to false when not set", async () => {
+      expect(await stateService.getAlwaysShowDock()).toBe(false);
     });
   });
+
+  // -------------------------------------------------------------------------
 
   describe("Environment URLs", () => {
-    it("should store and retrieve environment URLs", async () => {
-      const urls: EnvironmentUrls = {
-        base: "https://vault.example.com",
-        api: "https://api.example.com",
-        identity: "https://identity.example.com",
-        webVault: "https://vault.example.com",
-      };
+    const urls: EnvironmentUrls = {
+      base: "https://vault.example.com",
+      api: "https://api.example.com",
+      identity: "https://identity.example.com",
+      webVault: "https://vault.example.com",
+    };
 
-      storageService.get.mockResolvedValue(urls);
-
+    it("round-trips environment URLs", async () => {
       await stateService.setEnvironmentUrls(urls);
-      const result = await stateService.getEnvironmentUrls();
 
-      expect(storageService.save).toHaveBeenCalledWith(StorageKeys.environmentUrls, urls);
-      expect(result).toEqual(urls);
+      expect(await stateService.getEnvironmentUrls()).toEqual(urls);
     });
 
-    it("should return null when environment URLs are not set", async () => {
-      storageService.get.mockResolvedValue(null);
-
-      const result = await stateService.getEnvironmentUrls();
-
-      expect(result).toBeNull();
+    it("returns null when environment URLs are not set", async () => {
+      expect(await stateService.getEnvironmentUrls()).toBeNull();
     });
 
-    it("should return API URL from explicit api property", async () => {
-      const urls: EnvironmentUrls = {
-        base: null,
-        api: "https://api.example.com",
-        identity: null,
-        webVault: null,
-      };
+    it("returns explicit api URL", async () => {
+      await stateService.setEnvironmentUrls({ ...urls, base: null });
 
-      storageService.get.mockResolvedValue(urls);
-
-      const result = await stateService.getApiUrl();
-
-      expect(result).toBe("https://api.example.com");
+      expect(await stateService.getApiUrl()).toBe("https://api.example.com");
     });
 
-    it("should return API URL derived from base URL", async () => {
-      const urls: EnvironmentUrls = {
+    it("derives API URL from base when api is not set", async () => {
+      await stateService.setEnvironmentUrls({
         base: "https://vault.example.com",
         api: null,
         identity: null,
         webVault: null,
-      };
+      });
 
-      storageService.get.mockResolvedValue(urls);
-
-      const result = await stateService.getApiUrl();
-
-      expect(result).toBe("https://vault.example.com/api");
+      expect(await stateService.getApiUrl()).toBe("https://vault.example.com/api");
     });
 
-    it("should return default API URL when no URLs are set", async () => {
-      storageService.get.mockResolvedValue(null);
-
-      const result = await stateService.getApiUrl();
-
-      expect(result).toBe("https://api.bitwarden.com");
+    it("returns default API URL when no URLs are set", async () => {
+      expect(await stateService.getApiUrl()).toBe("https://api.bitwarden.com");
     });
 
-    it("should return Identity URL from explicit identity property", async () => {
-      const urls: EnvironmentUrls = {
-        base: null,
-        api: null,
-        identity: "https://identity.example.com",
-        webVault: null,
-      };
+    it("returns explicit identity URL", async () => {
+      await stateService.setEnvironmentUrls({ ...urls, base: null });
 
-      storageService.get.mockResolvedValue(urls);
-
-      const result = await stateService.getIdentityUrl();
-
-      expect(result).toBe("https://identity.example.com");
+      expect(await stateService.getIdentityUrl()).toBe("https://identity.example.com");
     });
 
-    it("should return Identity URL derived from base URL", async () => {
-      const urls: EnvironmentUrls = {
+    it("derives identity URL from base when identity is not set", async () => {
+      await stateService.setEnvironmentUrls({
         base: "https://vault.example.com",
         api: null,
         identity: null,
         webVault: null,
-      };
+      });
 
-      storageService.get.mockResolvedValue(urls);
-
-      const result = await stateService.getIdentityUrl();
-
-      expect(result).toBe("https://vault.example.com/identity");
+      expect(await stateService.getIdentityUrl()).toBe("https://vault.example.com/identity");
     });
 
-    it("should return default Identity URL when no URLs are set", async () => {
-      storageService.get.mockResolvedValue(null);
+    it("returns default identity URL when no URLs are set", async () => {
+      expect(await stateService.getIdentityUrl()).toBe("https://identity.bitwarden.com");
+    });
 
-      const result = await stateService.getIdentityUrl();
+    it("stores in regular storage, not secure storage", async () => {
+      await stateService.setEnvironmentUrls(urls);
 
-      expect(result).toBe("https://identity.bitwarden.com");
+      expect(storage.store.get(StorageKeys.environmentUrls)).toEqual(urls);
+      expect(secureStorage.store.size).toBe(0);
     });
   });
 
+  // -------------------------------------------------------------------------
+
   describe("Token Management", () => {
-    it("should clear all auth tokens", async () => {
-      await stateService.clearAuthTokens();
+    describe("clearAuthTokens", () => {
+      it("removes all five auth token types from secure storage", async () => {
+        await stateService.setAccessToken("access");
+        await stateService.setRefreshToken("refresh");
+        await stateService.setApiKeyClientId("client-id");
+        await stateService.setApiKeyClientSecret("client-secret");
+        secureStorage.store.set(SecureStorageKeys.twoFactorToken, "2fa");
 
-      expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.accessToken);
-      expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.refreshToken);
-      expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.apiKeyClientId);
-      expect(secureStorageService.remove).toHaveBeenCalledWith(
-        SecureStorageKeys.apiKeyClientSecret,
-      );
-      expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.twoFactorToken);
-    });
+        await stateService.clearAuthTokens();
 
-    it("should remove exactly 5 token types", async () => {
-      await stateService.clearAuthTokens();
+        expect(secureStorage.store.has(SecureStorageKeys.accessToken)).toBe(false);
+        expect(secureStorage.store.has(SecureStorageKeys.refreshToken)).toBe(false);
+        expect(secureStorage.store.has(SecureStorageKeys.apiKeyClientId)).toBe(false);
+        expect(secureStorage.store.has(SecureStorageKeys.apiKeyClientSecret)).toBe(false);
+        expect(secureStorage.store.has(SecureStorageKeys.twoFactorToken)).toBe(false);
+      });
 
-      // Verify that all 5 token types are removed
-      expect(secureStorageService.remove).toHaveBeenCalledTimes(5);
+      it("does not touch regular storage when clearing auth tokens", async () => {
+        await stateService.setOrganizationId("org-123");
+
+        await stateService.clearAuthTokens();
+
+        expect(storage.store.get(StorageKeys.organizationId)).toBe("org-123");
+      });
     });
 
     describe("Access Token", () => {
-      it("should get access token from secure storage", async () => {
-        const token = "test-access-token";
-        secureStorageService.get.mockResolvedValue(token);
+      it("round-trips access token through secure storage", async () => {
+        await stateService.setAccessToken("test-access-token");
 
-        const result = await stateService.getAccessToken();
-
-        expect(result).toBe(token);
-        expect(secureStorageService.get).toHaveBeenCalledWith(SecureStorageKeys.accessToken);
+        expect(await stateService.getAccessToken()).toBe("test-access-token");
+        expect(secureStorage.store.get(SecureStorageKeys.accessToken)).toBe("test-access-token");
+        expect(storage.store.has(SecureStorageKeys.accessToken)).toBe(false);
       });
 
-      it("should set access token in secure storage", async () => {
-        const token = "test-access-token";
-
-        await stateService.setAccessToken(token);
-
-        expect(secureStorageService.save).toHaveBeenCalledWith(
-          SecureStorageKeys.accessToken,
-          token,
-        );
-      });
-
-      it("should remove access token when set to null", async () => {
+      it("removes access token from secure storage when set to null", async () => {
+        await stateService.setAccessToken("test-access-token");
         await stateService.setAccessToken(null);
 
-        expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.accessToken);
+        expect(await stateService.getAccessToken()).toBeNull();
+        expect(secureStorage.store.has(SecureStorageKeys.accessToken)).toBe(false);
       });
     });
 
     describe("Refresh Token", () => {
-      it("should get refresh token from secure storage", async () => {
-        const token = "test-refresh-token";
-        secureStorageService.get.mockResolvedValue(token);
+      it("round-trips refresh token through secure storage", async () => {
+        await stateService.setRefreshToken("test-refresh-token");
 
-        const result = await stateService.getRefreshToken();
-
-        expect(result).toBe(token);
-        expect(secureStorageService.get).toHaveBeenCalledWith(SecureStorageKeys.refreshToken);
+        expect(await stateService.getRefreshToken()).toBe("test-refresh-token");
+        expect(secureStorage.store.get(SecureStorageKeys.refreshToken)).toBe("test-refresh-token");
+        expect(storage.store.has(SecureStorageKeys.refreshToken)).toBe(false);
       });
 
-      it("should set refresh token in secure storage", async () => {
-        const token = "test-refresh-token";
-
-        await stateService.setRefreshToken(token);
-
-        expect(secureStorageService.save).toHaveBeenCalledWith(
-          SecureStorageKeys.refreshToken,
-          token,
-        );
-      });
-
-      it("should remove refresh token when set to null", async () => {
+      it("removes refresh token from secure storage when set to null", async () => {
+        await stateService.setRefreshToken("test-refresh-token");
         await stateService.setRefreshToken(null);
 
-        expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.refreshToken);
+        expect(await stateService.getRefreshToken()).toBeNull();
       });
     });
 
     describe("API Key Client ID", () => {
-      it("should get API key client ID from secure storage", async () => {
-        const clientId = "organization.test-id";
-        secureStorageService.get.mockResolvedValue(clientId);
+      it("round-trips API key client ID through secure storage", async () => {
+        await stateService.setApiKeyClientId("organization.test-id");
 
-        const result = await stateService.getApiKeyClientId();
-
-        expect(result).toBe(clientId);
-        expect(secureStorageService.get).toHaveBeenCalledWith(SecureStorageKeys.apiKeyClientId);
-      });
-
-      it("should set API key client ID in secure storage", async () => {
-        const clientId = "organization.test-id";
-
-        await stateService.setApiKeyClientId(clientId);
-
-        expect(secureStorageService.save).toHaveBeenCalledWith(
-          SecureStorageKeys.apiKeyClientId,
-          clientId,
+        expect(await stateService.getApiKeyClientId()).toBe("organization.test-id");
+        expect(secureStorage.store.get(SecureStorageKeys.apiKeyClientId)).toBe(
+          "organization.test-id",
         );
+        expect(storage.store.has(SecureStorageKeys.apiKeyClientId)).toBe(false);
       });
 
-      it("should remove API key client ID when set to null", async () => {
+      it("removes client ID from secure storage when set to null", async () => {
+        await stateService.setApiKeyClientId("organization.test-id");
         await stateService.setApiKeyClientId(null);
 
-        expect(secureStorageService.remove).toHaveBeenCalledWith(SecureStorageKeys.apiKeyClientId);
+        expect(await stateService.getApiKeyClientId()).toBeNull();
       });
     });
 
     describe("API Key Client Secret", () => {
-      it("should get API key client secret from secure storage", async () => {
-        const clientSecret = "test-secret";
-        secureStorageService.get.mockResolvedValue(clientSecret);
+      it("round-trips API key client secret through secure storage", async () => {
+        await stateService.setApiKeyClientSecret("test-secret");
 
-        const result = await stateService.getApiKeyClientSecret();
-
-        expect(result).toBe(clientSecret);
-        expect(secureStorageService.get).toHaveBeenCalledWith(SecureStorageKeys.apiKeyClientSecret);
+        expect(await stateService.getApiKeyClientSecret()).toBe("test-secret");
+        expect(secureStorage.store.get(SecureStorageKeys.apiKeyClientSecret)).toBe("test-secret");
+        expect(storage.store.has(SecureStorageKeys.apiKeyClientSecret)).toBe(false);
       });
 
-      it("should set API key client secret in secure storage", async () => {
-        const clientSecret = "test-secret";
-
-        await stateService.setApiKeyClientSecret(clientSecret);
-
-        expect(secureStorageService.save).toHaveBeenCalledWith(
-          SecureStorageKeys.apiKeyClientSecret,
-          clientSecret,
-        );
-      });
-
-      it("should remove API key client secret when set to null", async () => {
+      it("removes client secret from secure storage when set to null", async () => {
+        await stateService.setApiKeyClientSecret("test-secret");
         await stateService.setApiKeyClientSecret(null);
 
-        expect(secureStorageService.remove).toHaveBeenCalledWith(
-          SecureStorageKeys.apiKeyClientSecret,
-        );
+        expect(await stateService.getApiKeyClientSecret()).toBeNull();
       });
     });
 
     describe("Entity ID", () => {
-      it("should get entity ID from storage", async () => {
-        const entityId = "test-entity-id";
-        storageService.get.mockResolvedValue(entityId);
+      it("round-trips entity ID through regular storage", async () => {
+        await stateService.setEntityId("test-entity-id");
 
-        const result = await stateService.getEntityId();
-
-        expect(result).toBe(entityId);
-        expect(storageService.get).toHaveBeenCalledWith("entityId");
+        expect(await stateService.getEntityId()).toBe("test-entity-id");
+        expect(storage.store.get(StorageKeys.entityId)).toBe("test-entity-id");
+        expect(secureStorage.store.has(StorageKeys.entityId)).toBe(false);
       });
 
-      it("should set entity ID in storage", async () => {
-        const entityId = "test-entity-id";
-
-        await stateService.setEntityId(entityId);
-
-        expect(storageService.save).toHaveBeenCalledWith("entityId", entityId);
-      });
-
-      it("should remove entity ID when set to null", async () => {
+      it("removes entity ID from regular storage when set to null", async () => {
+        await stateService.setEntityId("test-entity-id");
         await stateService.setEntityId(null);
 
-        expect(storageService.remove).toHaveBeenCalledWith("entityId");
+        expect(await stateService.getEntityId()).toBeNull();
+        expect(storage.store.has(StorageKeys.entityId)).toBe(false);
       });
     });
   });
