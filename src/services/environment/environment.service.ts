@@ -64,6 +64,10 @@ export class DefaultEnvironmentService implements EnvironmentService {
 
   async setUrlsFromStorage(): Promise<void> {
     const urls = await this.stateService.getEnvironmentUrls();
+    if (urls == null) {
+      return;
+    }
+
     const envUrls = new EnvironmentUrls();
 
     this.baseUrl = envUrls.base = urls.base;
