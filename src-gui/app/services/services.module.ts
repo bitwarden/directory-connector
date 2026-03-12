@@ -209,6 +209,7 @@ export function initFactory(injector: Injector): () => Promise<void> {
           secureStorageService,
           logService,
           stateMigrationService,
+          true,
         ),
       deps: [
         StorageServiceAbstraction,

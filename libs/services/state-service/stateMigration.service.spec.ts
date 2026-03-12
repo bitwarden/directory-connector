@@ -25,9 +25,9 @@ describe("StateMigrationService", () => {
   });
 
   describe("needsMigration()", () => {
-    it("returns true when stateVersion key is absent and no global key (defaults to StateVersion.One)", async () => {
-      // No keys set at all
-      expect(await svc.needsMigration()).toBe(true);
+    it("returns false when stateVersion key is absent and no global key (fresh install)", async () => {
+      // No keys set at all — treat as fresh install, no migration needed
+      expect(await svc.needsMigration()).toBe(false);
     });
 
     it("returns true when stateVersion is StateVersion.Four", async () => {
@@ -504,9 +504,9 @@ describe("StateMigrationService", () => {
     });
 
     describe("getCurrentStateVersion() (tested indirectly via needsMigration)", () => {
-      it("returns StateVersion.One (needs migration) when both flat key and globals are absent", async () => {
-        // Completely empty storage
-        expect(await svc.needsMigration()).toBe(true);
+      it("returns StateVersion.Latest (no migration needed) when both flat key and globals are absent (fresh install)", async () => {
+        // Completely empty storage — treat as fresh install
+        expect(await svc.needsMigration()).toBe(false);
       });
 
       it("prefers flat stateVersion key over globals.stateVersion", async () => {

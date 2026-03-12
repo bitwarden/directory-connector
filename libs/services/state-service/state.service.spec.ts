@@ -34,6 +34,7 @@ function makeMigrationService(needsMigration = false): StateMigrationService {
 function makeStateService(
   storage: FakeStorageService,
   secureStorage: FakeStorageService,
+  useSecureStorageForSecrets = true,
   migrationService?: StateMigrationService,
 ) {
   return new DefaultStateService(
@@ -41,6 +42,7 @@ function makeStateService(
     secureStorage,
     noopLog,
     migrationService ?? makeMigrationService(),
+    useSecureStorageForSecrets,
   );
 }
 
@@ -77,7 +79,7 @@ describe("DefaultStateService", () => {
   describe("init", () => {
     it("runs migration when needed", async () => {
       const migrationService = makeMigrationService(true);
-      const svc = makeStateService(storage, secureStorage, migrationService);
+      const svc = makeStateService(storage, secureStorage, true, migrationService);
 
       await svc.init();
 
@@ -87,7 +89,7 @@ describe("DefaultStateService", () => {
 
     it("skips migration when not needed", async () => {
       const migrationService = makeMigrationService(false);
-      const svc = makeStateService(storage, secureStorage, migrationService);
+      const svc = makeStateService(storage, secureStorage, true, migrationService);
 
       await svc.init();
 
@@ -289,6 +291,23 @@ describe("DefaultStateService", () => {
       const stored = storage.store.get(StorageKeys.directoryOnelogin) as OneLoginConfiguration;
       expect(stored.clientSecret).toBe(StoredSecurely);
       expect(secureStorage.store.get(SecureStorageKeys.oneLogin)).toBe("client-secret");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+
+  describe("Secure Storage Flag (useSecureStorageForSecrets = false)", () => {
+    it("stores secrets in regular storage when secure storage is disabled", async () => {
+      const insecureSvc = makeStateService(storage, secureStorage, false);
+
+      await insecureSvc.setDirectory(DirectoryType.Ldap, { ...ldapConfig });
+      const result = await insecureSvc.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
+
+      // With useSecureStorageForSecrets=false the config is stored as-is and
+      // returned directly — no secure storage round-trip.
+      expect(result?.password).toBe("secret-password");
+      // Secure storage should not have been used for directory secrets
+      expect(secureStorage.store.has(SecureStorageKeys.ldap)).toBe(false);
     });
   });
 
