@@ -19,7 +19,7 @@ import { Program } from "./program";
 import { AuthService } from "./services/auth.service";
 import { BatchRequestBuilder } from "./services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "./services/directory-factory.service";
-import { EnvironmentService as EnvironmentServiceImplementation } from "./services/environment/environment.service";
+import { DefaultEnvironmentService as EnvironmentServiceImplementation } from "./services/environment/environment.service";
 import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
