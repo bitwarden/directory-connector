@@ -256,6 +256,10 @@ export class StateMigrationService {
 
     // Fall back to old globals structure
     const globals = await this.getGlobals();
+    if (globals == null) {
+      // No data at all — fresh install, no migration needed
+      return StateVersion.Latest;
+    }
     return globals?.stateVersion ?? StateVersion.One;
   }
 }

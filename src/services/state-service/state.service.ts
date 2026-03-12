@@ -21,6 +21,7 @@ export class DefaultStateService implements StateService {
     protected secureStorageService: StorageService,
     protected logService: LogService,
     protected stateMigrationService: StateMigrationService,
+    protected useSecureStorageForSecrets = true,
   ) {}
 
   async init(): Promise<void> {
@@ -59,28 +60,32 @@ export class DefaultStateService implements StateService {
       return config as T;
     }
 
-    // Do not introduce secrets into the in-memory account object
-    const configWithSecrets = Object.assign({}, config);
+    if (this.useSecureStorageForSecrets) {
+      // Do not introduce secrets into the in-memory account object
+      const configWithSecrets = Object.assign({}, config);
 
-    switch (type) {
-      case DirectoryType.Ldap:
-        (configWithSecrets as any).password = await this.getLdapSecret();
-        break;
-      case DirectoryType.EntraID:
-        (configWithSecrets as any).key = await this.getEntraSecret();
-        break;
-      case DirectoryType.Okta:
-        (configWithSecrets as any).token = await this.getOktaSecret();
-        break;
-      case DirectoryType.GSuite:
-        (configWithSecrets as any).privateKey = await this.getGsuiteSecret();
-        break;
-      case DirectoryType.OneLogin:
-        (configWithSecrets as any).clientSecret = await this.getOneLoginSecret();
-        break;
+      switch (type) {
+        case DirectoryType.Ldap:
+          (configWithSecrets as any).password = await this.getLdapSecret();
+          break;
+        case DirectoryType.EntraID:
+          (configWithSecrets as any).key = await this.getEntraSecret();
+          break;
+        case DirectoryType.Okta:
+          (configWithSecrets as any).token = await this.getOktaSecret();
+          break;
+        case DirectoryType.GSuite:
+          (configWithSecrets as any).privateKey = await this.getGsuiteSecret();
+          break;
+        case DirectoryType.OneLogin:
+          (configWithSecrets as any).clientSecret = await this.getOneLoginSecret();
+          break;
+      }
+
+      return configWithSecrets as T;
     }
 
-    return configWithSecrets as T;
+    return config as T;
   }
 
   async setDirectory(
@@ -92,46 +97,66 @@ export class DefaultStateService implements StateService {
       | OktaConfiguration
       | OneLoginConfiguration,
   ): Promise<any> {
-    switch (type) {
-      case DirectoryType.Ldap: {
-        const ldapConfig = config as LdapConfiguration;
-        await this.setLdapSecret(ldapConfig.password);
-        ldapConfig.password = StoredSecurely;
-        await this.setLdapConfiguration(ldapConfig);
-        break;
-      }
-      case DirectoryType.EntraID: {
-        const entraConfig = config as EntraIdConfiguration;
-        await this.setEntraSecret(entraConfig.key);
-        entraConfig.key = StoredSecurely;
-        await this.setEntraConfiguration(entraConfig);
-        break;
-      }
-      case DirectoryType.Okta: {
-        const oktaConfig = config as OktaConfiguration;
-        await this.setOktaSecret(oktaConfig.token);
-        oktaConfig.token = StoredSecurely;
-        await this.setOktaConfiguration(oktaConfig);
-        break;
-      }
-      case DirectoryType.GSuite: {
-        const gsuiteConfig = config as GSuiteConfiguration;
-        if (gsuiteConfig.privateKey == null) {
-          await this.setGsuiteSecret(null);
-        } else {
-          const normalizedPrivateKey = gsuiteConfig.privateKey.replace(/\\n/g, "\n");
-          await this.setGsuiteSecret(normalizedPrivateKey);
-          gsuiteConfig.privateKey = StoredSecurely;
+    if (this.useSecureStorageForSecrets) {
+      switch (type) {
+        case DirectoryType.Ldap: {
+          const ldapConfig = config as LdapConfiguration;
+          await this.setLdapSecret(ldapConfig.password);
+          ldapConfig.password = StoredSecurely;
+          await this.setLdapConfiguration(ldapConfig);
+          break;
         }
-        await this.setGsuiteConfiguration(gsuiteConfig);
-        break;
+        case DirectoryType.EntraID: {
+          const entraConfig = config as EntraIdConfiguration;
+          await this.setEntraSecret(entraConfig.key);
+          entraConfig.key = StoredSecurely;
+          await this.setEntraConfiguration(entraConfig);
+          break;
+        }
+        case DirectoryType.Okta: {
+          const oktaConfig = config as OktaConfiguration;
+          await this.setOktaSecret(oktaConfig.token);
+          oktaConfig.token = StoredSecurely;
+          await this.setOktaConfiguration(oktaConfig);
+          break;
+        }
+        case DirectoryType.GSuite: {
+          const gsuiteConfig = config as GSuiteConfiguration;
+          if (gsuiteConfig.privateKey == null) {
+            await this.setGsuiteSecret(null);
+          } else {
+            const normalizedPrivateKey = gsuiteConfig.privateKey.replace(/\\n/g, "\n");
+            await this.setGsuiteSecret(normalizedPrivateKey);
+            gsuiteConfig.privateKey = StoredSecurely;
+          }
+          await this.setGsuiteConfiguration(gsuiteConfig);
+          break;
+        }
+        case DirectoryType.OneLogin: {
+          const oneLoginConfig = config as OneLoginConfiguration;
+          await this.setOneLoginSecret(oneLoginConfig.clientSecret);
+          oneLoginConfig.clientSecret = StoredSecurely;
+          await this.setOneLoginConfiguration(oneLoginConfig);
+          break;
+        }
       }
-      case DirectoryType.OneLogin: {
-        const oneLoginConfig = config as OneLoginConfiguration;
-        await this.setOneLoginSecret(oneLoginConfig.clientSecret);
-        oneLoginConfig.clientSecret = StoredSecurely;
-        await this.setOneLoginConfiguration(oneLoginConfig);
-        break;
+    } else {
+      switch (type) {
+        case DirectoryType.Ldap:
+          await this.setLdapConfiguration(config as LdapConfiguration);
+          break;
+        case DirectoryType.EntraID:
+          await this.setEntraConfiguration(config as EntraIdConfiguration);
+          break;
+        case DirectoryType.Okta:
+          await this.setOktaConfiguration(config as OktaConfiguration);
+          break;
+        case DirectoryType.GSuite:
+          await this.setGsuiteConfiguration(config as GSuiteConfiguration);
+          break;
+        case DirectoryType.OneLogin:
+          await this.setOneLoginConfiguration(config as OneLoginConfiguration);
+          break;
       }
     }
   }

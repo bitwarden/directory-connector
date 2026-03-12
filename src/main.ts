@@ -55,7 +55,13 @@ export class Main {
     this.logService.init();
     this.i18nService = new I18nService("en", "./locales/");
     this.storageService = new ElectronStorageService(app.getPath("userData"));
-    this.stateService = new DefaultStateService(this.storageService, null, this.logService, null);
+    this.stateService = new DefaultStateService(
+      this.storageService,
+      null,
+      this.logService,
+      null,
+      true,
+    );
 
     this.windowMain = new WindowMain(
       this.stateService,
