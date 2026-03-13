@@ -12,7 +12,7 @@ import { AppIdService } from "@/libs/services/appId.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
-import { EnvironmentService as EnvironmentServiceImplementation } from "@/libs/services/environment/environment.service";
+import { DefaultEnvironmentService as EnvironmentServiceImplementation } from "@/libs/services/environment/environment.service";
 import { I18nService } from "@/libs/services/i18n.service";
 import { LowdbStorageService } from "@/libs/services/lowdbStorage.service";
 import { NativeSecureStorageService } from "@/libs/services/nativeSecureStorage.service";
