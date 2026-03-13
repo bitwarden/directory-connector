@@ -24,7 +24,7 @@ const moduleRules = [
 
 const plugins = [
   new CopyWebpackPlugin({
-    patterns: [{ from: "./src/locales", to: "locales" }],
+    patterns: [{ from: "./src-gui/locales", to: "locales" }],
   }),
   new webpack.DefinePlugin({
     "process.env.BWCLI_ENV": JSON.stringify(ENV),
@@ -48,7 +48,7 @@ const config = {
     __filename: false,
   },
   entry: {
-    bwdc: "./src/bwdc.ts",
+    bwdc: "./src-cli/bwdc.ts",
   },
   optimization: {
     minimize: false,
