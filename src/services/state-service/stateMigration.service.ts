@@ -160,7 +160,14 @@ export class StateMigrationService {
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
         { old: `${clientId}_gsuitePrivateKey`, new: SecureStorageKeys.gsuite },
         { old: `${clientId}_azureKey`, new: SecureStorageKeys.azure },
-        { old: `${clientId}_entraIdKey`, new: SecureStorageKeys.entra },
+        // _entraIdKey is the canonical old key; _entraKey was used by the runtime state service
+        // prior to the v4→v5 migration. Only one should be present, but prefer _entraIdKey.
+        {
+          old: (await this.secureStorageService.has(`${clientId}_entraIdKey`))
+            ? `${clientId}_entraIdKey`
+            : `${clientId}_entraKey`,
+          new: SecureStorageKeys.entra,
+        },
         { old: `${clientId}_oktaToken`, new: SecureStorageKeys.okta },
         { old: `${clientId}_oneLoginClientSecret`, new: SecureStorageKeys.oneLogin },
         { old: `${clientId}_accessToken`, new: SecureStorageKeys.accessToken },
