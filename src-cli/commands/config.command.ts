@@ -1,6 +1,6 @@
 import * as program from "commander";
 
-import { EnvironmentUrls } from "@/libs/abstractions/environment.service";
+import { EnvironmentService, EnvironmentUrls } from "@/libs/abstractions/environment.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
@@ -28,6 +28,7 @@ export class ConfigCommand {
   constructor(
     private i18nService: I18nService,
     private stateService: StateService,
+    private environmentService: EnvironmentService,
   ) {}
 
   async run(setting: string, value: string, options: program.OptionValues): Promise<Response> {
@@ -79,7 +80,7 @@ export class ConfigCommand {
     url = url === "null" || url === "bitwarden.com" || url === "https://bitwarden.com" ? null : url;
     const urls = new EnvironmentUrls();
     urls.base = url;
-    await this.stateService.setEnvironmentUrls(urls);
+    await this.environmentService.setUrls(urls);
   }
 
   private async setDirectory(type: string) {
