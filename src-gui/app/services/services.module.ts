@@ -23,7 +23,7 @@ import { AppIdService } from "@/libs/services/appId.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
-import { EnvironmentService as EnvironmentServiceImplementation } from "@/libs/services/environment/environment.service";
+import { DefaultEnvironmentService as EnvironmentServiceImplementation } from "@/libs/services/environment/environment.service";
 import { I18nService } from "@/libs/services/i18n.service";
 import { NodeApiService } from "@/libs/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/libs/services/nodeCryptoFunction.service";

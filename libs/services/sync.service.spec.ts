@@ -8,7 +8,6 @@ import { DirectoryType } from "@/libs/enums/directoryType";
 import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { ApiService } from "@/libs/services/api.service";
 
-
 import { GroupEntry } from "../models/groupEntry";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
