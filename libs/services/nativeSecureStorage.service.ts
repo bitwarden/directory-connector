@@ -1,6 +1,6 @@
-import { passwords } from "dc-native";
-
 import { StorageService } from "@/libs/abstractions/storage.service";
+
+import { passwords } from "dc-native";
 
 export class NativeSecureStorageService implements StorageService {
   constructor(private serviceName: string) {}

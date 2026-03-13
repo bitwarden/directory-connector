@@ -1,5 +1,3 @@
-
-
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
@@ -11,9 +9,7 @@ import { passwords } from "dc-native";
 
 const MinSupportedStateVersion = StateVersion.Four;
 
-
 const SECURE_STORAGE_SERVICE_NAME = APPLICATION_NAME;
-
 
 export class StateMigrationService {
   constructor(
