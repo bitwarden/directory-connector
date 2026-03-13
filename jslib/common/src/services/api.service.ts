@@ -166,7 +166,7 @@ export class ApiService implements ApiServiceAbstraction {
       headers.set("User-Agent", this.customUserAgent);
     }
 
-    const decodedToken = await this.tokenService.decodeToken();
+    const decodedToken = await this.tokenService.getDecodedToken();
     const response = await this.fetch(
       new Request(this.environmentService.getIdentityUrl() + "/connect/token", {
         body: this.qsStringify({
@@ -214,7 +214,10 @@ export class ApiService implements ApiServiceAbstraction {
       throw new Error("Invalid response received when refreshing api token");
     }
 
-    await this.tokenService.setToken(response.accessToken);
+    await this.tokenService.setTokens(response.accessToken, response.refreshToken, [
+      clientId,
+      clientSecret,
+    ]);
   }
 
   private async send(

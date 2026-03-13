@@ -2,8 +2,6 @@ import * as path from "path";
 
 import { app } from "electron";
 
-import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
-import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ElectronLogService } from "@/jslib/electron/src/services/electronLog.service";
 import { ElectronMainMessagingService } from "@/jslib/electron/src/services/electronMainMessaging.service";
 import { ElectronStorageService } from "@/jslib/electron/src/services/electronStorage.service";
@@ -14,9 +12,8 @@ import { WindowMain } from "@/jslib/electron/src/window.main";
 import { DCCredentialStorageListener } from "./main/credential-storage-listener";
 import { MenuMain } from "./main/menu.main";
 import { MessagingMain } from "./main/messaging.main";
-import { Account } from "./models/account";
 import { I18nService } from "./services/i18n.service";
-import { StateService } from "./services/state.service";
+import { DefaultStateService } from "./services/state-service/state.service";
 
 export class Main {
   logService: ElectronLogService;
@@ -24,7 +21,7 @@ export class Main {
   storageService: ElectronStorageService;
   messagingService: ElectronMainMessagingService;
   credentialStorageListener: DCCredentialStorageListener;
-  stateService: StateService;
+  stateService: DefaultStateService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -58,13 +55,12 @@ export class Main {
     this.logService.init();
     this.i18nService = new I18nService("en", "./locales/");
     this.storageService = new ElectronStorageService(app.getPath("userData"));
-    this.stateService = new StateService(
+    this.stateService = new DefaultStateService(
       this.storageService,
       null,
       this.logService,
       null,
       true,
-      new StateFactory(GlobalState, Account),
     );
 
     this.windowMain = new WindowMain(
