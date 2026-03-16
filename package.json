@@ -75,12 +75,12 @@
   "devDependencies": {
     "@angular-eslint/eslint-plugin-template": "21.1.0",
     "@angular-eslint/template-parser": "21.1.0",
-    "@angular/build": "21.1.5",
+    "@angular/build": "21.2.1",
     "@angular/compiler-cli": "21.1.6",
     "@electron/notarize": "2.5.0",
     "@electron/rebuild": "4.0.1",
     "@microsoft/microsoft-graph-types": "2.43.1",
-    "@ngtools/webpack": "21.1.5",
+    "@ngtools/webpack": "21.2.1",
     "@types/inquirer": "8.2.10",
     "@types/jest": "30.0.0",
     "@types/lowdb": "1.0.15",
@@ -144,7 +144,7 @@
   "dependencies": {
     "@angular/animations": "21.1.6",
     "@angular/cdk": "21.1.6",
-    "@angular/cli": "21.1.5",
+    "@angular/cli": "21.2.1",
     "@angular/common": "21.1.6",
     "@angular/compiler": "21.1.6",
     "@angular/core": "21.1.6",
