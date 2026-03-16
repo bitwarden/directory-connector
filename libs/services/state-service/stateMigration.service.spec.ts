@@ -54,16 +54,16 @@ describe("StateMigrationService", () => {
       expect(await svc.needsMigration()).toBe(false);
     });
 
-    it("returns true when globals exists but has no stateVersion (defaults to StateVersion.One)", async () => {
+    it("returns false when globals exists but has no stateVersion (treated as fresh install)", async () => {
       storage.store.set("global", { window: { width: 1024 } });
 
-      expect(await svc.needsMigration()).toBe(true);
+      expect(await svc.needsMigration()).toBe(false);
     });
   });
 
   describe("migrate()", () => {
-    it("throws when stateVersion is below StateVersion.Four (MinSupportedStateVersion)", async () => {
-      storage.store.set(StorageKeys.stateVersion, StateVersion.Three);
+    it("throws when stateVersion is below StateVersion.Three (MinSupportedStateVersion)", async () => {
+      storage.store.set(StorageKeys.stateVersion, StateVersion.Two);
 
       await expect(svc.migrate()).rejects.toThrow(
         "Your Directory Connector data is too old to migrate",
@@ -118,8 +118,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
-          apiKeyClientId: "organization.client-id",
-          apiKeyClientSecret: "client-secret",
+          profile: { apiKeyClientId: "organization.client-id" },
+          keys: { apiKeyClientSecret: "client-secret" },
           directoryConfigurations: {
             ldap: { hostname: "ldap.example.com", port: 389 },
             gsuite: { domain: "example.com", clientEmail: "sa@example.com" },
@@ -138,7 +138,6 @@ describe("StateMigrationService", () => {
             groupDelta: "group-delta-token",
             syncingDir: false,
           },
-          settings: { environmentUrls: { base: "https://vault.example.com" } },
         });
         storage.store.set("global", {
           window: { width: 1024, height: 768 },
@@ -147,6 +146,7 @@ describe("StateMigrationService", () => {
           enableMinimizeToTray: true,
           enableCloseToTray: false,
           alwaysShowDock: true,
+          environmentUrls: { base: "https://vault.example.com" },
         });
 
         // Legacy v4 key names (before this migration)
@@ -264,6 +264,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
+          profile: {},
+          keys: {},
           directoryConfigurations: {
             gsuite: {
               domain: "example.com",
@@ -292,6 +294,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
+          profile: {},
+          keys: {},
           directoryConfigurations: {
             entra: { tenant: "my-tenant", applicationId: "app-id", key: "entra-secret-key" },
           },
@@ -312,6 +316,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
+          profile: {},
+          keys: {},
           directoryConfigurations: {
             azure: { tenant: "azure-tenant", applicationId: "azure-app", key: "azure-secret-key" },
           },
@@ -333,6 +339,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
+          profile: {},
+          keys: {},
           directoryConfigurations: {
             okta: { orgUrl: "https://example.okta.com", token: "okta-api-token" },
           },
@@ -355,6 +363,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
+          profile: {},
+          keys: {},
           directoryConfigurations: {
             oneLogin: { clientId: "ol-client-id", clientSecret: "ol-client-secret", region: "us" },
           },
@@ -377,6 +387,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
+          profile: {},
+          keys: {},
           directoryConfigurations: {
             ldap: { hostname: "ldap.example.com", port: 389, password: "super-secret" },
           },
@@ -397,6 +409,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
+          profile: {},
+          keys: {},
           directoryConfigurations: {
             ldap: { hostname: "ldap.example.com", password: "[STORED SECURELY]" },
           },
@@ -418,6 +432,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
+          profile: {},
+          keys: {},
           directoryConfigurations: {
             azure: { tenant: "tenant-id", applicationId: "app-id" },
           },
@@ -438,6 +454,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
+          profile: {},
+          keys: {},
           directoryConfigurations: {
             entra: { tenant: "entra-tenant", applicationId: "entra-app" },
             azure: { tenant: "azure-tenant", applicationId: "azure-app" },
@@ -461,6 +479,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
+          profile: {},
+          keys: {},
           directorySettings: {
             organizationId: "org-456",
             directoryType: DirectoryType.GSuite,
@@ -488,6 +508,8 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
+          profile: {},
+          keys: {},
           directorySettings: { organizationId: "org-789" },
         });
         secureStorage.store.set(`${userId}_accessToken`, "access-tok");
@@ -496,7 +518,7 @@ describe("StateMigrationService", () => {
         // Access migrateStateFrom4To5 via a subclass to pass false
         class TestableService extends StateMigrationService {
           async runMigration(): Promise<void> {
-            await this.migrateStateFrom4To5(false);
+            await this.migrateStateFrom3To5(false);
           }
         }
         const testSvc = new TestableService(storage, secureStorage);
