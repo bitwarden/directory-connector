@@ -4,6 +4,12 @@ import { SecureStorageKeys, StorageKeys } from "@/libs/models/state.model";
 
 import { StateMigrationService } from "./stateMigration.service";
 
+jest.mock("dc-native", () => ({
+  passwords: {
+    migrateKeytarPassword: jest.fn().mockResolvedValue(false),
+  },
+}));
+
 import { FakeStorageService } from "@/utils/fakeStorageService";
 
 function makeService(
@@ -530,6 +536,84 @@ describe("StateMigrationService", () => {
         // New flat keys NOT written
         expect(secureStorage.store.has(SecureStorageKeys.accessToken)).toBe(false);
         expect(secureStorage.store.has(SecureStorageKeys.ldap)).toBe(false);
+      });
+    });
+
+    describe("migrateStateFrom5To6()", () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { passwords } = require("dc-native");
+
+      beforeEach(() => {
+        jest.clearAllMocks();
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Five);
+      });
+
+      it("calls migrateKeytarPassword with the new flat SecureStorageKeys", async () => {
+        await svc.migrate();
+
+        const calledKeys = passwords.migrateKeytarPassword.mock.calls.map(
+          (c: [string, string]) => c[1],
+        );
+        expect(calledKeys).toEqual(
+          expect.arrayContaining([
+            SecureStorageKeys.ldap,
+            SecureStorageKeys.gsuite,
+            SecureStorageKeys.azure,
+            SecureStorageKeys.entra,
+            SecureStorageKeys.okta,
+            SecureStorageKeys.oneLogin,
+          ]),
+        );
+      });
+
+      it("calls migrateKeytarPassword with the legacy {userId}_* keytar key names", async () => {
+        const userId = "user-abc-123";
+        storage.store.set("activeUserId", userId);
+
+        await svc.migrate();
+
+        const calledKeys = passwords.migrateKeytarPassword.mock.calls.map(
+          (c: [string, string]) => c[1],
+        );
+        expect(calledKeys).toEqual(
+          expect.arrayContaining([
+            `${userId}_ldapPassword`,
+            `${userId}_gsuitePrivateKey`,
+            `${userId}_azureKey`,
+            `${userId}_entraIdKey`,
+            `${userId}_entraKey`,
+            `${userId}_oktaToken`,
+            `${userId}_oneLoginClientSecret`,
+            `${userId}_accessToken`,
+            `${userId}_refreshToken`,
+            `${userId}_twoFactorToken`,
+          ]),
+        );
+      });
+
+      it("does not call migrateKeytarPassword with new-style {userId}_secret* keys", async () => {
+        const userId = "user-abc-123";
+        storage.store.set("activeUserId", userId);
+
+        await svc.migrate();
+
+        const calledKeys = passwords.migrateKeytarPassword.mock.calls.map(
+          (c: [string, string]) => c[1],
+        );
+        // None of the called keys should use the new SecureStorageKeys values as a suffix
+        const badKeys = calledKeys.filter(
+          (key: string) =>
+            key.startsWith(`${userId}_secret`) ||
+            key === `${userId}_${SecureStorageKeys.ldap}` ||
+            key === `${userId}_${SecureStorageKeys.gsuite}`,
+        );
+        expect(badKeys).toHaveLength(0);
+      });
+
+      it("bumps stateVersion to Six", async () => {
+        await svc.migrate();
+
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Six);
       });
     });
 

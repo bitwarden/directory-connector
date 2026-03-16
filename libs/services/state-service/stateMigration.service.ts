@@ -1,3 +1,5 @@
+import { passwords } from "dc-native";
+
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
@@ -5,7 +7,6 @@ import { StateVersion } from "@/libs/enums/stateVersion";
 import { StorageOptions } from "@/libs/models/domain/storageOptions";
 import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/libs/models/state.model";
 
-import { passwords } from "dc-native";
 
 // The original implementation of migrate() overrode the jslib implementation and never actually went up
 // to v4. Therefore, the minimum supported version that is out in the wild should be 3 and we need
@@ -273,15 +274,20 @@ export class StateMigrationService {
     ];
 
     // Include any old {userId}_* keys still resident in the credential store.
+    // These use the legacy keytar suffix names, not the new SecureStorageKeys values.
     const clientId = await this.storageService.get<string>("activeUserId");
     if (clientId) {
       credentialKeys.push(
-        `${clientId}_${SecureStorageKeys.ldap}`,
-        `${clientId}_${SecureStorageKeys.gsuite}`,
-        `${clientId}_${SecureStorageKeys.azure}`,
-        `${clientId}_${SecureStorageKeys.entra}`,
-        `${clientId}_${SecureStorageKeys.okta}`,
-        `${clientId}_${SecureStorageKeys.oneLogin}`,
+        `${clientId}_ldapPassword`,
+        `${clientId}_gsuitePrivateKey`,
+        `${clientId}_azureKey`,
+        `${clientId}_entraIdKey`,
+        `${clientId}_entraKey`,
+        `${clientId}_oktaToken`,
+        `${clientId}_oneLoginClientSecret`,
+        `${clientId}_accessToken`,
+        `${clientId}_refreshToken`,
+        `${clientId}_twoFactorToken`,
       );
     }
 
