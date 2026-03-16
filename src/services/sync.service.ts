@@ -49,6 +49,11 @@ export class SyncService {
       throw new Error("Cannot load directory service.");
     }
 
+    const orgId = await this.stateService.getOrganizationId();
+    if (orgId == null) {
+      throw new Error("Organization not set.");
+    }
+
     const syncConfig = await this.stateService.getSync();
     const startingGroupDelta = await this.stateService.getGroupDelta();
     const startingUserDelta = await this.stateService.getUserDelta();
