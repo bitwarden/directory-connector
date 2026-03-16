@@ -32,7 +32,7 @@ export const StorageKeys = {
   entityId: "entityId",
 };
 
-export const SecureStorageKeys: { [key: string]: any } = {
+export const SecureStorageKeys = {
   // Directory service credentials
   ldap: "secretLdap",
   gsuite: "secretGsuite",

@@ -5,7 +5,10 @@ import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions"
 
 import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/src/models/state.model";
 
-const MinSupportedStateVersion = StateVersion.Four;
+// The original implementation of migrate() overrode the jslib implementation and never actually went up
+// to v4. Therefore, the minimum supported version that is out in the wild should be 3 and we need
+// to support migrating from v3 directly to v5.
+const MinSupportedStateVersion = StateVersion.Three;
 
 export class StateMigrationService {
   constructor(
@@ -30,8 +33,9 @@ export class StateMigrationService {
 
     while (currentStateVersion < StateVersion.Latest) {
       switch (currentStateVersion) {
+        case StateVersion.Three:
         case StateVersion.Four:
-          await this.migrateStateFrom4To5();
+          await this.migrateStateFrom3To5();
           break;
       }
       currentStateVersion += 1;
@@ -39,12 +43,18 @@ export class StateMigrationService {
   }
 
   /**
-   * Migrate from State v4 (Account-based hierarchy) to v5 (flat key-value structure)
+   * Migrate from State v3 (Account-based hierarchy) to v5 (flat key-value structure)
    *
    * This is a clean break from the Account-based structure. Data is extracted from
    * the account and saved into flat keys for simpler access.
    */
-  protected async migrateStateFrom4To5(useSecureStorageForSecrets = true): Promise<void> {
+  protected async migrateStateFrom3To5(useSecureStorageForSecrets = true): Promise<void> {
+    const currentStateVersion = await this.getCurrentStateVersion();
+
+    if (currentStateVersion == StateVersion.Five) {
+      return;
+    }
+
     const clientId = await this.storageService.get<string>("activeUserId");
     const account = await this.get<any>(clientId);
 
@@ -154,7 +164,7 @@ export class StateMigrationService {
 
     // Migrate secrets from {userId}_* to their new flat keys.
     // The old key names are the legacy values used before this migration.
-    // Old keys are intentionally kept — they will be removed in the v5→v6 migration.
+    // Old keys are intentionally kept — they will be removed in a future migration.
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
@@ -185,16 +195,22 @@ export class StateMigrationService {
       }
 
       // Migrate apiKeyClientId and apiKeyClientSecret from account object to secure storage
-      if (account.apiKeyClientId) {
+      if (account.profile.apiKeyClientId) {
         await this.secureStorageService.save(
           SecureStorageKeys.apiKeyClientId,
-          account.apiKeyClientId,
+          account.profile.apiKeyClientId,
         );
       }
-      if (account.apiKeyClientSecret) {
+      if (account.keys.apiKeyClientSecret) {
         await this.secureStorageService.save(
           SecureStorageKeys.apiKeyClientSecret,
-          account.apiKeyClientSecret,
+          account.keys.apiKeyClientSecret,
+        );
+      }
+      if (account.tokens) {
+        await this.secureStorageService.save(
+          SecureStorageKeys.accessToken,
+          account.tokens.accessToken,
         );
       }
     }
@@ -205,26 +221,24 @@ export class StateMigrationService {
       if (globals.window) {
         await this.set(StorageKeys.window, globals.window);
       }
-      if (globals.enableAlwaysOnTop !== undefined) {
+      if (globals.enableAlwaysOnTop != null) {
         await this.set(StorageKeys.enableAlwaysOnTop, globals.enableAlwaysOnTop);
       }
-      if (globals.enableTray !== undefined) {
+      if (globals.enableTray != null) {
         await this.set(StorageKeys.enableTray, globals.enableTray);
       }
-      if (globals.enableMinimizeToTray !== undefined) {
+      if (globals.enableMinimizeToTray != null) {
         await this.set(StorageKeys.enableMinimizeToTray, globals.enableMinimizeToTray);
       }
-      if (globals.enableCloseToTray !== undefined) {
+      if (globals.enableCloseToTray != null) {
         await this.set(StorageKeys.enableCloseToTray, globals.enableCloseToTray);
       }
-      if (globals.alwaysShowDock !== undefined) {
+      if (globals.alwaysShowDock != null) {
         await this.set(StorageKeys.alwaysShowDock, globals.alwaysShowDock);
       }
-    }
-
-    // Migrate environment URLs from account settings
-    if (account.settings?.environmentUrls) {
-      await this.set(StorageKeys.environmentUrls, account.settings.environmentUrls);
+      if (globals.environmentUrls != null) {
+        await this.set(StorageKeys.environmentUrls, globals.environmentUrls);
+      }
     }
 
     // Set final state version using the new flat key
@@ -267,6 +281,6 @@ export class StateMigrationService {
       // No data at all — fresh install, no migration needed
       return StateVersion.Latest;
     }
-    return globals?.stateVersion ?? StateVersion.One;
+    return globals?.stateVersion ?? StateVersion.Latest;
   }
 }
