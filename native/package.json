@@ -2,6 +2,7 @@
   "name": "dc-native",
   "version": "1.0.0",
   "description": "Native keychain bindings for Bitwarden Directory Connector",
+  "type": "module",
   "main": "index.js",
   "types": "index.d.ts",
   "license": "GPL-3.0",

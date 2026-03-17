@@ -1,5 +1,10 @@
-const { existsSync } = require("fs");
-const { join } = require("path");
+import { existsSync } from "fs";
+import { join, dirname } from "path";
+import { createRequire } from "module";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
 
 const { platform, arch } = process;
 
@@ -68,15 +73,13 @@ if (!nativeBinding) {
 
 // Re-export flat native symbols as the `passwords` namespace so all
 // TypeScript callers (and the existing index.d.ts declarations) work unchanged.
-module.exports = {
-  passwords: {
-    getPassword: (service, account) => nativeBinding.getPassword(service, account),
-    setPassword: (service, account, password) =>
-      nativeBinding.setPassword(service, account, password),
-    deletePassword: (service, account) => nativeBinding.deletePassword(service, account),
-    isAvailable: () => nativeBinding.isAvailable(),
-    migrateKeytarPassword: (service, account) =>
-      nativeBinding.migrateKeytarPassword(service, account),
-    PASSWORD_NOT_FOUND: nativeBinding.PASSWORD_NOT_FOUND,
-  },
+export const passwords = {
+  getPassword: (service, account) => nativeBinding.getPassword(service, account),
+  setPassword: (service, account, password) =>
+    nativeBinding.setPassword(service, account, password),
+  deletePassword: (service, account) => nativeBinding.deletePassword(service, account),
+  isAvailable: () => nativeBinding.isAvailable(),
+  migrateKeytarPassword: (service, account) =>
+    nativeBinding.migrateKeytarPassword(service, account),
+  PASSWORD_NOT_FOUND: nativeBinding.PASSWORD_NOT_FOUND,
 };

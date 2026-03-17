@@ -46,11 +46,14 @@ const plugins = [
 
 const config = {
   mode: ENV,
-  target: "node",
+  target: "node22",
   devtool: ENV === "development" ? "eval-source-map" : "source-map",
   node: {
-    __dirname: false,
-    __filename: false,
+    __dirname: "eval-only",
+    __filename: "eval-only",
+  },
+  experiments: {
+    outputModule: true,
   },
   entry: {
     bwdc: "./src-cli/bwdc.ts",
@@ -68,10 +71,11 @@ const config = {
     filename: "[name].js",
     path: path.resolve(__dirname, "build-cli"),
     clean: true,
+    module: true,
   },
   module: { rules: moduleRules },
   plugins: plugins,
-  externals: [nodeExternals()],
+  externals: [nodeExternals({ importType: "module" })],
 };
 
 export default config;

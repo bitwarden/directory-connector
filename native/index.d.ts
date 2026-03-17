@@ -21,7 +21,10 @@ export declare namespace passwords {
    * correct format or does not exist.
    */
   export function migrateKeytarPassword(service: string, account: string): Promise<boolean>;
-  /** The error message returned when a password is not found during retrieval or deletion. */
+  /**
+   * The error message returned when a password is not found during retrieval or deletion.
+   * Re-exported from desktop_core so JS callers have a single authoritative source.
+   */
   export const PASSWORD_NOT_FOUND: string;
   /** Save the password to the keychain. Adds an entry if none exists, otherwise updates it. */
   export function setPassword(service: string, account: string, password: string): Promise<void>;

@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
+
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
 import { EnvironmentService } from "@/libs/abstractions/environment.service";
 import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
@@ -28,10 +29,9 @@ import { ConsoleLogService } from "@/src-cli/cli/services/consoleLog.service";
 import { NodeApiService } from "@/src-cli/services/node/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/src-cli/services/node/nodeCryptoFunction.service";
 
-import { Program } from "./program";
+import packageJson from "../package.json";
 
-// eslint-disable-next-line
-const packageJson = require("../package.json");
+import { Program } from "./program";
 
 export class Main {
   dataFilePath: string;
