@@ -99,7 +99,7 @@
     "electron": "39.2.1",
     "electron-builder": "24.13.3",
     "electron-log": "5.4.1",
-    "electron-store": "8.2.0",
+    "electron-store": "11.0.2",
     "electron-updater": "6.7.3",
     "eslint": "9.39.1",
     "eslint-config-prettier": "10.1.5",
@@ -164,6 +164,7 @@
     "ngx-toastr": "20.0.4",
     "parse5": "8.0.0",
     "proper-lockfile": "4.1.2",
+    "punycode": "2.3.1",
     "rxjs": "7.8.2",
     "uuid": "11.1.0",
     "zone.js": "0.16.0"
