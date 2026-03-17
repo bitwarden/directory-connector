@@ -67,8 +67,8 @@
     "test": "jest --testPathIgnorePatterns=.integration.spec.ts",
     "test:watch": "jest --watch --testPathIgnorePatterns=.integration.spec.ts",
     "test:watch:all": "jest --watchAll --testPathIgnorePatterns=.integration.spec.ts",
-    "test:integration": "jest .integration.spec.ts",
-    "test:integration:watch": "jest .integration.spec.ts --watch",
+    "test:integration": "node --experimental-vm-modules node_modules/.bin/jest .integration.spec.ts",
+    "test:integration:watch": "node --experimental-vm-modules node_modules/.bin/jest .integration.spec.ts --watch",
     "test:integration:setup": "sh ./utils/openldap/mkcert.sh && docker compose up -d --wait",
     "test:types": "npx tsc --noEmit"
   },
