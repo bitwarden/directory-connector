@@ -83,3 +83,5 @@ export const passwords = {
     nativeBinding.migrateKeytarPassword(service, account),
   PASSWORD_NOT_FOUND: nativeBinding.PASSWORD_NOT_FOUND,
 };
+
+module.exports = nativeBinding;

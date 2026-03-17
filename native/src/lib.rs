@@ -3,12 +3,12 @@ extern crate napi_derive;
 
 /// The error message returned when a password is not found during retrieval or deletion.
 /// Re-exported from desktop_core so JS callers have a single authoritative source.
-#[napi]
+#[napi(namespace = "passwords")]
 pub const PASSWORD_NOT_FOUND: &str = desktop_core::password::PASSWORD_NOT_FOUND;
 
 /// Fetch the stored password from the keychain.
 /// Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
-#[napi]
+#[napi(namespace = "passwords")]
 pub async fn get_password(service: String, account: String) -> napi::Result<String> {
     desktop_core::password::get_password(&service, &account)
         .await
@@ -16,7 +16,7 @@ pub async fn get_password(service: String, account: String) -> napi::Result<Stri
 }
 
 /// Save the password to the keychain. Adds an entry if none exists, otherwise updates it.
-#[napi]
+#[napi(namespace = "passwords")]
 pub async fn set_password(
     service: String,
     account: String,
@@ -29,7 +29,7 @@ pub async fn set_password(
 
 /// Delete the stored password from the keychain.
 /// Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
-#[napi]
+#[napi(namespace = "passwords")]
 pub async fn delete_password(service: String, account: String) -> napi::Result<()> {
     desktop_core::password::delete_password(&service, &account)
         .await
@@ -37,7 +37,7 @@ pub async fn delete_password(service: String, account: String) -> napi::Result<(
 }
 
 /// Check if OS secure storage is available.
-#[napi]
+#[napi(namespace = "passwords")]
 pub async fn is_available() -> napi::Result<bool> {
     desktop_core::password::is_available()
         .await
@@ -49,7 +49,7 @@ pub async fn is_available() -> napi::Result<bool> {
 ///
 /// Returns true if a migration was performed, false if the credential was already in the
 /// correct format or does not exist.
-#[napi]
+#[napi(namespace = "passwords")]
 pub async fn migrate_keytar_password(service: String, account: String) -> napi::Result<bool> {
     #[cfg(windows)]
     {
