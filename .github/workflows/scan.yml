@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - "main"
+      - "rc"
+      - "hotfix-rc"
   pull_request:
     types: [opened, synchronize, reopened]
     branches-ignore:
