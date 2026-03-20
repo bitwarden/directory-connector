@@ -31,7 +31,7 @@ export class DefaultDirectoryFactoryService implements DirectoryFactoryService {
       case DirectoryType.OneLogin:
         return new OneLoginDirectoryService(this.logService, this.i18nService, this.stateService);
       default:
-        throw new Error("Invalid Directory Type");
+        throw new Error("Invalid Directory Type test");
     }
   }
 }
