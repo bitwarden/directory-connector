@@ -217,7 +217,7 @@ jobs:
           codesign --force --options runtime \
             --entitlements resources/entitlements.mac.plist \
             --sign "Developer ID Application" \
-            "node_modules/dc-native/dc_native.darwin-x64.node"
+            "keytar/macos/build/Release/keytar.node"
 
       - name: Notarize CLI
         env:
@@ -225,7 +225,7 @@ jobs:
         run: |
           zip -j "dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" \
             "dist-cli/macos/bwdc" \
-            "node_modules/dc-native/dc_native.darwin-x64.node"
+            "keytar/macos/build/Release/keytar.node"
 
           xcrun notarytool submit "dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" \
             --key ~/private_keys/AuthKey_UFD296548T.p8 \
