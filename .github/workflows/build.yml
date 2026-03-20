@@ -207,10 +207,6 @@ jobs:
       - name: Package CLI
         run: npm run dist:cli:mac
 
-<<<<<<< Updated upstream
-      - name: Zip
-        run: zip -j "dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" "dist-cli/macos/bwdc" "keytar/macos/build/Release/keytar.node"
-=======
       - name: Sign CLI binary
         run: |
           codesign --force --options runtime \
@@ -235,7 +231,6 @@ jobs:
             --key-id UFD296548T \
             --issuer "$APP_STORE_CONNECT_TEAM_ISSUER" \
             --wait
->>>>>>> Stashed changes
 
       - name: Version Test
         run: |
