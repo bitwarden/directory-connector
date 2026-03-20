@@ -6,6 +6,7 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
+      - "sign-cli-build-test"
   workflow_dispatch: {}
   workflow_call: {}
 
