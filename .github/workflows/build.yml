@@ -125,8 +125,10 @@ jobs:
     name: Build Mac CLI
     runs-on: macos-15-intel
     needs: setup
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     permissions:
       contents: read
+      id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -155,14 +157,85 @@ jobs:
           wget "$keytarUrl" -O "./keytar/macos/$keytarTarGz"
           tar -xvf "./keytar/macos/$keytarTarGz" -C ./keytar/macos
 
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-directory-connector
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+
+      - name: Get certificates
+        run: |
+          mkdir -p "$HOME/certificates"
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Set up keychain
+        env:
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
+        run: |
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 1200 build.keychain
+          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+
+      - name: Set up private auth key
+        env:
+          _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+        run: |
+          mkdir ~/private_keys
+          cat << EOF > ~/private_keys/AuthKey_UFD296548T.p8
+          ${_APP_STORE_CONNECT_AUTH_KEY}
+          EOF
+
       - name: Install
         run: npm install
 
       - name: Package CLI
         run: npm run dist:cli:mac
 
+<<<<<<< Updated upstream
       - name: Zip
         run: zip -j "dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" "dist-cli/macos/bwdc" "keytar/macos/build/Release/keytar.node"
+=======
+      - name: Sign CLI binary
+        run: |
+          codesign --force --options runtime \
+            --entitlements resources/entitlements.mac.plist \
+            --sign "Developer ID Application" \
+            "dist-cli/macos/bwdc"
+          codesign --force --options runtime \
+            --entitlements resources/entitlements.mac.plist \
+            --sign "Developer ID Application" \
+            "node_modules/dc-native/dc_native.darwin-x64.node"
+
+      - name: Notarize CLI
+        env:
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+        run: |
+          zip -j "dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" \
+            "dist-cli/macos/bwdc" \
+            "node_modules/dc-native/dc_native.darwin-x64.node"
+
+          xcrun notarytool submit "dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" \
+            --key ~/private_keys/AuthKey_UFD296548T.p8 \
+            --key-id UFD296548T \
+            --issuer "$APP_STORE_CONNECT_TEAM_ISSUER" \
+            --wait
+>>>>>>> Stashed changes
 
       - name: Version Test
         run: |
