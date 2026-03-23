@@ -6,6 +6,7 @@ import { JSONFileSync } from "lowdb/node";
 
 import { LogService } from "@/libs/abstractions/log.service";
 import { StorageService } from "@/libs/abstractions/storage.service";
+import { SecureStorageKey, StorageKey } from "@/libs/models/state.model";
 import { NodeUtils } from "@/libs/utils/nodeUtils";
 import { sequentialize } from "@/libs/utils/sequentialize";
 import { Utils } from "@/libs/utils/utils";
@@ -94,7 +95,7 @@ export class LowdbStorageService implements StorageService {
     this.ready = true;
   }
 
-  async get<T>(key: string): Promise<T> {
+  async get<T>(key: StorageKey | SecureStorageKey): Promise<T> {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
@@ -107,11 +108,11 @@ export class LowdbStorageService implements StorageService {
     });
   }
 
-  has(key: string): Promise<boolean> {
+  has(key: StorageKey | SecureStorageKey): Promise<boolean> {
     return this.get(key).then((v) => v != null);
   }
 
-  async save(key: string, obj: any): Promise<any> {
+  async save(key: StorageKey | SecureStorageKey, obj: any): Promise<any> {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
@@ -122,7 +123,7 @@ export class LowdbStorageService implements StorageService {
     });
   }
 
-  async remove(key: string): Promise<any> {
+  async remove(key: StorageKey | SecureStorageKey): Promise<any> {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();

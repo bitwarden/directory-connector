@@ -11,7 +11,7 @@ import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
 import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
-import { StateService } from "./state.service";
+import { StateService } from "./default-state.service";
 import { StateMigrationService } from "./stateMigration.service";
 
 export class DefaultStateService implements StateService {
