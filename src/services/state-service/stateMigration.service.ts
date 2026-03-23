@@ -61,9 +61,7 @@ export class StateMigrationService {
       return;
     }
 
-    //@ts-expect-error untracked legacy key for migration
     const clientId = await this.storageService.get<string>("activeUserId");
-    //@ts-expect-error untracked legacy key for migration
     const account = await this.get<any>(clientId);
 
     if (!account) {
@@ -157,7 +155,6 @@ export class StateMigrationService {
         // _entraIdKey is the canonical old key; _entraKey was used by the runtime state service
         // prior to the v4→v5 migration. Only one should be present, but prefer _entraIdKey.
         {
-          //@ts-expect-error untracked legacy key for migration
           old: (await this.secureStorageService.has(`${clientId}_entraIdKey`))
             ? `${clientId}_entraIdKey`
             : `${clientId}_entraKey`,
@@ -171,9 +168,7 @@ export class StateMigrationService {
       ];
 
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        //@ts-expect-error untracked legacy key for migration
         if (await this.secureStorageService.has(oldKey)) {
-          //@ts-expect-error untracked legacy key for migration
           const value = await this.secureStorageService.get(oldKey);
           if (value) {
             await this.secureStorageService.save(newKey, value);

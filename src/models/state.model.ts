@@ -39,7 +39,7 @@ export const StorageKeys = {
   // TODO: Remove when jslib cleanup PR is merged
   appId: "appId",
   anonymousAppId: "anonymousAppId",
-} as const;
+};
 
 export const SecureStorageKeys = {
   // Directory service credentials
@@ -64,7 +64,7 @@ export const SecureStorageKeys = {
   apiKeyClientId: "apiKeyClientId",
   apiKeyClientSecret: "apiKeyClientSecret",
   twoFactorToken: "twoFactorToken",
-} as const;
+};
 
 // ===================================================================
 // Shared Constants
