@@ -13,7 +13,7 @@ import { DCCredentialStorageListener } from "./main/credential-storage-listener"
 import { MenuMain } from "./main/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { I18nService } from "./services/i18n.service";
-import { DefaultStateService } from "./services/state-service/state.service";
+import { DefaultStateService } from "./services/state-service/default-state.service";
 
 export class Main {
   logService: ElectronLogService;

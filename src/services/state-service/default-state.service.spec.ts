@@ -11,7 +11,7 @@ import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/src/models/sta
 import { SyncConfiguration } from "@/src/models/syncConfiguration";
 import { FakeStorageService } from "@/src/utils/fakeStorageService";
 
-import { DefaultStateService } from "./state.service";
+import { DefaultStateService } from "./default-state.service";
 import { StateMigrationService } from "./stateMigration.service";
 
 const noopLog: LogService = {
