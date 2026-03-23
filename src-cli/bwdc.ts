@@ -18,7 +18,10 @@ import { LowdbStorageService } from "@/libs/services/lowdbStorage.service";
 import { NativeSecureStorageService } from "@/libs/services/nativeSecureStorage.service";
 import { NoopMessagingService } from "@/libs/services/noopMessaging.service";
 import { SingleRequestBuilder } from "@/libs/services/single-request-builder";
-import { DefaultStateService, StateService } from "@/libs/services/state-service/state.service";
+import {
+  DefaultStateService,
+  StateService,
+} from "@/libs/services/state-service/default-state.service";
 import { StateMigrationService } from "@/libs/services/state-service/stateMigration.service";
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";

@@ -4,6 +4,7 @@ import { ipcMain } from "electron";
 import Store from "electron-store";
 
 import { StorageService } from "@/libs/abstractions/storage.service";
+import { SecureStorageKey, StorageKey } from "@/libs/models/state.model";
 import { NodeUtils } from "@/libs/utils/nodeUtils";
 
 export class ElectronStorageService implements StorageService {
@@ -33,17 +34,17 @@ export class ElectronStorageService implements StorageService {
     });
   }
 
-  get<T>(key: string): Promise<T> {
+  get<T>(key: StorageKey | SecureStorageKey): Promise<T> {
     const val = this.store.get(key) as T;
     return Promise.resolve(val != null ? val : null);
   }
 
-  has(key: string): Promise<boolean> {
+  has(key: StorageKey | SecureStorageKey): Promise<boolean> {
     const val = this.store.get(key);
     return Promise.resolve(val != null);
   }
 
-  save(key: string, obj: any): Promise<any> {
+  save(key: StorageKey | SecureStorageKey, obj: any): Promise<any> {
     if (obj instanceof Set) {
       obj = Array.from(obj);
     }
@@ -51,7 +52,7 @@ export class ElectronStorageService implements StorageService {
     return Promise.resolve();
   }
 
-  remove(key: string): Promise<any> {
+  remove(key: StorageKey | SecureStorageKey): Promise<any> {
     this.store.delete(key);
     return Promise.resolve();
   }

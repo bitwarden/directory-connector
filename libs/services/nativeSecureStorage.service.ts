@@ -1,11 +1,13 @@
 import { StorageService } from "@/libs/abstractions/storage.service";
 
+import { SecureStorageKey, StorageKey } from "../models/state.model";
+
 import { passwords } from "dc-native";
 
 export class NativeSecureStorageService implements StorageService {
   constructor(private serviceName: string) {}
 
-  get<T>(key: string): Promise<T> {
+  async get<T>(key: StorageKey | SecureStorageKey): Promise<T> {
     return passwords
       .getPassword(this.serviceName, key)
       .then((val: string) => JSON.parse(val) as T)
@@ -17,18 +19,18 @@ export class NativeSecureStorageService implements StorageService {
       });
   }
 
-  async has(key: string): Promise<boolean> {
+  async has(key: StorageKey | SecureStorageKey): Promise<boolean> {
     return (await this.get(key)) != null;
   }
 
-  save(key: string, obj: any): Promise<any> {
+  async save(key: StorageKey | SecureStorageKey, obj: any): Promise<any> {
     if (!obj) {
       return this.remove(key);
     }
     return passwords.setPassword(this.serviceName, key, JSON.stringify(obj));
   }
 
-  remove(key: string): Promise<any> {
+  async remove(key: StorageKey | SecureStorageKey): Promise<any> {
     return passwords.deletePassword(this.serviceName, key).catch((e: Error) => {
       if (e.message === passwords.PASSWORD_NOT_FOUND) {
         return;

@@ -4,7 +4,7 @@ import * as path from "path";
 import { app, BrowserWindow } from "electron";
 
 import { I18nService } from "@/libs/services/i18n.service";
-import { DefaultStateService } from "@/libs/services/state-service/state.service";
+import { DefaultStateService } from "@/libs/services/state-service/default-state.service";
 
 import { ElectronLogService } from "@/src-gui/services/electron/electronLog.service";
 import { ElectronMainMessagingService } from "@/src-gui/services/electron/electronMainMessaging.service";

@@ -1,11 +1,12 @@
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
 import { StorageOptions } from "@/libs/models/domain/storageOptions";
+import { SecureStorageKey, StorageKey } from "@/libs/models/state.model";
 
 import { passwords } from "dc-native";
 
 export class ElectronRendererSecureStorageService implements StorageService {
-  async get<T>(key: string, options?: StorageOptions): Promise<T> {
+  async get<T>(key: StorageKey | SecureStorageKey, options?: StorageOptions): Promise<T> {
     return passwords
       .getPassword(this.buildServiceName(options), key)
       .then((val: string) => JSON.parse(val) as T)
@@ -17,18 +18,18 @@ export class ElectronRendererSecureStorageService implements StorageService {
       });
   }
 
-  async has(key: string, options?: StorageOptions): Promise<boolean> {
+  async has(key: StorageKey | SecureStorageKey, options?: StorageOptions): Promise<boolean> {
     return (await this.get(key, options)) != null;
   }
 
-  async save(key: string, obj: any, options?: StorageOptions): Promise<any> {
+  async save(key: StorageKey | SecureStorageKey, obj: any, options?: StorageOptions): Promise<any> {
     if (!obj) {
       return this.remove(key, options);
     }
     return passwords.setPassword(this.buildServiceName(options), key, JSON.stringify(obj));
   }
 
-  async remove(key: string, options?: StorageOptions): Promise<any> {
+  async remove(key: StorageKey | SecureStorageKey, options?: StorageOptions): Promise<any> {
     return passwords.deletePassword(this.buildServiceName(options), key).catch((e: Error) => {
       if (e.message === passwords.PASSWORD_NOT_FOUND) {
         return;
