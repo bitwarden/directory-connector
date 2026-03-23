@@ -28,7 +28,10 @@ import { I18nService } from "@/libs/services/i18n.service";
 import { NodeApiService } from "@/libs/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/libs/services/nodeCryptoFunction.service";
 import { SingleRequestBuilder } from "@/libs/services/single-request-builder";
-import { DefaultStateService, StateService } from "@/libs/services/state-service/state.service";
+import {
+  DefaultStateService,
+  StateService,
+} from "@/libs/services/state-service/default-state.service";
 import { StateMigrationService } from "@/libs/services/state-service/stateMigration.service";
 import { SyncService } from "@/libs/services/sync.service";
 import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
