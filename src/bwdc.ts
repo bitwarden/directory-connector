@@ -24,7 +24,7 @@ import { I18nService } from "./services/i18n.service";
 import { KeytarSecureStorageService } from "./services/keytarSecureStorage.service";
 import { LowdbStorageService } from "./services/lowdbStorage.service";
 import { SingleRequestBuilder } from "./services/single-request-builder";
-import { DefaultStateService } from "./services/state-service/state.service";
+import { DefaultStateService } from "./services/state-service/default-state.service";
 import { StateMigrationService } from "./services/state-service/stateMigration.service";
 import { SyncService } from "./services/sync.service";
 import { TokenService as TokenServiceImplementation } from "./services/token/token.service";

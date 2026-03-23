@@ -1,6 +1,9 @@
-// ===================================================================
 // Storage Keys (Flat key-value structure)
 // ===================================================================
+//
+
+export type StorageKey = (typeof StorageKeys)[keyof typeof StorageKeys];
+export type SecureStorageKey = (typeof SecureStorageKeys)[keyof typeof SecureStorageKeys];
 
 export const StorageKeys = {
   stateVersion: "stateVersion",
@@ -30,7 +33,13 @@ export const StorageKeys = {
   locale: "locale",
   installedVersion: "installedVersion",
   entityId: "entityId",
-};
+
+  global: "global",
+
+  // TODO: Remove when jslib cleanup PR is merged
+  appId: "appId",
+  anonymousAppId: "anonymousAppId",
+} as const;
 
 export const SecureStorageKeys = {
   // Directory service credentials
@@ -55,7 +64,7 @@ export const SecureStorageKeys = {
   apiKeyClientId: "apiKeyClientId",
   apiKeyClientSecret: "apiKeyClientSecret",
   twoFactorToken: "twoFactorToken",
-};
+} as const;
 
 // ===================================================================
 // Shared Constants

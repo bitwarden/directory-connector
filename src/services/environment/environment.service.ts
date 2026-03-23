@@ -2,7 +2,7 @@ import { Observable, Subject } from "rxjs";
 
 import { EnvironmentService, EnvironmentUrls } from "@/src/abstractions/environment.service";
 
-import { StateService } from "../state-service/state.service";
+import { StateService } from "../state-service/default-state.service";
 
 export class DefaultEnvironmentService implements EnvironmentService {
   private readonly urlsSubject = new Subject<EnvironmentUrls>();

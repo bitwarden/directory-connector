@@ -33,6 +33,7 @@ import { TokenService as TokenServiceAbstraction } from "@/src/abstractions/toke
 import { BatchRequestBuilder } from "@/src/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/src/services/directory-factory.service";
 import { SingleRequestBuilder } from "@/src/services/single-request-builder";
+import { DefaultStateService } from "@/src/services/state-service/default-state.service";
 import { StateMigrationService } from "@/src/services/state-service/stateMigration.service";
 
 import { AuthService as AuthServiceAbstraction } from "../../abstractions/auth.service";
@@ -40,7 +41,6 @@ import { StateService } from "../../abstractions/state.service";
 import { AuthService } from "../../services/auth.service";
 import { DefaultEnvironmentService as EnvironmentServiceImplementation } from "../../services/environment/environment.service";
 import { I18nService } from "../../services/i18n.service";
-import { DefaultStateService } from "../../services/state-service/state.service";
 import { SyncService } from "../../services/sync.service";
 import { TokenService as TokenServiceImplementation } from "../../services/token/token.service";
 

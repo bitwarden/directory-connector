@@ -3,7 +3,13 @@ import { HtmlStorageLocation } from "@/jslib/common/src/enums/htmlStorageLocatio
 import { StateVersion } from "@/jslib/common/src/enums/stateVersion";
 import { StorageOptions } from "@/jslib/common/src/models/domain/storageOptions";
 
-import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/src/models/state.model";
+import {
+  SecureStorageKey,
+  SecureStorageKeys,
+  StorageKey,
+  StorageKeys,
+  StoredSecurely,
+} from "@/src/models/state.model";
 
 // The original implementation of migrate() overrode the jslib implementation and never actually went up
 // to v4. Therefore, the minimum supported version that is out in the wild should be 3 and we need
@@ -55,7 +61,9 @@ export class StateMigrationService {
       return;
     }
 
+    //@ts-expect-error untracked legacy key for migration
     const clientId = await this.storageService.get<string>("activeUserId");
+    //@ts-expect-error untracked legacy key for migration
     const account = await this.get<any>(clientId);
 
     if (!account) {
@@ -68,65 +76,41 @@ export class StateMigrationService {
     if (account.directoryConfigurations) {
       if (account.directoryConfigurations.ldap) {
         const ldapConfig = { ...account.directoryConfigurations.ldap };
-        if (
-          useSecureStorageForSecrets &&
-          ldapConfig.password &&
-          ldapConfig.password !== StoredSecurely
-        ) {
-          await this.secureStorageService.save(SecureStorageKeys.ldap, ldapConfig.password);
-          ldapConfig.password = StoredSecurely;
-        }
+        await this.secureStorageService.save(SecureStorageKeys.ldap, ldapConfig.password);
+        ldapConfig.password = StoredSecurely;
         await this.set(StorageKeys.directoryLdap, ldapConfig);
       }
       if (account.directoryConfigurations.gsuite) {
         const gsuiteConfig = { ...account.directoryConfigurations.gsuite };
-        if (
-          useSecureStorageForSecrets &&
-          gsuiteConfig.privateKey &&
-          gsuiteConfig.privateKey !== StoredSecurely
-        ) {
-          await this.secureStorageService.save(SecureStorageKeys.gsuite, gsuiteConfig.privateKey);
-          gsuiteConfig.privateKey = StoredSecurely;
-        }
+        await this.secureStorageService.save(SecureStorageKeys.gsuite, gsuiteConfig.privateKey);
+        gsuiteConfig.privateKey = StoredSecurely;
         await this.set(StorageKeys.directoryGsuite, gsuiteConfig);
       }
       if (account.directoryConfigurations.entra) {
         const entraConfig = { ...account.directoryConfigurations.entra };
-        if (useSecureStorageForSecrets && entraConfig.key && entraConfig.key !== StoredSecurely) {
-          await this.secureStorageService.save(SecureStorageKeys.entra, entraConfig.key);
-          entraConfig.key = StoredSecurely;
-        }
+        await this.secureStorageService.save(SecureStorageKeys.entra, entraConfig.key);
+        entraConfig.key = StoredSecurely;
         await this.set(StorageKeys.directoryEntra, entraConfig);
       } else if (account.directoryConfigurations.azure) {
         // Backwards compatibility: migrate azure to entra
         const azureConfig = { ...account.directoryConfigurations.azure };
-        if (useSecureStorageForSecrets && azureConfig.key && azureConfig.key !== StoredSecurely) {
-          await this.secureStorageService.save(SecureStorageKeys.entra, azureConfig.key);
-          azureConfig.key = StoredSecurely;
-        }
+        await this.secureStorageService.save(SecureStorageKeys.entra, azureConfig.key);
+        azureConfig.key = StoredSecurely;
         await this.set(StorageKeys.directoryEntra, azureConfig);
       }
       if (account.directoryConfigurations.okta) {
         const oktaConfig = { ...account.directoryConfigurations.okta };
-        if (useSecureStorageForSecrets && oktaConfig.token && oktaConfig.token !== StoredSecurely) {
-          await this.secureStorageService.save(SecureStorageKeys.okta, oktaConfig.token);
-          oktaConfig.token = StoredSecurely;
-        }
+        await this.secureStorageService.save(SecureStorageKeys.okta, oktaConfig.token);
+        oktaConfig.token = StoredSecurely;
         await this.set(StorageKeys.directoryOkta, oktaConfig);
       }
       if (account.directoryConfigurations.oneLogin) {
         const oneLoginConfig = { ...account.directoryConfigurations.oneLogin };
-        if (
-          useSecureStorageForSecrets &&
-          oneLoginConfig.clientSecret &&
-          oneLoginConfig.clientSecret !== StoredSecurely
-        ) {
-          await this.secureStorageService.save(
-            SecureStorageKeys.oneLogin,
-            oneLoginConfig.clientSecret,
-          );
-          oneLoginConfig.clientSecret = StoredSecurely;
-        }
+        await this.secureStorageService.save(
+          SecureStorageKeys.oneLogin,
+          oneLoginConfig.clientSecret,
+        );
+        oneLoginConfig.clientSecret = StoredSecurely;
         await this.set(StorageKeys.directoryOnelogin, oneLoginConfig);
       }
     }
@@ -173,6 +157,7 @@ export class StateMigrationService {
         // _entraIdKey is the canonical old key; _entraKey was used by the runtime state service
         // prior to the v4→v5 migration. Only one should be present, but prefer _entraIdKey.
         {
+          //@ts-expect-error untracked legacy key for migration
           old: (await this.secureStorageService.has(`${clientId}_entraIdKey`))
             ? `${clientId}_entraIdKey`
             : `${clientId}_entraKey`,
@@ -186,7 +171,9 @@ export class StateMigrationService {
       ];
 
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
+        //@ts-expect-error untracked legacy key for migration
         if (await this.secureStorageService.has(oldKey)) {
+          //@ts-expect-error untracked legacy key for migration
           const value = await this.secureStorageService.get(oldKey);
           if (value) {
             await this.secureStorageService.save(newKey, value);
@@ -253,11 +240,11 @@ export class StateMigrationService {
     return { htmlStorageLocation: HtmlStorageLocation.Local };
   }
 
-  protected get<T>(key: string): Promise<T> {
+  protected get<T>(key: StorageKey | SecureStorageKey): Promise<T> {
     return this.storageService.get<T>(key, this.options);
   }
 
-  protected set(key: string, value: any): Promise<any> {
+  protected set(key: StorageKey | SecureStorageKey, value: any): Promise<any> {
     if (value == null) {
       return this.storageService.remove(key, this.options);
     }
