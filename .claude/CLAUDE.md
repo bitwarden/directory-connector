@@ -71,8 +71,8 @@ jslib/                 # Legacy folder structure (mix of deprecated/unused and c
 **Import Patterns:**
 
 - Use path aliases (`@/`) for project imports
-  - `@/` - project root
-  - `@/jslib/` - jslib folder
+    - `@/` - project root
+    - `@/jslib/` - jslib folder
 - ESLint enforces alphabetized import ordering with newlines between groups
 
 **Type Safety:**
