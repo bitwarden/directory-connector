@@ -24,11 +24,23 @@
               "base": "dist"
             },
             "index": "src/index.html",
+            "browser": "src/app/main.ts",
             "tsConfig": "tsconfig.json",
             "assets": [],
-            "styles": [],
-            "scripts": [],
-            "browser": "src/main.ts"
+            "styles": ["src/scss/styles.scss"],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+          }
+        },
+        "test": {
+          "builder": "@angular-builders/jest:run",
+          "options": {
+            "configPath": "jest.config.cjs"
           }
         }
       }
