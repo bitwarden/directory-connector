@@ -129,7 +129,7 @@ jobs:
 
       - name: Report test results
         id: report
-        uses: dorny/test-reporter@3d76b34a4535afbd0600d347b09a6ee5deb3ed7f # v2.6.0
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
         # This will skip the job if it's a pull request from a fork, because that won't have permission to upload test results.
         # PRs from the repository and all other events are OK.
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository) && !cancelled()
