@@ -55,6 +55,7 @@ jobs:
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      HUSKY: 0
     permissions:
       contents: read
     steps:
@@ -83,7 +84,7 @@ jobs:
           tar -xvf "./keytar/linux/$keytarTarGz" -C ./keytar/linux
 
       - name: Install
-        run: npm install
+        run: npm ci
 
       - name: Package CLI
         run: npm run dist:cli:lin
@@ -130,6 +131,7 @@ jobs:
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      HUSKY: 0
     steps:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -156,7 +158,7 @@ jobs:
           tar -xvf "./keytar/macos/$keytarTarGz" -C ./keytar/macos
 
       - name: Install
-        run: npm install
+        run: npm ci
 
       - name: Package CLI
         run: npm run dist:cli:mac
@@ -196,6 +198,7 @@ jobs:
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      HUSKY: 0
     steps:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -229,7 +232,7 @@ jobs:
           7z e "./keytar/windows/$($keytarTar -f "win32")" -o"./keytar/windows"
 
       - name: Install
-        run: npm install
+        run: npm ci
 
       - name: Package CLI
         run: npm run dist:cli:win
@@ -292,7 +295,7 @@ jobs:
         run: dotnet tool install --global AzureSignTool --version 4.0.1
 
       - name: Install Node dependencies
-        run: npm install
+        run: npm ci
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -385,7 +388,7 @@ jobs:
           sudo apt-get -y install rpm
 
       - name: NPM Install
-        run: npm install
+        run: npm ci
 
       - name: NPM Rebuild
         run: npm run rebuild
@@ -492,7 +495,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
       - name: Install Node dependencies
-        run: npm install
+        run: npm ci
 
       - name: Set up private auth key
         env:
