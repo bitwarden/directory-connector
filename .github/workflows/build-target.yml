@@ -1,0 +1,43 @@
+# This workflow runs all pull requests through the target branch context so that secrets are
+# available for signing artifacts. The check-run gate ensures that fork PRs are reviewed before
+# any untrusted code is allowed to run with access to repository secrets.
+
+name: Build on PR Target
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'src-cli/**'
+      - 'jslib/**'
+      - 'resources/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'angular.json'
+      - '.github/workflows/build.yml'
+      - '.github/workflows/build-target.yml'
+      - '!*.md'
+      - '!*.txt'
+
+permissions: {}
+
+jobs:
+  check-run:
+    name: Check PR run
+    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+    permissions:
+      contents: read
+
+  run-workflow:
+    name: Run Build
+    needs: check-run
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write

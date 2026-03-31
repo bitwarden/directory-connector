@@ -157,9 +157,10 @@ export class SyncService {
 
     // UserEntrys with the same email are ignored if their properties are the same
     // UserEntrys with the same email but different properties will throw an error, unless they are all in a deleted state.
+    // A deleted user whose email matches an active user is silently skipped (tombstone of the same user).
     users.forEach((u) => {
       if (processedActiveUsers.has(u.email)) {
-        if (processedActiveUsers.get(u.email) !== JSON.stringify(u)) {
+        if (!u.deleted && processedActiveUsers.get(u.email) !== JSON.stringify(u)) {
           duplicateEmails.push(u.email);
         }
       } else {
@@ -196,14 +197,27 @@ export class SyncService {
     return users == null ? null : users.filter((u) => u.email?.length <= 256);
   }
 
-  private flattenUsersToGroups(levelGroups: GroupEntry[], allGroups: GroupEntry[]): Set<string> {
+  private flattenUsersToGroups(
+    levelGroups: GroupEntry[],
+    allGroups: GroupEntry[],
+    visitedGroups?: Set<string>,
+  ): Set<string> {
     let allUsers = new Set<string>();
     if (allGroups == null) {
       return allUsers;
     }
+
     for (const group of levelGroups) {
+      const visited = visitedGroups ?? new Set<string>();
+
+      if (visited.has(group.referenceId)) {
+        continue;
+      }
+
+      visited.add(group.referenceId);
+
       const childGroups = allGroups.filter((g) => group.groupMemberReferenceIds.has(g.referenceId));
-      const childUsers = this.flattenUsersToGroups(childGroups, allGroups);
+      const childUsers = this.flattenUsersToGroups(childGroups, allGroups, visited);
       childUsers.forEach((id) => group.userMemberExternalIds.add(id));
       allUsers = new Set([...allUsers, ...group.userMemberExternalIds]);
     }
