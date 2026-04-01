@@ -86,7 +86,13 @@ export class WindowMain {
           // attempt to re-register an already-registered handler.
           session.defaultSession.protocol.handle("app", async (request) => {
             const requestUrl = new URL(request.url);
-            const filePath = path.join(__dirname, requestUrl.pathname);
+            const buildDir = path.resolve(__dirname);
+            const filePath = path.resolve(buildDir, requestUrl.pathname.replace(/^\//, ""));
+
+            if (!filePath.startsWith(buildDir + path.sep) && filePath !== buildDir) {
+              return new Response("Forbidden", { status: 403 });
+            }
+
             try {
               const data = await fs.promises.readFile(filePath);
               const mimeType = WindowMain.mimeTypeForPath(filePath);
@@ -346,6 +352,7 @@ export class WindowMain {
       ".eot": "application/vnd.ms-fontobject",
       ".otf": "font/otf",
       ".map": "application/json; charset=utf-8",
+      ".wasm": "application/wasm",
     };
     return types[ext] ?? "application/octet-stream";
   }
