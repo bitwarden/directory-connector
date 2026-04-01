@@ -1,7 +1,7 @@
+import * as fs from "fs";
 import * as path from "path";
-import * as url from "url";
 
-import { app, BrowserWindow, Rectangle, screen } from "electron";
+import { app, BrowserWindow, protocol, Rectangle, screen, session } from "electron";
 
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { StateService } from "@/jslib/common/src/abstractions/state.service";
@@ -29,6 +29,19 @@ export class WindowMain {
   ) {}
 
   init(): Promise<any> {
+    protocol.registerSchemesAsPrivileged([
+      {
+        scheme: "app",
+        privileges: {
+          standard: true,
+          secure: true,
+          supportFetchAPI: true,
+          corsEnabled: true,
+          stream: true,
+        },
+      },
+    ]);
+
     return new Promise<void>((resolve, reject) => {
       try {
         if (!isMacAppStore() && !isSnapStore()) {
@@ -64,6 +77,32 @@ export class WindowMain {
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
         app.on("ready", async () => {
+          // Enable SharedArrayBuffer via cross-origin isolation. Electron 41 broke the prior
+          // webRequest.onHeadersReceived approach for file:// URLs (electron/electron#50242) — the
+          // renderer assigns file:// pages to the universal-access agent cluster before headers are
+          // evaluated. Serving through a registered privileged scheme bypasses that cluster
+          // assignment so COOP/COEP headers are respected and COI is enabled.
+          // Registered once here on the default session so re-opening the window does not
+          // attempt to re-register an already-registered handler.
+          session.defaultSession.protocol.handle("app", async (request) => {
+            const requestUrl = new URL(request.url);
+            const filePath = path.join(__dirname, requestUrl.pathname);
+            try {
+              const data = await fs.promises.readFile(filePath);
+              const mimeType = WindowMain.mimeTypeForPath(filePath);
+              return new Response(data, {
+                status: 200,
+                headers: {
+                  "Content-Type": mimeType,
+                  "Cross-Origin-Opener-Policy": "same-origin",
+                  "Cross-Origin-Embedder-Policy": "require-corp",
+                },
+              });
+            } catch {
+              return new Response("Not found", { status: 404 });
+            }
+          });
+
           await this.createWindow();
           resolve();
           if (this.argvCallback != null) {
@@ -124,14 +163,8 @@ export class WindowMain {
         nodeIntegration: true,
         backgroundThrottling: false,
         contextIsolation: false,
+        preload: path.join(__dirname, "preload.js"),
       },
-    });
-
-    // Enable SharedArrayBuffer. See https://developer.chrome.com/blog/enabling-shared-array-buffer/#cross-origin-isolation
-    this.win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-      details.responseHeaders["Cross-Origin-Opener-Policy"] = ["same-origin"];
-      details.responseHeaders["Cross-Origin-Embedder-Policy"] = ["require-corp"];
-      callback({ responseHeaders: details.responseHeaders });
     });
 
     if (this.windowStates[mainWindowSizeKey].isMaximized) {
@@ -142,16 +175,9 @@ export class WindowMain {
     this.win.show();
 
     // and load the index.html of the app.
-    this.win.loadURL(
-      url.format({
-        protocol: "file:",
-        pathname: path.join(__dirname, "/index.html"),
-        slashes: true,
-      }),
-      {
-        userAgent: cleanUserAgent(this.win.webContents.userAgent),
-      },
-    );
+    this.win.loadURL("app://localhost/index.html", {
+      userAgent: cleanUserAgent(this.win.webContents.userAgent),
+    });
 
     // Open the DevTools.
     if (isDev()) {
@@ -207,13 +233,16 @@ export class WindowMain {
 
   private windowStateChangeHandler(configKey: string, win: BrowserWindow) {
     global.clearTimeout(this.windowStateChangeTimer);
-    this.windowStateChangeTimer = global.setTimeout(async () => {
-      await this.updateWindowState(configKey, win);
+    this.windowStateChangeTimer = global.setTimeout(() => {
+      if (win == null || win.isDestroyed()) {
+        return;
+      }
+      this.updateWindowState(configKey, win).catch((e) => this.logService.error(e));
     }, WindowEventHandlingDelay);
   }
 
   private async updateWindowState(configKey: string, win: BrowserWindow) {
-    if (win == null) {
+    if (win == null || win.isDestroyed()) {
       return;
     }
 
@@ -295,5 +324,29 @@ export class WindowMain {
       Number.isInteger(state.height) &&
       state.height > 0
     );
+  }
+
+  private static mimeTypeForPath(filePath: string): string {
+    const ext = path.extname(filePath).toLowerCase();
+    const types: Record<string, string> = {
+      ".html": "text/html; charset=utf-8",
+      ".js": "application/javascript; charset=utf-8",
+      ".css": "text/css; charset=utf-8",
+      ".json": "application/json; charset=utf-8",
+      ".svg": "image/svg+xml",
+      ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".gif": "image/gif",
+      ".webp": "image/webp",
+      ".ico": "image/x-icon",
+      ".woff": "font/woff",
+      ".woff2": "font/woff2",
+      ".ttf": "font/ttf",
+      ".eot": "application/vnd.ms-fontobject",
+      ".otf": "font/otf",
+      ".map": "application/json; charset=utf-8",
+    };
+    return types[ext] ?? "application/octet-stream";
   }
 }
