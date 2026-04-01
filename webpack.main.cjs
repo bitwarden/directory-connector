@@ -51,6 +51,7 @@ const main = {
     new CopyWebpackPlugin({
       patterns: [
         "./package.json",
+        "./src/preload.js",
         { from: "./src/images", to: "images" },
         { from: "./src/locales", to: "locales" },
       ],
