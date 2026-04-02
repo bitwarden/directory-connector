@@ -258,8 +258,8 @@ describe("StateMigrationService", () => {
       });
     });
 
-    describe("GSuite privateKey embedded in config object", () => {
-      it("extracts privateKey from gsuite config into secure storage and replaces with StoredSecurely", async () => {
+    describe("GSuite privateKey in prefixed secure storage", () => {
+      it("migrates privateKey from prefixed secure storage key to flat key", async () => {
         const userId = "user-gsuite-key";
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
@@ -270,12 +270,15 @@ describe("StateMigrationService", () => {
             gsuite: {
               domain: "example.com",
               clientEmail: "sa@example.com",
-              privateKey: "-----BEGIN RSA PRIVATE KEY-----\nMIIEo...",
             },
           },
           directorySettings: {},
           settings: {},
         });
+        secureStorage.store.set(
+          `${userId}_gsuitePrivateKey`,
+          "-----BEGIN RSA PRIVATE KEY-----\nMIIEo...",
+        );
 
         await svc.migrate();
 
@@ -283,13 +286,12 @@ describe("StateMigrationService", () => {
           "-----BEGIN RSA PRIVATE KEY-----\nMIIEo...",
         );
         const gsuiteConfig = storage.store.get(StorageKeys.directoryGsuite) as any;
-        expect(gsuiteConfig.privateKey).toBe("[STORED SECURELY]");
         expect(gsuiteConfig.domain).toBe("example.com");
       });
     });
 
-    describe("Entra key embedded in config object", () => {
-      it("extracts key from entra config into secure storage and replaces with StoredSecurely", async () => {
+    describe("Entra key in prefixed secure storage", () => {
+      it("migrates key from prefixed secure storage key (_entraIdKey) to flat key", async () => {
         const userId = "user-entra-key";
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
@@ -297,21 +299,21 @@ describe("StateMigrationService", () => {
           profile: {},
           keys: {},
           directoryConfigurations: {
-            entra: { tenant: "my-tenant", applicationId: "app-id", key: "entra-secret-key" },
+            entra: { tenant: "my-tenant", applicationId: "app-id" },
           },
           directorySettings: {},
           settings: {},
         });
+        secureStorage.store.set(`${userId}_entraIdKey`, "entra-secret-key");
 
         await svc.migrate();
 
         expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("entra-secret-key");
         const entraConfig = storage.store.get(StorageKeys.directoryEntra) as any;
-        expect(entraConfig.key).toBe("[STORED SECURELY]");
         expect(entraConfig.tenant).toBe("my-tenant");
       });
 
-      it("extracts key from azure fallback config into secure storage", async () => {
+      it("migrates key from azure fallback prefixed secure storage key to flat key", async () => {
         const userId = "user-azure-key";
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
@@ -319,22 +321,23 @@ describe("StateMigrationService", () => {
           profile: {},
           keys: {},
           directoryConfigurations: {
-            azure: { tenant: "azure-tenant", applicationId: "azure-app", key: "azure-secret-key" },
+            azure: { tenant: "azure-tenant", applicationId: "azure-app" },
           },
           directorySettings: {},
           settings: {},
         });
+        secureStorage.store.set(`${userId}_azureKey`, "azure-secret-key");
 
         await svc.migrate();
 
-        expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("azure-secret-key");
+        expect(secureStorage.store.get(SecureStorageKeys.azure)).toBe("azure-secret-key");
         const entraConfig = storage.store.get(StorageKeys.directoryEntra) as any;
-        expect(entraConfig.key).toBe("[STORED SECURELY]");
+        expect(entraConfig.tenant).toBe("azure-tenant");
       });
     });
 
-    describe("Okta token embedded in config object", () => {
-      it("extracts token from okta config into secure storage and replaces with StoredSecurely", async () => {
+    describe("Okta token in prefixed secure storage", () => {
+      it("migrates token from prefixed secure storage key to flat key", async () => {
         const userId = "user-okta-token";
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
@@ -342,23 +345,23 @@ describe("StateMigrationService", () => {
           profile: {},
           keys: {},
           directoryConfigurations: {
-            okta: { orgUrl: "https://example.okta.com", token: "okta-api-token" },
+            okta: { orgUrl: "https://example.okta.com" },
           },
           directorySettings: {},
           settings: {},
         });
+        secureStorage.store.set(`${userId}_oktaToken`, "okta-api-token");
 
         await svc.migrate();
 
         expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-api-token");
         const oktaConfig = storage.store.get(StorageKeys.directoryOkta) as any;
-        expect(oktaConfig.token).toBe("[STORED SECURELY]");
         expect(oktaConfig.orgUrl).toBe("https://example.okta.com");
       });
     });
 
-    describe("OneLogin clientSecret embedded in config object", () => {
-      it("extracts clientSecret from oneLogin config into secure storage and replaces with StoredSecurely", async () => {
+    describe("OneLogin clientSecret in prefixed secure storage", () => {
+      it("migrates clientSecret from prefixed secure storage key to flat key", async () => {
         const userId = "user-onelogin-secret";
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
@@ -366,23 +369,23 @@ describe("StateMigrationService", () => {
           profile: {},
           keys: {},
           directoryConfigurations: {
-            oneLogin: { clientId: "ol-client-id", clientSecret: "ol-client-secret", region: "us" },
+            oneLogin: { clientId: "ol-client-id", region: "us" },
           },
           directorySettings: {},
           settings: {},
         });
+        secureStorage.store.set(`${userId}_oneLoginClientSecret`, "ol-client-secret");
 
         await svc.migrate();
 
         expect(secureStorage.store.get(SecureStorageKeys.oneLogin)).toBe("ol-client-secret");
         const oneLoginConfig = storage.store.get(StorageKeys.directoryOnelogin) as any;
-        expect(oneLoginConfig.clientSecret).toBe("[STORED SECURELY]");
         expect(oneLoginConfig.clientId).toBe("ol-client-id");
       });
     });
 
-    describe("LDAP password embedded in config object", () => {
-      it("extracts password from ldap config into secure storage and replaces with StoredSecurely", async () => {
+    describe("LDAP password in prefixed secure storage", () => {
+      it("migrates password from prefixed secure storage key to flat key", async () => {
         const userId = "user-ldap-pass";
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
@@ -390,17 +393,17 @@ describe("StateMigrationService", () => {
           profile: {},
           keys: {},
           directoryConfigurations: {
-            ldap: { hostname: "ldap.example.com", port: 389, password: "super-secret" },
+            ldap: { hostname: "ldap.example.com", port: 389 },
           },
           directorySettings: {},
           settings: {},
         });
+        secureStorage.store.set(`${userId}_ldapPassword`, "super-secret");
 
         await svc.migrate();
 
         expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("super-secret");
         const ldapConfig = storage.store.get(StorageKeys.directoryLdap) as any;
-        expect(ldapConfig.password).toBe("[STORED SECURELY]");
         expect(ldapConfig.hostname).toBe("ldap.example.com");
       });
 
