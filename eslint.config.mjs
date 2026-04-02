@@ -23,6 +23,7 @@ export default [
       "eslint.config.mjs",
       "scripts/**/*.js",
       "**/node_modules/**",
+      "native/**",
     ],
   },
 
