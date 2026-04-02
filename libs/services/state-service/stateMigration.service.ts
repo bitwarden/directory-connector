@@ -7,7 +7,6 @@ import {
   SecureStorageKeys,
   StorageKey,
   StorageKeys,
-  StoredSecurely,
 } from "@/libs/models/state.model";
 
 // The original implementation of migrate() overrode the jslib implementation and never actually went up
@@ -69,46 +68,28 @@ export class StateMigrationService {
       return;
     }
 
-    // Migrate directory configurations to flat structure
+    // Migrate directory configurations to flat structure.
+    // Secrets within these configs are migrated separately below via secure storage key migration.
     if (account.directoryConfigurations) {
       if (account.directoryConfigurations.ldap) {
-        const ldapConfig = { ...account.directoryConfigurations.ldap };
-        await this.secureStorageService.save(SecureStorageKeys.ldap, ldapConfig.password);
-        ldapConfig.password = StoredSecurely;
-        await this.set(StorageKeys.directoryLdap, ldapConfig);
+        await this.set(StorageKeys.directoryLdap, { ...account.directoryConfigurations.ldap });
       }
       if (account.directoryConfigurations.gsuite) {
-        const gsuiteConfig = { ...account.directoryConfigurations.gsuite };
-        await this.secureStorageService.save(SecureStorageKeys.gsuite, gsuiteConfig.privateKey);
-        gsuiteConfig.privateKey = StoredSecurely;
-        await this.set(StorageKeys.directoryGsuite, gsuiteConfig);
+        await this.set(StorageKeys.directoryGsuite, { ...account.directoryConfigurations.gsuite });
       }
       if (account.directoryConfigurations.entra) {
-        const entraConfig = { ...account.directoryConfigurations.entra };
-        await this.secureStorageService.save(SecureStorageKeys.entra, entraConfig.key);
-        entraConfig.key = StoredSecurely;
-        await this.set(StorageKeys.directoryEntra, entraConfig);
+        await this.set(StorageKeys.directoryEntra, { ...account.directoryConfigurations.entra });
       } else if (account.directoryConfigurations.azure) {
         // Backwards compatibility: migrate azure to entra
-        const azureConfig = { ...account.directoryConfigurations.azure };
-        await this.secureStorageService.save(SecureStorageKeys.entra, azureConfig.key);
-        azureConfig.key = StoredSecurely;
-        await this.set(StorageKeys.directoryEntra, azureConfig);
+        await this.set(StorageKeys.directoryEntra, { ...account.directoryConfigurations.azure });
       }
       if (account.directoryConfigurations.okta) {
-        const oktaConfig = { ...account.directoryConfigurations.okta };
-        await this.secureStorageService.save(SecureStorageKeys.okta, oktaConfig.token);
-        oktaConfig.token = StoredSecurely;
-        await this.set(StorageKeys.directoryOkta, oktaConfig);
+        await this.set(StorageKeys.directoryOkta, { ...account.directoryConfigurations.okta });
       }
       if (account.directoryConfigurations.oneLogin) {
-        const oneLoginConfig = { ...account.directoryConfigurations.oneLogin };
-        await this.secureStorageService.save(
-          SecureStorageKeys.oneLogin,
-          oneLoginConfig.clientSecret,
-        );
-        oneLoginConfig.clientSecret = StoredSecurely;
-        await this.set(StorageKeys.directoryOnelogin, oneLoginConfig);
+        await this.set(StorageKeys.directoryOnelogin, {
+          ...account.directoryConfigurations.oneLogin,
+        });
       }
     }
 
