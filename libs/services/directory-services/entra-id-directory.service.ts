@@ -1,8 +1,8 @@
-import * as https from "https";
-import * as querystring from "querystring";
+import { request } from "node:https";
+import { stringify } from "node:querystring";
 
-import * as graph from "@microsoft/microsoft-graph-client";
-import * as graphType from "@microsoft/microsoft-graph-types";
+import { Client, GraphRequest } from "@microsoft/microsoft-graph-client";
+import { User, Group } from "@microsoft/microsoft-graph-types";
 
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
@@ -35,7 +35,7 @@ enum UserSetType {
 }
 
 export class EntraIdDirectoryService extends BaseDirectoryService implements IDirectoryService {
-  private client: graph.Client;
+  private client: Client;
   private dirConfig: EntraIdConfiguration;
   private syncConfig: SyncConfiguration;
   private accessToken: string;
@@ -87,7 +87,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
 
   private async getCurrentUsers(): Promise<UserEntry[]> {
     let entries: UserEntry[] = [];
-    let users: graphType.User[];
+    let users: User[];
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
     const userIdsToExclude = new Set<string>();
 
@@ -96,7 +96,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
       users = await this.getUsersByGroups(setFilter);
       // Get the users in the excludedGroups and filter them out from all users
     } else if (setFilter != null && setFilter[0] === UserSetType.ExcludeGroup) {
-      (await this.getUsersByGroups(setFilter)).forEach((user: graphType.User) =>
+      (await this.getUsersByGroups(setFilter)).forEach((user: User) =>
         userIdsToExclude.add(user.id),
       );
       const userReq = this.client.api("/users" + UserSelectParams);
@@ -134,7 +134,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     const setFilter = this.createCustomUserSet(this.syncConfig.userFilter);
 
     while (true) {
-      const users: graphType.User[] = res.value;
+      const users: User[] = res.value;
       if (users != null) {
         for (const user of users) {
           if (user.id == null || entryIds.has(user.id)) {
@@ -297,7 +297,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     return false;
   }
 
-  private buildUser(user: graphType.User): UserEntry {
+  private buildUser(user: User): UserEntry {
     const entry = new UserEntry();
     entry.referenceId = user.id;
     entry.externalId = user.id;
@@ -330,7 +330,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     let res = await groupsReq.get();
 
     while (true) {
-      const groups: graphType.Group[] = res.value;
+      const groups: Group[] = res.value;
       if (groups != null) {
         for (const group of groups) {
           if (group.id == null || entryIds.has(group.id)) {
@@ -357,20 +357,20 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     return entries;
   }
 
-  private async getUsersByResource(usersRequest: graph.GraphRequest) {
-    const users: graphType.User[] = [];
+  private async getUsersByResource(usersRequest: GraphRequest) {
+    const users: User[] = [];
     let res = await usersRequest.get();
-    res.value.forEach((user: graphType.User) => users.push(user));
+    res.value.forEach((user: User) => users.push(user));
     while (res[NextLink] != null) {
       const nextReq = this.client.api(res[NextLink]);
       res = await nextReq.get();
-      res.value.forEach((user: graphType.User) => users.push(user));
+      res.value.forEach((user: User) => users.push(user));
     }
     return users;
   }
 
-  private async getUsersByGroups(setFilter: [UserSetType, Set<string>]): Promise<graphType.User[]> {
-    const users: graphType.User[] = [];
+  private async getUsersByGroups(setFilter: [UserSetType, Set<string>]): Promise<User[]> {
+    const users: User[] = [];
     for (const group of setFilter[1]) {
       const groupUsersReq = this.client.api(
         `/groups/${group}/transitiveMembers` + UserSelectParams,
@@ -381,7 +381,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
   }
 
   private async buildUserEntries(
-    users: graphType.User[],
+    users: User[],
     userIdsToExclude: Set<string>,
     setFilter: [UserSetType, Set<string>],
   ) {
@@ -413,7 +413,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     return !user.disabled && !user.deleted && (user.email == null || user.email.indexOf("#") > -1);
   }
 
-  private async buildGroup(group: graphType.Group): Promise<GroupEntry> {
+  private async buildGroup(group: Group): Promise<GroupEntry> {
     const entry = new GroupEntry();
     entry.referenceId = group.id;
     entry.externalId = group.id;
@@ -427,9 +427,9 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
       if (members != null) {
         for (const member of members) {
           if (member[ObjectType] === "#microsoft.graph.group") {
-            entry.groupMemberReferenceIds.add((member as graphType.Group).id);
+            entry.groupMemberReferenceIds.add((member as Group).id);
           } else if (member[ObjectType] === "#microsoft.graph.user") {
-            entry.userMemberExternalIds.add((member as graphType.User).id);
+            entry.userMemberExternalIds.add((member as User).id);
           }
         }
       }
@@ -445,7 +445,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
   }
 
   private init() {
-    this.client = graph.Client.init({
+    this.client = Client.init({
       authProvider: (done) => {
         if (
           this.dirConfig.applicationId == null ||
@@ -476,47 +476,45 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
         this.accessToken = null;
         this.accessTokenExpiration = null;
 
-        const data = querystring.stringify({
+        const data = stringify({
           client_id: this.dirConfig.applicationId,
           client_secret: this.dirConfig.key,
           grant_type: "client_credentials",
           scope: `${this.getGraphApiEndpoint()}/.default`,
         });
 
-        const req = https
-          .request(
-            {
-              host: identityAuthority,
-              path: "/" + this.dirConfig.tenant + "/oauth2/v2.0/token",
-              method: "POST",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Content-Length": Buffer.byteLength(data),
-              },
+        const req = request(
+          {
+            host: identityAuthority,
+            path: "/" + this.dirConfig.tenant + "/oauth2/v2.0/token",
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Length": Buffer.byteLength(data),
             },
-            (res) => {
-              res.setEncoding("utf8");
-              res.on("data", (chunk: string) => {
-                const d = JSON.parse(chunk);
-                if (res.statusCode === 200 && d.access_token != null) {
-                  this.setAccessTokenExpiration(d.access_token, d.expires_in);
-                  done(null, d.access_token);
-                } else if (d.error != null && d.error_description != null) {
-                  const shortError = d.error_description?.split("\n", 1)[0];
-                  const err = new Error(d.error + " (" + res.statusCode + "): " + shortError);
-                  // eslint-disable-next-line
-                  console.error(d.error_description);
-                  done(err, null);
-                } else {
-                  const err = new Error("Unknown error (" + res.statusCode + ").");
-                  done(err, null);
-                }
-              });
-            },
-          )
-          .on("error", (err) => {
-            done(err, null);
-          });
+          },
+          (res) => {
+            res.setEncoding("utf8");
+            res.on("data", (chunk: string) => {
+              const d = JSON.parse(chunk);
+              if (res.statusCode === 200 && d.access_token != null) {
+                this.setAccessTokenExpiration(d.access_token, d.expires_in);
+                done(null, d.access_token);
+              } else if (d.error != null && d.error_description != null) {
+                const shortError = d.error_description?.split("\n", 1)[0];
+                const err = new Error(d.error + " (" + res.statusCode + "): " + shortError);
+                // eslint-disable-next-line
+                console.error(d.error_description);
+                done(err, null);
+              } else {
+                const err = new Error("Unknown error (" + res.statusCode + ").");
+                done(err, null);
+              }
+            });
+          },
+        ).on("error", (err) => {
+          done(err, null);
+        });
 
         req.write(data);
         req.end();

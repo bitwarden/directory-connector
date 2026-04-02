@@ -114,7 +114,7 @@ jobs:
         if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.ldap == 'true'
         env:
           JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
-        run: npx jest ldap-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-ldap
+        run: node --experimental-vm-modules node_modules/.bin/jest ldap-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-ldap
 
       # Google Workspace
       - name: Run Google Workspace integration tests
@@ -126,7 +126,7 @@ jobs:
           GOOGLE_PRIVATE_KEY: ${{ steps.get-kv-secrets.outputs.GOOGLE-PRIVATE-KEY }}
           JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
         run: |
-          npx jest gsuite-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-google
+          node --experimental-vm-modules node_modules/.bin/jest gsuite-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-google
 
       - name: Report test results
         id: report
