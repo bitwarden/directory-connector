@@ -14,9 +14,9 @@ on:
       - "docker-compose.yml" # any change to Docker configuration
       - "package.json" # dependencies
       - "utils/**" # any change to test fixtures
-      - "src/services/sync.service.ts" # core sync service used by all directory services
-      - "src/services/directory-services/ldap-directory.service*" # LDAP directory service
-      - "src/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
+      - "libs/services/sync.service.ts" # core sync service used by all directory services
+      - "libs/services/directory-services/ldap-directory.service*" # LDAP directory service
+      - "libs/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
       # Add directory services here as we add test coverage
   pull_request:
     paths:
@@ -24,9 +24,9 @@ on:
       - "docker-compose.yml" # any change to Docker configuration
       - "package.json" # dependencies
       - "utils/**" # any change to test fixtures
-      - "src/services/sync.service.ts" # core sync service used by all directory services
-      - "src/services/directory-services/ldap-directory.service*" # LDAP directory service
-      - "src/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
+      - "libs/services/sync.service.ts" # core sync service used by all directory services
+      - "libs/services/directory-services/ldap-directory.service*" # LDAP directory service
+      - "libs/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
       # Add directory services here as we add test coverage
 permissions:
   contents: read
@@ -94,12 +94,12 @@ jobs:
               - '.github/workflows/integration-test.yml'
               - 'utils/**'
               - 'package.json'
-              - 'src/services/sync.service.ts'
+              - 'libs/services/sync.service.ts'
             ldap:
               - 'docker-compose.yml'
-              - 'src/services/directory-services/ldap-directory.service*'
+              - 'libs/services/directory-services/ldap-directory.service*'
             google:
-              - 'src/services/directory-services/gsuite-directory.service*'
+              - 'libs/services/directory-services/gsuite-directory.service*'
 
       # LDAP
       - name: Setup LDAP integration tests
@@ -108,12 +108,13 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install mkcert
           npm run test:integration:setup
+          echo "LDAP container is ready!"
 
       - name: Run LDAP integration tests
         if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.ldap == 'true'
         env:
           JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
-        run: npx jest ldap-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-ldap
+        run: node --experimental-vm-modules node_modules/.bin/jest ldap-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-ldap
 
       # Google Workspace
       - name: Run Google Workspace integration tests
@@ -125,7 +126,7 @@ jobs:
           GOOGLE_PRIVATE_KEY: ${{ steps.get-kv-secrets.outputs.GOOGLE-PRIVATE-KEY }}
           JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
         run: |
-          npx jest gsuite-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-google
+          node --experimental-vm-modules node_modules/.bin/jest gsuite-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-google
 
       - name: Report test results
         id: report

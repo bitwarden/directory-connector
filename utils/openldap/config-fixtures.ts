@@ -1,5 +1,5 @@
-import { LdapConfiguration } from "../../src/models/ldapConfiguration";
-import { SyncConfiguration } from "../../src/models/syncConfiguration";
+import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
+import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
 /**
  * @returns a basic ldap configuration without TLS/SSL enabled. Can be overridden by passing in a partial configuration.
