@@ -69,6 +69,20 @@ describe("SyncService", () => {
     );
   });
 
+  it("Sync throws 'Organization not set.' when organizationId is missing", async () => {
+    stateService.getOrganizationId.mockResolvedValue(null);
+    stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
+
+    await expect(syncService.sync(true, false)).rejects.toThrow("Organization not set.");
+  });
+
+  it("bwdc test (test=true) throws 'Organization not set.' when organizationId is missing", async () => {
+    stateService.getOrganizationId.mockResolvedValue(null);
+    stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
+
+    await expect(syncService.sync(true, true)).rejects.toThrow("Organization not set.");
+  });
+
   it("Sync posts single request successfully for unique hashes", async () => {
     stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
     cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
