@@ -1,5 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { StateService } from "@/src/abstractions/state.service";
+
 import { I18nService } from "../../../jslib/common/src/abstractions/i18n.service";
 import { LogService } from "../../../jslib/common/src/abstractions/log.service";
 import {
@@ -9,7 +11,6 @@ import {
 import { groupFixtures } from "../../../utils/openldap/group-fixtures";
 import { userFixtures } from "../../../utils/openldap/user-fixtures";
 import { DirectoryType } from "../../enums/directoryType";
-import { StateService } from "../state.service";
 
 import { LdapDirectoryService } from "./ldap-directory.service";
 

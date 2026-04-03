@@ -7,7 +7,8 @@ import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { LogService } from "@/jslib/common/src/abstractions/log.service";
 import { Utils } from "@/jslib/common/src/misc/utils";
 
-import { StateService } from "../../abstractions/state.service";
+import { StateService } from "@/src/abstractions/state.service";
+
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
 import { LdapConfiguration } from "../../models/ldapConfiguration";

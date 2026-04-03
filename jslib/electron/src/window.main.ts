@@ -244,13 +244,15 @@ export class WindowMain {
   }
 
   private async getWindowState(defaultWidth: number, defaultHeight: number) {
-    const state = await this.stateService.getWindow();
+    let state = await this.stateService.getWindow();
 
     const isValid = state != null && (this.stateHasBounds(state) || state.isMaximized);
     let displayBounds: Rectangle = null;
     if (!isValid) {
-      state.width = defaultWidth;
-      state.height = defaultHeight;
+      state = {
+        width: defaultWidth,
+        height: defaultHeight,
+      };
 
       displayBounds = screen.getPrimaryDisplay().bounds;
     } else if (this.stateHasBounds(state) && state.displayBounds) {
