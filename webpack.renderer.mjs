@@ -1,10 +1,17 @@
-const path = require("path");
-const webpack = require("webpack");
-const { merge } = require("webpack-merge");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const { AngularWebpackPlugin } = require("@ngtools/webpack");
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+
+import { merge } from "webpack-merge";
+import webpack from "webpack";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import { AngularWebpackPlugin } from "@ngtools/webpack";
+import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import sass from "sass";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const common = {
   module: {
@@ -102,7 +109,7 @@ const renderer = {
           {
             loader: "sass-loader",
             options: {
-              implementation: require("sass"),
+              implementation: sass,
             },
           },
         ],
@@ -141,4 +148,4 @@ const renderer = {
   ],
 };
 
-module.exports = merge(common, renderer);
+export default merge(common, renderer);

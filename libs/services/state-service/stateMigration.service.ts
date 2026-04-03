@@ -236,15 +236,20 @@ export class StateMigrationService {
     ];
 
     // Include any old {userId}_* keys still resident in the credential store.
+    // These use the legacy keytar suffix names, not the new SecureStorageKeys values.
     const clientId = await this.storageService.get<string>("activeUserId");
     if (clientId) {
       credentialKeys.push(
-        `${clientId}_${SecureStorageKeys.ldap}`,
-        `${clientId}_${SecureStorageKeys.gsuite}`,
-        `${clientId}_${SecureStorageKeys.azure}`,
-        `${clientId}_${SecureStorageKeys.entra}`,
-        `${clientId}_${SecureStorageKeys.okta}`,
-        `${clientId}_${SecureStorageKeys.oneLogin}`,
+        `${clientId}_ldapPassword`,
+        `${clientId}_gsuitePrivateKey`,
+        `${clientId}_azureKey`,
+        `${clientId}_entraIdKey`,
+        `${clientId}_entraKey`,
+        `${clientId}_oktaToken`,
+        `${clientId}_oneLoginClientSecret`,
+        `${clientId}_accessToken`,
+        `${clientId}_refreshToken`,
+        `${clientId}_twoFactorToken`,
       );
     }
 
