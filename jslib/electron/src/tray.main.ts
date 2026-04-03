@@ -11,7 +11,8 @@ import {
 } from "electron";
 
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
-import { StateService } from "@/jslib/common/src/abstractions/state.service";
+
+import { StateService } from "@/src/abstractions/state.service";
 
 import { WindowMain } from "./window.main";
 

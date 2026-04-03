@@ -1,9 +1,10 @@
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import * as path from "path";
 
 import { app } from "electron";
+import electronReload from "electron-reload";
 
-import { StateFactory } from "@/jslib/common/src/factories/stateFactory";
-import { GlobalState } from "@/jslib/common/src/models/domain/globalState";
 import { ElectronLogService } from "@/jslib/electron/src/services/electronLog.service";
 import { ElectronMainMessagingService } from "@/jslib/electron/src/services/electronMainMessaging.service";
 import { ElectronStorageService } from "@/jslib/electron/src/services/electronStorage.service";
@@ -11,12 +12,19 @@ import { TrayMain } from "@/jslib/electron/src/tray.main";
 import { UpdaterMain } from "@/jslib/electron/src/updater.main";
 import { WindowMain } from "@/jslib/electron/src/window.main";
 
+import { StateService } from "./abstractions/state.service";
 import { DCCredentialStorageListener } from "./main/credential-storage-listener";
 import { MenuMain } from "./main/menu.main";
 import { MessagingMain } from "./main/messaging.main";
-import { Account } from "./models/account";
 import { I18nService } from "./services/i18n.service";
-import { StateService } from "./services/state.service";
+import { StateServiceImplementation } from "./services/state-service/state.service";
+
+// ESM __dirname polyfill for Node 20
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Import electron-reload for dev mode hot reload
 
 export class Main {
   logService: ElectronLogService;
@@ -50,21 +58,20 @@ export class Main {
     const watch = args.some((val) => val === "--watch");
 
     if (watch) {
-      // eslint-disable-next-line
-      require("electron-reload")(__dirname, {});
+      electronReload(__dirname, {});
     }
 
     this.logService = new ElectronLogService(null, app.getPath("userData"));
     this.logService.init();
     this.i18nService = new I18nService("en", "./locales/");
     this.storageService = new ElectronStorageService(app.getPath("userData"));
-    this.stateService = new StateService(
+    // Use new StateService with flat key-value structure
+    this.stateService = new StateServiceImplementation(
       this.storageService,
       null,
       this.logService,
       null,
       true,
-      new StateFactory(GlobalState, Account),
     );
 
     this.windowMain = new WindowMain(
