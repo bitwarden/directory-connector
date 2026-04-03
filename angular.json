@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
-  "newProjectRoot": "apps",
+  "newProjectRoot": "",
   "cli": {
     "analytics": false
   },
@@ -18,29 +18,58 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular/build:application",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "outputPath": {
-              "base": "dist"
+            "customWebpackConfig": {
+              "path": "./webpack.ng-renderer.cjs",
+              "mergeStrategies": {
+                "module": "merge",
+                "plugins": "append"
+              }
             },
+            "outputPath": "build",
             "index": "src/index.html",
-            "browser": "src/app/main.ts",
-            "tsConfig": "tsconfig.json",
-            "assets": [],
+            "main": "src/app/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              { "glob": "**/*", "input": "src/images", "output": "images" },
+              { "glob": "**/*", "input": "src/locales", "output": "locales" }
+            ],
             "styles": ["src/scss/styles.scss"],
             "scripts": []
+          }
+        },
+        "build-main": {
+          "builder": "@angular-builders/custom-webpack:browser",
+          "options": {
+            "customWebpackConfig": {
+              "path": "./webpack.main.cjs",
+              "mergeStrategies": {
+                "entry": "replace",
+                "output": "replace",
+                "target": "replace",
+                "module": "replace",
+                "plugins": "replace",
+                "externals": "replace",
+                "optimization": "replace",
+                "node": "replace"
+              }
+            },
+            "main": "src/main.ts",
+            "tsConfig": "tsconfig.json",
+            "outputPath": "build"
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html", "jslib/**/*.ts", "*.ts", "*.mjs"]
           }
         },
         "test": {
           "builder": "@angular-builders/jest:run",
           "options": {
-            "configPath": "jest.config.cjs"
+            "config": "jest.config.cjs"
           }
         }
       }

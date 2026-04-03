@@ -1,0 +1,3 @@
+# Targets the Chromium version bundled with Electron 39 (~Chrome 134).
+# Angular CLI uses this to determine the output target and which polyfills are needed.
+Chrome >= 130
