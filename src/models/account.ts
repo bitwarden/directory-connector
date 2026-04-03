@@ -1,5 +1,3 @@
-import { Account as BaseAccount } from "@/jslib/common/src/models/domain/account";
-
 import { DirectoryType } from "@/src/enums/directoryType";
 
 import { EntraIdConfiguration } from "./entraIdConfiguration";
@@ -8,18 +6,6 @@ import { LdapConfiguration } from "./ldapConfiguration";
 import { OktaConfiguration } from "./oktaConfiguration";
 import { OneLoginConfiguration } from "./oneLoginConfiguration";
 import { SyncConfiguration } from "./syncConfiguration";
-
-export class Account extends BaseAccount {
-  directoryConfigurations?: DirectoryConfigurations = new DirectoryConfigurations();
-  directorySettings: DirectorySettings = new DirectorySettings();
-  clientKeys: ClientKeys = new ClientKeys();
-
-  constructor(init: Partial<Account>) {
-    super(init);
-    this.directoryConfigurations = init?.directoryConfigurations ?? new DirectoryConfigurations();
-    this.directorySettings = init?.directorySettings ?? new DirectorySettings();
-  }
-}
 
 export class ClientKeys {
   clientId: string;
