@@ -1,4 +1,5 @@
 import { StorageService } from "@/libs/abstractions/storage.service";
+import { APPLICATION_NAME } from "@/libs/constants";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
 import { StateVersion } from "@/libs/enums/stateVersion";
 import { StorageOptions } from "@/libs/models/domain/storageOptions";
@@ -9,10 +10,14 @@ import {
   StorageKeys,
 } from "@/libs/models/state.model";
 
+import { passwords } from "dc-native";
+
 // The original implementation of migrate() overrode the jslib implementation and never actually went up
 // to v4. Therefore, the minimum supported version that is out in the wild should be 3 and we need
 // to support migrating from v3 directly to v5.
 const MinSupportedStateVersion = StateVersion.Three;
+
+const SECURE_STORAGE_SERVICE_NAME = APPLICATION_NAME;
 
 export class StateMigrationService {
   constructor(
@@ -40,6 +45,9 @@ export class StateMigrationService {
         case StateVersion.Three:
         case StateVersion.Four:
           await this.migrateStateFrom3To5();
+          break;
+        case StateVersion.Five:
+          await this.migrateStateFrom5To6();
           break;
       }
       currentStateVersion += 1;
@@ -205,6 +213,48 @@ export class StateMigrationService {
 
     // Set final state version using the new flat key
     await this.set(StorageKeys.stateVersion, StateVersion.Five);
+  }
+
+  /**
+   * Migrate from State v5 to v6 — convert any Windows Credential Manager entries that were
+   * written by keytar (UTF-8 via CredWriteA) to the UTF-16 format used by desktop_core
+   * (CredWriteW). This is a no-op on macOS and Linux; migrateKeytarPassword returns false
+   * immediately on those platforms.
+   *
+   * Keys migrated:
+   *   • The current VNext credential keys (secret_*)
+   *   • Any remaining old-format keys ({userId}_*) still present from the v1→v2 migration
+   */
+  protected async migrateStateFrom5To6(): Promise<void> {
+    const credentialKeys: string[] = [
+      SecureStorageKeys.ldap,
+      SecureStorageKeys.gsuite,
+      SecureStorageKeys.azure,
+      SecureStorageKeys.entra,
+      SecureStorageKeys.okta,
+      SecureStorageKeys.oneLogin,
+    ];
+
+    // Include any old {userId}_* keys still resident in the credential store.
+    const clientId = await this.storageService.get<string>("activeUserId");
+    if (clientId) {
+      credentialKeys.push(
+        `${clientId}_${SecureStorageKeys.ldap}`,
+        `${clientId}_${SecureStorageKeys.gsuite}`,
+        `${clientId}_${SecureStorageKeys.azure}`,
+        `${clientId}_${SecureStorageKeys.entra}`,
+        `${clientId}_${SecureStorageKeys.okta}`,
+        `${clientId}_${SecureStorageKeys.oneLogin}`,
+      );
+    }
+
+    await Promise.all(
+      credentialKeys.map((key) =>
+        passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
+      ),
+    );
+
+    await this.set(StorageKeys.stateVersion, StateVersion.Six);
   }
 
   // ===================================================================
