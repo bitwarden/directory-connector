@@ -3,7 +3,6 @@ import { clipboard, ipcRenderer, shell } from "electron";
 import { I18nService } from "@/jslib/common/src/abstractions/i18n.service";
 import { MessagingService } from "@/jslib/common/src/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/jslib/common/src/abstractions/platformUtils.service";
-import { StateService } from "@/jslib/common/src/abstractions/state.service";
 import { ClientType } from "@/jslib/common/src/enums/clientType";
 import { DeviceType } from "@/jslib/common/src/enums/deviceType";
 import { ThemeType } from "@/jslib/common/src/enums/themeType";
@@ -17,8 +16,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   constructor(
     protected i18nService: I18nService,
     private messagingService: MessagingService,
-    private isDesktopApp: boolean,
-    private stateService: StateService,
+    isDesktopApp: boolean,
   ) {
     this.clientType = isDesktopApp ? ClientType.Desktop : ClientType.DirectoryConnector;
   }
