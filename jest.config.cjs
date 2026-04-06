@@ -1,14 +1,8 @@
 const { pathsToModuleNameMapper } = require("ts-jest");
 const { compilerOptions } = require("./tsconfig");
 
-const tsPreset = require("ts-jest/jest-preset");
-const angularPreset = require("jest-preset-angular/jest-preset");
-const { defaultTransformerOptions } = require("jest-preset-angular/presets");
-
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-  // ...tsPreset,
-  // ...angularPreset,
   preset: "jest-preset-angular",
 
   reporters: ["default", "jest-junit"],
@@ -21,6 +15,9 @@ module.exports = {
 
   testEnvironment: "jsdom",
   testMatch: ["**/+(*.)+(spec).+(ts)"],
+  // Integration tests require external infrastructure (LDAP docker, Google Workspace credentials).
+  // Run them separately with: npm run test:integration
+  testPathIgnorePatterns: ["\\.integration\\.spec\\.ts$"],
 
   roots: ["<rootDir>"],
   modulePaths: [compilerOptions.baseUrl],
@@ -32,12 +29,11 @@ module.exports = {
   maxWorkers: 3,
 
   transform: {
-    "^.+\\.tsx?$": [
+    "^.+\\.(ts|js|mjs|html|svg)$": [
       "jest-preset-angular",
-      // 'ts-jest',
       {
-        ...defaultTransformerOptions,
-        tsconfig: "./tsconfig.json",
+        tsconfig: "./tsconfig.spec.json",
+        stringifyContentPathRegex: "\\.(html|svg)$",
         // Further workaround for memory leak, recommended here:
         // https://github.com/kulshekhar/ts-jest/issues/1967#issuecomment-697494014
         // Makes tests run faster and reduces size/rate of leak, but loses typechecking on test code
