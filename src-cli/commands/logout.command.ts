@@ -1,7 +1,7 @@
 import { AuthService } from "@/libs/abstractions/auth.service";
 
-import { Response } from "@/src-cli/cli/models/response";
-import { MessageResponse } from "@/src-cli/cli/models/response/messageResponse";
+import { Response } from "@/src-cli/models/response";
+import { MessageResponse } from "@/src-cli/models/response/messageResponse";
 
 export class LogoutCommand {
   constructor(
