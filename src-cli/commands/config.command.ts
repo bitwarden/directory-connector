@@ -13,8 +13,8 @@ import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 import { ConnectorUtils } from "@/libs/utils";
 import { NodeUtils } from "@/libs/utils/nodeUtils";
 
-import { Response } from "@/src-cli/cli/models/response";
-import { MessageResponse } from "@/src-cli/cli/models/response/messageResponse";
+import { Response } from "@/src-cli/models/response";
+import { MessageResponse } from "@/src-cli/models/response/messageResponse";
 
 export class ConfigCommand {
   private directory: DirectoryType;

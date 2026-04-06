@@ -5,7 +5,7 @@ import { TestResponse } from "@/libs/models/response/testResponse";
 import { SyncService } from "@/libs/services/sync.service";
 import { ConnectorUtils } from "@/libs/utils";
 
-import { Response } from "@/src-cli/cli/models/response";
+import { Response } from "@/src-cli/models/response";
 
 export class TestCommand {
   constructor(
