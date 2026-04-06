@@ -6,6 +6,7 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
+      - "test-universal-builds"
   workflow_dispatch: {}
   workflow_call: {}
 
