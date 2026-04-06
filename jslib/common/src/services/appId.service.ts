@@ -1,3 +1,5 @@
+import { StorageKey } from "@/src/models/state.model";
+
 import { AppIdService as AppIdServiceAbstraction } from "../abstractions/appId.service";
 import { StorageService } from "../abstractions/storage.service";
 import { HtmlStorageLocation } from "../enums/htmlStorageLocation";
@@ -14,7 +16,7 @@ export class AppIdService implements AppIdServiceAbstraction {
     return this.makeAndGetAppId("anonymousAppId");
   }
 
-  private async makeAndGetAppId(key: string) {
+  private async makeAndGetAppId(key: StorageKey) {
     const existingId = await this.storageService.get<string>(key, {
       htmlStorageLocation: HtmlStorageLocation.Local,
     });

@@ -2,6 +2,8 @@ import { deletePassword, getPassword, setPassword } from "keytar";
 
 import { StorageService } from "@/jslib/common/src/abstractions/storage.service";
 
+import { SecureStorageKey, StorageKey } from "../models/state.model";
+
 export class KeytarSecureStorageService implements StorageService {
   constructor(private serviceName: string) {}
 
@@ -15,7 +17,7 @@ export class KeytarSecureStorageService implements StorageService {
     return (await this.get(key)) != null;
   }
 
-  save(key: string, obj: any): Promise<any> {
+  save(key: StorageKey | SecureStorageKey, obj: any): Promise<any> {
     // keytar throws if you try to save a falsy value: https://github.com/atom/node-keytar/issues/86
     // handle this by removing the key instead
     if (!obj) {
