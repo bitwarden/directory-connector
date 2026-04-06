@@ -144,18 +144,34 @@ jobs:
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
 
       - name: Install
         run: npm install
 
-      - name: Build native module
+      - name: Build native module (x64)
         run: npm run build:native:release
 
-      - name: Package CLI
+      - name: Build native module (arm64 cross-compile)
+        run: npm run build:native:release:arm64
+
+      - name: Create universal native module
+        run: npm run build:native:universal
+
+      - name: Package CLI (x64)
         run: npm run dist:cli:mac
 
+      - name: Package CLI (arm64)
+        run: npm run dist:cli:mac:arm64
+
       - name: Zip
-        run: zip -j "dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" "dist-cli/macos/bwdc" "node_modules/dc-native/dc_native.darwin-x64.node"
+        run: |
+          cp dist-cli/macos-arm64/bwdc dist-cli/macos-arm64/bwdc-arm64
+          zip -j "dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" \
+            "dist-cli/macos/bwdc" \
+            "dist-cli/macos-arm64/bwdc-arm64" \
+            "native/dc_native.darwin-universal.node"
 
       - name: Version Test
         run: |
@@ -171,6 +187,8 @@ jobs:
             echo "Version test failed."
             exit 1
           fi
+
+          file ./test/macos/dc_native.darwin-universal.node | grep -E "fat file|Mach-O universal"
 
       - name: Upload Mac Zip to GitHub
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -429,6 +447,8 @@ jobs:
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
 
       - name: Print environment
         run: |
@@ -499,8 +519,17 @@ jobs:
           ${_APP_STORE_CONNECT_AUTH_KEY}
           EOF
 
-      - name: Build application
-        run: npm run dist:mac
+      - name: Build native module (x64)
+        run: npm run build:native:release
+
+      - name: Build native module (arm64 cross-compile)
+        run: npm run build:native:release:arm64
+
+      - name: Create universal native module
+        run: npm run build:native:universal
+
+      - name: Build and package application
+        run: npm run build && npm run pack:mac
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: UFD296548T

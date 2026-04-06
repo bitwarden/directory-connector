@@ -5,11 +5,19 @@
   "productName": "Bitwarden Directory Connector",
   "appId": "com.bitwarden.directory-connector",
   "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
+  "buildDependenciesFromSource": true,
+  "beforePack": "scripts/before-pack.js",
   "directories": {
     "buildResources": "resources",
     "output": "dist",
     "app": "build"
   },
+  "files": [
+    "!node_modules/dc-native/src",
+    "!node_modules/dc-native/Cargo.toml",
+    "!node_modules/dc-native/build.rs",
+    "!node_modules/dc-native/package.json"
+  ],
   "afterSign": "scripts/notarize.js",
   "asarUnpack": ["node_modules/dc-native/*.node"],
   "mac": {
@@ -19,7 +27,12 @@
     "hardenedRuntime": true,
     "entitlements": "resources/entitlements.mac.plist",
     "entitlementsInherit": "resources/entitlements.mac.plist",
-    "target": ["dmg", "zip"]
+    "singleArchFiles": "node_modules/dc-native/dc_native.darwin-*.node",
+    "x64ArchFiles": "node_modules/dc-native/dc_native.darwin-x64.node",
+    "target": [
+      { "target": "dmg", "arch": ["universal"] },
+      { "target": "zip", "arch": ["universal"] }
+    ]
   },
   "win": {
     "target": ["portable", "nsis"],
