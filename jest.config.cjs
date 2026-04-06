@@ -15,9 +15,6 @@ module.exports = {
 
   testEnvironment: "jsdom",
   testMatch: ["**/+(*.)+(spec).+(ts)"],
-  // Integration tests require external infrastructure (LDAP docker, Google Workspace credentials).
-  // Run them separately with: npm run test:integration
-  testPathIgnorePatterns: ["\\.integration\\.spec\\.ts$"],
 
   roots: ["<rootDir>"],
   modulePaths: [compilerOptions.baseUrl],
