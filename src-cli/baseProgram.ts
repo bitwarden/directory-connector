@@ -2,10 +2,10 @@ import * as chalk from "chalk";
 
 import { StateService } from "@/libs/abstractions/state.service";
 
-import { Response } from "@/src-cli/cli/models/response";
-import { ListResponse } from "@/src-cli/cli/models/response/listResponse";
-import { MessageResponse } from "@/src-cli/cli/models/response/messageResponse";
-import { StringResponse } from "@/src-cli/cli/models/response/stringResponse";
+import { Response } from "@/src-cli/models/response";
+import { ListResponse } from "@/src-cli/models/response/listResponse";
+import { MessageResponse } from "@/src-cli/models/response/messageResponse";
+import { StringResponse } from "@/src-cli/models/response/stringResponse";
 
 export abstract class BaseProgram {
   constructor(
