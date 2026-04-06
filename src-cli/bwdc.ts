@@ -59,7 +59,8 @@ export class Main {
   singleRequestBuilder: SingleRequestBuilder;
 
   constructor() {
-    const applicationName = APPLICATION_NAME;
+    const a = APPLICATION_NAME
+    const applicationName = a;
     if (process.env.BITWARDENCLI_CONNECTOR_APPDATA_DIR) {
       this.dataFilePath = path.resolve(process.env.BITWARDENCLI_CONNECTOR_APPDATA_DIR);
     } else if (process.env.BITWARDEN_CONNECTOR_APPDATA_DIR) {
