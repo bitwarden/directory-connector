@@ -1,3 +1,4 @@
+
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
@@ -152,7 +153,9 @@ export class StateMigrationService {
         `${clientId}_twoFactorToken`,
       ];
       await Promise.all(
-        v3KeytarKeys.map((key) => passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key)),
+        v3KeytarKeys.map((key) =>
+          passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
+        ),
       );
 
       const oldSecretKeys = [
