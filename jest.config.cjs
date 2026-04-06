@@ -21,7 +21,6 @@ module.exports = {
 
   testEnvironment: "jsdom",
   testMatch: ["**/+(*.)+(spec).+(ts)"],
-  testPathIgnorePatterns: ["\\.integration\\.spec\\.ts$"],
 
   roots: ["<rootDir>"],
   modulePaths: [compilerOptions.baseUrl],
@@ -44,7 +43,6 @@ module.exports = {
         // Makes tests run faster and reduces size/rate of leak, but loses typechecking on test code
         // See https://bitwarden.atlassian.net/browse/EC-497 for more info
         isolatedModules: true,
-        diagnostics: false,
       },
     ],
   },
