@@ -150,9 +150,10 @@ export class SyncService {
 
     // UserEntrys with the same email are ignored if their properties are the same
     // UserEntrys with the same email but different properties will throw an error, unless they are all in a deleted state.
+    // A deleted user whose email matches an active user is silently skipped (tombstone of the same user).
     users.forEach((u) => {
       if (processedActiveUsers.has(u.email)) {
-        if (processedActiveUsers.get(u.email) !== JSON.stringify(u)) {
+        if (!u.deleted && processedActiveUsers.get(u.email) !== JSON.stringify(u)) {
           duplicateEmails.push(u.email);
         }
       } else {
