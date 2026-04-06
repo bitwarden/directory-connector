@@ -19,11 +19,11 @@ guidelines = 120
 indent_size = 2
 
 # JS files
-[*.{js,ts,scss,html}]
+[*.{js,cjs,mjs,ts,scss,html}]
 indent_size = 2
 
 [*.{ts}]
 quote_type = single
 
-[*.{scss,yml}]
+[*.{scss,css,yml}]
 indent_size = 2

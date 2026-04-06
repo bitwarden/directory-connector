@@ -4,18 +4,8 @@
     enabledManagers: ["docker-compose", "github-actions", "npm"],
     packageRules: [
         {
-            groupName: "docker-compose minor",
-            matchManagers: ["docker-compose"],
-            matchUpdateTypes: ["minor", "patch"],
-        },
-        {
             groupName: "github-action minor",
             matchManagers: ["github-actions"],
-            matchUpdateTypes: ["minor", "patch"],
-        },
-        {
-            groupName: "npm minor",
-            matchManagers: ["npm"],
             matchUpdateTypes: ["minor", "patch"],
         },
     ],
