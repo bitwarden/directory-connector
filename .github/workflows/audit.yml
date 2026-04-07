@@ -1,4 +1,4 @@
-name: Lint
+name: Audit
 
 on:
   workflow_dispatch:
@@ -14,10 +14,12 @@ permissions:
 
 jobs:
 
-  lint:
-    name: Run linter
+  audit:
+    name: Run npm audit
     if: ${{ startsWith(github.head_ref, 'version_bump_') == false }}
     runs-on: ubuntu-24.04
+    env:
+      HUSKY: 0
 
     steps:
       - name: Check out repo
@@ -33,7 +35,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -42,5 +44,13 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Run ESLint and Prettier
-        run: npm run lint
+      - name: Audit root package
+        run: npm audit --audit-level=high
+
+      - name: Install src-cli Node dependencies
+        run: npm ci
+        working-directory: src-cli
+
+      - name: Audit src-cli package
+        run: npm audit --audit-level=high
+        working-directory: src-cli

@@ -1,23 +1,33 @@
-name: Lint
+name: Build PR
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - "main"
-      - "rc"
-      - "hotfix-rc"
   pull_request:
+    paths:
+      - 'src/**'
+      - 'src-cli/**'
+      - 'jslib/**'
+      - 'resources/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'angular.json'
+      - '.github/workflows/build-pr.yml'
+      - '!*.md'
+      - '!*.txt'
 
 permissions:
   contents: read
 
 jobs:
 
-  lint:
-    name: Run linter
+  build:
+    name: Webpack build check
     if: ${{ startsWith(github.head_ref, 'version_bump_') == false }}
     runs-on: ubuntu-24.04
+    env:
+      HUSKY: 0
 
     steps:
       - name: Check out repo
@@ -32,15 +42,17 @@ jobs:
           NODE_VERSION=${NODE_NVMRC/v/''}
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+          platform: Linux
 
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Run ESLint and Prettier
-        run: npm run lint
+      - name: Build main and renderer
+        run: npm run build
+
+      - name: Build CLI
+        run: npm run build:cli
