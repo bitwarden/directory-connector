@@ -21,7 +21,7 @@ export default [
       "coverage/**",
       "**/*.cjs",
       "eslint.config.mjs",
-      "scripts/**/*.js",
+      "scripts/**/*.mjs",
       "**/node_modules/**",
       "native/**",
     ],
