@@ -36,8 +36,8 @@
   },
   "win": {
     "target": ["portable", "nsis"],
-    "signtoolOptions":{
-        "sign": "scripts/sign.js"
+    "signtoolOptions": {
+      "sign": "scripts/sign.mjs"
     }
   },
   "linux": {
