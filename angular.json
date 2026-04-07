@@ -33,6 +33,18 @@
             "scripts": [],
             "browser": "src-gui/app/main.ts"
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+          }
+        },
+        "test": {
+          "builder": "@angular-builders/jest:run",
+          "options": {
+            "configPath": "jest.config.cjs"
+          }
         }
       }
     }
