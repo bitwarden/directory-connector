@@ -81,6 +81,7 @@ jobs:
         with:
           artifacts: "./bwdc-windows-${{ env.PKG_VERSION }}.zip,
                       ./bwdc-macos-${{ env.PKG_VERSION }}.zip,
+                      ./bwdc-macos-arm64-${{ env.PKG_VERSION }}.zip,
                       ./bwdc-linux-${{ env.PKG_VERSION }}.zip,
                       ./Bitwarden-Connector-Portable-${{ env.PKG_VERSION }}.exe,
                       ./Bitwarden-Connector-Installer-${{ env.PKG_VERSION }}.exe,
@@ -89,6 +90,9 @@ jobs:
                       ./Bitwarden-Connector-${{ env.PKG_VERSION }}-mac.zip,
                       ./Bitwarden-Connector-${{ env.PKG_VERSION }}.dmg,
                       ./Bitwarden-Connector-${{ env.PKG_VERSION }}.dmg.blockmap,
+                      ./Bitwarden-Connector-${{ env.PKG_VERSION }}-mac-arm64.zip,
+                      ./Bitwarden-Connector-${{ env.PKG_VERSION }}-arm64.dmg,
+                      ./Bitwarden-Connector-${{ env.PKG_VERSION }}-arm64.dmg.blockmap,
                       ./latest-linux.yml,
                       ./latest-mac.yml,
                       ./latest.yml"
