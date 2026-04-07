@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-exports.default = run;
+export default run;
 
 async function run(context) {
   console.log("## before pack");
