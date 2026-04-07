@@ -6,7 +6,7 @@
   "appId": "com.bitwarden.directory-connector",
   "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
   "buildDependenciesFromSource": true,
-  "beforePack": "scripts/before-pack.js",
+  "beforePack": "scripts/before-pack.mjs",
   "directories": {
     "buildResources": "resources",
     "output": "dist",
