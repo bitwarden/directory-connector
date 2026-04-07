@@ -1,5 +1,4 @@
 ![Build](https://github.com/bitwarden/directory-connector/workflows/Build/badge.svg)
-[![Join the chat at https://gitter.im/bitwarden/Lobby](https://badges.gitter.im/bitwarden/Lobby.svg)](https://gitter.im/bitwarden/Lobby)
 
 # Bitwarden Directory Connector
 
@@ -16,8 +15,6 @@ Supported directories:
 The application is written using Electron with Angular and installs on Windows, macOS, and Linux distributions.
 
 [![Platforms](https://imgur.com/SLv9paA.png "Windows, macOS, and Linux")](https://bitwarden.com/help/directory-sync/#download-and-install)
-
-![Directory Connector](https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/directory-connector-macos.png "Dashboard")
 
 ## Command-line Interface
 
@@ -48,7 +45,7 @@ We provide detailed documentation and examples for using the Directory Connector
 
 **Requirements**
 
-- [Node.js](https://nodejs.org) v18 (LTS)
+- [Node.js](https://nodejs.org) v20 (LTS)
 - Windows users: To compile the native node modules used in the app you will need the Visual C++ toolset, available through the standard Visual Studio installer (recommended) or by installing [`windows-build-tools`](https://github.com/felixrieseberg/windows-build-tools) through `npm`. See more at [Compiling native Addon modules](https://github.com/Microsoft/nodejs-guidelines/blob/master/windows-environment.md#compiling-native-addon-modules).
 
 **Run the app**

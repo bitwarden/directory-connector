@@ -1,4 +1,4 @@
-import { BaseResponse } from "@/src-cli/cli/models/response/baseResponse";
+import { BaseResponse } from "@/src-cli/models/response/baseResponse";
 
 import { SimResult } from "../simResult";
 

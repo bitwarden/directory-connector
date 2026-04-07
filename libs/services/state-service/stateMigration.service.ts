@@ -136,6 +136,27 @@ export class StateMigrationService {
     // The old key names are the legacy values used before this migration.
     // Old keys are intentionally kept — they will be removed in a future migration.
     if (useSecureStorageForSecrets) {
+      // On Windows, the old credentials were written by keytar (CredWriteA, UTF-8 encoding).
+      // Convert them to desktop_core format (CredWriteW, UTF-16) before reading so that
+      // secureStorageService can read them correctly. This is a no-op on macOS/Linux.
+      const v3KeytarKeys = [
+        `${clientId}_ldapPassword`,
+        `${clientId}_gsuitePrivateKey`,
+        `${clientId}_azureKey`,
+        `${clientId}_entraIdKey`,
+        `${clientId}_entraKey`,
+        `${clientId}_oktaToken`,
+        `${clientId}_oneLoginClientSecret`,
+        `${clientId}_accessToken`,
+        `${clientId}_refreshToken`,
+        `${clientId}_twoFactorToken`,
+      ];
+      await Promise.all(
+        v3KeytarKeys.map((key) =>
+          passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
+        ),
+      );
+
       const oldSecretKeys = [
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
         { old: `${clientId}_gsuitePrivateKey`, new: SecureStorageKeys.gsuite },
@@ -222,10 +243,12 @@ export class StateMigrationService {
    * immediately on those platforms.
    *
    * Keys migrated:
-   *   • The current VNext credential keys (secret_*)
-   *   • Any remaining old-format keys ({userId}_*) still present from the v1→v2 migration
+   *   • All current flat SecureStorageKeys (secret_*, accessToken, etc.)
+   *   • Any remaining old-format keys ({userId}_*) using the LEGACY key names from the
+   *     original state service, not SecureStorageKeys values
    */
   protected async migrateStateFrom5To6(): Promise<void> {
+    // All SecureStorageKeys that could have been written by keytar in previous versions
     const credentialKeys: string[] = [
       SecureStorageKeys.ldap,
       SecureStorageKeys.gsuite,
@@ -233,10 +256,19 @@ export class StateMigrationService {
       SecureStorageKeys.entra,
       SecureStorageKeys.okta,
       SecureStorageKeys.oneLogin,
+      SecureStorageKeys.accessToken,
+      SecureStorageKeys.refreshToken,
+      SecureStorageKeys.apiKeyClientId,
+      SecureStorageKeys.apiKeyClientSecret,
+      SecureStorageKeys.twoFactorToken,
+      SecureStorageKeys.userDelta,
+      SecureStorageKeys.groupDelta,
+      SecureStorageKeys.lastUserSync,
+      SecureStorageKeys.lastGroupSync,
     ];
 
-    // Include any old {userId}_* keys still resident in the credential store.
-    // These use the legacy keytar suffix names, not the new SecureStorageKeys values.
+    // Include old {userId}_* keys still resident in the credential store.
+    // These use the LEGACY key names from the original state service, not SecureStorageKeys values.
     const clientId = await this.storageService.get<string>("activeUserId");
     if (clientId) {
       credentialKeys.push(
