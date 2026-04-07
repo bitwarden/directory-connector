@@ -8,3 +8,6 @@ src/locales
 
 # Github Workflows
 .github/workflows 
+
+# Native module (auto-generated)
+native
