@@ -23,9 +23,7 @@
     "sub:pull": "git submodule foreach git pull origin master",
     "sub:commit": "npm run sub:pull && git commit -am \"update submodule\"",
     "preinstall": "npm run sub:init",
-    "symlink:win": "rm -rf ./jslib && cmd /c mklink /J .\\jslib ..\\jslib",
     "symlink:mac": "npm run symlink:lin",
-    "symlink:lin": "rm -rf ./jslib && ln -s ../jslib ./jslib",
     "rebuild": "electron-rebuild",
     "reset": "rimraf --glob ./node_modules/keytar/* && npm install",
     "lint": "eslint . && prettier --check .",
@@ -69,7 +67,7 @@
     "test:watch:all": "jest --watchAll --testPathIgnorePatterns=.integration.spec.ts",
     "test:integration": "jest .integration.spec.ts",
     "test:integration:watch": "jest .integration.spec.ts --watch",
-    "test:integration:setup": "sh ./utils/openldap/mkcert.sh && docker compose up -d",
+    "test:integration:setup": "sh ./utils/openldap/mkcert.sh && docker compose up -d --wait",
     "test:types": "npx tsc --noEmit"
   },
   "devDependencies": {
@@ -181,7 +179,6 @@
     "npm": "~10"
   },
   "lint-staged": {
-    "./!(jslib)**": "prettier --ignore-unknown --write",
     "*.ts": "eslint --fix"
   }
 }
