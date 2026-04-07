@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-require("dotenv").config();
-const { notarize } = require("@electron/notarize");
+import dotenv from "dotenv";
+import { notarize } from "@electron/notarize";
 
-exports.default = async function notarizing(context) {
+dotenv.config();
+
+export default async function notarizing(context) {
   const { electronPlatformName, appOutDir } = context;
   if (electronPlatformName !== "darwin") {
     return;
