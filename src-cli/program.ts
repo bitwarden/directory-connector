@@ -5,10 +5,10 @@ import { Command, OptionValues } from "commander";
 
 import { Utils } from "@/libs/utils/utils";
 
-import { BaseProgram } from "@/src-cli/cli/baseProgram";
-import { UpdateCommand } from "@/src-cli/cli/commands/update.command";
-import { Response } from "@/src-cli/cli/models/response";
-import { StringResponse } from "@/src-cli/cli/models/response/stringResponse";
+import { BaseProgram } from "@/src-cli/baseProgram";
+import { UpdateCommand } from "@/src-cli/commands/update.command";
+import { Response } from "@/src-cli/models/response";
+import { StringResponse } from "@/src-cli/models/response/stringResponse";
 
 import { Main } from "./bwdc";
 import { ClearCacheCommand } from "./commands/clearCache.command";

@@ -1,8 +1,8 @@
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 
-import { Response } from "@/src-cli/cli/models/response";
-import { MessageResponse } from "@/src-cli/cli/models/response/messageResponse";
+import { Response } from "@/src-cli/models/response";
+import { MessageResponse } from "@/src-cli/models/response/messageResponse";
 
 export class UpdateCommand {
   inPkg = false;

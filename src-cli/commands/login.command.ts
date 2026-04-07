@@ -3,8 +3,8 @@ import * as inquirer from "inquirer";
 import { AuthService } from "@/libs/abstractions/auth.service";
 import { Utils } from "@/libs/utils/utils";
 
-import { Response } from "@/src-cli/cli/models/response";
-import { MessageResponse } from "@/src-cli/cli/models/response/messageResponse";
+import { Response } from "@/src-cli/models/response";
+import { MessageResponse } from "@/src-cli/models/response/messageResponse";
 
 export class LoginCommand {
   private canInteract: boolean;

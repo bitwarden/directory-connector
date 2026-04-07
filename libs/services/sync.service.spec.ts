@@ -8,7 +8,9 @@ import { DirectoryType } from "@/libs/enums/directoryType";
 import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { ApiService } from "@/libs/services/api.service";
 
+import { getSyncConfiguration } from "../../utils/openldap/config-fixtures";
 import { GroupEntry } from "../models/groupEntry";
+import { UserEntry } from "../models/userEntry";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
 import { LdapDirectoryService } from "./directory-services/ldap-directory.service";
@@ -17,7 +19,6 @@ import { SingleRequestBuilder } from "./single-request-builder";
 import { SyncService } from "./sync.service";
 import * as constants from "./sync.service";
 
-import { getSyncConfiguration } from "@/utils/openldap/config-fixtures";
 import { groupFixtures } from "@/utils/openldap/group-fixtures";
 import { userFixtures } from "@/utils/openldap/user-fixtures";
 
@@ -260,6 +261,78 @@ describe("SyncService", () => {
       expect(e.userMemberExternalIds).toEqual(new Set(["userC", "userE", "userF"]));
       // F is a leaf
       expect(f.userMemberExternalIds).toEqual(new Set(["userF"]));
+    });
+  });
+
+  describe("tombstone user handling", () => {
+    function createUser(
+      email: string,
+      options: { deleted?: boolean; disabled?: boolean; referenceId?: string } = {},
+    ): UserEntry {
+      return UserEntry.fromJSON({
+        referenceId: options.referenceId ?? email,
+        externalId: email,
+        email,
+        disabled: options.disabled ?? false,
+        deleted: options.deleted ?? false,
+      });
+    }
+
+    function setupSyncWithUsers(users: UserEntry[]) {
+      const mockDirectoryService = mock<LdapDirectoryService>();
+      mockDirectoryService.getEntries.mockResolvedValue([[], users]);
+      directoryFactory.createService.mockReturnValue(mockDirectoryService);
+
+      stateService.getSync.mockResolvedValue(getSyncConfiguration({ users: true }));
+      cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
+      stateService.getLastSyncHash.mockResolvedValue("unique hash");
+      singleRequestBuilder.buildRequest.mockReturnValue([
+        { members: [], groups: [], overwriteExisting: true, largeImport: false },
+      ]);
+    }
+
+    it("should not throw when an active user and their tombstone share a synthesized email", async () => {
+      const activeUser = createUser("nomail@fish.org", {
+        referenceId: "CN=no email,OU=pm19397,DC=bitwarden,DC=support",
+      });
+      const tombstoneUser = createUser("nomail@fish.org", {
+        referenceId: "CN=no email\\0ADEL:9f41f97b,CN=Deleted Objects,DC=bitwarden,DC=support",
+        deleted: true,
+        disabled: true,
+      });
+      setupSyncWithUsers([activeUser, tombstoneUser]);
+
+      await expect(syncService.sync(true, true)).resolves.toBeDefined();
+    });
+
+    it("should include the active user and exclude the tombstone when they share a synthesized email", async () => {
+      const activeUser = createUser("nomail@fish.org", {
+        referenceId: "CN=no email,OU=pm19397,DC=bitwarden,DC=support",
+      });
+      const tombstoneUser = createUser("nomail@fish.org", {
+        referenceId: "CN=no email\\0ADEL:9f41f97b,CN=Deleted Objects,DC=bitwarden,DC=support",
+        deleted: true,
+        disabled: true,
+      });
+      setupSyncWithUsers([activeUser, tombstoneUser]);
+
+      const [, users] = await syncService.sync(true, true);
+
+      expect(users).toContainEqual(activeUser);
+      expect(users).not.toContainEqual(tombstoneUser);
+    });
+
+    it("should still throw when two distinct active users share the same email", async () => {
+      i18nService.t.mockImplementation((key: string) => key);
+      const user1 = createUser("duplicate@fish.org", {
+        referenceId: "CN=user1,OU=pm19397,DC=bitwarden,DC=support",
+      });
+      const user2 = createUser("duplicate@fish.org", {
+        referenceId: "CN=user2,OU=pm19397,DC=bitwarden,DC=support",
+      });
+      setupSyncWithUsers([user1, user2]);
+
+      await expect(syncService.sync(true, true)).rejects.toThrow();
     });
   });
 });
