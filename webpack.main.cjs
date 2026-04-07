@@ -5,61 +5,61 @@ const nodeExternals = require("webpack-node-externals");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 const common = {
-    module: {
-        rules: [
-            {
-                test: /\.tsx?$/,
-                use: "ts-loader",
-                exclude: /node_modules\/(?!(@bitwarden)\/).*/,
-            },
-        ],
-    },
-    plugins: [],
-    resolve: {
-        extensions: [".tsx", ".ts", ".js"],
-        plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
-    },
-    output: {
-        filename: "[name].js",
-        path: path.resolve(__dirname, "build"),
-        clean: true,
-    },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: "ts-loader",
+        exclude: /node_modules\/(?!(@bitwarden)\/).*/,
+      },
+    ],
+  },
+  plugins: [],
+  resolve: {
+    extensions: [".tsx", ".ts", ".js"],
+    plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
+  },
+  output: {
+    filename: "[name].js",
+    path: path.resolve(__dirname, "build"),
+    clean: true,
+  },
 };
 
 const main = {
-    mode: "production",
-    target: "electron-main",
-    node: {
-        __dirname: false,
-        __filename: false,
-    },
-    entry: {
-        main: "./src/main.ts",
-    },
-    optimization: {
-        minimize: false,
-    },
-    module: {
-        rules: [
-            {
-                test: /\.node$/,
-                loader: "node-loader",
-            },
-        ],
-    },
-    plugins: [
-        new CopyWebpackPlugin({
-            patterns: [
-                "./package.json",
-                { from: "./src/images", to: "images" },
-                { from: "./src/locales", to: "locales" },
-            ],
-        }),
+  mode: "production",
+  target: "electron-main",
+  node: {
+    __dirname: false,
+    __filename: false,
+  },
+  entry: {
+    main: "./src-gui/main.ts",
+  },
+  optimization: {
+    minimize: false,
+  },
+  module: {
+    rules: [
+      {
+        test: /\.node$/,
+        loader: "node-loader",
+      },
     ],
-    externals: {
-        "electron-reload": "commonjs2 electron-reload",
-        keytar: "commonjs2 keytar",
-    },
+  },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        "./package.json",
+        { from: "./src-gui/images", to: "images" },
+        { from: "./src-gui/locales", to: "locales" },
+      ],
+    }),
+  ],
+  externals: {
+    "electron-reload": "commonjs2 electron-reload",
+    keytar: "commonjs2 keytar",
+  },
 };
 
 module.exports = merge(common, main);
