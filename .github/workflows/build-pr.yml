@@ -1,0 +1,58 @@
+name: Build PR
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'src-cli/**'
+      - 'jslib/**'
+      - 'resources/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'angular.json'
+      - '.github/workflows/build-pr.yml'
+      - '!*.md'
+      - '!*.txt'
+
+permissions:
+  contents: read
+
+jobs:
+
+  build:
+    name: Webpack build check
+    if: ${{ startsWith(github.head_ref, 'version_bump_') == false }}
+    runs-on: ubuntu-24.04
+    env:
+      HUSKY: 0
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Get Node version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
+        with:
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+          platform: Linux
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build main and renderer
+        run: npm run build
+
+      - name: Build CLI
+        run: npm run build:cli

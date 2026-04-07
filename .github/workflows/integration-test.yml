@@ -14,9 +14,9 @@ on:
       - "docker-compose.yml" # any change to Docker configuration
       - "package.json" # dependencies
       - "utils/**" # any change to test fixtures
-      - "src/services/sync.service.ts" # core sync service used by all directory services
-      - "src/services/directory-services/ldap-directory.service*" # LDAP directory service
-      - "src/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
+      - "libs/services/sync.service.ts" # core sync service used by all directory services
+      - "libs/services/directory-services/ldap-directory.service*" # LDAP directory service
+      - "libs/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
       # Add directory services here as we add test coverage
   pull_request:
     paths:
@@ -24,9 +24,9 @@ on:
       - "docker-compose.yml" # any change to Docker configuration
       - "package.json" # dependencies
       - "utils/**" # any change to test fixtures
-      - "src/services/sync.service.ts" # core sync service used by all directory services
-      - "src/services/directory-services/ldap-directory.service*" # LDAP directory service
-      - "src/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
+      - "libs/services/sync.service.ts" # core sync service used by all directory services
+      - "libs/services/directory-services/ldap-directory.service*" # LDAP directory service
+      - "libs/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
       # Add directory services here as we add test coverage
 permissions:
   contents: read
@@ -52,7 +52,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -84,7 +84,7 @@ jobs:
       # Note: docker-compose.yml is only used for ldap for now
       - name: Get changed files
         id: changed-files
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         with:
           list-files: shell
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -94,12 +94,12 @@ jobs:
               - '.github/workflows/integration-test.yml'
               - 'utils/**'
               - 'package.json'
-              - 'src/services/sync.service.ts'
+              - 'libs/services/sync.service.ts'
             ldap:
               - 'docker-compose.yml'
-              - 'src/services/directory-services/ldap-directory.service*'
+              - 'libs/services/directory-services/ldap-directory.service*'
             google:
-              - 'src/services/directory-services/gsuite-directory.service*'
+              - 'libs/services/directory-services/gsuite-directory.service*'
 
       # LDAP
       - name: Setup LDAP integration tests
@@ -108,6 +108,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install mkcert
           npm run test:integration:setup
+          echo "LDAP container is ready!"
 
       - name: Run LDAP integration tests
         if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.ldap == 'true'
@@ -129,7 +130,7 @@ jobs:
 
       - name: Report test results
         id: report
-        uses: dorny/test-reporter@b082adf0eced0765477756c2a610396589b8c637 # v2.5.0
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
         # This will skip the job if it's a pull request from a fork, because that won't have permission to upload test results.
         # PRs from the repository and all other events are OK.
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository) && !cancelled()
