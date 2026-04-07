@@ -23,8 +23,8 @@
   },
   "win": {
     "target": ["portable", "nsis"],
-    "signtoolOptions":{
-        "sign": "scripts/sign.mjs"
+    "signtoolOptions": {
+      "sign": "scripts/sign.mjs"
     }
   },
   "linux": {
