@@ -100,7 +100,7 @@ export class Main {
     );
     this.secureStorageService = plaintextSecrets
       ? this.storageService
-      : new NativeSecureStorageService(applicationName);
+      : new NativeSecureStorageService(applicationName, this.logService);
 
     this.stateMigrationService = new StateMigrationService(
       this.storageService,

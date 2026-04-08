@@ -118,8 +118,8 @@ export function initFactory(injector: Injector): () => Promise<void> {
     }),
     safeProvider({
       provide: SECURE_STORAGE,
-      useFactory: () => new NativeSecureStorageService(APPLICATION_NAME),
-      deps: [],
+      useFactory: (logService: LogServiceAbstraction) => new NativeSecureStorageService(APPLICATION_NAME, logService),
+      deps: [LogServiceAbstraction],
     }),
     safeProvider({
       provide: PlatformUtilsServiceAbstraction,
