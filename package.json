@@ -48,10 +48,10 @@
     "pack:win": "npm run clean:dist && electron-builder --win --x64 --ia32 -p never -c.win.certificateSubjectName=\"8bit Solutions LLC\"",
     "pack:win:ci": "npm run clean:dist && electron-builder --win --x64 --ia32 -p never",
     "pack:cli": "npm run pack:cli:win | npm run pack:cli:mac | npm run pack:cli:lin",
-    "pack:cli:win": "pkg ./src-cli --targets win-x64 --output ./dist-cli/windows/bwdc.exe",
-    "pack:cli:mac": "pkg ./src-cli --targets macos-x64 --output ./dist-cli/macos/bwdc",
-    "pack:cli:mac:arm64": "pkg ./src-cli --targets macos-arm64 --output ./dist-cli/macos-arm64/bwdc",
-    "pack:cli:lin": "pkg ./src-cli --targets linux-x64 --output ./dist-cli/linux/bwdc",
+    "pack:cli:win": "node scripts/pack-sea.mjs windows",
+    "pack:cli:mac": "node scripts/pack-sea.mjs macos",
+    "pack:cli:mac:arm64": "node scripts/pack-sea.mjs macos-arm64",
+    "pack:cli:lin": "node scripts/pack-sea.mjs linux",
     "dist:lin": "npm run build:dist && npm run pack:lin",
     "dist:mac": "npm run build:dist && npm run pack:mac",
     "dist:win": "npm run build:dist && npm run pack:win",
@@ -92,7 +92,6 @@
     "@types/semver": "7.7.1",
     "@typescript-eslint/eslint-plugin": "8.57.1",
     "@typescript-eslint/parser": "8.57.1",
-    "@yao-pkg/pkg": "6.14.1",
     "babel-loader": "10.1.1",
     "concurrently": "9.2.1",
     "copy-webpack-plugin": "14.0.0",
@@ -167,7 +166,7 @@
     "zone.js": "0.16.1"
   },
   "engines": {
-    "node": "~22",
+    "node": "~25",
     "npm": "~10"
   },
   "lint-staged": {

@@ -1,0 +1,11 @@
+{
+  "main": "./build-cli/bwdc.js",
+  "output": "./dist-cli/bwdc-sea",
+  "mainFormat": "module",
+  "disableExperimentalSEAWarning": true,
+  "useSnapshot": false,
+  "useCodeCache": false,
+  "assets": {
+    "locales/en/messages.json": "./src-gui/locales/en/messages.json"
+  }
+}
