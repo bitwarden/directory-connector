@@ -1,4 +1,3 @@
-
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
@@ -12,7 +11,6 @@ import {
 } from "@/libs/models/state.model";
 
 import { passwords } from "dc-native";
-
 
 // The original implementation of migrate() overrode the jslib implementation and never actually went up
 // to v4. Therefore, the minimum supported version that is out in the wild should be 3 and we need

@@ -18,7 +18,9 @@ export class NativeSecureStorageService implements StorageService {
         try {
           return JSON.parse(val) as T;
         } catch {
-          this.logService?.warning(`NativeSecureStorageService: failed to parse stored value for key "${key}"`);
+          this.logService?.warning(
+            `NativeSecureStorageService: failed to parse stored value for key "${key}"`,
+          );
           return null;
         }
       })

@@ -19,6 +19,7 @@ export default [
       "build/**",
       "build-cli/**",
       "coverage/**",
+      "coverage-ldap/**",
       "**/*.cjs",
       "eslint.config.mjs",
       "scripts/**/*.js",
