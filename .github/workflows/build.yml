@@ -581,22 +581,22 @@ jobs:
       - name: Upload .zip artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip
-          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac.zip
+          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x64.zip
+          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x64.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg
-          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg
+          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x64.dmg
+          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x64.dmg
           if-no-files-found: error
 
       - name: Upload .dmg Blockmap artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg.blockmap
-          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}.dmg.blockmap
+          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x64.dmg.blockmap
+          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x64.dmg.blockmap
           if-no-files-found: error
 
       - name: Upload latest auto-update artifact
