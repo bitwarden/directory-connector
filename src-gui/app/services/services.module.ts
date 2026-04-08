@@ -19,12 +19,14 @@ import { MessagingService as MessagingServiceAbstraction } from "@/libs/abstract
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/libs/abstractions/platformUtils.service";
 import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
 import { TokenService as TokenServiceAbstraction } from "@/libs/abstractions/token.service";
+import { APPLICATION_NAME } from "@/libs/constants";
 import { AppIdService } from "@/libs/services/appId.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
 import { DefaultEnvironmentService as EnvironmentServiceImplementation } from "@/libs/services/environment/environment.service";
 import { I18nService } from "@/libs/services/i18n.service";
+import { NativeSecureStorageService } from "@/libs/services/nativeSecureStorage.service";
 import { NodeApiService } from "@/libs/services/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/libs/services/nodeCryptoFunction.service";
 import { SingleRequestBuilder } from "@/libs/services/single-request-builder";
@@ -42,7 +44,6 @@ import { ValidationService } from "@/src-gui/angular/services/validation.service
 import { ElectronLogService } from "@/src-gui/services/electron/electronLog.service";
 import { ElectronPlatformUtilsService } from "@/src-gui/services/electron/electronPlatformUtils.service";
 import { ElectronRendererMessagingService } from "@/src-gui/services/electron/electronRendererMessaging.service";
-import { ElectronRendererSecureStorageService } from "@/src-gui/services/electron/electronRendererSecureStorage.service";
 import { ElectronRendererStorageService } from "@/src-gui/services/electron/electronRendererStorage.service";
 
 import { AuthGuardService } from "./auth-guard.service";
@@ -117,7 +118,7 @@ export function initFactory(injector: Injector): () => Promise<void> {
     }),
     safeProvider({
       provide: SECURE_STORAGE,
-      useClass: ElectronRendererSecureStorageService,
+      useFactory: () => new NativeSecureStorageService(APPLICATION_NAME),
       deps: [],
     }),
     safeProvider({
