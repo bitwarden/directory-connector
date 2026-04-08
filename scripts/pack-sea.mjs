@@ -159,7 +159,12 @@ try {
 
   if (platform === "macos" || platform === "macos-arm64") {
     console.log("Ad-hoc signing binary...");
-    execFileSync("codesign", ["--sign", "-", outputBinary], {
+    // --force is required because the official Node.js binary already carries an Apple
+    // signature; without it codesign refuses to replace an existing signature (see Apple
+    // TN2206 "Using the codesign Tool" – https://developer.apple.com/library/archive/technotes/tn2206/_index.html).
+    // --build-sea injects the SEA blob into that binary, invalidating the original signature,
+    // so we must forcibly re-sign to avoid a crash (exit 139) at runtime on macOS.
+    execFileSync("codesign", ["--sign", "-", "--force", outputBinary], {
       stdio: "inherit",
     });
   }
