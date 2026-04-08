@@ -46,3 +46,4 @@ junit.xml*
 *.zip
 *.provisionprofile
 .swp
+.node-sea-base/

@@ -1,4 +1,3 @@
- 
 import { execSync } from "child_process";
 
 export default async function (configuration) {
