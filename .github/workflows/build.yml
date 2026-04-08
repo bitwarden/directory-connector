@@ -215,10 +215,10 @@ jobs:
         run: npm run build:native:release
 
       - name: Package CLI
-        run: npm run dist:cli:mac
+        run: npm run dist:cli:mac:arm64
 
       - name: Zip
-        run: zip -j "dist-cli/bwdc-macos-arm64-$_PACKAGE_VERSION.zip" "dist-cli/macos/bwdc" "node_modules/dc-native/dc_native.darwin-arm64.node"
+        run: zip -j "dist-cli/bwdc-macos-arm64-$_PACKAGE_VERSION.zip" "dist-cli/macos-arm64/bwdc" "node_modules/dc-native/dc_native.darwin-arm64.node"
 
       - name: Version Test
         run: |

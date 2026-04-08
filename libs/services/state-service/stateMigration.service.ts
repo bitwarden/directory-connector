@@ -1,4 +1,3 @@
-import { passwords } from "dc-native";
 
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
@@ -11,6 +10,8 @@ import {
   StorageKey,
   StorageKeys,
 } from "@/libs/models/state.model";
+
+import { passwords } from "dc-native";
 
 
 // The original implementation of migrate() overrode the jslib implementation and never actually went up
@@ -247,14 +248,10 @@ export class StateMigrationService {
    *   • All current flat SecureStorageKeys (secret_*, accessToken, etc.)
    *   • Non-sensitive sync metadata keys (StorageKeys.userDelta/groupDelta/lastUserSync/lastGroupSync)
    *     which were previously written to keytar but are now stored in regular storage
-   *   • Any remaining old-format keys ({userId}_*) using the LEGACY key names from the
-   *     original state service, not SecureStorageKeys values
    */
   protected async migrateStateFrom5To6(): Promise<void> {
-    // Credential keys that could have been written by keytar in previous versions.
-    // Sync metadata keys (userDelta, groupDelta, lastUserSync, lastGroupSync) are non-sensitive
-    // and stored in regular storage, but were previously written to keytar and must still be
-    // migrated here.
+    // All keys that may have been written by keytar in previous versions and need re-encoding
+    // from UTF-8 (CredWriteA) to UTF-16 (CredWriteW) for desktop_core compatibility.
     const credentialKeys: string[] = [
       SecureStorageKeys.ldap,
       SecureStorageKeys.gsuite,
@@ -272,24 +269,6 @@ export class StateMigrationService {
       StorageKeys.lastUserSync,
       StorageKeys.lastGroupSync,
     ];
-
-    // Include old {userId}_* keys still resident in the credential store.
-    // These use the LEGACY key names from the original state service, not SecureStorageKeys values.
-    const clientId = await this.storageService.get<string>("activeUserId");
-    if (clientId) {
-      credentialKeys.push(
-        `${clientId}_ldapPassword`,
-        `${clientId}_gsuitePrivateKey`,
-        `${clientId}_azureKey`,
-        `${clientId}_entraIdKey`,
-        `${clientId}_entraKey`,
-        `${clientId}_oktaToken`,
-        `${clientId}_oneLoginClientSecret`,
-        `${clientId}_accessToken`,
-        `${clientId}_refreshToken`,
-        `${clientId}_twoFactorToken`,
-      );
-    }
 
     await Promise.all(
       credentialKeys.map((key) =>

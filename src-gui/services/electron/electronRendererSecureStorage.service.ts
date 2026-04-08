@@ -23,7 +23,7 @@ export class ElectronRendererSecureStorageService implements StorageService {
   }
 
   async save(key: StorageKey | SecureStorageKey, obj: any, options?: StorageOptions): Promise<any> {
-    if (!obj) {
+    if (obj == null) {
       return this.remove(key, options);
     }
     return passwords.setPassword(this.buildServiceName(options), key, JSON.stringify(obj));

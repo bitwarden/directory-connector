@@ -24,7 +24,7 @@ export class NativeSecureStorageService implements StorageService {
   }
 
   async save(key: StorageKey | SecureStorageKey, obj: any): Promise<any> {
-    if (!obj) {
+    if (obj == null) {
       return this.remove(key);
     }
     return passwords.setPassword(this.serviceName, key, JSON.stringify(obj));
