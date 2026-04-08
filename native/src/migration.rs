@@ -16,7 +16,12 @@ use windows::{
     Win32::Security::Credentials::{CredFree, CredReadW, CRED_TYPE_GENERIC},
 };
 
-pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<bool> {
+/// Synchronous helper that reads the Windows credential store and returns the UTF-8 value to
+/// migrate, or `None` if no migration is needed.
+///
+/// All `!Send` types (`*mut CREDENTIALW`, etc.) are confined to this non-async function so that
+/// the async `migrate_keytar_password` future remains `Send` as required by napi.
+fn read_keytar_credential(service: &str, account: &str) -> Result<Option<String>> {
     let target = format!("{}/{}", service, account);
     let target_wide = U16CString::from_str(&target)?;
 
@@ -32,21 +37,26 @@ pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<boo
 
     if result.is_err() {
         // Credential does not exist; nothing to migrate.
-        return Ok(false);
+        return Ok(None);
     }
 
-    scopeguard::defer! {{
-        unsafe { CredFree(credential as *mut _) };
-    }};
-
+    // SAFETY: CredReadW succeeded, so credential is a valid non-null pointer.
+    // We free it before returning with CredFree.
     let blob_bytes: Vec<u8> = unsafe {
         let blob_ptr = (*credential).CredentialBlob;
         let blob_size = (*credential).CredentialBlobSize as usize;
-        if blob_ptr.is_null() || blob_size == 0 {
-            return Ok(false);
-        }
-        std::slice::from_raw_parts(blob_ptr, blob_size).to_vec()
+        let bytes = if blob_ptr.is_null() || blob_size == 0 {
+            vec![]
+        } else {
+            std::slice::from_raw_parts(blob_ptr, blob_size).to_vec()
+        };
+        CredFree(credential as *mut _);
+        bytes
     };
+
+    if blob_bytes.is_empty() {
+        return Ok(None);
+    }
 
     // UTF-16 LE encoding of ASCII always contains null bytes (e.g. 'A' → 0x41 0x00).
     // Keytar stored raw UTF-8 bytes which will never contain null bytes for valid JSON.
@@ -57,10 +67,21 @@ pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<boo
 
     if !blob_is_utf8 {
         // Already UTF-16 or unrecognised format; no migration needed.
-        return Ok(false);
+        return Ok(None);
     }
 
-    let utf8_value = String::from_utf8(blob_bytes).map_err(|e| anyhow!(e))?;
+    Ok(Some(
+        String::from_utf8(blob_bytes).map_err(|e| anyhow!(e))?,
+    ))
+}
+
+pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<bool> {
+    // read_keytar_credential is synchronous and drops all !Send types before returning,
+    // so the future produced by this async fn is Send.
+    let Some(utf8_value) = read_keytar_credential(service, account)? else {
+        return Ok(false);
+    };
+
     desktop_core::password::set_password(service, account, &utf8_value).await?;
 
     Ok(true)
