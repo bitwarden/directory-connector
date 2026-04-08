@@ -88,14 +88,19 @@ export default [
           "newlines-between": "always",
           pathGroups: [
             {
-              pattern: "@/jslib/**/*",
+              pattern: "@/libs/**",
               group: "external",
               position: "after",
             },
             {
-              pattern: "@/src/**/*",
-              group: "parent",
-              position: "before",
+              pattern: "@/src-gui/**",
+              group: "external",
+              position: "after",
+            },
+            {
+              pattern: "@/src-cli/**",
+              group: "external",
+              position: "after",
             },
           ],
           pathGroupsExcludedImportTypes: ["builtin"],

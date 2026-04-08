@@ -34,7 +34,7 @@ const main = {
     __filename: false,
   },
   entry: {
-    main: "./src/main.ts",
+    main: "./src-gui/main.ts",
   },
   optimization: {
     minimize: false,
@@ -51,8 +51,8 @@ const main = {
     new CopyWebpackPlugin({
       patterns: [
         "./package.json",
-        { from: "./src/images", to: "images" },
-        { from: "./src/locales", to: "locales" },
+        { from: "./src-gui/images", to: "images" },
+        { from: "./src-gui/locales", to: "locales" },
       ],
     }),
   ],

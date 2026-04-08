@@ -14,7 +14,7 @@
         }
       },
       "root": ".",
-      "sourceRoot": "src",
+      "sourceRoot": "src-gui",
       "prefix": "app",
       "architect": {
         "build": {
@@ -28,14 +28,14 @@
               }
             },
             "outputPath": "build",
-            "index": "src/index.html",
-            "main": "src/app/main.ts",
-            "tsConfig": "tsconfig.app.json",
+            "index": "src-gui/index.html",
+            "browser": "src-gui/app/main.ts",
+            "tsConfig": "tsconfig.json",
             "assets": [
-              { "glob": "**/*", "input": "src/images", "output": "images" },
-              { "glob": "**/*", "input": "src/locales", "output": "locales" }
+              { "glob": "**/*", "input": "src-gui/images", "output": "images" },
+              { "glob": "**/*", "input": "src-gui/locales", "output": "locales" }
             ],
-            "styles": ["src/scss/styles.scss"],
+            "styles": ["src-gui/scss/styles.scss"],
             "scripts": []
           }
         },
