@@ -54,6 +54,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: setup
     env:
+      NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
@@ -129,6 +130,7 @@ jobs:
     permissions:
       contents: read
     env:
+      NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
@@ -190,6 +192,7 @@ jobs:
     permissions:
       contents: read
     env:
+      NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
@@ -253,6 +256,7 @@ jobs:
     permissions:
       contents: read
     env:
+      NODE_OPTIONS: --max_old_space_size=4096
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
@@ -704,7 +708,7 @@ jobs:
           EOF
 
       - name: Build application
-        run: npm run build:dist && npm run clean:dist && electron-builder --mac --arm64 -p never
+        run: npm run dist:mac:arm64
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: UFD296548T
