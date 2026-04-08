@@ -90,7 +90,7 @@ jobs:
         run: npm run dist:cli:lin
 
       - name: Zip
-        run: zip -j "dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip" "dist-cli/linux/bwdc" "node_modules/dc-native/dc_native.linux-x64-gnu.node"
+        run: zip -j "dist-cli/bwdc-linux-$_PACKAGE_VERSION.zip" dist-cli/linux/*
 
       - name: Version Test
         run: |
@@ -158,7 +158,7 @@ jobs:
         run: npm run dist:cli:mac
 
       - name: Zip
-        run: zip -j "dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" "dist-cli/macos/bwdc" "node_modules/dc-native/dc_native.darwin-x64.node"
+        run: zip -j "dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" dist-cli/macos/*
 
       - name: Version Test
         run: |
@@ -211,17 +211,17 @@ jobs:
         with:
           targets: aarch64-apple-darwin
 
-      - name: Build native module
-        run: npm run build:native:release
-
       - name: Install
         run: npm ci
+
+      - name: Build native module
+        run: npm run build:native:release
 
       - name: Package CLI
         run: npm run dist:cli:mac:arm64
 
       - name: Zip
-        run: zip -j "dist-cli/bwdc-macos-arm64-$_PACKAGE_VERSION.zip" "dist-cli/macos-arm64/bwdc" "node_modules/dc-native/dc_native.darwin-arm64.node"
+        run: zip -j "dist-cli/bwdc-macos-arm64-$_PACKAGE_VERSION.zip" dist-cli/macos-arm64/*
 
       - name: Version Test
         run: |
@@ -288,7 +288,7 @@ jobs:
 
       - name: Zip
         shell: cmd
-        run: 7z a .\dist-cli\bwdc-windows-%_PACKAGE_VERSION%.zip .\dist-cli\windows\bwdc.exe .\node_modules\dc-native\dc_native.win32-x64-msvc.node
+        run: 7z a .\dist-cli\bwdc-windows-%_PACKAGE_VERSION%.zip .\dist-cli\windows\*
 
       - name: Version Test
         shell: pwsh
