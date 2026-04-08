@@ -718,8 +718,8 @@ jobs:
       - name: Upload .zip artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac-arm64.zip
-          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-mac-arm64.zip
+          name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-arm64.zip
+          path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-arm64.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact

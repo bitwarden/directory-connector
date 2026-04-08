@@ -81,6 +81,9 @@ const config = {
   },
   module: { rules: moduleRules },
   plugins: plugins,
+  externals: {
+    "dc-native": "module dc-native",
+  },
 };
 
 export default config;

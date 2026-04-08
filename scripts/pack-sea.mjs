@@ -144,12 +144,15 @@ try {
     stdio: "inherit",
   });
 
-  // Copy native .node addons from build-cli/ to the output dir so they sit
-  // alongside the binary (node-loader resolves them relative to the executable).
-  const buildCliDir = join(repoRoot, "build-cli");
-  for (const file of readdirSync(buildCliDir)) {
+  // Copy native .node addons from node_modules/dc-native/ to the output dir so they sit
+  // alongside the binary with their canonical names (e.g. dc_native.darwin-x64.node).
+  // The bundled dc-native index.js chunk uses require('./dc_native.<platform>.node') at
+  // runtime, resolving relative to the binary location, so the canonical name must match.
+  // build-cli/ only has webpack-hashed copies (e.g. bf4a17...node) which won't match.
+  const dcNativeDir = join(repoRoot, "node_modules", "dc-native");
+  for (const file of readdirSync(dcNativeDir)) {
     if (file.endsWith(".node")) {
-      copyFileSync(join(buildCliDir, file), join(outputDir, file));
+      copyFileSync(join(dcNativeDir, file), join(outputDir, file));
       console.log(`Copied native addon: ${file}`);
     }
   }
