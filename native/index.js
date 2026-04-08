@@ -4,7 +4,6 @@ const { join } = require("path");
 const { platform, arch } = process;
 
 let nativeBinding = null;
-let loadError = null;
 
 function loadFirstAvailable(localFiles) {
   for (const localFile of localFiles) {
@@ -60,9 +59,6 @@ switch (platform) {
 }
 
 if (!nativeBinding) {
-  if (loadError) {
-    throw loadError;
-  }
   throw new Error(`Failed to load dc-native binding`);
 }
 

@@ -1,3 +1,5 @@
+import { passwords } from "dc-native";
+
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
@@ -10,7 +12,6 @@ import {
   StorageKeys,
 } from "@/libs/models/state.model";
 
-import { passwords } from "dc-native";
 
 // The original implementation of migrate() overrode the jslib implementation and never actually went up
 // to v4. Therefore, the minimum supported version that is out in the wild should be 3 and we need
@@ -113,19 +114,19 @@ export class StateMigrationService {
         await this.set(StorageKeys.sync, account.directorySettings.sync);
       }
       if (account.directorySettings.lastUserSync) {
-        await this.set(SecureStorageKeys.lastUserSync, account.directorySettings.lastUserSync);
+        await this.set(StorageKeys.lastUserSync, account.directorySettings.lastUserSync);
       }
       if (account.directorySettings.lastGroupSync) {
-        await this.set(SecureStorageKeys.lastGroupSync, account.directorySettings.lastGroupSync);
+        await this.set(StorageKeys.lastGroupSync, account.directorySettings.lastGroupSync);
       }
       if (account.directorySettings.lastSyncHash) {
         await this.set(StorageKeys.lastSyncHash, account.directorySettings.lastSyncHash);
       }
       if (account.directorySettings.userDelta) {
-        await this.set(SecureStorageKeys.userDelta, account.directorySettings.userDelta);
+        await this.set(StorageKeys.userDelta, account.directorySettings.userDelta);
       }
       if (account.directorySettings.groupDelta) {
-        await this.set(SecureStorageKeys.groupDelta, account.directorySettings.groupDelta);
+        await this.set(StorageKeys.groupDelta, account.directorySettings.groupDelta);
       }
       if (account.directorySettings.syncingDir != null) {
         await this.set(StorageKeys.syncingDir, account.directorySettings.syncingDir);
@@ -244,11 +245,16 @@ export class StateMigrationService {
    *
    * Keys migrated:
    *   • All current flat SecureStorageKeys (secret_*, accessToken, etc.)
+   *   • Non-sensitive sync metadata keys (StorageKeys.userDelta/groupDelta/lastUserSync/lastGroupSync)
+   *     which were previously written to keytar but are now stored in regular storage
    *   • Any remaining old-format keys ({userId}_*) using the LEGACY key names from the
    *     original state service, not SecureStorageKeys values
    */
   protected async migrateStateFrom5To6(): Promise<void> {
-    // All SecureStorageKeys that could have been written by keytar in previous versions
+    // Credential keys that could have been written by keytar in previous versions.
+    // Sync metadata keys (userDelta, groupDelta, lastUserSync, lastGroupSync) are non-sensitive
+    // and stored in regular storage, but were previously written to keytar and must still be
+    // migrated here.
     const credentialKeys: string[] = [
       SecureStorageKeys.ldap,
       SecureStorageKeys.gsuite,
@@ -261,10 +267,10 @@ export class StateMigrationService {
       SecureStorageKeys.apiKeyClientId,
       SecureStorageKeys.apiKeyClientSecret,
       SecureStorageKeys.twoFactorToken,
-      SecureStorageKeys.userDelta,
-      SecureStorageKeys.groupDelta,
-      SecureStorageKeys.lastUserSync,
-      SecureStorageKeys.lastGroupSync,
+      StorageKeys.userDelta,
+      StorageKeys.groupDelta,
+      StorageKeys.lastUserSync,
+      StorageKeys.lastGroupSync,
     ];
 
     // Include old {userId}_* keys still resident in the credential store.
