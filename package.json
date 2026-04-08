@@ -46,7 +46,7 @@
     "pack:lin": "npm run clean:dist && electron-builder --linux --x64 -p never",
     "pack:mac": "npm run clean:dist && electron-builder --mac -p never",
     "pack:mac:arm64": "npm run clean:dist && electron-builder --mac --arm64 -p never",
-    "pack:win": "npm run clean:dist && electron-builder --win --x64 --ia32 -p never -c.win.certificateSubjectName=\"8bit Solutions LLC\"",
+    "pack:win": "npm run clean:dist && electron-builder --win --x64 --ia32 -p never",
     "pack:win:ci": "npm run clean:dist && electron-builder --win --x64 --ia32 -p never",
     "pack:cli": "npm run pack:cli:win | npm run pack:cli:mac | npm run pack:cli:lin",
     "pack:cli:win": "node scripts/pack-sea.mjs windows",
