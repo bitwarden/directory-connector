@@ -70,6 +70,10 @@ const config = {
       // (signal-exit v3 behavior). signal-exit v4 uses named exports only.
       // The shim re-exports onExit as the module default.
       "signal-exit": path.resolve(__dirname, "scripts/signal-exit-shim.cjs"),
+      // dc-native uses import.meta.url to locate .node binaries, which breaks inside a
+      // Node SEA blob. This shim loads the .node file relative to process.execPath instead.
+      // pack-sea.mjs copies the .node files alongside the binary at build time.
+      "dc-native": path.resolve(__dirname, "scripts/dc-native-sea-shim.cjs"),
     },
   },
   output: {
@@ -81,9 +85,6 @@ const config = {
   },
   module: { rules: moduleRules },
   plugins: plugins,
-  externals: {
-    "dc-native": "module dc-native",
-  },
 };
 
 export default config;
