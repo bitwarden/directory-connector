@@ -7,11 +7,21 @@
  *
  * This shim resolves the .node binary relative to process.execPath (the SEA binary itself).
  * pack-sea.mjs copies the .node files alongside the binary, so this works at runtime.
+ *
+ * We import createRequire from node:module and immediately assign it to a variable before
+ * calling it, so that webpack's static analysis of `createRequire(arg)` calls does not
+ * replace the result with `undefined` (webpack only substitutes direct createRequire() calls
+ * where it can analyse the argument; an indirect call via a variable is not substituted).
  */
 
-const path = require("node:path");
+import * as nodeModule from "node:module";
+import { dirname, join } from "node:path";
 
-const binaryDir = path.dirname(process.execPath);
+// Indirect call via variable prevents webpack from substituting the result with undefined.
+const { createRequire } = nodeModule;
+const nativeRequire = createRequire(process.execPath);
+
+const binaryDir = dirname(process.execPath);
 
 const platformMap = {
   "win32-x64": "dc_native.win32-x64-msvc.node",
@@ -28,8 +38,7 @@ if (!nativeFile) {
   throw new Error(`dc-native-sea-shim: unsupported platform/arch: ${key}`);
 }
 
-const nativePath = path.join(binaryDir, nativeFile);
-const binding = require(nativePath);
+const nativePath = join(binaryDir, nativeFile);
+const binding = nativeRequire(nativePath);
 
-const { passwords } = binding;
-module.exports = { passwords };
+export const { passwords } = binding;

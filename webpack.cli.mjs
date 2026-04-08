@@ -73,7 +73,7 @@ const config = {
       // dc-native uses import.meta.url to locate .node binaries, which breaks inside a
       // Node SEA blob. This shim loads the .node file relative to process.execPath instead.
       // pack-sea.mjs copies the .node files alongside the binary at build time.
-      "dc-native": path.resolve(__dirname, "scripts/dc-native-sea-shim.cjs"),
+      "dc-native": path.resolve(__dirname, "scripts/dc-native-sea-shim.mjs"),
     },
   },
   output: {
