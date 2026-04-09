@@ -39,6 +39,11 @@ export const StorageKeys = {
   // TODO: Remove when jslib cleanup PR is merged
   appId: "appId",
   anonymousAppId: "anonymousAppId",
+
+  userDelta: "userDeltaToken",
+  groupDelta: "groupDeltaToken",
+  lastUserSync: "lastUserSync",
+  lastGroupSync: "lastGroupSync",
 };
 
 export const SecureStorageKeys = {
@@ -51,12 +56,6 @@ export const SecureStorageKeys = {
   entra: "secretEntra",
   okta: "secretOkta",
   oneLogin: "secretOneLogin",
-
-  // Sync metadata
-  userDelta: "userDeltaToken",
-  groupDelta: "groupDeltaToken",
-  lastUserSync: "lastUserSync",
-  lastGroupSync: "lastGroupSync",
 
   // Authentication tokens
   accessToken: "accessToken",

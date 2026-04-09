@@ -1,7 +1,7 @@
-import * as fs from "fs";
 import * as path from "path";
 
-import { app, BrowserWindow } from "electron";
+import { app } from "electron";
+import electronReload from "electron-reload";
 
 import { I18nService } from "@/libs/services/i18n.service";
 import { DefaultStateService } from "@/libs/services/state-service/default-state.service";
@@ -49,11 +49,7 @@ export class Main {
     const watch = args.some((val) => val === "--watch");
 
     if (watch) {
-      fs.watch(__dirname, { recursive: true }, (_, filename) => {
-        if (filename && !/node_modules|[/\\]\./.test(filename)) {
-          BrowserWindow.getAllWindows().forEach((bw) => bw.webContents.reloadIgnoringCache());
-        }
-      });
+      electronReload(__dirname, {});
     }
 
     this.logService = new ElectronLogService(null, app.getPath("userData"));

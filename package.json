@@ -54,7 +54,7 @@
     "dist:lin": "npm run build:dist && npm run pack:lin",
     "dist:mac": "npm run build:dist && npm run pack:mac",
     "dist:win": "npm run build:dist && npm run pack:win",
-    "dist:win:ci": "npm run build && npm run pack:win:ci",
+    "dist:win:ci": "npm run rebuild && npm run build && npm run pack:win:ci",
     "dist:cli": "npm run build:cli:prod && npm run clean:dist:cli && npm run pack:cli",
     "dist:cli:win": "npm run build:cli:prod && npm run clean:dist:cli && npm run pack:cli:win",
     "dist:cli:mac": "npm run build:cli:prod && npm run clean:dist:cli && npm run pack:cli:mac",

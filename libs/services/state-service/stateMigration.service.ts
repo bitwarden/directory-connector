@@ -113,19 +113,19 @@ export class StateMigrationService {
         await this.set(StorageKeys.sync, account.directorySettings.sync);
       }
       if (account.directorySettings.lastUserSync) {
-        await this.set(SecureStorageKeys.lastUserSync, account.directorySettings.lastUserSync);
+        await this.set(StorageKeys.lastUserSync, account.directorySettings.lastUserSync);
       }
       if (account.directorySettings.lastGroupSync) {
-        await this.set(SecureStorageKeys.lastGroupSync, account.directorySettings.lastGroupSync);
+        await this.set(StorageKeys.lastGroupSync, account.directorySettings.lastGroupSync);
       }
       if (account.directorySettings.lastSyncHash) {
         await this.set(StorageKeys.lastSyncHash, account.directorySettings.lastSyncHash);
       }
       if (account.directorySettings.userDelta) {
-        await this.set(SecureStorageKeys.userDelta, account.directorySettings.userDelta);
+        await this.set(StorageKeys.userDelta, account.directorySettings.userDelta);
       }
       if (account.directorySettings.groupDelta) {
-        await this.set(SecureStorageKeys.groupDelta, account.directorySettings.groupDelta);
+        await this.set(StorageKeys.groupDelta, account.directorySettings.groupDelta);
       }
       if (account.directorySettings.syncingDir != null) {
         await this.set(StorageKeys.syncingDir, account.directorySettings.syncingDir);
@@ -135,28 +135,8 @@ export class StateMigrationService {
     // Migrate secrets from {userId}_* to their new flat keys.
     // The old key names are the legacy values used before this migration.
     // Old keys are intentionally kept — they will be removed in a future migration.
+    // Note: keytar encoding conversion (UTF-8 → UTF-16) is handled separately in migrateStateFrom5To6.
     if (useSecureStorageForSecrets) {
-      // On Windows, the old credentials were written by keytar (CredWriteA, UTF-8 encoding).
-      // Convert them to desktop_core format (CredWriteW, UTF-16) before reading so that
-      // secureStorageService can read them correctly. This is a no-op on macOS/Linux.
-      const v3KeytarKeys = [
-        `${clientId}_ldapPassword`,
-        `${clientId}_gsuitePrivateKey`,
-        `${clientId}_azureKey`,
-        `${clientId}_entraIdKey`,
-        `${clientId}_entraKey`,
-        `${clientId}_oktaToken`,
-        `${clientId}_oneLoginClientSecret`,
-        `${clientId}_accessToken`,
-        `${clientId}_refreshToken`,
-        `${clientId}_twoFactorToken`,
-      ];
-      await Promise.all(
-        v3KeytarKeys.map((key) =>
-          passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
-        ),
-      );
-
       const oldSecretKeys = [
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
         { old: `${clientId}_gsuitePrivateKey`, new: SecureStorageKeys.gsuite },
@@ -244,11 +224,12 @@ export class StateMigrationService {
    *
    * Keys migrated:
    *   • All current flat SecureStorageKeys (secret_*, accessToken, etc.)
-   *   • Any remaining old-format keys ({userId}_*) using the LEGACY key names from the
-   *     original state service, not SecureStorageKeys values
+   *   • Non-sensitive sync metadata keys (StorageKeys.userDelta/groupDelta/lastUserSync/lastGroupSync)
+   *     which were previously written to keytar but are now stored in regular storage
    */
   protected async migrateStateFrom5To6(): Promise<void> {
-    // All SecureStorageKeys that could have been written by keytar in previous versions
+    // All keys that may have been written by keytar in previous versions and need re-encoding
+    // from UTF-8 (CredWriteA) to UTF-16 (CredWriteW) for desktop_core compatibility.
     const credentialKeys: string[] = [
       SecureStorageKeys.ldap,
       SecureStorageKeys.gsuite,
@@ -261,29 +242,11 @@ export class StateMigrationService {
       SecureStorageKeys.apiKeyClientId,
       SecureStorageKeys.apiKeyClientSecret,
       SecureStorageKeys.twoFactorToken,
-      SecureStorageKeys.userDelta,
-      SecureStorageKeys.groupDelta,
-      SecureStorageKeys.lastUserSync,
-      SecureStorageKeys.lastGroupSync,
+      StorageKeys.userDelta,
+      StorageKeys.groupDelta,
+      StorageKeys.lastUserSync,
+      StorageKeys.lastGroupSync,
     ];
-
-    // Include old {userId}_* keys still resident in the credential store.
-    // These use the LEGACY key names from the original state service, not SecureStorageKeys values.
-    const clientId = await this.storageService.get<string>("activeUserId");
-    if (clientId) {
-      credentialKeys.push(
-        `${clientId}_ldapPassword`,
-        `${clientId}_gsuitePrivateKey`,
-        `${clientId}_azureKey`,
-        `${clientId}_entraIdKey`,
-        `${clientId}_entraKey`,
-        `${clientId}_oktaToken`,
-        `${clientId}_oneLoginClientSecret`,
-        `${clientId}_accessToken`,
-        `${clientId}_refreshToken`,
-        `${clientId}_twoFactorToken`,
-      );
-    }
 
     await Promise.all(
       credentialKeys.map((key) =>

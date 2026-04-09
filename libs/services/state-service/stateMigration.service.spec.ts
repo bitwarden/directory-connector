@@ -199,15 +199,14 @@ describe("StateMigrationService", () => {
         expect(storage.store.get(StorageKeys.syncingDir)).toBe(false);
       });
 
-      it("migrates sync metadata (stored via SecureStorageKeys as key names)", async () => {
+      it("migrates sync metadata to regular storage", async () => {
         await svc.migrate();
 
-        // These are written via this.set() → regular storageService, using the SecureStorageKeys value as the key string
-        expect(storage.store.get(SecureStorageKeys.lastUserSync)).toBe("2024-01-01T00:00:00.000Z");
-        expect(storage.store.get(SecureStorageKeys.lastGroupSync)).toBe("2024-06-15T12:00:00.000Z");
+        expect(storage.store.get(StorageKeys.lastUserSync)).toBe("2024-01-01T00:00:00.000Z");
+        expect(storage.store.get(StorageKeys.lastGroupSync)).toBe("2024-06-15T12:00:00.000Z");
         expect(storage.store.get(StorageKeys.lastSyncHash)).toBe("hash-abc");
-        expect(storage.store.get(SecureStorageKeys.userDelta)).toBe("user-delta-token");
-        expect(storage.store.get(SecureStorageKeys.groupDelta)).toBe("group-delta-token");
+        expect(storage.store.get(StorageKeys.userDelta)).toBe("user-delta-token");
+        expect(storage.store.get(StorageKeys.groupDelta)).toBe("group-delta-token");
       });
 
       it("migrates window/tray settings from globals to flat keys", async () => {

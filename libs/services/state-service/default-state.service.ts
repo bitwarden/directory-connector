@@ -326,21 +326,21 @@ export class DefaultStateService implements StateService {
   }
 
   async getLastUserSync(): Promise<Date> {
-    const dateString = await this.storageService.get<string>(SecureStorageKeys.lastUserSync);
+    const dateString = await this.storageService.get<string>(StorageKeys.lastUserSync);
     return dateString ? new Date(dateString) : null;
   }
 
   async setLastUserSync(value: Date): Promise<void> {
-    await this.storageService.save(SecureStorageKeys.lastUserSync, value);
+    await this.storageService.save(StorageKeys.lastUserSync, value);
   }
 
   async getLastGroupSync(): Promise<Date> {
-    const dateString = await this.storageService.get<string>(SecureStorageKeys.lastGroupSync);
+    const dateString = await this.storageService.get<string>(StorageKeys.lastGroupSync);
     return dateString ? new Date(dateString) : null;
   }
 
   async setLastGroupSync(value: Date): Promise<void> {
-    await this.storageService.save(SecureStorageKeys.lastGroupSync, value);
+    await this.storageService.save(StorageKeys.lastGroupSync, value);
   }
 
   async getLastSyncHash(): Promise<string> {
@@ -360,19 +360,19 @@ export class DefaultStateService implements StateService {
   }
 
   async getUserDelta(): Promise<string> {
-    return await this.storageService.get<string>(SecureStorageKeys.userDelta);
+    return await this.storageService.get<string>(StorageKeys.userDelta);
   }
 
   async setUserDelta(value: string): Promise<void> {
-    await this.storageService.save(SecureStorageKeys.userDelta, value);
+    await this.storageService.save(StorageKeys.userDelta, value);
   }
 
   async getGroupDelta(): Promise<string> {
-    return await this.storageService.get<string>(SecureStorageKeys.groupDelta);
+    return await this.storageService.get<string>(StorageKeys.groupDelta);
   }
 
   async setGroupDelta(value: string): Promise<void> {
-    await this.storageService.save(SecureStorageKeys.groupDelta, value);
+    await this.storageService.save(StorageKeys.groupDelta, value);
   }
 
   async clearSyncSettings(hashToo = false): Promise<void> {
