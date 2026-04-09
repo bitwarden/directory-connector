@@ -4,5 +4,5 @@
     "outDir": "./out-tsc/spec",
     "types": ["jest", "node"]
   },
-  "include": ["src/**/*.spec.ts", "src/**/*.d.ts", "test.setup.ts", "jslib/**/*.spec.ts"]
+  "include": ["libs/**/*.spec.ts", "libs/**/*.d.ts", "src-cli/**/*.spec.ts", "src-gui/**/*.spec.ts", "test.setup.ts"]
 }
