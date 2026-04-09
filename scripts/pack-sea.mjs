@@ -7,19 +7,21 @@
  * package-manager-installed Node binaries (e.g. Homebrew) may lack the SEA
  * fuse sentinel required by --build-sea.
  *
- * macOS x64 (Intel) exception: --build-sea uses lief internally to inject the
- * SEA blob, which corrupts the Mach-O thread-local variable metadata on x64 and
- * causes dyld to abort with "unsupported thread-local, larger than 4GB" at
- * startup (exit 139). This is a known Node.js issue that the maintainers consider
- * unfixable for macOS x64:
+ * macOS x64 (Intel) exception: --build-sea and postject both use lief internally
+ * to inject the SEA blob. lief corrupts the Mach-O thread-local variable metadata,
+ * causing dyld to abort with "unsupported thread-local, larger than 4GB" (exit 134).
+ * This affects x64 targets regardless of the host architecture running the injection.
  *   https://github.com/nodejs/node/issues/59553
- *   https://github.com/nodejs/build/issues/4083#issuecomment-3326864780
- * For macOS x64 we use the manual injection path instead:
+ *
+ * For macOS x64 we use llvm-objcopy instead. llvm-objcopy's Mach-O writer correctly
+ * handles load commands without corrupting TLS metadata:
+ *   https://reviews.llvm.org/D66283 (llvm-objcopy --add-section MachO support)
+ *
+ * Injection steps for macOS x64:
  *   1. --experimental-sea-config generates the prep blob
- *   2. postject injects it via a different mechanism that avoids the lief bug
- *   3. codesign --sign - --force re-signs the result
- * This is the approach documented at:
- *   https://nodejs.org/docs/latest-v25.x/api/single-executable-applications.html#injecting-the-preparation-blob-manually
+ *   2. llvm-objcopy --add-section injects it as the __NODE_SEA,NODE_SEA_BLOB section
+ *   3. The SEA fuse sentinel is flipped from 0→1 in-place in the binary
+ *   4. codesign --sign - --force re-signs the result
  *
  * Usage: node scripts/pack-sea.mjs <platform>
  * Platforms: linux, macos, macos-arm64, windows
@@ -34,6 +36,10 @@ import {
   copyFileSync,
   chmodSync,
   readdirSync,
+  readFileSync,
+  openSync,
+  writeSync,
+  closeSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -139,8 +145,8 @@ const blobPath = join(repoRoot, `sea-prep.${platform}.blob`);
 
 const seaConfig = {
   main: "./build-cli/bwdc.js",
-  // For --experimental-sea-config (macOS x64) the output is the prep blob path.
-  // For --build-sea (all other platforms) it is the final binary path.
+  // For macOS x64 (llvm-objcopy injection path) the output is the prep blob path.
+  // For all other platforms (--build-sea) it is the final binary path.
   output: platform === "macos" ? blobPath : outputBinary,
   mainFormat: "module",
   disableExperimentalSEAWarning: true,
@@ -153,6 +159,60 @@ const seaConfig = {
 
 writeFileSync(tempSeaConfig, JSON.stringify(seaConfig, null, 2));
 
+/**
+ * Find the llvm-objcopy binary. On macOS GitHub Actions runners, LLVM 17 is
+ * installed via Homebrew at /usr/local/opt/llvm@17/bin/llvm-objcopy.
+ * Falls back to the default llvm-objcopy on PATH.
+ */
+function findLlvmObjcopy() {
+  const candidates = [
+    "/usr/local/opt/llvm/bin/llvm-objcopy",
+    "/usr/local/opt/llvm@17/bin/llvm-objcopy",
+    "/usr/local/opt/llvm@18/bin/llvm-objcopy",
+    "llvm-objcopy",
+  ];
+  for (const candidate of candidates) {
+    try {
+      execFileSync(candidate, ["--version"], { stdio: "pipe" });
+      console.log(`Using llvm-objcopy: ${candidate}`);
+      return candidate;
+    } catch {
+      // not found, try next
+    }
+  }
+  throw new Error(
+    "llvm-objcopy not found. Install LLVM via Homebrew: brew install llvm",
+  );
+}
+
+/**
+ * Flip the Node.js SEA fuse sentinel in the binary from ":0" to ":1".
+ * The fuse string "NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2:0" must be
+ * changed to ":1" to signal that a blob has been injected.
+ * See: https://nodejs.org/api/single-executable-applications.html#generating-single-executable-preparation-blobs
+ */
+function flipSeaFuse(binaryPath) {
+  const FUSE_PREFIX = Buffer.from("NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2:");
+  const data = readFileSync(binaryPath);
+  const idx = data.indexOf(FUSE_PREFIX);
+  if (idx === -1) {
+    throw new Error(`SEA fuse sentinel not found in ${binaryPath}. Is this a Node.js binary?`);
+  }
+  const fuseByteOffset = idx + FUSE_PREFIX.length;
+  if (data[fuseByteOffset] !== 0x30 /* "0" */) {
+    throw new Error(
+      `SEA fuse is not "0" at offset ${fuseByteOffset} (found 0x${data[fuseByteOffset].toString(16)}). Already flipped?`,
+    );
+  }
+  const fd = openSync(binaryPath, "r+");
+  try {
+    writeSync(fd, Buffer.from([0x31 /* "1" */]), 0, 1, fuseByteOffset);
+  } finally {
+    closeSync(fd);
+  }
+  console.log(`SEA fuse flipped at offset ${fuseByteOffset}`);
+}
+
 try {
   console.log(`Building SEA binary for ${platform}...`);
   console.log(`Output: ${outputBinary}`);
@@ -160,7 +220,7 @@ try {
   const officialNode = ensureOfficialNodeBinary();
 
   if (platform === "macos") {
-    // macOS x64: use manual injection via postject to avoid the lief-induced dyld crash.
+    // macOS x64: use llvm-objcopy injection to avoid the lief-induced dyld crash.
     // See the module comment for full context.
 
     // Step 1: generate the SEA prep blob.
@@ -173,29 +233,27 @@ try {
     copyFileSync(officialNodeBin, outputBinary);
     chmodSync(outputBinary, 0o755);
 
-    // Step 3: remove the existing Apple signature so postject can modify the binary.
+    // Step 3: remove the existing Apple signature so we can modify the binary.
     execFileSync("codesign", ["--remove-signature", outputBinary], {
       stdio: "inherit",
     });
 
-    // Step 4: inject the blob using postject.
-    // Resource name, sentinel fuse, and segment name are required by Node.js SEA:
-    // https://nodejs.org/docs/latest-v25.x/api/single-executable-applications.html#injecting-the-preparation-blob-manually
-    const postjectBin = join(repoRoot, "node_modules", ".bin", "postject");
+    // Step 4: inject the blob using llvm-objcopy.
+    // llvm-objcopy --add-section uses LLVM's own Mach-O writer which correctly
+    // preserves TLS load commands that lief (used by --build-sea and postject) corrupts.
+    // Section must be named __NODE_SEA,NODE_SEA_BLOB as required by Node.js SEA.
+    // LLVM 17 is available on the macOS 15 GitHub Actions runner.
+    const llvmObjcopy = findLlvmObjcopy();
     execFileSync(
-      postjectBin,
-      [
-        outputBinary,
-        "NODE_SEA_BLOB",
-        blobPath,
-        "--sentinel-fuse",
-        "NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
-        "--macho-segment-name",
-        "NODE_SEA",
-        "--overwrite",
-      ],
-      { cwd: repoRoot, stdio: "inherit" },
+      llvmObjcopy,
+      ["--add-section", `__NODE_SEA,NODE_SEA_BLOB=${blobPath}`, outputBinary],
+      { stdio: "inherit" },
     );
+
+    // Step 5: flip the SEA fuse sentinel from 0 to 1 in-place.
+    // Node.js checks for this sentinel to know a blob has been injected.
+    // The fuse string ends with ":0" which must be changed to ":1".
+    flipSeaFuse(outputBinary);
   } else {
     execFileSync(officialNode, [`--build-sea`, tempSeaConfig], {
       cwd: repoRoot,
