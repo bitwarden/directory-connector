@@ -34,6 +34,7 @@ import {
   copyFileSync,
   chmodSync,
   readdirSync,
+  cpSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -159,11 +160,12 @@ try {
     // corrupts TLS metadata or produces a binary codesign rejects.
     // See: https://github.com/nodejs/node/issues/59553
     //
-    // Bundle layout (all files in dist-cli/macos/):
-    //   bwdc       — shell launcher script
-    //   node       — official x64 Node.js binary
-    //   bwdc.js    — webpack bundle
-    //   *.node     — dc-native addon
+    // Bundle layout (dist-cli/macos/):
+    //   bwdc              — shell launcher script
+    //   node              — official x64 Node.js binary
+    //   bwdc.js           — webpack bundle
+    //   locales/          — locale files read by I18nService at runtime
+    //   *.node            — dc-native addon
 
     // Copy the official node binary alongside the bundle
     const nodeDest = join(outputDir, "node");
@@ -177,12 +179,20 @@ try {
     copyFileSync(bundleSrc, bundleDest);
     console.log(`Copied bundle: ${bundleDest}`);
 
+    // Copy locales directory — I18nService reads these from the filesystem
+    // relative to the bundle when not running as a SEA.
+    const localesSrc = join(repoRoot, "src-gui", "locales");
+    const localesDest = join(outputDir, "locales");
+    cpSync(localesSrc, localesDest, { recursive: true });
+    console.log(`Copied locales: ${localesDest}`);
+
     // Write the launcher shell script
-    const launcherScript = [
-      "#!/bin/sh",
-      'DIR="$(cd "$(dirname "$0")" && pwd)"',
-      'exec "$DIR/node" "$DIR/bwdc.js" "$@"',
-    ].join("\n") + "\n";
+    const launcherScript =
+      [
+        "#!/bin/sh",
+        'DIR="$(cd "$(dirname "$0")" && pwd)"',
+        'exec "$DIR/node" "$DIR/bwdc.js" "$@"',
+      ].join("\n") + "\n";
     writeFileSync(outputBinary, launcherScript);
     chmodSync(outputBinary, 0o755);
     console.log(`Wrote launcher script: ${outputBinary}`);
