@@ -40,7 +40,6 @@ export const StorageKeys = {
   appId: "appId",
   anonymousAppId: "anonymousAppId",
 
-  // Sync metadata (non-sensitive, stored in regular storage)
   userDelta: "userDeltaToken",
   groupDelta: "groupDeltaToken",
   lastUserSync: "lastUserSync",

@@ -182,67 +182,6 @@ jobs:
           if-no-files-found: error
 
 
-  macos-arm64-cli:
-    name: Build Mac ARM64 CLI
-    runs-on: macos-15
-    needs: setup
-    permissions:
-      contents: read
-    env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
-      HUSKY: 0
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
-
-      - name: Setup Node Environment
-        uses: ./.github/actions/setup-node-env
-        with:
-          node-version: ${{ env._NODE_VERSION }}
-          platform: macOS
-
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
-
-      - name: Install
-        run: npm ci
-
-      - name: Build native module
-        run: npm run build:native:release
-
-      - name: Package CLI
-        run: npm run dist:cli:mac:arm64
-
-      - name: Zip
-        run: zip -j "dist-cli/bwdc-macos-arm64-$_PACKAGE_VERSION.zip" "dist-cli/macos-arm64/bwdc" "node_modules/dc-native/dc_native.darwin-arm64.node"
-
-      - name: Version Test
-        run: |
-          mkdir -p test/macos-arm64
-          unzip "./dist-cli/bwdc-macos-arm64-$_PACKAGE_VERSION.zip" -d ./test/macos-arm64
-
-          testVersion=$(./test/macos-arm64/bwdc -v)
-
-          echo "version: $_PACKAGE_VERSION"
-          echo "testVersion: $testVersion"
-
-          if [ "$testVersion" != "$_PACKAGE_VERSION" ]; then
-            echo "Version test failed."
-            exit 1
-          fi
-
-      - name: Upload Mac ARM64 Zip to GitHub
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-        with:
-          name: bwdc-macos-arm64-${{ env._PACKAGE_VERSION }}.zip
-          path: ./dist-cli/bwdc-macos-arm64-${{ env._PACKAGE_VERSION }}.zip
-          if-no-files-found: error
-
-
   windows-cli:
     name: Build Windows CLI
     runs-on: windows-2022
