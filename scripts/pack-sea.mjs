@@ -180,9 +180,7 @@ function findLlvmObjcopy() {
       // not found, try next
     }
   }
-  throw new Error(
-    "llvm-objcopy not found. Install LLVM via Homebrew: brew install llvm",
-  );
+  throw new Error("llvm-objcopy not found. Install LLVM via Homebrew: brew install llvm");
 }
 
 /**
@@ -279,9 +277,13 @@ try {
     // --force is required because the official Node.js binary already carries an Apple
     // signature; without it codesign refuses to replace an existing signature (see Apple
     // TN2206 "Using the codesign Tool" – https://developer.apple.com/library/archive/technotes/tn2206/_index.html).
-    execFileSync("codesign", ["--sign", "-", "--force", outputBinary], {
-      stdio: "inherit",
-    });
+    // --no-strict is required when using llvm-objcopy for injection on macOS x64: the
+    // added __NODE_SEA segment causes codesign's strict structural checks to fail with
+    // "internal error in Code Signing subsystem".
+    const codesignArgs = ["--sign", "-", "--force"];
+    if (platform === "macos") codesignArgs.push("--no-strict");
+    codesignArgs.push(outputBinary);
+    execFileSync("codesign", codesignArgs, { stdio: "inherit" });
   }
 
   console.log(`Done: ${outputBinary}`);
