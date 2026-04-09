@@ -160,7 +160,7 @@ jobs:
         run: npm run dist:cli:mac
 
       - name: Zip
-        run: zip -j "dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" dist-cli/macos/*
+        run: cd dist-cli/macos && zip -r "../bwdc-macos-$_PACKAGE_VERSION.zip" .
 
       - name: Version Test
         run: |
