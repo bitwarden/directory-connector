@@ -7,21 +7,19 @@
  * package-manager-installed Node binaries (e.g. Homebrew) may lack the SEA
  * fuse sentinel required by --build-sea.
  *
- * macOS x64 (Intel) exception: --build-sea and postject both use lief internally
- * to inject the SEA blob. lief corrupts the Mach-O thread-local variable metadata,
- * causing dyld to abort with "unsupported thread-local, larger than 4GB" (exit 134).
- * This affects x64 targets regardless of the host architecture running the injection.
+ * macOS x64 (Intel) exception: every available Mach-O injection tool (--build-sea,
+ * postject, llvm-objcopy) either corrupts the binary's TLS metadata causing dyld to
+ * abort with "unsupported thread-local, larger than 4GB" (exit 134), or produces a
+ * binary that codesign rejects with "internal error in Code Signing subsystem".
+ * This is a known upstream issue:
  *   https://github.com/nodejs/node/issues/59553
  *
- * For macOS x64 we use llvm-objcopy instead. llvm-objcopy's Mach-O writer correctly
- * handles load commands without corrupting TLS metadata:
- *   https://reviews.llvm.org/D66283 (llvm-objcopy --add-section MachO support)
- *
- * Injection steps for macOS x64:
- *   1. --experimental-sea-config generates the prep blob
- *   2. llvm-objcopy --add-section injects it as the __NODE_SEA,NODE_SEA_BLOB section
- *   3. The SEA fuse sentinel is flipped from 0→1 in-place in the binary
- *   4. codesign --sign - --force re-signs the result
+ * For macOS x64 we ship a shell-wrapper bundle instead of a single executable:
+ *   bwdc          — launcher shell script (chmod +x)
+ *   node          — official x64 Node.js binary
+ *   bwdc.js       — webpack bundle
+ *   *.node        — dc-native addon
+ * Users run ./bwdc exactly as before; the script finds node next to itself.
  *
  * Usage: node scripts/pack-sea.mjs <platform>
  * Platforms: linux, macos, macos-arm64, windows
@@ -36,10 +34,6 @@ import {
   copyFileSync,
   chmodSync,
   readdirSync,
-  readFileSync,
-  openSync,
-  writeSync,
-  closeSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -139,15 +133,9 @@ function ensureOfficialNodeBinary() {
   return officialNodeBin;
 }
 
-// --experimental-sea-config writes the prep blob to a file; --build-sea writes the
-// final binary directly. Use separate output paths accordingly.
-const blobPath = join(repoRoot, `sea-prep.${platform}.blob`);
-
 const seaConfig = {
   main: "./build-cli/bwdc.js",
-  // For macOS x64 (llvm-objcopy injection path) the output is the prep blob path.
-  // For all other platforms (--build-sea) it is the final binary path.
-  output: platform === "macos" ? blobPath : outputBinary,
+  output: outputBinary,
   mainFormat: "module",
   disableExperimentalSEAWarning: true,
   useSnapshot: false,
@@ -159,106 +147,45 @@ const seaConfig = {
 
 writeFileSync(tempSeaConfig, JSON.stringify(seaConfig, null, 2));
 
-/**
- * Find the llvm-objcopy binary. On macOS GitHub Actions runners, LLVM 17 is
- * installed via Homebrew at /usr/local/opt/llvm@17/bin/llvm-objcopy.
- * Falls back to the default llvm-objcopy on PATH.
- */
-function findLlvmObjcopy() {
-  const candidates = [
-    "/usr/local/opt/llvm/bin/llvm-objcopy",
-    "/usr/local/opt/llvm@17/bin/llvm-objcopy",
-    "/usr/local/opt/llvm@18/bin/llvm-objcopy",
-    "llvm-objcopy",
-  ];
-  for (const candidate of candidates) {
-    try {
-      execFileSync(candidate, ["--version"], { stdio: "pipe" });
-      console.log(`Using llvm-objcopy: ${candidate}`);
-      return candidate;
-    } catch {
-      // not found, try next
-    }
-  }
-  throw new Error("llvm-objcopy not found. Install LLVM via Homebrew: brew install llvm");
-}
-
-/**
- * Flip the Node.js SEA fuse sentinel in the binary from ":0" to ":1".
- * The fuse string "NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2:0" must be
- * changed to ":1" to signal that a blob has been injected.
- * See: https://nodejs.org/api/single-executable-applications.html#generating-single-executable-preparation-blobs
- */
-function flipSeaFuse(binaryPath) {
-  const FUSE_PREFIX = Buffer.from("NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2:");
-  const data = readFileSync(binaryPath);
-  const idx = data.indexOf(FUSE_PREFIX);
-  if (idx === -1) {
-    throw new Error(`SEA fuse sentinel not found in ${binaryPath}. Is this a Node.js binary?`);
-  }
-  const fuseByteOffset = idx + FUSE_PREFIX.length;
-  if (data[fuseByteOffset] !== 0x30 /* "0" */) {
-    throw new Error(
-      `SEA fuse is not "0" at offset ${fuseByteOffset} (found 0x${data[fuseByteOffset].toString(16)}). Already flipped?`,
-    );
-  }
-  const fd = openSync(binaryPath, "r+");
-  try {
-    writeSync(fd, Buffer.from([0x31 /* "1" */]), 0, 1, fuseByteOffset);
-  } finally {
-    closeSync(fd);
-  }
-  console.log(`SEA fuse flipped at offset ${fuseByteOffset}`);
-}
-
 try {
-  console.log(`Building SEA binary for ${platform}...`);
-  console.log(`Output: ${outputBinary}`);
+  console.log(`Building CLI for ${platform}...`);
+  console.log(`Output: ${outputDir}`);
 
   const officialNode = ensureOfficialNodeBinary();
 
   if (platform === "macos") {
-    // macOS x64: use llvm-objcopy injection to avoid the lief-induced dyld crash.
-    // See the module comment for full context.
+    // macOS x64: ship a shell-wrapper bundle instead of a single executable.
+    // Every Mach-O injection tool (--build-sea, postject, llvm-objcopy) either
+    // corrupts TLS metadata or produces a binary codesign rejects.
+    // See: https://github.com/nodejs/node/issues/59553
+    //
+    // Bundle layout (all files in dist-cli/macos/):
+    //   bwdc       — shell launcher script
+    //   node       — official x64 Node.js binary
+    //   bwdc.js    — webpack bundle
+    //   *.node     — dc-native addon
 
-    // Step 1: generate the SEA prep blob.
-    execFileSync(officialNode, [`--experimental-sea-config`, tempSeaConfig], {
-      cwd: repoRoot,
-      stdio: "inherit",
-    });
+    // Copy the official node binary alongside the bundle
+    const nodeDest = join(outputDir, "node");
+    copyFileSync(officialNodeBin, nodeDest);
+    chmodSync(nodeDest, 0o755);
+    console.log(`Copied Node binary: ${nodeDest}`);
 
-    // Step 2: copy the official node binary to the output path.
-    copyFileSync(officialNodeBin, outputBinary);
+    // Copy the webpack bundle
+    const bundleSrc = join(repoRoot, "build-cli", "bwdc.js");
+    const bundleDest = join(outputDir, "bwdc.js");
+    copyFileSync(bundleSrc, bundleDest);
+    console.log(`Copied bundle: ${bundleDest}`);
+
+    // Write the launcher shell script
+    const launcherScript = [
+      "#!/bin/sh",
+      'DIR="$(cd "$(dirname "$0")" && pwd)"',
+      'exec "$DIR/node" "$DIR/bwdc.js" "$@"',
+    ].join("\n") + "\n";
+    writeFileSync(outputBinary, launcherScript);
     chmodSync(outputBinary, 0o755);
-
-    // Step 3: remove the existing Apple signature so we can modify the binary.
-    execFileSync("codesign", ["--remove-signature", outputBinary], {
-      stdio: "inherit",
-    });
-
-    // Step 4: inject the blob using llvm-objcopy.
-    // llvm-objcopy --add-section uses LLVM's own Mach-O writer which correctly
-    // preserves TLS load commands that lief (used by --build-sea and postject) corrupts.
-    // Section must be named __NODE_SEA,NODE_SEA_BLOB as required by Node.js SEA.
-    // LLVM 18 is available on the macOS 15 GitHub Actions runner.
-    const llvmObjcopy = findLlvmObjcopy();
-    execFileSync(
-      llvmObjcopy,
-      ["--add-section", `__NODE_SEA,NODE_SEA_BLOB=${blobPath}`, outputBinary],
-      { stdio: "inherit" },
-    );
-
-    // Step 5: remove signature again — llvm-objcopy may leave a stale
-    // LC_CODE_SIGNATURE load command in the Mach-O headers that causes
-    // codesign to report "internal error in Code Signing subsystem".
-    execFileSync("codesign", ["--remove-signature", outputBinary], {
-      stdio: "inherit",
-    });
-
-    // Step 6: flip the SEA fuse sentinel from 0 to 1 in-place.
-    // Node.js checks for this sentinel to know a blob has been injected.
-    // The fuse string ends with ":0" which must be changed to ":1".
-    flipSeaFuse(outputBinary);
+    console.log(`Wrote launcher script: ${outputBinary}`);
   } else {
     execFileSync(officialNode, [`--build-sea`, tempSeaConfig], {
       cwd: repoRoot,
@@ -268,9 +195,6 @@ try {
 
   // Copy native .node addons from node_modules/dc-native/ to the output dir so they sit
   // alongside the binary with their canonical names (e.g. dc_native.darwin-x64.node).
-  // The bundled dc-native index.js chunk uses require('./dc_native.<platform>.node') at
-  // runtime, resolving relative to the binary location, so the canonical name must match.
-  // build-cli/ only has webpack-hashed copies (e.g. bf4a17...node) which won't match.
   const dcNativeDir = join(repoRoot, "node_modules", "dc-native");
   for (const file of readdirSync(dcNativeDir)) {
     if (file.endsWith(".node")) {
@@ -279,7 +203,7 @@ try {
     }
   }
 
-  if (platform === "macos" || platform === "macos-arm64") {
+  if (platform === "macos-arm64") {
     console.log("Ad-hoc signing binary...");
     // --force is required because the official Node.js binary already carries an Apple
     // signature; without it codesign refuses to replace an existing signature (see Apple
@@ -289,8 +213,7 @@ try {
     });
   }
 
-  console.log(`Done: ${outputBinary}`);
+  console.log(`Done: ${outputDir}`);
 } finally {
   rmSync(tempSeaConfig, { force: true });
-  rmSync(blobPath, { force: true });
 }
