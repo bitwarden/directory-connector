@@ -125,11 +125,7 @@ jobs:
 
   macos-cli:
     name: Build Mac CLI
-    # Run on ARM64 to avoid the lief/--build-sea/postject bug on macOS x64 (Intel) that
-    # corrupts Mach-O thread-local variable metadata and causes dyld to abort at startup.
-    # The x64 Node binary and dc-native addon are cross-compiled for x86_64-apple-darwin.
-    # See: https://github.com/nodejs/node/issues/59553
-    runs-on: macos-15
+    runs-on: macos-15-intel
     needs: setup
     permissions:
       contents: read
@@ -153,16 +149,12 @@ jobs:
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
-        with:
-          targets: x86_64-apple-darwin
 
       - name: Install
         run: npm ci
 
       - name: Build native module
         run: npm run build:native:release
-        env:
-          CARGO_BUILD_TARGET: x86_64-apple-darwin
 
       - name: Package CLI
         run: npm run dist:cli:mac
