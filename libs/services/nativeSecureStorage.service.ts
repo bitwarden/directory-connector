@@ -1,9 +1,9 @@
-import { passwords } from "dc-native";
-
 import { LogService } from "@/libs/abstractions/log.service";
 import { StorageService } from "@/libs/abstractions/storage.service";
 
 import { SecureStorageKey, StorageKey } from "../models/state.model";
+
+import { passwords } from "dc-native";
 
 
 export class NativeSecureStorageService implements StorageService {
