@@ -7,6 +7,20 @@
  * package-manager-installed Node binaries (e.g. Homebrew) may lack the SEA
  * fuse sentinel required by --build-sea.
  *
+ * macOS x64 (Intel) exception: --build-sea uses lief internally to inject the
+ * SEA blob, which corrupts the Mach-O thread-local variable metadata on x64 and
+ * causes dyld to abort with "unsupported thread-local, larger than 4GB" at
+ * startup (exit 139). This is a known Node.js issue that the maintainers consider
+ * unfixable for macOS x64:
+ *   https://github.com/nodejs/node/issues/59553
+ *   https://github.com/nodejs/build/issues/4083#issuecomment-3326864780
+ * For macOS x64 we use the manual injection path instead:
+ *   1. --experimental-sea-config generates the prep blob
+ *   2. postject injects it via a different mechanism that avoids the lief bug
+ *   3. codesign --sign - --force re-signs the result
+ * This is the approach documented at:
+ *   https://nodejs.org/docs/latest-v25.x/api/single-executable-applications.html#injecting-the-preparation-blob-manually
+ *
  * Usage: node scripts/pack-sea.mjs <platform>
  * Platforms: linux, macos, macos-arm64, windows
  */
@@ -119,9 +133,15 @@ function ensureOfficialNodeBinary() {
   return officialNodeBin;
 }
 
+// --experimental-sea-config writes the prep blob to a file; --build-sea writes the
+// final binary directly. Use separate output paths accordingly.
+const blobPath = join(repoRoot, `sea-prep.${platform}.blob`);
+
 const seaConfig = {
   main: "./build-cli/bwdc.js",
-  output: outputBinary,
+  // For --experimental-sea-config (macOS x64) the output is the prep blob path.
+  // For --build-sea (all other platforms) it is the final binary path.
+  output: platform === "macos" ? blobPath : outputBinary,
   mainFormat: "module",
   disableExperimentalSEAWarning: true,
   useSnapshot: false,
@@ -139,10 +159,49 @@ try {
 
   const officialNode = ensureOfficialNodeBinary();
 
-  execFileSync(officialNode, [`--build-sea`, tempSeaConfig], {
-    cwd: repoRoot,
-    stdio: "inherit",
-  });
+  if (platform === "macos") {
+    // macOS x64: use manual injection via postject to avoid the lief-induced dyld crash.
+    // See the module comment for full context.
+
+    // Step 1: generate the SEA prep blob.
+    execFileSync(officialNode, [`--experimental-sea-config`, tempSeaConfig], {
+      cwd: repoRoot,
+      stdio: "inherit",
+    });
+
+    // Step 2: copy the official node binary to the output path.
+    copyFileSync(officialNodeBin, outputBinary);
+    chmodSync(outputBinary, 0o755);
+
+    // Step 3: remove the existing Apple signature so postject can modify the binary.
+    execFileSync("codesign", ["--remove-signature", outputBinary], {
+      stdio: "inherit",
+    });
+
+    // Step 4: inject the blob using postject.
+    // Resource name, sentinel fuse, and segment name are required by Node.js SEA:
+    // https://nodejs.org/docs/latest-v25.x/api/single-executable-applications.html#injecting-the-preparation-blob-manually
+    const postjectBin = join(repoRoot, "node_modules", ".bin", "postject");
+    execFileSync(
+      postjectBin,
+      [
+        outputBinary,
+        "NODE_SEA_BLOB",
+        blobPath,
+        "--sentinel-fuse",
+        "NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
+        "--macho-segment-name",
+        "NODE_SEA",
+        "--overwrite",
+      ],
+      { cwd: repoRoot, stdio: "inherit" },
+    );
+  } else {
+    execFileSync(officialNode, [`--build-sea`, tempSeaConfig], {
+      cwd: repoRoot,
+      stdio: "inherit",
+    });
+  }
 
   // Copy native .node addons from node_modules/dc-native/ to the output dir so they sit
   // alongside the binary with their canonical names (e.g. dc_native.darwin-x64.node).
@@ -162,8 +221,6 @@ try {
     // --force is required because the official Node.js binary already carries an Apple
     // signature; without it codesign refuses to replace an existing signature (see Apple
     // TN2206 "Using the codesign Tool" – https://developer.apple.com/library/archive/technotes/tn2206/_index.html).
-    // --build-sea injects the SEA blob into that binary, invalidating the original signature,
-    // so we must forcibly re-sign to avoid a crash (exit 139) at runtime on macOS.
     execFileSync("codesign", ["--sign", "-", "--force", outputBinary], {
       stdio: "inherit",
     });
@@ -172,4 +229,5 @@ try {
   console.log(`Done: ${outputBinary}`);
 } finally {
   rmSync(tempSeaConfig, { force: true });
+  rmSync(blobPath, { force: true });
 }

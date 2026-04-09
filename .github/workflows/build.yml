@@ -167,17 +167,7 @@ jobs:
           mkdir -p test/macos
           unzip "./dist-cli/bwdc-macos-$_PACKAGE_VERSION.zip" -d ./test/macos
 
-          echo "=== codesign verify ==="
-          codesign -v --verbose=4 ./test/macos/bwdc 2>&1 || true
-
-          echo "=== file info ==="
-          file ./test/macos/bwdc
-
-          echo "=== running binary ==="
-          ./test/macos/bwdc -v 2>&1; EXIT=$?
-          echo "exit code: $EXIT"
-
-          testVersion=$(./test/macos/bwdc -v 2>&1)
+          testVersion=$(./test/macos/bwdc -v)
 
           echo "version: $_PACKAGE_VERSION"
           echo "testVersion: $testVersion"
