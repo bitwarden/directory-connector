@@ -240,7 +240,7 @@ try {
     // llvm-objcopy --add-section uses LLVM's own Mach-O writer which correctly
     // preserves TLS load commands that lief (used by --build-sea and postject) corrupts.
     // Section must be named __NODE_SEA,NODE_SEA_BLOB as required by Node.js SEA.
-    // LLVM 17 is available on the macOS 15 GitHub Actions runner.
+    // LLVM 18 is available on the macOS 15 GitHub Actions runner.
     const llvmObjcopy = findLlvmObjcopy();
     execFileSync(
       llvmObjcopy,
@@ -248,7 +248,14 @@ try {
       { stdio: "inherit" },
     );
 
-    // Step 5: flip the SEA fuse sentinel from 0 to 1 in-place.
+    // Step 5: remove signature again — llvm-objcopy may leave a stale
+    // LC_CODE_SIGNATURE load command in the Mach-O headers that causes
+    // codesign to report "internal error in Code Signing subsystem".
+    execFileSync("codesign", ["--remove-signature", outputBinary], {
+      stdio: "inherit",
+    });
+
+    // Step 6: flip the SEA fuse sentinel from 0 to 1 in-place.
     // Node.js checks for this sentinel to know a blob has been injected.
     // The fuse string ends with ":0" which must be changed to ":1".
     flipSeaFuse(outputBinary);
@@ -277,13 +284,9 @@ try {
     // --force is required because the official Node.js binary already carries an Apple
     // signature; without it codesign refuses to replace an existing signature (see Apple
     // TN2206 "Using the codesign Tool" – https://developer.apple.com/library/archive/technotes/tn2206/_index.html).
-    // --no-strict is required when using llvm-objcopy for injection on macOS x64: the
-    // added __NODE_SEA segment causes codesign's strict structural checks to fail with
-    // "internal error in Code Signing subsystem".
-    const codesignArgs = ["--sign", "-", "--force"];
-    if (platform === "macos") codesignArgs.push("--no-strict");
-    codesignArgs.push(outputBinary);
-    execFileSync("codesign", codesignArgs, { stdio: "inherit" });
+    execFileSync("codesign", ["--sign", "-", "--force", outputBinary], {
+      stdio: "inherit",
+    });
   }
 
   console.log(`Done: ${outputBinary}`);
