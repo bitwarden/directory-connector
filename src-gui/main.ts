@@ -1,7 +1,6 @@
 import * as path from "path";
 
 import { app } from "electron";
-import electronReload from "electron-reload";
 
 import { I18nService } from "@/libs/services/i18n.service";
 import { DefaultStateService } from "@/libs/services/state-service/default-state.service";
@@ -49,7 +48,8 @@ export class Main {
     const watch = args.some((val) => val === "--watch");
 
     if (watch) {
-      electronReload(__dirname, {});
+      // eslint-disable-next-line
+      require("electron-reload")(__dirname, {});
     }
 
     this.logService = new ElectronLogService(null, app.getPath("userData"));
