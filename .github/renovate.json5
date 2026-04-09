@@ -1,24 +1,24 @@
 {
-    $schema: "https://docs.renovatebot.com/renovate-schema.json",
-    extends: ["github>bitwarden/renovate-config"],
-    enabledManagers: ["docker-compose", "github-actions", "npm"],
-    packageRules: [
-        {
-            groupName: "github-action minor",
-            matchManagers: ["github-actions"],
-            matchUpdateTypes: ["minor", "patch"],
-        },
-    ],
-    ignoreDeps: [
-        // yao-pkg is used to create a single executable application bundle for the CLI.
-        // It is a third party build of node which carries a high supply chain risk.
-        // This must be manually vetted by our appsec team before upgrading.
-        // It is excluded from renovate to avoid accidentally upgrading to a non-vetted version.
-        "@yao-pkg/pkg",
-        // googleapis uses ESM after 149.0.0 so we are not upgrading it until we have ESM support.
-        // They release new versions every couple of weeks so ignoring it at the dependency dashboard
-        // level is not sufficient.
-        // FIXME: remove and upgrade when we have ESM support.
-        "googleapis",
-    ],
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["github>bitwarden/renovate-config"],
+  enabledManagers: ["docker-compose", "github-actions", "npm"],
+  packageRules: [
+    {
+      groupName: "github-action minor",
+      matchManagers: ["github-actions"],
+      matchUpdateTypes: ["minor", "patch"],
+    },
+  ],
+  ignoreDeps: [
+    // yao-pkg is used to create a single executable application bundle for the CLI.
+    // It is a third party build of node which carries a high supply chain risk.
+    // This must be manually vetted by our appsec team before upgrading.
+    // It is excluded from renovate to avoid accidentally upgrading to a non-vetted version.
+    "@yao-pkg/pkg",
+    // googleapis uses ESM after 149.0.0 so we are not upgrading it until we have ESM support.
+    // They release new versions every couple of weeks so ignoring it at the dependency dashboard
+    // level is not sufficient.
+    // FIXME: remove and upgrade when we have ESM support.
+    "googleapis",
+  ],
 }
