@@ -1,67 +1,57 @@
 /// Windows-only: migrates credentials stored by keytar (UTF-8 blob via CredWriteA) to the
 /// UTF-16 format expected by desktop_core (CredWriteW).
 ///
-/// Keytar used CredWriteA on Windows, which stored the credential blob as raw UTF-8 bytes.
-/// desktop_core uses CredWriteW with a UTF-16 encoded blob. Reading old keytar credentials
-/// through desktop_core's get_password produces garbled output because the UTF-8 bytes are
-/// reinterpreted as UTF-16.
-///
-/// This function detects the old format by checking whether the raw blob bytes are valid UTF-8
-/// without null bytes (UTF-16 LE encoding of ASCII always contains null bytes). If so, it
-/// re-saves the credential using desktop_core's set_password (UTF-16 encoding).
-use anyhow::{anyhow, Result};
+/// `get_password_keytar` reads the raw credential blob as UTF-8 bytes, matching the format
+/// written by keytar (CredWriteA). `migrate_keytar_password` reads the value using
+/// `get_password_keytar` and re-saves it with desktop_core's `set_password` (CredWriteW,
+/// UTF-16 encoding). Returns false if the credential does not exist or cannot be read.
+use anyhow::Result;
 use widestring::U16CString;
 use windows::{
     core::PCWSTR,
-    Win32::Security::Credentials::{CredFree, CredReadW, CRED_TYPE_GENERIC},
+    Win32::Security::Credentials::{CredFree, CredReadW, CREDENTIALW, CRED_TYPE_GENERIC},
 };
 
-pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<bool> {
-    let target = format!("{}/{}", service, account);
-    let target_wide = U16CString::from_str(&target)?;
+const CRED_FLAGS_NONE: u32 = 0;
 
-    let mut credential = std::ptr::null_mut();
+fn get_password_keytar(service: &str, account: &str) -> Result<String> {
+    let target_name = U16CString::from_str(format!("{}/{}", service, account))?;
+
+    let mut credential: *mut CREDENTIALW = std::ptr::null_mut();
+    let credential_ptr = &mut credential;
+
     let result = unsafe {
         CredReadW(
-            PCWSTR(target_wide.as_ptr()),
+            PCWSTR(target_name.as_ptr()),
             CRED_TYPE_GENERIC,
-            None,
-            &mut credential,
+            CRED_FLAGS_NONE,
+            credential_ptr,
         )
     };
 
-    if result.is_err() {
-        // Credential does not exist; nothing to migrate.
-        return Ok(false);
-    }
-
-    scopeguard::defer! {{
+    scopeguard::defer!({
         unsafe { CredFree(credential as *mut _) };
-    }};
+    });
 
-    let blob_bytes: Vec<u8> = unsafe {
-        let blob_ptr = (*credential).CredentialBlob;
-        let blob_size = (*credential).CredentialBlobSize as usize;
-        if blob_ptr.is_null() || blob_size == 0 {
-            return Ok(false);
-        }
-        std::slice::from_raw_parts(blob_ptr, blob_size).to_vec()
+    result?;
+
+    let password = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(
+            (*credential).CredentialBlob,
+            (*credential).CredentialBlobSize as usize,
+        ))
     };
 
-    // UTF-16 LE encoding of ASCII always contains null bytes (e.g. 'A' → 0x41 0x00).
-    // Keytar stored raw UTF-8 bytes which will never contain null bytes for valid JSON.
-    // If the blob is valid UTF-8 and contains no null bytes, it was written by keytar.
-    let blob_is_utf8 = std::str::from_utf8(&blob_bytes)
-        .map(|s| !s.contains('\0'))
-        .unwrap_or(false);
+    Ok(String::from(password))
+}
 
-    if !blob_is_utf8 {
-        // Already UTF-16 or unrecognised format; no migration needed.
-        return Ok(false);
-    }
+pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<bool> {
+    let value = match get_password_keytar(service, account) {
+        Err(_) => return Ok(false),
+        Ok(v) => v,
+    };
 
-    let utf8_value = String::from_utf8(blob_bytes).map_err(|e| anyhow!(e))?;
-    desktop_core::password::set_password(service, account, &utf8_value).await?;
+    desktop_core::password::set_password(service, account, &value).await?;
 
     Ok(true)
 }
