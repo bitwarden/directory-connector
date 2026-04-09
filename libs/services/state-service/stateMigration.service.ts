@@ -135,28 +135,8 @@ export class StateMigrationService {
     // Migrate secrets from {userId}_* to their new flat keys.
     // The old key names are the legacy values used before this migration.
     // Old keys are intentionally kept — they will be removed in a future migration.
+    // Note: keytar encoding conversion (UTF-8 → UTF-16) is handled separately in migrateStateFrom5To6.
     if (useSecureStorageForSecrets) {
-      // On Windows, the old credentials were written by keytar (CredWriteA, UTF-8 encoding).
-      // Convert them to desktop_core format (CredWriteW, UTF-16) before reading so that
-      // secureStorageService can read them correctly. This is a no-op on macOS/Linux.
-      const v3KeytarKeys = [
-        `${clientId}_ldapPassword`,
-        `${clientId}_gsuitePrivateKey`,
-        `${clientId}_azureKey`,
-        `${clientId}_entraIdKey`,
-        `${clientId}_entraKey`,
-        `${clientId}_oktaToken`,
-        `${clientId}_oneLoginClientSecret`,
-        `${clientId}_accessToken`,
-        `${clientId}_refreshToken`,
-        `${clientId}_twoFactorToken`,
-      ];
-      await Promise.all(
-        v3KeytarKeys.map((key) =>
-          passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
-        ),
-      );
-
       const oldSecretKeys = [
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
         { old: `${clientId}_gsuitePrivateKey`, new: SecureStorageKeys.gsuite },
