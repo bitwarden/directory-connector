@@ -3,6 +3,7 @@ import eslint from "@eslint/js";
 import tsParser from "@typescript-eslint/parser";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import prettierConfig from "eslint-config-prettier";
+import prettierPlugin from "eslint-plugin-prettier";
 import importPlugin from "eslint-plugin-import";
 import rxjsX from "eslint-plugin-rxjs-x";
 import rxjsAngularX from "eslint-plugin-rxjs-angular-x";
@@ -149,6 +150,16 @@ export default [
     },
   },
 
-  // Prettier config (must be last to override other configs)
+  // Prettier config: disables ESLint rules that conflict with Prettier formatting.
+  // Must come before the Prettier plugin config.
   prettierConfig,
+
+  // Prettier plugin: runs Prettier as an ESLint rule so `ng lint` reports formatting violations.
+  // Scoped to TS/JS/MJS only — HTML files use @angular-eslint/template-parser which is
+  // incompatible with eslint-plugin-prettier's HTML parsing.
+  {
+    files: ["**/*.ts", "**/*.js", "**/*.mjs"],
+    plugins: { prettier: prettierPlugin },
+    rules: { "prettier/prettier": "error" },
+  },
 ];
