@@ -30,7 +30,8 @@ export function isAppImage() {
 }
 
 export function isMac() {
-  return process.platform === "darwin";
+  const a = process.platform === "darwin";
+  return a;
 }
 
 export function isMacAppStore() {
