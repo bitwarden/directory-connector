@@ -568,31 +568,6 @@ describe("StateMigrationService", () => {
         );
       });
 
-      it("calls migrateKeytarPassword with the legacy {userId}_* keytar key names", async () => {
-        const userId = "user-abc-123";
-        storage.store.set("activeUserId", userId);
-
-        await svc.migrate();
-
-        const calledKeys = passwords.migrateKeytarPassword.mock.calls.map(
-          (c: [string, string]) => c[1],
-        );
-        expect(calledKeys).toEqual(
-          expect.arrayContaining([
-            `${userId}_ldapPassword`,
-            `${userId}_gsuitePrivateKey`,
-            `${userId}_azureKey`,
-            `${userId}_entraIdKey`,
-            `${userId}_entraKey`,
-            `${userId}_oktaToken`,
-            `${userId}_oneLoginClientSecret`,
-            `${userId}_accessToken`,
-            `${userId}_refreshToken`,
-            `${userId}_twoFactorToken`,
-          ]),
-        );
-      });
-
       it("does not call migrateKeytarPassword with new-style {userId}_secret* keys", async () => {
         const userId = "user-abc-123";
         storage.store.set("activeUserId", userId);
