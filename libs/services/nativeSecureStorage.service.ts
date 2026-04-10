@@ -1,3 +1,4 @@
+import { LogService } from "@/libs/abstractions/log.service";
 import { StorageService } from "@/libs/abstractions/storage.service";
 
 import { SecureStorageKey, StorageKey } from "../models/state.model";
@@ -5,12 +6,24 @@ import { SecureStorageKey, StorageKey } from "../models/state.model";
 import { passwords } from "dc-native";
 
 export class NativeSecureStorageService implements StorageService {
-  constructor(private serviceName: string) {}
+  constructor(
+    private serviceName: string,
+    private logService: LogService,
+  ) {}
 
   async get<T>(key: StorageKey | SecureStorageKey): Promise<T> {
     return passwords
       .getPassword(this.serviceName, key)
-      .then((val: string) => JSON.parse(val) as T)
+      .then((val: string) => {
+        try {
+          return JSON.parse(val) as T;
+        } catch {
+          this.logService.warning(
+            `NativeSecureStorageService: failed to parse stored value for key "${key}"`,
+          );
+          return null;
+        }
+      })
       .catch((e: Error): T => {
         if (e.message === passwords.PASSWORD_NOT_FOUND) {
           return null;
@@ -24,7 +37,7 @@ export class NativeSecureStorageService implements StorageService {
   }
 
   async save(key: StorageKey | SecureStorageKey, obj: any): Promise<any> {
-    if (!obj) {
+    if (obj == null) {
       return this.remove(key);
     }
     return passwords.setPassword(this.serviceName, key, JSON.stringify(obj));

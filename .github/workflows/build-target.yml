@@ -12,6 +12,8 @@ on:
     paths:
       - 'src/**'
       - 'src-cli/**'
+      - 'libs/**'
+      - 'native/**'
       - 'jslib/**'
       - 'resources/**'
       - 'scripts/**'
@@ -21,6 +23,7 @@ on:
       - 'angular.json'
       - '.github/workflows/build.yml'
       - '.github/workflows/build-target.yml'
+      - '.github/actions/**'
       - '!*.md'
       - '!*.txt'
 

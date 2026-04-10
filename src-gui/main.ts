@@ -46,9 +46,7 @@ export class Main {
     app.setPath("logs", path.join(app.getPath("userData"), "logs"));
 
     const args = process.argv.slice(1);
-    const watch = args.some((val) => val === "--watch");
-
-    if (watch) {
+    if (args.some((val) => val === "--watch")) {
       fs.watch(__dirname, { recursive: true }, (_, filename) => {
         if (filename && !/node_modules|[/\\]\./.test(filename)) {
           BrowserWindow.getAllWindows().forEach((bw) => bw.webContents.reloadIgnoringCache());
