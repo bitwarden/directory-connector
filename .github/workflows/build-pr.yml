@@ -6,6 +6,8 @@ on:
     paths:
       - 'src/**'
       - 'src-cli/**'
+      - 'libs/**'
+      - 'native/**'
       - 'jslib/**'
       - 'resources/**'
       - 'scripts/**'
@@ -14,6 +16,7 @@ on:
       - 'tsconfig.json'
       - 'angular.json'
       - '.github/workflows/build-pr.yml'
+      - '.github/actions/**'
       - '!*.md'
       - '!*.txt'
 

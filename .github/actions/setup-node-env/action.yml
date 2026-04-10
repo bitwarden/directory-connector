@@ -1,5 +1,5 @@
 name: "Setup Node Environment"
-description: "Sets up Node.js with npm cache and installs node-gyp"
+description: "Sets up Node.js with npm cache"
 inputs:
   node-version:
     description: "Node.js version to use"
@@ -18,17 +18,3 @@ runs:
         cache: "npm"
         cache-dependency-path: "**/package-lock.json"
         node-version: ${{ inputs.node-version }}
-
-    - name: Update NPM and install node-gyp (Unix)
-      if: inputs.platform != 'Windows'
-      shell: bash
-      run: |
-        npm install -g node-gyp
-        node-gyp install "$(node -v)"
-
-    - name: Update NPM and install node-gyp (Windows)
-      if: inputs.platform == 'Windows'
-      shell: pwsh
-      run: |
-        npm install -g node-gyp
-        node-gyp install $(node -v)

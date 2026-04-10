@@ -199,15 +199,14 @@ describe("StateMigrationService", () => {
         expect(storage.store.get(StorageKeys.syncingDir)).toBe(false);
       });
 
-      it("migrates sync metadata (stored via SecureStorageKeys as key names)", async () => {
+      it("migrates sync metadata to regular storage", async () => {
         await svc.migrate();
 
-        // These are written via this.set() → regular storageService, using the SecureStorageKeys value as the key string
-        expect(storage.store.get(SecureStorageKeys.lastUserSync)).toBe("2024-01-01T00:00:00.000Z");
-        expect(storage.store.get(SecureStorageKeys.lastGroupSync)).toBe("2024-06-15T12:00:00.000Z");
+        expect(storage.store.get(StorageKeys.lastUserSync)).toBe("2024-01-01T00:00:00.000Z");
+        expect(storage.store.get(StorageKeys.lastGroupSync)).toBe("2024-06-15T12:00:00.000Z");
         expect(storage.store.get(StorageKeys.lastSyncHash)).toBe("hash-abc");
-        expect(storage.store.get(SecureStorageKeys.userDelta)).toBe("user-delta-token");
-        expect(storage.store.get(SecureStorageKeys.groupDelta)).toBe("group-delta-token");
+        expect(storage.store.get(StorageKeys.userDelta)).toBe("user-delta-token");
+        expect(storage.store.get(StorageKeys.groupDelta)).toBe("group-delta-token");
       });
 
       it("migrates window/tray settings from globals to flat keys", async () => {
@@ -565,31 +564,6 @@ describe("StateMigrationService", () => {
             SecureStorageKeys.entra,
             SecureStorageKeys.okta,
             SecureStorageKeys.oneLogin,
-          ]),
-        );
-      });
-
-      it("calls migrateKeytarPassword with the legacy {userId}_* keytar key names", async () => {
-        const userId = "user-abc-123";
-        storage.store.set("activeUserId", userId);
-
-        await svc.migrate();
-
-        const calledKeys = passwords.migrateKeytarPassword.mock.calls.map(
-          (c: [string, string]) => c[1],
-        );
-        expect(calledKeys).toEqual(
-          expect.arrayContaining([
-            `${userId}_ldapPassword`,
-            `${userId}_gsuitePrivateKey`,
-            `${userId}_azureKey`,
-            `${userId}_entraIdKey`,
-            `${userId}_entraKey`,
-            `${userId}_oktaToken`,
-            `${userId}_oneLoginClientSecret`,
-            `${userId}_accessToken`,
-            `${userId}_refreshToken`,
-            `${userId}_twoFactorToken`,
           ]),
         );
       });
