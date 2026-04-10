@@ -69,6 +69,9 @@ const main = {
       ],
     }),
   ],
+  externals: {
+    "dc-native": "module dc-native",
+  },
 };
 
 export default merge(common, main);

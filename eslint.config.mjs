@@ -22,7 +22,7 @@ export default [
       "coverage-ldap/**",
       "**/*.cjs",
       "eslint.config.mjs",
-      "scripts/**/*.js",
+      "scripts/**",
       "**/node_modules/**",
       "native/**",
     ],

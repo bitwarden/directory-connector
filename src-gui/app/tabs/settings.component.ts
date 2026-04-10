@@ -66,6 +66,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       (await this.stateService.getDirectory<OneLoginConfiguration>(DirectoryType.OneLogin)) ||
       this.oneLogin;
     this.sync = (await this.stateService.getSync()) || this.sync;
+    this.changeDetectorRef.detectChanges();
   }
 
   async ngOnDestroy() {
