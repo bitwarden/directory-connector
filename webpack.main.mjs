@@ -70,7 +70,7 @@ const main = {
     }),
   ],
   externals: {
-    "dc-native": "commonjs2 dc-native",
+    "dc-native": "module dc-native",
   },
 };
 
