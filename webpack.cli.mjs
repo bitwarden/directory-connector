@@ -1,9 +1,14 @@
-const path = require("path");
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
 
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const webpack = require("webpack");
-const nodeExternals = require("webpack-node-externals");
+import CopyWebpackPlugin from "copy-webpack-plugin";
+import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import webpack from "webpack";
+import nodeExternals from "webpack-node-externals";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 if (process.env.NODE_ENV == null) {
   process.env.NODE_ENV = "development";
@@ -41,11 +46,14 @@ const plugins = [
 
 const config = {
   mode: ENV,
-  target: "node",
+  target: "node22",
   devtool: ENV === "development" ? "eval-source-map" : "source-map",
   node: {
-    __dirname: false,
-    __filename: false,
+    __dirname: "eval-only",
+    __filename: "eval-only",
+  },
+  experiments: {
+    outputModule: true,
   },
   entry: {
     bwdc: "./src-cli/bwdc.ts",
@@ -63,10 +71,11 @@ const config = {
     filename: "[name].js",
     path: path.resolve(__dirname, "build-cli"),
     clean: true,
+    module: true,
   },
   module: { rules: moduleRules },
   plugins: plugins,
-  externals: [nodeExternals()],
+  externals: [nodeExternals({ importType: "module" })],
 };
 
-module.exports = config;
+export default config;

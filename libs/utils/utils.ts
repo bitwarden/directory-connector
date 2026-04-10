@@ -1,21 +1,13 @@
 /* eslint-disable no-useless-escape */
-import * as url from "url";
 
 import { I18nService } from "@/libs/abstractions/i18n.service";
-
-import * as tldjs from "tldjs";
-
-const nodeURL = typeof window === "undefined" ? url : null;
 
 export class Utils {
   static inited = false;
   static isNode = false;
   static isBrowser = true;
   static isMobileBrowser = false;
-  static isAppleMobileBrowser = false;
   static global: any = null;
-  static tldEndingRegex =
-    /.*\.(com|net|org|edu|uk|gov|ca|de|jp|fr|au|ru|ch|io|es|us|co|xyz|info|ly|mil)$/;
   // Transpiled version of /\p{Emoji_Presentation}/gu using https://mothereff.in/regexpu. Used for compatability in older browsers.
   static regexpEmojiPresentation =
     /(?:[\u231A\u231B\u23E9-\u23EC\u23F0\u23F3\u25FD\u25FE\u2614\u2615\u2648-\u2653\u267F\u2693\u26A1\u26AA\u26AB\u26BD\u26BE\u26C4\u26C5\u26CE\u26D4\u26EA\u26F2\u26F3\u26F5\u26FA\u26FD\u2705\u270A\u270B\u2728\u274C\u274E\u2753-\u2755\u2757\u2795-\u2797\u27B0\u27BF\u2B1B\u2B1C\u2B50\u2B55]|\uD83C[\uDC04\uDCCF\uDD8E\uDD91-\uDD9A\uDDE6-\uDDFF\uDE01\uDE1A\uDE2F\uDE32-\uDE36\uDE38-\uDE3A\uDE50\uDE51\uDF00-\uDF20\uDF2D-\uDF35\uDF37-\uDF7C\uDF7E-\uDF93\uDFA0-\uDFCA\uDFCF-\uDFD3\uDFE0-\uDFF0\uDFF4\uDFF8-\uDFFF]|\uD83D[\uDC00-\uDC3E\uDC40\uDC42-\uDCFC\uDCFF-\uDD3D\uDD4B-\uDD4E\uDD50-\uDD67\uDD7A\uDD95\uDD96\uDDA4\uDDFB-\uDE4F\uDE80-\uDEC5\uDECC\uDED0-\uDED2\uDED5-\uDED7\uDEEB\uDEEC\uDEF4-\uDEFC\uDFE0-\uDFEB]|\uD83E[\uDD0C-\uDD3A\uDD3C-\uDD45\uDD47-\uDD78\uDD7A-\uDDCB\uDDCD-\uDDFF\uDE70-\uDE74\uDE78-\uDE7A\uDE80-\uDE86\uDE90-\uDEA8\uDEB0-\uDEB6\uDEC0-\uDEC2\uDED0-\uDED6])/g;
@@ -32,7 +24,6 @@ export class Utils {
       (process as any).release.name === "node";
     Utils.isBrowser = typeof window !== "undefined";
     Utils.isMobileBrowser = Utils.isBrowser && this.isMobile(window);
-    Utils.isAppleMobileBrowser = Utils.isBrowser && this.isAppleMobile(window);
     Utils.global = Utils.isNode && !Utils.isBrowser ? global : window;
   }
 
@@ -191,102 +182,6 @@ export class Utils {
     ).test(id);
   }
 
-  static getHostname(uriString: string): string {
-    const url = Utils.getUrl(uriString);
-    try {
-      return url != null && url.hostname !== "" ? url.hostname : null;
-    } catch {
-      return null;
-    }
-  }
-
-  static getHost(uriString: string): string {
-    const url = Utils.getUrl(uriString);
-    try {
-      return url != null && url.host !== "" ? url.host : null;
-    } catch {
-      return null;
-    }
-  }
-
-  static getDomain(uriString: string): string {
-    if (uriString == null) {
-      return null;
-    }
-
-    uriString = uriString.trim();
-    if (uriString === "") {
-      return null;
-    }
-
-    if (uriString.startsWith("data:")) {
-      return null;
-    }
-
-    let httpUrl = uriString.startsWith("http://") || uriString.startsWith("https://");
-    if (
-      !httpUrl &&
-      uriString.indexOf("://") < 0 &&
-      Utils.tldEndingRegex.test(uriString) &&
-      uriString.indexOf("@") < 0
-    ) {
-      uriString = "http://" + uriString;
-      httpUrl = true;
-    }
-
-    if (httpUrl) {
-      try {
-        const url = Utils.getUrlObject(uriString);
-        const validHostname = tldjs?.isValid != null ? tldjs.isValid(url.hostname) : true;
-        if (!validHostname) {
-          return null;
-        }
-
-        if (url.hostname === "localhost" || Utils.validIpAddress(url.hostname)) {
-          return url.hostname;
-        }
-
-        const urlDomain =
-          tldjs != null && tldjs.getDomain != null ? tldjs.getDomain(url.hostname) : null;
-        return urlDomain != null ? urlDomain : url.hostname;
-      } catch {
-        // Invalid domain, try another approach below.
-      }
-    }
-
-    try {
-      const domain = tldjs != null && tldjs.getDomain != null ? tldjs.getDomain(uriString) : null;
-
-      if (domain != null) {
-        return domain;
-      }
-    } catch {
-      return null;
-    }
-
-    return null;
-  }
-
-  static getQueryParams(uriString: string): Map<string, string> {
-    const url = Utils.getUrl(uriString);
-    if (url == null || url.search == null || url.search === "") {
-      return null;
-    }
-    const map = new Map<string, string>();
-    const pairs = (url.search[0] === "?" ? url.search.substr(1) : url.search).split("&");
-    pairs.forEach((pair) => {
-      const parts = pair.split("=");
-      if (parts.length < 1) {
-        return;
-      }
-      map.set(
-        decodeURIComponent(parts[0]).toLowerCase(),
-        parts[1] == null ? "" : decodeURIComponent(parts[1]),
-      );
-    });
-    return map;
-  }
-
   static getSortFunction(i18nService: I18nService, prop: string) {
     return (a: any, b: any) => {
       if (a[prop] == null && b[prop] != null) {
@@ -325,35 +220,8 @@ export class Utils {
     return (Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[]).map((k) => obj[k]);
   }
 
-  static getUrl(uriString: string): URL {
-    if (uriString == null) {
-      return null;
-    }
-
-    uriString = uriString.trim();
-    if (uriString === "") {
-      return null;
-    }
-
-    let url = Utils.getUrlObject(uriString);
-    if (url == null) {
-      const hasHttpProtocol =
-        uriString.indexOf("http://") === 0 || uriString.indexOf("https://") === 0;
-      if (!hasHttpProtocol && uriString.indexOf(".") > -1) {
-        url = Utils.getUrlObject("http://" + uriString);
-      }
-    }
-    return url;
-  }
-
   static camelToPascalCase(s: string) {
     return s.charAt(0).toUpperCase() + s.slice(1);
-  }
-
-  private static validIpAddress(ipString: string): boolean {
-    const ipRegex =
-      /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-    return ipRegex.test(ipString);
   }
 
   private static isMobile(win: Window) {
@@ -371,37 +239,6 @@ export class Utils {
       }
     })(win.navigator.userAgent || win.navigator.vendor || (win as any).opera);
     return mobile || win.navigator.userAgent.match(/iPad/i) != null;
-  }
-
-  private static isAppleMobile(win: Window) {
-    return (
-      win.navigator.userAgent.match(/iPhone/i) != null ||
-      win.navigator.userAgent.match(/iPad/i) != null
-    );
-  }
-
-  private static getUrlObject(uriString: string): URL {
-    try {
-      if (nodeURL != null) {
-        return new nodeURL.URL(uriString);
-      } else if (typeof URL === "function") {
-        return new URL(uriString);
-      } else if (window != null) {
-        const hasProtocol = uriString.indexOf("://") > -1;
-        if (!hasProtocol && uriString.indexOf(".") > -1) {
-          uriString = "http://" + uriString;
-        } else if (!hasProtocol) {
-          return null;
-        }
-        const anchor = window.document.createElement("a");
-        anchor.href = uriString;
-        return anchor as any;
-      }
-    } catch {
-      // Ignore error
-    }
-
-    return null;
   }
 }
 

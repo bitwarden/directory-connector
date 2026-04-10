@@ -7,7 +7,7 @@ dist
 src/locales
 
 # Github Workflows
-.github/workflows 
+.github/workflows
 
 # Native module (auto-generated)
 native

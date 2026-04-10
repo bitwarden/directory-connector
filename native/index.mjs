@@ -1,5 +1,8 @@
-const { existsSync } = require("fs");
-const { join } = require("path");
+import { existsSync } from "fs";
+import { join } from "path";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
 
 const { platform, arch } = process;
 
@@ -7,7 +10,7 @@ let nativeBinding = null;
 
 function loadFirstAvailable(localFiles) {
   for (const localFile of localFiles) {
-    const filePath = join(__dirname, localFile);
+    const filePath = join(new URL(".", import.meta.url).pathname, localFile);
     if (existsSync(filePath)) {
       return require(filePath);
     }
@@ -62,4 +65,5 @@ if (!nativeBinding) {
   throw new Error(`Failed to load dc-native binding`);
 }
 
-module.exports = nativeBinding;
+export const { passwords } = nativeBinding;
+export default nativeBinding;
