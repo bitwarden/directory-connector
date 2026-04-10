@@ -1,7 +1,6 @@
-/* eslint-disable no-console */
 import { execSync } from "child_process";
 
-export default async function sign(configuration) {
+export default async function (configuration) {
   if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && configuration.path.slice(-4) == ".exe") {
     console.log(`[*] Signing file: ${configuration.path}`);
     execSync(

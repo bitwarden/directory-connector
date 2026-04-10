@@ -140,6 +140,10 @@ const renderer = {
     new webpack.SourceMapDevToolPlugin({
       include: ["app/main.js"],
     }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^node-fetch$/,
+      contextRegExp: /gaxios/,
+    }),
     new webpack.DefinePlugin({ "global.GENTLY": false }),
     new MiniCssExtractPlugin({
       filename: "[name].[contenthash].css",

@@ -197,4 +197,4 @@ export class Main {
 }
 
 const main = new Main();
-main.run();
+await main.run();
