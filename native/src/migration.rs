@@ -24,7 +24,7 @@ fn get_password_keytar(service: &str, account: &str) -> Result<String> {
         CredReadW(
             PCWSTR(target_name.as_ptr()),
             CRED_TYPE_GENERIC,
-            CRED_FLAGS_NONE,
+            Some(CRED_FLAGS_NONE),
             credential_ptr,
         )
     };

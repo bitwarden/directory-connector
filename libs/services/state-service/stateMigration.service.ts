@@ -242,10 +242,6 @@ export class StateMigrationService {
       SecureStorageKeys.apiKeyClientId,
       SecureStorageKeys.apiKeyClientSecret,
       SecureStorageKeys.twoFactorToken,
-      StorageKeys.userDelta,
-      StorageKeys.groupDelta,
-      StorageKeys.lastUserSync,
-      StorageKeys.lastGroupSync,
     ];
 
     await Promise.all(

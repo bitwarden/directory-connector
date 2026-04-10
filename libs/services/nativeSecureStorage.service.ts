@@ -5,7 +5,6 @@ import { SecureStorageKey, StorageKey } from "../models/state.model";
 
 import { passwords } from "dc-native";
 
-
 export class NativeSecureStorageService implements StorageService {
   constructor(
     private serviceName: string,
