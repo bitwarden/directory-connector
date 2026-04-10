@@ -97,7 +97,7 @@
     "babel-loader": "10.1.1",
     "concurrently": "9.2.0",
     "copy-webpack-plugin": "14.0.0",
-    "cross-env": "7.0.3",
+    "cross-env": "10.1.0",
     "css-loader": "7.1.2",
     "dotenv": "17.3.1",
     "electron": "39.8.4",
