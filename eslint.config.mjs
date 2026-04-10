@@ -19,10 +19,12 @@ export default [
       "build/**",
       "build-cli/**",
       "coverage/**",
+      "coverage-ldap/**",
       "**/*.cjs",
       "eslint.config.mjs",
       "scripts/**/*.js",
       "**/node_modules/**",
+      "native/**",
     ],
   },
 
@@ -35,6 +37,7 @@ export default [
       parser: tsParser,
       parserOptions: {
         project: ["./tsconfig.eslint.json"],
+        tsconfigRootDir: import.meta.dirname,
       },
       globals: {
         ...globals.browser,

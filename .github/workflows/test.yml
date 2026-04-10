@@ -40,6 +40,9 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
+      - name: Build native module
+        run: npm run build:native
+
       - name: Install Node dependencies
         run: npm ci
 

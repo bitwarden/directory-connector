@@ -1,4 +1,5 @@
 import { StorageService } from "@/libs/abstractions/storage.service";
+import { APPLICATION_NAME } from "@/libs/constants";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
 import { StateVersion } from "@/libs/enums/stateVersion";
 import { StorageOptions } from "@/libs/models/domain/storageOptions";
@@ -9,10 +10,14 @@ import {
   StorageKeys,
 } from "@/libs/models/state.model";
 
+import { passwords } from "dc-native";
+
 // The original implementation of migrate() overrode the jslib implementation and never actually went up
 // to v4. Therefore, the minimum supported version that is out in the wild should be 3 and we need
 // to support migrating from v3 directly to v5.
 const MinSupportedStateVersion = StateVersion.Three;
+
+const SECURE_STORAGE_SERVICE_NAME = APPLICATION_NAME;
 
 export class StateMigrationService {
   constructor(
@@ -40,6 +45,9 @@ export class StateMigrationService {
         case StateVersion.Three:
         case StateVersion.Four:
           await this.migrateStateFrom3To5();
+          break;
+        case StateVersion.Five:
+          await this.migrateStateFrom5To6();
           break;
       }
       currentStateVersion += 1;
@@ -105,19 +113,19 @@ export class StateMigrationService {
         await this.set(StorageKeys.sync, account.directorySettings.sync);
       }
       if (account.directorySettings.lastUserSync) {
-        await this.set(SecureStorageKeys.lastUserSync, account.directorySettings.lastUserSync);
+        await this.set(StorageKeys.lastUserSync, account.directorySettings.lastUserSync);
       }
       if (account.directorySettings.lastGroupSync) {
-        await this.set(SecureStorageKeys.lastGroupSync, account.directorySettings.lastGroupSync);
+        await this.set(StorageKeys.lastGroupSync, account.directorySettings.lastGroupSync);
       }
       if (account.directorySettings.lastSyncHash) {
         await this.set(StorageKeys.lastSyncHash, account.directorySettings.lastSyncHash);
       }
       if (account.directorySettings.userDelta) {
-        await this.set(SecureStorageKeys.userDelta, account.directorySettings.userDelta);
+        await this.set(StorageKeys.userDelta, account.directorySettings.userDelta);
       }
       if (account.directorySettings.groupDelta) {
-        await this.set(SecureStorageKeys.groupDelta, account.directorySettings.groupDelta);
+        await this.set(StorageKeys.groupDelta, account.directorySettings.groupDelta);
       }
       if (account.directorySettings.syncingDir != null) {
         await this.set(StorageKeys.syncingDir, account.directorySettings.syncingDir);
@@ -127,6 +135,7 @@ export class StateMigrationService {
     // Migrate secrets from {userId}_* to their new flat keys.
     // The old key names are the legacy values used before this migration.
     // Old keys are intentionally kept — they will be removed in a future migration.
+    // Note: keytar encoding conversion (UTF-8 → UTF-16) is handled separately in migrateStateFrom5To6.
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
@@ -205,6 +214,43 @@ export class StateMigrationService {
 
     // Set final state version using the new flat key
     await this.set(StorageKeys.stateVersion, StateVersion.Five);
+  }
+
+  /**
+   * Migrate from State v5 to v6 — convert any Windows Credential Manager entries that were
+   * written by keytar (UTF-8 via CredWriteA) to the UTF-16 format used by desktop_core
+   * (CredWriteW). This is a no-op on macOS and Linux; migrateKeytarPassword returns false
+   * immediately on those platforms.
+   *
+   * Keys migrated:
+   *   • All current flat SecureStorageKeys (secret_*, accessToken, etc.)
+   *   • Non-sensitive sync metadata keys (StorageKeys.userDelta/groupDelta/lastUserSync/lastGroupSync)
+   *     which were previously written to keytar but are now stored in regular storage
+   */
+  protected async migrateStateFrom5To6(): Promise<void> {
+    // All keys that may have been written by keytar in previous versions and need re-encoding
+    // from UTF-8 (CredWriteA) to UTF-16 (CredWriteW) for desktop_core compatibility.
+    const credentialKeys: string[] = [
+      SecureStorageKeys.ldap,
+      SecureStorageKeys.gsuite,
+      SecureStorageKeys.azure,
+      SecureStorageKeys.entra,
+      SecureStorageKeys.okta,
+      SecureStorageKeys.oneLogin,
+      SecureStorageKeys.accessToken,
+      SecureStorageKeys.refreshToken,
+      SecureStorageKeys.apiKeyClientId,
+      SecureStorageKeys.apiKeyClientSecret,
+      SecureStorageKeys.twoFactorToken,
+    ];
+
+    await Promise.all(
+      credentialKeys.map((key) =>
+        passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
+      ),
+    );
+
+    await this.set(StorageKeys.stateVersion, StateVersion.Six);
   }
 
   // ===================================================================
