@@ -72,6 +72,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.submit();
   }
 
+  userFilterHelp(): string {
+    switch (this.directory) {
+      case DirectoryType.Ldap:
+        return this.i18nService.t("userFilterHelpLdap");
+      case DirectoryType.EntraID:
+        return this.i18nService.t("userFilterHelpEntraId");
+      case DirectoryType.Okta:
+        return this.i18nService.t("userFilterHelpOkta");
+      case DirectoryType.GSuite:
+        return this.i18nService.t("userFilterHelpGSuite");
+      case DirectoryType.OneLogin:
+        return this.i18nService.t("userFilterHelpOneLogin");
+      default:
+        return "";
+    }
+  }
+
   async submit() {
     ConnectorUtils.adjustConfigForSave(this.ldap, this.sync);
     if (this.ldap != null && this.ldap.ad) {

@@ -609,7 +609,17 @@
         </div>
         <div [hidden]="!sync.users">
           <div class="mb-3">
-            <label for="userFilter" class="form-label">{{ "userFilter" | i18n }}</label>
+            <label for="userFilter" class="form-label">
+              {{ "userFilter" | i18n }}
+              @if (directory != null) {
+                <i
+                  class="bwi bwi-question-circle ms-1"
+                  style="cursor: help"
+                  [attr.title]="userFilterHelp()"
+                  [attr.aria-label]="userFilterHelp()"
+                ></i>
+              }
+            </label>
             <textarea
               class="form-control"
               id="userFilter"

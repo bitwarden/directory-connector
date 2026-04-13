@@ -94,6 +94,18 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     // Only get users for the groups provided in includeGroup filter
     if (setFilter != null && setFilter[0] === UserSetType.IncludeGroup) {
       users = await this.getUsersByGroups(setFilter);
+      // If a secondary excludeGroup clause is also present in the filter
+      // string (e.g. "includeGroup:A|excludeGroup:B"), subtract the members
+      // of those groups from the included set so include and exclude can be
+      // combined as an intersection rather than mutually exclusive options.
+      const secondaryExcludeGroup = this.extractSecondaryExcludeGroupSet(
+        this.syncConfig.userFilter,
+      );
+      if (secondaryExcludeGroup != null) {
+        (await this.getUsersByGroups(secondaryExcludeGroup)).forEach((user: graphType.User) =>
+          userIdsToExclude.add(user.id),
+        );
+      }
       // Get the users in the excludedGroups and filter them out from all users
     } else if (setFilter != null && setFilter[0] === UserSetType.ExcludeGroup) {
       (await this.getUsersByGroups(setFilter)).forEach((user: graphType.User) =>
@@ -108,6 +120,22 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     if (users != null) {
       entries = await this.buildUserEntries(users, userIdsToExclude, setFilter);
     }
+
+    // Apply any secondary "exclude:<email>" clauses when the primary clause
+    // is includeGroup. This lets users drop individual accounts out of an
+    // include-group result without having to create a dedicated exclude
+    // group for them.
+    if (setFilter != null && setFilter[0] === UserSetType.IncludeGroup) {
+      const secondaryExcludeUsers = this.extractSecondaryExcludeUserSet(
+        this.syncConfig.userFilter,
+      );
+      if (secondaryExcludeUsers != null) {
+        entries = entries.filter(
+          (e) => e.email == null || !secondaryExcludeUsers.has(e.email),
+        );
+      }
+    }
+
     return entries;
   }
 
@@ -273,6 +301,105 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     }
 
     return [userSetType, set];
+  }
+
+  // Parses any secondary "excludeGroup:..." clauses out of a user filter
+  // string. Used only to support combining "includeGroup" with one or more
+  // "excludeGroup" clauses — single-clause filters are still parsed
+  // exclusively by createCustomUserSet, so existing behavior is preserved.
+  // Clauses may be separated by either "|" or newlines so the user can write
+  // them inline or on separate lines, and multiple excludeGroup clauses are
+  // merged into a single set.
+  private extractSecondaryExcludeGroupSet(
+    filter: string,
+  ): [UserSetType, Set<string>] | null {
+    if (filter == null || filter === "") {
+      return null;
+    }
+
+    const clauses = filter.split(/[|\n]/);
+    if (clauses.length < 2) {
+      return null;
+    }
+
+    const set = new Set<string>();
+    // Skip clauses[0] — the primary clause is parsed separately by
+    // createCustomUserSet. Walk every additional clause and accumulate any
+    // excludeGroup IDs into a single set.
+    for (let i = 1; i < clauses.length; i++) {
+      const clause = clauses[i];
+      if (clause == null || clause.trim() === "") {
+        continue;
+      }
+
+      const subParts = clause.split(":");
+      if (subParts.length !== 2) {
+        continue;
+      }
+
+      const keyword = subParts[0].trim().toLowerCase();
+      if (keyword !== "excludegroup") {
+        continue;
+      }
+
+      for (const p of subParts[1].split(",")) {
+        const trimmed = p.trim().toLowerCase();
+        if (trimmed !== "") {
+          set.add(trimmed);
+        }
+      }
+    }
+
+    if (set.size === 0) {
+      return null;
+    }
+    return [UserSetType.ExcludeGroup, set];
+  }
+
+  // Parses any secondary "exclude:<email>" clauses out of a user filter
+  // string. Mirrors extractSecondaryExcludeGroupSet but collects user
+  // emails rather than group IDs, and is only consulted when the primary
+  // clause is includeGroup. Single-clause filters are still parsed
+  // exclusively by createCustomUserSet, so existing behavior is preserved.
+  private extractSecondaryExcludeUserSet(filter: string): Set<string> | null {
+    if (filter == null || filter === "") {
+      return null;
+    }
+
+    const clauses = filter.split(/[|\n]/);
+    if (clauses.length < 2) {
+      return null;
+    }
+
+    const set = new Set<string>();
+    for (let i = 1; i < clauses.length; i++) {
+      const clause = clauses[i];
+      if (clause == null || clause.trim() === "") {
+        continue;
+      }
+
+      const subParts = clause.split(":");
+      if (subParts.length !== 2) {
+        continue;
+      }
+
+      const keyword = subParts[0].trim().toLowerCase();
+      if (keyword !== "exclude") {
+        continue;
+      }
+
+      for (const p of subParts[1].split(",")) {
+        const trimmed = p.trim().toLowerCase();
+        if (trimmed !== "") {
+          set.add(trimmed);
+        }
+      }
+    }
+
+    if (set.size === 0) {
+      return null;
+    }
+    return set;
   }
 
   private async filterOutUserResult(
