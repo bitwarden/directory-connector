@@ -99,7 +99,7 @@
     "copy-webpack-plugin": "14.0.0",
     "cross-env": "7.0.3",
     "css-loader": "7.1.2",
-    "dotenv": "17.3.1",
+    "dotenv": "17.4.1",
     "electron": "39.8.4",
     "electron-builder": "24.13.3",
     "electron-log": "5.4.1",
