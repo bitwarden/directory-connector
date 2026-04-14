@@ -1,6 +1,3 @@
-/**
- * @jest-environment node
- */
 import { config as dotenvConfig } from "dotenv";
 import { mock, MockProxy } from "jest-mock-extended";
 
