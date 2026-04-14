@@ -78,6 +78,7 @@
     "@angular-eslint/eslint-plugin-template": "21.3.1",
     "@angular-eslint/template-parser": "21.3.1",
     "@angular/build": "21.2.2",
+    "@angular/cli": "21.2.2",
     "@angular/compiler-cli": "21.2.4",
     "@electron/notarize": "3.1.1",
     "@microsoft/microsoft-graph-types": "2.43.1",
@@ -139,7 +140,6 @@
   "dependencies": {
     "@angular/animations": "21.2.4",
     "@angular/cdk": "21.2.2",
-    "@angular/cli": "21.2.2",
     "@angular/common": "21.2.4",
     "@angular/compiler": "21.2.4",
     "@angular/core": "21.2.4",
