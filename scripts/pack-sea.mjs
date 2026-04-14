@@ -7,22 +7,8 @@
  * package-manager-installed Node binaries (e.g. Homebrew) may lack the SEA
  * fuse sentinel required by --build-sea.
  *
- * macOS x64 (Intel) exception: every available Mach-O injection tool (--build-sea,
- * postject, llvm-objcopy) either corrupts the binary's TLS metadata causing dyld to
- * abort with "unsupported thread-local, larger than 4GB" (exit 134), or produces a
- * binary that codesign rejects with "internal error in Code Signing subsystem".
- * This is a known upstream issue:
- *   https://github.com/nodejs/node/issues/59553
- *
- * For macOS x64 we ship a shell-wrapper bundle instead of a single executable:
- *   bwdc          — launcher shell script (chmod +x)
- *   node          — official x64 Node.js binary
- *   bwdc.js       — webpack bundle
- *   *.node        — dc-native addon
- * Users run ./bwdc exactly as before; the script finds node next to itself.
- *
  * Usage: node scripts/pack-sea.mjs <platform>
- * Platforms: linux, macos, macos-arm64, windows
+ * Platforms: linux, macos-arm64, windows
  */
 
 import { execFileSync } from "node:child_process";
@@ -34,7 +20,6 @@ import {
   copyFileSync,
   chmodSync,
   readdirSync,
-  cpSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -43,7 +28,7 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const repoRoot = resolve(__dirname, "..");
 
 const platform = process.argv[2];
-const validPlatforms = ["linux", "macos", "macos-arm64", "windows"];
+const validPlatforms = ["linux", "macos-arm64", "windows"];
 
 if (!platform || !validPlatforms.includes(platform)) {
   console.error(`Usage: node scripts/pack-sea.mjs <platform>`);
@@ -77,12 +62,6 @@ function ensureOfficialNodeBinary() {
   // Map our platform names to Node.js release archive names
   const platformMap = {
     linux: { os: "linux", arch: "x64", ext: "tar.gz", binPath: `node-v${ver}-linux-x64/bin/node` },
-    macos: {
-      os: "darwin",
-      arch: "x64",
-      ext: "tar.gz",
-      binPath: `node-v${ver}-darwin-x64/bin/node`,
-    },
     "macos-arm64": {
       os: "darwin",
       arch: "arm64",
@@ -154,54 +133,10 @@ try {
 
   const officialNode = ensureOfficialNodeBinary();
 
-  if (platform === "macos") {
-    // macOS x64: ship a shell-wrapper bundle instead of a single executable.
-    // Every Mach-O injection tool (--build-sea, postject, llvm-objcopy) either
-    // corrupts TLS metadata or produces a binary codesign rejects.
-    // See: https://github.com/nodejs/node/issues/59553
-    //
-    // Bundle layout (dist-cli/macos/):
-    //   bwdc              — shell launcher script
-    //   node              — official x64 Node.js binary
-    //   bwdc.js           — webpack bundle
-    //   locales/          — locale files read by I18nService at runtime
-    //   *.node            — dc-native addon
-
-    // Copy the official node binary alongside the bundle
-    const nodeDest = join(outputDir, "node");
-    copyFileSync(officialNodeBin, nodeDest);
-    chmodSync(nodeDest, 0o755);
-    console.log(`Copied Node binary: ${nodeDest}`);
-
-    // Copy the webpack bundle
-    const bundleSrc = join(repoRoot, "build-cli", "bwdc.js");
-    const bundleDest = join(outputDir, "bwdc.js");
-    copyFileSync(bundleSrc, bundleDest);
-    console.log(`Copied bundle: ${bundleDest}`);
-
-    // Copy locales directory — I18nService reads these from the filesystem
-    // relative to the bundle when not running as a SEA.
-    const localesSrc = join(repoRoot, "src-gui", "locales");
-    const localesDest = join(outputDir, "locales");
-    cpSync(localesSrc, localesDest, { recursive: true });
-    console.log(`Copied locales: ${localesDest}`);
-
-    // Write the launcher shell script
-    const launcherScript =
-      [
-        "#!/bin/sh",
-        'DIR="$(cd "$(dirname "$0")" && pwd)"',
-        'exec "$DIR/node" "$DIR/bwdc.js" "$@"',
-      ].join("\n") + "\n";
-    writeFileSync(outputBinary, launcherScript);
-    chmodSync(outputBinary, 0o755);
-    console.log(`Wrote launcher script: ${outputBinary}`);
-  } else {
-    execFileSync(officialNode, [`--build-sea`, tempSeaConfig], {
-      cwd: repoRoot,
-      stdio: "inherit",
-    });
-  }
+  execFileSync(officialNode, [`--build-sea`, tempSeaConfig], {
+    cwd: repoRoot,
+    stdio: "inherit",
+  });
 
   // Copy native .node addons from node_modules/dc-native/ to the output dir so they sit
   // alongside the binary with their canonical names (e.g. dc_native.darwin-x64.node).
