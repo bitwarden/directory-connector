@@ -66,13 +66,10 @@ const config = {
     symlinks: false,
     modules: [path.resolve("node_modules")],
     alias: {
-      // proper-lockfile requires signal-exit v3 (default export = onExit function).
-      // The top-level signal-exit is v4 (named exports only), but proper-lockfile
-      // ships its own nested v3. Point webpack directly at that copy.
-      "signal-exit": path.resolve(
-        __dirname,
-        "node_modules/proper-lockfile/node_modules/signal-exit/index.js",
-      ),
+      // proper-lockfile expects require('signal-exit') to return the onExit function
+      // (signal-exit v3 behavior). signal-exit v4 uses named exports only.
+      // The shim re-exports onExit as the module default.
+      "signal-exit": path.resolve(__dirname, "scripts/signal-exit-shim.cjs"),
       // dc-native uses import.meta.url to locate .node binaries, which breaks inside a
       // Node SEA blob. This shim loads the .node file relative to process.execPath instead.
       // pack-sea.mjs copies the .node files alongside the binary at build time.

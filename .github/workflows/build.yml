@@ -6,6 +6,7 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
+      - "test-macos-arm-builds"
   workflow_dispatch: {}
   workflow_call: {}
 
