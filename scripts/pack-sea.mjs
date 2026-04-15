@@ -3,24 +3,16 @@
  * Pack the CLI binary using Node.js SEA (Single Executable Applications).
  * Requires Node 25.5+ for the --build-sea flag.
  *
- * Uses the official Node.js binary (downloaded if needed) as the base, since
- * package-manager-installed Node binaries (e.g. Homebrew) may lack the SEA
- * fuse sentinel required by --build-sea.
+ * Uses the currently-running Node binary (process.execPath) as both the runtime
+ * and the SEA base template. Each platform is built on its native CI runner
+ * so process.execPath is already the correct official binary for the target platform.
  *
  * Usage: node scripts/pack-sea.mjs <platform>
  * Platforms: linux, macos-arm64, windows
  */
 
 import { execFileSync } from "node:child_process";
-import {
-  mkdirSync,
-  writeFileSync,
-  rmSync,
-  existsSync,
-  copyFileSync,
-  chmodSync,
-  readdirSync,
-} from "node:fs";
+import { mkdirSync, writeFileSync, rmSync, readdirSync, copyFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -36,82 +28,12 @@ if (!platform || !validPlatforms.includes(platform)) {
   process.exit(1);
 }
 
-const nodeVersion = process.version; // e.g. "v25.9.0"
 const binaryName = platform === "windows" ? "bwdc.exe" : "bwdc";
 const outputDir = join(repoRoot, "dist-cli", platform);
 const outputBinary = join(outputDir, binaryName);
 const tempSeaConfig = join(repoRoot, `sea-config.${platform}.json`);
-const officialNodeCache = join(repoRoot, ".node-sea-base");
-const officialNodeBin = join(officialNodeCache, `node-${nodeVersion}-${platform}`);
 
 mkdirSync(outputDir, { recursive: true });
-mkdirSync(officialNodeCache, { recursive: true });
-
-/**
- * Download the official Node.js binary for the current version/platform.
- * Cached in .node-sea-base/ to avoid re-downloading on every pack.
- */
-function ensureOfficialNodeBinary() {
-  if (existsSync(officialNodeBin)) {
-    console.log(`Using cached official Node binary: ${officialNodeBin}`);
-    return officialNodeBin;
-  }
-
-  const ver = nodeVersion.replace(/^v/, "");
-
-  // Map our platform names to Node.js release archive names
-  const platformMap = {
-    linux: { os: "linux", arch: "x64", ext: "tar.gz", binPath: `node-v${ver}-linux-x64/bin/node` },
-    "macos-arm64": {
-      os: "darwin",
-      arch: "arm64",
-      ext: "tar.gz",
-      binPath: `node-v${ver}-darwin-arm64/bin/node`,
-    },
-    windows: { os: "win", arch: "x64", ext: "zip", binPath: `node-v${ver}-win-x64/node.exe` },
-  };
-
-  const { os, arch, ext, binPath } = platformMap[platform];
-  const archiveName = `node-v${ver}-${os}-${arch}.${ext}`;
-  const downloadUrl = `https://nodejs.org/dist/v${ver}/${archiveName}`;
-  const archivePath = join(officialNodeCache, archiveName);
-
-  console.log(`Downloading official Node.js ${nodeVersion} binary...`);
-  console.log(`  URL: ${downloadUrl}`);
-
-  execFileSync("curl", ["-fsSL", "-o", archivePath, downloadUrl], {
-    stdio: "inherit",
-  });
-
-  console.log("Extracting node binary...");
-  if (ext === "tar.gz") {
-    // binPath is e.g. "node-v25.9.0-darwin-arm64/bin/node" — strip 2 components to get just "node"
-    execFileSync(
-      "tar",
-      ["-xzf", archivePath, "-C", officialNodeCache, "--strip-components=2", binPath],
-      {
-        stdio: "inherit",
-      },
-    );
-    const extracted = join(officialNodeCache, "node");
-    copyFileSync(extracted, officialNodeBin);
-    rmSync(extracted, { force: true });
-  } else {
-    // windows zip - just use the archive binary directly for now
-    execFileSync("unzip", ["-j", archivePath, binPath, "-d", officialNodeCache], {
-      stdio: "inherit",
-    });
-    const extracted = join(officialNodeCache, "node.exe");
-    copyFileSync(extracted, officialNodeBin);
-    rmSync(extracted, { force: true });
-  }
-
-  chmodSync(officialNodeBin, 0o755);
-  rmSync(archivePath, { force: true });
-
-  console.log(`Official Node binary cached at: ${officialNodeBin}`);
-  return officialNodeBin;
-}
 
 const seaConfig = {
   main: "./build-cli/bwdc.js",
@@ -131,9 +53,7 @@ try {
   console.log(`Building CLI for ${platform}...`);
   console.log(`Output: ${outputDir}`);
 
-  const officialNode = ensureOfficialNodeBinary();
-
-  execFileSync(officialNode, [`--build-sea`, tempSeaConfig], {
+  execFileSync(process.execPath, [`--build-sea`, tempSeaConfig], {
     cwd: repoRoot,
     stdio: "inherit",
   });
