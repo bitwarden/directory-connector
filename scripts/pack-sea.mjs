@@ -61,14 +61,24 @@ try {
   // Copy native .node addons from node_modules/dc-native/ to the output dir so they sit
   // alongside the binary with their canonical names (e.g. dc_native.darwin-x64.node).
   const dcNativeDir = join(repoRoot, "node_modules", "dc-native");
+  const copiedNativeAddons = [];
   for (const file of readdirSync(dcNativeDir)) {
     if (file.endsWith(".node")) {
-      copyFileSync(join(dcNativeDir, file), join(outputDir, file));
+      const destPath = join(outputDir, file);
+      copyFileSync(join(dcNativeDir, file), destPath);
+      copiedNativeAddons.push(destPath);
       console.log(`Copied native addon: ${file}`);
     }
   }
 
   if (platform === "macos-arm64") {
+    for (const addonPath of copiedNativeAddons) {
+      console.log(`Ad-hoc signing native addon: ${addonPath}`);
+      execFileSync("codesign", ["--sign", "-", "--force", addonPath], {
+        stdio: "inherit",
+      });
+    }
+
     console.log("Ad-hoc signing binary...");
     // --force is required because the official Node.js binary already carries an Apple
     // signature; without it codesign refuses to replace an existing signature (see Apple
