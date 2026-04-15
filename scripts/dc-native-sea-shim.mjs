@@ -25,7 +25,6 @@ const binaryDir = dirname(process.execPath);
 
 const platformMap = {
   "win32-x64": "dc_native.win32-x64-msvc.node",
-  "darwin-x64": "dc_native.darwin-x64.node",
   "darwin-arm64": "dc_native.darwin-arm64.node",
   "linux-x64": "dc_native.linux-x64-gnu.node",
   "linux-arm64": "dc_native.linux-arm64-gnu.node",

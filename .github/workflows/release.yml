@@ -80,7 +80,6 @@ jobs:
           PKG_VERSION: ${{ needs.setup.outputs.release_version }}
         with:
           artifacts: "./bwdc-windows-${{ env.PKG_VERSION }}.zip,
-                      ./bwdc-macos-${{ env.PKG_VERSION }}.zip,
                       ./bwdc-macos-arm64-${{ env.PKG_VERSION }}.zip,
                       ./bwdc-linux-${{ env.PKG_VERSION }}.zip,
                       ./Bitwarden-Connector-Portable-${{ env.PKG_VERSION }}.exe,
