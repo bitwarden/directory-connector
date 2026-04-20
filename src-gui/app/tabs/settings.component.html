@@ -5,15 +5,21 @@
       <div class="card-body">
         <div class="mb-3">
           <label for="directory" class="form-label">{{ "type" | i18n }}</label>
-          <select class="form-select" id="directory" name="Directory" [(ngModel)]="directory">
-            @for (o of directoryOptions; track o) {
+          <select
+            class="form-select"
+            id="directory"
+            name="Directory"
+            [ngModel]="directory()"
+            (ngModelChange)="directory.set($event)"
+          >
+            @for (o of directoryOptions(); track o) {
               <option [ngValue]="o.value">
                 {{ o.name }}
               </option>
             }
           </select>
         </div>
-        <div [hidden]="directory != directoryType.Ldap">
+        <div [hidden]="directory() != directoryType.Ldap">
           <div class="mb-3">
             <label for="hostname" class="form-label">{{ "serverHostname" | i18n }}</label>
             <input
@@ -21,13 +27,19 @@
               class="form-control"
               id="hostname"
               name="Hostname"
-              [(ngModel)]="ldap.hostname"
+              [(ngModel)]="ldap().hostname"
             />
             <div class="form-text">{{ "ex" | i18n }} ad.company.com</div>
           </div>
           <div class="mb-3">
             <label for="port" class="form-label">{{ "port" | i18n }}</label>
-            <input type="text" class="form-control" id="port" name="Port" [(ngModel)]="ldap.port" />
+            <input
+              type="text"
+              class="form-control"
+              id="port"
+              name="Port"
+              [(ngModel)]="ldap().port"
+            />
             <div class="form-text">{{ "ex" | i18n }} 389</div>
           </div>
           <div class="mb-3">
@@ -37,7 +49,7 @@
               class="form-control"
               id="rootPath"
               name="RootPath"
-              [(ngModel)]="ldap.rootPath"
+              [(ngModel)]="ldap().rootPath"
             />
             <div class="form-text">{{ "ex" | i18n }} dc=company,dc=com</div>
           </div>
@@ -47,20 +59,20 @@
                 class="form-check-input"
                 type="checkbox"
                 id="ad"
-                [(ngModel)]="ldap.ad"
+                [(ngModel)]="ldap().ad"
                 name="AD"
               />
               <label class="form-check-label" for="ad">{{ "ldapAd" | i18n }}</label>
             </div>
           </div>
-          @if (!ldap.ad) {
+          @if (!ldap().ad) {
             <div class="mb-3">
               <div class="form-check">
                 <input
                   class="form-check-input"
                   type="checkbox"
                   id="pagedSearch"
-                  [(ngModel)]="ldap.pagedSearch"
+                  [(ngModel)]="ldap().pagedSearch"
                   name="PagedSearch"
                 />
                 <label class="form-check-label" for="pagedSearch">{{
@@ -75,7 +87,7 @@
                 class="form-check-input"
                 type="checkbox"
                 id="ldapEncrypted"
-                [(ngModel)]="ldap.ssl"
+                [(ngModel)]="ldap().ssl"
                 name="Encrypted"
               />
               <label class="form-check-label" for="ldapEncrypted">{{
@@ -83,7 +95,7 @@
               }}</label>
             </div>
           </div>
-          @if (ldap.ssl) {
+          @if (ldap().ssl) {
             <div class="ms-4">
               <div class="mb-3">
                 <div class="form-check">
@@ -92,7 +104,7 @@
                     type="radio"
                     [value]="false"
                     id="ssl"
-                    [(ngModel)]="ldap.startTls"
+                    [(ngModel)]="ldap().startTls"
                     name="SSL"
                   />
                   <label class="form-check-label" for="ssl">{{ "ldapSsl" | i18n }}</label>
@@ -103,13 +115,13 @@
                     type="radio"
                     [value]="true"
                     id="startTls"
-                    [(ngModel)]="ldap.startTls"
+                    [(ngModel)]="ldap().startTls"
                     name="StartTLS"
                   />
                   <label class="form-check-label" for="startTls">{{ "ldapTls" | i18n }}</label>
                 </div>
               </div>
-              @if (ldap.startTls) {
+              @if (ldap().startTls) {
                 <div class="ms-4">
                   <p>{{ "ldapTlsUntrustedDesc" | i18n }}</p>
                   <div class="mb-3">
@@ -125,12 +137,12 @@
                       class="form-control"
                       id="tlsCaPath"
                       name="TLSCaPath"
-                      [(ngModel)]="ldap.tlsCaPath"
+                      [(ngModel)]="ldap().tlsCaPath"
                     />
                   </div>
                 </div>
               }
-              @if (!ldap.startTls) {
+              @if (!ldap().startTls) {
                 <div class="ms-4">
                   <p>{{ "ldapSslUntrustedDesc" | i18n }}</p>
                   <div class="mb-3">
@@ -146,7 +158,7 @@
                       class="form-control"
                       id="sslCertPath"
                       name="SSLCertPath"
-                      [(ngModel)]="ldap.sslCertPath"
+                      [(ngModel)]="ldap().sslCertPath"
                     />
                   </div>
                   <div class="mb-3">
@@ -162,7 +174,7 @@
                       class="form-control"
                       id="sslKeyPath"
                       name="SSLKeyPath"
-                      [(ngModel)]="ldap.sslKeyPath"
+                      [(ngModel)]="ldap().sslKeyPath"
                     />
                   </div>
                   <div class="mb-3">
@@ -178,7 +190,7 @@
                       class="form-control"
                       id="sslCaPath"
                       name="SSLCaPath"
-                      [(ngModel)]="ldap.sslCaPath"
+                      [(ngModel)]="ldap().sslCaPath"
                     />
                   </div>
                 </div>
@@ -189,7 +201,7 @@
                     class="form-check-input"
                     type="checkbox"
                     id="certDoNotVerify"
-                    [(ngModel)]="ldap.sslAllowUnauthorized"
+                    [(ngModel)]="ldap().sslAllowUnauthorized"
                     name="CertDoNoVerify"
                   />
                   <label class="form-check-label" for="certDoNotVerify">{{
@@ -205,13 +217,13 @@
                 class="form-check-input"
                 type="checkbox"
                 id="currentUser"
-                [(ngModel)]="ldap.currentUser"
+                [(ngModel)]="ldap().currentUser"
                 name="CurrentUser"
               />
               <label class="form-check-label" for="currentUser">{{ "currentUser" | i18n }}</label>
             </div>
           </div>
-          <div [hidden]="ldap.currentUser">
+          <div [hidden]="ldap().currentUser">
             <div class="mb-3">
               <label for="username" class="form-label">{{ "username" | i18n }}</label>
               <input
@@ -219,12 +231,12 @@
                 class="form-control"
                 id="username"
                 name="Username"
-                [(ngModel)]="ldap.username"
+                [(ngModel)]="ldap().username"
               />
-              @if (ldap.ad) {
+              @if (ldap().ad) {
                 <div class="form-text">{{ "ex" | i18n }} company\admin</div>
               }
-              @if (!ldap.ad) {
+              @if (!ldap().ad) {
                 <div class="form-text">{{ "ex" | i18n }} cn=admin,dc=company,dc=com</div>
               }
             </div>
@@ -232,11 +244,11 @@
               <label for="password" class="form-label">{{ "password" | i18n }}</label>
               <div class="input-group">
                 <input
-                  type="{{ showLdapPassword ? 'text' : 'password' }}"
+                  type="{{ showLdapPassword() ? 'text' : 'password' }}"
                   class="form-control"
                   id="password"
                   name="Password"
-                  [(ngModel)]="ldap.password"
+                  [(ngModel)]="ldap().password"
                 />
                 <button
                   type="button"
@@ -247,14 +259,14 @@
                   <i
                     class="bwi bwi-lg"
                     aria-hidden="true"
-                    [ngClass]="showLdapPassword ? 'bwi-eye-slash' : 'bwi-eye'"
+                    [ngClass]="showLdapPassword() ? 'bwi-eye-slash' : 'bwi-eye'"
                   ></i>
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.EntraID">
+        <div [hidden]="directory() != directoryType.EntraID">
           <div class="mb-3">
             <label for="identityAuthority" class="form-label">{{
               "identityAuthority" | i18n
@@ -263,7 +275,7 @@
               class="form-select"
               id="identityAuthority"
               name="IdentityAuthority"
-              [(ngModel)]="entra.identityAuthority"
+              [(ngModel)]="entra().identityAuthority"
             >
               <option value="login.microsoftonline.com">Entra Id Public</option>
               <option value="login.microsoftonline.us">Entra Id Government</option>
@@ -276,7 +288,7 @@
               class="form-control"
               id="tenant"
               name="Tenant"
-              [(ngModel)]="entra.tenant"
+              [(ngModel)]="entra().tenant"
             />
             <div class="form-text">{{ "ex" | i18n }} companyad.onmicrosoft.com</div>
           </div>
@@ -287,18 +299,18 @@
               class="form-control"
               id="applicationId"
               name="ApplicationId"
-              [(ngModel)]="entra.applicationId"
+              [(ngModel)]="entra().applicationId"
             />
           </div>
           <div class="mb-3">
             <label for="secretKey" class="form-label">{{ "secretKey" | i18n }}</label>
             <div class="input-group">
               <input
-                type="{{ showEntraKey ? 'text' : 'password' }}"
+                type="{{ showEntraKey() ? 'text' : 'password' }}"
                 class="form-control"
                 id="secretKey"
                 name="SecretKey"
-                [(ngModel)]="entra.key"
+                [(ngModel)]="entra().key"
               />
               <button
                 type="button"
@@ -309,13 +321,13 @@
                 <i
                   class="bwi bwi-lg"
                   aria-hidden="true"
-                  [ngClass]="showEntraKey ? 'bwi-eye-slash' : 'bwi-eye'"
+                  [ngClass]="showEntraKey() ? 'bwi-eye-slash' : 'bwi-eye'"
                 ></i>
               </button>
             </div>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.Okta">
+        <div [hidden]="directory() != directoryType.Okta">
           <div class="mb-3">
             <label for="orgUrl" class="form-label">{{ "organizationUrl" | i18n }}</label>
             <input
@@ -323,7 +335,7 @@
               class="form-control"
               id="orgUrl"
               name="OrgUrl"
-              [(ngModel)]="okta.orgUrl"
+              [(ngModel)]="okta().orgUrl"
             />
             <div class="form-text">{{ "ex" | i18n }} https://mycompany.okta.com/</div>
           </div>
@@ -331,11 +343,11 @@
             <label for="oktaToken" class="form-label">{{ "token" | i18n }}</label>
             <div class="input-group">
               <input
-                type="{{ showOktaKey ? 'text' : 'password' }}"
+                type="{{ showOktaKey() ? 'text' : 'password' }}"
                 class="form-control"
                 id="oktaToken"
                 name="OktaToken"
-                [(ngModel)]="okta.token"
+                [(ngModel)]="okta().token"
               />
               <button
                 type="button"
@@ -346,13 +358,13 @@
                 <i
                   class="bwi bwi-lg"
                   aria-hidden="true"
-                  [ngClass]="showOktaKey ? 'bwi-eye-slash' : 'bwi-eye'"
+                  [ngClass]="showOktaKey() ? 'bwi-eye-slash' : 'bwi-eye'"
                 ></i>
               </button>
             </div>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.OneLogin">
+        <div [hidden]="directory() != directoryType.OneLogin">
           <div class="mb-3">
             <label for="oneLoginClientId" class="form-label">{{ "clientId" | i18n }}</label>
             <input
@@ -360,18 +372,18 @@
               class="form-control"
               id="oneLoginClientId"
               name="OneLoginClientId"
-              [(ngModel)]="oneLogin.clientId"
+              [(ngModel)]="oneLogin().clientId"
             />
           </div>
           <div class="mb-3">
             <label for="oneLoginClientSecret" class="form-label">{{ "clientSecret" | i18n }}</label>
             <div class="input-group">
               <input
-                type="{{ showOneLoginSecret ? 'text' : 'password' }}"
+                type="{{ showOneLoginSecret() ? 'text' : 'password' }}"
                 class="form-control"
                 id="oneLoginClientSecret"
                 name="OneLoginClientSecret"
-                [(ngModel)]="oneLogin.clientSecret"
+                [(ngModel)]="oneLogin().clientSecret"
               />
               <button
                 type="button"
@@ -382,7 +394,7 @@
                 <i
                   class="bwi bwi-lg"
                   aria-hidden="true"
-                  [ngClass]="showOneLoginSecret ? 'bwi-eye-slash' : 'bwi-eye'"
+                  [ngClass]="showOneLoginSecret() ? 'bwi-eye-slash' : 'bwi-eye'"
                 ></i>
               </button>
             </div>
@@ -393,14 +405,14 @@
               class="form-select"
               id="oneLoginRegion"
               name="OneLoginRegion"
-              [(ngModel)]="oneLogin.region"
+              [(ngModel)]="oneLogin().region"
             >
               <option value="us">US</option>
               <option value="eu">EU</option>
             </select>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.GSuite">
+        <div [hidden]="directory() != directoryType.GSuite">
           <div class="mb-3">
             <label for="domain" class="form-label">{{ "domain" | i18n }}</label>
             <input
@@ -408,7 +420,7 @@
               class="form-control"
               id="domain"
               name="Domain"
-              [(ngModel)]="gsuite.domain"
+              [(ngModel)]="gsuite().domain"
             />
             <div class="form-text">{{ "ex" | i18n }} company.com</div>
           </div>
@@ -419,7 +431,7 @@
               class="form-control"
               id="adminUser"
               name="AdminUser"
-              [(ngModel)]="gsuite.adminUser"
+              [(ngModel)]="gsuite().adminUser"
             />
             <div class="form-text">{{ "ex" | i18n }} admin&#64;company.com</div>
           </div>
@@ -430,7 +442,7 @@
               class="form-control"
               id="customerId"
               name="CustomerId"
-              [(ngModel)]="gsuite.customer"
+              [(ngModel)]="gsuite().customer"
             />
             <div class="form-text">{{ "ex" | i18n }} 39204722352</div>
           </div>
@@ -445,23 +457,23 @@
             />
             <div class="form-text">{{ "ex" | i18n }} My Project-jksd3jd223.json</div>
           </div>
-          <div class="mb-3" [hidden]="!gsuite.clientEmail">
+          <div class="mb-3" [hidden]="!gsuite().clientEmail">
             <label for="clientEmail" class="form-label">{{ "clientEmail" | i18n }}</label>
             <input
               type="text"
               class="form-control"
               id="clientEmail"
               name="ClientEmail"
-              [(ngModel)]="gsuite.clientEmail"
+              [(ngModel)]="gsuite().clientEmail"
             />
           </div>
-          <div class="mb-3" [hidden]="!gsuite.privateKey">
+          <div class="mb-3" [hidden]="!gsuite().privateKey">
             <label for="privateKey" class="form-label">{{ "privateKey" | i18n }}</label>
             <textarea
               class="form-control text-monospace"
               id="privateKey"
               name="PrivateKey"
-              [(ngModel)]="gsuite.privateKey"
+              [(ngModel)]="gsuite().privateKey"
             >
             </textarea>
           </div>
@@ -481,7 +493,7 @@
             class="form-control"
             id="interval"
             name="Interval"
-            [(ngModel)]="sync.interval"
+            [(ngModel)]="sync().interval"
           />
           <div class="form-text">{{ "intervalMin" | i18n }}</div>
         </div>
@@ -491,7 +503,7 @@
               class="form-check-input"
               type="checkbox"
               id="removeDisabled"
-              [(ngModel)]="sync.removeDisabled"
+              [(ngModel)]="sync().removeDisabled"
               name="RemoveDisabled"
             />
             <label class="form-check-label" for="removeDisabled">{{
@@ -505,14 +517,14 @@
               class="form-check-input"
               type="checkbox"
               id="largeImport"
-              [(ngModel)]="sync.largeImport"
+              [(ngModel)]="sync().largeImport"
               name="LargeImport"
             />
             <label class="form-check-label" for="largeImport">{{ "largeImport" | i18n }}</label>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.Ldap">
-          <div [hidden]="ldap.ad">
+        <div [hidden]="directory() != directoryType.Ldap">
+          <div [hidden]="ldap().ad">
             <div class="mb-3">
               <label for="memberAttribute" class="form-label">{{ "memberAttribute" | i18n }}</label>
               <input
@@ -520,7 +532,7 @@
                 class="form-control"
                 id="memberAttribute"
                 name="MemberAttribute"
-                [(ngModel)]="sync.memberAttribute"
+                [(ngModel)]="sync().memberAttribute"
               />
               <div class="form-text">{{ "ex" | i18n }} uniqueMember</div>
             </div>
@@ -533,7 +545,7 @@
                 class="form-control"
                 id="creationDateAttribute"
                 name="CreationDateAttribute"
-                [(ngModel)]="sync.creationDateAttribute"
+                [(ngModel)]="sync().creationDateAttribute"
               />
               <div class="form-text">{{ "ex" | i18n }} whenCreated</div>
             </div>
@@ -546,20 +558,20 @@
                 class="form-control"
                 id="revisionDateAttribute"
                 name="RevisionDateAttribute"
-                [(ngModel)]="sync.revisionDateAttribute"
+                [(ngModel)]="sync().revisionDateAttribute"
               />
               <div class="form-text">{{ "ex" | i18n }} whenChanged</div>
             </div>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.Ldap && directory != directoryType.OneLogin">
+        <div [hidden]="directory() != directoryType.Ldap && directory() != directoryType.OneLogin">
           <div class="mb-3">
             <div class="form-check">
               <input
                 class="form-check-input"
                 type="checkbox"
                 id="useEmailPrefixSuffix"
-                [(ngModel)]="sync.useEmailPrefixSuffix"
+                [(ngModel)]="sync().useEmailPrefixSuffix"
                 name="UseEmailPrefixSuffix"
               />
               <label class="form-check-label" for="useEmailPrefixSuffix">{{
@@ -567,8 +579,8 @@
               }}</label>
             </div>
           </div>
-          <div [hidden]="!sync.useEmailPrefixSuffix">
-            <div class="mb-3" [hidden]="ldap.ad || directory != directoryType.Ldap">
+          <div [hidden]="!sync().useEmailPrefixSuffix">
+            <div class="mb-3" [hidden]="ldap().ad || directory() != directoryType.Ldap">
               <label for="emailPrefixAttribute" class="form-label">{{
                 "emailPrefixAttribute" | i18n
               }}</label>
@@ -577,7 +589,7 @@
                 class="form-control"
                 id="emailPrefixAttribute"
                 name="EmailPrefixAttribute"
-                [(ngModel)]="sync.emailPrefixAttribute"
+                [(ngModel)]="sync().emailPrefixAttribute"
               />
               <div class="form-text">{{ "ex" | i18n }} accountName</div>
             </div>
@@ -588,7 +600,7 @@
                 class="form-control"
                 id="emailSuffix"
                 name="EmailSuffix"
-                [(ngModel)]="sync.emailSuffix"
+                [(ngModel)]="sync().emailSuffix"
               />
               <div class="form-text">{{ "ex" | i18n }} &#64;company.com</div>
             </div>
@@ -601,52 +613,52 @@
               class="form-check-input"
               type="checkbox"
               id="syncUsers"
-              [(ngModel)]="sync.users"
+              [(ngModel)]="sync().users"
               name="SyncUsers"
             />
             <label class="form-check-label" for="syncUsers">{{ "syncUsers" | i18n }}</label>
           </div>
         </div>
-        <div [hidden]="!sync.users">
+        <div [hidden]="!sync().users">
           <div class="mb-3">
             <label for="userFilter" class="form-label">{{ "userFilter" | i18n }}</label>
             <textarea
               class="form-control"
               id="userFilter"
               name="UserFilter"
-              [(ngModel)]="sync.userFilter"
+              [(ngModel)]="sync().userFilter"
             ></textarea>
-            @if (directory === directoryType.Ldap) {
+            @if (directory() === directoryType.Ldap) {
               <div class="form-text">
                 {{ "ex" | i18n }} (&amp;(givenName=John)(|(l=Dallas)(l=Austin)))
               </div>
             }
-            @if (directory === directoryType.EntraID) {
+            @if (directory() === directoryType.EntraID) {
               <div class="form-text">{{ "ex" | i18n }} exclude:joe&#64;company.com</div>
             }
-            @if (directory === directoryType.Okta) {
+            @if (directory() === directoryType.Okta) {
               <div class="form-text">
                 {{ "ex" | i18n }} exclude:joe&#64;company.com | profile.firstName eq "John"
               </div>
             }
-            @if (directory === directoryType.GSuite) {
+            @if (directory() === directoryType.GSuite) {
               <div class="form-text">
                 {{ "ex" | i18n }} exclude:joe&#64;company.com | orgUnitPath=/Engineering
               </div>
             }
           </div>
-          <div class="mb-3" [hidden]="directory != directoryType.Ldap">
+          <div class="mb-3" [hidden]="directory() != directoryType.Ldap">
             <label for="userPath" class="form-label">{{ "userPath" | i18n }}</label>
             <input
               type="text"
               class="form-control"
               id="userPath"
               name="UserPath"
-              [(ngModel)]="sync.userPath"
+              [(ngModel)]="sync().userPath"
             />
             <div class="form-text">{{ "ex" | i18n }} CN=Users</div>
           </div>
-          <div [hidden]="directory != directoryType.Ldap || ldap.ad">
+          <div [hidden]="directory() != directoryType.Ldap || ldap().ad">
             <div class="mb-3">
               <label for="userObjectClass" class="form-label">{{ "userObjectClass" | i18n }}</label>
               <input
@@ -654,7 +666,7 @@
                 class="form-control"
                 id="userObjectClass"
                 name="UserObjectClass"
-                [(ngModel)]="sync.userObjectClass"
+                [(ngModel)]="sync().userObjectClass"
               />
               <div class="form-text">{{ "ex" | i18n }} inetOrgPerson</div>
             </div>
@@ -667,7 +679,7 @@
                 class="form-control"
                 id="userEmailAttribute"
                 name="UserEmailAttribute"
-                [(ngModel)]="sync.userEmailAttribute"
+                [(ngModel)]="sync().userEmailAttribute"
               />
               <div class="form-text">{{ "ex" | i18n }} mail</div>
             </div>
@@ -680,57 +692,58 @@
               class="form-check-input"
               type="checkbox"
               id="syncGroups"
-              [(ngModel)]="sync.groups"
+              [(ngModel)]="sync().groups"
               name="SyncGroups"
             />
             <label class="form-check-label" for="syncGroups">{{
-              (directory !== directoryType.OneLogin ? "syncGroups" : "syncGroupsOneLogin") | i18n
+              (directory() !== directoryType.OneLogin ? "syncGroups" : "syncGroupsOneLogin") | i18n
             }}</label>
           </div>
         </div>
-        <div [hidden]="!sync.groups">
+        <div [hidden]="!sync().groups">
           <div class="mb-3">
             <label for="groupFilter" class="form-label">{{
-              (directory !== directoryType.OneLogin ? "groupFilter" : "groupFilterOneLogin") | i18n
+              (directory() !== directoryType.OneLogin ? "groupFilter" : "groupFilterOneLogin")
+                | i18n
             }}</label>
             <textarea
               class="form-control"
               id="groupFilter"
               name="GroupFilter"
-              [(ngModel)]="sync.groupFilter"
+              [(ngModel)]="sync().groupFilter"
             ></textarea>
-            @if (directory === directoryType.Ldap) {
+            @if (directory() === directoryType.Ldap) {
               <div class="form-text">
                 {{ "ex" | i18n }} (&amp;(objectClass=group)(!(cn=Sales*))(!(cn=IT*)))
               </div>
             }
-            @if (directory === directoryType.EntraID) {
+            @if (directory() === directoryType.EntraID) {
               <div class="form-text">{{ "ex" | i18n }} include:Sales,IT</div>
             }
-            @if (directory === directoryType.Okta) {
+            @if (directory() === directoryType.Okta) {
               <div class="form-text">{{ "ex" | i18n }} include:Sales,IT | type eq "APP_GROUP"</div>
             }
-            @if (directory === directoryType.GSuite) {
+            @if (directory() === directoryType.GSuite) {
               <div class="form-text">{{ "ex" | i18n }} include:Sales,IT</div>
             }
           </div>
-          <div class="mb-3" [hidden]="directory != directoryType.Ldap">
+          <div class="mb-3" [hidden]="directory() != directoryType.Ldap">
             <label for="groupPath" class="form-label">{{ "groupPath" | i18n }}</label>
             <input
               type="text"
               class="form-control"
               id="groupPath"
               name="GroupPath"
-              [(ngModel)]="sync.groupPath"
+              [(ngModel)]="sync().groupPath"
             />
-            @if (!ldap.ad) {
+            @if (!ldap().ad) {
               <div class="form-text">{{ "ex" | i18n }} CN=Groups</div>
             }
-            @if (ldap.ad) {
+            @if (ldap().ad) {
               <div class="form-text">{{ "ex" | i18n }} CN=Users</div>
             }
           </div>
-          <div [hidden]="directory != directoryType.Ldap || ldap.ad">
+          <div [hidden]="directory() != directoryType.Ldap || ldap().ad">
             <div class="mb-3">
               <label for="groupObjectClass" class="form-label">{{
                 "groupObjectClass" | i18n
@@ -740,7 +753,7 @@
                 class="form-control"
                 id="groupObjectClass"
                 name="GroupObjectClass"
-                [(ngModel)]="sync.groupObjectClass"
+                [(ngModel)]="sync().groupObjectClass"
               />
               <div class="form-text">{{ "ex" | i18n }} groupOfUniqueNames</div>
             </div>
@@ -753,7 +766,7 @@
                 class="form-control"
                 id="groupNameAttribute"
                 name="GroupNameAttribute"
-                [(ngModel)]="sync.groupNameAttribute"
+                [(ngModel)]="sync().groupNameAttribute"
               />
               <div class="form-text">{{ "ex" | i18n }} name</div>
             </div>
@@ -765,7 +778,7 @@
               class="form-check-input"
               type="checkbox"
               id="overwriteExisting"
-              [(ngModel)]="sync.overwriteExisting"
+              [(ngModel)]="sync().overwriteExisting"
               name="OverwriteExisting"
             />
             <label class="form-check-label" for="overwriteExisting"
