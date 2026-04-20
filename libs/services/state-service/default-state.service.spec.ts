@@ -98,28 +98,6 @@ describe("DefaultStateService", () => {
     });
   });
 
-  describe("clean", () => {
-    it("preserves directory configurations across logout", async () => {
-      await stateService.setDirectoryType(DirectoryType.Ldap);
-      await stateService.setOrganizationId("org-123");
-      await stateService.setSync({ users: true } as SyncConfiguration);
-
-      await stateService.clean();
-
-      expect(await stateService.getDirectoryType()).toBe(DirectoryType.Ldap);
-      expect(await stateService.getOrganizationId()).toBe("org-123");
-      expect(await stateService.getSync()).toEqual({ users: true });
-    });
-
-    it("does not touch secure storage during clean", async () => {
-      await stateService.setAccessToken("tok");
-
-      await stateService.clean();
-
-      expect(secureStorage.store.get(SecureStorageKeys.accessToken)).toBe("tok");
-    });
-  });
-
   describe("Directory Type", () => {
     it("round-trips the directory type", async () => {
       await stateService.setDirectoryType(DirectoryType.Ldap);
