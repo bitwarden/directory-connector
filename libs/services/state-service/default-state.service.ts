@@ -30,7 +30,8 @@ export class DefaultStateService implements StateService {
   }
 
   async clean(): Promise<void> {
-    await this.clearDirectoryConfigurations();
+    // Auth tokens are cleared separately via clearAuthTokens().
+    // Directory configurations persist across logout/login cycles.
   }
 
   /**
