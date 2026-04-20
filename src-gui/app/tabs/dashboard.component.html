@@ -3,23 +3,22 @@
   <div class="card-body">
     <p>
       {{ "lastGroupSync" | i18n }}:
-      @if (!lastGroupSync) {
+      @if (!lastGroupSync()) {
         <span>-</span>
       }
-      {{ lastGroupSync | date: "medium" }}
+      {{ lastGroupSync() | date: "medium" }}
       <br />
       {{ "lastUserSync" | i18n }}:
-      @if (!lastUserSync) {
+      @if (!lastUserSync()) {
         <span>-</span>
       }
-      {{ lastUserSync | date: "medium" }}
+      {{ lastUserSync() | date: "medium" }}
     </p>
     <p>
       {{ "syncStatus" | i18n }}:
-      @if (syncRunning) {
+      @if (syncRunning()) {
         <strong class="text-success">{{ "running" | i18n }}</strong>
-      }
-      @if (!syncRunning) {
+      } @else {
         <strong class="text-danger">{{ "stopped" | i18n }}</strong>
       }
     </p>

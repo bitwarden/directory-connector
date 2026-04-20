@@ -1,4 +1,12 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 
 import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
@@ -28,9 +36,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   simSinceLast = false;
   syncPromise: Promise<[GroupEntry[], UserEntry[]]>;
   startPromise: Promise<any>;
-  lastGroupSync: Date;
-  lastUserSync: Date;
-  syncRunning: boolean;
+  lastGroupSync: WritableSignal<Date> = signal(undefined);
+  lastUserSync: WritableSignal<Date> = signal(undefined);
+  syncRunning: WritableSignal<boolean> = signal(false);
 
   constructor(
     private i18nService: I18nService,
@@ -58,7 +66,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
     });
 
-    this.syncRunning = !!(await this.stateService.getSyncingDir());
+    this.syncRunning.set(await this.stateService.getSyncingDir());
     this.updateLastSync();
   }
 
@@ -70,13 +78,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.startPromise = this.syncService.sync(false, false);
     await this.startPromise;
     this.messagingService.send("scheduleNextDirSync");
-    this.syncRunning = true;
+    this.syncRunning.set(true);
+    await this.stateService.setSyncingDir(true);
     this.platformUtilsService.showToast("success", null, this.i18nService.t("syncingStarted"));
   }
 
   async stop() {
     this.messagingService.send("cancelDirSync");
-    this.syncRunning = false;
+    this.syncRunning.set(false);
+    await this.stateService.setSyncingDir(false);
     this.platformUtilsService.showToast("success", null, this.i18nService.t("syncingStopped"));
   }
 
@@ -118,7 +128,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private async updateLastSync() {
-    this.lastGroupSync = await this.stateService.getLastGroupSync();
-    this.lastUserSync = await this.stateService.getLastUserSync();
+    this.lastGroupSync.set(await this.stateService.getLastGroupSync());
+    this.lastUserSync.set(await this.stateService.getLastUserSync());
   }
 }
