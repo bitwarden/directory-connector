@@ -115,7 +115,6 @@ export class ApiKeyComponent {
       this.environmentModal,
     );
 
-     
     outputToObservable(childComponent.onSaved)
       .pipe(takeUntil(modalRef.onClosed))
       .subscribe(() => {

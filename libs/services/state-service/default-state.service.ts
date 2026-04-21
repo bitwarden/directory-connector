@@ -29,26 +29,6 @@ export class DefaultStateService implements StateService {
     }
   }
 
-  async clean(): Promise<void> {
-    await this.clearDirectoryConfigurations();
-  }
-
-  /**
-   * Clears all directory settings and configurations
-   * but preserve version and environment settings
-   */
-  async clearDirectoryConfigurations(): Promise<void> {
-    await this.setDirectoryType(null);
-    await this.setOrganizationId(null);
-    await this.setSync(null);
-    await this.setLdapConfiguration(null);
-    await this.setGsuiteConfiguration(null);
-    await this.setEntraConfiguration(null);
-    await this.setOktaConfiguration(null);
-    await this.setOneLoginConfiguration(null);
-    await this.clearSyncSettings(true);
-  }
-
   // ===================================================================
   // Directory Configuration Methods
   // ===================================================================

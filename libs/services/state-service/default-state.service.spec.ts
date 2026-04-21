@@ -98,29 +98,6 @@ describe("DefaultStateService", () => {
     });
   });
 
-  describe("clean", () => {
-    it("clears directory type, org ID, and sync from regular storage", async () => {
-      await stateService.setDirectoryType(DirectoryType.Ldap);
-      await stateService.setOrganizationId("org-123");
-      await stateService.setSync({ users: true } as SyncConfiguration);
-
-      await stateService.clean();
-
-      expect(await stateService.getDirectoryType()).toBeNull();
-      expect(await stateService.getOrganizationId()).toBeNull();
-      expect(await stateService.getSync()).toBeNull();
-    });
-
-    it("does not touch secure storage during clean", async () => {
-      await stateService.setAccessToken("tok");
-
-      await stateService.clean();
-
-      // secure storage still has the access token — clean only clears directory state
-      expect(secureStorage.store.get(SecureStorageKeys.accessToken)).toBe("tok");
-    });
-  });
-
   describe("Directory Type", () => {
     it("round-trips the directory type", async () => {
       await stateService.setDirectoryType(DirectoryType.Ldap);

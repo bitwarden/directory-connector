@@ -172,7 +172,6 @@ export class Main {
 
   async logout() {
     await this.stateService.clearAuthTokens();
-    await this.stateService.clean();
   }
 
   private async init() {

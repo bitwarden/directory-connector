@@ -35,15 +35,16 @@ import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
 export class SettingsComponent implements OnInit, OnDestroy {
   // Config objects mutated in-place by ngModel — wrapped in signals so template reads stay reactive
   directory = signal<DirectoryType>(null);
+
+  readonly directoryType = DirectoryType;
+  readonly directoryOptions: { name: string; value: DirectoryType | null }[];
+
   ldap = signal(new LdapConfiguration());
   gsuite = signal(new GSuiteConfiguration());
   entra = signal(new EntraIdConfiguration());
   okta = signal(new OktaConfiguration());
   oneLogin = signal(new OneLoginConfiguration());
   sync = signal(new SyncConfiguration());
-
-  readonly directoryType = DirectoryType;
-  readonly directoryOptions: { name: string; value: DirectoryType | null }[];
 
   showLdapPassword = signal(false);
   showEntraKey = signal(false);
