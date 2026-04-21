@@ -1,11 +1,10 @@
-import { Directive, ElementRef, Input, NgZone } from "@angular/core";
-import { take } from "rxjs";
+import { Directive, ElementRef, Input, afterNextRender, inject } from "@angular/core";
 
 import { Utils } from "@/libs/utils/utils";
 
 @Directive({
   selector: "[appAutofocus]",
-  standalone: false,
+  standalone: true,
 })
 export class AutofocusDirective {
   @Input() set appAutofocus(condition: boolean | string) {
@@ -13,19 +12,13 @@ export class AutofocusDirective {
   }
 
   private autofocus: boolean;
+  private el = inject(ElementRef);
 
-  constructor(
-    private el: ElementRef,
-    private ngZone: NgZone,
-  ) {}
-
-  ngOnInit() {
-    if (!Utils.isMobileBrowser && this.autofocus) {
-      if (this.ngZone.isStable) {
+  constructor() {
+    afterNextRender(() => {
+      if (!Utils.isMobileBrowser && this.autofocus) {
         this.el.nativeElement.focus();
-      } else {
-        this.ngZone.onStable.pipe(take(1)).subscribe(() => this.el.nativeElement.focus());
       }
-    }
+    });
   }
 }

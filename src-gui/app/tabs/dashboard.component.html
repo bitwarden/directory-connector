@@ -3,27 +3,27 @@
   <div class="card-body">
     <p>
       {{ "lastGroupSync" | i18n }}:
-      @if (!lastGroupSync) {
+      @if (!lastGroupSync()) {
         <span>-</span>
       }
-      {{ lastGroupSync | date: "medium" }}
+      {{ lastGroupSync() | date: "medium" }}
       <br />
       {{ "lastUserSync" | i18n }}:
-      @if (!lastUserSync) {
+      @if (!lastUserSync()) {
         <span>-</span>
       }
-      {{ lastUserSync | date: "medium" }}
+      {{ lastUserSync() | date: "medium" }}
     </p>
     <p>
       {{ "syncStatus" | i18n }}:
-      @if (syncRunning) {
+      @if (syncRunning()) {
         <strong class="text-success">{{ "running" | i18n }}</strong>
       }
-      @if (!syncRunning) {
+      @if (!syncRunning()) {
         <strong class="text-danger">{{ "stopped" | i18n }}</strong>
       }
     </p>
-    <form #startForm [appApiAction]="startPromise" class="d-inline">
+    <form #startForm [appApiAction]="startPromise()" class="d-inline">
       <button
         type="button"
         (click)="start()"
@@ -37,7 +37,7 @@
     <button type="button" (click)="stop()" class="btn btn-danger text-white">
       {{ "stopSync" | i18n }}
     </button>
-    <form #syncForm [appApiAction]="syncPromise" class="d-inline">
+    <form #syncForm [appApiAction]="syncPromise()" class="d-inline">
       <button type="button" (click)="sync()" class="btn btn-primary" [disabled]="syncForm.loading">
         {{ "syncNow" | i18n }}
       </button>
@@ -48,7 +48,7 @@
   <h3 class="card-header">{{ "testing" | i18n }}</h3>
   <div class="card-body">
     <p>{{ "testingDesc" | i18n }}</p>
-    <form #simForm [appApiAction]="simPromise" class="d-inline">
+    <form #simForm [appApiAction]="simPromise()" class="d-inline">
       <button
         type="button"
         (click)="simulate()"
@@ -64,18 +64,19 @@
         class="form-check-input"
         type="checkbox"
         id="simSinceLast"
-        [(ngModel)]="simSinceLast"
+        [ngModel]="simSinceLast()"
+        (ngModelChange)="simSinceLast.set($event)"
       />
       <label class="form-check-label" for="simSinceLast">{{ "testLastSync" | i18n }}</label>
     </div>
-    @if (!simForm.loading && (simUsers || simGroups)) {
+    @if (!simForm.loading && (simUsers() || simGroups())) {
       <hr />
       <div class="row">
         <div class="col-lg">
           <h4>{{ "users" | i18n }}</h4>
-          @if (simEnabledUsers && simEnabledUsers.length) {
+          @if (simEnabledUsers() && simEnabledUsers().length) {
             <ul class="bwi-ul testing-list">
-              @for (u of simEnabledUsers; track u) {
+              @for (u of simEnabledUsers(); track u) {
                 <li title="{{ u.referenceId }}">
                   <i class="bwi bwi-li bwi-user"></i>
                   {{ u.displayName }}
@@ -83,15 +84,15 @@
               }
             </ul>
           }
-          @if (!simEnabledUsers || !simEnabledUsers.length) {
+          @if (!simEnabledUsers() || !simEnabledUsers().length) {
             <p>
               {{ "noUsers" | i18n }}
             </p>
           }
           <h4>{{ "disabledUsers" | i18n }}</h4>
-          @if (simDisabledUsers && simDisabledUsers.length) {
+          @if (simDisabledUsers() && simDisabledUsers().length) {
             <ul class="bwi-ul testing-list">
-              @for (u of simDisabledUsers; track u) {
+              @for (u of simDisabledUsers(); track u) {
                 <li title="{{ u.referenceId }}">
                   <i class="bwi bwi-li bwi-user"></i>
                   {{ u.displayName }}
@@ -99,15 +100,15 @@
               }
             </ul>
           }
-          @if (!simDisabledUsers || !simDisabledUsers.length) {
+          @if (!simDisabledUsers() || !simDisabledUsers().length) {
             <p>
               {{ "noUsers" | i18n }}
             </p>
           }
           <h4>{{ "deletedUsers" | i18n }}</h4>
-          @if (simDeletedUsers && simDeletedUsers.length) {
+          @if (simDeletedUsers() && simDeletedUsers().length) {
             <ul class="bwi-ul testing-list">
-              @for (u of simDeletedUsers; track u) {
+              @for (u of simDeletedUsers(); track u) {
                 <li title="{{ u.referenceId }}">
                   <i class="bwi bwi-li bwi-user"></i>
                   {{ u.displayName }}
@@ -115,7 +116,7 @@
               }
             </ul>
           }
-          @if (!simDeletedUsers || !simDeletedUsers.length) {
+          @if (!simDeletedUsers() || !simDeletedUsers().length) {
             <p>
               {{ "noUsers" | i18n }}
             </p>
@@ -123,9 +124,9 @@
         </div>
         <div class="col-lg">
           <h4>{{ "groups" | i18n }}</h4>
-          @if (simGroups && simGroups.length) {
+          @if (simGroups() && simGroups().length) {
             <ul class="bwi-ul testing-list">
-              @for (g of simGroups; track g) {
+              @for (g of simGroups(); track g) {
                 <li title="{{ g.referenceId }}">
                   <i class="bwi bwi-li bwi-sitemap"></i>
                   {{ g.displayName }}
@@ -142,7 +143,7 @@
               }
             </ul>
           }
-          @if (!simGroups || !simGroups.length) {
+          @if (!simGroups() || !simGroups().length) {
             <p>{{ "noGroups" | i18n }}</p>
           }
         </div>

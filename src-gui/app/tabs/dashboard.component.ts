@@ -1,4 +1,13 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { DatePipe } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+  signal,
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
 
 import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
@@ -11,55 +20,52 @@ import { UserEntry } from "@/libs/models/userEntry";
 import { SyncService } from "@/libs/services/sync.service";
 import { ConnectorUtils } from "@/libs/utils";
 
+import { ApiActionDirective } from "@/src-gui/angular/directives/api-action.directive";
+import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
+
 const BroadcasterSubscriptionId = "DashboardComponent";
 
 @Component({
   selector: "app-dashboard",
   templateUrl: "dashboard.component.html",
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ApiActionDirective, DatePipe, FormsModule, I18nPipe],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  simGroups: GroupEntry[];
-  simUsers: UserEntry[];
-  simEnabledUsers: UserEntry[] = [];
-  simDisabledUsers: UserEntry[] = [];
-  simDeletedUsers: UserEntry[] = [];
-  simPromise: Promise<SimResult>;
-  simSinceLast = false;
-  syncPromise: Promise<[GroupEntry[], UserEntry[]]>;
-  startPromise: Promise<any>;
-  lastGroupSync: Date;
-  lastUserSync: Date;
-  syncRunning: boolean;
+  simGroups = signal<GroupEntry[]>(null);
+  simUsers = signal<UserEntry[]>(null);
+  simEnabledUsers = signal<UserEntry[]>([]);
+  simDisabledUsers = signal<UserEntry[]>([]);
+  simDeletedUsers = signal<UserEntry[]>([]);
+  simPromise = signal<Promise<SimResult>>(null);
+  simSinceLast = signal(false);
+  syncPromise = signal<Promise<[GroupEntry[], UserEntry[]]>>(null);
+  startPromise = signal<Promise<any>>(null);
+  lastGroupSync = signal<Date>(null);
+  lastUserSync = signal<Date>(null);
+  syncRunning = signal(false);
 
-  constructor(
-    private i18nService: I18nService,
-    private syncService: SyncService,
-    private broadcasterService: BroadcasterService,
-    private ngZone: NgZone,
-    private messagingService: MessagingService,
-    private platformUtilsService: PlatformUtilsService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private stateService: StateService,
-  ) {}
+  private i18nService = inject(I18nService);
+  private syncService = inject(SyncService);
+  private broadcasterService = inject(BroadcasterService);
+  private messagingService = inject(MessagingService);
+  private platformUtilsService = inject(PlatformUtilsService);
+  private stateService = inject(StateService);
 
   async ngOnInit() {
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
-      this.ngZone.run(async () => {
-        switch (message.command) {
-          case "dirSyncCompleted":
-            this.updateLastSync();
-            break;
-          default:
-            break;
-        }
-
-        this.changeDetectorRef.detectChanges();
-      });
+      switch (message.command) {
+        case "dirSyncCompleted":
+          await this.updateLastSync();
+          break;
+        default:
+          break;
+      }
     });
 
-    this.syncRunning = !!(await this.stateService.getSyncingDir());
-    this.updateLastSync();
+    this.syncRunning.set(!!(await this.stateService.getSyncingDir()));
+    await this.updateLastSync();
   }
 
   async ngOnDestroy() {
@@ -67,22 +73,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async start() {
-    this.startPromise = this.syncService.sync(false, false);
-    await this.startPromise;
+    const promise = this.syncService.sync(false, false);
+    this.startPromise.set(promise);
+    await promise;
     this.messagingService.send("scheduleNextDirSync");
-    this.syncRunning = true;
+    this.syncRunning.set(true);
     this.platformUtilsService.showToast("success", null, this.i18nService.t("syncingStarted"));
   }
 
   async stop() {
     this.messagingService.send("cancelDirSync");
-    this.syncRunning = false;
+    this.syncRunning.set(false);
     this.platformUtilsService.showToast("success", null, this.i18nService.t("syncingStopped"));
   }
 
   async sync() {
-    this.syncPromise = this.syncService.sync(false, false);
-    const result = await this.syncPromise;
+    const promise = this.syncService.sync(false, false);
+    this.syncPromise.set(promise);
+    const result = await promise;
     const groupCount = result[0] != null ? result[0].length : 0;
     const userCount = result[1] != null ? result[1].length : 0;
     this.platformUtilsService.showToast(
@@ -93,32 +101,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async simulate() {
-    this.simGroups = [];
-    this.simUsers = [];
-    this.simEnabledUsers = [];
-    this.simDisabledUsers = [];
-    this.simDeletedUsers = [];
+    this.simGroups.set([]);
+    this.simUsers.set([]);
+    this.simEnabledUsers.set([]);
+    this.simDisabledUsers.set([]);
+    this.simDeletedUsers.set([]);
 
     try {
-      this.simPromise = ConnectorUtils.simulate(
+      const promise = ConnectorUtils.simulate(
         this.syncService,
         this.i18nService,
-        this.simSinceLast,
+        this.simSinceLast(),
       );
-      const result = await this.simPromise;
-      this.simGroups = result.groups;
-      this.simUsers = result.users;
-      this.simEnabledUsers = result.enabledUsers;
-      this.simDisabledUsers = result.disabledUsers;
-      this.simDeletedUsers = result.deletedUsers;
+      this.simPromise.set(promise);
+      const result = await promise;
+      this.simGroups.set(result.groups);
+      this.simUsers.set(result.users);
+      this.simEnabledUsers.set(result.enabledUsers);
+      this.simDisabledUsers.set(result.disabledUsers);
+      this.simDeletedUsers.set(result.deletedUsers);
     } catch {
-      this.simGroups = null;
-      this.simUsers = null;
+      this.simGroups.set(null);
+      this.simUsers.set(null);
     }
   }
 
   private async updateLastSync() {
-    this.lastGroupSync = await this.stateService.getLastGroupSync();
-    this.lastUserSync = await this.stateService.getLastUserSync();
+    this.lastGroupSync.set(await this.stateService.getLastGroupSync());
+    this.lastUserSync.set(await this.stateService.getLastUserSync());
   }
 }

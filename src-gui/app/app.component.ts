@@ -1,13 +1,14 @@
 import {
+  ChangeDetectionStrategy,
   Component,
-  NgZone,
   OnInit,
   SecurityContext,
   ViewChild,
   ViewContainerRef,
+  inject,
 } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
-import { Router } from "@angular/router";
+import { Router, RouterOutlet } from "@angular/router";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
 
 import { AuthService } from "@/libs/abstractions/auth.service";
@@ -27,86 +28,83 @@ const BroadcasterSubscriptionId = "AppComponent";
   styles: [],
   template: ` <ng-template #settings></ng-template>
     <router-outlet></router-outlet>`,
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterOutlet],
 })
 export class AppComponent implements OnInit {
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
 
-  constructor(
-    private broadcasterService: BroadcasterService,
-    private tokenService: TokenService,
-    private authService: AuthService,
-    private router: Router,
-    private toastrService: ToastrService,
-    private i18nService: I18nService,
-    private sanitizer: DomSanitizer,
-    private ngZone: NgZone,
-    private platformUtilsService: PlatformUtilsService,
-    private messagingService: MessagingService,
-    private syncService: SyncService,
-    private stateService: StateService,
-    private logService: LogService,
-  ) {}
+  private broadcasterService = inject(BroadcasterService);
+  private tokenService = inject(TokenService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private toastrService = inject(ToastrService);
+  private i18nService = inject(I18nService);
+  private sanitizer = inject(DomSanitizer);
+  private platformUtilsService = inject(PlatformUtilsService);
+  private messagingService = inject(MessagingService);
+  private syncService = inject(SyncService);
+  private stateService = inject(StateService);
+  private logService = inject(LogService);
 
   ngOnInit() {
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
-      this.ngZone.run(async () => {
-        switch (message.command) {
-          case "syncScheduleStarted":
-          case "syncScheduleStopped":
-            this.stateService.setSyncingDir(message.command === "syncScheduleStarted");
-            break;
-          case "logout":
-            this.logOut(!!message.expired);
-            break;
-          case "checkDirSync":
-            try {
-              const syncConfig = await this.stateService.getSync();
-              if (syncConfig.interval == null || syncConfig.interval < 5) {
-                return;
-              }
-
-              const syncInterval = syncConfig.interval * 60000;
-              const lastGroupSync = await this.stateService.getLastGroupSync();
-              const lastUserSync = await this.stateService.getLastUserSync();
-              let lastSync: Date = null;
-              if (lastGroupSync != null && lastUserSync == null) {
-                lastSync = lastGroupSync;
-              } else if (lastGroupSync == null && lastUserSync != null) {
-                lastSync = lastUserSync;
-              } else if (lastGroupSync != null && lastUserSync != null) {
-                if (lastGroupSync.getTime() < lastUserSync.getTime()) {
-                  lastSync = lastGroupSync;
-                } else {
-                  lastSync = lastUserSync;
-                }
-              }
-
-              let lastSyncAgo = syncInterval + 1;
-              if (lastSync != null) {
-                lastSyncAgo = new Date().getTime() - lastSync.getTime();
-              }
-
-              if (lastSyncAgo >= syncInterval) {
-                await this.syncService.sync(false, false);
-              }
-            } catch (e) {
-              this.logService.error(e);
+      switch (message.command) {
+        case "syncScheduleStarted":
+        case "syncScheduleStopped":
+          this.stateService.setSyncingDir(message.command === "syncScheduleStarted");
+          break;
+        case "logout":
+          this.logOut(!!message.expired);
+          break;
+        case "checkDirSync":
+          try {
+            const syncConfig = await this.stateService.getSync();
+            if (syncConfig.interval == null || syncConfig.interval < 5) {
+              return;
             }
 
-            this.messagingService.send("scheduleNextDirSync");
-            break;
-          case "showToast":
-            this.showToast(message);
-            break;
-          case "ssoCallback":
-            this.router.navigate(["sso"], {
-              queryParams: { code: message.code, state: message.state },
-            });
-            break;
-          default:
-        }
-      });
+            const syncInterval = syncConfig.interval * 60000;
+            const lastGroupSync = await this.stateService.getLastGroupSync();
+            const lastUserSync = await this.stateService.getLastUserSync();
+            let lastSync: Date = null;
+            if (lastGroupSync != null && lastUserSync == null) {
+              lastSync = lastGroupSync;
+            } else if (lastGroupSync == null && lastUserSync != null) {
+              lastSync = lastUserSync;
+            } else if (lastGroupSync != null && lastUserSync != null) {
+              if (lastGroupSync.getTime() < lastUserSync.getTime()) {
+                lastSync = lastGroupSync;
+              } else {
+                lastSync = lastUserSync;
+              }
+            }
+
+            let lastSyncAgo = syncInterval + 1;
+            if (lastSync != null) {
+              lastSyncAgo = new Date().getTime() - lastSync.getTime();
+            }
+
+            if (lastSyncAgo >= syncInterval) {
+              await this.syncService.sync(false, false);
+            }
+          } catch (e) {
+            this.logService.error(e);
+          }
+
+          this.messagingService.send("scheduleNextDirSync");
+          break;
+        case "showToast":
+          this.showToast(message);
+          break;
+        case "ssoCallback":
+          this.router.navigate(["sso"], {
+            queryParams: { code: message.code, state: message.state },
+          });
+          break;
+        default:
+      }
     });
   }
 

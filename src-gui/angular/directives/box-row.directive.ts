@@ -1,15 +1,18 @@
-import { Directive, ElementRef, HostListener, OnInit } from "@angular/core";
+import { Directive, ElementRef, OnInit, inject } from "@angular/core";
 
 @Directive({
   selector: "[appBoxRow]",
-  standalone: false,
+  standalone: true,
+  host: {
+    "(click)": "onClick($event)",
+  },
 })
 export class BoxRowDirective implements OnInit {
   el: HTMLElement = null;
   formEls: Element[];
 
-  constructor(elRef: ElementRef) {
-    this.el = elRef.nativeElement;
+  constructor() {
+    this.el = inject(ElementRef).nativeElement;
   }
 
   ngOnInit(): void {
@@ -35,7 +38,7 @@ export class BoxRowDirective implements OnInit {
     });
   }
 
-  @HostListener("click", ["$event"]) onClick(event: Event) {
+  onClick(event: Event) {
     const target = event.target as HTMLElement;
     if (
       target !== this.el &&

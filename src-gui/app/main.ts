@@ -1,17 +1,33 @@
-import { enableProdMode, provideZoneChangeDetection } from "@angular/core";
-import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
+import { enableProdMode, importProvidersFrom, provideZonelessChangeDetection } from "@angular/core";
+import { bootstrapApplication } from "@angular/platform-browser";
+import { provideAnimations } from "@angular/platform-browser/animations";
+import { provideRouter, withHashLocation } from "@angular/router";
 
+import { BitwardenToastModule } from "@/src-gui/angular/components/toastr.component";
 import { isDev } from "@/src-gui/utils";
 
 import "../scss/styles.scss";
 
-import { AppModule } from "./app.module";
+import { routes } from "./app-routing.module";
+import { AppComponent } from "./app.component";
+import { servicesProviders } from "./services/services.module";
 
 if (!isDev()) {
   enableProdMode();
 }
 
-platformBrowserDynamic().bootstrapModule(AppModule, {
-  applicationProviders: [provideZoneChangeDetection()],
-  preserveWhitespaces: true,
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideZonelessChangeDetection(),
+    provideAnimations(),
+    provideRouter(routes, withHashLocation()),
+    importProvidersFrom(
+      BitwardenToastModule.forRoot({
+        maxOpened: 5,
+        autoDismiss: true,
+        closeButton: true,
+      }),
+    ),
+    ...servicesProviders,
+  ],
 });

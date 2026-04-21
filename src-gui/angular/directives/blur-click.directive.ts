@@ -1,13 +1,16 @@
-import { Directive, ElementRef, HostListener } from "@angular/core";
+import { Directive, ElementRef, inject } from "@angular/core";
 
 @Directive({
   selector: "[appBlurClick]",
-  standalone: false,
+  standalone: true,
+  host: {
+    "(click)": "onClick()",
+  },
 })
 export class BlurClickDirective {
-  constructor(private el: ElementRef) {}
+  private el = inject(ElementRef);
 
-  @HostListener("click") onClick() {
+  onClick() {
     this.el.nativeElement.blur();
   }
 }

@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, OnChanges } from "@angular/core";
+import { Directive, ElementRef, Input, OnChanges, inject } from "@angular/core";
 
 import { LogService } from "@/libs/abstractions/log.service";
 import { ErrorResponse } from "@/libs/models/response/errorResponse";
@@ -13,16 +13,14 @@ import { ValidationService } from "@/src-gui/angular/services/validation.service
  */
 @Directive({
   selector: "[appApiAction]",
-  standalone: false,
+  standalone: true,
 })
 export class ApiActionDirective implements OnChanges {
   @Input() appApiAction: Promise<any>;
 
-  constructor(
-    private el: ElementRef,
-    private validationService: ValidationService,
-    private logService: LogService,
-  ) {}
+  private el = inject(ElementRef);
+  private validationService = inject(ValidationService);
+  private logService = inject(LogService);
 
   ngOnChanges(changes: any) {
     if (this.appApiAction == null || this.appApiAction.then == null) {

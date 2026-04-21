@@ -1,5 +1,4 @@
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes, mapToCanActivate } from "@angular/router";
+import { Routes, mapToCanActivate } from "@angular/router";
 
 import { AuthGuardService } from "@/src-gui/app/services/auth-guard.service";
 import { LaunchGuardService } from "@/src-gui/app/services/launch-guard.service";
@@ -10,7 +9,7 @@ import { MoreComponent } from "./tabs/more.component";
 import { SettingsComponent } from "./tabs/settings.component";
 import { TabsComponent } from "./tabs/tabs.component";
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: "", redirectTo: "/login", pathMatch: "full" },
   {
     path: "login",
@@ -44,14 +43,3 @@ const routes: Routes = [
     ],
   },
 ];
-
-@NgModule({
-  imports: [
-    RouterModule.forRoot(routes, {
-      useHash: true,
-      /*enableTracing: true,*/
-    }),
-  ],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {}

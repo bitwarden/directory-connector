@@ -1,6 +1,7 @@
 import { ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from "@angular/cdk/a11y";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ComponentRef,
@@ -9,6 +10,7 @@ import {
   Type,
   ViewChild,
   ViewContainerRef,
+  inject,
 } from "@angular/core";
 
 import { ModalService } from "@/src-gui/angular/services/modal.service";
@@ -18,6 +20,8 @@ import { ModalRef } from "./modal.ref";
 @Component({
   selector: "app-modal",
   template: "<ng-template #modalContent></ng-template>",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
 })
 export class DynamicModalComponent implements AfterViewInit, OnDestroy {
   componentRef: ComponentRef<any>;
@@ -30,13 +34,11 @@ export class DynamicModalComponent implements AfterViewInit, OnDestroy {
 
   private focusTrap: ConfigurableFocusTrap;
 
-  constructor(
-    private modalService: ModalService,
-    private cd: ChangeDetectorRef,
-    private el: ElementRef<HTMLElement>,
-    private focusTrapFactory: ConfigurableFocusTrapFactory,
-    public modalRef: ModalRef,
-  ) {}
+  private modalService = inject(ModalService);
+  private cd = inject(ChangeDetectorRef);
+  private el = inject<ElementRef<HTMLElement>>(ElementRef);
+  private focusTrapFactory = inject(ConfigurableFocusTrapFactory);
+  modalRef = inject(ModalRef);
 
   ngAfterViewInit() {
     this.loadChildComponent(this.childComponentType);

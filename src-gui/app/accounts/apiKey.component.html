@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <form #form (ngSubmit)="submit()" [appApiAction]="formPromise">
+  <form #form (ngSubmit)="submit()" [appApiAction]="formPromise()">
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-6">
         <p class="text-center fw-bold">{{ "welcome" | i18n }}</p>
@@ -9,16 +9,23 @@
           <div class="card-body">
             <div class="mb-3">
               <label for="client_id" class="form-label">{{ "clientId" | i18n }}</label>
-              <input id="client_id" name="ClientId" [(ngModel)]="clientId" class="form-control" />
+              <input
+                id="client_id"
+                name="ClientId"
+                [ngModel]="clientId()"
+                (ngModelChange)="clientId.set($event)"
+                class="form-control"
+              />
             </div>
             <div class="mb-3">
               <label for="client_secret" class="form-label">{{ "clientSecret" | i18n }}</label>
               <div class="input-group">
                 <input
-                  type="{{ showSecret ? 'text' : 'password' }}"
+                  type="{{ showSecret() ? 'text' : 'password' }}"
                   id="client_secret"
                   name="ClientSecret"
-                  [(ngModel)]="clientSecret"
+                  [ngModel]="clientSecret()"
+                  (ngModelChange)="clientSecret.set($event)"
                   class="form-control"
                 />
                 <button
@@ -27,7 +34,7 @@
                   appA11yTitle="{{ 'toggleVisibility' | i18n }}"
                   (click)="toggleSecret()"
                 >
-                  <i class="bwi" [ngClass]="showSecret ? 'bwi-eye-slash' : 'bwi-eye'"></i>
+                  <i class="bwi" [ngClass]="showSecret() ? 'bwi-eye-slash' : 'bwi-eye'"></i>
                 </button>
               </div>
             </div>

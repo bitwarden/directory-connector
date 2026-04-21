@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, ModuleWithProviders, NgModule } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ModuleWithProviders, NgModule } from "@angular/core";
 import { DefaultNoComponentGlobalConfig, GlobalConfig, Toast, TOAST_CONFIG } from "ngx-toastr";
 
 @Component({
@@ -69,6 +69,7 @@ import { DefaultNoComponentGlobalConfig, GlobalConfig, Toast, TOAST_CONFIG } fro
     }
   `,
   preserveWhitespaces: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class BitwardenToast extends Toast {}
