@@ -33,7 +33,6 @@ import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
   imports: [A11yTitleDirective, FormsModule, I18nPipe, NgClass],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-  // Config objects mutated in-place by ngModel — wrapped in signals so template reads stay reactive
   directory = signal<DirectoryType>(null);
 
   readonly directoryType = DirectoryType;
@@ -121,10 +120,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
       try {
         const result = JSON.parse((evt.target as FileReader).result as string);
         if (result.client_email != null && result.private_key != null) {
-          const gsuite = this.gsuite();
-          gsuite.clientEmail = result.client_email;
-          gsuite.privateKey = result.private_key;
-          this.gsuite.set(gsuite);
+          this.gsuite.update((current) => ({
+            ...current,
+            clientEmail: result.client_email,
+            privateKey: result.private_key,
+          }));
         }
       } catch (e) {
         this.logService.error(e);
@@ -144,7 +144,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    (this.ldap() as any)[id] = webUtils.getPathForFile(filePicker.files[0]);
+    const path = webUtils.getPathForFile(filePicker.files[0]);
+    this.ldap.update((current) => ({ ...current, [id]: path }));
     // reset file input
     // ref: https://stackoverflow.com/a/20552042
     filePicker.type = "";
