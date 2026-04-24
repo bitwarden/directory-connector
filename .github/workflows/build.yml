@@ -163,7 +163,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-directory-connector
-          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Get certificates
         run: |
@@ -175,9 +175,8 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Set up keychain
-        env:
-          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
@@ -519,7 +518,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-directory-connector
-          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Get certificates
         run: |
@@ -538,9 +537,8 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Set up keychain
-        env:
-          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
@@ -655,7 +653,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-directory-connector
-          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Get certificates
         run: |
@@ -674,9 +672,8 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Set up keychain
-        env:
-          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
