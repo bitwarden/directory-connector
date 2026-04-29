@@ -156,7 +156,7 @@
     "dc-native": "file:./native",
     "form-data": "4.0.5",
     "googleapis": "171.4.0",
-    "https-proxy-agent": "8.0.0",
+    "https-proxy-agent": "9.0.0",
     "inquirer": "13.3.2",
     "ldapts": "8.1.7",
     "lowdb": "7.0.1",
