@@ -76,7 +76,7 @@
   },
   "devDependencies": {
     "@angular-builders/jest": "21.0.3",
-    "@angular-eslint/builder": "21.1.0",
+    "@angular-eslint/builder": "21.3.1",
     "@angular-eslint/eslint-plugin-template": "21.3.1",
     "@angular-eslint/template-parser": "21.3.1",
     "@angular/build": "21.2.2",
