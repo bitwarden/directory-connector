@@ -190,7 +190,7 @@ jobs:
           _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_UFD296548T.p8
+          cat << EOF > ~/private_keys/AuthKey_KP9P89S243.p8
           ${_APP_STORE_CONNECT_AUTH_KEY}
           EOF
 
@@ -223,8 +223,8 @@ jobs:
           zip -j "dist-cli/bwdc-macos-arm64-$_PACKAGE_VERSION.zip" dist-cli/macos-arm64/*
 
           xcrun notarytool submit "dist-cli/bwdc-macos-arm64-$_PACKAGE_VERSION.zip" \
-            --key ~/private_keys/AuthKey_UFD296548T.p8 \
-            --key-id UFD296548T \
+            --key ~/private_keys/AuthKey_KP9P89S243.p8 \
+            --key-id KP9P89S243 \
             --issuer "$APP_STORE_CONNECT_TEAM_ISSUER" \
             --wait
 
@@ -563,7 +563,7 @@ jobs:
           _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_UFD296548T.p8
+          cat << EOF > ~/private_keys/AuthKey_KP9P89S243.p8
           ${_APP_STORE_CONNECT_AUTH_KEY}
           EOF
 
@@ -571,8 +571,8 @@ jobs:
         run: npm run dist:mac
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
-          APP_STORE_CONNECT_AUTH_KEY: UFD296548T
-          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_UFD296548T.p8
+          APP_STORE_CONNECT_AUTH_KEY: KP9P89S243
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_KP9P89S243.p8
           CSC_FOR_PULL_REQUEST: true
 
       - name: Upload .zip artifact
@@ -698,7 +698,7 @@ jobs:
           _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_UFD296548T.p8
+          cat << EOF > ~/private_keys/AuthKey_KP9P89S243.p8
           ${_APP_STORE_CONNECT_AUTH_KEY}
           EOF
 
@@ -706,8 +706,8 @@ jobs:
         run: npm run dist:mac:arm64
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
-          APP_STORE_CONNECT_AUTH_KEY: UFD296548T
-          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_UFD296548T.p8
+          APP_STORE_CONNECT_AUTH_KEY: KP9P89S243
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_KP9P89S243.p8
           CSC_FOR_PULL_REQUEST: true
 
       - name: Upload .zip artifact
