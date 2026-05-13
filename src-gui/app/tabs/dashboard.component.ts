@@ -1,6 +1,7 @@
 import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   OnDestroy,
   OnInit,
@@ -46,6 +47,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   lastUserSync = signal<Date>(null);
   syncRunning = signal(false);
 
+  private cdr = inject(ChangeDetectorRef);
   private i18nService = inject(I18nService);
   private syncService = inject(SyncService);
   private broadcasterService = inject(BroadcasterService);
@@ -123,6 +125,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } catch {
       this.simGroups.set(null);
       this.simUsers.set(null);
+    } finally {
+      this.cdr.markForCheck();
     }
   }
 

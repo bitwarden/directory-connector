@@ -14,6 +14,6 @@
     "build:release": "napi build --platform --release --no-js"
   },
   "devDependencies": {
-    "@napi-rs/cli": "3.0.0"
+    "@napi-rs/cli": "3.6.2"
   }
 }
