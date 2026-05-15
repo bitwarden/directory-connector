@@ -411,6 +411,21 @@
   "userFilter": {
     "message": "User Filter"
   },
+  "userFilterHelpLdap": {
+    "message": "Use native LDAP filter syntax. The expression is combined with the user object class filter.\n\nExample:\n(&(givenName=John)(|(l=Dallas)(l=Austin)))"
+  },
+  "userFilterHelpEntraId": {
+    "message": "Filter clauses are separated by | or by a newline.\n\nSingle-clause filters:\n\n  include:user1@x.com,user2@x.com\n    Sync only the listed users.\n\n  exclude:user1@x.com,user2@x.com\n    Sync everyone except the listed users.\n\n  includeGroup:<groupId1>,<groupId2>\n    Sync only members of the listed groups.\n\n  excludeGroup:<groupId1>,<groupId2>\n    Sync everyone except members of the listed groups.\n\nCombining clauses:\nWhen the first clause is includeGroup, additional excludeGroup and exclude clauses are applied as filters on top of the included set. Multiple clauses of the same kind may be chained.\n\nExample:\nincludeGroup:<allEmployees>|excludeGroup:<contractors>|excludeGroup:<interns>|exclude:test@x.com\n\nThis syncs all members of <allEmployees>, minus members of <contractors> and <interns>, minus test@x.com.\n\nNote: combining requires includeGroup as the first clause. excludeGroup or exclude on their own still match all users in the tenant minus the listed values."
+  },
+  "userFilterHelpOkta": {
+    "message": "Filter syntax:\n\n  include:user1@x.com,user2@x.com\n    Sync only the listed users.\n\n  exclude:user1@x.com,user2@x.com\n    Sync everyone except the listed users.\n\nA native Okta filter expression may be appended after a |.\n\nExample:\nexclude:joe@company.com | profile.firstName eq \"John\""
+  },
+  "userFilterHelpGSuite": {
+    "message": "Filter syntax:\n\n  include:user1@x.com,user2@x.com\n    Sync only the listed users.\n\n  exclude:user1@x.com,user2@x.com\n    Sync everyone except the listed users.\n\nA native Google query string may be appended after a |.\n\nExample:\nexclude:joe@company.com | orgUnitPath=/Engineering"
+  },
+  "userFilterHelpOneLogin": {
+    "message": "Filter syntax:\n\n  include:user1@x.com,user2@x.com\n    Sync only the listed users.\n\n  exclude:user1@x.com,user2@x.com\n    Sync everyone except the listed users."
+  },
   "userObjectClass": {
     "message": "User Object Class"
   },
