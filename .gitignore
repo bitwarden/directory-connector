@@ -5,6 +5,9 @@ Thumbs.db
 # Environment variables used for tests
 .env
 
+# Toolchain
+.eslintcache
+
 # IDEs and editors
 .idea/
 .project
