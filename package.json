@@ -166,8 +166,5 @@
   "engines": {
     "node": "~25",
     "npm": "~10"
-  },
-  "lint-staged": {
-    "*.ts": "npm run lint:fix"
   }
 }
