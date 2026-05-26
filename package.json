@@ -29,7 +29,7 @@
     "build:native:release": "cd native && npm install && npm run build:release",
     "rebuild": "npm run build:native:release",
     "lint": "eslint . && prettier --check .",
-    "lint:fix": "eslint . --fix",
+    "lint:fix": "eslint . --fix && prettier --write .",
     "build": "concurrently -n Main,Rend -c yellow,cyan \"npm run build:main\" \"npm run build:renderer\"",
     "build:main": "webpack --config webpack.main.mjs",
     "build:renderer": "webpack --config webpack.renderer.mjs",
@@ -166,8 +166,5 @@
   "engines": {
     "node": "~25",
     "npm": "~10"
-  },
-  "lint-staged": {
-    "*.ts": "eslint --fix"
   }
 }
