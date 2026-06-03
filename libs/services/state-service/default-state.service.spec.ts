@@ -28,6 +28,7 @@ function makeMigrationService(needsMigration = false): StateMigrationService {
   return {
     needsMigration: jest.fn().mockResolvedValue(needsMigration),
     migrate: jest.fn().mockResolvedValue(undefined),
+    stampVersion: jest.fn().mockResolvedValue(undefined),
   } as unknown as StateMigrationService;
 }
 
@@ -95,6 +96,17 @@ describe("DefaultStateService", () => {
 
       expect(migrationService.needsMigration).toHaveBeenCalled();
       expect(migrationService.migrate).not.toHaveBeenCalled();
+    });
+
+    it("always calls stampVersion regardless of whether migration ran", async () => {
+      for (const needed of [true, false]) {
+        const migrationService = makeMigrationService(needed);
+        const svc = makeStateService(storage, secureStorage, true, migrationService);
+
+        await svc.init();
+
+        expect(migrationService.stampVersion).toHaveBeenCalled();
+      }
     });
   });
 

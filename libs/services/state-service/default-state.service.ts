@@ -27,6 +27,7 @@ export class DefaultStateService implements StateService {
     if (await this.stateMigrationService.needsMigration()) {
       await this.stateMigrationService.migrate();
     }
+    await this.stateMigrationService.stampVersion();
   }
 
   // ===================================================================
