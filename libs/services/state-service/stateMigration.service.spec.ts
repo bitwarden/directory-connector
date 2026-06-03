@@ -594,6 +594,22 @@ describe("StateMigrationService", () => {
       });
     });
 
+    describe("stampVersion()", () => {
+      it("writes stateVersion = Latest when stateVersion is absent (fresh install)", async () => {
+        await svc.stampVersion();
+
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Six);
+      });
+
+      it("does not overwrite an existing stateVersion", async () => {
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Five);
+
+        await svc.stampVersion();
+
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Five);
+      });
+    });
+
     describe("getCurrentStateVersion() (tested indirectly via needsMigration)", () => {
       it("returns StateVersion.Latest (no migration needed) when both flat key and globals are absent (fresh install)", async () => {
         // Completely empty storage — treat as fresh install
