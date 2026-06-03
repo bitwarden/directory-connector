@@ -37,10 +37,6 @@ const plugins = [
     banner: "#!/usr/bin/env node",
     raw: true,
   }),
-  new webpack.IgnorePlugin({
-    resourceRegExp: /^node-fetch$/,
-    contextRegExp: /gaxios/,
-  }),
 ];
 
 const config = {
