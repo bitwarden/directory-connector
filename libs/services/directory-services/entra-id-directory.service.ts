@@ -307,9 +307,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
   // string. Used only to support combining "includeGroup" with one or more
   // "excludeGroup" clauses — single-clause filters are still parsed
   // exclusively by createCustomUserSet, so existing behavior is preserved.
-  // Clauses may be separated by either "|" or newlines so the user can write
-  // them inline or on separate lines, and multiple excludeGroup clauses are
-  // merged into a single set.
+  // Multiple excludeGroup clauses are merged into a single set.
   private extractSecondaryExcludeGroupSet(
     filter: string,
   ): [UserSetType, Set<string>] | null {
@@ -317,7 +315,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
       return null;
     }
 
-    const clauses = filter.split(/[|\n]/);
+    const clauses = filter.split("|");
     if (clauses.length < 2) {
       return null;
     }
@@ -366,7 +364,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
       return null;
     }
 
-    const clauses = filter.split(/[|\n]/);
+    const clauses = filter.split("|");
     if (clauses.length < 2) {
       return null;
     }
