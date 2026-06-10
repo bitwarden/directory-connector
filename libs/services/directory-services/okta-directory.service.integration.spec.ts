@@ -10,7 +10,7 @@ import { StateService } from "@/libs/abstractions/state.service";
 
 import { getOktaConfiguration, getSyncConfiguration } from "../../../utils/okta/config-fixtures";
 import { allGroupFixtures, integrationGroupFixtures } from "../../../utils/okta/group-fixtures";
-import { allUserFixtures, groupAUserFixtures } from "../../../utils/okta/user-fixtures";
+import { allUserFixtures, integrationGroupUserFixtures } from "../../../utils/okta/user-fixtures";
 import { DirectoryType } from "../../enums/directoryType";
 
 import { OktaDirectoryService } from "./okta-directory.service";
@@ -88,7 +88,8 @@ describe("oktaDirectoryService", () => {
 
     expect(groups).toEqual(expect.arrayContaining(integrationGroupFixtures));
     expect(groups).toHaveLength(integrationGroupFixtures.length);
-    expect(users).toEqual(expect.arrayContaining(groupAUserFixtures));
+    expect(users).toEqual(expect.arrayContaining(integrationGroupUserFixtures));
+    expect(users).toHaveLength(integrationGroupUserFixtures.length);
   });
 
   it("throws when credentials are invalid", async () => {
