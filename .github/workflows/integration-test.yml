@@ -17,6 +17,8 @@ on:
       - "libs/services/sync.service.ts" # core sync service used by all directory services
       - "libs/services/directory-services/ldap-directory.service*" # LDAP directory service
       - "libs/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
+      - "libs/services/directory-services/entra-id-directory.service*" # Microsoft Entra ID directory service
+      - "libs/services/directory-services/okta-directory.service*" # Okta directory service
       # Add directory services here as we add test coverage
   pull_request:
     paths:
@@ -27,6 +29,8 @@ on:
       - "libs/services/sync.service.ts" # core sync service used by all directory services
       - "libs/services/directory-services/ldap-directory.service*" # LDAP directory service
       - "libs/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
+      - "libs/services/directory-services/entra-id-directory.service*" # Microsoft Entra ID directory service
+      - "libs/services/directory-services/okta-directory.service*" # Okta directory service
       # Add directory services here as we add test coverage
 permissions:
   contents: read
@@ -74,7 +78,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-directory-connector
-          secrets: "GOOGLE-ADMIN-USER,GOOGLE-CLIENT-EMAIL,GOOGLE-DOMAIN,GOOGLE-PRIVATE-KEY"
+          secrets: "GOOGLE-ADMIN-USER,GOOGLE-CLIENT-EMAIL,GOOGLE-DOMAIN,GOOGLE-PRIVATE-KEY,ENTRA-TENANT-ID,ENTRA-APPLICATION-ID,ENTRA-KEY,OKTA-ORG-URL,OKTA-TOKEN"
 
       - name: Azure Logout
         uses: bitwarden/gh-actions/azure-logout@main
@@ -100,6 +104,10 @@ jobs:
               - 'libs/services/directory-services/ldap-directory.service*'
             google:
               - 'libs/services/directory-services/gsuite-directory.service*'
+            entra:
+              - 'libs/services/directory-services/entra-id-directory.service*'
+            okta:
+              - 'libs/services/directory-services/okta-directory.service*'
 
       # LDAP
       - name: Setup LDAP integration tests
@@ -127,6 +135,27 @@ jobs:
           JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
         run: |
           node --experimental-vm-modules node_modules/.bin/jest gsuite-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-google
+
+      # Microsoft Entra ID
+      - name: Run Entra ID integration tests
+        if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.entra == 'true'
+        env:
+          ENTRA_TENANT_ID: ${{ steps.get-kv-secrets.outputs.ENTRA-TENANT-ID }}
+          ENTRA_APPLICATION_ID: ${{ steps.get-kv-secrets.outputs.ENTRA-APPLICATION-ID }}
+          ENTRA_KEY: ${{ steps.get-kv-secrets.outputs.ENTRA-KEY }}
+          JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
+        run: |
+          node --experimental-vm-modules node_modules/.bin/jest entra-id-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-entra
+
+      # Okta
+      - name: Run Okta integration tests
+        if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.okta == 'true'
+        env:
+          OKTA_ORG_URL: ${{ steps.get-kv-secrets.outputs.OKTA-ORG-URL }}
+          OKTA_TOKEN: ${{ steps.get-kv-secrets.outputs.OKTA-TOKEN }}
+          JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
+        run: |
+          node --experimental-vm-modules node_modules/.bin/jest okta-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-okta
 
       - name: Report test results
         id: report
