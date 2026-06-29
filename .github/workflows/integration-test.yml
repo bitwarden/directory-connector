@@ -19,6 +19,7 @@ on:
       - "libs/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
       - "libs/services/directory-services/entra-id-directory.service*" # Microsoft Entra ID directory service
       - "libs/services/directory-services/okta-directory.service*" # Okta directory service
+      - "libs/services/directory-services/onelogin-directory.service*" # OneLogin directory service
       # Add directory services here as we add test coverage
   pull_request:
     paths:
@@ -31,6 +32,7 @@ on:
       - "libs/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
       - "libs/services/directory-services/entra-id-directory.service*" # Microsoft Entra ID directory service
       - "libs/services/directory-services/okta-directory.service*" # Okta directory service
+      - "libs/services/directory-services/onelogin-directory.service*" # OneLogin directory service
       # Add directory services here as we add test coverage
 permissions:
   contents: read
@@ -78,7 +80,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-directory-connector
-          secrets: "GOOGLE-ADMIN-USER,GOOGLE-CLIENT-EMAIL,GOOGLE-DOMAIN,GOOGLE-PRIVATE-KEY,ENTRA-TENANT-ID,ENTRA-APPLICATION-ID,ENTRA-KEY,OKTA-ORG-URL,OKTA-TOKEN"
+          secrets: "GOOGLE-ADMIN-USER,GOOGLE-CLIENT-EMAIL,GOOGLE-DOMAIN,GOOGLE-PRIVATE-KEY,ENTRA-TENANT-ID,ENTRA-APPLICATION-ID,ENTRA-KEY,OKTA-ORG-URL,OKTA-TOKEN,ONELOGIN-CLIENT-ID,ONELOGIN-CLIENT-SECRET"
 
       - name: Azure Logout
         uses: bitwarden/gh-actions/azure-logout@main
@@ -108,6 +110,8 @@ jobs:
               - 'libs/services/directory-services/entra-id-directory.service*'
             okta:
               - 'libs/services/directory-services/okta-directory.service*'
+            onelogin:
+              - 'libs/services/directory-services/onelogin-directory.service*'
 
       # LDAP
       - name: Setup LDAP integration tests
@@ -156,6 +160,17 @@ jobs:
           JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
         run: |
           node --experimental-vm-modules node_modules/.bin/jest okta-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-okta
+
+      # OneLogin
+      - name: Run OneLogin integration tests
+        if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.onelogin == 'true'
+        env:
+          ONELOGIN_CLIENT_ID: ${{ steps.get-kv-secrets.outputs.ONELOGIN-CLIENT-ID }}
+          ONELOGIN_CLIENT_SECRET: ${{ steps.get-kv-secrets.outputs.ONELOGIN-CLIENT-SECRET }}
+          ONELOGIN_REGION: "us"
+          JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
+        run: |
+          node --experimental-vm-modules node_modules/.bin/jest onelogin-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-onelogin
 
       - name: Report test results
         id: report
