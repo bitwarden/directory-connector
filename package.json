@@ -2,7 +2,7 @@
   "name": "@bitwarden/directory-connector",
   "productName": "Bitwarden Directory Connector",
   "description": "Sync your user directory to your Bitwarden organization.",
-  "version": "2026.6.0",
+  "version": "2026.6.1",
   "keywords": [
     "bitwarden",
     "password",
@@ -98,7 +98,7 @@
     "css-loader": "7.1.4",
     "dotenv": "17.4.2",
     "electron": "42.3.0",
-    "electron-builder": "26.13.1",
+    "electron-builder": "26.15.5",
     "electron-log": "5.4.3",
     "electron-store": "11.0.2",
     "electron-updater": "6.8.3",
