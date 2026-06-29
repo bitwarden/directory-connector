@@ -5,72 +5,71 @@ import { UserEntry } from "@/libs/models/userEntry";
 // NOTE: OneLogin returns numeric integer IDs from its API. The externalId / referenceId
 // values below are numbers (not strings) to match what the service produces at runtime,
 // even though Entry.externalId is typed as string.
-//
-// TODO: Replace all placeholder IDs with the actual values obtained by running a manual
-// sync against the provisioned test tenant, then remove this comment.
 
  
 
+// All four seeded integration test users; all are members of Integration Test Role (952807).
+// testuser4 has status 2 (suspended/locked) → disabled: true
 const allUsersData: any[] = [
   {
     deleted: false,
     disabled: false,
-    email: "user1@test.com",
-    externalId: 10000001,
-    referenceId: 10000001,
+    email: "testuser1@bwrox.dev",
+    externalId: 260279687,
+    referenceId: 260279687,
   },
   {
     deleted: false,
     disabled: false,
-    email: "user2@test.com",
-    externalId: 10000002,
-    referenceId: 10000002,
+    email: "testuser2@bwrox.dev",
+    externalId: 260279695,
+    referenceId: 260279695,
   },
   {
     deleted: false,
     disabled: false,
-    email: "user3@test.com",
-    externalId: 10000003,
-    referenceId: 10000003,
+    email: "testuser3@bwrox.dev",
+    externalId: 260279698,
+    referenceId: 260279698,
   },
   {
     deleted: false,
     disabled: true,
-    email: "suspended@test.com",
-    externalId: 10000004,
-    referenceId: 10000004,
-  },
-  {
-    deleted: false,
-    disabled: false,
-    email: "admin@test.com",
-    externalId: 10000005,
-    referenceId: 10000005,
+    email: "testuser4@bwrox.dev",
+    externalId: 260279700,
+    referenceId: 260279700,
   },
 ];
 
-// Members of Integration Test Role: user1, user2, suspended
+// All four users belong to Integration Test Role, so the filtered set is the same.
 const integrationRoleUsersData: any[] = [
   {
     deleted: false,
     disabled: false,
-    email: "user1@test.com",
-    externalId: 10000001,
-    referenceId: 10000001,
+    email: "testuser1@bwrox.dev",
+    externalId: 260279687,
+    referenceId: 260279687,
   },
   {
     deleted: false,
     disabled: false,
-    email: "user2@test.com",
-    externalId: 10000002,
-    referenceId: 10000002,
+    email: "testuser2@bwrox.dev",
+    externalId: 260279695,
+    referenceId: 260279695,
+  },
+  {
+    deleted: false,
+    disabled: false,
+    email: "testuser3@bwrox.dev",
+    externalId: 260279698,
+    referenceId: 260279698,
   },
   {
     deleted: false,
     disabled: true,
-    email: "suspended@test.com",
-    externalId: 10000004,
-    referenceId: 10000004,
+    email: "testuser4@bwrox.dev",
+    externalId: 260279700,
+    referenceId: 260279700,
   },
 ];
 

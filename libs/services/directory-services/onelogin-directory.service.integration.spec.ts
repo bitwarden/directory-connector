@@ -79,7 +79,7 @@ describe("oneLoginDirectoryService", () => {
     it("marks the suspended/locked user as disabled", async () => {
       const [, users] = await directoryService.getEntries(true, true);
 
-      const suspendedUser = users?.find((u) => u.email === "suspended@test.com");
+      const suspendedUser = users?.find((u) => u.email === "testuser4@bwrox.dev");
       expect(suspendedUser).toBeDefined();
       expect(suspendedUser?.disabled).toBe(true);
     });

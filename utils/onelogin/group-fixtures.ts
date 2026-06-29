@@ -6,39 +6,29 @@ import { GroupEntry } from "@/libs/models/groupEntry";
 // values below, and the entries in userMemberExternalIds, are numbers (not strings) to
 // match what the service produces at runtime, even though the model types them as string.
 // OneLogin roles do not nest, so groupMemberReferenceIds is always empty.
-//
-// TODO: Replace all placeholder IDs with the actual values obtained by running a manual
-// sync against the provisioned test tenant, then remove this comment.
 
  
 
+// Integration Test Role (ID 952807) with its four seeded members.
 const allGroupsData: any[] = [
   {
-    externalId: 9001,
+    externalId: 952807,
     groupMemberReferenceIds: [],
     name: "Integration Test Role",
-    referenceId: 9001,
-    userMemberExternalIds: [10000001, 10000002, 10000004],
-    users: [],
-  },
-  {
-    externalId: 9002,
-    groupMemberReferenceIds: [],
-    name: "Default Role",
-    referenceId: 9002,
-    userMemberExternalIds: [10000003, 10000005],
+    referenceId: 952807,
+    userMemberExternalIds: [260279687, 260279695, 260279698, 260279700],
     users: [],
   },
 ];
 
-// Filtered by "include: Integration Test Role"
+// Filtered by "include: Integration Test Role" — same single role.
 const integrationRoleGroupsData: any[] = [
   {
-    externalId: 9001,
+    externalId: 952807,
     groupMemberReferenceIds: [],
     name: "Integration Test Role",
-    referenceId: 9001,
-    userMemberExternalIds: [10000001, 10000002, 10000004],
+    referenceId: 952807,
+    userMemberExternalIds: [260279687, 260279695, 260279698, 260279700],
     users: [],
   },
 ];
