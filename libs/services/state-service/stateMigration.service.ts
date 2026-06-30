@@ -178,13 +178,13 @@ export class StateMigrationService {
       }
 
       // Migrate apiKeyClientId and apiKeyClientSecret from account object to secure storage
-      if (account.profile.apiKeyClientId) {
+      if (account.profile?.apiKeyClientId) {
         await this.secureStorageService.save(
           SecureStorageKeys.apiKeyClientId,
           account.profile.apiKeyClientId,
         );
       }
-      if (account.keys.apiKeyClientSecret) {
+      if (account.keys?.apiKeyClientSecret) {
         await this.secureStorageService.save(
           SecureStorageKeys.apiKeyClientSecret,
           account.keys.apiKeyClientSecret,
