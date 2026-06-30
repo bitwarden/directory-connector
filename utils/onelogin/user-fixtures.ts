@@ -6,8 +6,6 @@ import { UserEntry } from "@/libs/models/userEntry";
 // values below are numbers (not strings) to match what the service produces at runtime,
 // even though Entry.externalId is typed as string.
 
- 
-
 // All four seeded integration test users; all are members of Integration Test Role (952807).
 // testuser4 has status 2 (suspended/locked) → disabled: true
 const allUsersData: any[] = [
@@ -72,8 +70,6 @@ const integrationRoleUsersData: any[] = [
     referenceId: 260279700,
   },
 ];
-
- 
 
 export const allUserFixtures = allUsersData.map((u) => UserEntry.fromJSON(u));
 export const integrationRoleUserFixtures = integrationRoleUsersData.map((u) =>

@@ -7,8 +7,6 @@ import { GroupEntry } from "@/libs/models/groupEntry";
 // match what the service produces at runtime, even though the model types them as string.
 // OneLogin roles do not nest, so groupMemberReferenceIds is always empty.
 
- 
-
 // Integration Test Role (ID 952807) with its four seeded members.
 const allGroupsData: any[] = [
   {
@@ -32,8 +30,6 @@ const integrationRoleGroupsData: any[] = [
     users: [],
   },
 ];
-
- 
 
 export const allGroupFixtures = allGroupsData.map((g) => GroupEntry.fromJSON(g));
 export const integrationRoleFixtures = integrationRoleGroupsData.map((g) => GroupEntry.fromJSON(g));
