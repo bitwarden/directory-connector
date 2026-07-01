@@ -83,6 +83,73 @@ describe("oneLoginDirectoryService", () => {
       expect(suspendedUser).toBeDefined();
       expect(suspendedUser?.disabled).toBe(true);
     });
+
+    it("excludes the matching group and its members when using an exclude filter", async () => {
+      stateService.getSync.mockResolvedValue(
+        getSyncConfiguration({
+          users: true,
+          groups: true,
+          groupFilter: "exclude: Integration Test Role",
+        }),
+      );
+
+      const [groups, users] = await directoryService.getEntries(true, true);
+
+      expect(groups?.find((g) => g.name === "Integration Test Role")).toBeUndefined();
+      // testuser1-4 are only members of Integration Test Role, so group-scoping removes them
+      expect(users?.find((u) => u.email.endsWith("@bwrox.dev"))).toBeUndefined();
+    });
+  });
+
+  describe("user-filter", () => {
+    it("include filter returns only the specified users", async () => {
+      stateService.getSync.mockResolvedValue(
+        getSyncConfiguration({
+          users: true,
+          groups: false,
+          userFilter: "include: testuser1@bwrox.dev, testuser2@bwrox.dev",
+        }),
+      );
+
+      const [, users] = await directoryService.getEntries(true, true);
+
+      expect(users).toHaveLength(2);
+      expect(users?.map((u) => u.email)).toEqual(
+        expect.arrayContaining(["testuser1@bwrox.dev", "testuser2@bwrox.dev"]),
+      );
+    });
+
+    it("exclude filter omits the specified user from results", async () => {
+      stateService.getSync.mockResolvedValue(
+        getSyncConfiguration({
+          users: true,
+          groups: false,
+          userFilter: "exclude: testuser4@bwrox.dev",
+        }),
+      );
+
+      const [, users] = await directoryService.getEntries(true, true);
+
+      expect(users?.find((u) => u.email === "testuser4@bwrox.dev")).toBeUndefined();
+      expect(users?.find((u) => u.email === "testuser1@bwrox.dev")).toBeDefined();
+    });
+  });
+
+  describe("groups-only-sync", () => {
+    it("returns groups without syncing users", async () => {
+      stateService.getSync.mockResolvedValue(
+        getSyncConfiguration({
+          users: false,
+          groups: true,
+          groupFilter: INTEGRATION_GROUP_FILTER,
+        }),
+      );
+
+      const [groups, users] = await directoryService.getEntries(true, true);
+
+      expect(groups).toEqual(integrationRoleFixtures);
+      expect(users).toBeUndefined();
+    });
   });
 
   describe("full-sync", () => {
