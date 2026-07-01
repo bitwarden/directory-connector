@@ -12,7 +12,11 @@ import {
   getOneLoginConfiguration,
   getSyncConfiguration,
 } from "../../../utils/onelogin/config-fixtures";
-import { allGroupFixtures, integrationRoleFixtures } from "../../../utils/onelogin/group-fixtures";
+import {
+  allGroupFixtures,
+  groupsOnlyFixtures,
+  integrationRoleFixtures,
+} from "../../../utils/onelogin/group-fixtures";
 import {
   allUserFixtures,
   integrationRoleUserFixtures,
@@ -147,7 +151,7 @@ describe("oneLoginDirectoryService", () => {
 
       const [groups, users] = await directoryService.getEntries(true, true);
 
-      expect(groups).toEqual(integrationRoleFixtures);
+      expect(groups).toEqual(groupsOnlyFixtures);
       expect(users).toBeUndefined();
     });
   });

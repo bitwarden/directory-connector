@@ -31,5 +31,19 @@ const integrationRoleGroupsData: any[] = [
   },
 ];
 
+// Groups-only sync: userMemberExternalIds is empty because allUsers is never populated
+// when users: false, so buildGroup has no user data to resolve memberships from.
+const groupsOnlyData: any[] = [
+  {
+    externalId: 952807,
+    groupMemberReferenceIds: [],
+    name: "Integration Test Role",
+    referenceId: 952807,
+    userMemberExternalIds: [],
+    users: [],
+  },
+];
+
 export const allGroupFixtures = allGroupsData.map((g) => GroupEntry.fromJSON(g));
 export const integrationRoleFixtures = integrationRoleGroupsData.map((g) => GroupEntry.fromJSON(g));
+export const groupsOnlyFixtures = groupsOnlyData.map((g) => GroupEntry.fromJSON(g));
