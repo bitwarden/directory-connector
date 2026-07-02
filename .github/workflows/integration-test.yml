@@ -40,7 +40,7 @@ permissions:
   id-token: write # required to use OIDC to login to Azure Key Vault
 jobs:
   testing:
-    name: Run tests
+    name: Run integration tests
     if: ${{ startsWith(github.head_ref, 'version_bump_') == false }}
     runs-on: ubuntu-22.04
 
