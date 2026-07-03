@@ -1,8 +1,8 @@
-import { Directive, ElementRef, Input, Renderer2 } from "@angular/core";
+import { Directive, ElementRef, Input, Renderer2, inject } from "@angular/core";
 
 @Directive({
   selector: "[appA11yTitle]",
-  standalone: false,
+  standalone: true,
 })
 export class A11yTitleDirective {
   @Input() set appA11yTitle(title: string) {
@@ -10,11 +10,8 @@ export class A11yTitleDirective {
   }
 
   private title: string;
-
-  constructor(
-    private el: ElementRef,
-    private renderer: Renderer2,
-  ) {}
+  private el = inject(ElementRef);
+  private renderer = inject(Renderer2);
 
   ngOnInit() {
     if (!this.el.nativeElement.hasAttribute("title")) {

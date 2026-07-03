@@ -6,17 +6,17 @@
         <p>
           {{ "bitwardenDirectoryConnector" | i18n }}
           <br />
-          {{ "version" | i18n: version }} <br />
-          &copy; Bitwarden Inc. LLC 2015-{{ year }}
+          {{ "version" | i18n: version() }} <br />
+          &copy; Bitwarden Inc. LLC 2015-{{ year() }}
         </p>
         <button
           class="btn btn-primary"
           type="button"
           (click)="update()"
-          [disabled]="checkingForUpdate"
+          [disabled]="checkingForUpdate()"
         >
-          <i class="bwi bwi-download bwi-fw" [hidden]="checkingForUpdate"></i>
-          <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!checkingForUpdate"></i>
+          <i class="bwi bwi-download bwi-fw" [hidden]="checkingForUpdate()"></i>
+          <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!checkingForUpdate()"></i>
           {{ "checkForUpdates" | i18n }}
         </button>
       </div>

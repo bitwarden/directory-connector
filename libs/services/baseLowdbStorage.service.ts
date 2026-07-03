@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as lowdb from "lowdb";
-import * as FileSync from "lowdb/adapters/FileSync";
+import { LowSync } from "lowdb";
+import { JSONFileSync } from "lowdb/node";
 
 import { LogService } from "@/libs/abstractions/log.service";
 import { StorageService } from "@/libs/abstractions/storage.service";
@@ -10,9 +10,11 @@ import { NodeUtils } from "@/libs/utils/nodeUtils";
 import { sequentialize } from "@/libs/utils/sequentialize";
 import { Utils } from "@/libs/utils/utils";
 
+import { SecureStorageKey, StorageKey } from "../models/state.model";
+
 export class LowdbStorageService implements StorageService {
   protected dataFilePath: string;
-  private db: lowdb.LowdbSync<any>;
+  private db: LowSync<Record<string, any>>;
   private defaults: any;
   private ready = false;
 
@@ -32,7 +34,7 @@ export class LowdbStorageService implements StorageService {
     }
 
     this.logService.info("Initializing lowdb storage service.");
-    let adapter: lowdb.AdapterSync<any>;
+    let adapter: JSONFileSync<Record<string, any>> | undefined;
     if (Utils.isNode && this.dir != null) {
       if (!fs.existsSync(this.dir)) {
         this.logService.warning(`Could not find dir, "${this.dir}"; creating it instead.`);
@@ -44,19 +46,20 @@ export class LowdbStorageService implements StorageService {
         this.logService.warning(
           `Could not find data file, "${this.dataFilePath}"; creating it instead.`,
         );
-        fs.writeFileSync(this.dataFilePath, "", { mode: 0o600 });
+        fs.writeFileSync(this.dataFilePath, "{}", { mode: 0o600 });
         fs.chmodSync(this.dataFilePath, 0o600);
         this.logService.info(`Created data file "${this.dataFilePath}" with chmod 600.`);
       } else {
         this.logService.info(`db file "${this.dataFilePath} already exists"; using existing db`);
       }
       await this.lockDbFile(() => {
-        adapter = new FileSync(this.dataFilePath);
+        adapter = new JSONFileSync<Record<string, any>>(this.dataFilePath);
       });
     }
     try {
       this.logService.info("Attempting to create lowdb storage adapter.");
-      this.db = lowdb(adapter);
+      this.db = new LowSync<Record<string, any>>(adapter, {});
+      this.db.read();
       this.logService.info("Successfully created lowdb storage adapter.");
     } catch (e) {
       if (e instanceof SyntaxError) {
@@ -72,8 +75,8 @@ export class LowdbStorageService implements StorageService {
             );
           });
         }
-        adapter.write({});
-        this.db = lowdb(adapter);
+        this.db.data = {};
+        this.db.write();
       } else {
         this.logService.error(`Error creating lowdb storage adapter, "${e.message}".`);
         throw e;
@@ -84,7 +87,8 @@ export class LowdbStorageService implements StorageService {
       this.lockDbFile(() => {
         this.logService.info("Writing defaults.");
         this.readForNoCache();
-        this.db.defaults(this.defaults).write();
+        this.db.data = { ...this.defaults, ...this.db.data };
+        this.db.write();
         this.logService.info("Successfully wrote defaults to db.");
       });
     }
@@ -92,11 +96,11 @@ export class LowdbStorageService implements StorageService {
     this.ready = true;
   }
 
-  async get<T>(key: string): Promise<T> {
+  async get<T>(key: StorageKey | SecureStorageKey): Promise<T> {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
-      const val = this.db.get(key).value();
+      const val = this.db.data[key];
       this.logService.debug(`Successfully read ${key} from db`);
       if (val == null) {
         return null;
@@ -105,25 +109,27 @@ export class LowdbStorageService implements StorageService {
     });
   }
 
-  has(key: string): Promise<boolean> {
+  has(key: StorageKey | SecureStorageKey): Promise<boolean> {
     return this.get(key).then((v) => v != null);
   }
 
-  async save(key: string, obj: any): Promise<any> {
+  async save(key: StorageKey | SecureStorageKey, obj: any): Promise<any> {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
-      this.db.set(key, obj).write();
+      this.db.data[key] = obj;
+      this.db.write();
       this.logService.debug(`Successfully wrote ${key} to db`);
       return;
     });
   }
 
-  async remove(key: string): Promise<any> {
+  async remove(key: StorageKey | SecureStorageKey): Promise<any> {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
-      this.db.unset(key).write();
+      delete this.db.data[key];
+      this.db.write();
       this.logService.debug(`Successfully removed ${key} from db`);
       return;
     });

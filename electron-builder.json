@@ -10,9 +10,10 @@
     "output": "dist",
     "app": "build"
   },
-  "afterSign": "scripts/notarize.js",
+  "afterSign": "scripts/notarize.mjs",
+  "asarUnpack": ["node_modules/dc-native/**"],
   "mac": {
-    "artifactName": "Bitwarden-Connector-${version}-mac.${ext}",
+    "artifactName": "Bitwarden-Connector-${version}-${arch}.${ext}",
     "category": "public.app-category.productivity",
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
@@ -22,7 +23,9 @@
   },
   "win": {
     "target": ["portable", "nsis"],
-    "sign": "scripts/sign.js"
+    "signtoolOptions": {
+      "sign": "scripts/sign.mjs"
+    }
   },
   "linux": {
     "category": "Utility",
@@ -30,7 +33,7 @@
     "target": ["AppImage"]
   },
   "dmg": {
-    "artifactName": "Bitwarden-Connector-${version}.${ext}",
+    "artifactName": "Bitwarden-Connector-${version}-${arch}.${ext}",
     "icon": "dmg.icns",
     "contents": [
       {

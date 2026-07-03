@@ -5,7 +5,13 @@
       <div class="card-body">
         <div class="mb-3">
           <label for="directory" class="form-label">{{ "type" | i18n }}</label>
-          <select class="form-select" id="directory" name="Directory" [(ngModel)]="directory">
+          <select
+            class="form-select"
+            id="directory"
+            name="Directory"
+            [ngModel]="directory()"
+            (ngModelChange)="directory.set($event)"
+          >
             @for (o of directoryOptions; track o) {
               <option [ngValue]="o.value">
                 {{ o.name }}
@@ -13,7 +19,7 @@
             }
           </select>
         </div>
-        <div [hidden]="directory != directoryType.Ldap">
+        <div [hidden]="directory() != directoryType.Ldap">
           <div class="mb-3">
             <label for="hostname" class="form-label">{{ "serverHostname" | i18n }}</label>
             <input
@@ -21,13 +27,21 @@
               class="form-control"
               id="hostname"
               name="Hostname"
-              [(ngModel)]="ldap.hostname"
+              [ngModel]="ldap().hostname"
+              (ngModelChange)="ldap.update(v => ({...v, hostname: $event}))"
             />
             <div class="form-text">{{ "ex" | i18n }} ad.company.com</div>
           </div>
           <div class="mb-3">
             <label for="port" class="form-label">{{ "port" | i18n }}</label>
-            <input type="text" class="form-control" id="port" name="Port" [(ngModel)]="ldap.port" />
+            <input
+              type="text"
+              class="form-control"
+              id="port"
+              name="Port"
+              [ngModel]="ldap().port"
+              (ngModelChange)="ldap.update(v => ({...v, port: $event}))"
+            />
             <div class="form-text">{{ "ex" | i18n }} 389</div>
           </div>
           <div class="mb-3">
@@ -37,7 +51,8 @@
               class="form-control"
               id="rootPath"
               name="RootPath"
-              [(ngModel)]="ldap.rootPath"
+              [ngModel]="ldap().rootPath"
+              (ngModelChange)="ldap.update(v => ({...v, rootPath: $event}))"
             />
             <div class="form-text">{{ "ex" | i18n }} dc=company,dc=com</div>
           </div>
@@ -47,20 +62,22 @@
                 class="form-check-input"
                 type="checkbox"
                 id="ad"
-                [(ngModel)]="ldap.ad"
+                [ngModel]="ldap().ad"
+                (ngModelChange)="ldap.update(v => ({...v, ad: $event}))"
                 name="AD"
               />
               <label class="form-check-label" for="ad">{{ "ldapAd" | i18n }}</label>
             </div>
           </div>
-          @if (!ldap.ad) {
+          @if (!ldap().ad) {
             <div class="mb-3">
               <div class="form-check">
                 <input
                   class="form-check-input"
                   type="checkbox"
                   id="pagedSearch"
-                  [(ngModel)]="ldap.pagedSearch"
+                  [ngModel]="ldap().pagedSearch"
+                  (ngModelChange)="ldap.update(v => ({...v, pagedSearch: $event}))"
                   name="PagedSearch"
                 />
                 <label class="form-check-label" for="pagedSearch">{{
@@ -75,7 +92,8 @@
                 class="form-check-input"
                 type="checkbox"
                 id="ldapEncrypted"
-                [(ngModel)]="ldap.ssl"
+                [ngModel]="ldap().ssl"
+                (ngModelChange)="ldap.update(v => ({...v, ssl: $event}))"
                 name="Encrypted"
               />
               <label class="form-check-label" for="ldapEncrypted">{{
@@ -83,7 +101,7 @@
               }}</label>
             </div>
           </div>
-          @if (ldap.ssl) {
+          @if (ldap().ssl) {
             <div class="ms-4">
               <div class="mb-3">
                 <div class="form-check">
@@ -92,7 +110,8 @@
                     type="radio"
                     [value]="false"
                     id="ssl"
-                    [(ngModel)]="ldap.startTls"
+                    [ngModel]="ldap().startTls"
+                    (ngModelChange)="ldap.update(v => ({...v, startTls: $event}))"
                     name="SSL"
                   />
                   <label class="form-check-label" for="ssl">{{ "ldapSsl" | i18n }}</label>
@@ -103,13 +122,14 @@
                     type="radio"
                     [value]="true"
                     id="startTls"
-                    [(ngModel)]="ldap.startTls"
+                    [ngModel]="ldap().startTls"
+                    (ngModelChange)="ldap.update(v => ({...v, startTls: $event}))"
                     name="StartTLS"
                   />
                   <label class="form-check-label" for="startTls">{{ "ldapTls" | i18n }}</label>
                 </div>
               </div>
-              @if (ldap.startTls) {
+              @if (ldap().startTls) {
                 <div class="ms-4">
                   <p>{{ "ldapTlsUntrustedDesc" | i18n }}</p>
                   <div class="mb-3">
@@ -125,12 +145,13 @@
                       class="form-control"
                       id="tlsCaPath"
                       name="TLSCaPath"
-                      [(ngModel)]="ldap.tlsCaPath"
+                      [ngModel]="ldap().tlsCaPath"
+                      (ngModelChange)="ldap.update(v => ({...v, tlsCaPath: $event}))"
                     />
                   </div>
                 </div>
               }
-              @if (!ldap.startTls) {
+              @if (!ldap().startTls) {
                 <div class="ms-4">
                   <p>{{ "ldapSslUntrustedDesc" | i18n }}</p>
                   <div class="mb-3">
@@ -146,7 +167,8 @@
                       class="form-control"
                       id="sslCertPath"
                       name="SSLCertPath"
-                      [(ngModel)]="ldap.sslCertPath"
+                      [ngModel]="ldap().sslCertPath"
+                      (ngModelChange)="ldap.update(v => ({...v, sslCertPath: $event}))"
                     />
                   </div>
                   <div class="mb-3">
@@ -162,7 +184,8 @@
                       class="form-control"
                       id="sslKeyPath"
                       name="SSLKeyPath"
-                      [(ngModel)]="ldap.sslKeyPath"
+                      [ngModel]="ldap().sslKeyPath"
+                      (ngModelChange)="ldap.update(v => ({...v, sslKeyPath: $event}))"
                     />
                   </div>
                   <div class="mb-3">
@@ -178,7 +201,8 @@
                       class="form-control"
                       id="sslCaPath"
                       name="SSLCaPath"
-                      [(ngModel)]="ldap.sslCaPath"
+                      [ngModel]="ldap().sslCaPath"
+                      (ngModelChange)="ldap.update(v => ({...v, sslCaPath: $event}))"
                     />
                   </div>
                 </div>
@@ -189,7 +213,8 @@
                     class="form-check-input"
                     type="checkbox"
                     id="certDoNotVerify"
-                    [(ngModel)]="ldap.sslAllowUnauthorized"
+                    [ngModel]="ldap().sslAllowUnauthorized"
+                    (ngModelChange)="ldap.update(v => ({...v, sslAllowUnauthorized: $event}))"
                     name="CertDoNoVerify"
                   />
                   <label class="form-check-label" for="certDoNotVerify">{{
@@ -205,13 +230,14 @@
                 class="form-check-input"
                 type="checkbox"
                 id="currentUser"
-                [(ngModel)]="ldap.currentUser"
+                [ngModel]="ldap().currentUser"
+                (ngModelChange)="ldap.update(v => ({...v, currentUser: $event}))"
                 name="CurrentUser"
               />
               <label class="form-check-label" for="currentUser">{{ "currentUser" | i18n }}</label>
             </div>
           </div>
-          <div [hidden]="ldap.currentUser">
+          <div [hidden]="ldap().currentUser">
             <div class="mb-3">
               <label for="username" class="form-label">{{ "username" | i18n }}</label>
               <input
@@ -219,12 +245,13 @@
                 class="form-control"
                 id="username"
                 name="Username"
-                [(ngModel)]="ldap.username"
+                [ngModel]="ldap().username"
+                (ngModelChange)="ldap.update(v => ({...v, username: $event}))"
               />
-              @if (ldap.ad) {
+              @if (ldap().ad) {
                 <div class="form-text">{{ "ex" | i18n }} company\admin</div>
               }
-              @if (!ldap.ad) {
+              @if (!ldap().ad) {
                 <div class="form-text">{{ "ex" | i18n }} cn=admin,dc=company,dc=com</div>
               }
             </div>
@@ -232,11 +259,12 @@
               <label for="password" class="form-label">{{ "password" | i18n }}</label>
               <div class="input-group">
                 <input
-                  type="{{ showLdapPassword ? 'text' : 'password' }}"
+                  type="{{ showLdapPassword() ? 'text' : 'password' }}"
                   class="form-control"
                   id="password"
                   name="Password"
-                  [(ngModel)]="ldap.password"
+                  [ngModel]="ldap().password"
+                  (ngModelChange)="ldap.update(v => ({...v, password: $event}))"
                 />
                 <button
                   type="button"
@@ -247,14 +275,14 @@
                   <i
                     class="bwi bwi-lg"
                     aria-hidden="true"
-                    [ngClass]="showLdapPassword ? 'bwi-eye-slash' : 'bwi-eye'"
+                    [ngClass]="showLdapPassword() ? 'bwi-eye-slash' : 'bwi-eye'"
                   ></i>
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.EntraID">
+        <div [hidden]="directory() != directoryType.EntraID">
           <div class="mb-3">
             <label for="identityAuthority" class="form-label">{{
               "identityAuthority" | i18n
@@ -263,7 +291,8 @@
               class="form-select"
               id="identityAuthority"
               name="IdentityAuthority"
-              [(ngModel)]="entra.identityAuthority"
+              [ngModel]="entra().identityAuthority"
+              (ngModelChange)="entra.update(v => ({...v, identityAuthority: $event}))"
             >
               <option value="login.microsoftonline.com">Entra Id Public</option>
               <option value="login.microsoftonline.us">Entra Id Government</option>
@@ -276,7 +305,8 @@
               class="form-control"
               id="tenant"
               name="Tenant"
-              [(ngModel)]="entra.tenant"
+              [ngModel]="entra().tenant"
+              (ngModelChange)="entra.update(v => ({...v, tenant: $event}))"
             />
             <div class="form-text">{{ "ex" | i18n }} companyad.onmicrosoft.com</div>
           </div>
@@ -287,18 +317,20 @@
               class="form-control"
               id="applicationId"
               name="ApplicationId"
-              [(ngModel)]="entra.applicationId"
+              [ngModel]="entra().applicationId"
+              (ngModelChange)="entra.update(v => ({...v, applicationId: $event}))"
             />
           </div>
           <div class="mb-3">
             <label for="secretKey" class="form-label">{{ "secretKey" | i18n }}</label>
             <div class="input-group">
               <input
-                type="{{ showEntraKey ? 'text' : 'password' }}"
+                type="{{ showEntraKey() ? 'text' : 'password' }}"
                 class="form-control"
                 id="secretKey"
                 name="SecretKey"
-                [(ngModel)]="entra.key"
+                [ngModel]="entra().key"
+                (ngModelChange)="entra.update(v => ({...v, key: $event}))"
               />
               <button
                 type="button"
@@ -309,13 +341,13 @@
                 <i
                   class="bwi bwi-lg"
                   aria-hidden="true"
-                  [ngClass]="showEntraKey ? 'bwi-eye-slash' : 'bwi-eye'"
+                  [ngClass]="showEntraKey() ? 'bwi-eye-slash' : 'bwi-eye'"
                 ></i>
               </button>
             </div>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.Okta">
+        <div [hidden]="directory() != directoryType.Okta">
           <div class="mb-3">
             <label for="orgUrl" class="form-label">{{ "organizationUrl" | i18n }}</label>
             <input
@@ -323,7 +355,8 @@
               class="form-control"
               id="orgUrl"
               name="OrgUrl"
-              [(ngModel)]="okta.orgUrl"
+              [ngModel]="okta().orgUrl"
+              (ngModelChange)="okta.update(v => ({...v, orgUrl: $event}))"
             />
             <div class="form-text">{{ "ex" | i18n }} https://mycompany.okta.com/</div>
           </div>
@@ -331,11 +364,12 @@
             <label for="oktaToken" class="form-label">{{ "token" | i18n }}</label>
             <div class="input-group">
               <input
-                type="{{ showOktaKey ? 'text' : 'password' }}"
+                type="{{ showOktaKey() ? 'text' : 'password' }}"
                 class="form-control"
                 id="oktaToken"
                 name="OktaToken"
-                [(ngModel)]="okta.token"
+                [ngModel]="okta().token"
+                (ngModelChange)="okta.update(v => ({...v, token: $event}))"
               />
               <button
                 type="button"
@@ -346,13 +380,13 @@
                 <i
                   class="bwi bwi-lg"
                   aria-hidden="true"
-                  [ngClass]="showOktaKey ? 'bwi-eye-slash' : 'bwi-eye'"
+                  [ngClass]="showOktaKey() ? 'bwi-eye-slash' : 'bwi-eye'"
                 ></i>
               </button>
             </div>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.OneLogin">
+        <div [hidden]="directory() != directoryType.OneLogin">
           <div class="mb-3">
             <label for="oneLoginClientId" class="form-label">{{ "clientId" | i18n }}</label>
             <input
@@ -360,18 +394,20 @@
               class="form-control"
               id="oneLoginClientId"
               name="OneLoginClientId"
-              [(ngModel)]="oneLogin.clientId"
+              [ngModel]="oneLogin().clientId"
+              (ngModelChange)="oneLogin.update(v => ({...v, clientId: $event}))"
             />
           </div>
           <div class="mb-3">
             <label for="oneLoginClientSecret" class="form-label">{{ "clientSecret" | i18n }}</label>
             <div class="input-group">
               <input
-                type="{{ showOneLoginSecret ? 'text' : 'password' }}"
+                type="{{ showOneLoginSecret() ? 'text' : 'password' }}"
                 class="form-control"
                 id="oneLoginClientSecret"
                 name="OneLoginClientSecret"
-                [(ngModel)]="oneLogin.clientSecret"
+                [ngModel]="oneLogin().clientSecret"
+                (ngModelChange)="oneLogin.update(v => ({...v, clientSecret: $event}))"
               />
               <button
                 type="button"
@@ -382,7 +418,7 @@
                 <i
                   class="bwi bwi-lg"
                   aria-hidden="true"
-                  [ngClass]="showOneLoginSecret ? 'bwi-eye-slash' : 'bwi-eye'"
+                  [ngClass]="showOneLoginSecret() ? 'bwi-eye-slash' : 'bwi-eye'"
                 ></i>
               </button>
             </div>
@@ -393,14 +429,15 @@
               class="form-select"
               id="oneLoginRegion"
               name="OneLoginRegion"
-              [(ngModel)]="oneLogin.region"
+              [ngModel]="oneLogin().region"
+              (ngModelChange)="oneLogin.update(v => ({...v, region: $event}))"
             >
               <option value="us">US</option>
               <option value="eu">EU</option>
             </select>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.GSuite">
+        <div [hidden]="directory() != directoryType.GSuite">
           <div class="mb-3">
             <label for="domain" class="form-label">{{ "domain" | i18n }}</label>
             <input
@@ -408,7 +445,8 @@
               class="form-control"
               id="domain"
               name="Domain"
-              [(ngModel)]="gsuite.domain"
+              [ngModel]="gsuite().domain"
+              (ngModelChange)="gsuite.update(v => ({...v, domain: $event}))"
             />
             <div class="form-text">{{ "ex" | i18n }} company.com</div>
           </div>
@@ -419,7 +457,8 @@
               class="form-control"
               id="adminUser"
               name="AdminUser"
-              [(ngModel)]="gsuite.adminUser"
+              [ngModel]="gsuite().adminUser"
+              (ngModelChange)="gsuite.update(v => ({...v, adminUser: $event}))"
             />
             <div class="form-text">{{ "ex" | i18n }} admin&#64;company.com</div>
           </div>
@@ -430,7 +469,8 @@
               class="form-control"
               id="customerId"
               name="CustomerId"
-              [(ngModel)]="gsuite.customer"
+              [ngModel]="gsuite().customer"
+              (ngModelChange)="gsuite.update(v => ({...v, customer: $event}))"
             />
             <div class="form-text">{{ "ex" | i18n }} 39204722352</div>
           </div>
@@ -445,23 +485,25 @@
             />
             <div class="form-text">{{ "ex" | i18n }} My Project-jksd3jd223.json</div>
           </div>
-          <div class="mb-3" [hidden]="!gsuite.clientEmail">
+          <div class="mb-3" [hidden]="!gsuite().clientEmail">
             <label for="clientEmail" class="form-label">{{ "clientEmail" | i18n }}</label>
             <input
               type="text"
               class="form-control"
               id="clientEmail"
               name="ClientEmail"
-              [(ngModel)]="gsuite.clientEmail"
+              [ngModel]="gsuite().clientEmail"
+              (ngModelChange)="gsuite.update(v => ({...v, clientEmail: $event}))"
             />
           </div>
-          <div class="mb-3" [hidden]="!gsuite.privateKey">
+          <div class="mb-3" [hidden]="!gsuite().privateKey">
             <label for="privateKey" class="form-label">{{ "privateKey" | i18n }}</label>
             <textarea
               class="form-control text-monospace"
               id="privateKey"
               name="PrivateKey"
-              [(ngModel)]="gsuite.privateKey"
+              [ngModel]="gsuite().privateKey"
+              (ngModelChange)="gsuite.update(v => ({...v, privateKey: $event}))"
             >
             </textarea>
           </div>
@@ -481,7 +523,8 @@
             class="form-control"
             id="interval"
             name="Interval"
-            [(ngModel)]="sync.interval"
+            [ngModel]="sync().interval"
+            (ngModelChange)="sync.update(v => ({...v, interval: $event}))"
           />
           <div class="form-text">{{ "intervalMin" | i18n }}</div>
         </div>
@@ -491,7 +534,8 @@
               class="form-check-input"
               type="checkbox"
               id="removeDisabled"
-              [(ngModel)]="sync.removeDisabled"
+              [ngModel]="sync().removeDisabled"
+              (ngModelChange)="sync.update(v => ({...v, removeDisabled: $event}))"
               name="RemoveDisabled"
             />
             <label class="form-check-label" for="removeDisabled">{{
@@ -505,14 +549,15 @@
               class="form-check-input"
               type="checkbox"
               id="largeImport"
-              [(ngModel)]="sync.largeImport"
+              [ngModel]="sync().largeImport"
+              (ngModelChange)="sync.update(v => ({...v, largeImport: $event}))"
               name="LargeImport"
             />
             <label class="form-check-label" for="largeImport">{{ "largeImport" | i18n }}</label>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.Ldap">
-          <div [hidden]="ldap.ad">
+        <div [hidden]="directory() != directoryType.Ldap">
+          <div [hidden]="ldap().ad">
             <div class="mb-3">
               <label for="memberAttribute" class="form-label">{{ "memberAttribute" | i18n }}</label>
               <input
@@ -520,7 +565,8 @@
                 class="form-control"
                 id="memberAttribute"
                 name="MemberAttribute"
-                [(ngModel)]="sync.memberAttribute"
+                [ngModel]="sync().memberAttribute"
+                (ngModelChange)="sync.update(v => ({...v, memberAttribute: $event}))"
               />
               <div class="form-text">{{ "ex" | i18n }} uniqueMember</div>
             </div>
@@ -533,7 +579,8 @@
                 class="form-control"
                 id="creationDateAttribute"
                 name="CreationDateAttribute"
-                [(ngModel)]="sync.creationDateAttribute"
+                [ngModel]="sync().creationDateAttribute"
+                (ngModelChange)="sync.update(v => ({...v, creationDateAttribute: $event}))"
               />
               <div class="form-text">{{ "ex" | i18n }} whenCreated</div>
             </div>
@@ -546,20 +593,22 @@
                 class="form-control"
                 id="revisionDateAttribute"
                 name="RevisionDateAttribute"
-                [(ngModel)]="sync.revisionDateAttribute"
+                [ngModel]="sync().revisionDateAttribute"
+                (ngModelChange)="sync.update(v => ({...v, revisionDateAttribute: $event}))"
               />
               <div class="form-text">{{ "ex" | i18n }} whenChanged</div>
             </div>
           </div>
         </div>
-        <div [hidden]="directory != directoryType.Ldap && directory != directoryType.OneLogin">
+        <div [hidden]="directory() != directoryType.Ldap && directory() != directoryType.OneLogin">
           <div class="mb-3">
             <div class="form-check">
               <input
                 class="form-check-input"
                 type="checkbox"
                 id="useEmailPrefixSuffix"
-                [(ngModel)]="sync.useEmailPrefixSuffix"
+                [ngModel]="sync().useEmailPrefixSuffix"
+                (ngModelChange)="sync.update(v => ({...v, useEmailPrefixSuffix: $event}))"
                 name="UseEmailPrefixSuffix"
               />
               <label class="form-check-label" for="useEmailPrefixSuffix">{{
@@ -567,8 +616,8 @@
               }}</label>
             </div>
           </div>
-          <div [hidden]="!sync.useEmailPrefixSuffix">
-            <div class="mb-3" [hidden]="ldap.ad || directory != directoryType.Ldap">
+          <div [hidden]="!sync().useEmailPrefixSuffix">
+            <div class="mb-3" [hidden]="ldap().ad || directory() != directoryType.Ldap">
               <label for="emailPrefixAttribute" class="form-label">{{
                 "emailPrefixAttribute" | i18n
               }}</label>
@@ -577,7 +626,8 @@
                 class="form-control"
                 id="emailPrefixAttribute"
                 name="EmailPrefixAttribute"
-                [(ngModel)]="sync.emailPrefixAttribute"
+                [ngModel]="sync().emailPrefixAttribute"
+                (ngModelChange)="sync.update(v => ({...v, emailPrefixAttribute: $event}))"
               />
               <div class="form-text">{{ "ex" | i18n }} accountName</div>
             </div>
@@ -588,7 +638,8 @@
                 class="form-control"
                 id="emailSuffix"
                 name="EmailSuffix"
-                [(ngModel)]="sync.emailSuffix"
+                [ngModel]="sync().emailSuffix"
+                (ngModelChange)="sync.update(v => ({...v, emailSuffix: $event}))"
               />
               <div class="form-text">{{ "ex" | i18n }} &#64;company.com</div>
             </div>
@@ -601,13 +652,14 @@
               class="form-check-input"
               type="checkbox"
               id="syncUsers"
-              [(ngModel)]="sync.users"
+              [ngModel]="sync().users"
+              (ngModelChange)="sync.update(v => ({...v, users: $event}))"
               name="SyncUsers"
             />
             <label class="form-check-label" for="syncUsers">{{ "syncUsers" | i18n }}</label>
           </div>
         </div>
-        <div [hidden]="!sync.users">
+        <div [hidden]="!sync().users">
           <div class="mb-3">
             <label for="userFilter" class="form-label">
               {{ "userFilter" | i18n }}
@@ -624,39 +676,41 @@
               class="form-control"
               id="userFilter"
               name="UserFilter"
-              [(ngModel)]="sync.userFilter"
+              [ngModel]="sync().userFilter"
+              (ngModelChange)="sync.update(v => ({...v, userFilter: $event}))"
             ></textarea>
-            @if (directory === directoryType.Ldap) {
+            @if (directory() === directoryType.Ldap) {
               <div class="form-text">
                 {{ "ex" | i18n }} (&amp;(givenName=John)(|(l=Dallas)(l=Austin)))
               </div>
             }
-            @if (directory === directoryType.EntraID) {
+            @if (directory() === directoryType.EntraID) {
               <div class="form-text">{{ "ex" | i18n }} exclude:joe&#64;company.com</div>
             }
-            @if (directory === directoryType.Okta) {
+            @if (directory() === directoryType.Okta) {
               <div class="form-text">
                 {{ "ex" | i18n }} exclude:joe&#64;company.com | profile.firstName eq "John"
               </div>
             }
-            @if (directory === directoryType.GSuite) {
+            @if (directory() === directoryType.GSuite) {
               <div class="form-text">
                 {{ "ex" | i18n }} exclude:joe&#64;company.com | orgUnitPath=/Engineering
               </div>
             }
           </div>
-          <div class="mb-3" [hidden]="directory != directoryType.Ldap">
+          <div class="mb-3" [hidden]="directory() != directoryType.Ldap">
             <label for="userPath" class="form-label">{{ "userPath" | i18n }}</label>
             <input
               type="text"
               class="form-control"
               id="userPath"
               name="UserPath"
-              [(ngModel)]="sync.userPath"
+              [ngModel]="sync().userPath"
+              (ngModelChange)="sync.update(v => ({...v, userPath: $event}))"
             />
             <div class="form-text">{{ "ex" | i18n }} CN=Users</div>
           </div>
-          <div [hidden]="directory != directoryType.Ldap || ldap.ad">
+          <div [hidden]="directory() != directoryType.Ldap || ldap().ad">
             <div class="mb-3">
               <label for="userObjectClass" class="form-label">{{ "userObjectClass" | i18n }}</label>
               <input
@@ -664,7 +718,8 @@
                 class="form-control"
                 id="userObjectClass"
                 name="UserObjectClass"
-                [(ngModel)]="sync.userObjectClass"
+                [ngModel]="sync().userObjectClass"
+                (ngModelChange)="sync.update(v => ({...v, userObjectClass: $event}))"
               />
               <div class="form-text">{{ "ex" | i18n }} inetOrgPerson</div>
             </div>
@@ -677,7 +732,8 @@
                 class="form-control"
                 id="userEmailAttribute"
                 name="UserEmailAttribute"
-                [(ngModel)]="sync.userEmailAttribute"
+                [ngModel]="sync().userEmailAttribute"
+                (ngModelChange)="sync.update(v => ({...v, userEmailAttribute: $event}))"
               />
               <div class="form-text">{{ "ex" | i18n }} mail</div>
             </div>
@@ -690,57 +746,61 @@
               class="form-check-input"
               type="checkbox"
               id="syncGroups"
-              [(ngModel)]="sync.groups"
+              [ngModel]="sync().groups"
+              (ngModelChange)="sync.update(v => ({...v, groups: $event}))"
               name="SyncGroups"
             />
             <label class="form-check-label" for="syncGroups">{{
-              (directory !== directoryType.OneLogin ? "syncGroups" : "syncGroupsOneLogin") | i18n
+              (directory() !== directoryType.OneLogin ? "syncGroups" : "syncGroupsOneLogin") | i18n
             }}</label>
           </div>
         </div>
-        <div [hidden]="!sync.groups">
+        <div [hidden]="!sync().groups">
           <div class="mb-3">
             <label for="groupFilter" class="form-label">{{
-              (directory !== directoryType.OneLogin ? "groupFilter" : "groupFilterOneLogin") | i18n
+              (directory() !== directoryType.OneLogin ? "groupFilter" : "groupFilterOneLogin")
+                | i18n
             }}</label>
             <textarea
               class="form-control"
               id="groupFilter"
               name="GroupFilter"
-              [(ngModel)]="sync.groupFilter"
+              [ngModel]="sync().groupFilter"
+              (ngModelChange)="sync.update(v => ({...v, groupFilter: $event}))"
             ></textarea>
-            @if (directory === directoryType.Ldap) {
+            @if (directory() === directoryType.Ldap) {
               <div class="form-text">
                 {{ "ex" | i18n }} (&amp;(objectClass=group)(!(cn=Sales*))(!(cn=IT*)))
               </div>
             }
-            @if (directory === directoryType.EntraID) {
+            @if (directory() === directoryType.EntraID) {
               <div class="form-text">{{ "ex" | i18n }} include:Sales,IT</div>
             }
-            @if (directory === directoryType.Okta) {
+            @if (directory() === directoryType.Okta) {
               <div class="form-text">{{ "ex" | i18n }} include:Sales,IT | type eq "APP_GROUP"</div>
             }
-            @if (directory === directoryType.GSuite) {
+            @if (directory() === directoryType.GSuite) {
               <div class="form-text">{{ "ex" | i18n }} include:Sales,IT</div>
             }
           </div>
-          <div class="mb-3" [hidden]="directory != directoryType.Ldap">
+          <div class="mb-3" [hidden]="directory() != directoryType.Ldap">
             <label for="groupPath" class="form-label">{{ "groupPath" | i18n }}</label>
             <input
               type="text"
               class="form-control"
               id="groupPath"
               name="GroupPath"
-              [(ngModel)]="sync.groupPath"
+              [ngModel]="sync().groupPath"
+              (ngModelChange)="sync.update(v => ({...v, groupPath: $event}))"
             />
-            @if (!ldap.ad) {
+            @if (!ldap().ad) {
               <div class="form-text">{{ "ex" | i18n }} CN=Groups</div>
             }
-            @if (ldap.ad) {
+            @if (ldap().ad) {
               <div class="form-text">{{ "ex" | i18n }} CN=Users</div>
             }
           </div>
-          <div [hidden]="directory != directoryType.Ldap || ldap.ad">
+          <div [hidden]="directory() != directoryType.Ldap || ldap().ad">
             <div class="mb-3">
               <label for="groupObjectClass" class="form-label">{{
                 "groupObjectClass" | i18n
@@ -750,7 +810,8 @@
                 class="form-control"
                 id="groupObjectClass"
                 name="GroupObjectClass"
-                [(ngModel)]="sync.groupObjectClass"
+                [ngModel]="sync().groupObjectClass"
+                (ngModelChange)="sync.update(v => ({...v, groupObjectClass: $event}))"
               />
               <div class="form-text">{{ "ex" | i18n }} groupOfUniqueNames</div>
             </div>
@@ -763,7 +824,8 @@
                 class="form-control"
                 id="groupNameAttribute"
                 name="GroupNameAttribute"
-                [(ngModel)]="sync.groupNameAttribute"
+                [ngModel]="sync().groupNameAttribute"
+                (ngModelChange)="sync.update(v => ({...v, groupNameAttribute: $event}))"
               />
               <div class="form-text">{{ "ex" | i18n }} name</div>
             </div>
@@ -775,7 +837,8 @@
               class="form-check-input"
               type="checkbox"
               id="overwriteExisting"
-              [(ngModel)]="sync.overwriteExisting"
+              [ngModel]="sync().overwriteExisting"
+              (ngModelChange)="sync.update(v => ({...v, overwriteExisting: $event}))"
               name="OverwriteExisting"
             />
             <label class="form-check-label" for="overwriteExisting"

@@ -5,6 +5,9 @@ Thumbs.db
 # Environment variables used for tests
 .env
 
+# Toolchain
+.eslintcache
+
 # IDEs and editors
 .idea/
 .project
@@ -31,6 +34,10 @@ dist
 build
 build-cli
 .angular/cache
+
+# Rust build artifacts
+native/target
+native/*.node
 
 # Testing
 coverage*

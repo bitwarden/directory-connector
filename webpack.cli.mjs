@@ -1,9 +1,13 @@
-const path = require("path");
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
 
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const webpack = require("webpack");
-const nodeExternals = require("webpack-node-externals");
+import CopyWebpackPlugin from "copy-webpack-plugin";
+import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import webpack from "webpack";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 if (process.env.NODE_ENV == null) {
   process.env.NODE_ENV = "development";
@@ -33,19 +37,18 @@ const plugins = [
     banner: "#!/usr/bin/env node",
     raw: true,
   }),
-  new webpack.IgnorePlugin({
-    resourceRegExp: /^encoding$/,
-    contextRegExp: /node-fetch/,
-  }),
 ];
 
 const config = {
   mode: ENV,
-  target: "node",
+  target: "node25",
   devtool: ENV === "development" ? "eval-source-map" : "source-map",
   node: {
-    __dirname: false,
-    __filename: false,
+    __dirname: "eval-only",
+    __filename: "eval-only",
+  },
+  experiments: {
+    outputModule: true,
   },
   entry: {
     bwdc: "./src-cli/bwdc.ts",
@@ -57,16 +60,23 @@ const config = {
     extensions: [".ts", ".js", ".json"],
     plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
     symlinks: false,
-    modules: [path.resolve("node_modules")],
+    modules: ["node_modules"],
+    alias: {
+      // dc-native uses import.meta.url to locate .node binaries, which breaks inside a
+      // Node SEA blob. This shim loads the .node file relative to process.execPath instead.
+      // pack-sea.mjs copies the .node files alongside the binary at build time.
+      "dc-native": path.resolve(__dirname, "scripts/dc-native-sea-shim.mjs"),
+    },
   },
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build-cli"),
     clean: true,
+    module: true,
+    publicPath: "",
   },
   module: { rules: moduleRules },
   plugins: plugins,
-  externals: [nodeExternals()],
 };
 
-module.exports = config;
+export default config;

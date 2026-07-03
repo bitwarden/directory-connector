@@ -1,4 +1,4 @@
-import * as chalk from "chalk";
+import chalk from "chalk";
 
 import { StateService } from "@/libs/abstractions/state.service";
 

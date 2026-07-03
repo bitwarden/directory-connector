@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, NgZone, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+  signal,
+} from "@angular/core";
 
 import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
@@ -6,48 +13,44 @@ import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
 
+import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
+
 const BroadcasterSubscriptionId = "MoreComponent";
 
 @Component({
   selector: "app-more",
   templateUrl: "more.component.html",
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [I18nPipe],
 })
-export class MoreComponent implements OnInit {
-  version: string;
-  year: string;
-  checkingForUpdate = false;
+export class MoreComponent implements OnInit, OnDestroy {
+  version = signal("");
+  year = signal("");
+  checkingForUpdate = signal(false);
 
-  constructor(
-    private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService,
-    private messagingService: MessagingService,
-    private broadcasterService: BroadcasterService,
-    private ngZone: NgZone,
-    private changeDetectorRef: ChangeDetectorRef,
-    private stateService: StateService,
-  ) {}
+  private platformUtilsService = inject(PlatformUtilsService);
+  private i18nService = inject(I18nService);
+  private messagingService = inject(MessagingService);
+  private broadcasterService = inject(BroadcasterService);
+  private stateService = inject(StateService);
 
   async ngOnInit() {
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
-      this.ngZone.run(async () => {
-        switch (message.command) {
-          case "checkingForUpdate":
-            this.checkingForUpdate = true;
-            break;
-          case "doneCheckingForUpdate":
-            this.checkingForUpdate = false;
-            break;
-          default:
-            break;
-        }
-
-        this.changeDetectorRef.detectChanges();
-      });
+      switch (message.command) {
+        case "checkingForUpdate":
+          this.checkingForUpdate.set(true);
+          break;
+        case "doneCheckingForUpdate":
+          this.checkingForUpdate.set(false);
+          break;
+        default:
+          break;
+      }
     });
 
-    this.year = new Date().getFullYear().toString();
-    this.version = await this.platformUtilsService.getApplicationVersion();
+    this.year.set(new Date().getFullYear().toString());
+    this.version.set(await this.platformUtilsService.getApplicationVersion());
   }
 
   ngOnDestroy() {

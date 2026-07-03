@@ -1,10 +1,10 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["github>bitwarden/renovate-config"],
-  enabledManagers: ["github-actions", "npm"],
+  enabledManagers: ["docker-compose", "github-actions", "npm"],
   packageRules: [
     {
-      groupName: "gh minor",
+      groupName: "github-action minor",
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["minor", "patch"],
     },

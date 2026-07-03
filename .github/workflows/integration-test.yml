@@ -17,6 +17,9 @@ on:
       - "libs/services/sync.service.ts" # core sync service used by all directory services
       - "libs/services/directory-services/ldap-directory.service*" # LDAP directory service
       - "libs/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
+      - "libs/services/directory-services/entra-id-directory.service*" # Microsoft Entra ID directory service
+      - "libs/services/directory-services/okta-directory.service*" # Okta directory service
+      - "libs/services/directory-services/onelogin-directory.service*" # OneLogin directory service
       # Add directory services here as we add test coverage
   pull_request:
     paths:
@@ -27,6 +30,9 @@ on:
       - "libs/services/sync.service.ts" # core sync service used by all directory services
       - "libs/services/directory-services/ldap-directory.service*" # LDAP directory service
       - "libs/services/directory-services/gsuite-directory.service*" # Google Workspace directory service
+      - "libs/services/directory-services/entra-id-directory.service*" # Microsoft Entra ID directory service
+      - "libs/services/directory-services/okta-directory.service*" # Okta directory service
+      - "libs/services/directory-services/onelogin-directory.service*" # OneLogin directory service
       # Add directory services here as we add test coverage
 permissions:
   contents: read
@@ -34,7 +40,7 @@ permissions:
   id-token: write # required to use OIDC to login to Azure Key Vault
 jobs:
   testing:
-    name: Run tests
+    name: Run integration tests
     if: ${{ startsWith(github.head_ref, 'version_bump_') == false }}
     runs-on: ubuntu-22.04
 
@@ -74,7 +80,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-directory-connector
-          secrets: "GOOGLE-ADMIN-USER,GOOGLE-CLIENT-EMAIL,GOOGLE-DOMAIN,GOOGLE-PRIVATE-KEY"
+          secrets: "GOOGLE-ADMIN-USER,GOOGLE-CLIENT-EMAIL,GOOGLE-DOMAIN,GOOGLE-PRIVATE-KEY,ENTRA-TENANT-ID,ENTRA-APPLICATION-ID,ENTRA-KEY,OKTA-ORG-URL,OKTA-TOKEN,ONELOGIN-CLIENT-ID,ONELOGIN-CLIENT-SECRET"
 
       - name: Azure Logout
         uses: bitwarden/gh-actions/azure-logout@main
@@ -100,6 +106,12 @@ jobs:
               - 'libs/services/directory-services/ldap-directory.service*'
             google:
               - 'libs/services/directory-services/gsuite-directory.service*'
+            entra:
+              - 'libs/services/directory-services/entra-id-directory.service*'
+            okta:
+              - 'libs/services/directory-services/okta-directory.service*'
+            onelogin:
+              - 'libs/services/directory-services/onelogin-directory.service*'
 
       # LDAP
       - name: Setup LDAP integration tests
@@ -114,7 +126,7 @@ jobs:
         if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.ldap == 'true'
         env:
           JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
-        run: npx jest ldap-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-ldap
+        run: node --experimental-vm-modules node_modules/.bin/jest ldap-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-ldap
 
       # Google Workspace
       - name: Run Google Workspace integration tests
@@ -126,7 +138,39 @@ jobs:
           GOOGLE_PRIVATE_KEY: ${{ steps.get-kv-secrets.outputs.GOOGLE-PRIVATE-KEY }}
           JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
         run: |
-          npx jest gsuite-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-google
+          node --experimental-vm-modules node_modules/.bin/jest gsuite-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-google
+
+      # Microsoft Entra ID
+      - name: Run Entra ID integration tests
+        if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.entra == 'true'
+        env:
+          ENTRA_TENANT_ID: ${{ steps.get-kv-secrets.outputs.ENTRA-TENANT-ID }}
+          ENTRA_APPLICATION_ID: ${{ steps.get-kv-secrets.outputs.ENTRA-APPLICATION-ID }}
+          ENTRA_KEY: ${{ steps.get-kv-secrets.outputs.ENTRA-KEY }}
+          JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
+        run: |
+          node --experimental-vm-modules node_modules/.bin/jest entra-id-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-entra
+
+      # Okta
+      - name: Run Okta integration tests
+        if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.okta == 'true'
+        env:
+          OKTA_ORG_URL: ${{ steps.get-kv-secrets.outputs.OKTA-ORG-URL }}
+          OKTA_TOKEN: ${{ steps.get-kv-secrets.outputs.OKTA-TOKEN }}
+          JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
+        run: |
+          node --experimental-vm-modules node_modules/.bin/jest okta-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-okta
+
+      # OneLogin
+      - name: Run OneLogin integration tests
+        if: steps.changed-files.outputs.common == 'true' || steps.changed-files.outputs.onelogin == 'true'
+        env:
+          ONELOGIN_CLIENT_ID: ${{ steps.get-kv-secrets.outputs.ONELOGIN-CLIENT-ID }}
+          ONELOGIN_CLIENT_SECRET: ${{ steps.get-kv-secrets.outputs.ONELOGIN-CLIENT-SECRET }}
+          ONELOGIN_REGION: "us"
+          JEST_JUNIT_UNIQUE_OUTPUT_NAME: "true" # avoids junit outputs from clashing
+        run: |
+          node --experimental-vm-modules node_modules/.bin/jest onelogin-directory.service.integration.spec.ts --coverage --coverageDirectory=coverage-onelogin
 
       - name: Report test results
         id: report
@@ -141,9 +185,9 @@ jobs:
           fail-on-error: true
 
       - name: Upload coverage to codecov.io
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
 
       - name: Upload results to codecov.io
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           report_type: test_results

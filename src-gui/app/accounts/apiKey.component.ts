@@ -1,4 +1,14 @@
-import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { NgClass } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ViewChild,
+  ViewContainerRef,
+  inject,
+  signal,
+} from "@angular/core";
+import { outputToObservable } from "@angular/core/rxjs-interop";
+import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { takeUntil } from "rxjs";
 
@@ -9,6 +19,9 @@ import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service"
 import { StateService } from "@/libs/abstractions/state.service";
 import { Utils } from "@/libs/utils/utils";
 
+import { A11yTitleDirective } from "@/src-gui/angular/directives/a11y-title.directive";
+import { ApiActionDirective } from "@/src-gui/angular/directives/api-action.directive";
+import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
 import { ModalService } from "@/src-gui/angular/services/modal.service";
 
 import { EnvironmentComponent } from "./environment.component";
@@ -16,7 +29,9 @@ import { EnvironmentComponent } from "./environment.component";
 @Component({
   selector: "app-apiKey",
   templateUrl: "apiKey.component.html",
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [A11yTitleDirective, ApiActionDirective, FormsModule, I18nPipe, NgClass],
 })
 // There is an eslint exception made here due to semantics.
 // The eslint rule expects a typical takeUntil() pattern involving component destruction.
@@ -27,25 +42,27 @@ import { EnvironmentComponent } from "./environment.component";
 export class ApiKeyComponent {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
   environmentModal: ViewContainerRef;
-  @Input() clientId = "";
-  @Input() clientSecret = "";
 
-  formPromise: Promise<any>;
-  successRoute = "/tabs/dashboard";
-  showSecret = false;
+  clientId = signal("");
+  clientSecret = signal("");
+  formPromise = signal<Promise<any>>(null);
+  showSecret = signal(false);
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private modalService: ModalService,
-    private logService: LogService,
-    private stateService: StateService,
-  ) {}
+  readonly successRoute = "/tabs/dashboard";
+
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private i18nService = inject(I18nService);
+  private platformUtilsService = inject(PlatformUtilsService);
+  private modalService = inject(ModalService);
+  private logService = inject(LogService);
+  private stateService = inject(StateService);
 
   async submit() {
-    if (this.clientId == null || this.clientId === "") {
+    const clientId = this.clientId();
+    const clientSecret = this.clientSecret();
+
+    if (clientId == null || clientId === "") {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
@@ -53,7 +70,7 @@ export class ApiKeyComponent {
       );
       return;
     }
-    if (!this.clientId.startsWith("organization")) {
+    if (!clientId.startsWith("organization")) {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
@@ -61,7 +78,7 @@ export class ApiKeyComponent {
       );
       return;
     }
-    if (this.clientSecret == null || this.clientSecret === "") {
+    if (clientSecret == null || clientSecret === "") {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
@@ -69,7 +86,7 @@ export class ApiKeyComponent {
       );
       return;
     }
-    const idParts = this.clientId.split(".");
+    const idParts = clientId.split(".");
 
     if (idParts.length !== 2 || idParts[0] !== "organization" || !Utils.isGuid(idParts[1])) {
       this.platformUtilsService.showToast(
@@ -81,11 +98,9 @@ export class ApiKeyComponent {
     }
 
     try {
-      this.formPromise = this.authService.logIn({
-        clientId: this.clientId,
-        clientSecret: this.clientSecret,
-      });
-      await this.formPromise;
+      const promise = this.authService.logIn({ clientId, clientSecret });
+      this.formPromise.set(promise);
+      await promise;
       const organizationId = await this.stateService.getEntityId();
       await this.stateService.setOrganizationId(organizationId);
       this.router.navigate([this.successRoute]);
@@ -100,14 +115,15 @@ export class ApiKeyComponent {
       this.environmentModal,
     );
 
-    // eslint-disable-next-line rxjs-angular-x/prefer-takeuntil
-    childComponent.onSaved.pipe(takeUntil(modalRef.onClosed)).subscribe(() => {
-      modalRef.close();
-    });
+    outputToObservable(childComponent.onSaved)
+      .pipe(takeUntil(modalRef.onClosed))
+      .subscribe(() => {
+        modalRef.close();
+      });
   }
 
   toggleSecret() {
-    this.showSecret = !this.showSecret;
+    this.showSecret.update((v) => !v);
     document.getElementById("client_secret").focus();
   }
 }

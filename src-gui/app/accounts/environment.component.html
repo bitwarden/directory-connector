@@ -14,7 +14,8 @@
             id="baseUrl"
             type="text"
             name="BaseUrl"
-            [(ngModel)]="baseUrl"
+            [ngModel]="baseUrl()"
+            (ngModelChange)="baseUrl.set($event)"
             class="form-control"
           />
           <div class="form-text">{{ "ex" | i18n }} https://bitwarden.company.com</div>
@@ -27,13 +28,21 @@
             id="webVaultUrl"
             type="text"
             name="WebVaultUrl"
-            [(ngModel)]="webVaultUrl"
+            [ngModel]="webVaultUrl()"
+            (ngModelChange)="webVaultUrl.set($event)"
             class="form-control"
           />
         </div>
         <div class="mb-3">
           <label for="apiUrl" class="form-label">{{ "apiUrl" | i18n }}</label>
-          <input id="apiUrl" type="text" name="ApiUrl" [(ngModel)]="apiUrl" class="form-control" />
+          <input
+            id="apiUrl"
+            type="text"
+            name="ApiUrl"
+            [ngModel]="apiUrl()"
+            (ngModelChange)="apiUrl.set($event)"
+            class="form-control"
+          />
         </div>
         <div class="mb-3">
           <label for="identityUrl" class="form-label">{{ "identityUrl" | i18n }}</label>
@@ -41,7 +50,8 @@
             id="identityUrl"
             type="text"
             name="IdentityUrl"
-            [(ngModel)]="identityUrl"
+            [ngModel]="identityUrl()"
+            (ngModelChange)="identityUrl.set($event)"
             class="form-control"
           />
         </div>

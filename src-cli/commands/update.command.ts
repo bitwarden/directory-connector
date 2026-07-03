@@ -1,5 +1,3 @@
-import * as fetch from "node-fetch";
-
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 
@@ -22,7 +20,7 @@ export class UpdateCommand {
   async run(): Promise<Response> {
     const currentVersion = await this.platformUtilsService.getApplicationVersion();
 
-    const response = await fetch.default(
+    const response = await fetch(
       "https://api.github.com/repos/bitwarden/" + this.repoName + "/releases/latest",
     );
     if (response.status === 200) {

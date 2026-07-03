@@ -4,5 +4,6 @@ export enum StateVersion {
   Three = 3, // Fix migration of users' premium status
   Four = 4, // Fix 'Never Lock' option by removing stale data
   Five = 5, // New state service implementation
-  Latest = Five,
+  Six = 6, // Migrate Windows Credential Manager entries from keytar (UTF-8) to desktop_core (UTF-16)
+  Latest = Six,
 }

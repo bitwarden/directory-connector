@@ -249,6 +249,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
         "https://www.googleapis.com/auth/admin.directory.group.readonly",
         "https://www.googleapis.com/auth/admin.directory.group.member.readonly",
       ],
+      transporterOptions: { fetchImplementation: globalThis.fetch.bind(globalThis) },
     });
 
     try {
