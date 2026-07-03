@@ -93,7 +93,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   userFilterHelp(): string {
-    switch (this.directory) {
+    switch (this.directory()) {
       case DirectoryType.Ldap:
         return this.i18nService.t("userFilterHelpLdap");
       case DirectoryType.EntraID:
