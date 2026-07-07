@@ -663,7 +663,7 @@
           <div class="mb-3">
             <label for="userFilter" class="form-label">
               {{ "userFilter" | i18n }}
-              @if (directory != null) {
+              @if (directory() != null) {
                 <i
                   class="bwi bwi-question-circle ms-1"
                   style="cursor: help"

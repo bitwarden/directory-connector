@@ -29,6 +29,11 @@ dotenvConfig({ path: "utils/.env" });
 // It should return data that matches the fixtures exactly.
 const INTEGRATION_GROUP_FILTER = "include: Integration Testing Group A";
 
+// Object IDs of the seeded integration testing groups, see utils/entra fixtures.
+// Group A has three members; Group B has none.
+const INTEGRATION_GROUP_A_ID = "573783bf-d086-4e1e-9084-4b7b0d2a5969";
+const INTEGRATION_GROUP_B_ID = "66578c29-73af-448b-b352-301f9588772b";
+
 // These tests are slow!
 // Increase the default timeout from 5s to 30s
 jest.setTimeout(30000);
@@ -90,6 +95,38 @@ describe("entraIdDirectoryService", () => {
     const result = await directoryService.getEntries(true, true);
 
     expect(result).toEqual([filteredGroupFixtures, groupAUserFixtures]);
+  });
+
+  it("syncs users combining includeGroup with a secondary excludeGroup clause", async () => {
+    stateService.getSync.mockResolvedValue(
+      getSyncConfiguration({
+        users: true,
+        userFilter: `includeGroup:${INTEGRATION_GROUP_A_ID}|excludeGroup:${INTEGRATION_GROUP_B_ID}`,
+      }),
+    );
+
+    const [, users] = await directoryService.getEntries(true, true);
+
+    // Group B is empty in the test tenant, so the subtraction removes nobody
+    // and all of Group A's members remain. This still exercises the secondary
+    // excludeGroup lookup against the live Graph API.
+    expect(users).toEqual(expect.arrayContaining(groupAUserFixtures));
+  });
+
+  it("syncs users combining includeGroup with a secondary exclude email clause", async () => {
+    stateService.getSync.mockResolvedValue(
+      getSyncConfiguration({
+        users: true,
+        userFilter: `includeGroup:${INTEGRATION_GROUP_A_ID}|exclude:amarshall@bwrox.dev`,
+      }),
+    );
+
+    const [, users] = await directoryService.getEntries(true, true);
+
+    const emails = users.map((u) => u.email);
+    expect(emails).toContain("anders@bwrox.dev");
+    expect(emails).toContain("jcooks@bwrox.dev");
+    expect(emails).not.toContain("amarshall@bwrox.dev");
   });
 
   it("throws when credentials are invalid", async () => {
