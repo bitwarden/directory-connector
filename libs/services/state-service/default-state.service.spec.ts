@@ -685,5 +685,25 @@ describe("DefaultStateService", () => {
         expect(storage.store.has(StorageKeys.entityId)).toBe(false);
       });
     });
+
+    describe("data reset detection", () => {
+      it("returns no access token after clearAuthTokens is called", async () => {
+        await stateService.setAccessToken("token");
+        await stateService.clearAuthTokens();
+
+        expect(await stateService.getAccessToken()).toBeNull();
+      });
+
+      it("returns null organization ID when storage is empty (simulating deleted data.json)", async () => {
+        expect(await stateService.getOrganizationId()).toBeNull();
+      });
+
+      it("is not authenticated after clearAuthTokens removes the access token", async () => {
+        await stateService.setAccessToken("token");
+        await stateService.clearAuthTokens();
+
+        expect(await stateService.getIsAuthenticated()).toBe(false);
+      });
+    });
   });
 });
