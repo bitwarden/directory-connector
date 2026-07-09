@@ -64,8 +64,8 @@ jobs:
     steps:
       - name: Set up system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get -y install libdbus-1-dev libsecret-1-dev pkg-config libatomic1
+          apt-get update
+          apt-get -y install libdbus-1-dev libsecret-1-dev pkg-config libatomic1
 
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -96,8 +96,8 @@ jobs:
 
       - name: Version Test
         run: |
-          sudo apt-get update
-          sudo apt install libsecret-1-0 dbus-x11 gnome-keyring
+          apt-get update
+          apt-get install -y libsecret-1-0 dbus-x11 gnome-keyring
           eval "$(dbus-launch --sh-syntax)"
 
           eval "$(echo -n "" | /usr/bin/gnome-keyring-daemon --login)"
@@ -433,9 +433,9 @@ jobs:
     steps:
       - name: Set up environment
         run: |
-          sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev libdbus-1-dev libatomic1
-          sudo apt-get -y install rpm
+          apt-get update
+          apt-get -y install pkg-config libxss-dev libsecret-1-dev libdbus-1-dev libatomic1
+          apt-get -y install rpm
 
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
