@@ -6,7 +6,6 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
-      - "ubuntu-fix-test"
   workflow_dispatch: {}
   workflow_call: {}
 
