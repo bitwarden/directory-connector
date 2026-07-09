@@ -6,7 +6,6 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
-      - "ubuntu-fix-test"
   workflow_dispatch: {}
   workflow_call: {}
 
@@ -62,14 +61,6 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Install system dependencies
-        run: |
-          apt-get update -qq
-          apt-get install -y --no-install-recommends \
-            git sudo curl ca-certificates build-essential \
-            libdbus-1-dev libsecret-1-dev pkg-config \
-            libsecret-1-0 dbus-x11 gnome-keyring unzip zip
-
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -85,6 +76,11 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
 
+      - name: Set up system dependencies
+        run: |
+          apt-get update
+          apt-get -y install libdbus-1-dev libsecret-1-dev pkg-config
+
       - name: Install
         run: npm ci
 
@@ -99,6 +95,8 @@ jobs:
 
       - name: Version Test
         run: |
+          apt-get update
+          apt-get install -y libsecret-1-0 dbus-x11 gnome-keyring
           eval "$(dbus-launch --sh-syntax)"
 
           eval "$(echo -n "" | /usr/bin/gnome-keyring-daemon --login)"
@@ -432,13 +430,6 @@ jobs:
       HUSKY: 0
       DEBIAN_FRONTEND: noninteractive
     steps:
-      - name: Install system dependencies
-        run: |
-          apt-get update -qq
-          apt-get install -y --no-install-recommends \
-            git sudo curl ca-certificates build-essential \
-            pkg-config libxss-dev libsecret-1-dev libdbus-1-dev rpm
-
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -454,8 +445,17 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
 
+      - name: Set up environment
+        run: |
+          apt-get update
+          apt-get -y install pkg-config libxss-dev libsecret-1-dev libdbus-1-dev
+          apt-get -y install rpm
+
       - name: NPM Install
         run: npm ci
+
+      - name: NPM Rebuild
+        run: npm run rebuild
 
       - name: NPM Package
         run: npm run dist:lin
