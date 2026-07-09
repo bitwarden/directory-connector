@@ -80,7 +80,7 @@ jobs:
       - name: Set up system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get -y install libdbus-1-dev libsecret-1-dev pkg-config
+          sudo apt-get -y install libdbus-1-dev libsecret-1-dev pkg-config libatomic1
 
       - name: Install
         run: npm ci
@@ -97,7 +97,7 @@ jobs:
       - name: Version Test
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsecret-1-0 dbus-x11 gnome-keyring
+          sudo apt install libsecret-1-0 dbus-x11 gnome-keyring
           eval "$(dbus-launch --sh-syntax)"
 
           eval "$(echo -n "" | /usr/bin/gnome-keyring-daemon --login)"
