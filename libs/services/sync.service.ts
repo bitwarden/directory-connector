@@ -40,6 +40,7 @@ export class SyncService {
     if (this.dirType == null) {
       throw new Error("No directory configured.");
     }
+    console.log(" test (: ");
 
     const directoryService = this.directoryFactory.createService(this.dirType);
     if (directoryService == null) {
