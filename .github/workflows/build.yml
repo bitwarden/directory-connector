@@ -6,6 +6,7 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
+      - "ubuntu-fix-test"
   workflow_dispatch: {}
   workflow_call: {}
 
@@ -78,8 +79,8 @@ jobs:
 
       - name: Set up system dependencies
         run: |
-          apt-get update
-          apt-get -y install libdbus-1-dev libsecret-1-dev pkg-config
+          sudo apt-get update
+          sudo apt-get -y install libdbus-1-dev libsecret-1-dev pkg-config
 
       - name: Install
         run: npm ci
@@ -95,8 +96,8 @@ jobs:
 
       - name: Version Test
         run: |
-          apt-get update
-          apt-get install -y libsecret-1-0 dbus-x11 gnome-keyring
+          sudo apt-get update
+          sudo apt-get install -y libsecret-1-0 dbus-x11 gnome-keyring
           eval "$(dbus-launch --sh-syntax)"
 
           eval "$(echo -n "" | /usr/bin/gnome-keyring-daemon --login)"
@@ -447,9 +448,9 @@ jobs:
 
       - name: Set up environment
         run: |
-          apt-get update
-          apt-get -y install pkg-config libxss-dev libsecret-1-dev libdbus-1-dev
-          apt-get -y install rpm
+          sudo apt-get update
+          sudo apt-get -y install pkg-config libxss-dev libsecret-1-dev libdbus-1-dev
+          sudo apt-get -y install rpm
 
       - name: NPM Install
         run: npm ci
