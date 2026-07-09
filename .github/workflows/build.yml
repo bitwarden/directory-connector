@@ -65,7 +65,12 @@ jobs:
       - name: Set up system dependencies
         run: |
           apt-get update
-          apt-get -y install libdbus-1-dev libsecret-1-dev pkg-config libatomic1
+          apt-get -y install \
+            curl ca-certificates git build-essential \
+            libdbus-1-dev libsecret-1-dev pkg-config libatomic1 \
+            unzip zip
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -78,9 +83,6 @@ jobs:
         with:
           node-version: ${{ env._NODE_VERSION }}
           platform: Linux
-
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
 
       - name: Install
         run: npm ci
@@ -434,8 +436,12 @@ jobs:
       - name: Set up environment
         run: |
           apt-get update
-          apt-get -y install pkg-config libxss-dev libsecret-1-dev libdbus-1-dev libatomic1
-          apt-get -y install rpm
+          apt-get -y install \
+            curl ca-certificates git build-essential \
+            pkg-config libxss-dev libsecret-1-dev libdbus-1-dev libatomic1 \
+            rpm
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -448,9 +454,6 @@ jobs:
         with:
           node-version: ${{ env._NODE_VERSION }}
           platform: Linux
-
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
 
       - name: NPM Install
         run: npm ci
