@@ -58,11 +58,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
-      DEBIAN_FRONTEND: noninteractive
     permissions:
       contents: read
     steps:
       - name: Set up system dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
           apt-get update
           apt-get -y install \
@@ -433,9 +434,10 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       HUSKY: 0
-      DEBIAN_FRONTEND: noninteractive
     steps:
       - name: Set up environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
           apt-get update
           apt-get -y install \
