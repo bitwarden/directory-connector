@@ -16,6 +16,7 @@ describe("SingleRequestBuilder", () => {
   const defaultOptions: RequestBuilderOptions = Object.freeze({
     overwriteExisting: false,
     removeDisabled: false,
+    inviteUsersAfterProvisioning: true,
   });
 
   it("SingleRequestBuilder returns single request for 200 users", () => {
@@ -67,12 +68,37 @@ describe("SingleRequestBuilder", () => {
     disabledUser.email = disabledUserEmail;
     mockUsers.push(disabledUser);
 
-    const options = { overwriteExisting: true, removeDisabled: true };
+    const options = {
+      overwriteExisting: true,
+      removeDisabled: true,
+      inviteUsersAfterProvisioning: true,
+    };
     const request = singleRequestBuilder.buildRequest(mockGroups, mockUsers, options)[0];
 
     expect(request.members.pop()).toEqual(
       expect.objectContaining({ email: disabledUserEmail, deleted: true }),
     );
     expect(request.overwriteExisting).toBe(true);
+  });
+
+  it("SingleRequestBuilder forwards inviteUsersAfterProvisioning from options into the request", () => {
+    const mockGroups = groupSimulator(200);
+    const mockUsers = userSimulator(200);
+
+    const options = { ...defaultOptions, inviteUsersAfterProvisioning: false };
+    const request = singleRequestBuilder.buildRequest(mockGroups, mockUsers, options)[0];
+
+    expect(request.inviteUsersAfterProvisioning).toBe(false);
+  });
+
+  it("SingleRequestBuilder defaults inviteUsersAfterProvisioning to true when unset in options", () => {
+    const mockGroups = groupSimulator(200);
+    const mockUsers = userSimulator(200);
+
+    // Simulate an existing configuration created before this setting existed.
+    const options = { overwriteExisting: false, removeDisabled: false } as RequestBuilderOptions;
+    const request = singleRequestBuilder.buildRequest(mockGroups, mockUsers, options)[0];
+
+    expect(request.inviteUsersAfterProvisioning).toBe(true);
   });
 });

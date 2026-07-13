@@ -16,6 +16,7 @@ describe("BatchRequestBuilder", () => {
   const defaultOptions: RequestBuilderOptions = Object.freeze({
     overwriteExisting: false,
     removeDisabled: false,
+    inviteUsersAfterProvisioning: true,
   });
 
   it("BatchRequestBuilder batches requests for > 2000 users", () => {
@@ -70,5 +71,26 @@ describe("BatchRequestBuilder", () => {
     const requests = batchRequestBuilder.buildRequest([], [], defaultOptions);
 
     expect(requests).toEqual([]);
+  });
+
+  it("BatchRequestBuilder forwards inviteUsersAfterProvisioning from options into every partitioned request", () => {
+    const mockGroups = groupSimulator(2500);
+    const mockUsers = userSimulator(2500);
+
+    const options = { ...defaultOptions, inviteUsersAfterProvisioning: false };
+    const requests = batchRequestBuilder.buildRequest(mockGroups, mockUsers, options);
+
+    expect(requests.length).toBeGreaterThan(1);
+    expect(requests.every((r) => r.inviteUsersAfterProvisioning === false)).toBe(true);
+  });
+
+  it("BatchRequestBuilder defaults inviteUsersAfterProvisioning to true when unset in options", () => {
+    const mockUsers = userSimulator(2500);
+
+    // Simulate an existing configuration created before this setting existed.
+    const options = { overwriteExisting: false, removeDisabled: false } as RequestBuilderOptions;
+    const requests = batchRequestBuilder.buildRequest([], mockUsers, options);
+
+    expect(requests.every((r) => r.inviteUsersAfterProvisioning === true)).toBe(true);
   });
 });
