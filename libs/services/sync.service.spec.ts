@@ -77,6 +77,7 @@ describe("SyncService", () => {
         groups: [],
         overwriteExisting: true,
         largeImport: true,
+        inviteUsersAfterProvisioning: true,
       },
     ];
 
@@ -159,7 +160,13 @@ describe("SyncService", () => {
       cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
       stateService.getLastSyncHash.mockResolvedValue("unique hash");
       singleRequestBuilder.buildRequest.mockReturnValue([
-        { members: [], groups: [], overwriteExisting: true, largeImport: false },
+        {
+          members: [],
+          groups: [],
+          overwriteExisting: true,
+          largeImport: false,
+          inviteUsersAfterProvisioning: true,
+        },
       ]);
     }
 
@@ -287,7 +294,13 @@ describe("SyncService", () => {
       cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
       stateService.getLastSyncHash.mockResolvedValue("unique hash");
       singleRequestBuilder.buildRequest.mockReturnValue([
-        { members: [], groups: [], overwriteExisting: true, largeImport: false },
+        {
+          members: [],
+          groups: [],
+          overwriteExisting: true,
+          largeImport: false,
+          inviteUsersAfterProvisioning: true,
+        },
       ]);
     }
 

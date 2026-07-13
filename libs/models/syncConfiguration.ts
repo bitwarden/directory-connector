@@ -7,6 +7,7 @@ export class SyncConfiguration {
   removeDisabled = false;
   overwriteExisting = false;
   largeImport = false;
+  inviteUsersAfterProvisioning = true;
   // Ldap properties
   groupObjectClass: string;
   userObjectClass: string;
