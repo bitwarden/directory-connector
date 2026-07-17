@@ -32,6 +32,15 @@ function makeMigrationService(needsMigration = false): StateMigrationService {
   } as unknown as StateMigrationService;
 }
 
+/**
+ * Secure storage keys are scoped by a randomly-generated `id` assigned to each configuration
+ * (see secret-storage-key.util.ts), so tests look up the `id` that was actually persisted for a
+ * given directory type rather than predicting it.
+ */
+function scopedSecretKey(legacyKey: string, storedConfig: { id?: string } | null | undefined) {
+  return `${legacyKey}:${storedConfig?.id}`;
+}
+
 function makeStateService(
   storage: FakeStorageService,
   secureStorage: FakeStorageService,
@@ -146,8 +155,12 @@ describe("DefaultStateService", () => {
       // Regular storage must not contain the plaintext password
       const stored = storage.store.get(StorageKeys.directoryLdap) as LdapConfiguration;
       expect(stored.password).toBe(StoredSecurely);
-      // Secure storage must hold the real password
-      expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("secret-password");
+      // The saved config is assigned a unique id, and secure storage holds the real password
+      // scoped to that id (rather than a single flat key shared by every configuration).
+      expect(stored.id).toBeTruthy();
+      expect(secureStorage.store.get(scopedSecretKey(SecureStorageKeys.ldap, stored))).toBe(
+        "secret-password",
+      );
     });
 
     it("returns null when LDAP configuration is not set", async () => {
@@ -157,9 +170,99 @@ describe("DefaultStateService", () => {
     it("removes secret from secure storage when password is null", async () => {
       // First set a password, then clear it
       await stateService.setDirectory(DirectoryType.Ldap, { ...ldapConfig });
+      const stored = storage.store.get(StorageKeys.directoryLdap) as LdapConfiguration;
       await stateService.setDirectory(DirectoryType.Ldap, { ...ldapConfig, password: null });
 
+      expect(secureStorage.store.has(scopedSecretKey(SecureStorageKeys.ldap, stored))).toBe(false);
       expect(secureStorage.store.has(SecureStorageKeys.ldap)).toBe(false);
+    });
+
+    it("keeps secrets for two different LDAP configs (e.g. two AD service accounts) isolated", async () => {
+      const account1 = { ...ldapConfig, username: "account1", password: "password-one" };
+      const account2 = { ...ldapConfig, username: "account2", password: "password-two" };
+
+      // Configure and save account 1, then swap in account 2's config (simulating
+      // copying a different data.json in as described in the multi-directory workflow).
+      await stateService.setDirectory(DirectoryType.Ldap, { ...account1 });
+      const savedAccount1Snapshot = {
+        ...(storage.store.get(StorageKeys.directoryLdap) as LdapConfiguration),
+      };
+
+      await stateService.setDirectory(DirectoryType.Ldap, { ...account2 });
+      const savedAccount2 = storage.store.get(StorageKeys.directoryLdap) as LdapConfiguration;
+
+      // The two configurations must have been assigned different ids.
+      expect(savedAccount1Snapshot.id).not.toBe(savedAccount2.id);
+
+      // Restoring account 1's (non-secret) config from an earlier data.json backup...
+      storage.store.set(StorageKeys.directoryLdap, savedAccount1Snapshot);
+
+      // ...must resolve back to account 1's password, not account 2's - even though account 2's
+      // secret was saved more recently on this machine.
+      const result = await stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
+      expect(result.username).toBe("account1");
+      expect(result.password).toBe("password-one");
+    });
+
+    it("keeps the same id (and secure-storage slot) when re-saving the same account, e.g. a password rotation", async () => {
+      await stateService.setDirectory(DirectoryType.Ldap, {
+        ...ldapConfig,
+        password: "password-one",
+      });
+      const firstSave = storage.store.get(StorageKeys.directoryLdap) as LdapConfiguration;
+
+      // Same hostname/domain/username, only the password changes.
+      await stateService.setDirectory(DirectoryType.Ldap, {
+        ...ldapConfig,
+        password: "password-two",
+      });
+      const secondSave = storage.store.get(StorageKeys.directoryLdap) as LdapConfiguration;
+
+      expect(secondSave.id).toBe(firstSave.id);
+      const result = await stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
+      expect(result.password).toBe("password-two");
+    });
+
+    it("falls back to the legacy unscoped key for installs upgrading from a single shared secret", async () => {
+      // Simulate a pre-fix install: config stored with StoredSecurely (and no `id`), secret
+      // under the old flat key.
+      storage.store.set(StorageKeys.directoryLdap, { ...ldapConfig, password: StoredSecurely });
+      secureStorage.store.set(SecureStorageKeys.ldap, "legacy-password");
+
+      const result = await stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
+
+      expect(result.password).toBe("legacy-password");
+    });
+
+    it("migrates a legacy (pre-fix) config to a scoped id on next save, without disturbing the legacy secret still relied on by other not-yet-migrated data.json copies", async () => {
+      // Simulate an install from before this fix: config with no `id`, secret in the legacy flat
+      // key - as if account 1 had been configured on a version of the app before this change.
+      storage.store.set(StorageKeys.directoryLdap, { ...ldapConfig, password: StoredSecurely });
+      secureStorage.store.set(SecureStorageKeys.ldap, "legacy-password-account1");
+
+      // A backup copy of that legacy data.json (e.g. taken before configuring account 2 below).
+      const legacyAccount1Snapshot = {
+        ...(storage.store.get(StorageKeys.directoryLdap) as LdapConfiguration),
+      };
+
+      // The customer upgrades and configures a second account (same running app/data.json).
+      await stateService.setDirectory(DirectoryType.Ldap, {
+        ...ldapConfig,
+        username: "account2",
+        password: "password-two",
+      });
+      const savedAccount2 = storage.store.get(StorageKeys.directoryLdap) as LdapConfiguration;
+      expect(savedAccount2.id).toBeTruthy();
+
+      // The legacy flat secret must be untouched - it still holds account 1's password.
+      expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("legacy-password-account1");
+
+      // Restoring the pre-fix account 1 backup (still without an `id`) must still resolve to
+      // account 1's password via the legacy fallback, even though account 2 was configured since.
+      storage.store.set(StorageKeys.directoryLdap, legacyAccount1Snapshot);
+      const result = await stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
+      expect(result.username).toBe(ldapConfig.username);
+      expect(result.password).toBe("legacy-password-account1");
     });
   });
 
@@ -181,7 +284,10 @@ describe("DefaultStateService", () => {
       expect(result.privateKey).toBe("private-key-content");
       const stored = storage.store.get(StorageKeys.directoryGsuite) as GSuiteConfiguration;
       expect(stored.privateKey).toBe(StoredSecurely);
-      expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("private-key-content");
+      expect(stored.id).toBeTruthy();
+      expect(secureStorage.store.get(scopedSecretKey(SecureStorageKeys.gsuite, stored))).toBe(
+        "private-key-content",
+      );
     });
 
     it("normalizes escaped newlines in privateKey", async () => {
@@ -190,14 +296,21 @@ describe("DefaultStateService", () => {
         ...gsuiteConfig,
         privateKey: keyWithEscapedNewlines,
       });
+      const stored = storage.store.get(StorageKeys.directoryGsuite) as GSuiteConfiguration;
 
-      expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("line1\nline2\nline3");
+      expect(secureStorage.store.get(scopedSecretKey(SecureStorageKeys.gsuite, stored))).toBe(
+        "line1\nline2\nline3",
+      );
     });
 
     it("removes secret from secure storage when privateKey is null", async () => {
       await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+      const stored = storage.store.get(StorageKeys.directoryGsuite) as GSuiteConfiguration;
       await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig, privateKey: null });
 
+      expect(secureStorage.store.has(scopedSecretKey(SecureStorageKeys.gsuite, stored))).toBe(
+        false,
+      );
       expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
     });
   });
@@ -219,7 +332,10 @@ describe("DefaultStateService", () => {
       expect(result.key).toBe("secret-key");
       const stored = storage.store.get(StorageKeys.directoryEntra) as EntraIdConfiguration;
       expect(stored.key).toBe(StoredSecurely);
-      expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("secret-key");
+      expect(stored.id).toBeTruthy();
+      expect(secureStorage.store.get(scopedSecretKey(SecureStorageKeys.entra, stored))).toBe(
+        "secret-key",
+      );
     });
 
     it("falls back to legacy azure key when entra key is absent", async () => {
@@ -242,6 +358,27 @@ describe("DefaultStateService", () => {
       expect(secureStorage.store.has(SecureStorageKeys.entra)).toBe(false);
       expect(secureStorage.store.has(SecureStorageKeys.azure)).toBe(false);
     });
+
+    it("keeps secrets for two different Entra configs (e.g. two tenants) isolated", async () => {
+      const tenant1 = { ...entraConfig, tenant: "tenant-one", key: "key-one" };
+      const tenant2 = { ...entraConfig, tenant: "tenant-two", key: "key-two" };
+
+      await stateService.setDirectory(DirectoryType.EntraID, { ...tenant1 });
+      const savedTenant1Snapshot = {
+        ...(storage.store.get(StorageKeys.directoryEntra) as EntraIdConfiguration),
+      };
+
+      await stateService.setDirectory(DirectoryType.EntraID, { ...tenant2 });
+      const savedTenant2 = storage.store.get(StorageKeys.directoryEntra) as EntraIdConfiguration;
+      expect(savedTenant1Snapshot.id).not.toBe(savedTenant2.id);
+
+      // Restoring tenant 1's (non-secret) config from an earlier data.json backup...
+      storage.store.set(StorageKeys.directoryEntra, savedTenant1Snapshot);
+
+      const result = await stateService.getDirectory<EntraIdConfiguration>(DirectoryType.EntraID);
+      expect(result.tenant).toBe("tenant-one");
+      expect(result.key).toBe("key-one");
+    });
   });
 
   // -------------------------------------------------------------------------
@@ -259,7 +396,10 @@ describe("DefaultStateService", () => {
       expect(result.token).toBe("okta-token");
       const stored = storage.store.get(StorageKeys.directoryOkta) as OktaConfiguration;
       expect(stored.token).toBe(StoredSecurely);
-      expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
+      expect(stored.id).toBeTruthy();
+      expect(secureStorage.store.get(scopedSecretKey(SecureStorageKeys.okta, stored))).toBe(
+        "okta-token",
+      );
     });
   });
 
@@ -279,7 +419,10 @@ describe("DefaultStateService", () => {
       expect(result.clientSecret).toBe("client-secret");
       const stored = storage.store.get(StorageKeys.directoryOnelogin) as OneLoginConfiguration;
       expect(stored.clientSecret).toBe(StoredSecurely);
-      expect(secureStorage.store.get(SecureStorageKeys.oneLogin)).toBe("client-secret");
+      expect(stored.id).toBeTruthy();
+      expect(secureStorage.store.get(scopedSecretKey(SecureStorageKeys.oneLogin, stored))).toBe(
+        "client-secret",
+      );
     });
   });
 
