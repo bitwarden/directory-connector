@@ -64,5 +64,4 @@ pub async fn migrate_keytar_password(service: String, account: String) -> napi::
     }
 }
 
-#[cfg(windows)]
 mod migration;
