@@ -51,7 +51,7 @@ jobs:
   linux-cli:
     name: Build Linux CLI
     runs-on: ubuntu-24.04
-    container: ubuntu:20.04
+    container: ubuntu:24.04
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -425,7 +425,7 @@ jobs:
   linux-gui:
     name: Build Linux GUI
     runs-on: ubuntu-24.04
-    container: ubuntu:20.04
+    container: ubuntu:24.04
     needs: setup
     permissions:
       contents: read
