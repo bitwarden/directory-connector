@@ -266,15 +266,36 @@ export class StateMigrationService {
 
     // Migrate flat keys (installs that went through the 3→5 migration and have
     // credentials stored under "secretLdap" etc.).
-    await Promise.all(
-      credentialKeys.map((key) =>
-        passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
-      ),
+    const flatResults = await Promise.all(
+      credentialKeys.map(async (key) => {
+        const migrated = await passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key);
+        // eslint-disable-next-line no-console
+        console.log(`[migration v5→v6] migrateKeytarPassword(${key}) = ${migrated}`);
+        return { key, migrated };
+      }),
     );
+    // eslint-disable-next-line no-console
+    console.log("[migration v5→v6] flat key results:", JSON.stringify(flatResults));
 
     // Migrate legacy "{orgId}_*" keys (installs that skipped 3→5 and still have
     // credentials stored under the old prefixed keytar account names).
-    await passwords.migrateLegacyKeytarAccounts(SECURE_STORAGE_SERVICE_NAME);
+    const legacyResults = await passwords.migrateLegacyKeytarAccounts(SECURE_STORAGE_SERVICE_NAME);
+    // eslint-disable-next-line no-console
+    console.log("[migration v5→v6] legacy key results:", JSON.stringify(legacyResults));
+
+    // Verify the migrated values are readable after migration
+    for (const key of credentialKeys) {
+      try {
+        const val = await passwords.getPassword(SECURE_STORAGE_SERVICE_NAME, key);
+        // eslint-disable-next-line no-console
+        console.log(
+          `[migration v5→v6] post-migration getPassword(${key}) = ${val != null ? `<${val.length} chars>` : "null"}`,
+        );
+      } catch (e: any) {
+        // eslint-disable-next-line no-console
+        console.log(`[migration v5→v6] post-migration getPassword(${key}) threw: ${e.message}`);
+      }
+    }
 
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
   }
