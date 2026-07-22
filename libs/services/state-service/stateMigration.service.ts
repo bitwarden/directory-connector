@@ -146,7 +146,7 @@ export class StateMigrationService {
 
     // Migrate secrets from {userId}_* to their new flat keys.
     // The old key names are the legacy values used before this migration.
-    // Old keys are intentionally kept — they will be removed in a future migration.
+    // Old keys are removed after copying to clean up stale data from data.json.
     // Note: keytar encoding conversion (UTF-8 → UTF-16) is handled separately in migrateStateFrom5To6.
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
