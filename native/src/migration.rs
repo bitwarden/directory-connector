@@ -105,7 +105,8 @@ fn get_password_keytar(service: &str, account: &str) -> Result<String> {
 /// Used to migrate credentials that were never renamed from "{orgId}_ldapPassword" etc.
 #[cfg(windows)]
 pub fn find_legacy_keytar_accounts(service: &str) -> Result<Vec<(String, &'static str)>> {
-    let filter = U16CString::from_str(format!("{}/", service))?;
+    // CredEnumerateW uses "*" as a wildcard — without it the filter is an exact match.
+    let filter = U16CString::from_str(format!("{}/*", service))?;
 
     let mut count: u32 = 0;
     let mut credentials: *mut *mut CREDENTIALW = std::ptr::null_mut();
