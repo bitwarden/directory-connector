@@ -162,6 +162,31 @@ pub fn find_legacy_keytar_accounts(service: &str) -> Result<Vec<(String, &'stati
     Ok(matches)
 }
 
+/// Reads a keytar UTF-8 credential stored under `old_account` and writes it under
+/// `new_account` using desktop_core's UTF-16 encoding. Returns false if the old
+/// credential does not exist or cannot be parsed.
+pub async fn migrate_keytar_password_as(
+    service: &str,
+    old_account: &str,
+    new_account: &str,
+) -> Result<bool> {
+    #[cfg(windows)]
+    {
+        let value = match get_password_keytar(service, old_account) {
+            Err(_) => return Ok(false),
+            Ok(v) => v,
+        };
+        desktop_core::password::set_password(service, new_account, &value).await?;
+        Ok(true)
+    }
+
+    #[cfg(not(windows))]
+    {
+        let _ = (service, old_account, new_account);
+        Ok(false)
+    }
+}
+
 pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<bool> {
     #[cfg(windows)]
     {
