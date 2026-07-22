@@ -264,19 +264,17 @@ export class StateMigrationService {
       SecureStorageKeys.twoFactorToken,
     ];
 
+    // Migrate flat keys (installs that went through the 3→5 migration and have
+    // credentials stored under "secretLdap" etc.).
     await Promise.all(
-      credentialKeys.map(async (key) => {
-        const migrated = await passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key);
-        if (!migrated) {
-          return;
-        }
-        // migrateKeytarPassword wrote the raw string value. NativeSecureStorageService
-        // expects values to be JSON-encoded (it JSON.parses on read). Re-save through
-        // secureStorageService so the value is correctly wrapped.
-        const raw = await passwords.getPassword(SECURE_STORAGE_SERVICE_NAME, key);
-        await this.secureStorageService.save(key as SecureStorageKey, raw);
-      }),
+      credentialKeys.map((key) =>
+        passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
+      ),
     );
+
+    // Migrate legacy "{orgId}_*" keys (installs that skipped 3→5 and still have
+    // credentials stored under the old prefixed keytar account names).
+    await passwords.migrateLegacyKeytarAccounts(SECURE_STORAGE_SERVICE_NAME);
 
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
   }
