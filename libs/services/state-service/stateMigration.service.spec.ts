@@ -7,6 +7,7 @@ import { StateMigrationService } from "./stateMigration.service";
 jest.mock("dc-native", () => ({
   passwords: {
     migrateKeytarPassword: jest.fn().mockResolvedValue(false),
+    getPassword: jest.fn().mockResolvedValue(null),
   },
 }));
 
@@ -600,6 +601,30 @@ describe("StateMigrationService", () => {
             key === `${userId}_${SecureStorageKeys.gsuite}`,
         );
         expect(badKeys).toHaveLength(0);
+      });
+
+      it("re-saves migrated credentials through secureStorageService to ensure JSON encoding", async () => {
+        // Simulate Windows: migrateKeytarPassword returns true for ldap, meaning it
+        // wrote the raw string. We expect it to be read back and re-saved via
+        // secureStorageService (which JSON-encodes on save).
+        passwords.migrateKeytarPassword.mockImplementation((service: string, key: string) =>
+          Promise.resolve(key === SecureStorageKeys.ldap),
+        );
+        passwords.getPassword.mockResolvedValue("raw-ldap-password");
+
+        await svc.migrate();
+
+        // The re-save goes through secureStorageService which JSON.stringifies the value
+        expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("raw-ldap-password");
+      });
+
+      it("does not re-save credentials that were not migrated (migrateKeytarPassword returned false)", async () => {
+        passwords.migrateKeytarPassword.mockResolvedValue(false);
+
+        await svc.migrate();
+
+        expect(passwords.getPassword).not.toHaveBeenCalled();
+        expect(secureStorage.store.size).toBe(0);
       });
 
       it("bumps stateVersion to Six", async () => {
