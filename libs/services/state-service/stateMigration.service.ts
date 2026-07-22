@@ -61,6 +61,9 @@ export class StateMigrationService {
         case StateVersion.Five:
           await this.migrateStateFrom5To6();
           break;
+        case StateVersion.Six:
+          await this.migrateStateFrom6To7();
+          break;
       }
       currentStateVersion += 1;
     }
@@ -164,7 +167,15 @@ export class StateMigrationService {
       ];
 
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        await passwords.migrateKeytarPasswordAs(SECURE_STORAGE_SERVICE_NAME, oldKey, newKey);
+        const migrated = await passwords.migrateKeytarPasswordAs(
+          SECURE_STORAGE_SERVICE_NAME,
+          oldKey,
+          newKey,
+        );
+        // eslint-disable-next-line no-console
+        console.log(
+          `[migration v3→5] migrateKeytarPasswordAs(${oldKey} → ${newKey}) = ${migrated}`,
+        );
         await this.secureStorageService.remove(oldKey);
       }
 
@@ -288,6 +299,24 @@ export class StateMigrationService {
     }
 
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
+  }
+
+  /**
+   * Migrate from State v6 to v7 — catch-up migration for machines that got stuck at v6
+   * with un-migrated credentials. The v5→v6 migration assumed credentials were stored
+   * under flat keys (secretLdap etc.), but on some installs they were still under the old
+   * {userId}_* keytar names. This migration enumerates all credentials in the Windows
+   * Credential Manager under the service prefix and migrates any with legacy suffixes.
+   * No-op on macOS/Linux.
+   */
+  protected async migrateStateFrom6To7(): Promise<void> {
+    const migrated = await passwords.migrateLegacyKeytarAccounts(SECURE_STORAGE_SERVICE_NAME);
+    // eslint-disable-next-line no-console
+    console.log(
+      `[migration v6→7] migrated ${migrated.length} legacy credentials:`,
+      JSON.stringify(migrated),
+    );
+    await this.set(StorageKeys.stateVersion, StateVersion.Seven);
   }
 
   // ===================================================================
