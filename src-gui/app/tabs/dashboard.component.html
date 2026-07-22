@@ -109,8 +109,10 @@
         <div
           class="mt-6 grid grid-cols-1 gap-8 border-t border-gray-100 pt-6 lg:grid-cols-2 dark:border-gray-800"
         >
-          <div>
-            <h3 class="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+          <div class="max-h-[28rem] overflow-y-auto pr-2">
+            <h3
+              class="sticky top-0 z-10 mb-2 bg-white py-1 text-xs font-semibold tracking-wide text-gray-400 uppercase dark:bg-gray-900"
+            >
               {{ "users" | i18n }}
             </h3>
             @if (simEnabledUsers() && simEnabledUsers().length) {
@@ -129,7 +131,9 @@
               <p class="px-2 text-sm text-gray-400 italic">{{ "noUsers" | i18n }}</p>
             }
 
-            <h3 class="mt-4 mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+            <h3
+              class="sticky top-0 z-10 mt-4 mb-2 bg-white py-1 text-xs font-semibold tracking-wide text-gray-400 uppercase dark:bg-gray-900"
+            >
               {{ "disabledUsers" | i18n }}
             </h3>
             @if (simDisabledUsers() && simDisabledUsers().length) {
@@ -148,7 +152,9 @@
               <p class="px-2 text-sm text-gray-400 italic">{{ "noUsers" | i18n }}</p>
             }
 
-            <h3 class="mt-4 mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+            <h3
+              class="sticky top-0 z-10 mt-4 mb-2 bg-white py-1 text-xs font-semibold tracking-wide text-gray-400 uppercase dark:bg-gray-900"
+            >
               {{ "deletedUsers" | i18n }}
             </h3>
             @if (simDeletedUsers() && simDeletedUsers().length) {
@@ -167,8 +173,10 @@
               <p class="px-2 text-sm text-gray-400 italic">{{ "noUsers" | i18n }}</p>
             }
           </div>
-          <div>
-            <h3 class="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+          <div class="max-h-[28rem] overflow-y-auto pr-2">
+            <h3
+              class="sticky top-0 z-10 mb-2 bg-white py-1 text-xs font-semibold tracking-wide text-gray-400 uppercase dark:bg-gray-900"
+            >
               {{ "groups" | i18n }}
             </h3>
             @if (simGroups() && simGroups().length) {

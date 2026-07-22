@@ -31,9 +31,18 @@
       }
     </nav>
   </aside>
-  <main class="min-w-0 flex-1 overflow-y-auto">
-    <div class="mx-auto max-w-5xl px-8 py-8">
-      <router-outlet></router-outlet>
+  <main class="flex min-w-0 flex-1 flex-col">
+    <header
+      class="flex shrink-0 items-center border-b border-gray-200 bg-white px-8 py-4 dark:border-gray-800 dark:bg-gray-900"
+    >
+      <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+        {{ pageTitle() | i18n }}
+      </h1>
+    </header>
+    <div class="min-h-0 flex-1 overflow-y-auto">
+      <div class="mx-auto max-w-5xl px-8 py-8">
+        <router-outlet></router-outlet>
+      </div>
     </div>
   </main>
 </div>

@@ -30,6 +30,38 @@
   html {
     font-family: var(--font-sans);
   }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gray-300) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-gray-300);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-gray-400);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    * {
+      scrollbar-color: var(--color-gray-700) transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--color-gray-700);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: var(--color-gray-600);
+    }
+  }
 }
 
 @layer components {
