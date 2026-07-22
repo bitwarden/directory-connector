@@ -59,8 +59,7 @@ use widestring::{U16CStr, U16CString};
 use windows::{
     core::PCWSTR,
     Win32::Security::Credentials::{
-        CredEnumerateW, CredFree, CredReadW, CredWriteW, CREDENTIALW, CRED_FLAGS,
-        CRED_PERSIST_ENTERPRISE, CRED_TYPE_GENERIC,
+        CredEnumerateW, CredFree, CredReadW, CREDENTIALW, CRED_TYPE_GENERIC,
     },
 };
 
@@ -114,8 +113,8 @@ pub fn find_legacy_keytar_accounts(service: &str) -> Result<Vec<(String, &'stati
     let result = unsafe {
         CredEnumerateW(
             PCWSTR(filter.as_ptr()),
-            // CRED_ENUMERATE_ALL_CREDENTIALS not set — use prefix filter
-            0,
+            // None = no flags, use the supplied prefix filter (not CRED_ENUMERATE_ALL_CREDENTIALS)
+            None,
             &mut count,
             &mut credentials,
         )
