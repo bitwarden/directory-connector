@@ -174,6 +174,7 @@ export class StateMigrationService {
           if (value) {
             await this.secureStorageService.save(newKey, value);
           }
+          await this.secureStorageService.remove(oldKey);
         }
       }
 
@@ -223,6 +224,13 @@ export class StateMigrationService {
         await this.set(StorageKeys.environmentUrls, globals.environmentUrls);
       }
     }
+
+    // Remove stale v3 keys now that all data has been copied to the flat structure.
+    await this.storageService.remove("activeUserId" as any, this.options);
+    if (clientId) {
+      await this.storageService.remove(clientId as any, this.options);
+    }
+    await this.storageService.remove("global" as any, this.options);
 
     // Set final state version using the new flat key
     await this.set(StorageKeys.stateVersion, StateVersion.Five);
