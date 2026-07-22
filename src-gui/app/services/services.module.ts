@@ -60,6 +60,15 @@ export function initFactory(injector: Injector): () => Promise<void> {
     const environmentService = injector.get(EnvironmentServiceAbstraction);
 
     await stateService.init();
+
+    // If auth tokens exist but org config is missing (e.g. data.json was deleted),
+    // clear tokens so the user is forced back to the login screen.
+    const accessToken = await stateService.getAccessToken();
+    const organizationId = await stateService.getOrganizationId();
+    if (accessToken != null && organizationId == null) {
+      await stateService.clearAuthTokens();
+    }
+
     await environmentService.setUrlsFromStorage();
     await (i18nService as I18nService).init();
     const htmlEl = window.document.documentElement;

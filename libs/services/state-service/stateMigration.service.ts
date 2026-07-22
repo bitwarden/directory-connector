@@ -30,6 +30,18 @@ export class StateMigrationService {
     return currentStateVersion == null || currentStateVersion < StateVersion.Latest;
   }
 
+  /**
+   * Ensure stateVersion is persisted in storage. On a fresh install needsMigration() returns
+   * false (no data to migrate) so migrate() is never called, leaving stateVersion absent from
+   * data.json. Calling this after the migration check guarantees the key is always written.
+   */
+  async stampVersion(): Promise<void> {
+    const stored = await this.get<StateVersion>(StorageKeys.stateVersion);
+    if (stored == null) {
+      await this.set(StorageKeys.stateVersion, StateVersion.Latest);
+    }
+  }
+
   async migrate(): Promise<void> {
     let currentStateVersion = await this.getCurrentStateVersion();
 
@@ -166,13 +178,13 @@ export class StateMigrationService {
       }
 
       // Migrate apiKeyClientId and apiKeyClientSecret from account object to secure storage
-      if (account.profile.apiKeyClientId) {
+      if (account.profile?.apiKeyClientId) {
         await this.secureStorageService.save(
           SecureStorageKeys.apiKeyClientId,
           account.profile.apiKeyClientId,
         );
       }
-      if (account.keys.apiKeyClientSecret) {
+      if (account.keys?.apiKeyClientSecret) {
         await this.secureStorageService.save(
           SecureStorageKeys.apiKeyClientSecret,
           account.keys.apiKeyClientSecret,

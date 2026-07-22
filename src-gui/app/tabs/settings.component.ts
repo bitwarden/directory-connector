@@ -4,6 +4,7 @@ import {
   Component,
   OnDestroy,
   OnInit,
+  computed,
   inject,
   signal,
 } from "@angular/core";
@@ -91,6 +92,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
   async ngOnDestroy() {
     await this.submit();
   }
+
+  userFilterHelp = computed(() => {
+    switch (this.directory()) {
+      case DirectoryType.Ldap:
+        return this.i18nService.t("userFilterHelpLdap");
+      case DirectoryType.EntraID:
+        return this.i18nService.t("userFilterHelpEntraId");
+      case DirectoryType.Okta:
+        return this.i18nService.t("userFilterHelpOkta");
+      case DirectoryType.GSuite:
+        return this.i18nService.t("userFilterHelpGSuite");
+      case DirectoryType.OneLogin:
+        return this.i18nService.t("userFilterHelpOneLogin");
+      default:
+        return "";
+    }
+  });
 
   async submit() {
     const ldap = this.ldap();
