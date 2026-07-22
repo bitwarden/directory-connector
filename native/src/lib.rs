@@ -64,4 +64,40 @@ pub async fn migrate_keytar_password(service: String, account: String) -> napi::
     }
 }
 
+/// Finds any credentials stored by keytar under legacy "{prefix}_*" account names
+/// (e.g. "{orgId}_ldapPassword"), migrates their blobs from UTF-8 to UTF-16, and
+/// saves them under the canonical flat key (e.g. "secretLdap").
+///
+/// Returns an array of objects with `{ legacyAccount, flatKey }` for each migrated entry.
+/// No-ops on non-Windows platforms and returns an empty array.
+#[napi(namespace = "passwords")]
+pub async fn migrate_legacy_keytar_accounts(
+    service: String,
+) -> napi::Result<Vec<MigratedLegacyAccount>> {
+    #[cfg(windows)]
+    {
+        let results = migration::migrate_legacy_keytar_accounts(&service)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+        Ok(results
+            .into_iter()
+            .map(|(legacy_account, flat_key)| MigratedLegacyAccount {
+                legacy_account,
+                flat_key: flat_key.to_string(),
+            })
+            .collect())
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = service;
+        Ok(vec![])
+    }
+}
+
+#[napi(object)]
+pub struct MigratedLegacyAccount {
+    pub legacy_account: String,
+    pub flat_key: String,
+}
+
 mod migration;
