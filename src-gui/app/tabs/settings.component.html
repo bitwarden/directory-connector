@@ -28,7 +28,7 @@
               id="hostname"
               name="Hostname"
               [ngModel]="ldap().hostname"
-              (ngModelChange)="ldap.update(v => ({...v, hostname: $event}))"
+              (ngModelChange)="ldap.update((v) => ({ ...v, hostname: $event }))"
             />
             <div class="form-text">{{ "ex" | i18n }} ad.company.com</div>
           </div>
@@ -40,7 +40,7 @@
               id="port"
               name="Port"
               [ngModel]="ldap().port"
-              (ngModelChange)="ldap.update(v => ({...v, port: $event}))"
+              (ngModelChange)="ldap.update((v) => ({ ...v, port: $event }))"
             />
             <div class="form-text">{{ "ex" | i18n }} 389</div>
           </div>
@@ -52,7 +52,7 @@
               id="rootPath"
               name="RootPath"
               [ngModel]="ldap().rootPath"
-              (ngModelChange)="ldap.update(v => ({...v, rootPath: $event}))"
+              (ngModelChange)="ldap.update((v) => ({ ...v, rootPath: $event }))"
             />
             <div class="form-text">{{ "ex" | i18n }} dc=company,dc=com</div>
           </div>
@@ -63,7 +63,7 @@
                 type="checkbox"
                 id="ad"
                 [ngModel]="ldap().ad"
-                (ngModelChange)="ldap.update(v => ({...v, ad: $event}))"
+                (ngModelChange)="ldap.update((v) => ({ ...v, ad: $event }))"
                 name="AD"
               />
               <label class="form-check-label" for="ad">{{ "ldapAd" | i18n }}</label>
@@ -77,7 +77,7 @@
                   type="checkbox"
                   id="pagedSearch"
                   [ngModel]="ldap().pagedSearch"
-                  (ngModelChange)="ldap.update(v => ({...v, pagedSearch: $event}))"
+                  (ngModelChange)="ldap.update((v) => ({ ...v, pagedSearch: $event }))"
                   name="PagedSearch"
                 />
                 <label class="form-check-label" for="pagedSearch">{{
@@ -93,7 +93,7 @@
                 type="checkbox"
                 id="ldapEncrypted"
                 [ngModel]="ldap().ssl"
-                (ngModelChange)="ldap.update(v => ({...v, ssl: $event}))"
+                (ngModelChange)="ldap.update((v) => ({ ...v, ssl: $event }))"
                 name="Encrypted"
               />
               <label class="form-check-label" for="ldapEncrypted">{{
@@ -111,7 +111,7 @@
                     [value]="false"
                     id="ssl"
                     [ngModel]="ldap().startTls"
-                    (ngModelChange)="ldap.update(v => ({...v, startTls: $event}))"
+                    (ngModelChange)="ldap.update((v) => ({ ...v, startTls: $event }))"
                     name="SSL"
                   />
                   <label class="form-check-label" for="ssl">{{ "ldapSsl" | i18n }}</label>
@@ -123,7 +123,7 @@
                     [value]="true"
                     id="startTls"
                     [ngModel]="ldap().startTls"
-                    (ngModelChange)="ldap.update(v => ({...v, startTls: $event}))"
+                    (ngModelChange)="ldap.update((v) => ({ ...v, startTls: $event }))"
                     name="StartTLS"
                   />
                   <label class="form-check-label" for="startTls">{{ "ldapTls" | i18n }}</label>
@@ -146,7 +146,7 @@
                       id="tlsCaPath"
                       name="TLSCaPath"
                       [ngModel]="ldap().tlsCaPath"
-                      (ngModelChange)="ldap.update(v => ({...v, tlsCaPath: $event}))"
+                      (ngModelChange)="ldap.update((v) => ({ ...v, tlsCaPath: $event }))"
                     />
                   </div>
                 </div>
@@ -168,7 +168,7 @@
                       id="sslCertPath"
                       name="SSLCertPath"
                       [ngModel]="ldap().sslCertPath"
-                      (ngModelChange)="ldap.update(v => ({...v, sslCertPath: $event}))"
+                      (ngModelChange)="ldap.update((v) => ({ ...v, sslCertPath: $event }))"
                     />
                   </div>
                   <div class="mb-3">
@@ -185,7 +185,7 @@
                       id="sslKeyPath"
                       name="SSLKeyPath"
                       [ngModel]="ldap().sslKeyPath"
-                      (ngModelChange)="ldap.update(v => ({...v, sslKeyPath: $event}))"
+                      (ngModelChange)="ldap.update((v) => ({ ...v, sslKeyPath: $event }))"
                     />
                   </div>
                   <div class="mb-3">
@@ -202,7 +202,7 @@
                       id="sslCaPath"
                       name="SSLCaPath"
                       [ngModel]="ldap().sslCaPath"
-                      (ngModelChange)="ldap.update(v => ({...v, sslCaPath: $event}))"
+                      (ngModelChange)="ldap.update((v) => ({ ...v, sslCaPath: $event }))"
                     />
                   </div>
                 </div>
@@ -214,7 +214,7 @@
                     type="checkbox"
                     id="certDoNotVerify"
                     [ngModel]="ldap().sslAllowUnauthorized"
-                    (ngModelChange)="ldap.update(v => ({...v, sslAllowUnauthorized: $event}))"
+                    (ngModelChange)="ldap.update((v) => ({ ...v, sslAllowUnauthorized: $event }))"
                     name="CertDoNoVerify"
                   />
                   <label class="form-check-label" for="certDoNotVerify">{{
@@ -231,7 +231,7 @@
                 type="checkbox"
                 id="currentUser"
                 [ngModel]="ldap().currentUser"
-                (ngModelChange)="ldap.update(v => ({...v, currentUser: $event}))"
+                (ngModelChange)="ldap.update((v) => ({ ...v, currentUser: $event }))"
                 name="CurrentUser"
               />
               <label class="form-check-label" for="currentUser">{{ "currentUser" | i18n }}</label>
@@ -246,7 +246,7 @@
                 id="username"
                 name="Username"
                 [ngModel]="ldap().username"
-                (ngModelChange)="ldap.update(v => ({...v, username: $event}))"
+                (ngModelChange)="ldap.update((v) => ({ ...v, username: $event }))"
               />
               @if (ldap().ad) {
                 <div class="form-text">{{ "ex" | i18n }} company\admin</div>
@@ -264,7 +264,7 @@
                   id="password"
                   name="Password"
                   [ngModel]="ldap().password"
-                  (ngModelChange)="ldap.update(v => ({...v, password: $event}))"
+                  (ngModelChange)="ldap.update((v) => ({ ...v, password: $event }))"
                 />
                 <button
                   type="button"
@@ -292,7 +292,7 @@
               id="identityAuthority"
               name="IdentityAuthority"
               [ngModel]="entra().identityAuthority"
-              (ngModelChange)="entra.update(v => ({...v, identityAuthority: $event}))"
+              (ngModelChange)="entra.update((v) => ({ ...v, identityAuthority: $event }))"
             >
               <option value="login.microsoftonline.com">Entra Id Public</option>
               <option value="login.microsoftonline.us">Entra Id Government</option>
@@ -306,7 +306,7 @@
               id="tenant"
               name="Tenant"
               [ngModel]="entra().tenant"
-              (ngModelChange)="entra.update(v => ({...v, tenant: $event}))"
+              (ngModelChange)="entra.update((v) => ({ ...v, tenant: $event }))"
             />
             <div class="form-text">{{ "ex" | i18n }} companyad.onmicrosoft.com</div>
           </div>
@@ -318,7 +318,7 @@
               id="applicationId"
               name="ApplicationId"
               [ngModel]="entra().applicationId"
-              (ngModelChange)="entra.update(v => ({...v, applicationId: $event}))"
+              (ngModelChange)="entra.update((v) => ({ ...v, applicationId: $event }))"
             />
           </div>
           <div class="mb-3">
@@ -330,7 +330,7 @@
                 id="secretKey"
                 name="SecretKey"
                 [ngModel]="entra().key"
-                (ngModelChange)="entra.update(v => ({...v, key: $event}))"
+                (ngModelChange)="entra.update((v) => ({ ...v, key: $event }))"
               />
               <button
                 type="button"
@@ -356,7 +356,7 @@
               id="orgUrl"
               name="OrgUrl"
               [ngModel]="okta().orgUrl"
-              (ngModelChange)="okta.update(v => ({...v, orgUrl: $event}))"
+              (ngModelChange)="okta.update((v) => ({ ...v, orgUrl: $event }))"
             />
             <div class="form-text">{{ "ex" | i18n }} https://mycompany.okta.com/</div>
           </div>
@@ -369,7 +369,7 @@
                 id="oktaToken"
                 name="OktaToken"
                 [ngModel]="okta().token"
-                (ngModelChange)="okta.update(v => ({...v, token: $event}))"
+                (ngModelChange)="okta.update((v) => ({ ...v, token: $event }))"
               />
               <button
                 type="button"
@@ -395,7 +395,7 @@
               id="oneLoginClientId"
               name="OneLoginClientId"
               [ngModel]="oneLogin().clientId"
-              (ngModelChange)="oneLogin.update(v => ({...v, clientId: $event}))"
+              (ngModelChange)="oneLogin.update((v) => ({ ...v, clientId: $event }))"
             />
           </div>
           <div class="mb-3">
@@ -407,7 +407,7 @@
                 id="oneLoginClientSecret"
                 name="OneLoginClientSecret"
                 [ngModel]="oneLogin().clientSecret"
-                (ngModelChange)="oneLogin.update(v => ({...v, clientSecret: $event}))"
+                (ngModelChange)="oneLogin.update((v) => ({ ...v, clientSecret: $event }))"
               />
               <button
                 type="button"
@@ -430,7 +430,7 @@
               id="oneLoginRegion"
               name="OneLoginRegion"
               [ngModel]="oneLogin().region"
-              (ngModelChange)="oneLogin.update(v => ({...v, region: $event}))"
+              (ngModelChange)="oneLogin.update((v) => ({ ...v, region: $event }))"
             >
               <option value="us">US</option>
               <option value="eu">EU</option>
@@ -446,7 +446,7 @@
               id="domain"
               name="Domain"
               [ngModel]="gsuite().domain"
-              (ngModelChange)="gsuite.update(v => ({...v, domain: $event}))"
+              (ngModelChange)="gsuite.update((v) => ({ ...v, domain: $event }))"
             />
             <div class="form-text">{{ "ex" | i18n }} company.com</div>
           </div>
@@ -458,7 +458,7 @@
               id="adminUser"
               name="AdminUser"
               [ngModel]="gsuite().adminUser"
-              (ngModelChange)="gsuite.update(v => ({...v, adminUser: $event}))"
+              (ngModelChange)="gsuite.update((v) => ({ ...v, adminUser: $event }))"
             />
             <div class="form-text">{{ "ex" | i18n }} admin&#64;company.com</div>
           </div>
@@ -470,7 +470,7 @@
               id="customerId"
               name="CustomerId"
               [ngModel]="gsuite().customer"
-              (ngModelChange)="gsuite.update(v => ({...v, customer: $event}))"
+              (ngModelChange)="gsuite.update((v) => ({ ...v, customer: $event }))"
             />
             <div class="form-text">{{ "ex" | i18n }} 39204722352</div>
           </div>
@@ -493,7 +493,7 @@
               id="clientEmail"
               name="ClientEmail"
               [ngModel]="gsuite().clientEmail"
-              (ngModelChange)="gsuite.update(v => ({...v, clientEmail: $event}))"
+              (ngModelChange)="gsuite.update((v) => ({ ...v, clientEmail: $event }))"
             />
           </div>
           <div class="mb-3" [hidden]="!gsuite().privateKey">
@@ -503,7 +503,7 @@
               id="privateKey"
               name="PrivateKey"
               [ngModel]="gsuite().privateKey"
-              (ngModelChange)="gsuite.update(v => ({...v, privateKey: $event}))"
+              (ngModelChange)="gsuite.update((v) => ({ ...v, privateKey: $event }))"
             >
             </textarea>
           </div>
@@ -524,7 +524,7 @@
             id="interval"
             name="Interval"
             [ngModel]="sync().interval"
-            (ngModelChange)="sync.update(v => ({...v, interval: $event}))"
+            (ngModelChange)="sync.update((v) => ({ ...v, interval: $event }))"
           />
           <div class="form-text">{{ "intervalMin" | i18n }}</div>
         </div>
@@ -535,7 +535,7 @@
               type="checkbox"
               id="removeDisabled"
               [ngModel]="sync().removeDisabled"
-              (ngModelChange)="sync.update(v => ({...v, removeDisabled: $event}))"
+              (ngModelChange)="sync.update((v) => ({ ...v, removeDisabled: $event }))"
               name="RemoveDisabled"
             />
             <label class="form-check-label" for="removeDisabled">{{
@@ -550,7 +550,7 @@
               type="checkbox"
               id="largeImport"
               [ngModel]="sync().largeImport"
-              (ngModelChange)="sync.update(v => ({...v, largeImport: $event}))"
+              (ngModelChange)="sync.update((v) => ({ ...v, largeImport: $event }))"
               name="LargeImport"
             />
             <label class="form-check-label" for="largeImport">{{ "largeImport" | i18n }}</label>
@@ -566,7 +566,7 @@
                 id="memberAttribute"
                 name="MemberAttribute"
                 [ngModel]="sync().memberAttribute"
-                (ngModelChange)="sync.update(v => ({...v, memberAttribute: $event}))"
+                (ngModelChange)="sync.update((v) => ({ ...v, memberAttribute: $event }))"
               />
               <div class="form-text">{{ "ex" | i18n }} uniqueMember</div>
             </div>
@@ -580,7 +580,7 @@
                 id="creationDateAttribute"
                 name="CreationDateAttribute"
                 [ngModel]="sync().creationDateAttribute"
-                (ngModelChange)="sync.update(v => ({...v, creationDateAttribute: $event}))"
+                (ngModelChange)="sync.update((v) => ({ ...v, creationDateAttribute: $event }))"
               />
               <div class="form-text">{{ "ex" | i18n }} whenCreated</div>
             </div>
@@ -594,7 +594,7 @@
                 id="revisionDateAttribute"
                 name="RevisionDateAttribute"
                 [ngModel]="sync().revisionDateAttribute"
-                (ngModelChange)="sync.update(v => ({...v, revisionDateAttribute: $event}))"
+                (ngModelChange)="sync.update((v) => ({ ...v, revisionDateAttribute: $event }))"
               />
               <div class="form-text">{{ "ex" | i18n }} whenChanged</div>
             </div>
@@ -608,7 +608,7 @@
                 type="checkbox"
                 id="useEmailPrefixSuffix"
                 [ngModel]="sync().useEmailPrefixSuffix"
-                (ngModelChange)="sync.update(v => ({...v, useEmailPrefixSuffix: $event}))"
+                (ngModelChange)="sync.update((v) => ({ ...v, useEmailPrefixSuffix: $event }))"
                 name="UseEmailPrefixSuffix"
               />
               <label class="form-check-label" for="useEmailPrefixSuffix">{{
@@ -627,7 +627,7 @@
                 id="emailPrefixAttribute"
                 name="EmailPrefixAttribute"
                 [ngModel]="sync().emailPrefixAttribute"
-                (ngModelChange)="sync.update(v => ({...v, emailPrefixAttribute: $event}))"
+                (ngModelChange)="sync.update((v) => ({ ...v, emailPrefixAttribute: $event }))"
               />
               <div class="form-text">{{ "ex" | i18n }} accountName</div>
             </div>
@@ -639,7 +639,7 @@
                 id="emailSuffix"
                 name="EmailSuffix"
                 [ngModel]="sync().emailSuffix"
-                (ngModelChange)="sync.update(v => ({...v, emailSuffix: $event}))"
+                (ngModelChange)="sync.update((v) => ({ ...v, emailSuffix: $event }))"
               />
               <div class="form-text">{{ "ex" | i18n }} &#64;company.com</div>
             </div>
@@ -653,7 +653,7 @@
               type="checkbox"
               id="syncUsers"
               [ngModel]="sync().users"
-              (ngModelChange)="sync.update(v => ({...v, users: $event}))"
+              (ngModelChange)="sync.update((v) => ({ ...v, users: $event }))"
               name="SyncUsers"
             />
             <label class="form-check-label" for="syncUsers">{{ "syncUsers" | i18n }}</label>
@@ -677,7 +677,7 @@
               id="userFilter"
               name="UserFilter"
               [ngModel]="sync().userFilter"
-              (ngModelChange)="sync.update(v => ({...v, userFilter: $event}))"
+              (ngModelChange)="sync.update((v) => ({ ...v, userFilter: $event }))"
             ></textarea>
             @if (directory() === directoryType.Ldap) {
               <div class="form-text">
@@ -706,7 +706,7 @@
               id="userPath"
               name="UserPath"
               [ngModel]="sync().userPath"
-              (ngModelChange)="sync.update(v => ({...v, userPath: $event}))"
+              (ngModelChange)="sync.update((v) => ({ ...v, userPath: $event }))"
             />
             <div class="form-text">{{ "ex" | i18n }} CN=Users</div>
           </div>
@@ -719,7 +719,7 @@
                 id="userObjectClass"
                 name="UserObjectClass"
                 [ngModel]="sync().userObjectClass"
-                (ngModelChange)="sync.update(v => ({...v, userObjectClass: $event}))"
+                (ngModelChange)="sync.update((v) => ({ ...v, userObjectClass: $event }))"
               />
               <div class="form-text">{{ "ex" | i18n }} inetOrgPerson</div>
             </div>
@@ -733,7 +733,7 @@
                 id="userEmailAttribute"
                 name="UserEmailAttribute"
                 [ngModel]="sync().userEmailAttribute"
-                (ngModelChange)="sync.update(v => ({...v, userEmailAttribute: $event}))"
+                (ngModelChange)="sync.update((v) => ({ ...v, userEmailAttribute: $event }))"
               />
               <div class="form-text">{{ "ex" | i18n }} mail</div>
             </div>
@@ -747,7 +747,7 @@
               type="checkbox"
               id="syncGroups"
               [ngModel]="sync().groups"
-              (ngModelChange)="sync.update(v => ({...v, groups: $event}))"
+              (ngModelChange)="sync.update((v) => ({ ...v, groups: $event }))"
               name="SyncGroups"
             />
             <label class="form-check-label" for="syncGroups">{{
@@ -766,7 +766,7 @@
               id="groupFilter"
               name="GroupFilter"
               [ngModel]="sync().groupFilter"
-              (ngModelChange)="sync.update(v => ({...v, groupFilter: $event}))"
+              (ngModelChange)="sync.update((v) => ({ ...v, groupFilter: $event }))"
             ></textarea>
             @if (directory() === directoryType.Ldap) {
               <div class="form-text">
@@ -791,7 +791,7 @@
               id="groupPath"
               name="GroupPath"
               [ngModel]="sync().groupPath"
-              (ngModelChange)="sync.update(v => ({...v, groupPath: $event}))"
+              (ngModelChange)="sync.update((v) => ({ ...v, groupPath: $event }))"
             />
             @if (!ldap().ad) {
               <div class="form-text">{{ "ex" | i18n }} CN=Groups</div>
@@ -811,7 +811,7 @@
                 id="groupObjectClass"
                 name="GroupObjectClass"
                 [ngModel]="sync().groupObjectClass"
-                (ngModelChange)="sync.update(v => ({...v, groupObjectClass: $event}))"
+                (ngModelChange)="sync.update((v) => ({ ...v, groupObjectClass: $event }))"
               />
               <div class="form-text">{{ "ex" | i18n }} groupOfUniqueNames</div>
             </div>
@@ -825,7 +825,7 @@
                 id="groupNameAttribute"
                 name="GroupNameAttribute"
                 [ngModel]="sync().groupNameAttribute"
-                (ngModelChange)="sync.update(v => ({...v, groupNameAttribute: $event}))"
+                (ngModelChange)="sync.update((v) => ({ ...v, groupNameAttribute: $event }))"
               />
               <div class="form-text">{{ "ex" | i18n }} name</div>
             </div>
@@ -838,7 +838,7 @@
               type="checkbox"
               id="overwriteExisting"
               [ngModel]="sync().overwriteExisting"
-              (ngModelChange)="sync.update(v => ({...v, overwriteExisting: $event}))"
+              (ngModelChange)="sync.update((v) => ({ ...v, overwriteExisting: $event }))"
               name="OverwriteExisting"
             />
             <label class="form-check-label" for="overwriteExisting"
