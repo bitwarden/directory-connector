@@ -251,13 +251,13 @@ describe("StateMigrationService", () => {
         const calls: [string, string, string][] = passwords.migrateKeytarPasswordAs.mock.calls;
         const calledPairs = calls.map(([, old, newKey]) => ({ old, new: newKey }));
 
+        // _entraKey is NOT called when _entraIdKey succeeds — it is a lower-priority fallback.
         expect(calledPairs).toEqual(
           expect.arrayContaining([
             { old: `${userId}_ldapPassword`, new: SecureStorageKeys.ldap },
             { old: `${userId}_gsuitePrivateKey`, new: SecureStorageKeys.gsuite },
             { old: `${userId}_azureKey`, new: SecureStorageKeys.azure },
             { old: `${userId}_entraIdKey`, new: SecureStorageKeys.entra },
-            { old: `${userId}_entraKey`, new: SecureStorageKeys.entra },
             { old: `${userId}_oktaToken`, new: SecureStorageKeys.okta },
             { old: `${userId}_oneLoginClientSecret`, new: SecureStorageKeys.oneLogin },
             { old: `${userId}_accessToken`, new: SecureStorageKeys.accessToken },
@@ -265,6 +265,10 @@ describe("StateMigrationService", () => {
             { old: `${userId}_twoFactorToken`, new: SecureStorageKeys.twoFactorToken },
           ]),
         );
+        expect(calledPairs).not.toContainEqual({
+          old: `${userId}_entraKey`,
+          new: SecureStorageKeys.entra,
+        });
 
         // Old prefixed keys removed from secureStorageService after migration
         expect(secureStorage.store.has(`${userId}_ldapPassword`)).toBe(false);
@@ -329,7 +333,7 @@ describe("StateMigrationService", () => {
     });
 
     describe("Entra key in prefixed secure storage", () => {
-      it("calls migrateKeytarPasswordAs for both entraIdKey and entraKey", async () => {
+      it("calls migrateKeytarPasswordAs for entraIdKey and skips entraKey when entraIdKey is present", async () => {
         const userId = "user-entra-key";
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { passwords } = require("dc-native");
@@ -341,6 +345,8 @@ describe("StateMigrationService", () => {
           directoryConfigurations: { entra: { tenant: "my-tenant", applicationId: "app-id" } },
           directorySettings: {},
         });
+        // Seed entraIdKey in secureStorage so the fallback path treats it as present.
+        secureStorage.store.set(`${userId}_entraIdKey`, "entra-secret");
 
         await svc.migrate();
 
@@ -349,13 +355,51 @@ describe("StateMigrationService", () => {
           `${userId}_entraIdKey`,
           SecureStorageKeys.entra,
         );
-        expect(passwords.migrateKeytarPasswordAs).toHaveBeenCalledWith(
+        // _entraKey must NOT be attempted when _entraIdKey was found.
+        expect(passwords.migrateKeytarPasswordAs).not.toHaveBeenCalledWith(
           expect.any(String),
           `${userId}_entraKey`,
           SecureStorageKeys.entra,
         );
         const entraConfig = storage.store.get(StorageKeys.directoryEntra) as any;
         expect(entraConfig.tenant).toBe("my-tenant");
+      });
+
+      it("falls back to entraKey when entraIdKey is absent", async () => {
+        const userId = "user-entra-key-fallback";
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { passwords } = require("dc-native");
+        jest.clearAllMocks();
+        // Ensure migrateKeytarPasswordAs returns false so the service-layer fallback runs.
+        passwords.migrateKeytarPasswordAs.mockResolvedValue(false);
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
+        storage.store.set("activeUserId", userId);
+        storage.store.set(userId, {
+          profile: {},
+          keys: {},
+          directoryConfigurations: { entra: { tenant: "my-tenant", applicationId: "app-id" } },
+          directorySettings: {},
+        });
+        // Only _entraKey is present — _entraIdKey absent.
+        secureStorage.store.set(`${userId}_entraKey`, "entra-legacy-secret");
+
+        await svc.migrate();
+
+        // _entraIdKey attempted first (returns false from mock — key not in store).
+        expect(passwords.migrateKeytarPasswordAs).toHaveBeenCalledWith(
+          expect.any(String),
+          `${userId}_entraIdKey`,
+          SecureStorageKeys.entra,
+        );
+        // _entraKey attempted as fallback since _entraIdKey was absent.
+        expect(passwords.migrateKeytarPasswordAs).toHaveBeenCalledWith(
+          expect.any(String),
+          `${userId}_entraKey`,
+          SecureStorageKeys.entra,
+        );
+        // Value copied via service-layer fallback (mock returns false, FakeStorageService has key).
+        expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("entra-legacy-secret");
+        expect(secureStorage.store.has(`${userId}_entraKey`)).toBe(false);
       });
 
       it("calls migrateKeytarPasswordAs for azure key", async () => {

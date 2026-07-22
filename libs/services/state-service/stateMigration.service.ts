@@ -156,9 +156,8 @@ export class StateMigrationService {
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
         { old: `${clientId}_gsuitePrivateKey`, new: SecureStorageKeys.gsuite },
         { old: `${clientId}_azureKey`, new: SecureStorageKeys.azure },
-        // Try _entraIdKey first (canonical), fall back to _entraKey (legacy runtime key).
+        // _entraIdKey is canonical; _entraKey is the legacy runtime fallback — handled below.
         { old: `${clientId}_entraIdKey`, new: SecureStorageKeys.entra },
-        { old: `${clientId}_entraKey`, new: SecureStorageKeys.entra },
         { old: `${clientId}_oktaToken`, new: SecureStorageKeys.okta },
         { old: `${clientId}_oneLoginClientSecret`, new: SecureStorageKeys.oneLogin },
         { old: `${clientId}_accessToken`, new: SecureStorageKeys.accessToken },
@@ -166,17 +165,54 @@ export class StateMigrationService {
         { old: `${clientId}_twoFactorToken`, new: SecureStorageKeys.twoFactorToken },
       ];
 
+      let entraIdKeyMigrated = false;
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
         const migrated = await passwords.migrateKeytarPasswordAs(
           SECURE_STORAGE_SERVICE_NAME,
           oldKey,
           newKey,
         );
-        // eslint-disable-next-line no-console
-        console.log(
-          `[migration v3→5] migrateKeytarPasswordAs(${oldKey} → ${newKey}) = ${migrated}`,
+        if (migrated) {
+          // Windows: migrateKeytarPasswordAs read UTF-8 and wrote UTF-16; safe to remove old entry.
+          if (oldKey === `${clientId}_entraIdKey`) {
+            entraIdKeyMigrated = true;
+          }
+          await this.secureStorageService.remove(oldKey);
+        } else {
+          // Non-Windows (or key absent on Windows): fall back to service-layer copy.
+          if (await this.secureStorageService.has(oldKey)) {
+            if (oldKey === `${clientId}_entraIdKey`) {
+              entraIdKeyMigrated = true;
+            }
+            const value = await this.secureStorageService.get(oldKey);
+            if (value != null) {
+              await this.secureStorageService.save(newKey, value);
+            }
+            await this.secureStorageService.remove(oldKey);
+          }
+        }
+      }
+
+      // Only migrate _entraKey if _entraIdKey was absent — it is the lower-priority fallback.
+      if (!entraIdKeyMigrated) {
+        const entraLegacyKey = `${clientId}_entraKey`;
+        const migrated = await passwords.migrateKeytarPasswordAs(
+          SECURE_STORAGE_SERVICE_NAME,
+          entraLegacyKey,
+          SecureStorageKeys.entra,
         );
-        await this.secureStorageService.remove(oldKey);
+        if (migrated) {
+          await this.secureStorageService.remove(entraLegacyKey);
+        } else if (await this.secureStorageService.has(entraLegacyKey)) {
+          const value = await this.secureStorageService.get(entraLegacyKey);
+          if (value != null) {
+            await this.secureStorageService.save(SecureStorageKeys.entra, value);
+          }
+          await this.secureStorageService.remove(entraLegacyKey);
+        }
+      } else {
+        // _entraIdKey was present and migrated — remove the legacy _entraKey if it exists.
+        await this.secureStorageService.remove(`${clientId}_entraKey`);
       }
 
       // Migrate apiKeyClientId and apiKeyClientSecret from account object to secure storage
@@ -192,7 +228,7 @@ export class StateMigrationService {
           account.keys.apiKeyClientSecret,
         );
       }
-      if (account.tokens) {
+      if (account.tokens?.accessToken != null) {
         await this.secureStorageService.save(
           SecureStorageKeys.accessToken,
           account.tokens.accessToken,
@@ -267,36 +303,11 @@ export class StateMigrationService {
 
     // Migrate flat keys (installs that went through the 3→5 migration and have
     // credentials stored under "secretLdap" etc.).
-    const flatResults = await Promise.all(
-      credentialKeys.map(async (key) => {
-        const migrated = await passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key);
-        // eslint-disable-next-line no-console
-        console.log(`[migration v5→v6] migrateKeytarPassword(${key}) = ${migrated}`);
-        return { key, migrated };
-      }),
+    await Promise.all(
+      credentialKeys.map((key) =>
+        passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
+      ),
     );
-    // eslint-disable-next-line no-console
-    console.log("[migration v5→v6] flat key results:", JSON.stringify(flatResults));
-
-    // Migrate legacy "{orgId}_*" keys (installs that skipped 3→5 and still have
-    // credentials stored under the old prefixed keytar account names).
-    const legacyResults = await passwords.migrateLegacyKeytarAccounts(SECURE_STORAGE_SERVICE_NAME);
-    // eslint-disable-next-line no-console
-    console.log("[migration v5→v6] legacy key results:", JSON.stringify(legacyResults));
-
-    // Verify the migrated values are readable after migration
-    for (const key of credentialKeys) {
-      try {
-        const val = await passwords.getPassword(SECURE_STORAGE_SERVICE_NAME, key);
-        // eslint-disable-next-line no-console
-        console.log(
-          `[migration v5→v6] post-migration getPassword(${key}) = ${val != null ? `<${val.length} chars>` : "null"}`,
-        );
-      } catch (e: any) {
-        // eslint-disable-next-line no-console
-        console.log(`[migration v5→v6] post-migration getPassword(${key}) threw: ${e.message}`);
-      }
-    }
 
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
   }
