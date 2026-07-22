@@ -145,22 +145,17 @@ export class StateMigrationService {
     }
 
     // Migrate secrets from {userId}_* to their new flat keys.
-    // The old key names are the legacy values used before this migration.
-    // Old keys are removed after copying to clean up stale data from data.json.
-    // Note: keytar encoding conversion (UTF-8 → UTF-16) is handled separately in migrateStateFrom5To6.
+    // Uses migrateKeytarPasswordAs to read the raw UTF-8 blob keytar stored and re-encode
+    // it as UTF-16 under the new flat key name in one step. This avoids going through
+    // NativeSecureStorageService (which reads UTF-16 and fails on old keytar blobs).
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
         { old: `${clientId}_gsuitePrivateKey`, new: SecureStorageKeys.gsuite },
         { old: `${clientId}_azureKey`, new: SecureStorageKeys.azure },
-        // _entraIdKey is the canonical old key; _entraKey was used by the runtime state service
-        // prior to the v4→v5 migration. Only one should be present, but prefer _entraIdKey.
-        {
-          old: (await this.secureStorageService.has(`${clientId}_entraIdKey`))
-            ? `${clientId}_entraIdKey`
-            : `${clientId}_entraKey`,
-          new: SecureStorageKeys.entra,
-        },
+        // Try _entraIdKey first (canonical), fall back to _entraKey (legacy runtime key).
+        { old: `${clientId}_entraIdKey`, new: SecureStorageKeys.entra },
+        { old: `${clientId}_entraKey`, new: SecureStorageKeys.entra },
         { old: `${clientId}_oktaToken`, new: SecureStorageKeys.okta },
         { old: `${clientId}_oneLoginClientSecret`, new: SecureStorageKeys.oneLogin },
         { old: `${clientId}_accessToken`, new: SecureStorageKeys.accessToken },
@@ -169,13 +164,8 @@ export class StateMigrationService {
       ];
 
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        if (await this.secureStorageService.has(oldKey)) {
-          const value = await this.secureStorageService.get(oldKey);
-          if (value) {
-            await this.secureStorageService.save(newKey, value);
-          }
-          await this.secureStorageService.remove(oldKey);
-        }
+        await passwords.migrateKeytarPasswordAs(SECURE_STORAGE_SERVICE_NAME, oldKey, newKey);
+        await this.secureStorageService.remove(oldKey);
       }
 
       // Migrate apiKeyClientId and apiKeyClientSecret from account object to secure storage

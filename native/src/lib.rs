@@ -44,6 +44,29 @@ pub async fn is_available() -> napi::Result<bool> {
         .map_err(|e| napi::Error::from_reason(e.to_string()))
 }
 
+/// Like migrate_keytar_password but reads from `old_account` and writes to `new_account`.
+/// Used by the 3→5 state migration to rename "{userId}_ldapPassword" → "secretLdap" etc.
+/// while simultaneously re-encoding from UTF-8 (keytar) to UTF-16 (desktop_core).
+/// No-ops on non-Windows platforms.
+#[napi(namespace = "passwords")]
+pub async fn migrate_keytar_password_as(
+    service: String,
+    old_account: String,
+    new_account: String,
+) -> napi::Result<bool> {
+    #[cfg(windows)]
+    {
+        migration::migrate_keytar_password_as(&service, &old_account, &new_account)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = (service, old_account, new_account);
+        Ok(false)
+    }
+}
+
 /// Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
 /// used by desktop_core on Windows. No-ops on non-Windows platforms.
 ///
