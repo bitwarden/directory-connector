@@ -139,24 +139,18 @@ pub fn find_legacy_keytar_accounts(service: &str) -> Result<Vec<(String, &'stati
     let prefix = format!("{}/", service);
     let mut matches = Vec::new();
 
-    eprintln!("[migration] CredEnumerateW found {} credentials for prefix {:?}", count, prefix);
-
     for i in 0..count as usize {
         let cred = unsafe { &**credentials.add(i) };
         if cred.TargetName.is_null() {
             continue;
         }
         let target = unsafe { U16CStr::from_ptr_str(cred.TargetName.0) }.to_string_lossy();
-        eprintln!("[migration] found credential target: {:?}", target);
         let account = match target.strip_prefix(&prefix) {
             Some(a) => a,
             None => continue,
         };
         if let Some(flat_key) = legacy_suffix_to_flat_key(account) {
-            eprintln!("[migration] matched legacy account {:?} -> flat key {:?}", account, flat_key);
             matches.push((account.to_string(), flat_key));
-        } else {
-            eprintln!("[migration] account {:?} does not match any legacy suffix", account);
         }
     }
 
