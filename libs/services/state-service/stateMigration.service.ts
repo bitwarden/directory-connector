@@ -146,7 +146,7 @@ export class StateMigrationService {
 
     // Migrate secrets from {userId}_* to their new flat keys.
     // The old key names are the legacy values used before this migration.
-    // Old keys are intentionally kept — they will be removed in a future migration.
+    // Old keys are removed after copying to clean up stale data from data.json.
     // Note: keytar encoding conversion (UTF-8 → UTF-16) is handled separately in migrateStateFrom5To6.
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
@@ -174,6 +174,7 @@ export class StateMigrationService {
           if (value) {
             await this.secureStorageService.save(newKey, value);
           }
+          await this.secureStorageService.remove(oldKey);
         }
       }
 
@@ -223,6 +224,13 @@ export class StateMigrationService {
         await this.set(StorageKeys.environmentUrls, globals.environmentUrls);
       }
     }
+
+    // Remove stale v3 keys now that all data has been copied to the flat structure.
+    await this.storageService.remove("activeUserId" as any, this.options);
+    if (clientId) {
+      await this.storageService.remove(clientId as any, this.options);
+    }
+    await this.storageService.remove("global" as any, this.options);
 
     // Set final state version using the new flat key
     await this.set(StorageKeys.stateVersion, StateVersion.Five);

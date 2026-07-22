@@ -242,9 +242,24 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.get(SecureStorageKeys.refreshToken)).toBe("refresh-tok");
         expect(secureStorage.store.get(SecureStorageKeys.twoFactorToken)).toBe("2fa-tok");
 
-        // Old prefixed keys intentionally kept — will be removed in a future migration
-        expect(secureStorage.store.has(`${userId}_ldapPassword`)).toBe(true);
-        expect(secureStorage.store.has(`${userId}_accessToken`)).toBe(true);
+        // Old prefixed keys must be removed after migration
+        expect(secureStorage.store.has(`${userId}_ldapPassword`)).toBe(false);
+        expect(secureStorage.store.has(`${userId}_gsuitePrivateKey`)).toBe(false);
+        expect(secureStorage.store.has(`${userId}_entraIdKey`)).toBe(false);
+        expect(secureStorage.store.has(`${userId}_azureKey`)).toBe(false);
+        expect(secureStorage.store.has(`${userId}_oktaToken`)).toBe(false);
+        expect(secureStorage.store.has(`${userId}_oneLoginClientSecret`)).toBe(false);
+        expect(secureStorage.store.has(`${userId}_accessToken`)).toBe(false);
+        expect(secureStorage.store.has(`${userId}_refreshToken`)).toBe(false);
+        expect(secureStorage.store.has(`${userId}_twoFactorToken`)).toBe(false);
+      });
+
+      it("removes stale v3 storage keys (activeUserId, account object, global) after migration", async () => {
+        await svc.migrate();
+
+        expect(storage.store.has("activeUserId")).toBe(false);
+        expect(storage.store.has(userId)).toBe(false);
+        expect(storage.store.has("global")).toBe(false);
       });
 
       it("migrates apiKeyClientId and apiKeyClientSecret from account to secure storage", async () => {
