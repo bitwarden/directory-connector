@@ -265,9 +265,17 @@ export class StateMigrationService {
     ];
 
     await Promise.all(
-      credentialKeys.map((key) =>
-        passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
-      ),
+      credentialKeys.map(async (key) => {
+        const migrated = await passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key);
+        if (!migrated) {
+          return;
+        }
+        // migrateKeytarPassword wrote the raw string value. NativeSecureStorageService
+        // expects values to be JSON-encoded (it JSON.parses on read). Re-save through
+        // secureStorageService so the value is correctly wrapped.
+        const raw = await passwords.getPassword(SECURE_STORAGE_SERVICE_NAME, key);
+        await this.secureStorageService.save(key as SecureStorageKey, raw);
+      }),
     );
 
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
