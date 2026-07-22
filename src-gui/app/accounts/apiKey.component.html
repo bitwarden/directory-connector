@@ -1,56 +1,63 @@
-<div class="container-fluid">
-  <form #form (ngSubmit)="submit()" [appApiAction]="formPromise()">
-    <div class="row justify-content-center">
-      <div class="col-md-8 col-lg-6">
-        <p class="text-center fw-bold">{{ "welcome" | i18n }}</p>
-        <p class="text-center">{{ "logInDesc" | i18n }}</p>
-        <div class="card">
-          <h5 class="card-header">{{ "logIn" | i18n }}</h5>
-          <div class="card-body">
-            <div class="mb-3">
-              <label for="client_id" class="form-label">{{ "clientId" | i18n }}</label>
-              <input
-                id="client_id"
-                name="ClientId"
-                [ngModel]="clientId()"
-                (ngModelChange)="clientId.set($event)"
-                class="form-control"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="client_secret" class="form-label">{{ "clientSecret" | i18n }}</label>
-              <div class="input-group">
-                <input
-                  type="{{ showSecret() ? 'text' : 'password' }}"
-                  id="client_secret"
-                  name="ClientSecret"
-                  [ngModel]="clientSecret()"
-                  (ngModelChange)="clientSecret.set($event)"
-                  class="form-control"
-                />
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary"
-                  appA11yTitle="{{ 'toggleVisibility' | i18n }}"
-                  (click)="toggleSecret()"
-                >
-                  <i class="bwi" [ngClass]="showSecret() ? 'bwi-eye-slash' : 'bwi-eye'"></i>
-                </button>
-              </div>
-            </div>
-            <div class="d-flex">
-              <div>
-                <button type="submit" class="btn btn-primary" [disabled]="form.loading">
-                  <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!form.loading"></i>
-                  <i class="bwi bwi-sign-in bwi-fw" [hidden]="form.loading"></i>
-                  {{ "logIn" | i18n }}
-                </button>
-              </div>
-              <button type="button" class="btn btn-link ms-auto" (click)="settings()">
-                {{ "settings" | i18n }}
-              </button>
-            </div>
+<div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10 dark:bg-gray-950">
+  <form #form (ngSubmit)="submit()" [appApiAction]="formPromise()" class="w-full max-w-sm">
+    <div class="mb-6 flex flex-col items-center text-center">
+      <div
+        class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white shadow-sm"
+      >
+        <i class="bwi bwi-shield text-2xl" aria-hidden="true"></i>
+      </div>
+      <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ "welcome" | i18n }}</p>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ "logInDesc" | i18n }}</p>
+    </div>
+    <div class="surface-card">
+      <div class="surface-card-header">
+        <h2 class="surface-card-title">{{ "logIn" | i18n }}</h2>
+      </div>
+      <div class="surface-card-body">
+        <div class="mb-4">
+          <label for="client_id" class="field-label">{{ "clientId" | i18n }}</label>
+          <input
+            id="client_id"
+            name="ClientId"
+            [ngModel]="clientId()"
+            (ngModelChange)="clientId.set($event)"
+            class="field-input"
+          />
+        </div>
+        <div class="mb-5">
+          <label for="client_secret" class="field-label">{{ "clientSecret" | i18n }}</label>
+          <div class="flex gap-2">
+            <input
+              type="{{ showSecret() ? 'text' : 'password' }}"
+              id="client_secret"
+              name="ClientSecret"
+              [ngModel]="clientSecret()"
+              (ngModelChange)="clientSecret.set($event)"
+              class="field-input"
+            />
+            <button
+              type="button"
+              class="btn-icon"
+              appA11yTitle="{{ 'toggleVisibility' | i18n }}"
+              (click)="toggleSecret()"
+            >
+              <i class="bwi" [ngClass]="showSecret() ? 'bwi-eye-slash' : 'bwi-eye'"></i>
+            </button>
           </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button type="submit" class="btn-primary flex-1 justify-center" [disabled]="form.loading">
+            <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!form.loading"></i>
+            <i class="bwi bwi-sign-in bwi-fw" [hidden]="form.loading"></i>
+            {{ "logIn" | i18n }}
+          </button>
+          <button
+            type="button"
+            class="text-sm font-medium text-gray-500 hover:text-primary dark:text-gray-400"
+            (click)="settings()"
+          >
+            {{ "settings" | i18n }}
+          </button>
         </div>
       </div>
     </div>

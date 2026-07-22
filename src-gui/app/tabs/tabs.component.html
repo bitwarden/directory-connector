@@ -1,20 +1,39 @@
-<div class="container-fluid">
-  <ul class="nav nav-tabs mb-3">
-    <li class="nav-item">
-      <a class="nav-link" routerLink="dashboard" routerLinkActive="active">
-        {{ "dashboard" | i18n }}
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="settings" routerLinkActive="active">
-        {{ "settings" | i18n }}
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="more" routerLinkActive="active">
-        {{ "more" | i18n }}
-      </a>
-    </li>
-  </ul>
-  <router-outlet></router-outlet>
+<div class="flex h-screen min-h-0 bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+  <aside
+    class="flex w-56 shrink-0 flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+  >
+    <div class="flex items-center gap-2.5 px-5 py-5">
+      <div
+        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white"
+      >
+        <i class="bwi bwi-shield text-base" aria-hidden="true"></i>
+      </div>
+      <span class="text-[13px] font-semibold leading-tight text-gray-900 dark:text-white">
+        Directory<br />Connector
+      </span>
+    </div>
+    <nav class="flex-1 space-y-1 px-3">
+      @for (item of navItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive
+          #rla="routerLinkActive"
+          [ngClass]="
+            rla.isActive
+              ? 'bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-light'
+              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
+          "
+          class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+        >
+          <i class="bwi {{ item.icon }} bwi-fw text-base" aria-hidden="true"></i>
+          {{ item.label | i18n }}
+        </a>
+      }
+    </nav>
+  </aside>
+  <main class="min-w-0 flex-1 overflow-y-auto">
+    <div class="mx-auto max-w-5xl px-8 py-8">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
 </div>

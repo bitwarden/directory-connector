@@ -1,153 +1,202 @@
-<div class="card mb-3">
-  <h3 class="card-header">{{ "sync" | i18n }}</h3>
-  <div class="card-body">
-    <p>
-      {{ "lastGroupSync" | i18n }}:
-      @if (!lastGroupSync()) {
-        <span>-</span>
-      }
-      {{ lastGroupSync() | date: "medium" }}
-      <br />
-      {{ "lastUserSync" | i18n }}:
-      @if (!lastUserSync()) {
-        <span>-</span>
-      }
-      {{ lastUserSync() | date: "medium" }}
-    </p>
-    <p>
-      {{ "syncStatus" | i18n }}:
-      @if (syncRunning()) {
-        <strong class="text-success">{{ "running" | i18n }}</strong>
-      }
-      @if (!syncRunning()) {
-        <strong class="text-danger">{{ "stopped" | i18n }}</strong>
-      }
-    </p>
-    <form #startForm [appApiAction]="startPromise()" class="d-inline">
-      <button
-        type="button"
-        (click)="start()"
-        class="btn btn-primary"
-        [disabled]="startForm.loading"
+<div class="space-y-6">
+  <section class="surface-card">
+    <div class="surface-card-header">
+      <h2 class="surface-card-title">{{ "sync" | i18n }}</h2>
+      <span
+        class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+        [ngClass]="
+          syncRunning()
+            ? 'bg-success/10 text-success'
+            : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+        "
       >
-        <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!startForm.loading"></i>
-        {{ "startSync" | i18n }}
-      </button>
-    </form>
-    <button type="button" (click)="stop()" class="btn btn-danger text-white">
-      {{ "stopSync" | i18n }}
-    </button>
-    <form #syncForm [appApiAction]="syncPromise()" class="d-inline">
-      <button type="button" (click)="sync()" class="btn btn-primary" [disabled]="syncForm.loading">
-        {{ "syncNow" | i18n }}
-      </button>
-    </form>
-  </div>
-</div>
-<div class="card">
-  <h3 class="card-header">{{ "testing" | i18n }}</h3>
-  <div class="card-body">
-    <p>{{ "testingDesc" | i18n }}</p>
-    <form #simForm [appApiAction]="simPromise()" class="d-inline">
-      <button
-        type="button"
-        (click)="simulate()"
-        class="btn btn-primary"
-        [disabled]="simForm.loading"
-      >
-        <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!simForm.loading"></i>
-        {{ "testNow" | i18n }}
-      </button>
-    </form>
-    <div class="form-check mt-2">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        id="simSinceLast"
-        [ngModel]="simSinceLast()"
-        (ngModelChange)="simSinceLast.set($event)"
-      />
-      <label class="form-check-label" for="simSinceLast">{{ "testLastSync" | i18n }}</label>
+        <span
+          class="h-1.5 w-1.5 rounded-full"
+          [ngClass]="syncRunning() ? 'bg-success' : 'bg-gray-400'"
+        ></span>
+        {{ (syncRunning() ? "running" : "stopped") | i18n }}
+      </span>
     </div>
-    @if (!simForm.loading && (simUsers() || simGroups())) {
-      <hr />
-      <div class="row">
-        <div class="col-lg">
-          <h4>{{ "users" | i18n }}</h4>
-          @if (simEnabledUsers() && simEnabledUsers().length) {
-            <ul class="bwi-ul testing-list">
-              @for (u of simEnabledUsers(); track u) {
-                <li title="{{ u.referenceId }}">
-                  <i class="bwi bwi-li bwi-user"></i>
-                  {{ u.displayName }}
-                </li>
-              }
-            </ul>
-          }
-          @if (!simEnabledUsers() || !simEnabledUsers().length) {
-            <p>
-              {{ "noUsers" | i18n }}
-            </p>
-          }
-          <h4>{{ "disabledUsers" | i18n }}</h4>
-          @if (simDisabledUsers() && simDisabledUsers().length) {
-            <ul class="bwi-ul testing-list">
-              @for (u of simDisabledUsers(); track u) {
-                <li title="{{ u.referenceId }}">
-                  <i class="bwi bwi-li bwi-user"></i>
-                  {{ u.displayName }}
-                </li>
-              }
-            </ul>
-          }
-          @if (!simDisabledUsers() || !simDisabledUsers().length) {
-            <p>
-              {{ "noUsers" | i18n }}
-            </p>
-          }
-          <h4>{{ "deletedUsers" | i18n }}</h4>
-          @if (simDeletedUsers() && simDeletedUsers().length) {
-            <ul class="bwi-ul testing-list">
-              @for (u of simDeletedUsers(); track u) {
-                <li title="{{ u.referenceId }}">
-                  <i class="bwi bwi-li bwi-user"></i>
-                  {{ u.displayName }}
-                </li>
-              }
-            </ul>
-          }
-          @if (!simDeletedUsers() || !simDeletedUsers().length) {
-            <p>
-              {{ "noUsers" | i18n }}
-            </p>
-          }
+    <div class="surface-card-body">
+      <dl class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <dt class="text-xs font-medium tracking-wide text-gray-400 uppercase">
+            {{ "lastGroupSync" | i18n }}
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
+            @if (!lastGroupSync()) {
+              &mdash;
+            } @else {
+              {{ lastGroupSync() | date: "medium" }}
+            }
+          </dd>
         </div>
-        <div class="col-lg">
-          <h4>{{ "groups" | i18n }}</h4>
-          @if (simGroups() && simGroups().length) {
-            <ul class="bwi-ul testing-list">
-              @for (g of simGroups(); track g) {
-                <li title="{{ g.referenceId }}">
-                  <i class="bwi bwi-li bwi-sitemap"></i>
-                  {{ g.displayName }}
-                  @if (g.users && g.users.length) {
-                    <ul class="small">
-                      @for (u of g.users; track u) {
-                        <li title="{{ u.referenceId }}">
-                          {{ u.displayName }}
-                        </li>
-                      }
-                    </ul>
-                  }
-                </li>
-              }
-            </ul>
-          }
-          @if (!simGroups() || !simGroups().length) {
-            <p>{{ "noGroups" | i18n }}</p>
-          }
+        <div>
+          <dt class="text-xs font-medium tracking-wide text-gray-400 uppercase">
+            {{ "lastUserSync" | i18n }}
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
+            @if (!lastUserSync()) {
+              &mdash;
+            } @else {
+              {{ lastUserSync() | date: "medium" }}
+            }
+          </dd>
         </div>
+      </dl>
+      <div class="flex flex-wrap items-center gap-3">
+        <form #startForm [appApiAction]="startPromise()">
+          <button
+            type="button"
+            (click)="start()"
+            [disabled]="startForm.loading"
+            class="btn-primary"
+          >
+            <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!startForm.loading"></i>
+            <i class="bwi bwi-play bwi-fw" [hidden]="startForm.loading"></i>
+            {{ "startSync" | i18n }}
+          </button>
+        </form>
+        <button type="button" (click)="stop()" class="btn-danger-outline">
+          <i class="bwi bwi-stop bwi-fw"></i>
+          {{ "stopSync" | i18n }}
+        </button>
+        <form #syncForm [appApiAction]="syncPromise()">
+          <button
+            type="button"
+            (click)="sync()"
+            [disabled]="syncForm.loading"
+            class="btn-secondary"
+          >
+            <i class="bwi bwi-refresh bwi-fw" [ngClass]="{ 'bwi-spin': syncForm.loading }"></i>
+            {{ "syncNow" | i18n }}
+          </button>
+        </form>
       </div>
-    }
-  </div>
+    </div>
+  </section>
+
+  <section class="surface-card">
+    <div class="surface-card-header">
+      <h2 class="surface-card-title">{{ "testing" | i18n }}</h2>
+    </div>
+    <div class="surface-card-body">
+      <p class="text-sm text-gray-500 dark:text-gray-400">{{ "testingDesc" | i18n }}</p>
+      <div class="mt-4 flex flex-wrap items-center gap-4">
+        <form #simForm [appApiAction]="simPromise()">
+          <button
+            type="button"
+            (click)="simulate()"
+            [disabled]="simForm.loading"
+            class="btn-primary"
+          >
+            <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!simForm.loading"></i>
+            {{ "testNow" | i18n }}
+          </button>
+        </form>
+        <label class="checkbox-row">
+          <input
+            type="checkbox"
+            class="checkbox-input"
+            [ngModel]="simSinceLast()"
+            (ngModelChange)="simSinceLast.set($event)"
+          />
+          {{ "testLastSync" | i18n }}
+        </label>
+      </div>
+
+      @if (!simForm.loading && (simUsers() || simGroups())) {
+        <div
+          class="mt-6 grid grid-cols-1 gap-8 border-t border-gray-100 pt-6 lg:grid-cols-2 dark:border-gray-800"
+        >
+          <div>
+            <h3 class="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+              {{ "users" | i18n }}
+            </h3>
+            @if (simEnabledUsers() && simEnabledUsers().length) {
+              <ul class="space-y-1">
+                @for (u of simEnabledUsers(); track u) {
+                  <li
+                    title="{{ u.referenceId }}"
+                    class="flex items-center gap-2 rounded-md px-2 py-1 text-sm text-gray-700 dark:text-gray-200"
+                  >
+                    <i class="bwi bwi-user bwi-fw text-gray-400"></i>
+                    {{ u.displayName }}
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="px-2 text-sm text-gray-400 italic">{{ "noUsers" | i18n }}</p>
+            }
+
+            <h3 class="mt-4 mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+              {{ "disabledUsers" | i18n }}
+            </h3>
+            @if (simDisabledUsers() && simDisabledUsers().length) {
+              <ul class="space-y-1">
+                @for (u of simDisabledUsers(); track u) {
+                  <li
+                    title="{{ u.referenceId }}"
+                    class="flex items-center gap-2 rounded-md px-2 py-1 text-sm text-gray-700 dark:text-gray-200"
+                  >
+                    <i class="bwi bwi-user bwi-fw text-gray-400"></i>
+                    {{ u.displayName }}
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="px-2 text-sm text-gray-400 italic">{{ "noUsers" | i18n }}</p>
+            }
+
+            <h3 class="mt-4 mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+              {{ "deletedUsers" | i18n }}
+            </h3>
+            @if (simDeletedUsers() && simDeletedUsers().length) {
+              <ul class="space-y-1">
+                @for (u of simDeletedUsers(); track u) {
+                  <li
+                    title="{{ u.referenceId }}"
+                    class="flex items-center gap-2 rounded-md px-2 py-1 text-sm text-gray-700 line-through dark:text-gray-200"
+                  >
+                    <i class="bwi bwi-user bwi-fw text-gray-400"></i>
+                    {{ u.displayName }}
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="px-2 text-sm text-gray-400 italic">{{ "noUsers" | i18n }}</p>
+            }
+          </div>
+          <div>
+            <h3 class="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+              {{ "groups" | i18n }}
+            </h3>
+            @if (simGroups() && simGroups().length) {
+              <ul class="space-y-1">
+                @for (g of simGroups(); track g) {
+                  <li title="{{ g.referenceId }}" class="rounded-md px-2 py-1">
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+                      <i class="bwi bwi-sitemap bwi-fw text-gray-400"></i>
+                      {{ g.displayName }}
+                    </div>
+                    @if (g.users && g.users.length) {
+                      <ul class="mt-1 ml-6 space-y-0.5">
+                        @for (u of g.users; track u) {
+                          <li title="{{ u.referenceId }}" class="text-xs text-gray-400">
+                            {{ u.displayName }}
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="px-2 text-sm text-gray-400 italic">{{ "noGroups" | i18n }}</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </section>
 </div>

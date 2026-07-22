@@ -1,6 +1,5 @@
 @import "ngx-toastr/toastr";
-
-@import "bootstrap/scss/_variables.scss";
+@import "variables";
 
 .toast-container {
   .toast-close-button {
@@ -12,7 +11,7 @@
     align-items: center;
     background-image: none !important;
     border-radius: $border-radius;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
     display: flex;
     padding: 15px;
 
@@ -23,7 +22,7 @@
     }
 
     &:hover {
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
     }
 
     .icon i::before {
@@ -80,10 +79,13 @@
   }
 }
 
+// The custom ModalService (src-gui/angular/services/modal.service.ts) drives
+// modal visibility itself; these rules replace Bootstrap's modal CSS since
+// its JS plugin is no longer loaded.
 @keyframes modalshow {
   0% {
     opacity: 0;
-    transform: translate(0, -25%);
+    transform: translate(0, -2%);
   }
 
   100% {
@@ -103,24 +105,54 @@
 }
 
 .modal {
-  display: block !important;
-  opacity: 1 !important;
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex !important;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem;
+  overflow-y: auto;
 }
 
 .modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 32rem;
+  margin: 0 auto;
+
   .modal.fade & {
-    transform: initial !important;
-    animation: modalshow 0.3s ease-in;
+    animation: modalshow 0.2s ease-out;
   }
-  .modal.show & {
-    transform: initial !important;
+}
+
+.modal-content {
+  border-radius: 0.75rem;
+  background-color: #ffffff;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-content {
+    background-color: #1e293b;
+    color: #e2e8f0;
   }
-  transform: translate(0, 0);
 }
 
 .modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-color: #000000;
+  opacity: $modal-backdrop-opacity;
+
   &.fade {
-    animation: backdropshow 0.1s ease-in;
+    animation: backdropshow 0.15s ease-in;
   }
-  opacity: $modal-backdrop-opacity !important;
+}
+
+body.modal-open {
+  overflow: hidden;
 }

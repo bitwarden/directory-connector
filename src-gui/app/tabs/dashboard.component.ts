@@ -1,4 +1,4 @@
-import { DatePipe } from "@angular/common";
+import { DatePipe, NgClass } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -31,7 +31,7 @@ const BroadcasterSubscriptionId = "DashboardComponent";
   templateUrl: "dashboard.component.html",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ApiActionDirective, DatePipe, FormsModule, I18nPipe],
+  imports: [ApiActionDirective, DatePipe, FormsModule, I18nPipe, NgClass],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   simGroups = signal<GroupEntry[]>(null);

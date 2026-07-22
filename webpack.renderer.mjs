@@ -66,6 +66,7 @@ const renderer = {
     "dc-native": "commonjs2 dc-native",
   },
   entry: {
+    "app/tailwind": "./src-gui/scss/tailwind.css",
     "app/main": "./src-gui/app/main.ts",
   },
   optimization: {
@@ -114,6 +115,21 @@ const renderer = {
           },
         ],
       },
+      {
+        // Tailwind's directives must be processed by PostCSS only (not Sass),
+        // so this file is kept as plain CSS and handled by its own rule.
+        test: /\.css$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: "../",
+            },
+          },
+          "css-loader",
+          "postcss-loader",
+        ],
+      },
       // Hide System.import warnings. ref: https://github.com/angular/angular/issues/21560
       {
         test: /[\/\\]@angular[\/\\].+\.js$/,
@@ -135,7 +151,7 @@ const renderer = {
     new HtmlWebpackPlugin({
       template: "./src-gui/index.html",
       filename: "index.html",
-      chunks: ["app/vendor", "app/main"],
+      chunks: ["app/tailwind", "app/vendor", "app/main"],
     }),
     new webpack.SourceMapDevToolPlugin({
       include: ["app/main.js"],

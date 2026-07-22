@@ -1,0 +1,81 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+/*
+ * Automatic content detection can miss files outside this folder's tree,
+ * so the template/source locations are declared explicitly.
+ */
+@source "../app";
+@source "../angular";
+@source "../../libs";
+
+@theme {
+  --font-sans:
+    "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+
+  /* Bitwarden brand palette */
+  --color-primary: #175ddc;
+  --color-primary-dark: #1252a3;
+  --color-primary-light: #4c86e6;
+  --color-secondary: #ced4da;
+  --color-secondary-alt: #1a3b66;
+  --color-success: #00a65a;
+  --color-danger: #dd4b39;
+  --color-warning: #bf7e16;
+  --color-info: #555555;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+}
+
+@layer components {
+  .surface-card {
+    @apply rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900;
+  }
+  .surface-card-header {
+    @apply flex items-center justify-between gap-4 border-b border-gray-100 px-6 py-4 dark:border-gray-800;
+  }
+  .surface-card-title {
+    @apply text-base font-semibold text-gray-900 dark:text-white;
+  }
+  .surface-card-body {
+    @apply px-6 py-5;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300;
+  }
+  .field-input {
+    @apply block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition-colors placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100;
+  }
+  .field-hint {
+    @apply mt-1.5 text-xs text-gray-400;
+  }
+
+  .checkbox-row {
+    @apply flex items-center gap-2 text-sm text-gray-700 select-none dark:text-gray-300;
+  }
+  .checkbox-input {
+    @apply h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40 dark:border-gray-600 dark:bg-gray-800;
+  }
+  .radio-input {
+    @apply h-4 w-4 border-gray-300 text-primary focus:ring-primary/40 dark:border-gray-600 dark:bg-gray-800;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800;
+  }
+  .btn-danger-outline {
+    @apply inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-danger transition-colors hover:bg-danger/5 dark:border-gray-700 dark:hover:bg-danger/10;
+  }
+  .btn-icon {
+    @apply inline-flex items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800;
+  }
+}

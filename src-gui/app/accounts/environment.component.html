@@ -1,63 +1,86 @@
 <div class="modal fade">
   <div class="modal-dialog">
     <form class="modal-content" (ngSubmit)="submit()">
-      <div class="modal-header">
-        <h3 class="modal-title">{{ "settings" | i18n }}</h3>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div
+        class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-800"
+      >
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+          {{ "settings" | i18n }}
+        </h3>
+        <button
+          type="button"
+          class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        >
+          <i class="bwi bwi-close"></i>
+        </button>
       </div>
-      <div class="modal-body">
-        <h4>{{ "selfHostedEnvironment" | i18n }}</h4>
-        <p>{{ "selfHostedEnvironmentFooter" | i18n }}</p>
-        <div class="mb-3">
-          <label for="baseUrl" class="form-label">{{ "baseUrl" | i18n }}</label>
-          <input
-            id="baseUrl"
-            type="text"
-            name="BaseUrl"
-            [ngModel]="baseUrl()"
-            (ngModelChange)="baseUrl.set($event)"
-            class="form-control"
-          />
-          <div class="form-text">{{ "ex" | i18n }} https://bitwarden.company.com</div>
+      <div class="space-y-5 px-6 py-5">
+        <div>
+          <h4 class="mb-1 text-sm font-semibold text-gray-900 dark:text-white">
+            {{ "selfHostedEnvironment" | i18n }}
+          </h4>
+          <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
+            {{ "selfHostedEnvironmentFooter" | i18n }}
+          </p>
+          <div>
+            <label for="baseUrl" class="field-label">{{ "baseUrl" | i18n }}</label>
+            <input
+              id="baseUrl"
+              type="text"
+              name="BaseUrl"
+              [ngModel]="baseUrl()"
+              (ngModelChange)="baseUrl.set($event)"
+              class="field-input"
+            />
+            <div class="field-hint">{{ "ex" | i18n }} https://bitwarden.company.com</div>
+          </div>
         </div>
-        <h4>{{ "customEnvironment" | i18n }}</h4>
-        <p>{{ "customEnvironmentFooter" | i18n }}</p>
-        <div class="mb-3">
-          <label for="webVaultUrl" class="form-label">{{ "webVaultUrl" | i18n }}</label>
-          <input
-            id="webVaultUrl"
-            type="text"
-            name="WebVaultUrl"
-            [ngModel]="webVaultUrl()"
-            (ngModelChange)="webVaultUrl.set($event)"
-            class="form-control"
-          />
-        </div>
-        <div class="mb-3">
-          <label for="apiUrl" class="form-label">{{ "apiUrl" | i18n }}</label>
-          <input
-            id="apiUrl"
-            type="text"
-            name="ApiUrl"
-            [ngModel]="apiUrl()"
-            (ngModelChange)="apiUrl.set($event)"
-            class="form-control"
-          />
-        </div>
-        <div class="mb-3">
-          <label for="identityUrl" class="form-label">{{ "identityUrl" | i18n }}</label>
-          <input
-            id="identityUrl"
-            type="text"
-            name="IdentityUrl"
-            [ngModel]="identityUrl()"
-            (ngModelChange)="identityUrl.set($event)"
-            class="form-control"
-          />
+        <div class="border-t border-gray-100 pt-5 dark:border-gray-800">
+          <h4 class="mb-1 text-sm font-semibold text-gray-900 dark:text-white">
+            {{ "customEnvironment" | i18n }}
+          </h4>
+          <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
+            {{ "customEnvironmentFooter" | i18n }}
+          </p>
+          <div class="mb-4">
+            <label for="webVaultUrl" class="field-label">{{ "webVaultUrl" | i18n }}</label>
+            <input
+              id="webVaultUrl"
+              type="text"
+              name="WebVaultUrl"
+              [ngModel]="webVaultUrl()"
+              (ngModelChange)="webVaultUrl.set($event)"
+              class="field-input"
+            />
+          </div>
+          <div class="mb-4">
+            <label for="apiUrl" class="field-label">{{ "apiUrl" | i18n }}</label>
+            <input
+              id="apiUrl"
+              type="text"
+              name="ApiUrl"
+              [ngModel]="apiUrl()"
+              (ngModelChange)="apiUrl.set($event)"
+              class="field-input"
+            />
+          </div>
+          <div>
+            <label for="identityUrl" class="field-label">{{ "identityUrl" | i18n }}</label>
+            <input
+              id="identityUrl"
+              type="text"
+              name="IdentityUrl"
+              [ngModel]="identityUrl()"
+              (ngModelChange)="identityUrl.set($event)"
+              class="field-input"
+            />
+          </div>
         </div>
       </div>
-      <div class="modal-footer justify-content-start">
-        <button type="submit" class="btn btn-primary">
+      <div class="flex justify-start border-t border-gray-100 px-6 py-4 dark:border-gray-800">
+        <button type="submit" class="btn-primary">
           <i class="bwi bwi-save bwi-fw"></i>
           {{ "save" | i18n }}
         </button>

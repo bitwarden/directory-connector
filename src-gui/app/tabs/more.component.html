@@ -1,35 +1,40 @@
-<div class="row">
-  <div class="col-sm">
-    <div class="card">
-      <h3 class="card-header">{{ "about" | i18n }}</h3>
-      <div class="card-body">
-        <p>
-          {{ "bitwardenDirectoryConnector" | i18n }}
-          <br />
-          {{ "version" | i18n: version() }} <br />
-          &copy; Bitwarden Inc. LLC 2015-{{ year() }}
-        </p>
-        <button
-          class="btn btn-primary"
-          type="button"
-          (click)="update()"
-          [disabled]="checkingForUpdate()"
-        >
-          <i class="bwi bwi-download bwi-fw" [hidden]="checkingForUpdate()"></i>
-          <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!checkingForUpdate()"></i>
-          {{ "checkForUpdates" | i18n }}
-        </button>
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <div class="surface-card">
+    <div class="surface-card-header">
+      <h2 class="surface-card-title">{{ "about" | i18n }}</h2>
+    </div>
+    <div class="surface-card-body">
+      <div class="mb-5 flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+          <i class="bwi bwi-shield text-lg" aria-hidden="true"></i>
+        </div>
+        <div class="text-sm text-gray-600 dark:text-gray-300">
+          <p class="font-medium text-gray-900 dark:text-white">
+            {{ "bitwardenDirectoryConnector" | i18n }}
+          </p>
+          <p>{{ "version" | i18n: version() }}</p>
+          <p class="text-xs text-gray-400">&copy; Bitwarden Inc. LLC 2015-{{ year() }}</p>
+        </div>
       </div>
+      <button class="btn-primary" type="button" (click)="update()" [disabled]="checkingForUpdate()">
+        <i class="bwi bwi-download bwi-fw" [hidden]="checkingForUpdate()"></i>
+        <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!checkingForUpdate()"></i>
+        {{ "checkForUpdates" | i18n }}
+      </button>
     </div>
   </div>
-  <div class="col-sm">
-    <div class="card">
-      <h3 class="card-header">{{ "other" | i18n }}</h3>
-      <div class="card-body">
-        <button class="btn btn-primary" type="button" (click)="logOut()">
+  <div class="surface-card">
+    <div class="surface-card-header">
+      <h2 class="surface-card-title">{{ "other" | i18n }}</h2>
+    </div>
+    <div class="surface-card-body">
+      <div class="flex flex-wrap gap-3">
+        <button class="btn-secondary" type="button" (click)="logOut()">
+          <i class="bwi bwi-sign-out bwi-fw"></i>
           {{ "logOut" | i18n }}
         </button>
-        <button class="btn btn-primary" type="button" (click)="clearCache()">
+        <button class="btn-secondary" type="button" (click)="clearCache()">
+          <i class="bwi bwi-refresh bwi-fw"></i>
           {{ "clearSyncCache" | i18n }}
         </button>
       </div>
