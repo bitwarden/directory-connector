@@ -13,8 +13,10 @@ import { webUtils } from "electron";
 
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
+import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
+import { DirectoryConnectorProfileSummary } from "@/libs/models/directoryConnectorProfile";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
@@ -51,8 +53,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showOktaKey = signal(false);
   showOneLoginSecret = signal(false);
 
+  profiles = signal<DirectoryConnectorProfileSummary[]>([]);
+  activeProfileId = signal<string>(null);
+  activeProfileName = signal<string>("");
+
   private i18nService = inject(I18nService);
   private logService = inject(LogService);
+  private platformUtilsService = inject(PlatformUtilsService);
   private stateService = inject(StateService);
 
   constructor() {
@@ -67,30 +74,104 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.directory.set(await this.stateService.getDirectoryType());
-    this.ldap.set(
-      (await this.stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)) || this.ldap(),
-    );
-    this.gsuite.set(
-      (await this.stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite)) ||
-        this.gsuite(),
-    );
-    this.entra.set(
-      (await this.stateService.getDirectory<EntraIdConfiguration>(DirectoryType.EntraID)) ||
-        this.entra(),
-    );
-    this.okta.set(
-      (await this.stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta)) || this.okta(),
-    );
-    this.oneLogin.set(
-      (await this.stateService.getDirectory<OneLoginConfiguration>(DirectoryType.OneLogin)) ||
-        this.oneLogin(),
-    );
-    this.sync.set((await this.stateService.getSync()) || this.sync());
+    await this.loadProfiles();
+    await this.loadForm();
   }
 
   async ngOnDestroy() {
     await this.submit();
+  }
+
+  private async loadForm() {
+    this.directory.set(await this.stateService.getDirectoryType());
+    this.ldap.set(
+      (await this.stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)) ||
+        new LdapConfiguration(),
+    );
+    this.gsuite.set(
+      (await this.stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite)) ||
+        new GSuiteConfiguration(),
+    );
+    this.entra.set(
+      (await this.stateService.getDirectory<EntraIdConfiguration>(DirectoryType.EntraID)) ||
+        new EntraIdConfiguration(),
+    );
+    this.okta.set(
+      (await this.stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta)) ||
+        new OktaConfiguration(),
+    );
+    this.oneLogin.set(
+      (await this.stateService.getDirectory<OneLoginConfiguration>(DirectoryType.OneLogin)) ||
+        new OneLoginConfiguration(),
+    );
+    this.sync.set((await this.stateService.getSync()) || new SyncConfiguration());
+  }
+
+  private async loadProfiles() {
+    const profiles = await this.stateService.getDirectoryProfiles();
+    const activeId = await this.stateService.getActiveDirectoryProfileId();
+    this.profiles.set(profiles);
+    this.activeProfileId.set(activeId);
+    this.activeProfileName.set(profiles.find((p) => p.id === activeId)?.name ?? "");
+  }
+
+  /** Persists any pending edits (including a renamed profile) to the currently active profile. */
+  private async saveActiveProfileName() {
+    const id = this.activeProfileId();
+    const name = this.activeProfileName()?.trim();
+    if (id == null || name === "" || name == null) {
+      return;
+    }
+    await this.stateService.renameDirectoryProfile(id, name);
+  }
+
+  async selectProfile(id: string) {
+    if (id == null || id === this.activeProfileId()) {
+      return;
+    }
+    // Persist any in-progress edits to the currently active profile before switching away.
+    await this.submit();
+    await this.stateService.switchDirectoryProfile(id);
+    await this.loadProfiles();
+    await this.loadForm();
+  }
+
+  async createProfile() {
+    await this.submit();
+    const id = await this.stateService.createDirectoryProfile(this.i18nService.t("newProfile"));
+    await this.loadProfiles();
+    await this.loadForm();
+    document.getElementById("profileName")?.focus();
+    return id;
+  }
+
+  async deleteActiveProfile() {
+    const id = this.activeProfileId();
+    if (id == null) {
+      return;
+    }
+    if (this.profiles().length <= 1) {
+      this.platformUtilsService.showToast(
+        "error",
+        null,
+        this.i18nService.t("cannotDeleteLastProfile"),
+      );
+      return;
+    }
+
+    const confirmed = await this.platformUtilsService.showDialog(
+      this.i18nService.t("deleteProfileConfirmation", this.activeProfileName()),
+      this.i18nService.t("deleteProfile"),
+      this.i18nService.t("yes"),
+      this.i18nService.t("cancel"),
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    await this.stateService.deleteDirectoryProfile(id);
+    await this.loadProfiles();
+    await this.loadForm();
   }
 
   userFilterHelp = computed(() => {
@@ -117,6 +198,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (ldap != null && ldap.ad) {
       ldap.pagedSearch = true;
     }
+    await this.saveActiveProfileName();
     await this.stateService.setDirectoryType(this.directory());
     await this.stateService.setDirectory(DirectoryType.Ldap, ldap);
     await this.stateService.setDirectory(DirectoryType.GSuite, this.gsuite());

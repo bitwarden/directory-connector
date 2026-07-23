@@ -566,6 +566,189 @@ describe("DefaultStateService", () => {
 
   // -------------------------------------------------------------------------
 
+  describe("Directory Connector Profiles", () => {
+    it("lazily creates a 'Default' active profile on the first setter call", async () => {
+      expect(await stateService.getDirectoryProfiles()).toEqual([]);
+
+      await stateService.setOrganizationId("org-123");
+
+      const profiles = await stateService.getDirectoryProfiles();
+      expect(profiles).toHaveLength(1);
+      expect(profiles[0].name).toBe("Default");
+      expect(profiles[0].organizationId).toBe("org-123");
+      expect(await stateService.getActiveDirectoryProfileId()).toBe(profiles[0].id);
+    });
+
+    it("mirrors directory type, config, org id, and sync settings onto the active profile", async () => {
+      await stateService.setDirectoryType(DirectoryType.Ldap);
+      await stateService.setDirectory(DirectoryType.Ldap, { ...ldapConfig });
+      await stateService.setOrganizationId("org-abc");
+      await stateService.setSync({ users: true, groups: true } as SyncConfiguration);
+
+      const profiles = await stateService.getDirectoryProfiles();
+      expect(profiles).toHaveLength(1);
+      expect(profiles[0].directoryType).toBe(DirectoryType.Ldap);
+      expect(profiles[0].organizationId).toBe("org-abc");
+
+      const activeId = await stateService.getActiveDirectoryProfileId();
+      const rawProfiles = storage.store.get(StorageKeys.directoryProfiles) as any[];
+      const rawActive = rawProfiles.find((p) => p.id === activeId);
+      expect(rawActive.ldap.username).toBe(ldapConfig.username);
+      expect(rawActive.sync).toEqual({ users: true, groups: true });
+    });
+
+    it("createDirectoryProfile adds a new empty profile and makes it active", async () => {
+      await stateService.setOrganizationId("org-first");
+      const firstId = await stateService.getActiveDirectoryProfileId();
+
+      const secondId = await stateService.createDirectoryProfile("Second Config");
+
+      expect(secondId).not.toBe(firstId);
+      expect(await stateService.getActiveDirectoryProfileId()).toBe(secondId);
+
+      const profiles = await stateService.getDirectoryProfiles();
+      expect(profiles.map((p) => p.name).sort()).toEqual(["Default", "Second Config"]);
+
+      // The flat keys now reflect the new, empty profile.
+      expect(await stateService.getOrganizationId()).toBeNull();
+    });
+
+    it("switchDirectoryProfile restores a previously saved profile's settings", async () => {
+      await stateService.setDirectoryType(DirectoryType.Ldap);
+      await stateService.setDirectory(DirectoryType.Ldap, {
+        ...ldapConfig,
+        username: "account1",
+        password: "password-one",
+      });
+      await stateService.setOrganizationId("org-one");
+      const firstId = await stateService.getActiveDirectoryProfileId();
+
+      await stateService.createDirectoryProfile("Second Config");
+      await stateService.setDirectoryType(DirectoryType.Okta);
+      await stateService.setDirectory(DirectoryType.Okta, {
+        orgUrl: "https://example.okta.com",
+        token: "okta-secret",
+      });
+      await stateService.setOrganizationId("org-two");
+
+      await stateService.switchDirectoryProfile(firstId);
+
+      expect(await stateService.getActiveDirectoryProfileId()).toBe(firstId);
+      expect(await stateService.getDirectoryType()).toBe(DirectoryType.Ldap);
+      expect(await stateService.getOrganizationId()).toBe("org-one");
+      const ldapResult = await stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
+      expect(ldapResult.username).toBe("account1");
+      expect(ldapResult.password).toBe("password-one");
+    });
+
+    it("switching profiles keeps each profile's secret isolated", async () => {
+      await stateService.setDirectory(DirectoryType.Ldap, {
+        ...ldapConfig,
+        username: "account1",
+        password: "password-one",
+      });
+      const firstId = await stateService.getActiveDirectoryProfileId();
+
+      await stateService.createDirectoryProfile("Second Config");
+      await stateService.setDirectory(DirectoryType.Ldap, {
+        ...ldapConfig,
+        username: "account2",
+        password: "password-two",
+      });
+      const secondId = await stateService.getActiveDirectoryProfileId();
+
+      await stateService.switchDirectoryProfile(firstId);
+      expect(
+        (await stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)).password,
+      ).toBe("password-one");
+
+      await stateService.switchDirectoryProfile(secondId);
+      expect(
+        (await stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap)).password,
+      ).toBe("password-two");
+    });
+
+    it("renameDirectoryProfile updates the profile's display name", async () => {
+      await stateService.setOrganizationId("org-123");
+      const id = await stateService.getActiveDirectoryProfileId();
+
+      await stateService.renameDirectoryProfile(id, "Renamed Profile");
+
+      const profiles = await stateService.getDirectoryProfiles();
+      expect(profiles[0].name).toBe("Renamed Profile");
+    });
+
+    it("renameDirectoryProfile throws for an unknown id", async () => {
+      await expect(stateService.renameDirectoryProfile("nope", "x")).rejects.toThrow();
+    });
+
+    it("switchDirectoryProfile throws for an unknown id", async () => {
+      await expect(stateService.switchDirectoryProfile("nope")).rejects.toThrow();
+    });
+
+    it("deleteDirectoryProfile removes the profile and its secrets, switching active profile", async () => {
+      await stateService.setDirectory(DirectoryType.Ldap, { ...ldapConfig });
+      const firstId = await stateService.getActiveDirectoryProfileId();
+      const secondId = await stateService.createDirectoryProfile("Second Config");
+
+      await stateService.deleteDirectoryProfile(secondId);
+
+      const profiles = await stateService.getDirectoryProfiles();
+      expect(profiles).toHaveLength(1);
+      expect(profiles[0].id).toBe(firstId);
+      // Deleting a non-active profile should not disturb the currently active one.
+      expect(await stateService.getActiveDirectoryProfileId()).toBe(firstId);
+    });
+
+    it("deleting the active profile falls back to another remaining profile", async () => {
+      await stateService.setDirectory(DirectoryType.Ldap, {
+        ...ldapConfig,
+        password: "password-one",
+      });
+      const firstId = await stateService.getActiveDirectoryProfileId();
+      await stateService.createDirectoryProfile("Second Config");
+
+      await stateService.deleteDirectoryProfile(firstId);
+
+      const profiles = await stateService.getDirectoryProfiles();
+      expect(profiles).toHaveLength(1);
+      expect(profiles[0].name).toBe("Second Config");
+      expect(await stateService.getActiveDirectoryProfileId()).toBe(profiles[0].id);
+    });
+
+    it("deleting the only profile clears the flat keys entirely", async () => {
+      await stateService.setDirectory(DirectoryType.Ldap, { ...ldapConfig });
+      await stateService.setOrganizationId("org-123");
+      const id = await stateService.getActiveDirectoryProfileId();
+
+      await stateService.deleteDirectoryProfile(id);
+
+      expect(await stateService.getDirectoryProfiles()).toEqual([]);
+      expect(await stateService.getActiveDirectoryProfileId()).toBeNull();
+      expect(await stateService.getOrganizationId()).toBeNull();
+      expect(await stateService.getLdapConfiguration()).toBeNull();
+    });
+
+    it("deleteDirectoryProfile purges the deleted profile's secret from secure storage", async () => {
+      await stateService.setDirectory(DirectoryType.Ldap, {
+        ...ldapConfig,
+        password: "to-be-deleted",
+      });
+      const id = await stateService.getActiveDirectoryProfileId();
+      const stored = storage.store.get(StorageKeys.directoryLdap) as LdapConfiguration;
+
+      await stateService.deleteDirectoryProfile(id);
+
+      expect(secureStorage.store.has(scopedSecretKey(SecureStorageKeys.ldap, stored))).toBe(false);
+    });
+
+    it("deleteDirectoryProfile is a no-op for an unknown id", async () => {
+      await expect(stateService.deleteDirectoryProfile("nope")).resolves.not.toThrow();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+
   describe("Window Settings", () => {
     it("round-trips window state", async () => {
       const windowState = { width: 1024, height: 768, x: 100, y: 100, isMaximized: false };

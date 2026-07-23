@@ -5,5 +5,6 @@ export enum StateVersion {
   Four = 4, // Fix 'Never Lock' option by removing stale data
   Five = 5, // New state service implementation
   Six = 6, // Migrate Windows Credential Manager entries from keytar (UTF-8) to desktop_core (UTF-16)
-  Latest = Six,
+  Seven = 7, // Wrap the single active directory configuration into the new multi-profile list
+  Latest = Seven,
 }

@@ -15,6 +15,11 @@ export const StorageKeys = {
   directoryOkta: "directoryOkta",
   directoryOnelogin: "directoryOnelogin",
   sync: "sync",
+
+  // Multiple saved directory-connector configurations ("profiles"); see
+  // libs/models/directoryConnectorProfile.ts for details.
+  directoryProfiles: "directoryProfiles",
+  activeDirectoryProfileId: "activeDirectoryProfileId",
   syncingDir: "syncingDir",
   lastSyncHash: "lastSyncHash",
 

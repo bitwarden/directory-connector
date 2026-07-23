@@ -1,7 +1,9 @@
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
+import { DirectoryType } from "@/libs/enums/directoryType";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
 import { StateVersion } from "@/libs/enums/stateVersion";
+import { DirectoryConnectorProfile } from "@/libs/models/directoryConnectorProfile";
 import { StorageOptions } from "@/libs/models/domain/storageOptions";
 import {
   SecureStorageKey,
@@ -9,6 +11,8 @@ import {
   StorageKey,
   StorageKeys,
 } from "@/libs/models/state.model";
+
+import { generateConfigId } from "./secret-storage-key.util";
 
 import { passwords } from "dc-native";
 
@@ -60,6 +64,9 @@ export class StateMigrationService {
           break;
         case StateVersion.Five:
           await this.migrateStateFrom5To6();
+          break;
+        case StateVersion.Six:
+          await this.migrateStateFrom6To7();
           break;
       }
       currentStateVersion += 1;
@@ -263,6 +270,67 @@ export class StateMigrationService {
     );
 
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
+  }
+
+  /**
+   * Migrate from State v6 to v7 — introduce support for multiple saved directory-connector
+   * configurations ("profiles", see directoryConnectorProfile.ts). Prior to this version,
+   * `data.json` could only ever describe a single active configuration at a handful of fixed
+   * top-level keys (`directoryType`, `organizationId`, `sync`, `directoryLdap`, etc.).
+   *
+   * Those flat keys are kept (they continue to describe whichever profile is "active"), but any
+   * existing configuration found there is additionally wrapped into a single profile named
+   * "Default" so it shows up alongside any new profiles the user creates. The profile reuses the
+   * `id` already assigned to the active directory type's config (if any), so its secure-storage
+   * secret keeps resolving correctly without needing to touch secure storage during migration.
+   */
+  protected async migrateStateFrom6To7(): Promise<void> {
+    const directoryType = await this.get<DirectoryType>(StorageKeys.directoryType);
+    const organizationId = await this.get<string>(StorageKeys.organizationId);
+
+    if (directoryType != null || organizationId != null) {
+      const ldap = await this.get<DirectoryConnectorProfile["ldap"]>(StorageKeys.directoryLdap);
+      const gsuite = await this.get<DirectoryConnectorProfile["gsuite"]>(
+        StorageKeys.directoryGsuite,
+      );
+      const entra = await this.get<DirectoryConnectorProfile["entra"]>(StorageKeys.directoryEntra);
+      const okta = await this.get<DirectoryConnectorProfile["okta"]>(StorageKeys.directoryOkta);
+      const oneLogin = await this.get<DirectoryConnectorProfile["oneLogin"]>(
+        StorageKeys.directoryOnelogin,
+      );
+
+      const configsByType: Partial<Record<DirectoryType, { id?: string }>> = {
+        [DirectoryType.Ldap]: ldap,
+        [DirectoryType.GSuite]: gsuite,
+        [DirectoryType.EntraID]: entra,
+        [DirectoryType.Okta]: okta,
+        [DirectoryType.OneLogin]: oneLogin,
+      };
+
+      const profile: DirectoryConnectorProfile = {
+        id: configsByType[directoryType]?.id ?? generateConfigId(),
+        name: "Default",
+        directoryType,
+        organizationId,
+        sync: await this.get(StorageKeys.sync),
+        ldap,
+        gsuite,
+        entra,
+        okta,
+        oneLogin,
+        userDelta: await this.get(StorageKeys.userDelta),
+        groupDelta: await this.get(StorageKeys.groupDelta),
+        lastUserSync: await this.get(StorageKeys.lastUserSync),
+        lastGroupSync: await this.get(StorageKeys.lastGroupSync),
+        lastSyncHash: await this.get(StorageKeys.lastSyncHash),
+        syncingDir: await this.get(StorageKeys.syncingDir),
+      };
+
+      await this.set(StorageKeys.directoryProfiles, [profile]);
+      await this.set(StorageKeys.activeDirectoryProfileId, profile.id);
+    }
+
+    await this.set(StorageKeys.stateVersion, StateVersion.Seven);
   }
 
   // ===================================================================

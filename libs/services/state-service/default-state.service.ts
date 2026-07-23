@@ -2,6 +2,11 @@ import { LogService } from "@/libs/abstractions/log.service";
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { IConfiguration } from "@/libs/models/IConfiguration";
+import {
+  DirectoryConnectorProfile,
+  DirectoryConnectorProfileSummary,
+  toProfileSummary,
+} from "@/libs/models/directoryConnectorProfile";
 import { EnvironmentUrls } from "@/libs/models/domain/environmentUrls";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
@@ -328,6 +333,7 @@ export class DefaultStateService implements StateService {
 
   async setLdapConfiguration(value: LdapConfiguration): Promise<void> {
     await this.storageService.save(StorageKeys.directoryLdap, value);
+    await this.mirrorToActiveProfile({ ldap: value });
   }
 
   async getGsuiteConfiguration(): Promise<GSuiteConfiguration> {
@@ -336,6 +342,7 @@ export class DefaultStateService implements StateService {
 
   async setGsuiteConfiguration(value: GSuiteConfiguration): Promise<void> {
     await this.storageService.save(StorageKeys.directoryGsuite, value);
+    await this.mirrorToActiveProfile({ gsuite: value });
   }
 
   async getEntraConfiguration(): Promise<EntraIdConfiguration> {
@@ -344,6 +351,7 @@ export class DefaultStateService implements StateService {
 
   async setEntraConfiguration(value: EntraIdConfiguration): Promise<void> {
     await this.storageService.save(StorageKeys.directoryEntra, value);
+    await this.mirrorToActiveProfile({ entra: value });
   }
 
   async getOktaConfiguration(): Promise<OktaConfiguration> {
@@ -352,6 +360,7 @@ export class DefaultStateService implements StateService {
 
   async setOktaConfiguration(value: OktaConfiguration): Promise<void> {
     await this.storageService.save(StorageKeys.directoryOkta, value);
+    await this.mirrorToActiveProfile({ okta: value });
   }
 
   async getOneLoginConfiguration(): Promise<OneLoginConfiguration> {
@@ -360,6 +369,7 @@ export class DefaultStateService implements StateService {
 
   async setOneLoginConfiguration(value: OneLoginConfiguration): Promise<void> {
     await this.storageService.save(StorageKeys.directoryOnelogin, value);
+    await this.mirrorToActiveProfile({ oneLogin: value });
   }
 
   // ===================================================================
@@ -376,6 +386,7 @@ export class DefaultStateService implements StateService {
       await this.clearSyncSettings();
     }
     await this.storageService.save(StorageKeys.organizationId, value);
+    await this.mirrorToActiveProfile({ organizationId: value });
   }
 
   async getSync(): Promise<SyncConfiguration> {
@@ -384,6 +395,7 @@ export class DefaultStateService implements StateService {
 
   async setSync(value: SyncConfiguration): Promise<void> {
     await this.storageService.save(StorageKeys.sync, value);
+    await this.mirrorToActiveProfile({ sync: value });
   }
 
   async getDirectoryType(): Promise<DirectoryType> {
@@ -396,6 +408,7 @@ export class DefaultStateService implements StateService {
       await this.clearSyncSettings();
     }
     await this.storageService.save(StorageKeys.directoryType, value);
+    await this.mirrorToActiveProfile({ directoryType: value });
   }
 
   async getLastUserSync(): Promise<Date> {
@@ -405,6 +418,7 @@ export class DefaultStateService implements StateService {
 
   async setLastUserSync(value: Date): Promise<void> {
     await this.storageService.save(StorageKeys.lastUserSync, value);
+    await this.mirrorToActiveProfile({ lastUserSync: value });
   }
 
   async getLastGroupSync(): Promise<Date> {
@@ -414,6 +428,7 @@ export class DefaultStateService implements StateService {
 
   async setLastGroupSync(value: Date): Promise<void> {
     await this.storageService.save(StorageKeys.lastGroupSync, value);
+    await this.mirrorToActiveProfile({ lastGroupSync: value });
   }
 
   async getLastSyncHash(): Promise<string> {
@@ -422,6 +437,7 @@ export class DefaultStateService implements StateService {
 
   async setLastSyncHash(value: string): Promise<void> {
     await this.storageService.save(StorageKeys.lastSyncHash, value);
+    await this.mirrorToActiveProfile({ lastSyncHash: value });
   }
 
   async getSyncingDir(): Promise<boolean> {
@@ -430,6 +446,7 @@ export class DefaultStateService implements StateService {
 
   async setSyncingDir(value: boolean): Promise<void> {
     await this.storageService.save(StorageKeys.syncingDir, value);
+    await this.mirrorToActiveProfile({ syncingDir: value });
   }
 
   async getUserDelta(): Promise<string> {
@@ -438,6 +455,7 @@ export class DefaultStateService implements StateService {
 
   async setUserDelta(value: string): Promise<void> {
     await this.storageService.save(StorageKeys.userDelta, value);
+    await this.mirrorToActiveProfile({ userDelta: value });
   }
 
   async getGroupDelta(): Promise<string> {
@@ -446,6 +464,175 @@ export class DefaultStateService implements StateService {
 
   async setGroupDelta(value: string): Promise<void> {
     await this.storageService.save(StorageKeys.groupDelta, value);
+    await this.mirrorToActiveProfile({ groupDelta: value });
+  }
+
+  // ===================================================================
+  // Directory Connector Profiles (multiple saved configurations)
+  // ===================================================================
+  //
+  // A "profile" is a saved directory-connector configuration. The methods above continue to
+  // read/write the classic flat `data.json` keys, which always describe whichever profile is
+  // "active" - every one of those setters also mirrors its value onto the active profile's entry
+  // in `StorageKeys.directoryProfiles` so the profile list never drifts out of sync with the live
+  // configuration. Switching the active profile (`switchDirectoryProfile`) copies a different
+  // profile's saved values back into the flat keys.
+
+  private async getProfilesList(): Promise<DirectoryConnectorProfile[]> {
+    return (
+      (await this.storageService.get<DirectoryConnectorProfile[]>(StorageKeys.directoryProfiles)) ??
+      []
+    );
+  }
+
+  private async saveProfilesList(profiles: DirectoryConnectorProfile[]): Promise<void> {
+    await this.storageService.save(StorageKeys.directoryProfiles, profiles);
+  }
+
+  /**
+   * Applies `patch` to whichever profile is currently active, creating a new "Default" profile
+   * first if none is active yet (e.g. a fresh install, or an install predating profile support
+   * that hasn't gone through migration). Called by every flat-key setter above so the profile
+   * list is always an accurate reflection of the live configuration.
+   */
+  private async mirrorToActiveProfile(patch: Partial<DirectoryConnectorProfile>): Promise<void> {
+    const profiles = await this.getProfilesList();
+    let activeId = await this.storageService.get<string>(StorageKeys.activeDirectoryProfileId);
+    let active = profiles.find((p) => p.id === activeId);
+
+    if (active == null) {
+      active = { id: generateConfigId(), name: "Default" };
+      profiles.push(active);
+      activeId = active.id;
+      await this.storageService.save(StorageKeys.activeDirectoryProfileId, activeId);
+    }
+
+    Object.assign(active, patch);
+    await this.saveProfilesList(profiles);
+  }
+
+  async getDirectoryProfiles(): Promise<DirectoryConnectorProfileSummary[]> {
+    const profiles = await this.getProfilesList();
+    return profiles.map(toProfileSummary);
+  }
+
+  async getActiveDirectoryProfileId(): Promise<string> {
+    return await this.storageService.get<string>(StorageKeys.activeDirectoryProfileId);
+  }
+
+  /**
+   * Makes `id` the active profile, restoring its saved (non-secret) configuration into the flat
+   * `data.json` keys. Secrets are untouched: config objects here already carry the `StoredSecurely`
+   * placeholder and their original `id`, so `getDirectory()` continues to resolve the correct
+   * secure-storage secret for whichever profile is now active.
+   */
+  async switchDirectoryProfile(id: string): Promise<void> {
+    const profiles = await this.getProfilesList();
+    const profile = profiles.find((p) => p.id === id);
+    if (profile == null) {
+      throw new Error("Directory connector profile not found.");
+    }
+
+    await this.storageService.save(StorageKeys.activeDirectoryProfileId, id);
+    await this.storageService.save(StorageKeys.directoryType, profile.directoryType ?? null);
+    await this.storageService.save(StorageKeys.organizationId, profile.organizationId ?? null);
+    await this.storageService.save(StorageKeys.sync, profile.sync ?? null);
+    await this.storageService.save(StorageKeys.directoryLdap, profile.ldap ?? null);
+    await this.storageService.save(StorageKeys.directoryGsuite, profile.gsuite ?? null);
+    await this.storageService.save(StorageKeys.directoryEntra, profile.entra ?? null);
+    await this.storageService.save(StorageKeys.directoryOkta, profile.okta ?? null);
+    await this.storageService.save(StorageKeys.directoryOnelogin, profile.oneLogin ?? null);
+    await this.storageService.save(StorageKeys.userDelta, profile.userDelta ?? null);
+    await this.storageService.save(StorageKeys.groupDelta, profile.groupDelta ?? null);
+    await this.storageService.save(StorageKeys.lastUserSync, profile.lastUserSync ?? null);
+    await this.storageService.save(StorageKeys.lastGroupSync, profile.lastGroupSync ?? null);
+    await this.storageService.save(StorageKeys.lastSyncHash, profile.lastSyncHash ?? null);
+    await this.storageService.save(StorageKeys.syncingDir, profile.syncingDir ?? null);
+  }
+
+  /** Creates a new, empty profile, makes it active, and resets the flat keys to a blank slate. */
+  async createDirectoryProfile(name: string): Promise<string> {
+    const profiles = await this.getProfilesList();
+    const profile: DirectoryConnectorProfile = { id: generateConfigId(), name };
+    profiles.push(profile);
+    await this.saveProfilesList(profiles);
+    await this.switchDirectoryProfile(profile.id);
+    return profile.id;
+  }
+
+  async renameDirectoryProfile(id: string, name: string): Promise<void> {
+    const profiles = await this.getProfilesList();
+    const profile = profiles.find((p) => p.id === id);
+    if (profile == null) {
+      throw new Error("Directory connector profile not found.");
+    }
+    profile.name = name;
+    await this.saveProfilesList(profiles);
+  }
+
+  /**
+   * Removes a profile and purges any secrets it owns from secure storage. If the deleted profile
+   * was active, another remaining profile becomes active (or the flat keys are cleared entirely
+   * if none remain).
+   */
+  async deleteDirectoryProfile(id: string): Promise<void> {
+    const profiles = await this.getProfilesList();
+    const profile = profiles.find((p) => p.id === id);
+    if (profile == null) {
+      return;
+    }
+
+    if (this.useSecureStorageForSecrets) {
+      // Only clear scoped secrets that actually belong to this profile (an `id` is present) -
+      // never fall back to the shared legacy/unscoped key, which may still be relied on by
+      // another not-yet-migrated profile.
+      if (profile.ldap?.id) {
+        await this.setScopedSecret(SecureStorageKeys.ldap, profile.ldap.id, null);
+      }
+      if (profile.gsuite?.id) {
+        await this.setScopedSecret(SecureStorageKeys.gsuite, profile.gsuite.id, null);
+      }
+      if (profile.entra?.id) {
+        await this.setScopedSecret(SecureStorageKeys.entra, profile.entra.id, null);
+        await this.setScopedSecret(SecureStorageKeys.azure, profile.entra.id, null);
+      }
+      if (profile.okta?.id) {
+        await this.setScopedSecret(SecureStorageKeys.okta, profile.okta.id, null);
+      }
+      if (profile.oneLogin?.id) {
+        await this.setScopedSecret(SecureStorageKeys.oneLogin, profile.oneLogin.id, null);
+      }
+    }
+
+    const remaining = profiles.filter((p) => p.id !== id);
+    await this.saveProfilesList(remaining);
+
+    const activeId = await this.storageService.get<string>(StorageKeys.activeDirectoryProfileId);
+    if (activeId !== id) {
+      return;
+    }
+
+    if (remaining.length > 0) {
+      await this.switchDirectoryProfile(remaining[0].id);
+    } else {
+      await this.storageService.remove(StorageKeys.activeDirectoryProfileId);
+      await this.storageService.save(StorageKeys.directoryType, null);
+      await this.storageService.save(StorageKeys.organizationId, null);
+      await this.storageService.save(StorageKeys.sync, null);
+      await this.storageService.save(StorageKeys.directoryLdap, null);
+      await this.storageService.save(StorageKeys.directoryGsuite, null);
+      await this.storageService.save(StorageKeys.directoryEntra, null);
+      await this.storageService.save(StorageKeys.directoryOkta, null);
+      await this.storageService.save(StorageKeys.directoryOnelogin, null);
+      // Clear sync metadata directly (not via the public setters), which would otherwise
+      // auto-vivify a fresh "Default" profile via mirrorToActiveProfile now that no profile
+      // is active.
+      await this.storageService.save(StorageKeys.userDelta, null);
+      await this.storageService.save(StorageKeys.groupDelta, null);
+      await this.storageService.save(StorageKeys.lastUserSync, null);
+      await this.storageService.save(StorageKeys.lastGroupSync, null);
+      await this.storageService.save(StorageKeys.lastSyncHash, null);
+    }
   }
 
   async clearSyncSettings(hashToo = false): Promise<void> {

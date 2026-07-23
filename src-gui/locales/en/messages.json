@@ -348,6 +348,29 @@
   "directory": {
     "message": "Directory"
   },
+  "profile": {
+    "message": "Profile"
+  },
+  "profileName": {
+    "message": "Profile name"
+  },
+  "newProfile": {
+    "message": "New profile"
+  },
+  "deleteProfile": {
+    "message": "Delete profile"
+  },
+  "deleteProfileConfirmation": {
+    "message": "Delete profile `$PROFILE_NAME$`? This cannot be undone.",
+    "placeholders": {
+      "profile_name": {
+        "content": "$1"
+      }
+    }
+  },
+  "cannotDeleteLastProfile": {
+    "message": "Can't delete the only profile."
+  },
   "currentUser": {
     "message": "Authenticate as current system user"
   },

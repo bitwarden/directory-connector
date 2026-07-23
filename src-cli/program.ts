@@ -16,6 +16,7 @@ import { ConfigCommand } from "./commands/config.command";
 import { LastSyncCommand } from "./commands/lastSync.command";
 import { LoginCommand } from "./commands/login.command";
 import { LogoutCommand } from "./commands/logout.command";
+import { ProfileCommand } from "./commands/profile.command";
 import { SyncCommand } from "./commands/sync.command";
 import { TestCommand } from "./commands/test.command";
 
@@ -81,6 +82,7 @@ export class Program extends BaseProgram {
       writeLn("    bwdc sync");
       writeLn("    bwdc last-sync");
       writeLn("    bwdc config server https://bw.company.com");
+      writeLn("    bwdc profile list");
       writeLn("    bwdc update");
       writeLn("", true);
     });
@@ -216,6 +218,60 @@ export class Program extends BaseProgram {
           this.main.environmentService,
         );
         const response = await command.run(setting, value, options);
+        this.processResponse(response);
+      });
+
+    program
+      .command("profile [action] [value] [newName]")
+      .description("Manage multiple saved directory configurations.", {
+        action: "list, create, use, rename, delete, or current (default: list)",
+        value: "A profile name or id (used by create/use/rename/delete).",
+        newName: "The new name to give the profile (only used by rename).",
+      })
+      .on("--help", () => {
+        writeLn("\n  Actions:");
+        writeLn("");
+        writeLn("    list - List all saved profiles (default).");
+        writeLn("    create <name> - Create a new empty profile and make it active.");
+        writeLn("    use <name-or-id> - Switch the active profile.");
+        writeLn("    rename <name-or-id> <new-name> - Rename a profile.");
+        writeLn("    delete <name-or-id> - Delete a profile.");
+        writeLn("    current - Print the active profile's id.");
+        writeLn("");
+        writeLn("  Examples:");
+        writeLn("");
+        writeLn("    bwdc profile list");
+        writeLn('    bwdc profile create "Corporate AD"');
+        writeLn('    bwdc profile use "Corporate AD"');
+        writeLn('    bwdc profile rename "Corporate AD" "Corporate AD (EU)"');
+        writeLn('    bwdc profile delete "Corporate AD"');
+        writeLn("", true);
+      })
+      .action(async (action: string, value: string, newName: string) => {
+        const profileCommand = new ProfileCommand(this.main.stateService);
+        let response: Response;
+        switch ((action ?? "list").toLowerCase()) {
+          case "list":
+            response = await profileCommand.list();
+            break;
+          case "create":
+            response = await profileCommand.create(value);
+            break;
+          case "use":
+            response = await profileCommand.use(value);
+            break;
+          case "rename":
+            response = await profileCommand.rename(value, newName);
+            break;
+          case "delete":
+            response = await profileCommand.delete(value);
+            break;
+          case "current":
+            response = await profileCommand.current();
+            break;
+          default:
+            response = Response.badRequest("Unknown profile action.");
+        }
         this.processResponse(response);
       });
 

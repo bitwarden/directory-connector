@@ -1,4 +1,5 @@
 import { DirectoryType } from "@/libs/enums/directoryType";
+import { DirectoryConnectorProfileSummary } from "@/libs/models/directoryConnectorProfile";
 import { EnvironmentUrls } from "@/libs/models/domain/environmentUrls";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
@@ -47,6 +48,14 @@ export abstract class StateService {
   abstract getSyncingDir(): Promise<boolean>;
   abstract setSyncingDir(value: boolean): Promise<void>;
   abstract clearSyncSettings(syncHashToo: boolean): Promise<void>;
+
+  // Directory connector profiles (multiple saved configurations)
+  abstract getDirectoryProfiles(): Promise<DirectoryConnectorProfileSummary[]>;
+  abstract getActiveDirectoryProfileId(): Promise<string>;
+  abstract switchDirectoryProfile(id: string): Promise<void>;
+  abstract createDirectoryProfile(name: string): Promise<string>;
+  abstract renameDirectoryProfile(id: string, name: string): Promise<void>;
+  abstract deleteDirectoryProfile(id: string): Promise<void>;
 
   // Window settings (for WindowMain)
   abstract getWindow(): Promise<any>;

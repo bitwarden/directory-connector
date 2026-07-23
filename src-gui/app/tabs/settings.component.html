@@ -1,4 +1,48 @@
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <div class="lg:col-span-2">
+    <div class="surface-card">
+      <div class="surface-card-header">
+        <h2 class="surface-card-title">{{ "profile" | i18n }}</h2>
+      </div>
+      <div class="surface-card-body">
+        <div class="flex flex-wrap items-end gap-3">
+          <div class="min-w-[12rem] flex-1">
+            <label for="activeProfile" class="field-label">{{ "profile" | i18n }}</label>
+            <select
+              class="field-input"
+              id="activeProfile"
+              name="ActiveProfile"
+              [ngModel]="activeProfileId()"
+              (ngModelChange)="selectProfile($event)"
+            >
+              @for (p of profiles(); track p.id) {
+                <option [ngValue]="p.id">{{ p.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="min-w-[12rem] flex-1">
+            <label for="profileName" class="field-label">{{ "profileName" | i18n }}</label>
+            <input
+              type="text"
+              class="field-input"
+              id="profileName"
+              name="ProfileName"
+              [ngModel]="activeProfileName()"
+              (ngModelChange)="activeProfileName.set($event)"
+            />
+          </div>
+          <div class="flex gap-2">
+            <button type="button" class="btn-secondary" (click)="createProfile()">
+              {{ "newProfile" | i18n }}
+            </button>
+            <button type="button" class="btn-danger-outline" (click)="deleteActiveProfile()">
+              {{ "deleteProfile" | i18n }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div>
     <div class="surface-card">
       <div class="surface-card-header">
