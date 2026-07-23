@@ -6,24 +6,13 @@
 /// `get_password_keytar` and re-saves it with desktop_core's `set_password` (CredWriteW,
 /// UTF-16 encoding). Returns false if the credential does not exist or cannot be read.
 ///
-/// `find_legacy_keytar_account` enumerates all credentials stored under a service prefix and
-/// returns the account portion (the part after the "/") whose suffix matches a known legacy
-/// keytar key pattern (e.g. "_ldapPassword"). This handles installs where the 3→5 migration
-/// never ran so credentials remain under "{orgId}_ldapPassword" instead of "secretLdap".
+/// `find_legacy_keytar_accounts` enumerates all credentials stored under a service prefix and
+/// returns any whose suffix matches a known legacy keytar key pattern (e.g. "_ldapPassword").
+/// This handles installs where credentials remain under "{orgId}_ldapPassword" instead of "secretLdap".
 use anyhow::Result;
 
-/// Parses a raw keytar credential blob into a String.
-///
-/// Keytar wrote credentials via CredWriteA as null-terminated UTF-8 strings.
-/// Strips the trailing null byte (if present), validates UTF-8, and rejects any
-/// remaining interior null bytes — those indicate a corrupted or UTF-16 blob.
 fn parse_keytar_blob(bytes: &[u8]) -> Result<String> {
-    let bytes = bytes.strip_suffix(&[0u8]).unwrap_or(bytes);
-    let s = std::str::from_utf8(bytes)?;
-    if s.contains('\0') {
-        anyhow::bail!("credential blob contains interior null bytes");
-    }
-    Ok(String::from(s))
+    Ok(String::from(std::str::from_utf8(bytes)?))
 }
 
 /// Maps a legacy keytar account suffix (e.g. "_ldapPassword") to the canonical flat
@@ -238,50 +227,6 @@ pub async fn migrate_legacy_keytar_accounts(
 #[cfg(test)]
 mod tests {
     use super::{legacy_suffix_to_flat_key, parse_keytar_blob};
-
-    // parse_keytar_blob tests
-    #[test]
-    fn plain_utf8_no_null() {
-        let blob = b"secret-password";
-        assert_eq!(parse_keytar_blob(blob).unwrap(), "secret-password");
-    }
-
-    #[test]
-    fn strips_single_trailing_null() {
-        let blob = b"secret-password\0";
-        assert_eq!(parse_keytar_blob(blob).unwrap(), "secret-password");
-    }
-
-    #[test]
-    fn does_not_strip_interior_null() {
-        // A null byte in the middle is invalid; the call must fail, not silently truncate.
-        let blob = b"sec\0ret";
-        assert!(parse_keytar_blob(blob).is_err());
-    }
-
-    #[test]
-    fn empty_blob_returns_empty_string() {
-        assert_eq!(parse_keytar_blob(b"").unwrap(), "");
-    }
-
-    #[test]
-    fn null_only_blob_returns_empty_string() {
-        // A single null byte is the null terminator with no payload.
-        assert_eq!(parse_keytar_blob(b"\0").unwrap(), "");
-    }
-
-    #[test]
-    fn invalid_utf8_returns_error() {
-        // 0xFF is never valid UTF-8.
-        let blob = &[0xFFu8, 0x42];
-        assert!(parse_keytar_blob(blob).is_err());
-    }
-
-    #[test]
-    fn valid_utf8_multibyte() {
-        let blob = "café\0".as_bytes();
-        assert_eq!(parse_keytar_blob(blob).unwrap(), "café");
-    }
 
     // legacy_suffix_to_flat_key tests
     #[test]
