@@ -9,14 +9,17 @@
 /// `find_legacy_keytar_accounts` enumerates all credentials stored under a service prefix and
 /// returns any whose suffix matches a known legacy keytar key pattern (e.g. "_ldapPassword").
 /// This handles installs where credentials remain under "{orgId}_ldapPassword" instead of "secretLdap".
+#[cfg(windows)]
 use anyhow::Result;
 
+#[cfg(windows)]
 fn parse_keytar_blob(bytes: &[u8]) -> Result<String> {
     Ok(String::from(std::str::from_utf8(bytes)?))
 }
 
 /// Maps a legacy keytar account suffix (e.g. "_ldapPassword") to the canonical flat
 /// SecureStorageKey (e.g. "secretLdap"). Returns None if the suffix is not recognised.
+#[cfg(windows)]
 pub fn legacy_suffix_to_flat_key(account: &str) -> Option<&'static str> {
     // These suffixes match the old {userId}_* key names keytar used before the 3→5 migration.
     const SUFFIXES: &[(&str, &str)] = &[
@@ -149,6 +152,7 @@ pub fn find_legacy_keytar_accounts(service: &str) -> Result<Vec<(String, &'stati
 /// Reads a keytar UTF-8 credential stored under `old_account` and writes it under
 /// `new_account` using desktop_core's UTF-16 encoding. Returns false if the old
 /// credential does not exist or cannot be parsed.
+#[cfg(windows)]
 pub async fn migrate_keytar_password_as(
     service: &str,
     old_account: &str,
@@ -171,6 +175,7 @@ pub async fn migrate_keytar_password_as(
     }
 }
 
+#[cfg(windows)]
 pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<bool> {
     #[cfg(windows)]
     {
@@ -194,6 +199,7 @@ pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<boo
 /// Finds legacy keytar credentials under the service prefix, migrates each one's
 /// UTF-8 blob to UTF-16 under the canonical flat key name, and returns a list of
 /// (legacy_account, flat_key) pairs for every credential that was migrated.
+#[cfg(windows)]
 pub async fn migrate_legacy_keytar_accounts(
     service: &str,
 ) -> Result<Vec<(String, &'static str)>> {
@@ -230,7 +236,7 @@ pub async fn migrate_legacy_keytar_accounts(
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, windows))]
 mod tests {
     use super::legacy_suffix_to_flat_key;
 
