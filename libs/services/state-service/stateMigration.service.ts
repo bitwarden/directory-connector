@@ -59,6 +59,12 @@ export class StateMigrationService {
           await this.migrateStateFrom3To5();
           break;
         case StateVersion.Five:
+          // If activeUserId is still present the v3→5 credential migration previously failed
+          // (credentials were skipped due to the UTF-8/UTF-16 mismatch). Re-run it now so
+          // the secrets are copied before the v5→6 re-encoding step.
+          if ((await this.storageService.get("activeUserId" as any)) != null) {
+            await this.migrateStateFrom3To5();
+          }
           await this.migrateStateFrom5To6();
           break;
         case StateVersion.Six:
@@ -165,55 +171,18 @@ export class StateMigrationService {
         { old: `${clientId}_twoFactorToken`, new: SecureStorageKeys.twoFactorToken },
       ];
 
-      let entraIdKeyMigrated = false;
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        const migrated = await passwords.migrateKeytarPasswordAs(
-          SECURE_STORAGE_SERVICE_NAME,
-          oldKey,
-          newKey,
-        );
-        if (migrated) {
-          // Windows: migrateKeytarPasswordAs read UTF-8 and wrote UTF-16; safe to remove old entry.
-          if (oldKey === `${clientId}_entraIdKey`) {
-            entraIdKeyMigrated = true;
-          }
-          await this.secureStorageService.remove(oldKey);
-        } else {
-          // Non-Windows (or key absent on Windows): fall back to service-layer copy.
-          if (await this.secureStorageService.has(oldKey)) {
-            if (oldKey === `${clientId}_entraIdKey`) {
-              entraIdKeyMigrated = true;
-            }
-            const value = await this.secureStorageService.get(oldKey);
-            if (value != null) {
-              await this.secureStorageService.save(newKey, value);
-            }
-            await this.secureStorageService.remove(oldKey);
-          }
-        }
+        await passwords.migrateKeytarPasswordAs(SECURE_STORAGE_SERVICE_NAME, oldKey, newKey);
+        await this.secureStorageService.remove(oldKey);
       }
 
-      // Only migrate _entraKey if _entraIdKey was absent — it is the lower-priority fallback.
-      if (!entraIdKeyMigrated) {
-        const entraLegacyKey = `${clientId}_entraKey`;
-        const migrated = await passwords.migrateKeytarPasswordAs(
-          SECURE_STORAGE_SERVICE_NAME,
-          entraLegacyKey,
-          SecureStorageKeys.entra,
-        );
-        if (migrated) {
-          await this.secureStorageService.remove(entraLegacyKey);
-        } else if (await this.secureStorageService.has(entraLegacyKey)) {
-          const value = await this.secureStorageService.get(entraLegacyKey);
-          if (value != null) {
-            await this.secureStorageService.save(SecureStorageKeys.entra, value);
-          }
-          await this.secureStorageService.remove(entraLegacyKey);
-        }
-      } else {
-        // _entraIdKey was present and migrated — remove the legacy _entraKey if it exists.
-        await this.secureStorageService.remove(`${clientId}_entraKey`);
-      }
+      // _entraKey is the lower-priority fallback for _entraIdKey.
+      await passwords.migrateKeytarPasswordAs(
+        SECURE_STORAGE_SERVICE_NAME,
+        `${clientId}_entraKey`,
+        SecureStorageKeys.entra,
+      );
+      await this.secureStorageService.remove(`${clientId}_entraKey`);
 
       // Migrate apiKeyClientId and apiKeyClientSecret from account object to secure storage
       if (account.profile?.apiKeyClientId) {
@@ -261,13 +230,6 @@ export class StateMigrationService {
         await this.set(StorageKeys.environmentUrls, globals.environmentUrls);
       }
     }
-
-    // Remove stale v3 keys now that all data has been copied to the flat structure.
-    await this.storageService.remove("activeUserId" as any, this.options);
-    if (clientId) {
-      await this.storageService.remove(clientId as any, this.options);
-    }
-    await this.storageService.remove("global" as any, this.options);
 
     // Set final state version using the new flat key
     await this.set(StorageKeys.stateVersion, StateVersion.Five);
