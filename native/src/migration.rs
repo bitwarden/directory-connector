@@ -201,16 +201,22 @@ pub async fn migrate_legacy_keytar_accounts(
     {
         let legacy_accounts = find_legacy_keytar_accounts(service)?;
         let mut migrated = Vec::new();
+        // Track which flat keys have already been written so _entraKey cannot
+        // overwrite _entraIdKey regardless of CredEnumerateW ordering.
+        let mut written_flat_keys = std::collections::HashSet::new();
 
         for (legacy_account, flat_key) in legacy_accounts {
+            // _entraIdKey and _entraKey both map to "secretEntra". Prefer whichever
+            // arrives first and skip the other so the lower-priority fallback can't win.
+            if written_flat_keys.contains(flat_key) {
+                continue;
+            }
             let value = match get_password_keytar(service, &legacy_account) {
                 Err(_) => continue,
                 Ok(v) => v,
             };
-            // Write under the canonical flat key name. If a value already exists there
-            // (from a previous partial migration) this overwrites it, which is safe since
-            // both contain the same credential.
             desktop_core::password::set_password(service, flat_key, &value).await?;
+            written_flat_keys.insert(flat_key);
             migrated.push((legacy_account, flat_key));
         }
 
@@ -226,7 +232,7 @@ pub async fn migrate_legacy_keytar_accounts(
 
 #[cfg(test)]
 mod tests {
-    use super::{legacy_suffix_to_flat_key, parse_keytar_blob};
+    use super::legacy_suffix_to_flat_key;
 
     // legacy_suffix_to_flat_key tests
     #[test]

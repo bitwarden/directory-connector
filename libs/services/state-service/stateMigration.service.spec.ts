@@ -299,7 +299,7 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.get(SecureStorageKeys.apiKeyClientSecret)).toBe("client-secret");
       });
 
-      it("sets stateVersion to StateVersion.Six after all migrations", async () => {
+      it("sets stateVersion to StateVersion.Seven after all migrations", async () => {
         await svc.migrate();
 
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
@@ -687,7 +687,7 @@ describe("StateMigrationService", () => {
         expect(badKeys).toHaveLength(0);
       });
 
-      it("bumps stateVersion to Six", async () => {
+      it("bumps stateVersion to Seven", async () => {
         await svc.migrate();
 
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
