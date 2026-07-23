@@ -44,10 +44,6 @@ export class StateMigrationService {
 
   async migrate(): Promise<void> {
     let currentStateVersion = await this.getCurrentStateVersion();
-    // eslint-disable-next-line no-console
-    console.log(
-      `[StateMigrationService] starting migration from v${currentStateVersion} → v${StateVersion.Latest}`,
-    );
 
     if (currentStateVersion < MinSupportedStateVersion) {
       throw new Error(
@@ -57,10 +53,6 @@ export class StateMigrationService {
     }
 
     while (currentStateVersion < StateVersion.Latest) {
-      // eslint-disable-next-line no-console
-      console.log(
-        `[StateMigrationService] running migration step v${currentStateVersion} → v${currentStateVersion + 1}`,
-      );
       switch (currentStateVersion) {
         case StateVersion.Three:
         case StateVersion.Four:
@@ -71,8 +63,6 @@ export class StateMigrationService {
           // (credentials were skipped due to the UTF-8/UTF-16 mismatch). Re-run it now so
           // the secrets are copied before the v5→6 re-encoding step.
           const hasLegacyData = (await this.storageService.get("activeUserId" as any)) != null;
-          // eslint-disable-next-line no-console
-          console.log(`[StateMigrationService] v5: hasLegacyActiveUserId=${hasLegacyData}`);
           if (hasLegacyData) {
             await this.migrateStateFrom3To5();
           }
@@ -184,24 +174,16 @@ export class StateMigrationService {
       ];
 
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        const r = await passwords.migrateKeytarPasswordAs(
-          SECURE_STORAGE_SERVICE_NAME,
-          oldKey,
-          newKey,
-        );
-        // eslint-disable-next-line no-console
-        if (r.log) console.log(r.log);
+        await passwords.migrateKeytarPasswordAs(SECURE_STORAGE_SERVICE_NAME, oldKey, newKey);
         await this.secureStorageService.remove(oldKey);
       }
 
       // _entraKey is the lower-priority fallback for _entraIdKey.
-      const entraR = await passwords.migrateKeytarPasswordAs(
+      await passwords.migrateKeytarPasswordAs(
         SECURE_STORAGE_SERVICE_NAME,
         `${clientId}_entraKey`,
         SecureStorageKeys.entra,
       );
-      // eslint-disable-next-line no-console
-      if (entraR.log) console.log(entraR.log);
       await this.secureStorageService.remove(`${clientId}_entraKey`);
 
       // Migrate apiKeyClientId and apiKeyClientSecret from account object to secure storage
@@ -286,11 +268,9 @@ export class StateMigrationService {
     // Migrate flat keys (installs that went through the 3→5 migration and have
     // credentials stored under "secretLdap" etc.).
     await Promise.all(
-      credentialKeys.map(async (key) => {
-        const r = await passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key);
-        // eslint-disable-next-line no-console
-        if (r.log) console.log(r.log);
-      }),
+      credentialKeys.map((key) =>
+        passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
+      ),
     );
 
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
@@ -305,9 +285,7 @@ export class StateMigrationService {
    * No-op on macOS/Linux.
    */
   protected async migrateStateFrom6To7(): Promise<void> {
-    const r = await passwords.migrateLegacyKeytarAccounts(SECURE_STORAGE_SERVICE_NAME);
-    // eslint-disable-next-line no-console
-    if (r.log) console.log(r.log);
+    await passwords.migrateLegacyKeytarAccounts(SECURE_STORAGE_SERVICE_NAME);
     await this.set(StorageKeys.stateVersion, StateVersion.Seven);
   }
 
@@ -326,13 +304,6 @@ export class StateMigrationService {
   protected set(key: StorageKey | SecureStorageKey, value: any): Promise<any> {
     if (value == null) {
       return this.storageService.remove(key, this.options);
-    }
-    const serialized = JSON.stringify(value);
-    if (serialized.includes("\0")) {
-      // eslint-disable-next-line no-console
-      console.error(
-        `[StateMigrationService] null byte detected in value for key "${key}": ${serialized.slice(0, 200)}`,
-      );
     }
     return this.storageService.save(key, value, this.options);
   }

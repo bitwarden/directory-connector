@@ -21,27 +21,11 @@ export class ElectronStorageService implements StorageService {
     const dataFile = `${dir}/data.json`;
     if (fs.existsSync(dataFile)) {
       const raw = fs.readFileSync(dataFile);
-      // eslint-disable-next-line no-console
-      console.log(
-        `[ElectronStorageService] data.json first 4 bytes: ${raw[0]?.toString(16)} ${raw[1]?.toString(16)} ${raw[2]?.toString(16)} ${raw[3]?.toString(16)}, length: ${raw.length}`,
-      );
       // UTF-16 LE BOM is 0xFF 0xFE; null at position 1 (second byte of first char) also indicates UTF-16 LE
       if ((raw[0] === 0xff && raw[1] === 0xfe) || (raw.length > 1 && raw[1] === 0x00)) {
-        // eslint-disable-next-line no-console
-        console.log(
-          "[ElectronStorageService] detected UTF-16 LE data.json \u2014 re-encoding to UTF-8",
-        );
         const content = raw.toString("utf16le").replace(/^\uFEFF/, "");
         fs.writeFileSync(dataFile, content, "utf8");
-      } else {
-        // eslint-disable-next-line no-console
-        console.log(
-          "[ElectronStorageService] data.json appears to be UTF-8, no re-encoding needed",
-        );
       }
-    } else {
-      // eslint-disable-next-line no-console
-      console.log("[ElectronStorageService] data.json does not exist yet");
     }
 
     const storeConfig: any = {
