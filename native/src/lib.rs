@@ -53,17 +53,20 @@ pub async fn migrate_keytar_password_as(
     service: String,
     old_account: String,
     new_account: String,
-) -> napi::Result<bool> {
+) -> napi::Result<MigrateKeytarResult> {
     #[cfg(windows)]
     {
-        migration::migrate_keytar_password_as(&service, &old_account, &new_account)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        let result = migration::migrate_keytar_password_as(&service, &old_account, &new_account)
+            .await;
+        match result {
+            Ok(migrated) => Ok(MigrateKeytarResult { migrated }),
+            Err(_) => Ok(MigrateKeytarResult { migrated: false }),
+        }
     }
     #[cfg(not(windows))]
     {
         let _ = (service, old_account, new_account);
-        Ok(false)
+        Ok(MigrateKeytarResult { migrated: false })
     }
 }
 
@@ -73,17 +76,22 @@ pub async fn migrate_keytar_password_as(
 /// Returns true if a migration was performed, false if the credential was already in the
 /// correct format or does not exist.
 #[napi(namespace = "passwords")]
-pub async fn migrate_keytar_password(service: String, account: String) -> napi::Result<bool> {
+pub async fn migrate_keytar_password(
+    service: String,
+    account: String,
+) -> napi::Result<MigrateKeytarResult> {
     #[cfg(windows)]
     {
-        migration::migrate_keytar_password(&service, &account)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        let result = migration::migrate_keytar_password(&service, &account).await;
+        match result {
+            Ok(migrated) => Ok(MigrateKeytarResult { migrated }),
+            Err(_) => Ok(MigrateKeytarResult { migrated: false }),
+        }
     }
     #[cfg(not(windows))]
     {
         let _ = (service, account);
-        Ok(false)
+        Ok(MigrateKeytarResult { migrated: false })
     }
 }
 
@@ -115,6 +123,11 @@ pub async fn migrate_legacy_keytar_accounts(
         let _ = service;
         Ok(vec![])
     }
+}
+
+#[napi(object)]
+pub struct MigrateKeytarResult {
+    pub migrated: bool,
 }
 
 #[napi(object)]
