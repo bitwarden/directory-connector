@@ -6,9 +6,9 @@ import { StateMigrationService } from "./stateMigration.service";
 
 jest.mock("dc-native", () => ({
   passwords: {
-    migrateKeytarPassword: jest.fn().mockResolvedValue(false),
-    migrateKeytarPasswordAs: jest.fn().mockResolvedValue(false),
-    migrateLegacyKeytarAccounts: jest.fn().mockResolvedValue([]),
+    migrateKeytarPassword: jest.fn().mockResolvedValue({ migrated: false, log: "" }),
+    migrateKeytarPasswordAs: jest.fn().mockResolvedValue({ migrated: false, log: "" }),
+    migrateLegacyKeytarAccounts: jest.fn().mockResolvedValue({ accounts: [], log: "" }),
   },
 }));
 
@@ -242,9 +242,9 @@ describe("StateMigrationService", () => {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { passwords } = require("dc-native");
         jest.clearAllMocks();
-        passwords.migrateKeytarPasswordAs.mockResolvedValue(true);
-        passwords.migrateKeytarPassword.mockResolvedValue(false);
-        passwords.migrateLegacyKeytarAccounts.mockResolvedValue([]);
+        passwords.migrateKeytarPasswordAs.mockResolvedValue({ migrated: true, log: "" });
+        passwords.migrateKeytarPassword.mockResolvedValue({ migrated: false, log: "" });
+        passwords.migrateLegacyKeytarAccounts.mockResolvedValue({ accounts: [], log: "" });
 
         await svc.migrate();
 

@@ -53,17 +53,33 @@ pub async fn migrate_keytar_password_as(
     service: String,
     old_account: String,
     new_account: String,
-) -> napi::Result<bool> {
+) -> napi::Result<MigrateKeytarResult> {
     #[cfg(windows)]
     {
-        migration::migrate_keytar_password_as(&service, &old_account, &new_account)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        let result = migration::migrate_keytar_password_as(&service, &old_account, &new_account)
+            .await;
+        match result {
+            Ok(migrated) => Ok(MigrateKeytarResult {
+                migrated,
+                log: format!(
+                    "[native] migrateKeytarPasswordAs({old_account} → {new_account}) = {migrated}"
+                ),
+            }),
+            Err(e) => Ok(MigrateKeytarResult {
+                migrated: false,
+                log: format!(
+                    "[native] migrateKeytarPasswordAs({old_account} → {new_account}) error: {e}"
+                ),
+            }),
+        }
     }
     #[cfg(not(windows))]
     {
         let _ = (service, old_account, new_account);
-        Ok(false)
+        Ok(MigrateKeytarResult {
+            migrated: false,
+            log: String::new(),
+        })
     }
 }
 
@@ -73,17 +89,28 @@ pub async fn migrate_keytar_password_as(
 /// Returns true if a migration was performed, false if the credential was already in the
 /// correct format or does not exist.
 #[napi(namespace = "passwords")]
-pub async fn migrate_keytar_password(service: String, account: String) -> napi::Result<bool> {
+pub async fn migrate_keytar_password(service: String, account: String) -> napi::Result<MigrateKeytarResult> {
     #[cfg(windows)]
     {
-        migration::migrate_keytar_password(&service, &account)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        let result = migration::migrate_keytar_password(&service, &account).await;
+        match result {
+            Ok(migrated) => Ok(MigrateKeytarResult {
+                migrated,
+                log: format!("[native] migrateKeytarPassword({account}) = {migrated}"),
+            }),
+            Err(e) => Ok(MigrateKeytarResult {
+                migrated: false,
+                log: format!("[native] migrateKeytarPassword({account}) error: {e}"),
+            }),
+        }
     }
     #[cfg(not(windows))]
     {
         let _ = (service, account);
-        Ok(false)
+        Ok(MigrateKeytarResult {
+            migrated: false,
+            log: String::new(),
+        })
     }
 }
 
@@ -96,25 +123,58 @@ pub async fn migrate_keytar_password(service: String, account: String) -> napi::
 #[napi(namespace = "passwords")]
 pub async fn migrate_legacy_keytar_accounts(
     service: String,
-) -> napi::Result<Vec<MigratedLegacyAccount>> {
+) -> napi::Result<MigrateLegacyResult> {
     #[cfg(windows)]
     {
-        let results = migration::migrate_legacy_keytar_accounts(&service)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))?;
-        Ok(results
-            .into_iter()
-            .map(|(legacy_account, flat_key)| MigratedLegacyAccount {
-                legacy_account,
-                flat_key: flat_key.to_string(),
-            })
-            .collect())
+        let result = migration::migrate_legacy_keytar_accounts(&service).await;
+        match result {
+            Ok(migrated) => {
+                let log = format!(
+                    "[native] migrateLegacyKeytarAccounts found {} credential(s): {}",
+                    migrated.len(),
+                    migrated
+                        .iter()
+                        .map(|(old, new)| format!("{old} → {new}"))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                );
+                Ok(MigrateLegacyResult {
+                    accounts: migrated
+                        .into_iter()
+                        .map(|(legacy_account, flat_key)| MigratedLegacyAccount {
+                            legacy_account,
+                            flat_key: flat_key.to_string(),
+                        })
+                        .collect(),
+                    log,
+                })
+            }
+            Err(e) => Ok(MigrateLegacyResult {
+                accounts: vec![],
+                log: format!("[native] migrateLegacyKeytarAccounts error: {e}"),
+            }),
+        }
     }
     #[cfg(not(windows))]
     {
         let _ = service;
-        Ok(vec![])
+        Ok(MigrateLegacyResult {
+            accounts: vec![],
+            log: String::new(),
+        })
     }
+}
+
+#[napi(object)]
+pub struct MigrateKeytarResult {
+    pub migrated: bool,
+    pub log: String,
+}
+
+#[napi(object)]
+pub struct MigrateLegacyResult {
+    pub accounts: Vec<MigratedLegacyAccount>,
+    pub log: String,
 }
 
 #[napi(object)]
