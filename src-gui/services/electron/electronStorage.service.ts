@@ -24,7 +24,9 @@ export class ElectronStorageService implements StorageService {
       // UTF-16 LE BOM is 0xFF 0xFE; null at position 1 (second byte of first char) also indicates UTF-16 LE
       if ((raw[0] === 0xff && raw[1] === 0xfe) || (raw.length > 1 && raw[1] === 0x00)) {
         const content = raw.toString("utf16le").replace(/^\uFEFF/, "");
-        fs.writeFileSync(dataFile, content, "utf8");
+        const tmpFile = `${dataFile}.tmp`;
+        fs.writeFileSync(tmpFile, content, "utf8");
+        fs.renameSync(tmpFile, dataFile);
       }
     }
 
