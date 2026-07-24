@@ -61,6 +61,9 @@ export class StateMigrationService {
         case StateVersion.Five:
           await this.migrateStateFrom5To6();
           break;
+        case StateVersion.Six:
+          await this.migrateStateFrom6To7();
+          break;
       }
       currentStateVersion += 1;
     }
@@ -263,6 +266,26 @@ export class StateMigrationService {
     );
 
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
+  }
+
+  /**
+   * Migrate from State v6 to v7 — preserve invitation behavior for existing installs.
+   *
+   * inviteUsersAfterProvisioning defaults to false for new installs, but installs that
+   * predate the setting always sent invitations after provisioning. If a sync configuration
+   * already exists and does not define the flag, backfill it to true so upgrading users keep
+   * their prior behavior. An explicit value (true or false) is left untouched, and configs
+   * that are absent entirely are not created. Fresh installs never reach this migration —
+   * their state version starts at Latest — so they retain the false default.
+   */
+  protected async migrateStateFrom6To7(): Promise<void> {
+    const sync = await this.get<{ inviteUsersAfterProvisioning?: boolean }>(StorageKeys.sync);
+    if (sync != null && sync.inviteUsersAfterProvisioning === undefined) {
+      sync.inviteUsersAfterProvisioning = true;
+      await this.set(StorageKeys.sync, sync);
+    }
+
+    await this.set(StorageKeys.stateVersion, StateVersion.Seven);
   }
 
   // ===================================================================
