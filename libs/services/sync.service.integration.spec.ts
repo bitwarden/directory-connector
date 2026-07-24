@@ -130,5 +130,54 @@ describe("SyncService", () => {
       // eslint-disable-next-line no-import-assign
       constants.batchSize = originalBatchSize;
     });
+
+    it("forwards inviteUsersAfterProvisioning into the import request when enabled", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.Ldap)
+        .mockResolvedValue(getLdapConfiguration());
+      stateService.getSync.mockResolvedValue(
+        getSyncConfiguration({
+          users: true,
+          groups: true,
+          largeImport: false,
+          overwriteExisting: false,
+          inviteUsersAfterProvisioning: true,
+        }),
+      );
+
+      cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
+      stateService.getLastSyncHash.mockResolvedValue("unique hash");
+
+      await syncService.sync(false, false);
+
+      expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(
+        expect.objectContaining({ inviteUsersAfterProvisioning: true }),
+      );
+    });
+
+    it("defaults inviteUsersAfterProvisioning to false when unset in configuration", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.Ldap)
+        .mockResolvedValue(getLdapConfiguration());
+      const syncConfig = getSyncConfiguration({
+        users: true,
+        groups: true,
+        largeImport: false,
+        overwriteExisting: false,
+      });
+      // Simulate an existing configuration created before this setting existed.
+      delete (syncConfig as { inviteUsersAfterProvisioning?: boolean })
+        .inviteUsersAfterProvisioning;
+      stateService.getSync.mockResolvedValue(syncConfig);
+
+      cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
+      stateService.getLastSyncHash.mockResolvedValue("unique hash");
+
+      await syncService.sync(false, false);
+
+      expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(
+        expect.objectContaining({ inviteUsersAfterProvisioning: false }),
+      );
+    });
   });
 });

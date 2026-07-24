@@ -66,6 +66,9 @@ export class ConfigCommand {
         case "onelogin.secret":
           await this.setOneLoginSecret(value);
           break;
+        case "sync.inviteusersafterprovisioning":
+          await this.setInviteUsersAfterProvisioning(value);
+          break;
         default:
           return Response.badRequest("Unknown setting.");
       }
@@ -120,6 +123,16 @@ export class ConfigCommand {
   private async setOneLoginSecret(secret: string) {
     await this.loadConfig();
     this.oneLogin.clientSecret = secret;
+    await this.saveConfig();
+  }
+
+  private async setInviteUsersAfterProvisioning(value: string) {
+    const normalized = value?.toLowerCase();
+    if (normalized !== "true" && normalized !== "false") {
+      throw new Error("Value must be 'true' or 'false'.");
+    }
+    await this.loadConfig();
+    this.sync.inviteUsersAfterProvisioning = normalized === "true";
     await this.saveConfig();
   }
 

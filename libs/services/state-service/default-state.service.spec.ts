@@ -455,6 +455,7 @@ describe("DefaultStateService", () => {
       removeDisabled: true,
       overwriteExisting: false,
       largeImport: false,
+      inviteUsersAfterProvisioning: true,
       groupObjectClass: null,
       userObjectClass: null,
       groupPath: null,

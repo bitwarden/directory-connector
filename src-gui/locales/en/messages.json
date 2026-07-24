@@ -667,6 +667,9 @@
   "overwriteExistingTooltip": {
     "message": "Learn more about Sync options"
   },
+  "inviteUsersAfterProvisioning": {
+    "message": "Automatically send email invitations"
+  },
   "clientId": {
     "message": "Client ID"
   },

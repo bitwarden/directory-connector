@@ -195,6 +195,9 @@ export class Program extends BaseProgram {
         writeLn("    gsuite.key - The G Suite private key.");
         writeLn("    okta.token - The Okta token.");
         writeLn("    onelogin.secret - The OneLogin client secret.");
+        writeLn(
+          "    sync.inviteUsersAfterProvisioning - Send invitation emails to synced users (true/false).",
+        );
         writeLn("");
         writeLn("  Examples:");
         writeLn("");
@@ -207,6 +210,7 @@ export class Program extends BaseProgram {
         writeLn("    bwdc config gsuite.key <key>");
         writeLn("    bwdc config okta.token <token>");
         writeLn("    bwdc config onelogin.secret <secret>");
+        writeLn("    bwdc config sync.inviteUsersAfterProvisioning false");
         writeLn("", true);
       })
       .action(async (setting: string, value: string, options: OptionValues) => {
