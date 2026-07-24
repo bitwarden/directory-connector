@@ -6,7 +6,6 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
-      - "test-windows-bug"
   workflow_dispatch: {}
   workflow_call: {}
 
