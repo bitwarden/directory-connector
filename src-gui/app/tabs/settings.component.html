@@ -562,7 +562,7 @@
               class="form-check-input"
               type="checkbox"
               id="inviteUsersAfterProvisioning"
-              [ngModel]="sync().inviteUsersAfterProvisioning ?? true"
+              [ngModel]="sync().inviteUsersAfterProvisioning ?? false"
               (ngModelChange)="sync.update(v => ({...v, inviteUsersAfterProvisioning: $event}))"
               name="InviteUsersAfterProvisioning"
             />

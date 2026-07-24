@@ -16,7 +16,7 @@ describe("SingleRequestBuilder", () => {
   const defaultOptions: RequestBuilderOptions = Object.freeze({
     overwriteExisting: false,
     removeDisabled: false,
-    inviteUsersAfterProvisioning: true,
+    inviteUsersAfterProvisioning: false,
   });
 
   it("SingleRequestBuilder returns single request for 200 users", () => {
@@ -85,13 +85,13 @@ describe("SingleRequestBuilder", () => {
     const mockGroups = groupSimulator(200);
     const mockUsers = userSimulator(200);
 
-    const options = { ...defaultOptions, inviteUsersAfterProvisioning: false };
+    const options = { ...defaultOptions, inviteUsersAfterProvisioning: true };
     const request = singleRequestBuilder.buildRequest(mockGroups, mockUsers, options)[0];
 
-    expect(request.inviteUsersAfterProvisioning).toBe(false);
+    expect(request.inviteUsersAfterProvisioning).toBe(true);
   });
 
-  it("SingleRequestBuilder defaults inviteUsersAfterProvisioning to true when unset in options", () => {
+  it("SingleRequestBuilder defaults inviteUsersAfterProvisioning to false when unset in options", () => {
     const mockGroups = groupSimulator(200);
     const mockUsers = userSimulator(200);
 
@@ -99,6 +99,6 @@ describe("SingleRequestBuilder", () => {
     const options = { overwriteExisting: false, removeDisabled: false } as RequestBuilderOptions;
     const request = singleRequestBuilder.buildRequest(mockGroups, mockUsers, options)[0];
 
-    expect(request.inviteUsersAfterProvisioning).toBe(true);
+    expect(request.inviteUsersAfterProvisioning).toBe(false);
   });
 });

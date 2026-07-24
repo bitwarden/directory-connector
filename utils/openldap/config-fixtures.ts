@@ -36,7 +36,7 @@ export const getSyncConfiguration = (config?: Partial<SyncConfiguration>): SyncC
   removeDisabled: false,
   overwriteExisting: false,
   largeImport: false,
-  inviteUsersAfterProvisioning: true,
+  inviteUsersAfterProvisioning: false,
   // Ldap properties
   groupObjectClass: "posixGroup",
   userObjectClass: "person",

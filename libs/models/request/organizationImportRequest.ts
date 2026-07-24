@@ -7,7 +7,7 @@ export class OrganizationImportRequest {
   members: OrganizationImportMemberRequest[] = [];
   overwriteExisting = false;
   largeImport = false;
-  inviteUsersAfterProvisioning = true;
+  inviteUsersAfterProvisioning = false;
 
   constructor(model: {
     groups: Required<OrganizationImportGroupRequest>[];
@@ -25,7 +25,7 @@ export class OrganizationImportRequest {
     }
     this.overwriteExisting = model.overwriteExisting;
     this.largeImport = model.largeImport;
-    // Defaults to true so existing configurations (where the flag is absent) keep sending invitations.
-    this.inviteUsersAfterProvisioning = model.inviteUsersAfterProvisioning ?? true;
+    // Defaults to false so users are not invited unless invitations are explicitly enabled.
+    this.inviteUsersAfterProvisioning = model.inviteUsersAfterProvisioning ?? false;
   }
 }
