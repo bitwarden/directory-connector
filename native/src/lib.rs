@@ -44,25 +44,96 @@ pub async fn is_available() -> napi::Result<bool> {
         .map_err(|e| napi::Error::from_reason(e.to_string()))
 }
 
+/// Like migrate_keytar_password but reads from `old_account` and writes to `new_account`.
+/// Used by the 3→5 state migration to rename "{userId}_ldapPassword" → "secretLdap" etc.
+/// while simultaneously re-encoding from UTF-8 (keytar) to UTF-16 (desktop_core).
+/// No-ops on non-Windows platforms.
+#[napi(namespace = "passwords")]
+pub async fn migrate_keytar_password_as(
+    service: String,
+    old_account: String,
+    new_account: String,
+) -> napi::Result<MigrateKeytarResult> {
+    #[cfg(windows)]
+    {
+        let result = migration::migrate_keytar_password_as(&service, &old_account, &new_account)
+            .await;
+        match result {
+            Ok(migrated) => Ok(MigrateKeytarResult { migrated }),
+            Err(_) => Ok(MigrateKeytarResult { migrated: false }),
+        }
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = (service, old_account, new_account);
+        Ok(MigrateKeytarResult { migrated: false })
+    }
+}
+
 /// Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
 /// used by desktop_core on Windows. No-ops on non-Windows platforms.
 ///
 /// Returns true if a migration was performed, false if the credential was already in the
 /// correct format or does not exist.
 #[napi(namespace = "passwords")]
-pub async fn migrate_keytar_password(service: String, account: String) -> napi::Result<bool> {
+pub async fn migrate_keytar_password(
+    service: String,
+    account: String,
+) -> napi::Result<MigrateKeytarResult> {
     #[cfg(windows)]
     {
-        migration::migrate_keytar_password(&service, &account)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        let result = migration::migrate_keytar_password(&service, &account).await;
+        match result {
+            Ok(migrated) => Ok(MigrateKeytarResult { migrated }),
+            Err(_) => Ok(MigrateKeytarResult { migrated: false }),
+        }
     }
     #[cfg(not(windows))]
     {
         let _ = (service, account);
-        Ok(false)
+        Ok(MigrateKeytarResult { migrated: false })
     }
 }
 
-#[cfg(windows)]
+/// Finds any credentials stored by keytar under legacy "{prefix}_*" account names
+/// (e.g. "{orgId}_ldapPassword"), migrates their blobs from UTF-8 to UTF-16, and
+/// saves them under the canonical flat key (e.g. "secretLdap").
+///
+/// Returns an array of objects with `{ legacyAccount, flatKey }` for each migrated entry.
+/// No-ops on non-Windows platforms and returns an empty array.
+#[napi(namespace = "passwords")]
+pub async fn migrate_legacy_keytar_accounts(
+    service: String,
+) -> napi::Result<Vec<MigratedLegacyAccount>> {
+    #[cfg(windows)]
+    {
+        let results = migration::migrate_legacy_keytar_accounts(&service)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+        Ok(results
+            .into_iter()
+            .map(|(legacy_account, flat_key)| MigratedLegacyAccount {
+                legacy_account,
+                flat_key: flat_key.to_string(),
+            })
+            .collect())
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = service;
+        Ok(vec![])
+    }
+}
+
+#[napi(object)]
+pub struct MigrateKeytarResult {
+    pub migrated: bool,
+}
+
+#[napi(object)]
+pub struct MigratedLegacyAccount {
+    pub legacy_account: String,
+    pub flat_key: String,
+}
+
 mod migration;

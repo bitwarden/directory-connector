@@ -14,6 +14,22 @@ export class ElectronStorageService implements StorageService {
     if (!fs.existsSync(dir)) {
       NodeUtils.mkdirpSync(dir, "700");
     }
+
+    // On Windows, a previous version could write data.json as UTF-16 LE (BOM or null-prefixed).
+    // electron-store reads files as UTF-8 and throws "invalid nul value" when it encounters
+    // UTF-16 content. Detect and re-encode to UTF-8 before electron-store opens the file.
+    const dataFile = `${dir}/data.json`;
+    if (fs.existsSync(dataFile)) {
+      const raw = fs.readFileSync(dataFile);
+      // UTF-16 LE BOM is 0xFF 0xFE; null at position 1 (second byte of first char) also indicates UTF-16 LE
+      if ((raw[0] === 0xff && raw[1] === 0xfe) || (raw.length > 1 && raw[1] === 0x00)) {
+        const content = raw.toString("utf16le").replace(/^\uFEFF/, "");
+        const tmpFile = `${dataFile}.tmp`;
+        fs.writeFileSync(tmpFile, content, "utf8");
+        fs.renameSync(tmpFile, dataFile);
+      }
+    }
+
     const storeConfig: any = {
       defaults: defaults,
       name: "data",
