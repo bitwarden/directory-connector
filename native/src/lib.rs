@@ -38,10 +38,12 @@ pub async fn delete_password(service: String, account: String) -> napi::Result<(
 
 /// Check if OS secure storage is available.
 #[napi(namespace = "passwords")]
-pub async fn is_available() -> napi::Result<bool> {
-    desktop_core::password::is_available()
-        .await
-        .map_err(|e| napi::Error::from_reason(e.to_string()))
+pub async fn is_available() -> napi::Result<IsAvailableResult> {
+    let result = desktop_core::password::is_available().await;
+    match result {
+        Ok(available) => Ok(IsAvailableResult { available }),
+        Err(_) => Ok(IsAvailableResult { available: false }),
+    }
 }
 
 /// Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
@@ -50,18 +52,33 @@ pub async fn is_available() -> napi::Result<bool> {
 /// Returns true if a migration was performed, false if the credential was already in the
 /// correct format or does not exist.
 #[napi(namespace = "passwords")]
-pub async fn migrate_keytar_password(service: String, account: String) -> napi::Result<bool> {
+pub async fn migrate_keytar_password(
+    service: String,
+    account: String,
+) -> napi::Result<MigrateKeytarResult> {
     #[cfg(windows)]
     {
-        migration::migrate_keytar_password(&service, &account)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        let result = migration::migrate_keytar_password(&service, &account).await;
+        match result {
+            Ok(migrated) => Ok(MigrateKeytarResult { migrated }),
+            Err(_) => Ok(MigrateKeytarResult { migrated: false }),
+        }
     }
     #[cfg(not(windows))]
     {
         let _ = (service, account);
-        Ok(false)
+        Ok(MigrateKeytarResult { migrated: false })
     }
+}
+
+#[napi(object)]
+pub struct IsAvailableResult {
+    pub available: bool,
+}
+
+#[napi(object)]
+pub struct MigrateKeytarResult {
+    pub migrated: bool,
 }
 
 #[cfg(windows)]

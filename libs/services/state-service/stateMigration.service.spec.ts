@@ -6,7 +6,7 @@ import { StateMigrationService } from "./stateMigration.service";
 
 jest.mock("dc-native", () => ({
   passwords: {
-    migrateKeytarPassword: jest.fn().mockResolvedValue(false),
+    migrateKeytarPassword: jest.fn().mockResolvedValue({ migrated: false }),
   },
 }));
 
