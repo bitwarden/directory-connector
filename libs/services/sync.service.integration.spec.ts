@@ -165,7 +165,9 @@ describe("SyncService", () => {
         largeImport: false,
         overwriteExisting: false,
       });
-      // Simulate an existing configuration created before this setting existed.
+      // A config that reaches the request builder without the flag falls back to false (the
+      // safe default). Real upgraded configs are backfilled to true by the v6->v7 state
+      // migration before they ever get here (see StateMigrationService.migrateStateFrom6To7).
       delete (syncConfig as { inviteUsersAfterProvisioning?: boolean })
         .inviteUsersAfterProvisioning;
       stateService.getSync.mockResolvedValue(syncConfig);

@@ -60,8 +60,14 @@ describe("StateMigrationService", () => {
       expect(await svc.needsMigration()).toBe(true);
     });
 
-    it("returns false when stateVersion is StateVersion.Seven (Latest)", async () => {
+    it("returns true when stateVersion is StateVersion.Seven (below Latest)", async () => {
       storage.store.set(StorageKeys.stateVersion, StateVersion.Seven);
+
+      expect(await svc.needsMigration()).toBe(true);
+    });
+
+    it("returns false when stateVersion is StateVersion.Eight (Latest)", async () => {
+      storage.store.set(StorageKeys.stateVersion, StateVersion.Eight);
 
       expect(await svc.needsMigration()).toBe(false);
     });
@@ -72,8 +78,8 @@ describe("StateMigrationService", () => {
       expect(await svc.needsMigration()).toBe(true);
     });
 
-    it("returns false when globals.stateVersion is StateVersion.Seven (Latest)", async () => {
-      storage.store.set("global", { stateVersion: StateVersion.Seven });
+    it("returns false when globals.stateVersion is StateVersion.Eight (Latest)", async () => {
+      storage.store.set("global", { stateVersion: StateVersion.Eight });
 
       expect(await svc.needsMigration()).toBe(false);
     });
@@ -99,15 +105,15 @@ describe("StateMigrationService", () => {
 
       await svc.migrate();
 
-      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
     });
 
-    it("runs migrateStateFrom5To6 when stateVersion is StateVersion.Five", async () => {
+    it("runs remaining migrations when stateVersion is StateVersion.Five", async () => {
       storage.store.set(StorageKeys.stateVersion, StateVersion.Five);
 
       await svc.migrate();
 
-      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
     });
 
     it("runs migrateStateFrom6To7 when stateVersion is StateVersion.Six", async () => {
@@ -115,11 +121,11 @@ describe("StateMigrationService", () => {
 
       await svc.migrate();
 
-      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
     });
 
-    it("does nothing (no extra writes) when stateVersion is already StateVersion.Seven", async () => {
-      storage.store.set(StorageKeys.stateVersion, StateVersion.Seven);
+    it("does nothing (no extra writes) when stateVersion is already StateVersion.Eight", async () => {
+      storage.store.set(StorageKeys.stateVersion, StateVersion.Eight);
       const storeSnapshot = new Map(storage.store);
 
       await svc.migrate();
@@ -130,13 +136,13 @@ describe("StateMigrationService", () => {
 
   describe("migrateStateFrom4To5()", () => {
     describe("no account (null activeUserId)", () => {
-      it("writes only stateVersion = Seven, no other keys", async () => {
+      it("writes only stateVersion = Eight, no other keys", async () => {
         // Seed stateVersion = Four, but no activeUserId and no account data
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
 
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
         // Only stateVersion written — nothing else
         expect(storage.store.size).toBe(1);
         expect(secureStorage.store.size).toBe(0);
@@ -221,7 +227,11 @@ describe("StateMigrationService", () => {
 
         expect(storage.store.get(StorageKeys.organizationId)).toBe("org-123");
         expect(storage.store.get(StorageKeys.directoryType)).toBe(DirectoryType.Ldap);
-        expect(storage.store.get(StorageKeys.sync)).toEqual({ users: true, groups: true });
+        expect(storage.store.get(StorageKeys.sync)).toEqual({
+          users: true,
+          groups: true,
+          inviteUsersAfterProvisioning: true,
+        });
         expect(storage.store.get(StorageKeys.syncingDir)).toBe(false);
       });
 
@@ -282,10 +292,10 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.get(SecureStorageKeys.apiKeyClientSecret)).toBe("client-secret");
       });
 
-      it("sets stateVersion to StateVersion.Seven after all migrations", async () => {
+      it("sets stateVersion to StateVersion.Eight after all migrations", async () => {
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
       });
     });
 
@@ -532,7 +542,7 @@ describe("StateMigrationService", () => {
         // No window settings written
         expect(storage.store.has(StorageKeys.window)).toBe(false);
         // stateVersion still updated
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
       });
     });
 
@@ -613,10 +623,10 @@ describe("StateMigrationService", () => {
         expect(badKeys).toHaveLength(0);
       });
 
-      it("bumps stateVersion to Seven (5→6→7)", async () => {
+      it("bumps stateVersion to Eight (5→6→7→8)", async () => {
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
       });
 
       it("logs an error when migrateKeytarPassword returns an error field", async () => {
@@ -745,10 +755,10 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.has(`${userId}_oktaToken`)).toBe(true);
       });
 
-      it("bumps stateVersion to Seven", async () => {
+      it("bumps stateVersion to Eight (Latest)", async () => {
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
       });
 
       it("does not overwrite an existing flat key with an old {userId}_* value", async () => {
@@ -766,7 +776,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store).toEqual(secureSnapshot);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
       });
 
       it("skips writing a key when readKeytarPassword returns null (credential not found)", async () => {
@@ -775,7 +785,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store.has(SecureStorageKeys.ldap)).toBe(false);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
       });
 
       it("skips all secure storage work and just bumps version on non-Windows", async () => {
@@ -785,7 +795,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store).toEqual(secureSnapshot);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
       });
 
       it("skips readKeytarPassword and does not write secrets when useSecureStorageForSecrets = false (plaintext mode)", async () => {
@@ -796,7 +806,55 @@ describe("StateMigrationService", () => {
 
         expect(passwords.readKeytarPassword).not.toHaveBeenCalled();
         expect(secureStorage.store).toEqual(secureSnapshot);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
+      });
+    });
+
+    describe("migrateStateFrom7To8()", () => {
+      beforeEach(() => {
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Seven);
+      });
+
+      it("backfills inviteUsersAfterProvisioning = true onto an existing sync config missing the flag", async () => {
+        storage.store.set(StorageKeys.sync, { users: true, groups: true });
+
+        await svc.migrate();
+
+        expect(storage.store.get(StorageKeys.sync)).toEqual({
+          users: true,
+          groups: true,
+          inviteUsersAfterProvisioning: true,
+        });
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
+      });
+
+      it("leaves an explicit inviteUsersAfterProvisioning = false untouched", async () => {
+        storage.store.set(StorageKeys.sync, { users: true, inviteUsersAfterProvisioning: false });
+
+        await svc.migrate();
+
+        expect(storage.store.get(StorageKeys.sync)).toEqual({
+          users: true,
+          inviteUsersAfterProvisioning: false,
+        });
+      });
+
+      it("leaves an explicit inviteUsersAfterProvisioning = true untouched", async () => {
+        storage.store.set(StorageKeys.sync, { users: true, inviteUsersAfterProvisioning: true });
+
+        await svc.migrate();
+
+        expect(storage.store.get(StorageKeys.sync)).toEqual({
+          users: true,
+          inviteUsersAfterProvisioning: true,
+        });
+      });
+
+      it("does not create a sync config when none exists", async () => {
+        await svc.migrate();
+
+        expect(storage.store.has(StorageKeys.sync)).toBe(false);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
       });
     });
 
@@ -804,7 +862,7 @@ describe("StateMigrationService", () => {
       it("writes stateVersion = Latest when stateVersion is absent (fresh install)", async () => {
         await svc.stampVersion();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Eight);
       });
 
       it("does not overwrite an existing stateVersion", async () => {
@@ -823,7 +881,7 @@ describe("StateMigrationService", () => {
       });
 
       it("prefers flat stateVersion key over globals.stateVersion", async () => {
-        storage.store.set(StorageKeys.stateVersion, StateVersion.Seven);
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Eight);
         storage.store.set("global", { stateVersion: StateVersion.Four });
 
         // Flat key wins → at latest → no migration needed
