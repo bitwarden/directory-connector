@@ -131,7 +131,7 @@ describe("SyncService", () => {
       constants.batchSize = originalBatchSize;
     });
 
-    it("forwards inviteUsersAfterProvisioning into the import request when disabled", async () => {
+    it("forwards inviteUsersAfterProvisioning into the import request when enabled", async () => {
       stateService.getDirectory
         .calledWith(DirectoryType.Ldap)
         .mockResolvedValue(getLdapConfiguration());
@@ -141,7 +141,7 @@ describe("SyncService", () => {
           groups: true,
           largeImport: false,
           overwriteExisting: false,
-          inviteUsersAfterProvisioning: false,
+          inviteUsersAfterProvisioning: true,
         }),
       );
 
@@ -151,11 +151,11 @@ describe("SyncService", () => {
       await syncService.sync(false, false);
 
       expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(
-        expect.objectContaining({ inviteUsersAfterProvisioning: false }),
+        expect.objectContaining({ inviteUsersAfterProvisioning: true }),
       );
     });
 
-    it("defaults inviteUsersAfterProvisioning to true when unset in configuration", async () => {
+    it("defaults inviteUsersAfterProvisioning to false when unset in configuration", async () => {
       stateService.getDirectory
         .calledWith(DirectoryType.Ldap)
         .mockResolvedValue(getLdapConfiguration());
@@ -176,7 +176,7 @@ describe("SyncService", () => {
       await syncService.sync(false, false);
 
       expect(apiService.postPublicImportDirectory).toHaveBeenCalledWith(
-        expect.objectContaining({ inviteUsersAfterProvisioning: true }),
+        expect.objectContaining({ inviteUsersAfterProvisioning: false }),
       );
     });
   });
