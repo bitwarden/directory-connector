@@ -174,16 +174,33 @@ export class StateMigrationService {
       ];
 
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        await passwords.migrateKeytarPasswordAs(SECURE_STORAGE_SERVICE_NAME, oldKey, newKey);
+        const { migrated } = await passwords.migrateKeytarPasswordAs(
+          SECURE_STORAGE_SERVICE_NAME,
+          oldKey,
+          newKey,
+        );
+        if (!migrated) {
+          // Non-Windows: migrateKeytarPasswordAs is a no-op, so copy cross-platform.
+          const value = await this.secureStorageService.get<string>(oldKey);
+          if (value != null) {
+            await this.secureStorageService.save(newKey, value);
+          }
+        }
         await this.secureStorageService.remove(oldKey);
       }
 
       // _entraKey is the lower-priority fallback for _entraIdKey.
-      await passwords.migrateKeytarPasswordAs(
+      const { migrated: entraKeyMigrated } = await passwords.migrateKeytarPasswordAs(
         SECURE_STORAGE_SERVICE_NAME,
         `${clientId}_entraKey`,
         SecureStorageKeys.entra,
       );
+      if (!entraKeyMigrated) {
+        const value = await this.secureStorageService.get<string>(`${clientId}_entraKey`);
+        if (value != null) {
+          await this.secureStorageService.save(SecureStorageKeys.entra, value);
+        }
+      }
       await this.secureStorageService.remove(`${clientId}_entraKey`);
 
       // Migrate apiKeyClientId and apiKeyClientSecret from account object to secure storage

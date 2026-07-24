@@ -75,7 +75,9 @@ fn get_password_keytar(service: &str, account: &str) -> Result<String> {
     };
 
     scopeguard::defer!({
-        unsafe { CredFree(credential as *mut _) };
+        if !credential.is_null() {
+            unsafe { CredFree(credential as *mut _) };
+        }
     });
 
     result?;
