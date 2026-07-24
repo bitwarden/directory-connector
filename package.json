@@ -102,7 +102,7 @@
     "electron-log": "5.4.3",
     "electron-store": "11.0.2",
     "electron-updater": "6.8.3",
-    "eslint": "9.39.4",
+    "eslint": "10.7.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-import-resolver-typescript": "4.4.4",
     "eslint-plugin-import": "2.32.0",
