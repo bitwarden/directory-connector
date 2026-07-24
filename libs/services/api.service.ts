@@ -57,6 +57,7 @@ export class ApiService implements ApiServiceAbstraction {
       Accept: "application/json",
       "Device-Type": this.deviceType,
     });
+
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
