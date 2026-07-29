@@ -14,7 +14,7 @@
     "feature-flag": [],
     "t:feature": [],
     "t:tech-debt": [],
-    "t:ci": [".checkmarx/", ".github/", "scripts/"],
+    "t:ci": [".checkmarx/", ".github/"],
     "t:docs": ["README.md", "CONTRIBUTING.md", "SECURITY.md"],
     "t:deps": [],
     "t:llm": [".claude/"]
