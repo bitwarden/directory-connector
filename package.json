@@ -156,7 +156,7 @@
     "googleapis": "171.4.0",
     "https-proxy-agent": "9.1.0",
     "inquirer": "14.0.2",
-    "ldapts": "8.1.7",
+    "ldapts": "9.0.0",
     "lowdb": "7.0.1",
     "ngx-toastr": "20.0.5",
     "proper-lockfile": "4.1.2",
