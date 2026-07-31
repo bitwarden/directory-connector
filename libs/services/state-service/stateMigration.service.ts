@@ -275,9 +275,8 @@ export class StateMigrationService {
    *
    * Strategy: call migrateKeytarPassword on each old {userId}_* key first, which re-encodes
    * the blob from UTF-8 to UTF-16 in-place (making it readable by desktop_core). Then copy
-   * to the flat key only if it is not already set — preserving any current value written by
-   * the running app. Old keys are kept intact.
-   * On macOS/Linux, migrateKeytarPassword is a no-op so the get/save path handles everything.
+   * to the flat key via secureStorageService and remove the old key. On macOS/Linux,
+   * migrateKeytarPassword is a no-op so the get/save/remove path handles everything.
    */
   protected async migrateStateFrom6To7(): Promise<void> {
     const clientId = await this.storageService.get<string>("activeUserId");
@@ -298,18 +297,18 @@ export class StateMigrationService {
 
       const written = new Set<string>();
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        const existing = await this.secureStorageService.get<string>(newKey);
-        if (existing == null) {
-          let value = await this.secureStorageService.get<string>(oldKey);
-          if (value == null) {
-            await passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
-            value = await this.secureStorageService.get<string>(oldKey);
-          }
-          if (value != null && !written.has(newKey)) {
-            await this.secureStorageService.save(newKey, value);
-          }
+        // Re-encode the UTF-8 keytar blob to UTF-16 in-place so desktop_core can read it.
+        await passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
+
+        if (written.has(newKey)) {
+          continue;
         }
-        written.add(newKey);
+
+        const value = await this.secureStorageService.get<string>(oldKey);
+        if (value != null) {
+          await this.secureStorageService.save(newKey, value);
+          written.add(newKey);
+        }
       }
     }
 
