@@ -14,7 +14,6 @@ export class ElectronStorageService implements StorageService {
     if (!fs.existsSync(dir)) {
       NodeUtils.mkdirpSync(dir, "700");
     }
-
     const storeConfig: any = {
       defaults: defaults,
       name: "data",
