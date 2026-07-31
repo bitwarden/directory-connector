@@ -617,27 +617,46 @@ describe("StateMigrationService", () => {
         secureStorage.store.set(`${userId}_oktaToken`, "okta-token");
       });
 
-      it("calls migrateKeytarPassword for each old {userId}_* key", async () => {
+      it("does not call migrateKeytarPassword for keys that are already readable", async () => {
+        // beforeEach seeds ldapPassword, entraIdKey, entraKey, oktaToken directly so
+        // secureStorageService.get returns a value — migrateKeytarPassword should be skipped
+        // for those keys.
         await svc.migrate();
 
         const calledKeys = passwords.migrateKeytarPassword.mock.calls.map(
           (c: [string, string]) => c[1],
         );
-        expect(calledKeys).toEqual(
-          expect.arrayContaining([
-            `${userId}_ldapPassword`,
-            `${userId}_entraIdKey`,
-            `${userId}_entraKey`,
-            `${userId}_oktaToken`,
-          ]),
-        );
+        expect(calledKeys).not.toContain(`${userId}_ldapPassword`);
+        expect(calledKeys).not.toContain(`${userId}_entraIdKey`);
+        expect(calledKeys).not.toContain(`${userId}_oktaToken`);
       });
 
-      it("copies old keys to flat keys via secureStorageService", async () => {
+      it("calls migrateKeytarPassword when old key is unreadable (UTF-8 keytar blob)", async () => {
+        // Remove the readable value to simulate a key that exists in the credential store
+        // but cannot be decoded by desktop_core (UTF-8 blob).
+        secureStorage.store.delete(`${userId}_ldapPassword`);
+
+        await svc.migrate();
+
+        const calledKeys = passwords.migrateKeytarPassword.mock.calls.map(
+          (c: [string, string]) => c[1],
+        );
+        expect(calledKeys).toContain(`${userId}_ldapPassword`);
+      });
+
+      it("copies old keys to flat keys when the flat key is absent", async () => {
         await svc.migrate();
 
         expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("ldap-pass");
         expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
+      });
+
+      it("does not overwrite a flat key that already has a current value", async () => {
+        secureStorage.store.set(SecureStorageKeys.ldap, "current-ldap-pass");
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("current-ldap-pass");
       });
 
       it("prefers _entraIdKey over _entraKey and keeps both old keys intact", async () => {
