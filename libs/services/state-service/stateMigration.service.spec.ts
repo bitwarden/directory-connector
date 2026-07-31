@@ -6,9 +6,7 @@ import { StateMigrationService } from "./stateMigration.service";
 
 jest.mock("dc-native", () => ({
   passwords: {
-    migrateKeytarPassword: jest.fn().mockResolvedValue({ migrated: false }),
-    migrateKeytarPasswordAs: jest.fn().mockResolvedValue({ migrated: false }),
-    migrateLegacyKeytarAccounts: jest.fn().mockResolvedValue([]),
+    migrateKeytarPassword: jest.fn().mockResolvedValue(false),
   },
 }));
 
@@ -114,7 +112,7 @@ describe("StateMigrationService", () => {
 
   describe("migrateStateFrom4To5()", () => {
     describe("no account (null activeUserId)", () => {
-      it("writes only stateVersion = Six, no other keys", async () => {
+      it("writes only stateVersion = Seven, no other keys", async () => {
         // Seed stateVersion = Four, but no activeUserId and no account data
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
 
@@ -238,52 +236,23 @@ describe("StateMigrationService", () => {
         });
       });
 
-      it("calls migrateKeytarPasswordAs for each old {userId}_* key to copy and re-encode", async () => {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { passwords } = require("dc-native");
-        jest.clearAllMocks();
-        passwords.migrateKeytarPasswordAs.mockResolvedValue({ migrated: true });
-        passwords.migrateKeytarPassword.mockResolvedValue({ migrated: false });
-        passwords.migrateLegacyKeytarAccounts.mockResolvedValue([]);
-
+      it("migrates old {userId}_* secure storage keys to flat keys", async () => {
         await svc.migrate();
 
-        const calls: [string, string, string][] = passwords.migrateKeytarPasswordAs.mock.calls;
-        const calledPairs = calls.map(([, old, newKey]) => ({ old, new: newKey }));
+        // New flat keys present
+        expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("ldap-pass");
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("gsuite-key");
+        expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("entra-key");
+        expect(secureStorage.store.get(SecureStorageKeys.azure)).toBe("azure-key");
+        expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
+        expect(secureStorage.store.get(SecureStorageKeys.oneLogin)).toBe("onelogin-secret");
+        expect(secureStorage.store.get(SecureStorageKeys.accessToken)).toBe("access-tok");
+        expect(secureStorage.store.get(SecureStorageKeys.refreshToken)).toBe("refresh-tok");
+        expect(secureStorage.store.get(SecureStorageKeys.twoFactorToken)).toBe("2fa-tok");
 
-        expect(calledPairs).toEqual(
-          expect.arrayContaining([
-            { old: `${userId}_ldapPassword`, new: SecureStorageKeys.ldap },
-            { old: `${userId}_gsuitePrivateKey`, new: SecureStorageKeys.gsuite },
-            { old: `${userId}_azureKey`, new: SecureStorageKeys.azure },
-            { old: `${userId}_entraIdKey`, new: SecureStorageKeys.entra },
-            { old: `${userId}_entraKey`, new: SecureStorageKeys.entra },
-            { old: `${userId}_oktaToken`, new: SecureStorageKeys.okta },
-            { old: `${userId}_oneLoginClientSecret`, new: SecureStorageKeys.oneLogin },
-            { old: `${userId}_accessToken`, new: SecureStorageKeys.accessToken },
-            { old: `${userId}_refreshToken`, new: SecureStorageKeys.refreshToken },
-            { old: `${userId}_twoFactorToken`, new: SecureStorageKeys.twoFactorToken },
-          ]),
-        );
-
-        // Old prefixed keys removed from secureStorageService after migration
-        expect(secureStorage.store.has(`${userId}_ldapPassword`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_gsuitePrivateKey`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_entraIdKey`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_azureKey`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_oktaToken`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_oneLoginClientSecret`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_accessToken`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_refreshToken`)).toBe(false);
-        expect(secureStorage.store.has(`${userId}_twoFactorToken`)).toBe(false);
-      });
-
-      it("preserves v3 storage keys (activeUserId, account object, global) after migration", async () => {
-        await svc.migrate();
-
-        expect(storage.store.has("activeUserId")).toBe(true);
-        expect(storage.store.has(userId)).toBe(true);
-        expect(storage.store.has("global")).toBe(true);
+        // Old prefixed keys intentionally kept — will be removed in a future migration
+        expect(secureStorage.store.has(`${userId}_ldapPassword`)).toBe(true);
+        expect(secureStorage.store.has(`${userId}_accessToken`)).toBe(true);
       });
 
       it("migrates apiKeyClientId and apiKeyClientSecret from account to secure storage", async () => {
@@ -303,25 +272,31 @@ describe("StateMigrationService", () => {
     });
 
     describe("GSuite privateKey in prefixed secure storage", () => {
-      it("calls migrateKeytarPasswordAs for gsuite private key", async () => {
+      it("migrates privateKey from prefixed secure storage key to flat key", async () => {
         const userId = "user-gsuite-key";
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { passwords } = require("dc-native");
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
           profile: {},
           keys: {},
-          directoryConfigurations: { gsuite: { domain: "example.com" } },
+          directoryConfigurations: {
+            gsuite: {
+              domain: "example.com",
+              clientEmail: "sa@example.com",
+            },
+          },
           directorySettings: {},
+          settings: {},
         });
+        secureStorage.store.set(
+          `${userId}_gsuitePrivateKey`,
+          "-----BEGIN RSA PRIVATE KEY-----\nMIIEo...",
+        );
 
         await svc.migrate();
 
-        expect(passwords.migrateKeytarPasswordAs).toHaveBeenCalledWith(
-          expect.any(String),
-          `${userId}_gsuitePrivateKey`,
-          SecureStorageKeys.gsuite,
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(
+          "-----BEGIN RSA PRIVATE KEY-----\nMIIEo...",
         );
         const gsuiteConfig = storage.store.get(StorageKeys.directoryGsuite) as any;
         expect(gsuiteConfig.domain).toBe("example.com");
@@ -329,39 +304,30 @@ describe("StateMigrationService", () => {
     });
 
     describe("Entra key in prefixed secure storage", () => {
-      it("calls migrateKeytarPasswordAs for both entraIdKey and entraKey", async () => {
+      it("migrates key from prefixed secure storage key (_entraIdKey) to flat key", async () => {
         const userId = "user-entra-key";
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { passwords } = require("dc-native");
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
           profile: {},
           keys: {},
-          directoryConfigurations: { entra: { tenant: "my-tenant", applicationId: "app-id" } },
+          directoryConfigurations: {
+            entra: { tenant: "my-tenant", applicationId: "app-id" },
+          },
           directorySettings: {},
+          settings: {},
         });
+        secureStorage.store.set(`${userId}_entraIdKey`, "entra-secret-key");
 
         await svc.migrate();
 
-        expect(passwords.migrateKeytarPasswordAs).toHaveBeenCalledWith(
-          expect.any(String),
-          `${userId}_entraIdKey`,
-          SecureStorageKeys.entra,
-        );
-        expect(passwords.migrateKeytarPasswordAs).toHaveBeenCalledWith(
-          expect.any(String),
-          `${userId}_entraKey`,
-          SecureStorageKeys.entra,
-        );
+        expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("entra-secret-key");
         const entraConfig = storage.store.get(StorageKeys.directoryEntra) as any;
         expect(entraConfig.tenant).toBe("my-tenant");
       });
 
-      it("calls migrateKeytarPasswordAs for azure key", async () => {
+      it("migrates key from azure fallback prefixed secure storage key to flat key", async () => {
         const userId = "user-azure-key";
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { passwords } = require("dc-native");
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
@@ -371,93 +337,85 @@ describe("StateMigrationService", () => {
             azure: { tenant: "azure-tenant", applicationId: "azure-app" },
           },
           directorySettings: {},
+          settings: {},
         });
+        secureStorage.store.set(`${userId}_azureKey`, "azure-secret-key");
 
         await svc.migrate();
 
-        expect(passwords.migrateKeytarPasswordAs).toHaveBeenCalledWith(
-          expect.any(String),
-          `${userId}_azureKey`,
-          SecureStorageKeys.azure,
-        );
+        expect(secureStorage.store.get(SecureStorageKeys.azure)).toBe("azure-secret-key");
         const entraConfig = storage.store.get(StorageKeys.directoryEntra) as any;
         expect(entraConfig.tenant).toBe("azure-tenant");
       });
     });
 
     describe("Okta token in prefixed secure storage", () => {
-      it("calls migrateKeytarPasswordAs for okta token", async () => {
+      it("migrates token from prefixed secure storage key to flat key", async () => {
         const userId = "user-okta-token";
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { passwords } = require("dc-native");
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
           profile: {},
           keys: {},
-          directoryConfigurations: { okta: { orgUrl: "https://example.okta.com" } },
+          directoryConfigurations: {
+            okta: { orgUrl: "https://example.okta.com" },
+          },
           directorySettings: {},
+          settings: {},
         });
+        secureStorage.store.set(`${userId}_oktaToken`, "okta-api-token");
 
         await svc.migrate();
 
-        expect(passwords.migrateKeytarPasswordAs).toHaveBeenCalledWith(
-          expect.any(String),
-          `${userId}_oktaToken`,
-          SecureStorageKeys.okta,
-        );
+        expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-api-token");
         const oktaConfig = storage.store.get(StorageKeys.directoryOkta) as any;
         expect(oktaConfig.orgUrl).toBe("https://example.okta.com");
       });
     });
 
     describe("OneLogin clientSecret in prefixed secure storage", () => {
-      it("calls migrateKeytarPasswordAs for oneLogin client secret", async () => {
+      it("migrates clientSecret from prefixed secure storage key to flat key", async () => {
         const userId = "user-onelogin-secret";
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { passwords } = require("dc-native");
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
           profile: {},
           keys: {},
-          directoryConfigurations: { oneLogin: { clientId: "ol-client-id", region: "us" } },
+          directoryConfigurations: {
+            oneLogin: { clientId: "ol-client-id", region: "us" },
+          },
           directorySettings: {},
+          settings: {},
         });
+        secureStorage.store.set(`${userId}_oneLoginClientSecret`, "ol-client-secret");
 
         await svc.migrate();
 
-        expect(passwords.migrateKeytarPasswordAs).toHaveBeenCalledWith(
-          expect.any(String),
-          `${userId}_oneLoginClientSecret`,
-          SecureStorageKeys.oneLogin,
-        );
+        expect(secureStorage.store.get(SecureStorageKeys.oneLogin)).toBe("ol-client-secret");
         const oneLoginConfig = storage.store.get(StorageKeys.directoryOnelogin) as any;
         expect(oneLoginConfig.clientId).toBe("ol-client-id");
       });
     });
 
     describe("LDAP password in prefixed secure storage", () => {
-      it("calls migrateKeytarPasswordAs for ldap password", async () => {
+      it("migrates password from prefixed secure storage key to flat key", async () => {
         const userId = "user-ldap-pass";
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { passwords } = require("dc-native");
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
         storage.store.set(userId, {
           profile: {},
           keys: {},
-          directoryConfigurations: { ldap: { hostname: "ldap.example.com", port: 389 } },
+          directoryConfigurations: {
+            ldap: { hostname: "ldap.example.com", port: 389 },
+          },
           directorySettings: {},
+          settings: {},
         });
+        secureStorage.store.set(`${userId}_ldapPassword`, "super-secret");
 
         await svc.migrate();
 
-        expect(passwords.migrateKeytarPasswordAs).toHaveBeenCalledWith(
-          expect.any(String),
-          `${userId}_ldapPassword`,
-          SecureStorageKeys.ldap,
-        );
+        expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("super-secret");
         const ldapConfig = storage.store.get(StorageKeys.directoryLdap) as any;
         expect(ldapConfig.hostname).toBe("ldap.example.com");
       });
@@ -475,17 +433,12 @@ describe("StateMigrationService", () => {
           directorySettings: {},
           settings: {},
         });
+        secureStorage.store.set(`${userId}_ldapPassword`, "real-secret");
+
         await svc.migrate();
 
-        // migrateKeytarPasswordAs is called for the ldap key regardless of the
-        // [STORED SECURELY] placeholder — it reads directly from the credential store.
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { passwords } = require("dc-native");
-        expect(passwords.migrateKeytarPasswordAs).toHaveBeenCalledWith(
-          expect.any(String),
-          `${userId}_ldapPassword`,
-          SecureStorageKeys.ldap,
-        );
+        // The prefixed key migration should have moved the real secret
+        expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("real-secret");
       });
     });
 
@@ -567,7 +520,6 @@ describe("StateMigrationService", () => {
 
     describe("useSecureStorageForSecrets = false", () => {
       it("does not migrate or remove {userId}_* secure storage keys", async () => {
-        jest.clearAllMocks();
         const userId = "user-abc-123";
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
@@ -588,12 +540,12 @@ describe("StateMigrationService", () => {
         const testSvc = new TestableService(storage, secureStorage);
         await testSvc.runMigration();
 
-        // Old keys NOT removed and migrateKeytarPasswordAs NOT called
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { passwords } = require("dc-native");
-        expect(passwords.migrateKeytarPasswordAs).not.toHaveBeenCalled();
+        // Old keys NOT removed
         expect(secureStorage.store.has(`${userId}_accessToken`)).toBe(true);
         expect(secureStorage.store.has(`${userId}_ldapPassword`)).toBe(true);
+        // New flat keys NOT written
+        expect(secureStorage.store.has(SecureStorageKeys.accessToken)).toBe(false);
+        expect(secureStorage.store.has(SecureStorageKeys.ldap)).toBe(false);
       });
     });
 
@@ -643,9 +595,79 @@ describe("StateMigrationService", () => {
         expect(badKeys).toHaveLength(0);
       });
 
+      it("bumps stateVersion to Seven (5→6→7)", async () => {
+        await svc.migrate();
+
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      });
+    });
+
+    describe("migrateStateFrom6To7()", () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { passwords } = require("dc-native");
+      const userId = "user-stuck-at-v6";
+
+      beforeEach(() => {
+        jest.clearAllMocks();
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Six);
+        storage.store.set("activeUserId", userId);
+        secureStorage.store.set(`${userId}_ldapPassword`, "ldap-pass");
+        secureStorage.store.set(`${userId}_entraIdKey`, "entra-key");
+        secureStorage.store.set(`${userId}_entraKey`, "entra-fallback");
+        secureStorage.store.set(`${userId}_oktaToken`, "okta-token");
+      });
+
+      it("calls migrateKeytarPassword for each old {userId}_* key", async () => {
+        await svc.migrate();
+
+        const calledKeys = passwords.migrateKeytarPassword.mock.calls.map(
+          (c: [string, string]) => c[1],
+        );
+        expect(calledKeys).toEqual(
+          expect.arrayContaining([
+            `${userId}_ldapPassword`,
+            `${userId}_entraIdKey`,
+            `${userId}_entraKey`,
+            `${userId}_oktaToken`,
+          ]),
+        );
+      });
+
+      it("copies old keys to flat keys via secureStorageService", async () => {
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("ldap-pass");
+        expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
+      });
+
+      it("prefers _entraIdKey over _entraKey and keeps both old keys intact", async () => {
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("entra-key");
+        expect(secureStorage.store.has(`${userId}_entraIdKey`)).toBe(true);
+        expect(secureStorage.store.has(`${userId}_entraKey`)).toBe(true);
+      });
+
+      it("keeps old {userId}_* keys intact after migration", async () => {
+        await svc.migrate();
+
+        expect(secureStorage.store.has(`${userId}_ldapPassword`)).toBe(true);
+        expect(secureStorage.store.has(`${userId}_oktaToken`)).toBe(true);
+      });
+
       it("bumps stateVersion to Seven", async () => {
         await svc.migrate();
 
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      });
+
+      it("does nothing to secure storage when activeUserId is absent", async () => {
+        storage.store.delete("activeUserId");
+        const secureSnapshot = new Map(secureStorage.store);
+
+        await svc.migrate();
+
+        expect(secureStorage.store).toEqual(secureSnapshot);
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
       });
     });

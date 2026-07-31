@@ -5,6 +5,6 @@ export enum StateVersion {
   Four = 4, // Fix 'Never Lock' option by removing stale data
   Five = 5, // New state service implementation
   Six = 6, // Migrate Windows Credential Manager entries from keytar (UTF-8) to desktop_core (UTF-16)
-  Seven = 7, // Re-run legacy keytar credential migration for machines that got stuck at v6 with un-migrated {userId}_* credentials
+  Seven = 7, // Re-run legacy keytar credential migration for machines stuck at v6 with un-migrated {userId}_* credentials
   Latest = Seven,
 }
