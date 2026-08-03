@@ -6,7 +6,7 @@ import { StateMigrationService } from "./stateMigration.service";
 
 jest.mock("dc-native", () => ({
   passwords: {
-    migrateKeytarPassword: jest.fn().mockResolvedValue(false),
+    migrateKeytarPassword: jest.fn().mockResolvedValue({ migrated: false }),
   },
 }));
 
@@ -679,12 +679,12 @@ describe("StateMigrationService", () => {
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
       });
 
-      it("does not throw when migrateKeytarPassword rejects with a nul value error", async () => {
-        passwords.migrateKeytarPassword.mockRejectedValue(
-          new Error("invalid nul value found at position 1"),
-        );
+      it("still copies credentials when migrateKeytarPassword reports migrated: false (e.g. already UTF-16)", async () => {
+        passwords.migrateKeytarPassword.mockResolvedValue({ migrated: false });
 
-        await expect(svc.migrate()).resolves.not.toThrow();
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("ldap-pass");
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
       });
     });
