@@ -678,6 +678,15 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store).toEqual(secureSnapshot);
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
       });
+
+      it("does not throw when migrateKeytarPassword rejects with a nul value error", async () => {
+        passwords.migrateKeytarPassword.mockRejectedValue(
+          new Error("invalid nul value found at position 1"),
+        );
+
+        await expect(svc.migrate()).resolves.not.toThrow();
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      });
     });
 
     describe("stampVersion()", () => {

@@ -292,7 +292,12 @@ export class StateMigrationService {
       const written = new Set<string>();
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
         // Re-encode the UTF-8 keytar blob to UTF-16 in-place so desktop_core can read it.
-        await passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
+        // A credential that already contains NUL bytes (e.g. already UTF-16) will cause
+        // widestring's U16CString::from_str to throw "invalid nul value found at position N".
+        // Treat that as a no-op — the credential is either already migrated or corrupted.
+        await passwords
+          .migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey)
+          .catch(() => false);
 
         if (written.has(newKey)) {
           continue;
