@@ -661,6 +661,14 @@ describe("StateMigrationService", () => {
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
       });
 
+      it("does not overwrite an existing flat key with an old {userId}_* value", async () => {
+        secureStorage.store.set(SecureStorageKeys.ldap, "existing-ldap-pass");
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("existing-ldap-pass");
+      });
+
       it("does nothing to secure storage when activeUserId is absent", async () => {
         storage.store.delete("activeUserId");
         const secureSnapshot = new Map(secureStorage.store);
