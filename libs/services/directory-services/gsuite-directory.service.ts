@@ -4,6 +4,7 @@ import { admin_directory_v1, google } from "googleapis";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
 import { StateService } from "@/libs/abstractions/state.service";
+import { Utils } from "@/libs/utils/utils";
 
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
@@ -235,7 +236,8 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
       this.dirConfig.clientEmail == null ||
       this.dirConfig.privateKey == null ||
       this.dirConfig.adminUser == null ||
-      this.dirConfig.domain == null
+      (Utils.isNullOrWhitespace(this.dirConfig.domain) &&
+        Utils.isNullOrWhitespace(this.dirConfig.customer))
     ) {
       throw new Error(this.i18nService.t("dirConfigIncomplete"));
     }
@@ -265,10 +267,12 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     this.authParams = {
       auth: this.client,
     };
-    if (this.dirConfig.domain != null && this.dirConfig.domain.trim() !== "") {
+    // The Directory API treats `domain` and `customer` as mutually exclusive and prefers
+    // `domain` when both are supplied, so exactly one is sent, with `domain` keeping
+    // precedence to preserve the sync scope of existing configurations.
+    if (!Utils.isNullOrWhitespace(this.dirConfig.domain)) {
       this.authParams.domain = this.dirConfig.domain;
-    }
-    if (this.dirConfig.customer != null && this.dirConfig.customer.trim() !== "") {
+    } else if (!Utils.isNullOrWhitespace(this.dirConfig.customer)) {
       this.authParams.customer = this.dirConfig.customer;
     }
   }
