@@ -235,7 +235,7 @@ export class StateMigrationService {
    * Migrate from State v5 to v6 — convert any Windows Credential Manager entries that were
    * written by keytar (UTF-8 via CredWriteA) to the UTF-16 format used by desktop_core
    * (CredWriteW). This is a no-op on macOS and Linux; migrateKeytarPassword returns
-   * `{ migrated: false, error?: undefined}` immediately on those platforms.
+   * `{ migrated: false }` immediately on those platforms.
    *
    * Keys migrated:
    *   • All current flat SecureStorageKeys (secret_*, accessToken, etc.)
