@@ -706,6 +706,17 @@ describe("StateMigrationService", () => {
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
       });
 
+      it("still copies credentials when migrateKeytarPassword reports a Credential Manager error", async () => {
+        passwords.migrateKeytarPassword.mockResolvedValue({
+          migrated: false,
+          error: "CredWriteW failed: Access is denied. (os error 5)",
+        });
+
+        await svc.migrate();
+
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      });
+
       it("skips all secure storage work and just bumps version on non-Windows", async () => {
         Object.defineProperty(process, "platform", { value: "darwin", configurable: true });
         const secureSnapshot = new Map(secureStorage.store);
