@@ -269,10 +269,19 @@ export class StateMigrationService {
   }
 
   /**
-   * Migrate from State v6 to v7: catch-up migration for machines where the 3→5 migration
-   * failed to copy credentials from {userId}_* to flat keys.
+   * Migrate from State v6 to v7: catch-up migration for Windows machines where the 3→5
+   * migration failed to copy directory secrets from {userId}_* to flat keys due to the
+   * CredWriteA/CredReadW encoding mismatch. Auth tokens are intentionally excluded: an absent
+   * flat token key means the user is logged out (either by clearAuthTokens() or because the
+   * prior migration already forced re-auth), and restoring a stale token would bypass the login
+   * screen.
    */
   protected async migrateStateFrom6To7(): Promise<void> {
+    if (process.platform !== "win32") {
+      await this.set(StorageKeys.stateVersion, StateVersion.Seven);
+      return;
+    }
+
     const clientId = await this.storageService.get<string>("activeUserId");
 
     if (clientId) {
@@ -284,9 +293,6 @@ export class StateMigrationService {
         { old: `${clientId}_entraKey`, new: SecureStorageKeys.entra },
         { old: `${clientId}_oktaToken`, new: SecureStorageKeys.okta },
         { old: `${clientId}_oneLoginClientSecret`, new: SecureStorageKeys.oneLogin },
-        { old: `${clientId}_accessToken`, new: SecureStorageKeys.accessToken },
-        { old: `${clientId}_refreshToken`, new: SecureStorageKeys.refreshToken },
-        { old: `${clientId}_twoFactorToken`, new: SecureStorageKeys.twoFactorToken },
       ];
 
       const written = new Set<string>();
