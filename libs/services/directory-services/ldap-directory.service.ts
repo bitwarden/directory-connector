@@ -408,6 +408,11 @@ export class LdapDirectoryService implements IDirectoryService {
       filter: filter,
       scope: "sub",
       paged: this.dirConfig.pagedSearch,
+      // ldapts defaults timeLimit to 10 seconds, which the server enforces. Expensive but
+      // legitimate filters (e.g. LDAP_MATCHING_RULE_IN_CHAIN over nested groups) can exceed
+      // that and come back empty or as a timeLimitExceeded error. 0 defers to the server's
+      // own query policy instead.
+      timeLimit: 0,
       // We need to expressly tell ldapts what attributes to return as Buffer objects,
       // otherwise they are returned as strings
       explicitBufferAttributes: [ActiveDirectoryExternalId],
