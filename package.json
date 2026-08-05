@@ -93,16 +93,16 @@
     "@typescript-eslint/eslint-plugin": "8.65.0",
     "@typescript-eslint/parser": "8.65.0",
     "babel-loader": "10.1.1",
-    "concurrently": "10.0.3",
+    "concurrently": "10.0.4",
     "copy-webpack-plugin": "14.0.0",
     "cross-env": "10.1.0",
     "css-loader": "7.1.4",
     "dotenv": "17.4.2",
     "electron": "43.2.0",
-    "electron-builder": "26.15.5",
+    "electron-builder": "26.15.7",
     "electron-log": "5.4.3",
     "electron-store": "11.0.2",
-    "electron-updater": "6.8.3",
+    "electron-updater": "6.8.9",
     "eslint": "10.8.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-import-resolver-typescript": "4.4.5",
@@ -168,5 +168,8 @@
   "engines": {
     "node": "~25",
     "npm": "~11"
+  },
+  "overrides": {
+    "undici": "8.9.0"
   }
 }
