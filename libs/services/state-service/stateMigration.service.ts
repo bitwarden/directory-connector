@@ -1,3 +1,4 @@
+import { LogService } from "@/libs/abstractions/log.service";
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
@@ -23,6 +24,8 @@ export class StateMigrationService {
   constructor(
     protected storageService: StorageService,
     protected secureStorageService: StorageService,
+    protected logService: LogService,
+    protected useSecureStorageForSecrets = true,
   ) {}
 
   async needsMigration(): Promise<boolean> {
@@ -259,11 +262,19 @@ export class StateMigrationService {
       SecureStorageKeys.twoFactorToken,
     ];
 
-    await Promise.all(
+    const results = await Promise.all(
       credentialKeys.map((key) =>
         passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
       ),
     );
+
+    for (let i = 0; i < results.length; i++) {
+      if (results[i].error) {
+        this.logService.error(
+          `StateMigrationService: failed to re-encode credential "${credentialKeys[i]}": ${results[i].error}`,
+        );
+      }
+    }
 
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
   }
@@ -277,7 +288,7 @@ export class StateMigrationService {
    * screen.
    */
   protected async migrateStateFrom6To7(): Promise<void> {
-    if (process.platform !== "win32") {
+    if (!this.useSecureStorageForSecrets || process.platform !== "win32") {
       await this.set(StorageKeys.stateVersion, StateVersion.Seven);
       return;
     }
