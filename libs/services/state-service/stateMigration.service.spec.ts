@@ -1,3 +1,4 @@
+import { LogService } from "@/libs/abstractions/log.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { StateVersion } from "@/libs/enums/stateVersion";
 import { SecureStorageKeys, StorageKeys } from "@/libs/models/state.model";
@@ -13,22 +14,38 @@ jest.mock("dc-native", () => ({
 
 import { FakeStorageService } from "@/utils/fakeStorageService";
 
+function makeLogService(): LogService {
+  return {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warning: jest.fn(),
+    error: jest.fn(),
+    write: jest.fn(),
+    time: jest.fn(),
+    timeEnd: jest.fn(),
+  } as unknown as LogService;
+}
+
 function makeService(
   storage: FakeStorageService,
   secureStorage: FakeStorageService,
+  useSecureStorageForSecrets = true,
+  logService = makeLogService(),
 ): StateMigrationService {
-  return new StateMigrationService(storage, secureStorage);
+  return new StateMigrationService(storage, secureStorage, logService, useSecureStorageForSecrets);
 }
 
 describe("StateMigrationService", () => {
   let storage: FakeStorageService;
   let secureStorage: FakeStorageService;
   let svc: StateMigrationService;
+  let logService: LogService;
 
   beforeEach(() => {
     storage = new FakeStorageService();
     secureStorage = new FakeStorageService();
-    svc = makeService(storage, secureStorage);
+    logService = makeLogService();
+    svc = makeService(storage, secureStorage, true, logService);
   });
 
   describe("needsMigration()", () => {
@@ -538,7 +555,7 @@ describe("StateMigrationService", () => {
             await this.migrateStateFrom3To5(false);
           }
         }
-        const testSvc = new TestableService(storage, secureStorage);
+        const testSvc = new TestableService(storage, secureStorage, makeLogService());
         await testSvc.runMigration();
 
         // Old keys NOT removed
@@ -600,6 +617,19 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      });
+
+      it("logs an error when migrateKeytarPassword returns an error field", async () => {
+        passwords.migrateKeytarPassword.mockResolvedValueOnce({
+          migrated: false,
+          error: "ERROR_ACCESS_DENIED",
+        });
+
+        await svc.migrate();
+
+        expect(logService.error).toHaveBeenCalledWith(
+          expect.stringContaining("ERROR_ACCESS_DENIED"),
+        );
       });
     });
 
@@ -695,6 +725,19 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.has(`${userId}_entraKey`)).toBe(true);
       });
 
+      it("falls back to _entraKey when _entraIdKey is absent from keytar", async () => {
+        passwords.readKeytarPassword.mockImplementation((_service: string, account: string) => {
+          const values: Record<string, string> = {
+            [`${userId}_entraKey`]: JSON.stringify("entra-fallback-value"),
+          };
+          return Promise.resolve(values[account] ?? null);
+        });
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("entra-fallback-value");
+      });
+
       it("keeps old {userId}_* keys intact after migration", async () => {
         await svc.migrate();
 
@@ -741,6 +784,17 @@ describe("StateMigrationService", () => {
 
         await svc.migrate();
 
+        expect(secureStorage.store).toEqual(secureSnapshot);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      });
+
+      it("skips readKeytarPassword and does not write secrets when useSecureStorageForSecrets = false (plaintext mode)", async () => {
+        const plaintextSvc = makeService(storage, secureStorage, false);
+        const secureSnapshot = new Map(secureStorage.store);
+
+        await plaintextSvc.migrate();
+
+        expect(passwords.readKeytarPassword).not.toHaveBeenCalled();
         expect(secureStorage.store).toEqual(secureSnapshot);
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
       });

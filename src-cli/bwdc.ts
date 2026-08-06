@@ -104,6 +104,8 @@ export class Main {
     this.stateMigrationService = new StateMigrationService(
       this.storageService,
       this.secureStorageService,
+      this.logService,
+      !plaintextSecrets,
     );
 
     this.stateService = new DefaultStateService(
