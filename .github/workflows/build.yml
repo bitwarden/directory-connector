@@ -476,6 +476,13 @@ jobs:
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           if-no-files-found: error
 
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: bitwarden-directory-connector_${{ env._PACKAGE_VERSION }}_amd64.deb
+          path: ./dist/bitwarden-directory-connector_${{ env._PACKAGE_VERSION }}_amd64.deb
+          if-no-files-found: error
+
       - name: Upload latest auto-update artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
@@ -743,3 +750,65 @@ jobs:
           name: Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-arm64.dmg.blockmap
           path: ./dist/Bitwarden-Connector-${{ env._PACKAGE_VERSION }}-arm64.dmg.blockmap
           if-no-files-found: error
+
+
+  validate-linux-deb:
+    name: Validate Linux ${{ matrix.distro }} .deb
+    runs-on: ${{ matrix.distro }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # The oldest and newest supported Ubuntu LTS. The 22.04/24.04 split matters because
+        # the 64-bit time_t transition renamed libgtk-3-0 and libatspi2.0-0 to their `t64`
+        # variants without providing the old names, so the alternation in the `deb.depends`
+        # list in electron-builder.json must resolve on both.
+        distro: [ubuntu-22.04, ubuntu-24.04]
+    needs:
+      - setup
+      - linux-gui
+    permissions:
+      contents: read
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Download .deb artifact
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: bitwarden-directory-connector_${{ env._PACKAGE_VERSION }}_amd64.deb
+          path: ./artifacts
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb dbus-x11 gnome-keyring
+          # libasound2 was renamed to libasound2t64 in Ubuntu 24.04, and the old
+          # name is only provided there by an unrelated OSS4 package.
+          sudo apt-get install -y libasound2t64 || sudo apt-get install -y libasound2
+
+      - name: Install .deb
+        working-directory: ./artifacts
+        run: sudo apt-get install -y "./bitwarden-directory-connector_${_PACKAGE_VERSION}_amd64.deb"
+
+      - name: Run .deb
+        run: |
+          # Resolve the installed executable from the package manifest rather than assuming
+          # the name electron-builder derives from extraMetadata.name.
+          exe=$(dpkg -L bitwarden-directory-connector | grep '^/usr/bin/' | head -n1)
+          echo "Executable: $exe"
+
+          # dc-native stores credentials in the OS keyring, so a session bus and an
+          # unlocked keyring must exist, same as the CLI version test above.
+          eval "$(dbus-launch --sh-syntax)"
+          eval "$(echo -n "" | /usr/bin/gnome-keyring-daemon --login)"
+          eval "$(/usr/bin/gnome-keyring-daemon --components=secrets --start)"
+
+          xvfb-run -a "$exe" &
+          sleep 30
+
+          if pgrep -f "$exe" > /dev/null; then
+            pkill -9 -f "$exe"
+            echo "Directory Connector is running."
+          else
+            echo "Directory Connector is not running."
+            exit 1
+          fi
