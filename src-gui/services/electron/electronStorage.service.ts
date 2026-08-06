@@ -18,7 +18,6 @@ export class ElectronStorageService implements StorageService {
       defaults: defaults,
       name: "data",
     };
-
     this.store = new Store(storeConfig);
 
     ipcMain.handle("storageService", (event, options) => {

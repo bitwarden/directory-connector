@@ -606,15 +606,21 @@ describe("StateMigrationService", () => {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { passwords } = require("dc-native");
       const userId = "user-stuck-at-v6";
+      const originalPlatform = process.platform;
 
       beforeEach(() => {
         jest.clearAllMocks();
+        Object.defineProperty(process, "platform", { value: "win32", configurable: true });
         storage.store.set(StorageKeys.stateVersion, StateVersion.Six);
         storage.store.set("activeUserId", userId);
         secureStorage.store.set(`${userId}_ldapPassword`, "ldap-pass");
         secureStorage.store.set(`${userId}_entraIdKey`, "entra-key");
         secureStorage.store.set(`${userId}_entraKey`, "entra-fallback");
         secureStorage.store.set(`${userId}_oktaToken`, "okta-token");
+      });
+
+      afterEach(() => {
+        Object.defineProperty(process, "platform", { value: originalPlatform, configurable: true });
       });
 
       it("calls migrateKeytarPassword for each old {userId}_* key", async () => {
@@ -633,11 +639,23 @@ describe("StateMigrationService", () => {
         );
       });
 
-      it("copies old keys to flat keys via secureStorageService", async () => {
+      it("copies old directory secret keys to flat keys via secureStorageService", async () => {
         await svc.migrate();
 
         expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("ldap-pass");
         expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
+      });
+
+      it("does not copy auth tokens — an absent flat token key means logged out, not un-migrated", async () => {
+        secureStorage.store.set(`${userId}_accessToken`, "stale-access-tok");
+        secureStorage.store.set(`${userId}_refreshToken`, "stale-refresh-tok");
+        secureStorage.store.set(`${userId}_twoFactorToken`, "stale-2fa-tok");
+
+        await svc.migrate();
+
+        expect(secureStorage.store.has(SecureStorageKeys.accessToken)).toBe(false);
+        expect(secureStorage.store.has(SecureStorageKeys.refreshToken)).toBe(false);
+        expect(secureStorage.store.has(SecureStorageKeys.twoFactorToken)).toBe(false);
       });
 
       it("prefers _entraIdKey over _entraKey and keeps both old keys intact", async () => {
@@ -685,6 +703,27 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("ldap-pass");
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      });
+
+      it("still copies credentials when migrateKeytarPassword reports a Credential Manager error", async () => {
+        passwords.migrateKeytarPassword.mockResolvedValue({
+          migrated: false,
+          error: "CredWriteW failed: Access is denied. (os error 5)",
+        });
+
+        await svc.migrate();
+
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      });
+
+      it("skips all secure storage work and just bumps version on non-Windows", async () => {
+        Object.defineProperty(process, "platform", { value: "darwin", configurable: true });
+        const secureSnapshot = new Map(secureStorage.store);
+
+        await svc.migrate();
+
+        expect(secureStorage.store).toEqual(secureSnapshot);
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
       });
     });

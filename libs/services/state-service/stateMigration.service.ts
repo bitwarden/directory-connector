@@ -234,8 +234,8 @@ export class StateMigrationService {
   /**
    * Migrate from State v5 to v6 — convert any Windows Credential Manager entries that were
    * written by keytar (UTF-8 via CredWriteA) to the UTF-16 format used by desktop_core
-   * (CredWriteW). This is a no-op on macOS and Linux; migrateKeytarPassword returns false
-   * immediately on those platforms.
+   * (CredWriteW). This is a no-op on macOS and Linux; migrateKeytarPassword returns
+   * `{ migrated: false }` immediately on those platforms.
    *
    * Keys migrated:
    *   • All current flat SecureStorageKeys (secret_*, accessToken, etc.)
@@ -269,10 +269,19 @@ export class StateMigrationService {
   }
 
   /**
-   * Migrate from State v6 to v7: catch-up migration for machines where the 3→5 migration
-   * failed to copy credentials from {userId}_* to flat keys.
+   * Migrate from State v6 to v7: catch-up migration for Windows machines where the 3→5
+   * migration failed to copy directory secrets from {userId}_* to flat keys due to the
+   * CredWriteA/CredReadW encoding mismatch. Auth tokens are intentionally excluded: an absent
+   * flat token key means the user is logged out (either by clearAuthTokens() or because the
+   * prior migration already forced re-auth), and restoring a stale token would bypass the login
+   * screen.
    */
   protected async migrateStateFrom6To7(): Promise<void> {
+    if (process.platform !== "win32") {
+      await this.set(StorageKeys.stateVersion, StateVersion.Seven);
+      return;
+    }
+
     const clientId = await this.storageService.get<string>("activeUserId");
 
     if (clientId) {
@@ -284,16 +293,10 @@ export class StateMigrationService {
         { old: `${clientId}_entraKey`, new: SecureStorageKeys.entra },
         { old: `${clientId}_oktaToken`, new: SecureStorageKeys.okta },
         { old: `${clientId}_oneLoginClientSecret`, new: SecureStorageKeys.oneLogin },
-        { old: `${clientId}_accessToken`, new: SecureStorageKeys.accessToken },
-        { old: `${clientId}_refreshToken`, new: SecureStorageKeys.refreshToken },
-        { old: `${clientId}_twoFactorToken`, new: SecureStorageKeys.twoFactorToken },
       ];
 
       const written = new Set<string>();
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        // Re-encode the UTF-8 keytar blob to UTF-16 in-place so desktop_core can read it.
-        await passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
-
         if (written.has(newKey)) {
           continue;
         }
@@ -304,8 +307,11 @@ export class StateMigrationService {
           continue;
         }
 
+        // Re-encode the UTF-8 keytar blob at oldKey to UTF-16 so desktop_core can read it,
+        // then copy to the new key location.
         const value = await this.secureStorageService.get<string>(oldKey);
-        if (value != null) {
+        if (value == null) {
+          await passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
           await this.secureStorageService.save(newKey, value);
           written.add(newKey);
         }

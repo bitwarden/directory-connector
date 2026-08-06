@@ -47,9 +47,10 @@ pub async fn is_available() -> napi::Result<bool> {
 /// Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
 /// used by desktop_core on Windows. No-ops on non-Windows platforms.
 ///
-/// Returns `{ migrated: true }` if a migration was performed. Returns `{ migrated: false }`
-/// if the credential does not exist, is already in the correct format, or cannot be migrated
-/// (e.g. the blob contains interior NUL bytes from a previous partial migration). Never throws.
+/// Returns `{ migrated: true }` if a migration was performed.
+/// Returns `{ migrated: false }` if the credential does not exist or is already in the correct
+/// format. Returns `{ migrated: false, error: "<reason>" }` if a Credential Manager failure
+/// prevented migration. Never throws.
 #[napi(namespace = "passwords")]
 pub async fn migrate_keytar_password(
     service: String,
@@ -59,20 +60,24 @@ pub async fn migrate_keytar_password(
     {
         let result = migration::migrate_keytar_password(&service, &account).await;
         match result {
-            Ok(migrated) => Ok(MigrateKeytarResult { migrated }),
-            Err(_) => Ok(MigrateKeytarResult { migrated: false }),
+            Ok(migrated) => Ok(MigrateKeytarResult { migrated, error: None }),
+            Err(e) => Ok(MigrateKeytarResult {
+                migrated: false,
+                error: Some(e.to_string()),
+            }),
         }
     }
     #[cfg(not(windows))]
     {
         let _ = (service, account);
-        Ok(MigrateKeytarResult { migrated: false })
+        Ok(MigrateKeytarResult { migrated: false, error: None })
     }
 }
 
 #[napi(object)]
 pub struct MigrateKeytarResult {
     pub migrated: bool,
+    pub error: Option<String>,
 }
 
 #[cfg(windows)]

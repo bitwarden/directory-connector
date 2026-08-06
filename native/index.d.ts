@@ -2,7 +2,9 @@
 /* eslint-disable */
 export interface MigrateKeytarResult {
   migrated: boolean
+  error?: string
 }
+
 export declare namespace passwords {
   /**
    * Delete the stored password from the keychain.
@@ -20,8 +22,10 @@ export declare namespace passwords {
    * Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
    * used by desktop_core on Windows. No-ops on non-Windows platforms.
    *
-   * Returns true if a migration was performed, false if the credential was already in the
-   * correct format or does not exist.
+   * Returns `{ migrated: true }` if a migration was performed.
+   * Returns `{ migrated: false }` if the credential does not exist or is already in the correct
+   * format. Returns `{ migrated: false, error: "<reason>" }` if a Credential Manager failure
+   * prevented migration. Never throws.
    */
   export function migrateKeytarPassword(service: string, account: string): Promise<MigrateKeytarResult>
   /**
