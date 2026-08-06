@@ -615,13 +615,14 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.stateVersion, StateVersion.Six);
         storage.store.set("activeUserId", userId);
 
-        // readKeytarPassword returns the re-encoded value for each old key it finds
+        // readKeytarPassword returns the raw Credential Manager blob verbatim — a JSON-encoded
+        // string, matching what the old KeytarSecureStorageService wrote via JSON.stringify().
         passwords.readKeytarPassword.mockImplementation((_service: string, account: string) => {
           const values: Record<string, string> = {
-            [`${userId}_ldapPassword`]: "ldap-pass",
-            [`${userId}_entraIdKey`]: "entra-key",
-            [`${userId}_entraKey`]: "entra-fallback",
-            [`${userId}_oktaToken`]: "okta-token",
+            [`${userId}_ldapPassword`]: JSON.stringify("ldap-pass"),
+            [`${userId}_entraIdKey`]: JSON.stringify("entra-key"),
+            [`${userId}_entraKey`]: JSON.stringify("entra-fallback"),
+            [`${userId}_oktaToken`]: JSON.stringify("okta-token"),
           };
           return Promise.resolve(values[account] ?? null);
         });

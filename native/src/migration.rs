@@ -53,7 +53,11 @@ pub async fn read_keytar_password(service: &str, account: &str) -> Result<Option
 }
 
 pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<bool> {
-    let value = read_keytar_password(service, account);
+    let value = match read_keytar_password(service, account).await? {
+        Some(v) => v,
+        None => return Ok(false),
+    };
+
     desktop_core::password::set_password(service, account, &value).await?;
 
     Ok(true)
