@@ -45,12 +45,15 @@ fn get_password_keytar(service: &str, account: &str) -> Result<String> {
     Ok(String::from(password))
 }
 
-pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<bool> {
-    let value = match get_password_keytar(service, account) {
-        Err(_) => return Ok(false),
-        Ok(v) => v,
-    };
+pub async fn read_keytar_password(service: &str, account: &str) -> Result<Option<String>> {
+    match get_password_keytar(service, account) {
+        Ok(v) => Ok(Some(v)),
+        Err(_) => Ok(None),
+    }
+}
 
+pub async fn migrate_keytar_password(service: &str, account: &str) -> Result<bool> {
+    let value = read_keytar_password(service, account);
     desktop_core::password::set_password(service, account, &value).await?;
 
     Ok(true)
