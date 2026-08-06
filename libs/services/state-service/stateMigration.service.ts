@@ -310,7 +310,7 @@ export class StateMigrationService {
         // Re-encode the UTF-8 keytar blob at oldKey to UTF-16 so desktop_core can read it,
         // then copy to the new key location.
         const value = await this.secureStorageService.get<string>(oldKey);
-        if (value != null) {
+        if (value == null) {
           await passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
           await this.secureStorageService.save(newKey, value);
           written.add(newKey);
