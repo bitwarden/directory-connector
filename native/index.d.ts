@@ -33,12 +33,6 @@ export declare namespace passwords {
    * Re-exported from desktop_core so JS callers have a single authoritative source.
    */
   export const PASSWORD_NOT_FOUND: string
-  /**
-   * Read a credential that was stored by keytar (UTF-8 blob) and return the correctly
-   * re-encoded string value without writing anything. Returns null if the credential does
-   * not exist. No-op on non-Windows platforms (returns null).
-   */
-  export function readKeytarPassword(service: string, account: string): Promise<string | null>
   /** Save the password to the keychain. Adds an entry if none exists, otherwise updates it. */
   export function setPassword(service: string, account: string, password: string): Promise<void>
 }

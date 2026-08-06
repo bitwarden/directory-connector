@@ -318,16 +318,8 @@ export class StateMigrationService {
           continue;
         }
 
-        const raw = await passwords.readKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
-        if (raw != null) {
-          // raw is the keytar blob verbatim (JSON.stringify'd by the old KeytarSecureStorageService).
-          // Parse it once so secureStorageService.save doesn't double-encode it.
-          let value: unknown;
-          try {
-            value = JSON.parse(raw);
-          } catch {
-            value = raw;
-          }
+        const value = await this.secureStorageService.get<string>(oldKey);
+        if (value != null) {
           await this.secureStorageService.save(newKey, value);
           written.add(newKey);
         }

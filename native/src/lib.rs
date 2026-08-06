@@ -44,27 +44,6 @@ pub async fn is_available() -> napi::Result<bool> {
         .map_err(|e| napi::Error::from_reason(e.to_string()))
 }
 
-/// Read a credential that was stored by keytar (UTF-8 blob) and return the correctly
-/// re-encoded string value without writing anything. Returns null if the credential does
-/// not exist. No-op on non-Windows platforms (returns null).
-#[napi(namespace = "passwords")]
-pub async fn read_keytar_password(
-    service: String,
-    account: String,
-) -> napi::Result<Option<String>> {
-    #[cfg(windows)]
-    {
-        migration::read_keytar_password(&service, &account)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
-    }
-    #[cfg(not(windows))]
-    {
-        let _ = (service, account);
-        Ok(None)
-    }
-}
-
 /// Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
 /// used by desktop_core on Windows. No-ops on non-Windows platforms.
 ///
