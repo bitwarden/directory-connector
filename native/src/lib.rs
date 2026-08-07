@@ -44,24 +44,61 @@ pub async fn is_available() -> napi::Result<bool> {
         .map_err(|e| napi::Error::from_reason(e.to_string()))
 }
 
-/// Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
-/// used by desktop_core on Windows. No-ops on non-Windows platforms.
-///
-/// Returns true if a migration was performed, false if the credential was already in the
-/// correct format or does not exist.
+/// Read a credential that was stored by keytar (UTF-8 blob) and return the correctly
+/// re-encoded string value without writing anything. Returns null if the credential does
+/// not exist. No-op on non-Windows platforms (returns null).
 #[napi(namespace = "passwords")]
-pub async fn migrate_keytar_password(service: String, account: String) -> napi::Result<bool> {
+pub async fn read_keytar_password(
+    service: String,
+    account: String,
+) -> napi::Result<Option<String>> {
     #[cfg(windows)]
     {
-        migration::migrate_keytar_password(&service, &account)
+        migration::read_keytar_password(&service, &account)
             .await
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
     #[cfg(not(windows))]
     {
         let _ = (service, account);
-        Ok(false)
+        Ok(None)
     }
+}
+
+/// Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
+/// used by desktop_core on Windows. No-ops on non-Windows platforms.
+///
+/// Returns `{ migrated: true }` if a migration was performed.
+/// Returns `{ migrated: false }` if the credential does not exist or is already in the correct
+/// format. Returns `{ migrated: false, error: "<reason>" }` if a Credential Manager failure
+/// prevented migration. Never throws.
+#[napi(namespace = "passwords")]
+pub async fn migrate_keytar_password(
+    service: String,
+    account: String,
+) -> napi::Result<MigrateKeytarResult> {
+    #[cfg(windows)]
+    {
+        let result = migration::migrate_keytar_password(&service, &account).await;
+        match result {
+            Ok(migrated) => Ok(MigrateKeytarResult { migrated, error: None }),
+            Err(e) => Ok(MigrateKeytarResult {
+                migrated: false,
+                error: Some(e.to_string()),
+            }),
+        }
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = (service, account);
+        Ok(MigrateKeytarResult { migrated: false, error: None })
+    }
+}
+
+#[napi(object)]
+pub struct MigrateKeytarResult {
+    pub migrated: bool,
+    pub error: Option<String>,
 }
 
 #[cfg(windows)]
