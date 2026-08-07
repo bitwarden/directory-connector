@@ -183,15 +183,6 @@ export class StateMigrationService {
         }
       }
 
-      console.log("v3to5-------------------");
-      for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        const o = this.secureStorageService.get(oldKey);
-        const n = this.secureStorageService.get(newKey);
-        console.log("old:", o);
-        console.log("new:", n);
-      }
-      console.log("------------------------------");
-
       // Migrate apiKeyClientId and apiKeyClientSecret from account object to secure storage
       if (account.profile?.apiKeyClientId) {
         await this.secureStorageService.save(
@@ -271,12 +262,6 @@ export class StateMigrationService {
       SecureStorageKeys.twoFactorToken,
     ];
 
-    console.log("5 to 6-------------");
-    for (let i = 0; i < credentialKeys.length; i++) {
-      const c = this.secureStorageService.get(credentialKeys[i]);
-      console.log(c);
-    }
-
     const results = await Promise.all(
       credentialKeys.map((key) =>
         passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
@@ -284,15 +269,12 @@ export class StateMigrationService {
     );
 
     for (let i = 0; i < results.length; i++) {
-      console.log(results[i]);
       if (results[i].error) {
         this.logService.error(
           `StateMigrationService: failed to re-encode credential "${credentialKeys[i]}": ${results[i].error}`,
         );
       }
     }
-
-    console.log("---------------------");
 
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
   }
@@ -336,21 +318,20 @@ export class StateMigrationService {
           continue;
         }
 
-        const value = await this.secureStorageService.get<string>(oldKey);
-        if (value != null) {
+        const raw = await passwords.readKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
+        if (raw != null) {
+          // raw is the keytar blob verbatim (JSON.stringify'd by the old KeytarSecureStorageService).
+          // Parse it once so secureStorageService.save doesn't double-encode it.
+          let value: unknown;
+          try {
+            value = JSON.parse(raw);
+          } catch {
+            value = raw;
+          }
           await this.secureStorageService.save(newKey, value);
           written.add(newKey);
         }
       }
-
-      console.log("6to7-----------------------------");
-      for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        const o = this.secureStorageService.get(oldKey);
-        const n = this.secureStorageService.get(newKey);
-        console.log("old:", o);
-        console.log("new:", n);
-      }
-      console.log("------------------------------");
     }
 
     await this.set(StorageKeys.stateVersion, StateVersion.Seven);
