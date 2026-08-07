@@ -41,6 +41,7 @@ export class BatchRequestBuilder implements RequestBuilder {
           users: u,
           largeImport: true,
           overwriteExisting: false,
+          inviteUsersAfterProvisioning: options.inviteUsersAfterProvisioning,
         });
         requests.push(req);
       }
@@ -63,6 +64,7 @@ export class BatchRequestBuilder implements RequestBuilder {
           users: [],
           largeImport: true,
           overwriteExisting: false,
+          inviteUsersAfterProvisioning: options.inviteUsersAfterProvisioning,
         });
         requests.push(req);
       }
