@@ -8,6 +8,7 @@ import { StateMigrationService } from "./stateMigration.service";
 jest.mock("dc-native", () => ({
   passwords: {
     migrateKeytarPassword: jest.fn().mockResolvedValue({ migrated: false }),
+    readKeytarPassword: jest.fn().mockResolvedValue(null),
   },
 }));
 
@@ -633,6 +634,8 @@ describe("StateMigrationService", () => {
     });
 
     describe("migrateStateFrom6To7()", () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { passwords } = require("dc-native");
       const userId = "user-stuck-at-v6";
       const originalPlatform = process.platform;
 
@@ -641,6 +644,19 @@ describe("StateMigrationService", () => {
         Object.defineProperty(process, "platform", { value: "win32", configurable: true });
         storage.store.set(StorageKeys.stateVersion, StateVersion.Six);
         storage.store.set("activeUserId", userId);
+
+        // readKeytarPassword returns the raw Credential Manager blob verbatim — a JSON-encoded
+        // string, matching what the old KeytarSecureStorageService wrote via JSON.stringify().
+        passwords.readKeytarPassword.mockImplementation((_service: string, account: string) => {
+          const values: Record<string, string> = {
+            [`${userId}_ldapPassword`]: JSON.stringify("ldap-pass"),
+            [`${userId}_entraIdKey`]: JSON.stringify("entra-key"),
+            [`${userId}_entraKey`]: JSON.stringify("entra-fallback"),
+            [`${userId}_oktaToken`]: JSON.stringify("okta-token"),
+          };
+          return Promise.resolve(values[account] ?? null);
+        });
+
         secureStorage.store.set(`${userId}_ldapPassword`, "ldap-pass");
         secureStorage.store.set(`${userId}_entraIdKey`, "entra-key");
         secureStorage.store.set(`${userId}_entraKey`, "entra-fallback");
@@ -649,6 +665,37 @@ describe("StateMigrationService", () => {
 
       afterEach(() => {
         Object.defineProperty(process, "platform", { value: originalPlatform, configurable: true });
+      });
+
+      it("calls readKeytarPassword for each old {userId}_* key", async () => {
+        await svc.migrate();
+
+        const calledKeys = passwords.readKeytarPassword.mock.calls.map(
+          (c: [string, string]) => c[1],
+        );
+        expect(calledKeys).toEqual(
+          expect.arrayContaining([
+            `${userId}_ldapPassword`,
+            `${userId}_gsuitePrivateKey`,
+            `${userId}_azureKey`,
+            `${userId}_entraIdKey`,
+            `${userId}_oktaToken`,
+            `${userId}_oneLoginClientSecret`,
+          ]),
+        );
+        // _entraKey is skipped because _entraIdKey is tried first and succeeds
+        expect(calledKeys).not.toContain(`${userId}_entraKey`);
+      });
+
+      it("does not call migrateKeytarPassword for old {userId}_* keys", async () => {
+        await svc.migrate();
+
+        const calledKeys = passwords.migrateKeytarPassword.mock.calls.map(
+          (c: [string, string]) => c[1],
+        );
+        expect(calledKeys).not.toContain(`${userId}_ldapPassword`);
+        expect(calledKeys).not.toContain(`${userId}_entraIdKey`);
+        expect(calledKeys).not.toContain(`${userId}_oktaToken`);
       });
 
       it("copies old directory secret keys to flat keys via secureStorageService", async () => {
@@ -678,12 +725,17 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.has(`${userId}_entraKey`)).toBe(true);
       });
 
-      it("falls back to _entraKey when _entraIdKey is absent", async () => {
-        secureStorage.store.delete(`${userId}_entraIdKey`);
+      it("falls back to _entraKey when _entraIdKey is absent from keytar", async () => {
+        passwords.readKeytarPassword.mockImplementation((_service: string, account: string) => {
+          const values: Record<string, string> = {
+            [`${userId}_entraKey`]: JSON.stringify("entra-fallback-value"),
+          };
+          return Promise.resolve(values[account] ?? null);
+        });
 
         await svc.migrate();
 
-        expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("entra-fallback");
+        expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("entra-fallback-value");
       });
 
       it("keeps old {userId}_* keys intact after migration", async () => {
@@ -717,10 +769,8 @@ describe("StateMigrationService", () => {
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
       });
 
-      it("skips writing a key when the old prefixed key is absent from secure storage", async () => {
-        secureStorage.store.clear();
-        storage.store.set(StorageKeys.stateVersion, StateVersion.Six);
-        storage.store.set("activeUserId", userId);
+      it("skips writing a key when readKeytarPassword returns null (credential not found)", async () => {
+        passwords.readKeytarPassword.mockResolvedValue(null);
 
         await svc.migrate();
 
@@ -734,6 +784,17 @@ describe("StateMigrationService", () => {
 
         await svc.migrate();
 
+        expect(secureStorage.store).toEqual(secureSnapshot);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
+      });
+
+      it("skips readKeytarPassword and does not write secrets when useSecureStorageForSecrets = false (plaintext mode)", async () => {
+        const plaintextSvc = makeService(storage, secureStorage, false);
+        const secureSnapshot = new Map(secureStorage.store);
+
+        await plaintextSvc.migrate();
+
+        expect(passwords.readKeytarPassword).not.toHaveBeenCalled();
         expect(secureStorage.store).toEqual(secureSnapshot);
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Seven);
       });
