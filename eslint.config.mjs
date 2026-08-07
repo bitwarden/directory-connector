@@ -79,7 +79,6 @@ export default [
       "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: false }],
       "@typescript-eslint/no-this-alias": ["error", { allowedNames: ["self"] }],
       "@typescript-eslint/no-unused-vars": ["error", { args: "none" }],
-      "no-console": "error",
       "import/no-unresolved": "off", // TODO: Look into turning on once each package is an actual package.
       "import/order": [
         "error",
