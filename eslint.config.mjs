@@ -3,7 +3,7 @@ import eslint from "@eslint/js";
 import tsParser from "@typescript-eslint/parser";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import prettierConfig from "eslint-config-prettier";
-import importPlugin from "eslint-plugin-import";
+import importPlugin from "eslint-plugin-import-x";
 import rxjsX from "eslint-plugin-rxjs-x";
 import rxjsAngularX from "eslint-plugin-rxjs-angular-x";
 import angularEslint from "@angular-eslint/eslint-plugin-template";
@@ -46,15 +46,15 @@ export default [
     },
     plugins: {
       "@typescript-eslint": tsPlugin,
-      import: importPlugin,
+      "import-x": importPlugin,
       "rxjs-x": rxjsX,
       "rxjs-angular-x": rxjsAngularX,
     },
     settings: {
-      "import/parsers": {
+      "import-x/parsers": {
         "@typescript-eslint/parser": [".ts"],
       },
-      "import/resolver": {
+      "import-x/resolver": {
         typescript: {
           alwaysTryTypes: true,
         },
@@ -80,8 +80,10 @@ export default [
       "@typescript-eslint/no-this-alias": ["error", { allowedNames: ["self"] }],
       "@typescript-eslint/no-unused-vars": ["error", { args: "none" }],
       "no-console": "error",
-      "import/no-unresolved": "off", // TODO: Look into turning on once each package is an actual package.
-      "import/order": [
+      "no-useless-assignment": "off",
+      "preserve-caught-error": "off",
+      "import-x/no-unresolved": "off", // TODO: Look into turning on once each package is an actual package.
+      "import-x/order": [
         "error",
         {
           alphabetize: {
@@ -123,7 +125,7 @@ export default [
         },
       ],
       curly: ["error", "all"],
-      "import/namespace": ["off"], // This doesn't resolve namespace imports correctly, but TS will throw for this anyway
+      "import-x/namespace": ["off"], // This doesn't resolve namespace imports correctly, but TS will throw for this anyway
       "no-restricted-imports": ["error", { patterns: ["src/**/*"] }],
     },
   },
