@@ -110,6 +110,9 @@ const renderer = {
             loader: "sass-loader",
             options: {
               implementation: sass,
+              sassOptions: {
+                style: "expanded",
+              },
             },
           },
         ],

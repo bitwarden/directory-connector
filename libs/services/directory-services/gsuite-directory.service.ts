@@ -1,5 +1,5 @@
-import { JWT } from "google-auth-library";
 import { admin_directory_v1, google } from "googleapis";
+import { JWT } from "googleapis-common";
 
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
