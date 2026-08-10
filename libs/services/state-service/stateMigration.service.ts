@@ -318,7 +318,16 @@ export class StateMigrationService {
           continue;
         }
 
-        const raw = await passwords.readKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
+        let raw: string | null;
+        try {
+          raw = await passwords.readKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
+        } catch (e) {
+          this.logService.error(
+            `StateMigrationService: failed to read legacy credential "${oldKey}": ${e}`,
+          );
+          continue;
+        }
+
         if (raw != null) {
           // raw is the keytar blob verbatim (JSON.stringify'd by the old KeytarSecureStorageService).
           // Parse it once so secureStorageService.save doesn't double-encode it.
@@ -326,6 +335,8 @@ export class StateMigrationService {
           try {
             value = JSON.parse(raw);
           } catch {
+            // raw is not valid JSON. The old storage layer stored it as a plain string rather
+            // than a JSON-encoded value, so use it as is.
             value = raw;
           }
           await this.secureStorageService.save(newKey, value);

@@ -46,7 +46,8 @@ pub async fn is_available() -> napi::Result<bool> {
 
 /// Read a credential that was stored by keytar (UTF-8 blob) and return the correctly
 /// re-encoded string value without writing anything. Returns null if the credential does
-/// not exist. No-op on non-Windows platforms (returns null).
+/// not exist (ERROR_NOT_FOUND). Throws on a real Credential Manager failure so callers
+/// can distinguish "not present" from "read error". No-op on non-Windows platforms (returns null).
 #[napi(namespace = "passwords")]
 pub async fn read_keytar_password(
     service: String,
