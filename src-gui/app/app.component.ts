@@ -81,7 +81,7 @@ export class AppComponent implements OnInit {
             }
 
             if (lastSyncAgo >= syncInterval) {
-              await window.ipc.sync.run(false, false);
+              await ipc.sync.run(false, false);
             }
           } catch (e) {
             this.logService.error(e);
@@ -107,7 +107,7 @@ export class AppComponent implements OnInit {
   }
 
   private async logOut(expired: boolean) {
-    await window.ipc.auth.logOut();
+    await ipc.auth.logOut();
     if (expired) {
       this.platformUtilsService.showToast(
         "warning",

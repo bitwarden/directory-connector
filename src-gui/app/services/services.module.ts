@@ -87,7 +87,7 @@ export const servicesProviders: (Provider | EnvironmentProviders)[] = [
   }),
   safeProvider({
     provide: LogServiceAbstraction,
-    useFactory: () => new ConsoleLogService(window.ipc.process.isDev),
+    useFactory: () => new ConsoleLogService(ipc.process.isDev),
     deps: [],
   }),
   safeProvider({
@@ -141,7 +141,7 @@ export const servicesProviders: (Provider | EnvironmentProviders)[] = [
     ) =>
       // TODO: Remove renderer-side StateService entirely — it proxies all reads/writes over
       // IPC to the main process and should be replaced with explicit IPC handlers per property.
-       
+
       new DefaultStateService(
         storageService,
         secureStorageService,

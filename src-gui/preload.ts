@@ -1,60 +1,17 @@
 import { clipboard, contextBridge, IpcRendererEvent, ipcRenderer, shell, webUtils } from "electron";
+import type { Jsonify } from "type-fest";
 
-const ALLOWED_CHANNELS = new Set([
-  "appVersion",
-  "biometric",
-  "messagingService",
-  "openContextMenu",
-  "secureStorageService",
-  "showMessageBox",
-  "storageService",
-  "systemTheme",
-  "systemThemeUpdated",
-  "windowVisible",
-]);
+import type { ThemeType } from "@/libs/enums/themeType";
+import type { GroupEntry } from "@/libs/models/groupEntry";
+import type { UserEntry } from "@/libs/models/userEntry";
 
-contextBridge.exposeInMainWorld("ipc", {
+const ipcBridge = {
   clipboard: {
     readText: (type?: "selection" | "clipboard") => clipboard.readText(type),
     writeText: (text: string, type?: "selection" | "clipboard") => clipboard.writeText(text, type),
   },
   shell: {
     openExternal: (url: string) => shell.openExternal(url),
-  },
-  ipcRenderer: {
-    invoke: (channel: string, ...args: any[]) => {
-      if (!ALLOWED_CHANNELS.has(channel)) {
-        throw new Error(`IPC channel not allowed: ${channel}`);
-      }
-      return ipcRenderer.invoke(channel, ...args);
-    },
-    on: (channel: string, listener: (event: IpcRendererEvent, ...args: any[]) => void) => {
-      if (!ALLOWED_CHANNELS.has(channel)) {
-        throw new Error(`IPC channel not allowed: ${channel}`);
-      }
-      ipcRenderer.on(channel, listener);
-    },
-    removeListener: (
-      channel: string,
-      listener: (event: IpcRendererEvent, ...args: any[]) => void,
-    ) => {
-      if (!ALLOWED_CHANNELS.has(channel)) {
-        throw new Error(`IPC channel not allowed: ${channel}`);
-      }
-      ipcRenderer.removeListener(channel, listener);
-    },
-    send: (channel: string, ...args: any[]) => {
-      if (!ALLOWED_CHANNELS.has(channel)) {
-        throw new Error(`IPC channel not allowed: ${channel}`);
-      }
-      ipcRenderer.send(channel, ...args);
-    },
-    sendSync: (channel: string, ...args: any[]) => {
-      if (!ALLOWED_CHANNELS.has(channel)) {
-        throw new Error(`IPC channel not allowed: ${channel}`);
-      }
-      return ipcRenderer.sendSync(channel, ...args);
-    },
   },
   webUtils: {
     getPathForFile: (file: File) => webUtils.getPathForFile(file),
@@ -77,14 +34,76 @@ contextBridge.exposeInMainWorld("ipc", {
         ? parseInt(process.env.ELECTRON_IS_DEV, 10) === 1
         : (process as any).defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath),
   },
+  platform: {
+    getAppVersion: (): Promise<string> => ipcRenderer.invoke("appVersion"),
+    showMessageBox: (opts: {
+      type?: string;
+      title?: string;
+      message?: string;
+      detail?: string;
+      buttons?: string[];
+      cancelId?: number;
+      defaultId?: number;
+      noLink?: boolean;
+    }): Promise<{ response: number }> => ipcRenderer.invoke("showMessageBox", opts),
+    authenticateBiometric: (): boolean =>
+      ipcRenderer.sendSync("biometric", { action: "authenticate" }),
+    getSystemTheme: (): Promise<ThemeType.Light | ThemeType.Dark> =>
+      ipcRenderer.invoke("systemTheme"),
+    onSystemThemeChange: (
+      listener: (event: IpcRendererEvent, theme: ThemeType.Light | ThemeType.Dark) => void,
+    ) => ipcRenderer.on("systemThemeUpdated", listener),
+    openContextMenu: (menu: { label?: string; type?: string }[]): Promise<number> =>
+      ipcRenderer.invoke("openContextMenu", { menu }),
+    isWindowVisible: (): Promise<boolean> => ipcRenderer.invoke("windowVisible"),
+  },
+  messaging: {
+    send: (message: { command: string; [key: string]: any }) =>
+      ipcRenderer.send("messagingService", message),
+    on: (
+      listener: (event: IpcRendererEvent, message: { command: string; [key: string]: any }) => void,
+    ) => ipcRenderer.on("messagingService", listener),
+    removeListener: (
+      listener: (event: IpcRendererEvent, message: { command: string; [key: string]: any }) => void,
+    ) => ipcRenderer.removeListener("messagingService", listener),
+  },
+  storage: {
+    get: <T>(key: string): Promise<T> =>
+      ipcRenderer.invoke("storageService", { action: "get", key }),
+    has: (key: string): Promise<boolean> =>
+      ipcRenderer.invoke("storageService", { action: "has", key }),
+    save: (key: string, obj: any): Promise<void> =>
+      ipcRenderer.invoke("storageService", { action: "save", key, obj }),
+    remove: (key: string): Promise<void> =>
+      ipcRenderer.invoke("storageService", { action: "remove", key }),
+  },
+  secureStorage: {
+    get: <T>(key: string): Promise<T> =>
+      ipcRenderer.invoke("secureStorageService", { action: "get", key }),
+    has: (key: string): Promise<boolean> =>
+      ipcRenderer.invoke("secureStorageService", { action: "has", key }),
+    save: (key: string, obj: any): Promise<void> =>
+      ipcRenderer.invoke("secureStorageService", { action: "save", key, obj }),
+    remove: (key: string): Promise<void> =>
+      ipcRenderer.invoke("secureStorageService", { action: "remove", key }),
+  },
   auth: {
     checkTokens: (): Promise<{ accessToken: string | null; organizationId: string | null }> =>
       ipcRenderer.invoke("auth:checkTokens"),
-    logIn: (credentials: { clientId: string; clientSecret: string }) =>
+    logIn: (credentials: { clientId: string; clientSecret: string }): Promise<void> =>
       ipcRenderer.invoke("auth:login", credentials),
-    logOut: () => ipcRenderer.invoke("auth:logout"),
+    logOut: (): Promise<void> => ipcRenderer.invoke("auth:logout"),
   },
   sync: {
-    run: (force: boolean, test: boolean) => ipcRenderer.invoke("sync:run", { force, test }),
+    run: (
+      force: boolean,
+      test: boolean,
+    ): Promise<[Jsonify<GroupEntry>[] | null, Jsonify<UserEntry>[] | null]> =>
+      ipcRenderer.invoke("sync:run", { force, test }),
   },
-});
+};
+
+export type IpcBridge = typeof ipcBridge;
+export { ipcBridge };
+
+contextBridge.exposeInMainWorld("ipc", ipcBridge);

@@ -161,7 +161,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const path = window.ipc.webUtils.getPathForFile(filePicker.files[0]);
+    const path = ipc.webUtils.getPathForFile(filePicker.files[0]);
     this.ldap.update((current) => ({ ...current, [id]: path }));
     // reset file input
     // ref: https://stackoverflow.com/a/20552042

@@ -128,6 +128,16 @@ export default [
     },
   },
 
+  // Renderer process files — `ipc` is injected by the preload via contextBridge
+  {
+    files: ["src-gui/**/*.ts"],
+    languageOptions: {
+      globals: {
+        ipc: "readonly",
+      },
+    },
+  },
+
   // Jest test files (includes any test-related files)
   {
     files: ["**/*.spec.ts", "**/test.setup.ts", "**/spec/**/*.ts", "**/utils/**/*fixtures*.ts"],

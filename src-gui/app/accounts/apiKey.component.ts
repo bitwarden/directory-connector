@@ -96,7 +96,7 @@ export class ApiKeyComponent {
     }
 
     try {
-      const promise = window.ipc.auth.logIn({ clientId, clientSecret });
+      const promise = ipc.auth.logIn({ clientId, clientSecret });
       this.formPromise.set(promise);
       await promise;
       const organizationId = await this.stateService.getEntityId();

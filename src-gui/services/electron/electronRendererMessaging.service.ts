@@ -3,7 +3,7 @@ import { MessagingService } from "@/libs/abstractions/messaging.service";
 
 export class ElectronRendererMessagingService implements MessagingService {
   constructor(private broadcasterService: BroadcasterService) {
-    window.ipc.ipcRenderer.on("messagingService", async (_event: any, message: any) => {
+    ipc.messaging.on((_event, message) => {
       if (message.command) {
         this.sendMessage(message.command, message, false);
       }
@@ -18,7 +18,7 @@ export class ElectronRendererMessagingService implements MessagingService {
     const message = Object.assign({}, { command: subscriber }, arg);
     this.broadcasterService.send(message);
     if (toMain) {
-      window.ipc.ipcRenderer.send("messagingService", message);
+      ipc.messaging.send(message);
     }
   }
 }

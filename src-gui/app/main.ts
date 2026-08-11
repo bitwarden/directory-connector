@@ -10,7 +10,7 @@ import { routes } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { servicesProviders } from "./services/services.module";
 
-if (!window.ipc.process.isDev) {
+if (!ipc.process.isDev) {
   enableProdMode();
 }
 

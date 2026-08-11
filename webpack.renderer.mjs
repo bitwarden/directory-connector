@@ -60,7 +60,6 @@ const renderer = {
   mode: "production",
   devtool: false,
   target: "electron-renderer",
-  externalsPresets: { node: false, electron: false, electronRenderer: false },
   node: {
     __dirname: false,
   },
