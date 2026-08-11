@@ -1,22 +1,3 @@
-import { ipcRenderer } from "electron";
-
-export type RendererMenuItem = {
-  label?: string;
-  type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
-  click?: () => any;
-};
-
-export function invokeMenu(menu: RendererMenuItem[]) {
-  const menuWithoutClick = menu.map((m) => {
-    return { label: m.label, type: m.type };
-  });
-  ipcRenderer.invoke("openContextMenu", { menu: menuWithoutClick }).then((i: number) => {
-    if (i !== -1) {
-      menu[i].click();
-    }
-  });
-}
-
 export function isDev() {
   // ref: https://github.com/sindresorhus/electron-is-dev
   if ("ELECTRON_IS_DEV" in process.env) {
@@ -68,7 +49,6 @@ export function cleanUserAgent(userAgent: string): string {
   };
   const systemInformation = "(Windows NT 10.0; Win64; x64)";
 
-  // Set system information, remove bitwarden, and electron information
   return userAgent
     .replace(userAgentItem("(", ")"), systemInformation)
     .replace(userAgentItem("Bitwarden", " "), "")

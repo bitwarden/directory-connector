@@ -52,6 +52,7 @@ const common = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build"),
+    globalObject: "window",
   },
 };
 
@@ -59,6 +60,7 @@ const renderer = {
   mode: "production",
   devtool: false,
   target: "electron-renderer",
+  externalsPresets: { node: false, electron: false, electronRenderer: false },
   node: {
     __dirname: false,
   },

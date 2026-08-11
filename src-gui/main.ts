@@ -1,13 +1,27 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 
+import { APPLICATION_NAME } from "@/libs/constants";
+import { AppIdService } from "@/libs/services/appId.service";
+import { AuthService } from "@/libs/services/auth.service";
+import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
+import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
+import { DefaultEnvironmentService } from "@/libs/services/environment/environment.service";
 import { I18nService } from "@/libs/services/i18n.service";
+import { NativeSecureStorageService } from "@/libs/services/nativeSecureStorage.service";
+import { NodeApiService } from "@/libs/services/nodeApi.service";
+import { NodeCryptoFunctionService } from "@/libs/services/nodeCryptoFunction.service";
+import { SingleRequestBuilder } from "@/libs/services/single-request-builder";
 import { DefaultStateService } from "@/libs/services/state-service/default-state.service";
+import { StateMigrationService } from "@/libs/services/state-service/stateMigration.service";
+import { SyncService } from "@/libs/services/sync.service";
+import { TokenService } from "@/libs/services/token/token.service";
 
 import { ElectronLogService } from "@/src-gui/services/electron/electronLog.service";
 import { ElectronMainMessagingService } from "@/src-gui/services/electron/electronMainMessaging.service";
+import { ElectronMainPlatformUtilsService } from "@/src-gui/services/electron/electronMainPlatformUtils.service";
 import { ElectronStorageService } from "@/src-gui/services/electron/electronStorage.service";
 import { TrayMain } from "@/src-gui/tray.main";
 import { UpdaterMain } from "@/src-gui/updater.main";
@@ -58,13 +72,119 @@ export class Main {
     this.logService.init();
     this.i18nService = new I18nService("en", "./locales/");
     this.storageService = new ElectronStorageService(app.getPath("userData"));
+
+    const secureStorageService = new NativeSecureStorageService(APPLICATION_NAME, this.logService);
+    const stateMigrationService = new StateMigrationService(
+      this.storageService,
+      secureStorageService,
+    );
+
     this.stateService = new DefaultStateService(
       this.storageService,
-      null,
+      secureStorageService,
       this.logService,
-      null,
+      stateMigrationService,
       true,
     );
+
+    const platformUtilsService = new ElectronMainPlatformUtilsService();
+    const cryptoFunctionService = new NodeCryptoFunctionService();
+    const tokenService = new TokenService(secureStorageService);
+    const environmentService = new DefaultEnvironmentService(this.stateService);
+    const appIdService = new AppIdService(this.storageService);
+
+    const customUserAgent = `Bitwarden_DC/${app.getVersion()} (${platformUtilsService.getDeviceString().toUpperCase()})`;
+
+    const apiService = new NodeApiService(
+      tokenService,
+      platformUtilsService,
+      environmentService,
+      appIdService,
+      async (expired: boolean) => {
+        this.messagingService?.send("logout", { expired });
+      },
+      customUserAgent,
+    );
+
+    const authService = new AuthService(
+      apiService,
+      appIdService,
+      platformUtilsService,
+      { send: (subscriber: string, arg: any = {}) => this.messagingService?.send(subscriber, arg) },
+      this.stateService,
+    );
+
+    const directoryFactory = new DefaultDirectoryFactoryService(
+      this.logService,
+      this.i18nService,
+      this.stateService,
+    );
+
+    const syncService = new SyncService(
+      cryptoFunctionService,
+      apiService,
+      { send: (subscriber: string, arg: any = {}) => this.messagingService?.send(subscriber, arg) },
+      this.i18nService,
+      this.stateService,
+      new BatchRequestBuilder(),
+      new SingleRequestBuilder(),
+      directoryFactory,
+    );
+
+    // Electron IPC serializes Error objects by message string only. Non-Error rejections
+    // (e.g. ErrorResponse objects) arrive as [object Object] on the renderer side.
+    // This wrapper normalizes any thrown value into a plain Error before it crosses the boundary.
+    const handle = (channel: string, handler: Parameters<typeof ipcMain.handle>[1]) => {
+      ipcMain.handle(channel, async (...args) => {
+        try {
+          return await (handler as (...a: typeof args) => any)(...args);
+        } catch (e: unknown) {
+          if (e instanceof Error) throw e;
+          const msg = (e as any)?.message ?? String(e);
+          throw new Error(msg);
+        }
+      });
+    };
+
+    handle(
+      "secureStorageService",
+      (_event, options: { action: string; key: string; obj?: any }) => {
+        switch (options.action) {
+          case "get":
+            return secureStorageService.get(options.key as any);
+          case "has":
+            return secureStorageService.has(options.key as any);
+          case "save":
+            return secureStorageService.save(options.key as any, options.obj);
+          case "remove":
+            return secureStorageService.remove(options.key as any);
+          default:
+            throw new Error(`Unknown secureStorageService action: ${options.action}`);
+        }
+      },
+    );
+
+    handle("auth:checkTokens", async () => {
+      const accessToken = await this.stateService.getAccessToken();
+      const organizationId = await this.stateService.getOrganizationId();
+      return { accessToken, organizationId };
+    });
+
+    handle(
+      "auth:login",
+      async (_event, credentials: { clientId: string; clientSecret: string }) => {
+        await authService.logIn(credentials);
+      },
+    );
+
+    handle("auth:logout", async () => {
+      await this.stateService.clearAuthTokens();
+    });
+
+    handle("sync:run", async (_event, { force, test }: { force: boolean; test: boolean }) => {
+      const [groups, users] = await syncService.sync(force, test);
+      return [groups?.map((g) => g.toJSON()) ?? null, users?.map((u) => u.toJSON()) ?? null];
+    });
 
     this.windowMain = new WindowMain(
       this.stateService,

@@ -37,7 +37,7 @@ export class WindowMain {
             app.quit();
             return;
           } else {
-            app.on("second-instance", (event, argv, workingDirectory) => {
+            app.on("second-instance", (_event, argv, _workingDirectory) => {
               // Someone tried to run a second instance, we should focus our window.
               if (this.win != null) {
                 if (this.win.isMinimized() || !this.win.isVisible()) {
@@ -121,9 +121,10 @@ export class WindowMain {
       alwaysOnTop: this.enableAlwaysOnTop,
       webPreferences: {
         spellcheck: false,
-        nodeIntegration: true,
+        nodeIntegration: false,
         backgroundThrottling: false,
-        contextIsolation: false,
+        contextIsolation: true,
+        preload: path.join(__dirname, "preload.cjs"),
       },
     });
 

@@ -12,7 +12,6 @@ import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { takeUntil } from "rxjs";
 
-import { AuthService } from "@/libs/abstractions/auth.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
@@ -50,7 +49,6 @@ export class ApiKeyComponent {
 
   readonly successRoute = "/tabs/dashboard";
 
-  private authService = inject(AuthService);
   private router = inject(Router);
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
@@ -98,7 +96,7 @@ export class ApiKeyComponent {
     }
 
     try {
-      const promise = this.authService.logIn({ clientId, clientSecret });
+      const promise = window.ipc.auth.logIn({ clientId, clientSecret });
       this.formPromise.set(promise);
       await promise;
       const organizationId = await this.stateService.getEntityId();

@@ -11,15 +11,12 @@ import { DomSanitizer } from "@angular/platform-browser";
 import { Router, RouterOutlet } from "@angular/router";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
 
-import { AuthService } from "@/libs/abstractions/auth.service";
 import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
 import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
-import { TokenService } from "@/libs/abstractions/token.service";
-import { SyncService } from "@/libs/services/sync.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
 
@@ -36,15 +33,12 @@ export class AppComponent implements OnInit {
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
 
   private broadcasterService = inject(BroadcasterService);
-  private tokenService = inject(TokenService);
-  private authService = inject(AuthService);
   private router = inject(Router);
   private toastrService = inject(ToastrService);
   private i18nService = inject(I18nService);
   private sanitizer = inject(DomSanitizer);
   private platformUtilsService = inject(PlatformUtilsService);
   private messagingService = inject(MessagingService);
-  private syncService = inject(SyncService);
   private stateService = inject(StateService);
   private logService = inject(LogService);
 
@@ -87,7 +81,7 @@ export class AppComponent implements OnInit {
             }
 
             if (lastSyncAgo >= syncInterval) {
-              await this.syncService.sync(false, false);
+              await window.ipc.sync.run(false, false);
             }
           } catch (e) {
             this.logService.error(e);
@@ -113,18 +107,15 @@ export class AppComponent implements OnInit {
   }
 
   private async logOut(expired: boolean) {
-    await this.stateService.clearAuthTokens();
-
-    this.authService.logOut(async () => {
-      if (expired) {
-        this.platformUtilsService.showToast(
-          "warning",
-          this.i18nService.t("loggedOut"),
-          this.i18nService.t("loginExpired"),
-        );
-      }
-      this.router.navigate(["login"]);
-    });
+    await window.ipc.auth.logOut();
+    if (expired) {
+      this.platformUtilsService.showToast(
+        "warning",
+        this.i18nService.t("loggedOut"),
+        this.i18nService.t("loginExpired"),
+      );
+    }
+    this.router.navigate(["login"]);
   }
 
   private showToast(msg: any) {

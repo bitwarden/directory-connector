@@ -1,13 +1,9 @@
-import { clipboard, ipcRenderer, shell } from "electron";
-
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { ClientType } from "@/libs/enums/clientType";
 import { DeviceType } from "@/libs/enums/deviceType";
 import { ThemeType } from "@/libs/enums/themeType";
-
-import { isDev, isMacAppStore } from "@/src-gui/utils";
 
 export class ElectronPlatformUtilsService implements PlatformUtilsService {
   private clientType: ClientType;
@@ -23,7 +19,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
 
   getDevice(): DeviceType {
     if (!this.deviceCache) {
-      switch (process.platform) {
+      switch (window.ipc.process.platform) {
         case "win32":
           this.deviceCache = DeviceType.WindowsDesktop;
           break;
@@ -74,7 +70,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   isMacAppStore(): boolean {
-    return isMacAppStore();
+    return window.ipc.process.platform === "darwin" && window.ipc.process.mas === true;
   }
 
   isViewOpen(): Promise<boolean> {
@@ -82,7 +78,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   launchUri(uri: string, options?: any): void {
-    shell.openExternal(uri);
+    window.ipc.shell.openExternal(uri);
   }
 
   saveFile(win: Window, blobData: any, blobOptions: any, fileName: string): void {
@@ -96,13 +92,13 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   getApplicationVersion(): Promise<string> {
-    return ipcRenderer.invoke("appVersion");
+    return window.ipc.ipcRenderer.invoke("appVersion");
   }
 
   // Temporarily restricted to only Windows until https://github.com/electron/electron/pull/28349
   // has been merged and an updated electron build is available.
   supportsWebAuthn(win: Window): boolean {
-    return process.platform === "win32";
+    return window.ipc.process.platform === "win32";
   }
 
   supportsDuo(): boolean {
@@ -135,7 +131,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
       buttons.push(cancelText);
     }
 
-    const result = await ipcRenderer.invoke("showMessageBox", {
+    const result = await window.ipc.ipcRenderer.invoke("showMessageBox", {
       type: type,
       title: title,
       message: title,
@@ -150,7 +146,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   isDev(): boolean {
-    return isDev();
+    return window.ipc.process.isDev;
   }
 
   isSelfHost(): boolean {
@@ -161,7 +157,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     const type = options ? options.type : null;
     const clearing = options ? !!options.clearing : false;
     const clearMs: number = options && options.clearMs ? options.clearMs : null;
-    clipboard.writeText(text, type);
+    window.ipc.clipboard.writeText(text, type);
     if (!clearing) {
       this.messagingService.send("copiedToClipboard", {
         clipboardValue: text,
@@ -174,7 +170,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
 
   readFromClipboard(options?: any): Promise<string> {
     const type = options ? options.type : null;
-    return Promise.resolve(clipboard.readText(type));
+    return Promise.resolve(window.ipc.clipboard.readText(type));
   }
 
   async supportsBiometric(): Promise<boolean> {
@@ -183,7 +179,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
 
   authenticateBiometric(): Promise<boolean> {
     return new Promise((resolve) => {
-      const val = ipcRenderer.sendSync("biometric", {
+      const val = window.ipc.ipcRenderer.sendSync("biometric", {
         action: "authenticate",
       });
       resolve(val);
@@ -191,12 +187,13 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   getDefaultSystemTheme() {
-    return ipcRenderer.invoke("systemTheme");
+    return window.ipc.ipcRenderer.invoke("systemTheme");
   }
 
   onDefaultSystemThemeChange(callback: (theme: ThemeType.Light | ThemeType.Dark) => unknown) {
-    ipcRenderer.on("systemThemeUpdated", (event, theme: ThemeType.Light | ThemeType.Dark) =>
-      callback(theme),
+    window.ipc.ipcRenderer.on(
+      "systemThemeUpdated",
+      (_event, theme: ThemeType.Light | ThemeType.Dark) => callback(theme),
     );
   }
 
