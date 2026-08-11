@@ -205,8 +205,12 @@ export const servicesProviders: (Provider | EnvironmentProviders)[] = [
   safeProvider(LaunchGuardService),
   safeProvider({
     provide: StateMigrationService,
-    useClass: StateMigrationService,
-    deps: [StorageServiceAbstraction, SECURE_STORAGE],
+    useFactory: (
+      storageService: StorageServiceAbstraction,
+      secureStorageService: StorageServiceAbstraction,
+      logService: LogServiceAbstraction,
+    ) => new StateMigrationService(storageService, secureStorageService, logService),
+    deps: [StorageServiceAbstraction, SECURE_STORAGE, LogServiceAbstraction],
   }),
   safeProvider({
     provide: StateService,
