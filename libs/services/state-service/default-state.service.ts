@@ -25,14 +25,24 @@ import {
   oktaConfigsShareIdentity,
   oneLoginConfigsShareIdentity,
 } from "./secret-storage-key.util";
-import { StateMigrationService } from "./stateMigration.service";
+/**
+ * Minimal interface for state migration required by {@link DefaultStateService}.
+ *
+ * Decoupled from the concrete {@link StateMigrationService} so the renderer process
+ * can satisfy it with a no-op without pulling in `dc-native` (a Node-only native module, doesn't work with nodeIntegration: false).
+ */
+export interface StateMigrator {
+  needsMigration(): Promise<boolean>;
+  migrate(): Promise<void>;
+  stampVersion(): Promise<void>;
+}
 
 export class DefaultStateService implements StateService {
   constructor(
     protected storageService: StorageService,
     protected secureStorageService: StorageService,
     protected logService: LogService,
-    protected stateMigrationService: StateMigrationService,
+    protected stateMigrationService: StateMigrator,
     protected useSecureStorageForSecrets = true,
   ) {}
 

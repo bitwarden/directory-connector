@@ -144,7 +144,7 @@ export const servicesProviders: (Provider | EnvironmentProviders)[] = [
           needsMigration: () => Promise.resolve(false),
           migrate: () => Promise.resolve(),
           stampVersion: () => Promise.resolve(),
-        } as any,
+        },
         true,
       ),
     deps: [StorageServiceAbstraction, SECURE_STORAGE, LogServiceAbstraction],
