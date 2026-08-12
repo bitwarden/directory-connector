@@ -77,6 +77,7 @@ export class Main {
     const stateMigrationService = new StateMigrationService(
       this.storageService,
       secureStorageService,
+      this.logService,
     );
 
     this.stateService = new DefaultStateService(
