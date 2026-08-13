@@ -16,10 +16,10 @@ import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { GroupEntry } from "@/libs/models/groupEntry";
-import { SimResult } from "@/libs/models/simResult";
 import { UserEntry } from "@/libs/models/userEntry";
-import { SyncService } from "@/libs/services/sync.service";
 import { ConnectorUtils } from "@/libs/utils";
+
+type SyncResult = Awaited<ReturnType<(typeof ipc)["sync"]["run"]>>;
 
 import { ApiActionDirective } from "@/src-gui/angular/directives/api-action.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
@@ -39,9 +39,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   simEnabledUsers = signal<UserEntry[]>([]);
   simDisabledUsers = signal<UserEntry[]>([]);
   simDeletedUsers = signal<UserEntry[]>([]);
-  simPromise = signal<Promise<SimResult>>(null);
+  simPromise = signal<Promise<SyncResult>>(null);
   simSinceLast = signal(false);
-  syncPromise = signal<Promise<[GroupEntry[], UserEntry[]]>>(null);
+  syncPromise = signal<Promise<SyncResult>>(null);
   startPromise = signal<Promise<any>>(null);
   lastGroupSync = signal<Date>(null);
   lastUserSync = signal<Date>(null);
@@ -49,7 +49,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private cdr = inject(ChangeDetectorRef);
   private i18nService = inject(I18nService);
-  private syncService = inject(SyncService);
   private broadcasterService = inject(BroadcasterService);
   private messagingService = inject(MessagingService);
   private platformUtilsService = inject(PlatformUtilsService);
@@ -75,7 +74,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async start() {
-    const promise = this.syncService.sync(false, false);
+    const promise = ipc.sync.run(false, false);
     this.startPromise.set(promise);
     await promise;
     this.messagingService.send("scheduleNextDirSync");
@@ -90,7 +89,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async sync() {
-    const promise = this.syncService.sync(false, false);
+    const promise = ipc.sync.run(false, false);
     this.syncPromise.set(promise);
     const result = await promise;
     const groupCount = result[0] != null ? result[0].length : 0;
@@ -110,18 +109,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.simDeletedUsers.set([]);
 
     try {
-      const promise = ConnectorUtils.simulate(
-        this.syncService,
-        this.i18nService,
-        this.simSinceLast(),
-      );
+      const promise = ipc.sync.run(!this.simSinceLast(), true);
       this.simPromise.set(promise);
-      const result = await promise;
-      this.simGroups.set(result.groups);
-      this.simUsers.set(result.users);
-      this.simEnabledUsers.set(result.enabledUsers);
-      this.simDisabledUsers.set(result.disabledUsers);
-      this.simDeletedUsers.set(result.deletedUsers);
+      const [rawGroups, rawUsers]: SyncResult = await promise;
+      const groups = rawGroups?.map((g) => GroupEntry.fromJSON(g)) ?? [];
+      const users = rawUsers?.map((u) => UserEntry.fromJSON(u)) ?? [];
+      const simResult = ConnectorUtils.buildSimResult(groups, users, this.i18nService);
+      this.simGroups.set(simResult.groups);
+      this.simUsers.set(simResult.users);
+      this.simEnabledUsers.set(simResult.enabledUsers);
+      this.simDisabledUsers.set(simResult.disabledUsers);
+      this.simDeletedUsers.set(simResult.deletedUsers);
     } catch {
       this.simGroups.set(null);
       this.simUsers.set(null);

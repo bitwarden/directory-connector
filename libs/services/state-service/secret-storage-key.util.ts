@@ -1,5 +1,3 @@
-import * as crypto from "crypto";
-
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
@@ -33,7 +31,7 @@ import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
  * settings are saved.
  */
 export function generateConfigId(): string {
-  return crypto.randomUUID();
+  return globalThis.crypto.randomUUID();
 }
 
 function fieldsMatch(a: unknown, b: unknown): boolean {

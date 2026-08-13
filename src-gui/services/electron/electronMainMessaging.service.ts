@@ -3,8 +3,12 @@ import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme } from "electron";
 import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { ThemeType } from "@/libs/enums/themeType";
 
-import { RendererMenuItem } from "@/src-gui/utils";
 import { WindowMain } from "@/src-gui/window.main";
+
+type RendererMenuItem = {
+  label?: string;
+  type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
+};
 
 export class ElectronMainMessagingService implements MessagingService {
   constructor(

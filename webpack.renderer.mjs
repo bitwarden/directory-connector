@@ -52,6 +52,7 @@ const common = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build"),
+    globalObject: "window",
   },
 };
 

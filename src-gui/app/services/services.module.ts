@@ -7,37 +7,21 @@ import {
   Provider,
 } from "@angular/core";
 
-import { ApiService as ApiServiceAbstraction } from "@/libs/abstractions/api.service";
-import { AppIdService as AppIdServiceAbstraction } from "@/libs/abstractions/appId.service";
-import { AuthService as AuthServiceAbstraction } from "@/libs/abstractions/auth.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/libs/abstractions/broadcaster.service";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@/libs/abstractions/cryptoFunction.service";
-import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/libs/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "@/libs/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@/libs/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/libs/abstractions/platformUtils.service";
 import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
-import { TokenService as TokenServiceAbstraction } from "@/libs/abstractions/token.service";
 import { APPLICATION_NAME } from "@/libs/constants";
-import { AppIdService } from "@/libs/services/appId.service";
-import { AuthService } from "@/libs/services/auth.service";
-import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
-import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
 import { DefaultEnvironmentService as EnvironmentServiceImplementation } from "@/libs/services/environment/environment.service";
 import { I18nService } from "@/libs/services/i18n.service";
 import { NativeSecureStorageService } from "@/libs/services/nativeSecureStorage.service";
-import { NodeApiService } from "@/libs/services/nodeApi.service";
-import { NodeCryptoFunctionService } from "@/libs/services/nodeCryptoFunction.service";
-import { SingleRequestBuilder } from "@/libs/services/single-request-builder";
 import {
   DefaultStateService,
   StateService,
 } from "@/libs/services/state-service/default-state.service";
-import { StateMigrationService } from "@/libs/services/state-service/stateMigration.service";
-import { SyncService } from "@/libs/services/sync.service";
-import { TokenService as TokenServiceImplementation } from "@/libs/services/token/token.service";
 
 import { BroadcasterService as BroadcasterServiceImplementation } from "@/src-gui/angular/services/broadcaster.service";
 import { ModalService } from "@/src-gui/angular/services/modal.service";
@@ -138,79 +122,9 @@ export const servicesProviders: (Provider | EnvironmentProviders)[] = [
     deps: [I18nServiceAbstraction, MessagingServiceAbstraction],
   }),
   safeProvider({
-    provide: CryptoFunctionServiceAbstraction,
-    useClass: NodeCryptoFunctionService,
-    deps: [],
-  }),
-  safeProvider({
-    provide: AppIdServiceAbstraction,
-    useClass: AppIdService,
-    deps: [StorageServiceAbstraction],
-  }),
-  safeProvider({
-    provide: ApiServiceAbstraction,
-    useFactory: (
-      tokenService: TokenServiceAbstraction,
-      platformUtilsService: PlatformUtilsServiceAbstraction,
-      environmentService: EnvironmentServiceAbstraction,
-      messagingService: MessagingServiceAbstraction,
-      appIdService: AppIdServiceAbstraction,
-    ) =>
-      new NodeApiService(
-        tokenService,
-        platformUtilsService,
-        environmentService,
-        appIdService,
-        async (expired: boolean) => messagingService.send("logout", { expired: expired }),
-        "Bitwarden_DC/" +
-          platformUtilsService.getApplicationVersion() +
-          " (" +
-          platformUtilsService.getDeviceString().toUpperCase() +
-          ")",
-      ),
-    deps: [
-      TokenServiceAbstraction,
-      PlatformUtilsServiceAbstraction,
-      EnvironmentServiceAbstraction,
-      MessagingServiceAbstraction,
-      AppIdServiceAbstraction,
-    ],
-  }),
-  safeProvider({
-    provide: AuthServiceAbstraction,
-    useClass: AuthService,
-    deps: [
-      ApiServiceAbstraction,
-      AppIdServiceAbstraction,
-      PlatformUtilsServiceAbstraction,
-      MessagingServiceAbstraction,
-      StateService,
-    ],
-  }),
-  safeProvider({
-    provide: SyncService,
-    useClass: SyncService,
-    deps: [
-      CryptoFunctionServiceAbstraction,
-      ApiServiceAbstraction,
-      MessagingServiceAbstraction,
-      I18nServiceAbstraction,
-      StateService,
-      BatchRequestBuilder,
-      SingleRequestBuilder,
-      DirectoryFactoryService,
-    ],
-  }),
-  safeProvider(AuthGuardService),
-  safeProvider(LaunchGuardService),
-  safeProvider({
-    provide: StateMigrationService,
-    useFactory: (
-      storageService: StorageServiceAbstraction,
-      secureStorageService: StorageServiceAbstraction,
-      logService: LogServiceAbstraction,
-    ) => new StateMigrationService(storageService, secureStorageService, logService),
-    deps: [StorageServiceAbstraction, SECURE_STORAGE, LogServiceAbstraction],
+    provide: EnvironmentServiceAbstraction,
+    useClass: EnvironmentServiceImplementation,
+    deps: [StateService],
   }),
   safeProvider({
     provide: StateService,
@@ -218,40 +132,25 @@ export const servicesProviders: (Provider | EnvironmentProviders)[] = [
       storageService: StorageServiceAbstraction,
       secureStorageService: StorageServiceAbstraction,
       logService: LogServiceAbstraction,
-      stateMigrationService: StateMigrationService,
     ) =>
+      // TODO: Remove renderer-side StateService entirely — it proxies all reads/writes over
+      // IPC to the main process and should be replaced with explicit IPC handlers per property.
+
       new DefaultStateService(
         storageService,
         secureStorageService,
         logService,
-        stateMigrationService,
+        {
+          needsMigration: () => Promise.resolve(false),
+          migrate: () => Promise.resolve(),
+          stampVersion: () => Promise.resolve(),
+        },
         true,
       ),
-    deps: [StorageServiceAbstraction, SECURE_STORAGE, LogServiceAbstraction, StateMigrationService],
+    deps: [StorageServiceAbstraction, SECURE_STORAGE, LogServiceAbstraction],
   }),
-  safeProvider({
-    provide: TokenServiceAbstraction,
-    useClass: TokenServiceImplementation,
-    deps: [SECURE_STORAGE],
-  }),
-  safeProvider({
-    provide: EnvironmentServiceAbstraction,
-    useClass: EnvironmentServiceImplementation,
-    deps: [StateService],
-  }),
-  safeProvider({
-    provide: SingleRequestBuilder,
-    deps: [],
-  }),
-  safeProvider({
-    provide: BatchRequestBuilder,
-    deps: [],
-  }),
-  safeProvider({
-    provide: DirectoryFactoryService,
-    useClass: DefaultDirectoryFactoryService,
-    deps: [LogServiceAbstraction, I18nServiceAbstraction, StateService],
-  }),
+  safeProvider(AuthGuardService),
+  safeProvider(LaunchGuardService),
   safeProvider({
     provide: ModalService,
     useClass: ModalService,

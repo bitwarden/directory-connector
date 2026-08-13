@@ -3,7 +3,6 @@ import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
 import { merge } from "webpack-merge";
-import CopyWebpackPlugin from "copy-webpack-plugin";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -24,54 +23,28 @@ const common = {
     extensions: [".tsx", ".ts", ".js"],
     plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
   },
-  experiments: {
-    outputModule: true,
-    asyncWebAssembly: true,
-  },
   output: {
-    filename: "[name].js",
+    filename: "[name].cjs",
     path: path.resolve(__dirname, "build"),
-    clean: true,
-    library: {
-      type: "module",
-    },
-    chunkFormat: "module",
+    pathinfo: false,
+    iife: false,
   },
 };
 
-const main = {
+const preload = {
+  name: "preload",
   mode: "production",
-  target: "electron-main",
+  target: "electron-preload",
   node: {
-    __dirname: "node-module",
-    __filename: "node-module",
+    __dirname: false,
+    __filename: false,
   },
   entry: {
-    main: "./src-gui/main.ts",
+    preload: "src-gui/preload.ts",
   },
   optimization: {
     minimize: false,
   },
-  module: {
-    rules: [
-      {
-        test: /\.node$/,
-        loader: "node-loader",
-      },
-    ],
-  },
-  plugins: [
-    new CopyWebpackPlugin({
-      patterns: [
-        "./package.json",
-        { from: "./src-gui/images", to: "images" },
-        { from: "./src-gui/locales", to: "locales" },
-      ],
-    }),
-  ],
-  externals: {
-    "dc-native": "module dc-native",
-  },
 };
 
-export default merge(common, main);
+export default merge(common, preload);

@@ -1,5 +1,6 @@
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { Entry } from "@/libs/models/entry";
+import { GroupEntry } from "@/libs/models/groupEntry";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
 import { SimResult } from "@/libs/models/simResult";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
@@ -49,21 +50,67 @@ export class ConnectorUtils {
           continue;
         }
 
-        const anyG = g as any;
-        anyG.users = [];
+        g.users = [];
         for (const uid of g.userMemberExternalIds) {
           if (userMap.has(uid)) {
-            anyG.users.push(userMap.get(uid));
+            g.users.push(userMap.get(uid));
           } else {
-            anyG.users.push({ displayName: uid });
+            const placeholder = new UserEntry();
+            placeholder.email = uid;
+            g.users.push(placeholder);
           }
         }
 
-        this.sortEntries(anyG.users, i18nService);
+        this.sortEntries(g.users, i18nService);
       }
 
       resolve(simResult);
     });
+  }
+
+  static buildSimResult(
+    groups: GroupEntry[],
+    users: UserEntry[],
+    i18nService: I18nService,
+  ): SimResult {
+    const simResult = new SimResult();
+    simResult.groups = groups;
+    simResult.users = users;
+
+    const userMap = new Map<string, UserEntry>();
+    this.sortEntries(simResult.users, i18nService);
+    for (const u of simResult.users) {
+      userMap.set(u.externalId, u);
+      if (u.deleted) {
+        simResult.deletedUsers.push(u);
+      } else if (u.disabled) {
+        simResult.disabledUsers.push(u);
+      } else {
+        simResult.enabledUsers.push(u);
+      }
+    }
+
+    this.sortEntries(simResult.groups, i18nService);
+    for (const g of simResult.groups) {
+      if (g.userMemberExternalIds == null) {
+        continue;
+      }
+
+      g.users = [];
+      for (const uid of g.userMemberExternalIds) {
+        if (userMap.has(uid)) {
+          g.users.push(userMap.get(uid));
+        } else {
+          const placeholder = new UserEntry();
+          placeholder.email = uid;
+          g.users.push(placeholder);
+        }
+      }
+
+      this.sortEntries(g.users, i18nService);
+    }
+
+    return simResult;
   }
 
   static adjustConfigForSave(ldap: LdapConfiguration, sync: SyncConfiguration) {
