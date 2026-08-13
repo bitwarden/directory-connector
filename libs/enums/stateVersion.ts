@@ -6,5 +6,6 @@ export enum StateVersion {
   Five = 5, // New state service implementation
   Six = 6, // Migrate Windows Credential Manager entries from keytar (UTF-8) to desktop_core (UTF-16)
   Seven = 7, // Re-run legacy keytar credential migration for machines stuck at v6 with un-migrated {userId}_* credentials
-  Latest = Seven,
+  Eight = 8, // Backfill inviteUsersAfterProvisioning=true onto existing sync configs to preserve behavior
+  Latest = Eight,
 }
