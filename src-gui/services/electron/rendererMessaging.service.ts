@@ -1,7 +1,7 @@
 import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
 import { MessagingService } from "@/libs/abstractions/messaging.service";
 
-export class ElectronRendererMessagingService implements MessagingService {
+export class RendererMessagingService implements MessagingService {
   constructor(private broadcasterService: BroadcasterService) {
     ipc.messaging.on((_event, message) => {
       if (message.command) {

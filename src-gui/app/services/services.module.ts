@@ -14,10 +14,8 @@ import { LogService as LogServiceAbstraction } from "@/libs/abstractions/log.ser
 import { MessagingService as MessagingServiceAbstraction } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/libs/abstractions/platformUtils.service";
 import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
-import { APPLICATION_NAME } from "@/libs/constants";
 import { DefaultEnvironmentService as EnvironmentServiceImplementation } from "@/libs/services/environment/environment.service";
 import { I18nService } from "@/libs/services/i18n.service";
-import { NativeSecureStorageService } from "@/libs/services/nativeSecureStorage.service";
 import {
   DefaultStateService,
   StateService,
@@ -27,9 +25,12 @@ import { BroadcasterService as BroadcasterServiceImplementation } from "@/src-gu
 import { ModalService } from "@/src-gui/angular/services/modal.service";
 import { ValidationService } from "@/src-gui/angular/services/validation.service";
 import { ElectronLogService } from "@/src-gui/services/electron/electronLog.service";
-import { ElectronPlatformUtilsService } from "@/src-gui/services/electron/electronPlatformUtils.service";
-import { ElectronRendererMessagingService } from "@/src-gui/services/electron/electronRendererMessaging.service";
-import { ElectronRendererStorageService } from "@/src-gui/services/electron/electronRendererStorage.service";
+import { RendererAuthService } from "@/src-gui/services/electron/rendererAuth.service";
+import { RendererMessagingService } from "@/src-gui/services/electron/rendererMessaging.service";
+import { RendererPlatformUtilsService } from "@/src-gui/services/electron/rendererPlatformUtils.service";
+import { RendererSecureStorageService } from "@/src-gui/services/electron/rendererSecureStorage.service";
+import { RendererStorageService } from "@/src-gui/services/electron/rendererStorage.service";
+import { RendererSyncService } from "@/src-gui/services/electron/rendererSync.service";
 
 import { AuthGuardService } from "./auth-guard.service";
 import { SafeInjectionToken, SECURE_STORAGE, WINDOW } from "./injection-tokens";
@@ -99,27 +100,36 @@ export const servicesProviders: (Provider | EnvironmentProviders)[] = [
   }),
   safeProvider({
     provide: MessagingServiceAbstraction,
-    useClass: ElectronRendererMessagingService,
+    useClass: RendererMessagingService,
     deps: [BroadcasterServiceAbstraction],
   }),
   safeProvider({
     provide: StorageServiceAbstraction,
-    useClass: ElectronRendererStorageService,
+    useClass: RendererStorageService,
     deps: [],
   }),
   safeProvider({
     provide: SECURE_STORAGE,
-    useFactory: (logService: LogServiceAbstraction) =>
-      new NativeSecureStorageService(APPLICATION_NAME, logService),
-    deps: [LogServiceAbstraction],
+    useClass: RendererSecureStorageService,
+    deps: [],
   }),
   safeProvider({
     provide: PlatformUtilsServiceAbstraction,
     useFactory: (
       i18nService: I18nServiceAbstraction,
       messagingService: MessagingServiceAbstraction,
-    ) => new ElectronPlatformUtilsService(i18nService, messagingService, false),
+    ) => new RendererPlatformUtilsService(i18nService, messagingService),
     deps: [I18nServiceAbstraction, MessagingServiceAbstraction],
+  }),
+  safeProvider({
+    provide: RendererAuthService,
+    useClass: RendererAuthService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: RendererSyncService,
+    useClass: RendererSyncService,
+    deps: [],
   }),
   safeProvider({
     provide: EnvironmentServiceAbstraction,

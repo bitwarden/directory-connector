@@ -22,6 +22,7 @@ import { A11yTitleDirective } from "@/src-gui/angular/directives/a11y-title.dire
 import { ApiActionDirective } from "@/src-gui/angular/directives/api-action.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
 import { ModalService } from "@/src-gui/angular/services/modal.service";
+import { RendererAuthService } from "@/src-gui/services/electron/rendererAuth.service";
 
 import { EnvironmentComponent } from "./environment.component";
 
@@ -50,6 +51,7 @@ export class ApiKeyComponent {
   readonly successRoute = "/tabs/dashboard";
 
   private router = inject(Router);
+  private authService = inject(RendererAuthService);
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
   private modalService = inject(ModalService);
@@ -96,7 +98,7 @@ export class ApiKeyComponent {
     }
 
     try {
-      const promise = ipc.auth.logIn({ clientId, clientSecret });
+      const promise = this.authService.logIn({ clientId, clientSecret });
       this.formPromise.set(promise);
       await promise;
       const organizationId = await this.stateService.getEntityId();

@@ -164,6 +164,54 @@ export default [
     },
   },
 
+  // No Node/Electron imports outside of IPC
+  {
+    files: [
+      "src-gui/app/**/*.ts",
+      "src-gui/angular/**/*.ts",
+      "src-gui/services/electron/renderer*.ts",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["node:*"],
+              message:
+                "Node/Electron APIs are not available in the renderer process. Use the ipc.* bridge exposed via the preload instead.",
+            },
+          ],
+          paths: [
+            "electron",
+            "dc-native",
+            "fs",
+            "path",
+            "os",
+            "crypto",
+            "child_process",
+            "stream",
+            "net",
+            "http",
+            "https",
+            "url",
+            "util",
+            "events",
+            "buffer",
+            "assert",
+            "tty",
+            "readline",
+            "zlib",
+          ].map((name) => ({
+            name,
+            message:
+              "Node/Electron APIs are not available in the renderer process. Use the ipc.* bridge exposed via the preload instead.",
+          })),
+        },
+      ],
+    },
+  },
+
   // Prettier config (must be last to override other configs)
   prettierConfig,
 ];

@@ -18,6 +18,9 @@ import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
 
+import { RendererAuthService } from "@/src-gui/services/electron/rendererAuth.service";
+import { RendererSyncService } from "@/src-gui/services/electron/rendererSync.service";
+
 const BroadcasterSubscriptionId = "AppComponent";
 
 @Component({
@@ -33,6 +36,8 @@ export class AppComponent implements OnInit {
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
 
   private broadcasterService = inject(BroadcasterService);
+  private authService = inject(RendererAuthService);
+  private syncService = inject(RendererSyncService);
   private router = inject(Router);
   private toastrService = inject(ToastrService);
   private i18nService = inject(I18nService);
@@ -81,7 +86,7 @@ export class AppComponent implements OnInit {
             }
 
             if (lastSyncAgo >= syncInterval) {
-              await ipc.sync.run(false, false);
+              await this.syncService.run(false, false);
             }
           } catch (e) {
             this.logService.error(e);
@@ -107,7 +112,7 @@ export class AppComponent implements OnInit {
   }
 
   private async logOut(expired: boolean) {
-    await ipc.auth.logOut();
+    await this.authService.logOut();
     if (expired) {
       this.platformUtilsService.showToast(
         "warning",

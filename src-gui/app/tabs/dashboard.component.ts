@@ -19,10 +19,11 @@ import { GroupEntry } from "@/libs/models/groupEntry";
 import { UserEntry } from "@/libs/models/userEntry";
 import { ConnectorUtils } from "@/libs/utils";
 
-type SyncResult = Awaited<ReturnType<(typeof ipc)["sync"]["run"]>>;
-
 import { ApiActionDirective } from "@/src-gui/angular/directives/api-action.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
+import { RendererSyncService } from "@/src-gui/services/electron/rendererSync.service";
+
+type SyncResult = Awaited<ReturnType<RendererSyncService["run"]>>;
 
 const BroadcasterSubscriptionId = "DashboardComponent";
 
@@ -48,6 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   syncRunning = signal(false);
 
   private cdr = inject(ChangeDetectorRef);
+  private syncService = inject(RendererSyncService);
   private i18nService = inject(I18nService);
   private broadcasterService = inject(BroadcasterService);
   private messagingService = inject(MessagingService);
@@ -74,7 +76,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async start() {
-    const promise = ipc.sync.run(false, false);
+    const promise = this.syncService.run(false, false);
     this.startPromise.set(promise);
     await promise;
     this.messagingService.send("scheduleNextDirSync");
@@ -89,7 +91,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async sync() {
-    const promise = ipc.sync.run(false, false);
+    const promise = this.syncService.run(false, false);
     this.syncPromise.set(promise);
     const result = await promise;
     const groupCount = result[0] != null ? result[0].length : 0;
@@ -109,7 +111,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.simDeletedUsers.set([]);
 
     try {
-      const promise = ipc.sync.run(!this.simSinceLast(), true);
+      const promise = this.syncService.run(!this.simSinceLast(), true);
       this.simPromise.set(promise);
       const [rawGroups, rawUsers]: SyncResult = await promise;
       const groups = rawGroups?.map((g) => GroupEntry.fromJSON(g)) ?? [];

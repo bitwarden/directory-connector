@@ -1,20 +1,20 @@
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { SecureStorageKey, StorageKey } from "@/libs/models/state.model";
 
-export class ElectronRendererSecureStorageService implements StorageService {
+export class RendererStorageService implements StorageService {
   get<T>(key: StorageKey | SecureStorageKey): Promise<T> {
-    return ipc.secureStorage.get<T>(key);
+    return ipc.storage.get<T>(key);
   }
 
   has(key: StorageKey | SecureStorageKey): Promise<boolean> {
-    return ipc.secureStorage.has(key);
+    return ipc.storage.has(key);
   }
 
   save(key: StorageKey | SecureStorageKey, obj: any): Promise<void> {
-    return ipc.secureStorage.save(key, obj);
+    return ipc.storage.save(key, obj);
   }
 
   remove(key: StorageKey | SecureStorageKey): Promise<void> {
-    return ipc.secureStorage.remove(key);
+    return ipc.storage.remove(key);
   }
 }

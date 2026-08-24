@@ -21,8 +21,8 @@ import { TokenService } from "@/libs/services/token/token.service";
 
 import { ElectronLogService } from "@/src-gui/services/electron/electronLog.service";
 import { ElectronMainMessagingService } from "@/src-gui/services/electron/electronMainMessaging.service";
-import { ElectronMainPlatformUtilsService } from "@/src-gui/services/electron/electronMainPlatformUtils.service";
 import { ElectronStorageService } from "@/src-gui/services/electron/electronStorage.service";
+import { MainPlatformUtilsService } from "@/src-gui/services/electron/mainPlatformUtils.service";
 import { TrayMain } from "@/src-gui/tray.main";
 import { UpdaterMain } from "@/src-gui/updater.main";
 import { WindowMain } from "@/src-gui/window.main";
@@ -30,6 +30,22 @@ import { WindowMain } from "@/src-gui/window.main";
 import { DCCredentialStorageListener } from "./main/credential-storage-listener";
 import { MenuMain } from "./main/menu.main";
 import { MessagingMain } from "./main/messaging.main";
+
+// Normalize non-Error rejections to Error so they serialize correctly over IPC.
+function handle(channel: string, handler: Parameters<typeof ipcMain.handle>[1]) {
+  ipcMain.handle(channel, async (...args) => {
+    try {
+      return await handler(...args);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        throw e;
+      }
+
+      const msg = (e as any)?.message ?? String(e);
+      throw new Error(msg);
+    }
+  });
+}
 
 export class Main {
   logService: ElectronLogService;
@@ -88,7 +104,7 @@ export class Main {
       true,
     );
 
-    const platformUtilsService = new ElectronMainPlatformUtilsService();
+    const platformUtilsService = new MainPlatformUtilsService();
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const tokenService = new TokenService(secureStorageService);
     const environmentService = new DefaultEnvironmentService(this.stateService);
@@ -131,21 +147,6 @@ export class Main {
       new SingleRequestBuilder(),
       directoryFactory,
     );
-
-    // Electron IPC serializes Error objects by message string only. Non-Error rejections
-    // (e.g. ErrorResponse objects) arrive as [object Object] on the renderer side.
-    // This wrapper normalizes any thrown value into a plain Error before it crosses the boundary.
-    const handle = (channel: string, handler: Parameters<typeof ipcMain.handle>[1]) => {
-      ipcMain.handle(channel, async (...args) => {
-        try {
-          return await (handler as (...a: typeof args) => any)(...args);
-        } catch (e: unknown) {
-          if (e instanceof Error) throw e;
-          const msg = (e as any)?.message ?? String(e);
-          throw new Error(msg);
-        }
-      });
-    };
 
     handle(
       "secureStorageService",
