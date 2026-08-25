@@ -15,10 +15,10 @@ All Node/Electron APIs cross the IPC bridge via `src-gui/preload.ts`.
 
 **Renderer** :
 
-- `electronPlatformUtils.service.ts` — reads `process.*` via `window.ipc.process`
-- `electronRendererMessaging.service.ts` — app command bus over `messagingService` channel
-- `electronRendererStorage.service.ts` — proxies plain storage via `storageService` channel
-- `electronRendererSecureStorage.service.ts` — proxies keychain via `secureStorageService` channel
+- `RendererPlatformUtils.service.ts` — reads `process.*` via `window.ipc.process`
+- `RendererMessaging.service.ts` — app command bus over `messagingService` channel
+- `RendererStorage.service.ts` — proxies plain storage via `storageService` channel
+- `RendererSecureStorage.service.ts` — proxies keychain via `secureStorageService` channel
 
 ## IPC channels
 
