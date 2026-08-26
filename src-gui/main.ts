@@ -232,31 +232,29 @@ export class Main {
     );
   }
 
-  bootstrap() {
+  async bootstrap() {
     this.credentialStorageListener.init();
-    this.windowMain.init().then(
-      async () => {
-        await this.i18nService.init(app.getLocale());
-        this.menuMain.init();
-        this.messagingMain.init();
-        await this.updaterMain.init();
-        await this.trayMain.init(this.i18nService.t("bitwardenDirectoryConnector"));
+    try {
+      await this.stateService.init();
+      await this.windowMain.init();
+      await this.i18nService.init(app.getLocale());
+      this.menuMain.init();
+      this.messagingMain.init();
+      await this.updaterMain.init();
+      await this.trayMain.init(this.i18nService.t("bitwardenDirectoryConnector"));
 
-        if (!app.isDefaultProtocolClient("bwdc")) {
-          app.setAsDefaultProtocolClient("bwdc");
-        }
+      if (!app.isDefaultProtocolClient("bwdc")) {
+        app.setAsDefaultProtocolClient("bwdc");
+      }
 
-        // Process protocol for macOS
-        app.on("open-url", (event, url) => {
-          event.preventDefault();
-          this.processDeepLink([url]);
-        });
-      },
-      (e: any) => {
-        // eslint-disable-next-line
-        console.error(e);
-      },
-    );
+      app.on("open-url", (event, url) => {
+        event.preventDefault();
+        this.processDeepLink([url]);
+      });
+    } catch (e: any) {
+      // eslint-disable-next-line
+      console.error(e);
+    }
   }
 
   private processDeepLink(argv: string[]): void {

@@ -1,4 +1,4 @@
-import { clipboard, contextBridge, IpcRendererEvent, ipcRenderer, shell, webUtils } from "electron";
+import { contextBridge, ipcRenderer, webUtils } from "electron";
 import type { Jsonify } from "type-fest";
 
 import type { ThemeType } from "@/libs/enums/themeType";
@@ -6,13 +6,6 @@ import type { GroupEntry } from "@/libs/models/groupEntry";
 import type { UserEntry } from "@/libs/models/userEntry";
 
 const ipcBridge = {
-  clipboard: {
-    readText: (type?: "selection" | "clipboard") => clipboard.readText(type),
-    writeText: (text: string, type?: "selection" | "clipboard") => clipboard.writeText(text, type),
-  },
-  shell: {
-    openExternal: (url: string) => shell.openExternal(url),
-  },
   webUtils: {
     getPathForFile: (file: File) => webUtils.getPathForFile(file),
   },
@@ -46,13 +39,10 @@ const ipcBridge = {
       defaultId?: number;
       noLink?: boolean;
     }): Promise<{ response: number }> => ipcRenderer.invoke("showMessageBox", opts),
-    authenticateBiometric: (): boolean =>
-      ipcRenderer.sendSync("biometric", { action: "authenticate" }),
     getSystemTheme: (): Promise<ThemeType.Light | ThemeType.Dark> =>
       ipcRenderer.invoke("systemTheme"),
-    onSystemThemeChange: (
-      listener: (event: IpcRendererEvent, theme: ThemeType.Light | ThemeType.Dark) => void,
-    ) => ipcRenderer.on("systemThemeUpdated", listener),
+    onSystemThemeChange: (listener: (theme: ThemeType.Light | ThemeType.Dark) => void) =>
+      ipcRenderer.on("systemThemeUpdated", (_event, theme) => listener(theme)),
     openContextMenu: (menu: { label?: string; type?: string }[]): Promise<number> =>
       ipcRenderer.invoke("openContextMenu", { menu }),
     isWindowVisible: (): Promise<boolean> => ipcRenderer.invoke("windowVisible"),
@@ -60,12 +50,8 @@ const ipcBridge = {
   messaging: {
     send: (message: { command: string; [key: string]: any }) =>
       ipcRenderer.send("messagingService", message),
-    on: (
-      listener: (event: IpcRendererEvent, message: { command: string; [key: string]: any }) => void,
-    ) => ipcRenderer.on("messagingService", listener),
-    removeListener: (
-      listener: (event: IpcRendererEvent, message: { command: string; [key: string]: any }) => void,
-    ) => ipcRenderer.removeListener("messagingService", listener),
+    on: (listener: (message: { command: string; [key: string]: any }) => void) =>
+      ipcRenderer.on("messagingService", (_event, message) => listener(message)),
   },
   storage: {
     get: <T>(key: string): Promise<T> =>

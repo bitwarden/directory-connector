@@ -3,7 +3,7 @@ import { MessagingService } from "@/libs/abstractions/messaging.service";
 
 export class RendererMessagingService implements MessagingService {
   constructor(private broadcasterService: BroadcasterService) {
-    ipc.messaging.on((_event, message) => {
+    ipc.messaging.on((message) => {
       if (message.command) {
         this.sendMessage(message.command, message, false);
       }

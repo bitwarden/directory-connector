@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
+import webpack from "webpack";
 import { merge } from "webpack-merge";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
@@ -26,7 +27,6 @@ const common = {
   },
   experiments: {
     outputModule: true,
-    asyncWebAssembly: true,
   },
   output: {
     filename: "[name].js",
@@ -68,6 +68,9 @@ const main = {
         { from: "./src-gui/locales", to: "locales" },
       ],
     }),
+    // kerberos is an optional peer dep of proxy-agent-negotiate; it handles
+    // the missing case at runtime, so we don't need to bundle it.
+    new webpack.IgnorePlugin({ resourceRegExp: /^kerberos$/ }),
   ],
   externals: {
     "dc-native": "module dc-native",
