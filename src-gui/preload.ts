@@ -28,6 +28,9 @@ const ipcBridge = {
       noLink?: boolean;
     }): Promise<{ response: number }> => ipcRenderer.invoke("showMessageBox", opts),
   },
+  log: {
+    write: (level: number, message: string) => ipcRenderer.send("log", { level, message }),
+  },
   messaging: {
     send: (message: { command: string; [key: string]: any }) =>
       ipcRenderer.send("messagingService", message),

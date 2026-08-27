@@ -148,6 +148,10 @@ export class Main {
       directoryFactory,
     );
 
+    ipcMain.on("log", (_event, { level, message }: { level: number; message: string }) => {
+      this.logService.write(level, message);
+    });
+
     handle(
       "secureStorageService",
       (_event, options: { action: string; key: string; obj?: any }) => {

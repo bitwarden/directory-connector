@@ -6,36 +6,38 @@ All Node/Electron APIs cross the IPC bridge via `src-gui/preload.ts`.
 
 ## Process split
 
-**Main** (`src-gui/main.ts` instantiates everything):
+**Main**
 
-- `electronLog.service.ts` — file logger
-- `electronMainMessaging.service.ts` — registers core `ipcMain.handle` channels
-- `electronMainPlatformUtils.service.ts` — minimal `PlatformUtilsService` for main (used by `NodeApiService`/`AuthService`)
+- `electronLog.service.ts` — file logger (electron-log)
+- `electronMainMessaging.service.ts` — registers `ipcMain.handle` channels for `appVersion`, `systemTheme`, `showMessageBox`, `openContextMenu`, `windowVisible`
+- `mainPlatformUtils.service.ts` — minimal `PlatformUtilsService` for main (used by `NodeApiService`/`AuthService`)
 - `electronStorage.service.ts` — plain storage via `electron-store`
 
-**Renderer** :
+**Renderer**
 
-- `RendererPlatformUtils.service.ts` — reads `process.*` via `window.ipc.process`
-- `RendererMessaging.service.ts` — app command bus over `messagingService` channel
-- `RendererStorage.service.ts` — proxies plain storage via `storageService` channel
-- `RendererSecureStorage.service.ts` — proxies keychain via `secureStorageService` channel
+- `rendererAuth.service.ts` — `auth:login`, `auth:logout`
+- `rendererI18n.service.ts` — loads locales via `fetch`
+- `rendererLog.service.ts` — forwards log writes to main via `log` channel
+- `rendererMessaging.service.ts` — app command bus over `messagingService` channel
+- `rendererPlatformUtils.service.ts` — reads `process.*` and `platform.*` via bridge
+- `rendererSecureStorage.service.ts` — proxies keychain via `secureStorageService` channel
+- `rendererStorage.service.ts` — proxies plain storage via `storageService` channel
+- `rendererSync.service.ts` — `sync:run`
 
 ## IPC channels
 
-| Channel                | Purpose                                   |
-| ---------------------- | ----------------------------------------- |
-| `storageService`       | Plain data (electron-store)               |
-| `secureStorageService` | Keychain via `NativeSecureStorageService` |
-| `auth:checkTokens`     | Returns `{ accessToken, organizationId }` |
-| `auth:login`           | `AuthService.logIn()`                     |
-| `auth:logout`          | Clears auth tokens                        |
-| `sync:run`             | `SyncService.sync(force, test)`           |
-| `appVersion`           | `app.getVersion()`                        |
-| `systemTheme`          | Current theme                             |
-| `showMessageBox`       | Native dialog                             |
-| `openContextMenu`      | Native context menu                       |
-| `messagingService`     | Bidirectional app command bus             |
+| Channel                | Direction       | Purpose                                     |
+| ---------------------- | --------------- | ------------------------------------------- |
+| `log`                  | renderer → main | Forward renderer log writes to electron-log |
+| `storageService`       | renderer → main | electron-store access                       |
+| `secureStorageService` | renderer → main | Keychain via `NativeSecureStorageService`   |
+| `auth:login`           | renderer → main | `AuthService.logIn()`                       |
+| `auth:logout`          | renderer → main | Clears auth tokens                          |
+| `sync:run`             | renderer → main | `SyncService.sync(force, test)`             |
+| `appVersion`           | renderer → main | `app.getVersion()`                          |
+| `showMessageBox`       | renderer → main | Native dialog                               |
+| `messagingService`     | bidirectional   | App command bus                             |
 
 ## What lives in main
 
-`NodeCryptoFunctionService`, `NodeApiService`, `AuthService`, `SyncService`, `DefaultDirectoryFactoryService`, `NativeSecureStorageService`, `StateMigrationService`, `TokenService` — anything that needs Node. The renderer accesses results via IPC.
+`NodeCryptoFunctionService`, `NodeApiService`, `AuthService`, `SyncService`, `DefaultDirectoryFactoryService`, `NativeSecureStorageService`, `StateMigrationService`, `TokenService`. Anything that needs Node. The renderer accesses results via IPC.

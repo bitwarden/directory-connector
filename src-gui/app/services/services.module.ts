@@ -14,7 +14,6 @@ import { LogService as LogServiceAbstraction } from "@/libs/abstractions/log.ser
 import { MessagingService as MessagingServiceAbstraction } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/libs/abstractions/platformUtils.service";
 import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
-import { ConsoleLogService } from "@/libs/services/consoleLog.service";
 import { DefaultEnvironmentService as EnvironmentServiceImplementation } from "@/libs/services/environment/environment.service";
 import {
   DefaultStateService,
@@ -26,6 +25,7 @@ import { ModalService } from "@/src-gui/angular/services/modal.service";
 import { ValidationService } from "@/src-gui/angular/services/validation.service";
 import { RendererAuthService } from "@/src-gui/services/electron/rendererAuth.service";
 import { RendererI18nService } from "@/src-gui/services/electron/rendererI18n.service";
+import { RendererLogService } from "@/src-gui/services/electron/rendererLog.service";
 import { RendererMessagingService } from "@/src-gui/services/electron/rendererMessaging.service";
 import { RendererPlatformUtilsService } from "@/src-gui/services/electron/rendererPlatformUtils.service";
 import { RendererSecureStorageService } from "@/src-gui/services/electron/rendererSecureStorage.service";
@@ -89,7 +89,7 @@ export const servicesProviders: (Provider | EnvironmentProviders)[] = [
   }),
   safeProvider({
     provide: LogServiceAbstraction,
-    useFactory: () => new ConsoleLogService(ipc.process.isDev),
+    useFactory: () => new RendererLogService(ipc.process.isDev),
     deps: [],
   }),
   safeProvider({
