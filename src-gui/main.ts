@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 
 import { APPLICATION_NAME } from "@/libs/constants";
 import { AppIdService } from "@/libs/services/appId.service";
@@ -250,8 +250,9 @@ export class Main {
         this.processDeepLink([url]);
       });
     } catch (e: any) {
-      // eslint-disable-next-line
-      console.error(e);
+      this.logService.error(e);
+      dialog.showErrorBox(this.i18nService.t("errorOccurred") ?? "Error", e?.message ?? String(e));
+      app.quit();
     }
   }
 
