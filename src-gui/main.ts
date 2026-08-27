@@ -233,8 +233,9 @@ export class Main {
   async bootstrap() {
     this.credentialStorageListener.init();
     try {
-      await this.windowMain.init();
+      this.windowMain.registerAppHandlers();
       await this.stateService.init();
+      await this.windowMain.createWindowWhenReady();
       await this.i18nService.init(app.getLocale());
       this.menuMain.init();
       this.messagingMain.init();

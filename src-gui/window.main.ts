@@ -28,7 +28,7 @@ export class WindowMain {
     private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
 
-  async init(): Promise<void> {
+  registerAppHandlers(): void {
     if (!isMacAppStore() && !isSnapStore()) {
       const gotTheLock = app.requestSingleInstanceLock();
       if (!gotTheLock) {
@@ -67,9 +67,9 @@ export class WindowMain {
         this.win.show();
       }
     });
+  }
 
-    // app.whenReady() resolves immediately if ready has already fired, unlike
-    // app.on("ready") which misses the event if attached after it fires.
+  async createWindowWhenReady(): Promise<void> {
     await app.whenReady();
     await this.createWindow();
     if (this.argvCallback != null) {
