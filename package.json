@@ -30,7 +30,7 @@
     "rebuild": "npm run build:native:release",
     "lint": "eslint . && prettier --check .",
     "lint:fix": "eslint . --fix && prettier --write .",
-    "build": "concurrently -n Main,Preload,Rend -c yellow,blue,cyan \"npm run build:main\" \"npm run build:preload\" \"npm run build:renderer\"",
+    "build": "rimraf build && concurrently -n Main,Preload,Rend -c yellow,blue,cyan \"npm run build:main\" \"npm run build:preload\" \"npm run build:renderer\"",
     "build:main": "webpack --config webpack.main.mjs",
     "build:preload": "webpack --config webpack.preload.mjs",
     "build:renderer": "webpack --config webpack.renderer.mjs",

@@ -1,7 +1,6 @@
 import { contextBridge, ipcRenderer, webUtils } from "electron";
 import type { Jsonify } from "type-fest";
 
-import type { ThemeType } from "@/libs/enums/themeType";
 import type { GroupEntry } from "@/libs/models/groupEntry";
 import type { UserEntry } from "@/libs/models/userEntry";
 
@@ -11,17 +10,6 @@ const ipcBridge = {
   },
   process: {
     platform: process.platform,
-    mas: process.mas,
-    windowsStore: (process as any).windowsStore,
-    execPath: process.execPath,
-    env: {
-      ELECTRON_IS_DEV: process.env.ELECTRON_IS_DEV,
-      APPIMAGE: process.env.APPIMAGE,
-      SNAP_USER_DATA: process.env.SNAP_USER_DATA,
-      PORTABLE_EXECUTABLE_DIR: process.env.PORTABLE_EXECUTABLE_DIR,
-    },
-    defaultApp: (process as any).defaultApp,
-    resourcesPath: process.resourcesPath,
     isDev:
       process.env.ELECTRON_IS_DEV != null
         ? parseInt(process.env.ELECTRON_IS_DEV, 10) === 1
@@ -39,13 +27,6 @@ const ipcBridge = {
       defaultId?: number;
       noLink?: boolean;
     }): Promise<{ response: number }> => ipcRenderer.invoke("showMessageBox", opts),
-    getSystemTheme: (): Promise<ThemeType.Light | ThemeType.Dark> =>
-      ipcRenderer.invoke("systemTheme"),
-    onSystemThemeChange: (listener: (theme: ThemeType.Light | ThemeType.Dark) => void) =>
-      ipcRenderer.on("systemThemeUpdated", (_event, theme) => listener(theme)),
-    openContextMenu: (menu: { label?: string; type?: string }[]): Promise<number> =>
-      ipcRenderer.invoke("openContextMenu", { menu }),
-    isWindowVisible: (): Promise<boolean> => ipcRenderer.invoke("windowVisible"),
   },
   messaging: {
     send: (message: { command: string; [key: string]: any }) =>
@@ -74,8 +55,6 @@ const ipcBridge = {
       ipcRenderer.invoke("secureStorageService", { action: "remove", key }),
   },
   auth: {
-    checkTokens: (): Promise<{ accessToken: string | null; organizationId: string | null }> =>
-      ipcRenderer.invoke("auth:checkTokens"),
     logIn: (credentials: { clientId: string; clientSecret: string }): Promise<void> =>
       ipcRenderer.invoke("auth:login", credentials),
     logOut: (): Promise<void> => ipcRenderer.invoke("auth:logout"),

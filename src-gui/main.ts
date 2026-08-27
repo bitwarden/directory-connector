@@ -166,12 +166,6 @@ export class Main {
       },
     );
 
-    handle("auth:checkTokens", async () => {
-      const accessToken = await this.stateService.getAccessToken();
-      const organizationId = await this.stateService.getOrganizationId();
-      return { accessToken, organizationId };
-    });
-
     handle(
       "auth:login",
       async (_event, credentials: { clientId: string; clientSecret: string }) => {

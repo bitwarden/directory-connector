@@ -28,74 +28,53 @@ export class WindowMain {
     private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
 
-  init(): Promise<any> {
-    return new Promise<void>((resolve, reject) => {
-      try {
-        if (!isMacAppStore() && !isSnapStore()) {
-          const gotTheLock = app.requestSingleInstanceLock();
-          if (!gotTheLock) {
-            app.quit();
-            return;
-          } else {
-            app.on("second-instance", (_event, argv, _workingDirectory) => {
-              // Someone tried to run a second instance, we should focus our window.
-              if (this.win != null) {
-                if (this.win.isMinimized() || !this.win.isVisible()) {
-                  this.win.show();
-                }
-                this.win.focus();
-              }
-              if (process.platform === "win32" || process.platform === "linux") {
-                if (this.argvCallback != null) {
-                  this.argvCallback(argv);
-                }
-              }
-            });
-          }
-        }
-
-        // This method will be called when Electron is shutting
-        // down the application.
-        app.on("before-quit", () => {
-          this.isQuitting = true;
-        });
-
-        // This method will be called when Electron has finished
-        // initialization and is ready to create browser windows.
-        // Some APIs can only be used after this event occurs.
-        app.on("ready", async () => {
-          await this.createWindow();
-          resolve();
-          if (this.argvCallback != null) {
-            this.argvCallback(process.argv);
-          }
-        });
-
-        // Quit when all windows are closed.
-        app.on("window-all-closed", () => {
-          // On OS X it is common for applications and their menu bar
-          // to stay active until the user quits explicitly with Cmd + Q
-          if (process.platform !== "darwin" || this.isQuitting || isMacAppStore()) {
-            app.quit();
-          }
-        });
-
-        app.on("activate", async () => {
-          // On OS X it's common to re-create a window in the app when the
-          // dock icon is clicked and there are no other windows open.
-          if (this.win === null) {
-            await this.createWindow();
-          } else {
-            // Show the window when clicking on Dock icon
+  async init(): Promise<void> {
+    if (!isMacAppStore() && !isSnapStore()) {
+      const gotTheLock = app.requestSingleInstanceLock();
+      if (!gotTheLock) {
+        app.quit();
+        return;
+      }
+      app.on("second-instance", (_event, argv, _workingDirectory) => {
+        if (this.win != null) {
+          if (this.win.isMinimized() || !this.win.isVisible()) {
             this.win.show();
           }
-        });
-      } catch (e) {
-        // Catch Error
-        // throw e;
-        reject(e);
+          this.win.focus();
+        }
+        if (process.platform === "win32" || process.platform === "linux") {
+          if (this.argvCallback != null) {
+            this.argvCallback(argv);
+          }
+        }
+      });
+    }
+
+    app.on("before-quit", () => {
+      this.isQuitting = true;
+    });
+
+    app.on("window-all-closed", () => {
+      if (process.platform !== "darwin" || this.isQuitting || isMacAppStore()) {
+        app.quit();
       }
     });
+
+    app.on("activate", async () => {
+      if (this.win === null) {
+        await this.createWindow();
+      } else {
+        this.win.show();
+      }
+    });
+
+    // app.whenReady() resolves immediately if ready has already fired, unlike
+    // app.on("ready") which misses the event if attached after it fires.
+    await app.whenReady();
+    await this.createWindow();
+    if (this.argvCallback != null) {
+      this.argvCallback(process.argv);
+    }
   }
 
   async createWindow(): Promise<void> {

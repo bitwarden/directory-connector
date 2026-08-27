@@ -31,7 +31,6 @@ const common = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build"),
-    clean: true,
     library: {
       type: "module",
     },

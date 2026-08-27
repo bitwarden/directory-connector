@@ -13,7 +13,7 @@ const common = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: "ts-loader",
+        use: { loader: "ts-loader", options: { configFile: "tsconfig.preload.json" } },
         exclude: /node_modules\/(?!(@bitwarden)\/).*/,
       },
     ],
@@ -21,7 +21,7 @@ const common = {
   plugins: [],
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
-    plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
+    plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.preload.json" })],
   },
   output: {
     filename: "[name].cjs",
