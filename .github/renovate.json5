@@ -8,6 +8,60 @@
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["minor", "patch"],
     },
+    {
+      // Angular core (angular/angular), Angular CLI/build tooling (angular/angular-cli),
+      // Angular ESLint (angular-eslint/angular-eslint), and Angular CDK (angular/components)
+      // are separate repos that Renovate would otherwise open as separate PRs. Angular CDK's
+      // major version tracks Angular core's major version, so we group everything together
+      // into a single PR.
+      groupName: "angular",
+      matchPackageNames: ["@angular/**", "@angular-eslint/**", "@ngtools/webpack", "zone.js"],
+    },
+    {
+      // Published from two different repos (msgraph-sdk-javascript and
+      // msgraph-typescript-typings) but used together for the same Graph API integration.
+      groupName: "microsoft graph",
+      matchPackageNames: ["@microsoft/microsoft-graph-client", "@microsoft/microsoft-graph-types"],
+    },
+    {
+      // Maintained by the same author as companion ESLint plugins for RxJS, but published
+      // from separate repos.
+      groupName: "eslint-plugin-rxjs",
+      matchPackageNames: ["eslint-plugin-rxjs-angular-x", "eslint-plugin-rxjs-x"],
+    },
+    {
+      // jest-preset-angular pins a hard peerDependency on a single jest major version
+      // (e.g. jest ^30.0.0), so it must be bumped in lockstep with jest itself. Using the
+      // same groupName as Bitwarden's shared "jest monorepo" group folds this update into
+      // that same PR instead of opening a separate one.
+      groupName: "jest monorepo",
+      matchPackageNames: ["jest-preset-angular", "jest-mock-extended"],
+    },
+    {
+      // webpack-cli has a real (narrow) peerDependency on webpack itself, unlike the various
+      // webpack loaders/plugins which only require any webpack ^5.x.
+      groupName: "webpack",
+      matchPackageNames: ["webpack", "webpack-cli"],
+    },
+    {
+      // electron-updater is published from the electron-builder monorepo
+      // (electron-userland/electron-builder), so they should always move together.
+      groupName: "electron-builder",
+      matchPackageNames: ["electron-builder", "electron-updater"],
+    },
+    {
+      // Keep @types packages in lockstep with the runtime package they describe.
+      groupName: "node-forge",
+      matchPackageNames: ["node-forge", "@types/node-forge"],
+    },
+    {
+      groupName: "proper-lockfile",
+      matchPackageNames: ["proper-lockfile", "@types/proper-lockfile"],
+    },
+    {
+      groupName: "inquirer",
+      matchPackageNames: ["inquirer", "@types/inquirer"],
+    },
   ],
   ignoreDeps: [
     // yao-pkg is used to create a single executable application bundle for the CLI.

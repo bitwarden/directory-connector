@@ -48,7 +48,6 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // Auth APIs
-
   async postIdentityToken(
     request: ApiTokenRequest | PasswordTokenRequest | SsoTokenRequest,
   ): Promise<IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse> {

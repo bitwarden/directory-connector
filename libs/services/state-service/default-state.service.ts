@@ -8,10 +8,23 @@ import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
 import { OktaConfiguration } from "@/libs/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
-import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/libs/models/state.model";
+import {
+  SecureStorageKey,
+  SecureStorageKeys,
+  StorageKeys,
+  StoredSecurely,
+} from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
 import { StateService } from "./default-state.service";
+import {
+  entraConfigsShareIdentity,
+  generateConfigId,
+  gsuiteConfigsShareIdentity,
+  ldapConfigsShareIdentity,
+  oktaConfigsShareIdentity,
+  oneLoginConfigsShareIdentity,
+} from "./secret-storage-key.util";
 import { StateMigrationService } from "./stateMigration.service";
 
 export class DefaultStateService implements StateService {
@@ -46,19 +59,27 @@ export class DefaultStateService implements StateService {
 
       switch (type) {
         case DirectoryType.Ldap:
-          (configWithSecrets as any).password = await this.getLdapSecret();
+          (configWithSecrets as any).password = await this.getLdapSecret(
+            config as LdapConfiguration,
+          );
           break;
         case DirectoryType.EntraID:
-          (configWithSecrets as any).key = await this.getEntraSecret();
+          (configWithSecrets as any).key = await this.getEntraSecret(
+            config as EntraIdConfiguration,
+          );
           break;
         case DirectoryType.Okta:
-          (configWithSecrets as any).token = await this.getOktaSecret();
+          (configWithSecrets as any).token = await this.getOktaSecret(config as OktaConfiguration);
           break;
         case DirectoryType.GSuite:
-          (configWithSecrets as any).privateKey = await this.getGsuiteSecret();
+          (configWithSecrets as any).privateKey = await this.getGsuiteSecret(
+            config as GSuiteConfiguration,
+          );
           break;
         case DirectoryType.OneLogin:
-          (configWithSecrets as any).clientSecret = await this.getOneLoginSecret();
+          (configWithSecrets as any).clientSecret = await this.getOneLoginSecret(
+            config as OneLoginConfiguration,
+          );
           break;
       }
 
@@ -81,32 +102,52 @@ export class DefaultStateService implements StateService {
       switch (type) {
         case DirectoryType.Ldap: {
           const ldapConfig = config as LdapConfiguration;
-          await this.setLdapSecret(ldapConfig.password);
+          const previous = await this.getLdapConfiguration();
+          ldapConfig.id = this.resolveConfigId(
+            previous,
+            ldapConfigsShareIdentity(previous, ldapConfig),
+          );
+          await this.setLdapSecret(ldapConfig, ldapConfig.password);
           ldapConfig.password = StoredSecurely;
           await this.setLdapConfiguration(ldapConfig);
           break;
         }
         case DirectoryType.EntraID: {
           const entraConfig = config as EntraIdConfiguration;
-          await this.setEntraSecret(entraConfig.key);
+          const previous = await this.getEntraConfiguration();
+          entraConfig.id = this.resolveConfigId(
+            previous,
+            entraConfigsShareIdentity(previous, entraConfig),
+          );
+          await this.setEntraSecret(entraConfig, entraConfig.key);
           entraConfig.key = StoredSecurely;
           await this.setEntraConfiguration(entraConfig);
           break;
         }
         case DirectoryType.Okta: {
           const oktaConfig = config as OktaConfiguration;
-          await this.setOktaSecret(oktaConfig.token);
+          const previous = await this.getOktaConfiguration();
+          oktaConfig.id = this.resolveConfigId(
+            previous,
+            oktaConfigsShareIdentity(previous, oktaConfig),
+          );
+          await this.setOktaSecret(oktaConfig, oktaConfig.token);
           oktaConfig.token = StoredSecurely;
           await this.setOktaConfiguration(oktaConfig);
           break;
         }
         case DirectoryType.GSuite: {
           const gsuiteConfig = config as GSuiteConfiguration;
+          const previous = await this.getGsuiteConfiguration();
+          gsuiteConfig.id = this.resolveConfigId(
+            previous,
+            gsuiteConfigsShareIdentity(previous, gsuiteConfig),
+          );
           if (gsuiteConfig.privateKey == null) {
-            await this.setGsuiteSecret(null);
+            await this.setGsuiteSecret(gsuiteConfig, null);
           } else {
             const normalizedPrivateKey = gsuiteConfig.privateKey.replace(/\\n/g, "\n");
-            await this.setGsuiteSecret(normalizedPrivateKey);
+            await this.setGsuiteSecret(gsuiteConfig, normalizedPrivateKey);
             gsuiteConfig.privateKey = StoredSecurely;
           }
           await this.setGsuiteConfiguration(gsuiteConfig);
@@ -114,7 +155,12 @@ export class DefaultStateService implements StateService {
         }
         case DirectoryType.OneLogin: {
           const oneLoginConfig = config as OneLoginConfiguration;
-          await this.setOneLoginSecret(oneLoginConfig.clientSecret);
+          const previous = await this.getOneLoginConfiguration();
+          oneLoginConfig.id = this.resolveConfigId(
+            previous,
+            oneLoginConfigsShareIdentity(previous, oneLoginConfig),
+          );
+          await this.setOneLoginSecret(oneLoginConfig, oneLoginConfig.clientSecret);
           oneLoginConfig.clientSecret = StoredSecurely;
           await this.setOneLoginConfiguration(oneLoginConfig);
           break;
@@ -160,70 +206,116 @@ export class DefaultStateService implements StateService {
   // Secret Storage Methods (Secure Storage)
   // ===================================================================
 
-  private async getLdapSecret(): Promise<string> {
-    return await this.secureStorageService.get<string>(SecureStorageKeys.ldap);
+  /**
+   * Decides the `id` a configuration should be saved with: the previous configuration's id is
+   * reused when the new configuration represents the same account/identity (e.g. a password
+   * rotation), otherwise a fresh id is generated (e.g. switching to a different AD service
+   * account). Keeping the id stable across identity-preserving saves means the secure-storage
+   * slot is updated in place rather than accumulating a new orphaned entry on every save.
+   */
+  private resolveConfigId(
+    previous: { id?: string } | null | undefined,
+    sameIdentity: boolean,
+  ): string {
+    if (sameIdentity && previous?.id != null) {
+      return previous.id;
+    }
+    return generateConfigId();
   }
 
-  private async setLdapSecret(value: string): Promise<void> {
+  /**
+   * Builds a secure storage key scoped to a specific configuration's `id`, falling back to the
+   * given legacy/unscoped key when no id is available. This keeps secrets for distinct
+   * configurations (e.g. two AD service accounts) from colliding in OS secure storage. See
+   * secret-storage-key.util.ts for details.
+   */
+  private scopedSecretKey(legacyKey: SecureStorageKey, id: string): SecureStorageKey {
+    return `${legacyKey}:${id}` as SecureStorageKey;
+  }
+
+  private async getScopedSecret(
+    legacyKey: SecureStorageKey,
+    id: string | null | undefined,
+  ): Promise<string | null> {
+    if (id != null) {
+      const scoped = await this.secureStorageService.get<string>(
+        this.scopedSecretKey(legacyKey, id),
+      );
+      if (scoped != null) {
+        return scoped;
+      }
+    }
+    // Fall back to the legacy, unscoped key for installs upgrading from a version that stored
+    // a single shared secret per directory type, regardless of which configuration was active.
+    return await this.secureStorageService.get<string>(legacyKey);
+  }
+
+  private async setScopedSecret(
+    legacyKey: SecureStorageKey,
+    id: string | null | undefined,
+    value: string,
+  ): Promise<void> {
+    const key = id != null ? this.scopedSecretKey(legacyKey, id) : legacyKey;
     if (value == null) {
-      await this.secureStorageService.remove(SecureStorageKeys.ldap);
+      await this.secureStorageService.remove(key);
+      // Also clear the legacy unscoped key so clearing a secret always fully clears it,
+      // even if it hadn't been migrated to a scoped key yet.
+      if (id != null) {
+        await this.secureStorageService.remove(legacyKey);
+      }
     } else {
-      await this.secureStorageService.save(SecureStorageKeys.ldap, value);
+      await this.secureStorageService.save(key, value);
     }
   }
 
-  private async getGsuiteSecret(): Promise<string> {
-    return await this.secureStorageService.get<string>(SecureStorageKeys.gsuite);
+  private async getLdapSecret(config: LdapConfiguration): Promise<string> {
+    return await this.getScopedSecret(SecureStorageKeys.ldap, config?.id);
   }
 
-  private async setGsuiteSecret(value: string): Promise<void> {
-    if (value == null) {
-      await this.secureStorageService.remove(SecureStorageKeys.gsuite);
-    } else {
-      await this.secureStorageService.save(SecureStorageKeys.gsuite, value);
-    }
+  private async setLdapSecret(config: LdapConfiguration, value: string): Promise<void> {
+    await this.setScopedSecret(SecureStorageKeys.ldap, config.id, value);
   }
 
-  private async getEntraSecret(): Promise<string> {
-    // Try new key first, fall back to old azure key for backwards compatibility
-    const entraKey = await this.secureStorageService.get<string>(SecureStorageKeys.entra);
+  private async getGsuiteSecret(config: GSuiteConfiguration): Promise<string> {
+    return await this.getScopedSecret(SecureStorageKeys.gsuite, config?.id);
+  }
+
+  private async setGsuiteSecret(config: GSuiteConfiguration, value: string): Promise<void> {
+    await this.setScopedSecret(SecureStorageKeys.gsuite, config.id, value);
+  }
+
+  private async getEntraSecret(config: EntraIdConfiguration): Promise<string> {
+    const entraKey = await this.getScopedSecret(SecureStorageKeys.entra, config?.id);
     if (entraKey != null) {
       return entraKey;
     }
-    return await this.secureStorageService.get<string>(SecureStorageKeys.azure);
+    // Try new key first, fall back to old azure key for backwards compatibility
+    return await this.getScopedSecret(SecureStorageKeys.azure, config?.id);
   }
 
-  private async setEntraSecret(value: string): Promise<void> {
+  private async setEntraSecret(config: EntraIdConfiguration, value: string): Promise<void> {
     if (value == null) {
-      await this.secureStorageService.remove(SecureStorageKeys.entra);
-      await this.secureStorageService.remove(SecureStorageKeys.azure);
+      await this.setScopedSecret(SecureStorageKeys.entra, config.id, null);
+      await this.setScopedSecret(SecureStorageKeys.azure, config.id, null);
     } else {
-      await this.secureStorageService.save(SecureStorageKeys.entra, value);
+      await this.setScopedSecret(SecureStorageKeys.entra, config.id, value);
     }
   }
 
-  private async getOktaSecret(): Promise<string> {
-    return await this.secureStorageService.get<string>(SecureStorageKeys.okta);
+  private async getOktaSecret(config: OktaConfiguration): Promise<string> {
+    return await this.getScopedSecret(SecureStorageKeys.okta, config?.id);
   }
 
-  private async setOktaSecret(value: string): Promise<void> {
-    if (value == null) {
-      await this.secureStorageService.remove(SecureStorageKeys.okta);
-    } else {
-      await this.secureStorageService.save(SecureStorageKeys.okta, value);
-    }
+  private async setOktaSecret(config: OktaConfiguration, value: string): Promise<void> {
+    await this.setScopedSecret(SecureStorageKeys.okta, config.id, value);
   }
 
-  private async getOneLoginSecret(): Promise<string> {
-    return await this.secureStorageService.get<string>(SecureStorageKeys.oneLogin);
+  private async getOneLoginSecret(config: OneLoginConfiguration): Promise<string> {
+    return await this.getScopedSecret(SecureStorageKeys.oneLogin, config?.id);
   }
 
-  private async setOneLoginSecret(value: string): Promise<void> {
-    if (value == null) {
-      await this.secureStorageService.remove(SecureStorageKeys.oneLogin);
-    } else {
-      await this.secureStorageService.save(SecureStorageKeys.oneLogin, value);
-    }
+  private async setOneLoginSecret(config: OneLoginConfiguration, value: string): Promise<void> {
+    await this.setScopedSecret(SecureStorageKeys.oneLogin, config.id, value);
   }
 
   // ===================================================================
