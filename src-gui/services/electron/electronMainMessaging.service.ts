@@ -1,14 +1,8 @@
-import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme } from "electron";
+import { app, dialog, ipcMain } from "electron";
 
 import { MessagingService } from "@/libs/abstractions/messaging.service";
-import { ThemeType } from "@/libs/enums/themeType";
 
 import { WindowMain } from "@/src-gui/window.main";
-
-type RendererMenuItem = {
-  label?: string;
-  type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
-};
 
 export class ElectronMainMessagingService implements MessagingService {
   constructor(
@@ -19,46 +13,8 @@ export class ElectronMainMessagingService implements MessagingService {
       return app.getVersion();
     });
 
-    ipcMain.handle("systemTheme", () => {
-      return nativeTheme.shouldUseDarkColors ? ThemeType.Dark : ThemeType.Light;
-    });
-
     ipcMain.handle("showMessageBox", (event, options) => {
       return dialog.showMessageBox(this.windowMain.win, options);
-    });
-
-    ipcMain.handle("openContextMenu", (event, options: { menu: RendererMenuItem[] }) => {
-      return new Promise((resolve) => {
-        const menu = new Menu();
-        options.menu.forEach((m, index) => {
-          menu.append(
-            new MenuItem({
-              label: m.label,
-              type: m.type,
-              click: () => {
-                resolve(index);
-              },
-            }),
-          );
-        });
-        menu.popup({
-          window: windowMain.win,
-          callback: () => {
-            resolve(-1);
-          },
-        });
-      });
-    });
-
-    ipcMain.handle("windowVisible", () => {
-      return windowMain.win?.isVisible();
-    });
-
-    nativeTheme.on("updated", () => {
-      windowMain.win?.webContents.send(
-        "systemThemeUpdated",
-        nativeTheme.shouldUseDarkColors ? ThemeType.Dark : ThemeType.Light,
-      );
     });
   }
 

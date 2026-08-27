@@ -9,7 +9,7 @@ All Node/Electron APIs cross the IPC bridge via `src-gui/preload.ts`.
 **Main**
 
 - `electronLog.service.ts` — file logger (electron-log)
-- `electronMainMessaging.service.ts` — registers `ipcMain.handle` channels for `appVersion`, `systemTheme`, `showMessageBox`, `openContextMenu`, `windowVisible`
+- `electronMainMessaging.service.ts` — registers `ipcMain.handle` channels for `appVersion`, `showMessageBox`
 - `mainPlatformUtils.service.ts` — minimal `PlatformUtilsService` for main (used by `NodeApiService`/`AuthService`)
 - `electronStorage.service.ts` — plain storage via `electron-store`
 

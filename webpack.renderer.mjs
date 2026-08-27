@@ -65,9 +65,6 @@ const renderer = {
   node: {
     __dirname: false,
   },
-  externals: {
-    "dc-native": "commonjs2 dc-native",
-  },
   entry: {
     "app/main": "./src-gui/app/main.ts",
   },
