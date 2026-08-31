@@ -28,6 +28,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Get Package Version
         id: retrieve-version
@@ -76,6 +77,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -146,6 +148,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -274,6 +277,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Setup Windows builder
         run: choco install checksum --no-progress
@@ -339,6 +343,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -450,6 +455,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -502,6 +508,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -635,6 +642,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env

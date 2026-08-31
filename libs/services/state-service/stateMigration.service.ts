@@ -1,3 +1,4 @@
+import { LogService } from "@/libs/abstractions/log.service";
 import { StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
@@ -23,6 +24,8 @@ export class StateMigrationService {
   constructor(
     protected storageService: StorageService,
     protected secureStorageService: StorageService,
+    protected logService: LogService,
+    protected useSecureStorageForSecrets = true,
   ) {}
 
   async needsMigration(): Promise<boolean> {
@@ -60,6 +63,12 @@ export class StateMigrationService {
           break;
         case StateVersion.Five:
           await this.migrateStateFrom5To6();
+          break;
+        case StateVersion.Six:
+          await this.migrateStateFrom6To7();
+          break;
+        case StateVersion.Seven:
+          await this.migrateStateFrom7To8();
           break;
       }
       currentStateVersion += 1;
@@ -231,8 +240,8 @@ export class StateMigrationService {
   /**
    * Migrate from State v5 to v6 — convert any Windows Credential Manager entries that were
    * written by keytar (UTF-8 via CredWriteA) to the UTF-16 format used by desktop_core
-   * (CredWriteW). This is a no-op on macOS and Linux; migrateKeytarPassword returns false
-   * immediately on those platforms.
+   * (CredWriteW). This is a no-op on macOS and Linux; migrateKeytarPassword returns
+   * `{ migrated: false }` immediately on those platforms.
    *
    * Keys migrated:
    *   • All current flat SecureStorageKeys (secret_*, accessToken, etc.)
@@ -256,13 +265,110 @@ export class StateMigrationService {
       SecureStorageKeys.twoFactorToken,
     ];
 
-    await Promise.all(
+    const results = await Promise.all(
       credentialKeys.map((key) =>
         passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
       ),
     );
 
+    for (let i = 0; i < results.length; i++) {
+      if (results[i].error) {
+        this.logService.error(
+          `StateMigrationService: failed to re-encode credential "${credentialKeys[i]}": ${results[i].error}`,
+        );
+      }
+    }
+
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
+  }
+
+  /**
+   * Migrate from State v6 to v7: catch-up migration for Windows machines where the 3→5
+   * migration failed to copy directory secrets from {userId}_* to flat keys due to the
+   * CredWriteA/CredReadW encoding mismatch. Auth tokens are intentionally excluded: an absent
+   * flat token key means the user is logged out (either by clearAuthTokens() or because the
+   * prior migration already forced re-auth), and restoring a stale token would bypass the login
+   * screen.
+   */
+  protected async migrateStateFrom6To7(): Promise<void> {
+    if (!this.useSecureStorageForSecrets || process.platform !== "win32") {
+      await this.set(StorageKeys.stateVersion, StateVersion.Seven);
+      return;
+    }
+
+    const clientId = await this.storageService.get<string>("activeUserId");
+
+    if (clientId) {
+      const oldSecretKeys = [
+        { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
+        { old: `${clientId}_gsuitePrivateKey`, new: SecureStorageKeys.gsuite },
+        { old: `${clientId}_azureKey`, new: SecureStorageKeys.azure },
+        { old: `${clientId}_entraIdKey`, new: SecureStorageKeys.entra },
+        { old: `${clientId}_entraKey`, new: SecureStorageKeys.entra },
+        { old: `${clientId}_oktaToken`, new: SecureStorageKeys.okta },
+        { old: `${clientId}_oneLoginClientSecret`, new: SecureStorageKeys.oneLogin },
+      ];
+
+      const written = new Set<string>();
+      for (const { old: oldKey, new: newKey } of oldSecretKeys) {
+        if (written.has(newKey)) {
+          continue;
+        }
+
+        const alreadyExists = await this.secureStorageService.has(newKey);
+        if (alreadyExists) {
+          written.add(newKey);
+          continue;
+        }
+
+        let raw: string | null;
+        try {
+          raw = await passwords.readKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
+        } catch (e) {
+          this.logService.error(
+            `StateMigrationService: failed to read legacy credential "${oldKey}": ${e}`,
+          );
+          continue;
+        }
+
+        if (raw != null) {
+          // raw is the keytar blob verbatim (JSON.stringify'd by the old KeytarSecureStorageService).
+          // Parse it once so secureStorageService.save doesn't double-encode it.
+          let value: unknown;
+          try {
+            value = JSON.parse(raw);
+          } catch {
+            // raw is not valid JSON. The old storage layer stored it as a plain string rather
+            // than a JSON-encoded value, so use it as is.
+            value = raw;
+          }
+          await this.secureStorageService.save(newKey, value);
+          written.add(newKey);
+        }
+      }
+    }
+
+    await this.set(StorageKeys.stateVersion, StateVersion.Seven);
+  }
+
+  /**
+   * Migrate from State v7 to v8 — preserve invitation behavior for existing installs.
+   *
+   * inviteUsersAfterProvisioning defaults to false for new installs, but installs that
+   * predate the setting always sent invitations after provisioning. If a sync configuration
+   * already exists and does not define the flag, backfill it to true so upgrading users keep
+   * their prior behavior. An explicit value (true or false) is left untouched, and configs
+   * that are absent entirely are not created. Fresh installs never reach this migration —
+   * their state version starts at Latest — so they retain the false default.
+   */
+  protected async migrateStateFrom7To8(): Promise<void> {
+    const sync = await this.get<{ inviteUsersAfterProvisioning?: boolean }>(StorageKeys.sync);
+    if (sync != null && sync.inviteUsersAfterProvisioning === undefined) {
+      sync.inviteUsersAfterProvisioning = true;
+      await this.set(StorageKeys.sync, sync);
+    }
+
+    await this.set(StorageKeys.stateVersion, StateVersion.Eight);
   }
 
   // ===================================================================
