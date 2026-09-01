@@ -28,12 +28,12 @@ export class WindowMain {
     private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
 
-  registerAppHandlers(): void {
+  registerAppHandlers(): boolean {
     if (!isMacAppStore() && !isSnapStore()) {
       const gotTheLock = app.requestSingleInstanceLock();
       if (!gotTheLock) {
         app.quit();
-        return;
+        return false;
       }
       app.on("second-instance", (_event, argv, _workingDirectory) => {
         if (this.win != null) {
@@ -67,6 +67,8 @@ export class WindowMain {
         this.win.show();
       }
     });
+
+    return true;
   }
 
   async createWindowWhenReady(): Promise<void> {
