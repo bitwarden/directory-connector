@@ -118,7 +118,7 @@
     "jest-junit": "17.0.0",
     "jest-mock-extended": "4.0.0",
     "jest-preset-angular": "17.0.0",
-    "lint-staged": "17.2.0",
+    "lint-staged": "17.3.0",
     "mini-css-extract-plugin": "2.10.0",
     "node-forge": "1.4.0",
     "node-loader": "2.1.0",
