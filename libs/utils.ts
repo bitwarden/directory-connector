@@ -1,5 +1,6 @@
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { Entry } from "@/libs/models/entry";
+import { GroupEntry } from "@/libs/models/groupEntry";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
 import { SimResult } from "@/libs/models/simResult";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
@@ -12,58 +13,57 @@ export class ConnectorUtils {
     i18nService: I18nService,
     sinceLast: boolean,
   ): Promise<SimResult> {
-    // eslint-disable-next-line
-    return new Promise(async (resolve, reject) => {
-      const simResult = new SimResult();
-      try {
-        const result = await syncService.sync(!sinceLast, true);
-        if (result[0] != null) {
-          simResult.groups = result[0];
-        }
-        if (result[1] != null) {
-          simResult.users = result[1];
-        }
-      } catch (e) {
-        simResult.groups = null;
-        simResult.users = null;
-        reject(e || i18nService.t("syncError"));
-        return;
+    try {
+      const [groups, users] = await syncService.sync(!sinceLast, true);
+      return this.buildSimResult(groups ?? [], users ?? [], i18nService);
+    } catch (e) {
+      throw e || new Error(i18nService.t("syncError"));
+    }
+  }
+
+  static buildSimResult(
+    groups: GroupEntry[],
+    users: UserEntry[],
+    i18nService: I18nService,
+  ): SimResult {
+    const simResult = new SimResult();
+    simResult.groups = groups;
+    simResult.users = users;
+
+    const userMap = new Map<string, UserEntry>();
+    this.sortEntries(simResult.users, i18nService);
+    for (const u of simResult.users) {
+      userMap.set(u.externalId, u);
+      if (u.deleted) {
+        simResult.deletedUsers.push(u);
+      } else if (u.disabled) {
+        simResult.disabledUsers.push(u);
+      } else {
+        simResult.enabledUsers.push(u);
+      }
+    }
+
+    this.sortEntries(simResult.groups, i18nService);
+    for (const g of simResult.groups) {
+      if (g.userMemberExternalIds == null) {
+        continue;
       }
 
-      const userMap = new Map<string, UserEntry>();
-      this.sortEntries(simResult.users, i18nService);
-      for (const u of simResult.users) {
-        userMap.set(u.externalId, u);
-        if (u.deleted) {
-          simResult.deletedUsers.push(u);
-        } else if (u.disabled) {
-          simResult.disabledUsers.push(u);
+      g.users = [];
+      for (const uid of g.userMemberExternalIds) {
+        if (userMap.has(uid)) {
+          g.users.push(userMap.get(uid));
         } else {
-          simResult.enabledUsers.push(u);
+          const placeholder = new UserEntry();
+          placeholder.email = uid;
+          g.users.push(placeholder);
         }
       }
 
-      this.sortEntries(simResult.groups, i18nService);
-      for (const g of simResult.groups) {
-        if (g.userMemberExternalIds == null) {
-          continue;
-        }
+      this.sortEntries(g.users, i18nService);
+    }
 
-        const anyG = g as any;
-        anyG.users = [];
-        for (const uid of g.userMemberExternalIds) {
-          if (userMap.has(uid)) {
-            anyG.users.push(userMap.get(uid));
-          } else {
-            anyG.users.push({ displayName: uid });
-          }
-        }
-
-        this.sortEntries(anyG.users, i18nService);
-      }
-
-      resolve(simResult);
-    });
+    return simResult;
   }
 
   static adjustConfigForSave(ldap: LdapConfiguration, sync: SyncConfiguration) {

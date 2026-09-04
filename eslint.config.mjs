@@ -130,6 +130,16 @@ export default [
     },
   },
 
+  // Renderer process files — `ipc` is injected by the preload via contextBridge
+  {
+    files: ["src-gui/**/*.ts"],
+    languageOptions: {
+      globals: {
+        ipc: "readonly",
+      },
+    },
+  },
+
   // Jest test files (includes any test-related files)
   {
     files: ["**/*.spec.ts", "**/test.setup.ts", "**/spec/**/*.ts", "**/utils/**/*fixtures*.ts"],
@@ -151,6 +161,54 @@ export default [
     },
     rules: {
       "@angular-eslint/template/button-has-type": "error",
+    },
+  },
+
+  // No Node/Electron imports outside of IPC
+  {
+    files: [
+      "src-gui/app/**/*.ts",
+      "src-gui/angular/**/*.ts",
+      "src-gui/services/electron/renderer*.ts",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["node:*"],
+              message:
+                "Node/Electron APIs are not available in the renderer process. Use the ipc.* bridge exposed via the preload instead.",
+            },
+          ],
+          paths: [
+            "electron",
+            "dc-native",
+            "fs",
+            "path",
+            "os",
+            "crypto",
+            "child_process",
+            "stream",
+            "net",
+            "http",
+            "https",
+            "url",
+            "util",
+            "events",
+            "buffer",
+            "assert",
+            "tty",
+            "readline",
+            "zlib",
+          ].map((name) => ({
+            name,
+            message:
+              "Node/Electron APIs are not available in the renderer process. Use the ipc.* bridge exposed via the preload instead.",
+          })),
+        },
+      ],
     },
   },
 

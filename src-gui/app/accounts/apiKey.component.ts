@@ -12,7 +12,6 @@ import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { takeUntil } from "rxjs";
 
-import { AuthService } from "@/libs/abstractions/auth.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
@@ -23,6 +22,7 @@ import { A11yTitleDirective } from "@/src-gui/angular/directives/a11y-title.dire
 import { ApiActionDirective } from "@/src-gui/angular/directives/api-action.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
 import { ModalService } from "@/src-gui/angular/services/modal.service";
+import { RendererAuthService } from "@/src-gui/services/electron/rendererAuth.service";
 
 import { EnvironmentComponent } from "./environment.component";
 
@@ -50,8 +50,8 @@ export class ApiKeyComponent {
 
   readonly successRoute = "/tabs/dashboard";
 
-  private authService = inject(AuthService);
   private router = inject(Router);
+  private authService = inject(RendererAuthService);
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
   private modalService = inject(ModalService);

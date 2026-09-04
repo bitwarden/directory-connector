@@ -52,6 +52,9 @@ const common = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build"),
+    // Required when nodeIntegration is disabled: webpack's chunk runtime uses `global` by default,
+    // which doesn't exist in a sandboxed renderer. Swap to `window` so chunk loading works.
+    globalObject: "window",
   },
 };
 
@@ -61,9 +64,6 @@ const renderer = {
   target: "electron-renderer",
   node: {
     __dirname: false,
-  },
-  externals: {
-    "dc-native": "commonjs2 dc-native",
   },
   entry: {
     "app/main": "./src-gui/app/main.ts",
