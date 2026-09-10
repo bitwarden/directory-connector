@@ -11,9 +11,9 @@ import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
+import { StateService } from "@/libs/abstractions/state.service";
 
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
-import { RendererStateService } from "@/src-gui/services/electron/rendererState.service";
 
 const BroadcasterSubscriptionId = "MoreComponent";
 
@@ -33,7 +33,7 @@ export class MoreComponent implements OnInit, OnDestroy {
   private i18nService = inject(I18nService);
   private messagingService = inject(MessagingService);
   private broadcasterService = inject(BroadcasterService);
-  private stateService = inject(RendererStateService);
+  private stateService = inject(StateService);
 
   async ngOnInit() {
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {

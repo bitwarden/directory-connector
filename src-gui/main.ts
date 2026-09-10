@@ -4,7 +4,6 @@ import * as path from "path";
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 
 import { APPLICATION_NAME } from "@/libs/constants";
-import { DirectoryType } from "@/libs/enums/directoryType";
 import { AppIdService } from "@/libs/services/appId.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
@@ -153,29 +152,26 @@ export class Main {
       this.logService.write(level, message);
     });
 
-    // Secure storage is reachable only through the purpose-specific channels below. The renderer
-    // must never write to the OS credential store itself: on macOS the legacy keychain binds each
-    // item's ACL to the creating binary's signing identity, and the renderer helper
-    // (com.bitwarden.directory-connector.helper.Renderer) is a different identity from the main
-    // process (com.bitwarden.directory-connector). Letting both write the same item makes whichever
-    // process did not create it fail with errSecInvalidOwnerEdit ("invalid attempt to change the
-    // owner of this item"). Keeping every write in this process keeps one identity on every item.
-    handle("state:isAuthenticated", () => this.stateService.getIsAuthenticated());
-
-    handle("state:getEntityId", () => this.stateService.getEntityId());
-
-    handle("state:getDirectoryType", () => this.stateService.getDirectoryType());
-
-    handle("state:setDirectoryType", (_event, type: DirectoryType) =>
-      this.stateService.setDirectoryType(type),
-    );
-
-    handle("state:getDirectory", (_event, type: DirectoryType) =>
-      this.stateService.getDirectory(type),
-    );
-
-    handle("state:setDirectory", (_event, { type, config }: { type: DirectoryType; config: any }) =>
-      this.stateService.setDirectory(type, config),
+    // Secure storage runs in this process only; the renderer reaches it through this channel so
+    // that every keychain item is created and updated under a single signing identity. This
+    // mirrors the pattern used by the Bitwarden desktop client
+    // (apps/desktop/src/platform/main/desktop-credential-storage-listener.ts).
+    handle(
+      "secureStorageService",
+      (_event, options: { action: string; key: string; obj?: any }) => {
+        switch (options.action) {
+          case "get":
+            return secureStorageService.get(options.key as any);
+          case "has":
+            return secureStorageService.has(options.key as any);
+          case "save":
+            return secureStorageService.save(options.key as any, options.obj);
+          case "remove":
+            return secureStorageService.remove(options.key as any);
+          default:
+            throw new Error(`Unknown secureStorageService action: ${options.action}`);
+        }
+      },
     );
 
     handle(

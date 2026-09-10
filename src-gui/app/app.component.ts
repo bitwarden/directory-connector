@@ -16,9 +16,9 @@ import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
 import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
+import { StateService } from "@/libs/abstractions/state.service";
 
 import { RendererAuthService } from "@/src-gui/services/electron/rendererAuth.service";
-import { RendererStateService } from "@/src-gui/services/electron/rendererState.service";
 import { RendererSyncService } from "@/src-gui/services/electron/rendererSync.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
   private sanitizer = inject(DomSanitizer);
   private platformUtilsService = inject(PlatformUtilsService);
   private messagingService = inject(MessagingService);
-  private stateService = inject(RendererStateService);
+  private stateService = inject(StateService);
   private logService = inject(LogService);
 
   ngOnInit() {
