@@ -47,18 +47,15 @@ const ipcBridge = {
     remove: (key: string): Promise<void> =>
       ipcRenderer.invoke("storageService", { action: "remove", key }),
   },
-  // Deliberately no secureStorage bridge: every credential read/write happens in the main
-  // process. See the comment above the state:* handlers in main.ts for why crossing the
-  // process boundary corrupts macOS keychain item ownership.
-  state: {
-    isAuthenticated: (): Promise<boolean> => ipcRenderer.invoke("state:isAuthenticated"),
-    getEntityId: (): Promise<string> => ipcRenderer.invoke("state:getEntityId"),
-    getDirectoryType: (): Promise<number> => ipcRenderer.invoke("state:getDirectoryType"),
-    setDirectoryType: (type: number): Promise<void> =>
-      ipcRenderer.invoke("state:setDirectoryType", type),
-    getDirectory: <T>(type: number): Promise<T> => ipcRenderer.invoke("state:getDirectory", type),
-    setDirectory: (type: number, config: unknown): Promise<void> =>
-      ipcRenderer.invoke("state:setDirectory", { type, config }),
+  secureStorage: {
+    get: <T>(key: string): Promise<T> =>
+      ipcRenderer.invoke("secureStorageService", { action: "get", key }),
+    has: (key: string): Promise<boolean> =>
+      ipcRenderer.invoke("secureStorageService", { action: "has", key }),
+    save: (key: string, obj: any): Promise<void> =>
+      ipcRenderer.invoke("secureStorageService", { action: "save", key, obj }),
+    remove: (key: string): Promise<void> =>
+      ipcRenderer.invoke("secureStorageService", { action: "remove", key }),
   },
   auth: {
     logIn: (credentials: { clientId: string; clientSecret: string }): Promise<void> =>

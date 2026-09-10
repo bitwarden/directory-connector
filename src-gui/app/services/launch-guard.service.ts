@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { RendererStateService } from "@/src-gui/services/electron/rendererState.service";
+import { StateService } from "@/libs/abstractions/state.service";
 
 @Injectable()
 export class LaunchGuardService {
   constructor(
-    private stateService: RendererStateService,
+    private stateService: StateService,
     private router: Router,
   ) {}
 

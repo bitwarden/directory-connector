@@ -14,13 +14,13 @@ import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
+import { StateService } from "@/libs/abstractions/state.service";
 import { GroupEntry } from "@/libs/models/groupEntry";
 import { UserEntry } from "@/libs/models/userEntry";
 import { ConnectorUtils } from "@/libs/utils";
 
 import { ApiActionDirective } from "@/src-gui/angular/directives/api-action.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
-import { RendererStateService } from "@/src-gui/services/electron/rendererState.service";
 import { RendererSyncService } from "@/src-gui/services/electron/rendererSync.service";
 
 type SyncResult = Awaited<ReturnType<RendererSyncService["run"]>>;
@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private broadcasterService = inject(BroadcasterService);
   private messagingService = inject(MessagingService);
   private platformUtilsService = inject(PlatformUtilsService);
-  private stateService = inject(RendererStateService);
+  private stateService = inject(StateService);
 
   async ngOnInit() {
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
