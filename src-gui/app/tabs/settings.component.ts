@@ -12,7 +12,6 @@ import { FormsModule } from "@angular/forms";
 
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
-import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
@@ -24,6 +23,7 @@ import { ConnectorUtils } from "@/libs/utils";
 
 import { A11yTitleDirective } from "@/src-gui/angular/directives/a11y-title.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
+import { RendererStateService } from "@/src-gui/services/electron/rendererState.service";
 
 @Component({
   selector: "app-settings",
@@ -52,7 +52,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   private i18nService = inject(I18nService);
   private logService = inject(LogService);
-  private stateService = inject(StateService);
+  private stateService = inject(RendererStateService);
 
   constructor() {
     this.directoryOptions = [

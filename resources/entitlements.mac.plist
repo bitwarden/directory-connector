@@ -8,5 +8,17 @@
 	<true/>
 	<key>com.apple.security.cs.disable-library-validation</key>
 	<true/>
+	<!--
+	Share one keychain access group across the main process and every Electron helper. The
+	helpers are signed under their own identifiers (com.bitwarden.directory-connector.helper*),
+	so without a shared group macOS treats each as a separate application and refuses
+	cross-process writes to the same credential with errSecInvalidOwnerEdit ("invalid attempt
+	to change the owner of this item"). Credential access is confined to the main process, so
+	this is defence in depth rather than the primary guarantee.
+	-->
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)com.bitwarden.directory-connector</string>
+	</array>
 </dict>
 </plist>

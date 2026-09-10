@@ -1,7 +1,5 @@
 import { InjectionToken } from "@angular/core";
 
-import { StorageService } from "@/libs/abstractions/storage.service";
-
 declare const tag: unique symbol;
 /**
  * A (more) typesafe version of InjectionToken which will more strictly enforce the generic type parameter.
@@ -13,5 +11,4 @@ export class SafeInjectionToken<T> extends InjectionToken<T> {
   private readonly [tag]: T;
 }
 
-export const SECURE_STORAGE = new SafeInjectionToken<StorageService>("SECURE_STORAGE");
 export const WINDOW = new SafeInjectionToken<Window>("WINDOW");
