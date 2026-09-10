@@ -4,6 +4,7 @@ import * as path from "path";
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 
 import { APPLICATION_NAME } from "@/libs/constants";
+import { DirectoryType } from "@/libs/enums/directoryType";
 import { AppIdService } from "@/libs/services/appId.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
@@ -152,22 +153,29 @@ export class Main {
       this.logService.write(level, message);
     });
 
-    handle(
-      "secureStorageService",
-      (_event, options: { action: string; key: string; obj?: any }) => {
-        switch (options.action) {
-          case "get":
-            return secureStorageService.get(options.key as any);
-          case "has":
-            return secureStorageService.has(options.key as any);
-          case "save":
-            return secureStorageService.save(options.key as any, options.obj);
-          case "remove":
-            return secureStorageService.remove(options.key as any);
-          default:
-            throw new Error(`Unknown secureStorageService action: ${options.action}`);
-        }
-      },
+    // Secure storage is reachable only through the purpose-specific channels below. The renderer
+    // must never write to the OS credential store itself: on macOS the legacy keychain binds each
+    // item's ACL to the creating binary's signing identity, and the renderer helper
+    // (com.bitwarden.directory-connector.helper.Renderer) is a different identity from the main
+    // process (com.bitwarden.directory-connector). Letting both write the same item makes whichever
+    // process did not create it fail with errSecInvalidOwnerEdit ("invalid attempt to change the
+    // owner of this item"). Keeping every write in this process keeps one identity on every item.
+    handle("state:isAuthenticated", () => this.stateService.getIsAuthenticated());
+
+    handle("state:getEntityId", () => this.stateService.getEntityId());
+
+    handle("state:getDirectoryType", () => this.stateService.getDirectoryType());
+
+    handle("state:setDirectoryType", (_event, type: DirectoryType) =>
+      this.stateService.setDirectoryType(type),
+    );
+
+    handle("state:getDirectory", (_event, type: DirectoryType) =>
+      this.stateService.getDirectory(type),
+    );
+
+    handle("state:setDirectory", (_event, { type, config }: { type: DirectoryType; config: any }) =>
+      this.stateService.setDirectory(type, config),
     );
 
     handle(
@@ -178,7 +186,14 @@ export class Main {
     );
 
     handle("auth:logout", async () => {
-      await this.stateService.clearAuthTokens();
+      // Logout is best-effort: the renderer awaits this before navigating back to the login
+      // screen, so rejecting here would strand the user on an authenticated route with no way
+      // out. Log the failure and resolve; clearAuthTokens has already removed everything it could.
+      try {
+        await this.stateService.clearAuthTokens();
+      } catch (e) {
+        this.logService.error(`Failed to fully clear credentials on logout: ${e?.message ?? e}`);
+      }
     });
 
     handle("sync:run", async (_event, { force, test }: { force: boolean; test: boolean }) => {
@@ -237,6 +252,18 @@ export class Main {
         return;
       }
       await this.stateService.init();
+
+      // If auth tokens survived but the organization config did not (e.g. data.json was deleted
+      // while the OS credential store kept its entries), clear the tokens so the user is sent
+      // back to the login screen. This runs here, before the window exists, because only the
+      // main process may write the credential store.
+      const accessToken = await this.stateService.getAccessToken();
+      const organizationId = await this.stateService.getOrganizationId();
+      if (accessToken != null && organizationId == null) {
+        this.logService.info("Auth tokens found without an organization config; clearing tokens.");
+        await this.stateService.clearAuthTokens();
+      }
+
       await this.windowMain.createWindowWhenReady();
       await this.i18nService.init(app.getLocale());
       this.menuMain.init();

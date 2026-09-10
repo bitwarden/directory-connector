@@ -4,9 +4,9 @@ import { FormsModule } from "@angular/forms";
 import { EnvironmentService, EnvironmentUrls } from "@/libs/abstractions/environment.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
-import { StateService } from "@/libs/abstractions/state.service";
 
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
+import { RendererStateService } from "@/src-gui/services/electron/rendererState.service";
 
 @Component({
   selector: "app-environment",
@@ -27,7 +27,7 @@ export class EnvironmentComponent implements OnInit {
   private platformUtilsService = inject(PlatformUtilsService);
   private environmentService = inject(EnvironmentService);
   private i18nService = inject(I18nService);
-  private stateService = inject(StateService);
+  private stateService = inject(RendererStateService);
 
   async ngOnInit(): Promise<void> {
     const urls = await this.stateService.getEnvironmentUrls();

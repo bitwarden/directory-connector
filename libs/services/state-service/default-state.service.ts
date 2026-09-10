@@ -578,12 +578,36 @@ export class DefaultStateService implements StateService {
     await this.storageService.save(StorageKeys.alwaysShowDock, value);
   }
 
+  /**
+   * Clears every stored auth token. Each removal is attempted independently so that one failing
+   * key cannot leave the rest behind: `getIsAuthenticated()` only checks the access token, so a
+   * partial clear would look logged out while stale credentials remained, and the next guarded
+   * route would re-trigger logout in a loop. Failures are collected and reported once at the end.
+   */
   async clearAuthTokens(): Promise<void> {
-    await this.secureStorageService.remove(SecureStorageKeys.accessToken);
-    await this.secureStorageService.remove(SecureStorageKeys.refreshToken);
-    await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientId);
-    await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientSecret);
-    await this.secureStorageService.remove(SecureStorageKeys.twoFactorToken);
+    const keys = [
+      SecureStorageKeys.accessToken,
+      SecureStorageKeys.refreshToken,
+      SecureStorageKeys.apiKeyClientId,
+      SecureStorageKeys.apiKeyClientSecret,
+      SecureStorageKeys.twoFactorToken,
+    ];
+
+    const failed: string[] = [];
+    for (const key of keys) {
+      try {
+        await this.secureStorageService.remove(key);
+      } catch (e) {
+        failed.push(key);
+        this.logService.error(
+          `DefaultStateService: failed to clear auth token "${key}": ${(e as Error)?.message}`,
+        );
+      }
+    }
+
+    if (failed.length > 0) {
+      throw new Error(`Failed to clear stored credentials: ${failed.join(", ")}.`);
+    }
   }
 
   async getAccessToken(): Promise<string> {
