@@ -29,6 +29,7 @@ import { UpdaterMain } from "@/src-gui/updater.main";
 import { WindowMain } from "@/src-gui/window.main";
 
 import { DCCredentialStorageListener } from "./main/credential-storage-listener";
+import { describeError } from "./main/describe-error";
 import { MenuMain } from "./main/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 
@@ -42,8 +43,7 @@ function handle(channel: string, handler: Parameters<typeof ipcMain.handle>[1]) 
         throw e;
       }
 
-      const msg = (e as any)?.message ?? String(e);
-      throw new Error(msg);
+      throw new Error(describeError(e));
     }
   });
 }
