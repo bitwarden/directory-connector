@@ -15,13 +15,13 @@ import { takeUntil } from "rxjs";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
+import { StateService } from "@/libs/abstractions/state.service";
 import { Utils } from "@/libs/utils/utils";
 
 import { A11yTitleDirective } from "@/src-gui/angular/directives/a11y-title.directive";
 import { ApiActionDirective } from "@/src-gui/angular/directives/api-action.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
 import { ModalService } from "@/src-gui/angular/services/modal.service";
-import { ValidationService } from "@/src-gui/angular/services/validation.service";
 import { RendererAuthService } from "@/src-gui/services/electron/rendererAuth.service";
 
 import { EnvironmentComponent } from "./environment.component";
@@ -56,7 +56,7 @@ export class ApiKeyComponent {
   private platformUtilsService = inject(PlatformUtilsService);
   private modalService = inject(ModalService);
   private logService = inject(LogService);
-  private validationService = inject(ValidationService);
+  private stateService = inject(StateService);
 
   async submit() {
     const clientId = this.clientId();
@@ -101,12 +101,11 @@ export class ApiKeyComponent {
       const promise = this.authService.logIn({ clientId, clientSecret });
       this.formPromise.set(promise);
       await promise;
-      // AuthService.saveAccountInformation already persisted the entity and organization ids in
-      // the main process, so there is nothing further to write here.
+      const organizationId = await this.stateService.getEntityId();
+      await this.stateService.setOrganizationId(organizationId);
       this.router.navigate([this.successRoute]);
     } catch (e) {
       this.logService.error(e);
-      this.validationService.showError(e);
     }
   }
 
