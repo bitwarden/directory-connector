@@ -18,7 +18,7 @@
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
     "entitlements": "resources/entitlements.mac.plist",
-    "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
+    "entitlementsInherit": "resources/entitlements.mac.plist",
     "target": ["dmg", "zip"]
   },
   "win": {
