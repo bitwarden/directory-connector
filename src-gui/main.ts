@@ -239,11 +239,8 @@ export class Main {
       }
       await this.stateService.init();
 
-      // DefaultEnvironmentService kicks off setUrlsFromStorage() from its constructor without
-      // awaiting it, so until that promise settles getIdentityUrl()/getApiUrl() fall back to the
-      // Bitwarden cloud defaults. A self-hosted login that raced the load was posting to
-      // identity.bitwarden.com and failing with "invalid_client". Load the URLs explicitly here,
-      // before the window exists, so every request uses the configured server.
+      // Must happen before the window exists so every request uses the configured server
+      // rather than the Bitwarden cloud defaults.
       await this.environmentService.setUrlsFromStorage();
 
       await this.windowMain.createWindowWhenReady();
