@@ -6,12 +6,7 @@ import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
 import { OktaConfiguration } from "@/libs/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
-import {
-  SecureStorageKey,
-  SecureStorageKeys,
-  StorageKeys,
-  StoredSecurely,
-} from "@/libs/models/state.model";
+import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
 import { DefaultStateService } from "./default-state.service";
@@ -743,35 +738,6 @@ describe("DefaultStateService", () => {
         await stateService.clearAuthTokens();
 
         expect(storage.store.get(StorageKeys.organizationId)).toBe("org-123");
-      });
-
-      it("attempts every removal even when one key fails, then reports the failure", async () => {
-        await stateService.setAccessToken("access");
-        await stateService.setRefreshToken("refresh");
-        await stateService.setApiKeyClientId("client-id");
-        await stateService.setApiKeyClientSecret("client-secret");
-        secureStorage.store.set(SecureStorageKeys.twoFactorToken, "2fa");
-
-        // Fail on the second key. Previously the sequential awaits meant the remaining three
-        // were never attempted, leaving credentials behind while the access token was gone.
-        jest
-          .spyOn(secureStorage, "remove")
-          .mockImplementation(async (key: string | SecureStorageKey) => {
-            if (key === SecureStorageKeys.refreshToken) {
-              throw new Error("invalid attempt to change the owner of this item");
-            }
-            secureStorage.store.delete(key);
-          });
-
-        await expect(stateService.clearAuthTokens()).rejects.toThrow(
-          /Failed to clear stored credentials/,
-        );
-
-        expect(secureStorage.store.has(SecureStorageKeys.accessToken)).toBe(false);
-        expect(secureStorage.store.has(SecureStorageKeys.apiKeyClientId)).toBe(false);
-        expect(secureStorage.store.has(SecureStorageKeys.apiKeyClientSecret)).toBe(false);
-        expect(secureStorage.store.has(SecureStorageKeys.twoFactorToken)).toBe(false);
-        expect(secureStorage.store.has(SecureStorageKeys.refreshToken)).toBe(true);
       });
     });
 

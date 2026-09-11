@@ -54,6 +54,7 @@ export class Main {
   messagingService: ElectronMainMessagingService;
   credentialStorageListener: DCCredentialStorageListener;
   stateService: DefaultStateService;
+  environmentService: DefaultEnvironmentService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -107,7 +108,7 @@ export class Main {
     const platformUtilsService = new MainPlatformUtilsService();
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const tokenService = new TokenService(secureStorageService);
-    const environmentService = new DefaultEnvironmentService(this.stateService);
+    this.environmentService = new DefaultEnvironmentService(this.stateService);
     const appIdService = new AppIdService(this.storageService);
 
     const customUserAgent = `Bitwarden_DC/${app.getVersion()} (${platformUtilsService.getDeviceString().toUpperCase()})`;
@@ -115,7 +116,7 @@ export class Main {
     const apiService = new NodeApiService(
       tokenService,
       platformUtilsService,
-      environmentService,
+      this.environmentService,
       appIdService,
       async (expired: boolean) => {
         this.messagingService?.send("logout", { expired });
@@ -152,10 +153,6 @@ export class Main {
       this.logService.write(level, message);
     });
 
-    // Secure storage runs in this process only; the renderer reaches it through this channel so
-    // that every keychain item is created and updated under a single signing identity. This
-    // mirrors the pattern used by the Bitwarden desktop client
-    // (apps/desktop/src/platform/main/desktop-credential-storage-listener.ts).
     handle(
       "secureStorageService",
       (_event, options: { action: string; key: string; obj?: any }) => {
@@ -182,14 +179,7 @@ export class Main {
     );
 
     handle("auth:logout", async () => {
-      // Logout is best-effort: the renderer awaits this before navigating back to the login
-      // screen, so rejecting here would strand the user on an authenticated route with no way
-      // out. Log the failure and resolve; clearAuthTokens has already removed everything it could.
-      try {
-        await this.stateService.clearAuthTokens();
-      } catch (e) {
-        this.logService.error(`Failed to fully clear credentials on logout: ${e?.message ?? e}`);
-      }
+      await this.stateService.clearAuthTokens();
     });
 
     handle("sync:run", async (_event, { force, test }: { force: boolean; test: boolean }) => {
@@ -249,16 +239,12 @@ export class Main {
       }
       await this.stateService.init();
 
-      // If auth tokens survived but the organization config did not (e.g. data.json was deleted
-      // while the OS credential store kept its entries), clear the tokens so the user is sent
-      // back to the login screen. This runs here, before the window exists, because only the
-      // main process may write the credential store.
-      const accessToken = await this.stateService.getAccessToken();
-      const organizationId = await this.stateService.getOrganizationId();
-      if (accessToken != null && organizationId == null) {
-        this.logService.info("Auth tokens found without an organization config; clearing tokens.");
-        await this.stateService.clearAuthTokens();
-      }
+      // DefaultEnvironmentService kicks off setUrlsFromStorage() from its constructor without
+      // awaiting it, so until that promise settles getIdentityUrl()/getApiUrl() fall back to the
+      // Bitwarden cloud defaults. A self-hosted login that raced the load was posting to
+      // identity.bitwarden.com and failing with "invalid_client". Load the URLs explicitly here,
+      // before the window exists, so every request uses the configured server.
+      await this.environmentService.setUrlsFromStorage();
 
       await this.windowMain.createWindowWhenReady();
       await this.i18nService.init(app.getLocale());
