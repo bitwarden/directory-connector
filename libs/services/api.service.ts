@@ -20,7 +20,7 @@ export class ApiService implements ApiServiceAbstraction {
   private device: DeviceType;
   private deviceType: string;
   private isWebClient = false;
-  private isDesktopClient = false;
+  private isDesktopClient = false
 
   constructor(
     private tokenService: TokenService,
