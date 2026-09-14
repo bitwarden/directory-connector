@@ -1,7 +1,7 @@
 import { ApiService as ApiServiceAbstraction } from "@/libs/abstractions/api.service";
 import { AppIdService } from "@/libs/abstractions/appId.service";
-import { EnvironmentService } from "@/libs/abstractions/environment.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
+import { StateService } from "@/libs/abstractions/state.service";
 import { TokenService } from "@/libs/abstractions/token.service";
 import { DeviceType } from "@/libs/enums/deviceType";
 import { DeviceRequest } from "@/libs/models/request/deviceRequest";
@@ -25,7 +25,7 @@ export class ApiService implements ApiServiceAbstraction {
   constructor(
     private tokenService: TokenService,
     private platformUtilsService: PlatformUtilsService,
-    private environmentService: EnvironmentService,
+    private stateService: StateService,
     private appIdService: AppIdService,
     private logoutCallback: (expired: boolean) => Promise<void>,
     private customUserAgent: string = null,
@@ -67,9 +67,9 @@ export class ApiService implements ApiServiceAbstraction {
         : request.toIdentityToken(this.platformUtilsService.getClientType());
 
     const response = await this.fetch(
-      new Request(this.environmentService.getIdentityUrl() + "/connect/token", {
+      new Request((await this.stateService.getIdentityUrl()) + "/connect/token", {
         body: this.qsStringify(identityToken),
-        credentials: this.getCredentials(),
+        credentials: await this.getCredentials(),
         cache: "no-store",
         headers: headers,
         method: "POST",
@@ -166,14 +166,14 @@ export class ApiService implements ApiServiceAbstraction {
 
     const decodedToken = await this.tokenService.getDecodedToken();
     const response = await this.fetch(
-      new Request(this.environmentService.getIdentityUrl() + "/connect/token", {
+      new Request((await this.stateService.getIdentityUrl()) + "/connect/token", {
         body: this.qsStringify({
           grant_type: "refresh_token",
           client_id: decodedToken.client_id,
           refresh_token: refreshToken,
         }),
         cache: "no-store",
-        credentials: this.getCredentials(),
+        credentials: await this.getCredentials(),
         headers: headers,
         method: "POST",
       }),
@@ -227,7 +227,7 @@ export class ApiService implements ApiServiceAbstraction {
     apiUrl?: string,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
-    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? this.environmentService.getApiUrl() : apiUrl;
+    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? await this.stateService.getApiUrl() : apiUrl;
 
     const requestUrl = apiUrl + path;
     // Prevent directory traversal from malicious paths
@@ -244,7 +244,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     const requestInit: RequestInit = {
       cache: "no-store",
-      credentials: this.getCredentials(),
+      credentials: await this.getCredentials(),
       method: method,
     };
 
@@ -317,8 +317,9 @@ export class ApiService implements ApiServiceAbstraction {
       .join("&");
   }
 
-  private getCredentials(): RequestCredentials {
-    if (!this.isWebClient || this.environmentService.hasBaseUrl()) {
+  private async getCredentials(): Promise<RequestCredentials> {
+    const urls = await this.stateService.getEnvironmentUrls();
+    if (!this.isWebClient || urls?.base != null) {
       return "include";
     }
     return undefined;

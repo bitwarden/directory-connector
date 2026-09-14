@@ -2,8 +2,8 @@ import FormData from "form-data";
 import { HttpsProxyAgent } from "https-proxy-agent";
 
 import { AppIdService } from "@/libs/abstractions/appId.service";
-import { EnvironmentService } from "@/libs/abstractions/environment.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
+import { StateService } from "@/libs/abstractions/state.service";
 import { TokenService } from "@/libs/abstractions/token.service";
 import { ApiService } from "@/libs/services/api.service";
 
@@ -13,7 +13,7 @@ export class NodeApiService extends ApiService {
   constructor(
     tokenService: TokenService,
     platformUtilsService: PlatformUtilsService,
-    environmentService: EnvironmentService,
+    stateService: StateService,
     appIdService: AppIdService,
     logoutCallback: (expired: boolean) => Promise<void>,
     customUserAgent: string = null,
@@ -21,7 +21,7 @@ export class NodeApiService extends ApiService {
     super(
       tokenService,
       platformUtilsService,
-      environmentService,
+      stateService,
       appIdService,
       logoutCallback,
       customUserAgent,

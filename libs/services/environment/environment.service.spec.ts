@@ -19,9 +19,10 @@ describe("DefaultEnvironmentService", () => {
   });
 
   /**
-   * A constructor cannot await, so the URLs are not loaded until a caller awaits
-   * setUrlsFromStorage(). Callers must do so before issuing requests; these tests pin that
-   * contract down so the load cannot silently regress to a fire-and-forget call.
+   * A constructor cannot await, so this service's cached URLs are not populated until a caller
+   * awaits setUrlsFromStorage(). Outbound requests do not depend on that cache — ApiService
+   * reads the URLs from StateService on every request — but the cache still backs the settings
+   * UI, so these tests pin down that it is only correct after an explicit load.
    */
   describe("before the URLs are loaded", () => {
     it("returns the cloud defaults", () => {

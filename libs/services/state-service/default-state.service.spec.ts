@@ -682,7 +682,28 @@ describe("DefaultStateService", () => {
     it("returns default API URL when no URLs are set", async () => {
       expect(await stateService.getApiUrl()).toBe("https://api.bitwarden.com");
     });
+    it("reflects a url change on the very next read, with no reload step", async () => {
+      // ApiService calls these getters per request rather than caching, so a server URL
+      // configured after startup takes effect immediately. Previously the main process cached
+      // URLs at boot and kept posting credentials to the cloud identity endpoint until restart.
+      await stateService.setEnvironmentUrls({
+        base: "https://first.example.com",
+        api: null,
+        identity: null,
+        webVault: null,
+      } as EnvironmentUrls);
+      expect(await stateService.getIdentityUrl()).toBe("https://first.example.com/identity");
 
+      await stateService.setEnvironmentUrls({
+        base: "https://second.example.com",
+        api: null,
+        identity: null,
+        webVault: null,
+      } as EnvironmentUrls);
+
+      expect(await stateService.getIdentityUrl()).toBe("https://second.example.com/identity");
+      expect(await stateService.getApiUrl()).toBe("https://second.example.com/api");
+    });
     it("returns explicit identity URL", async () => {
       await stateService.setEnvironmentUrls({ ...urls, base: null });
 
