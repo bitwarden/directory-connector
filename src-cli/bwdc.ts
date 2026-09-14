@@ -130,7 +130,7 @@ export class Main {
     this.apiService = new NodeApiService(
       this.tokenService,
       this.platformUtilsService,
-      this.environmentService,
+      this.stateService,
       this.appIdService,
       async (expired: boolean) => await this.logout(),
       customUserAgent,
