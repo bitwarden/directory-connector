@@ -174,6 +174,8 @@ export class Main {
     handle(
       "auth:login",
       async (_event, credentials: { clientId: string; clientSecret: string }) => {
+        // the renderer may have changed the server URLs since startup.
+        await this.environmentService.setUrlsFromStorage();
         await authService.logIn(credentials);
       },
     );
@@ -183,6 +185,8 @@ export class Main {
     });
 
     handle("sync:run", async (_event, { force, test }: { force: boolean; test: boolean }) => {
+      // the renderer may have changed the server URLs since startup.
+      await this.environmentService.setUrlsFromStorage();
       const [groups, users] = await syncService.sync(force, test);
       return [groups?.map((g) => g.toJSON()) ?? null, users?.map((u) => u.toJSON()) ?? null];
     });
