@@ -37,7 +37,7 @@ jobs:
       contents: read
 
   run-workflow:
-    name: Build
+    name: Run Build
     needs: check-run
     uses: ./.github/workflows/build.yml
     secrets: inherit
