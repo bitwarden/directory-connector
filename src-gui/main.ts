@@ -8,7 +8,6 @@ import { AppIdService } from "@/libs/services/appId.service";
 import { AuthService } from "@/libs/services/auth.service";
 import { BatchRequestBuilder } from "@/libs/services/batch-request-builder";
 import { DefaultDirectoryFactoryService } from "@/libs/services/directory-factory.service";
-import { DefaultEnvironmentService } from "@/libs/services/environment/environment.service";
 import { I18nService } from "@/libs/services/i18n.service";
 import { NativeSecureStorageService } from "@/libs/services/nativeSecureStorage.service";
 import { NodeApiService } from "@/libs/services/nodeApi.service";
@@ -54,7 +53,6 @@ export class Main {
   messagingService: ElectronMainMessagingService;
   credentialStorageListener: DCCredentialStorageListener;
   stateService: DefaultStateService;
-  environmentService: DefaultEnvironmentService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -108,7 +106,6 @@ export class Main {
     const platformUtilsService = new MainPlatformUtilsService();
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const tokenService = new TokenService(secureStorageService);
-    this.environmentService = new DefaultEnvironmentService(this.stateService);
     const appIdService = new AppIdService(this.storageService);
 
     const customUserAgent = `Bitwarden_DC/${app.getVersion()} (${platformUtilsService.getDeviceString().toUpperCase()})`;
@@ -116,7 +113,7 @@ export class Main {
     const apiService = new NodeApiService(
       tokenService,
       platformUtilsService,
-      this.environmentService,
+      this.stateService,
       appIdService,
       async (expired: boolean) => {
         this.messagingService?.send("logout", { expired });
@@ -238,10 +235,6 @@ export class Main {
         return;
       }
       await this.stateService.init();
-
-      // Must happen before the window exists so every request uses the configured server
-      // rather than the Bitwarden cloud defaults.
-      await this.environmentService.setUrlsFromStorage();
 
       await this.windowMain.createWindowWhenReady();
       await this.i18nService.init(app.getLocale());
