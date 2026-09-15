@@ -739,6 +739,95 @@ describe("DefaultStateService", () => {
 
         expect(storage.store.get(StorageKeys.organizationId)).toBe("org-123");
       });
+
+      describe("when secure storage rejects for some keys", () => {
+        // Regression: removals used to be awaited sequentially, so the first rejection aborted the
+        // rest and left credentials behind (a macOS keychain entry this process may no longer
+        // modify is the motivating case). Every key must still be attempted.
+        beforeEach(async () => {
+          await stateService.setAccessToken("access");
+          await stateService.setRefreshToken("refresh");
+          await stateService.setApiKeyClientId("client-id");
+          await stateService.setApiKeyClientSecret("client-secret");
+          secureStorage.store.set(SecureStorageKeys.twoFactorToken, "2fa");
+        });
+
+        function rejectRemovalOf(...keys: string[]) {
+          const realRemove = secureStorage.remove.bind(secureStorage);
+          jest.spyOn(secureStorage, "remove").mockImplementation(async (key) => {
+            if (keys.includes(key)) {
+              throw new Error(`Invalid attempt to change the owner of this item. [${key}]`);
+            }
+            return realRemove(key);
+          });
+        }
+
+        it("still removes the remaining keys when the first removal fails", async () => {
+          rejectRemovalOf(SecureStorageKeys.accessToken);
+
+          await expect(stateService.clearAuthTokens()).rejects.toThrow();
+
+          expect(secureStorage.store.has(SecureStorageKeys.refreshToken)).toBe(false);
+          expect(secureStorage.store.has(SecureStorageKeys.apiKeyClientId)).toBe(false);
+          expect(secureStorage.store.has(SecureStorageKeys.apiKeyClientSecret)).toBe(false);
+          expect(secureStorage.store.has(SecureStorageKeys.twoFactorToken)).toBe(false);
+        });
+
+        it("attempts every key even when several fail", async () => {
+          rejectRemovalOf(SecureStorageKeys.accessToken, SecureStorageKeys.apiKeyClientId);
+
+          await expect(stateService.clearAuthTokens()).rejects.toThrow();
+
+          const attempted = (secureStorage.remove as jest.Mock).mock.calls.map((c) => c[0]);
+          expect(attempted).toEqual([
+            SecureStorageKeys.accessToken,
+            SecureStorageKeys.refreshToken,
+            SecureStorageKeys.apiKeyClientId,
+            SecureStorageKeys.apiKeyClientSecret,
+            SecureStorageKeys.twoFactorToken,
+          ]);
+        });
+
+        it("names every failed key in the aggregate error", async () => {
+          rejectRemovalOf(SecureStorageKeys.accessToken, SecureStorageKeys.apiKeyClientId);
+
+          await expect(stateService.clearAuthTokens()).rejects.toThrow(
+            expect.objectContaining({
+              message: expect.stringContaining(SecureStorageKeys.accessToken),
+            }),
+          );
+          await expect(stateService.clearAuthTokens()).rejects.toThrow(
+            expect.objectContaining({
+              message: expect.stringContaining(SecureStorageKeys.apiKeyClientId),
+            }),
+          );
+        });
+
+        it("does not include token values in the aggregate error", async () => {
+          // Distinct from the key name, which legitimately appears in the message.
+          const tokenValue = "eyJ0b2tlbiI6InNlY3JldC12YWx1ZSJ9";
+          await stateService.setAccessToken(tokenValue);
+          rejectRemovalOf(SecureStorageKeys.accessToken);
+
+          await expect(stateService.clearAuthTokens()).rejects.toThrow(
+            expect.objectContaining({ message: expect.not.stringContaining(tokenValue) }),
+          );
+        });
+
+        it("logs each failure by key name", async () => {
+          rejectRemovalOf(SecureStorageKeys.accessToken);
+
+          await expect(stateService.clearAuthTokens()).rejects.toThrow();
+
+          expect(noopLog.error).toHaveBeenCalledWith(
+            expect.stringContaining(SecureStorageKeys.accessToken),
+          );
+        });
+
+        it("resolves when every removal succeeds", async () => {
+          await expect(stateService.clearAuthTokens()).resolves.toBeUndefined();
+        });
+      });
     });
 
     describe("Access Token", () => {

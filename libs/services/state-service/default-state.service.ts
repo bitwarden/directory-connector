@@ -578,12 +578,43 @@ export class DefaultStateService implements StateService {
     await this.storageService.save(StorageKeys.alwaysShowDock, value);
   }
 
+  /**
+   * Removes every auth token from secure storage.
+   *
+   * Each removal is attempted independently via `Promise.allSettled` rather than sequentially
+   * awaited: a single failing key (for example a macOS keychain item whose ACL no longer trusts
+   * this process) must not prevent the remaining tokens from being cleared, which would leave
+   * credentials behind and make a partially-completed logout look like a successful one.
+   *
+   * Failures are logged by key name and then rethrown as one aggregate error so callers can tell
+   * an incomplete logout from a clean one. Token values are never logged.
+   */
   async clearAuthTokens(): Promise<void> {
-    await this.secureStorageService.remove(SecureStorageKeys.accessToken);
-    await this.secureStorageService.remove(SecureStorageKeys.refreshToken);
-    await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientId);
-    await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientSecret);
-    await this.secureStorageService.remove(SecureStorageKeys.twoFactorToken);
+    const keys: SecureStorageKey[] = [
+      SecureStorageKeys.accessToken,
+      SecureStorageKeys.refreshToken,
+      SecureStorageKeys.apiKeyClientId,
+      SecureStorageKeys.apiKeyClientSecret,
+      SecureStorageKeys.twoFactorToken,
+    ];
+
+    const results = await Promise.allSettled(
+      keys.map((key) => this.secureStorageService.remove(key)),
+    );
+
+    const failures: string[] = [];
+    results.forEach((result, i) => {
+      if (result.status === "rejected") {
+        const reason =
+          result.reason instanceof Error ? result.reason.message : String(result.reason);
+        this.logService.error(`Failed to remove secure storage key "${keys[i]}": ${reason}`);
+        failures.push(`${keys[i]} (${reason})`);
+      }
+    });
+
+    if (failures.length > 0) {
+      throw new Error(`Failed to clear ${failures.length} auth token(s): ${failures.join("; ")}`);
+    }
   }
 
   async getAccessToken(): Promise<string> {
