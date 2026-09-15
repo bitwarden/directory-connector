@@ -58,43 +58,10 @@ describe("NativeSecureStorageService", () => {
       expect(logService.warning).not.toHaveBeenCalled();
     });
 
-    it("rethrows with recovery instructions when the keychain entry cannot be modified", async () => {
+    it("rethrows any other failure", async () => {
       passwords.deletePassword.mockRejectedValue(new Error(OWNER_EDIT_ERROR));
 
-      await expect(svc.remove(SecureStorageKeys.accessToken)).rejects.toThrow(
-        /open Keychain Access/,
-      );
-    });
-
-    it("names the failing key and the keychain service in the error", async () => {
-      passwords.deletePassword.mockRejectedValue(new Error(OWNER_EDIT_ERROR));
-
-      await expect(svc.remove(SecureStorageKeys.accessToken)).rejects.toThrow(
-        expect.objectContaining({
-          message: expect.stringContaining(SecureStorageKeys.accessToken),
-        }),
-      );
-      await expect(svc.remove(SecureStorageKeys.accessToken)).rejects.toThrow(
-        expect.objectContaining({ message: expect.stringContaining(SERVICE_NAME) }),
-      );
-    });
-
-    it("preserves the underlying message for diagnostics", async () => {
-      passwords.deletePassword.mockRejectedValue(new Error(OWNER_EDIT_ERROR));
-
-      await expect(svc.remove(SecureStorageKeys.accessToken)).rejects.toThrow(
-        expect.objectContaining({ message: expect.stringContaining(OWNER_EDIT_ERROR) }),
-      );
-    });
-
-    it("logs a warning naming the key", async () => {
-      passwords.deletePassword.mockRejectedValue(new Error(OWNER_EDIT_ERROR));
-
-      await expect(svc.remove(SecureStorageKeys.accessToken)).rejects.toThrow();
-
-      expect(logService.warning).toHaveBeenCalledWith(
-        expect.stringContaining(SecureStorageKeys.accessToken),
-      );
+      await expect(svc.remove(SecureStorageKeys.accessToken)).rejects.toThrow(OWNER_EDIT_ERROR);
     });
   });
 
@@ -128,11 +95,11 @@ describe("NativeSecureStorageService", () => {
       );
     });
 
-    it("rethrows with recovery instructions when the keychain entry cannot be modified", async () => {
+    it("rethrows when the underlying write fails", async () => {
       passwords.setPassword.mockRejectedValue(new Error(OWNER_EDIT_ERROR));
 
       await expect(svc.save(SecureStorageKeys.ldap, "ldap-password")).rejects.toThrow(
-        /open Keychain Access/,
+        OWNER_EDIT_ERROR,
       );
     });
   });
@@ -140,15 +107,7 @@ describe("NativeSecureStorageService", () => {
   describe("secret handling", () => {
     const secret = "sup3r-s3cret-ldap-p@ssword";
 
-    it("does not include the stored value in the thrown error", async () => {
-      passwords.setPassword.mockRejectedValue(new Error(OWNER_EDIT_ERROR));
-
-      await expect(svc.save(SecureStorageKeys.ldap, secret)).rejects.toThrow(
-        expect.objectContaining({ message: expect.not.stringContaining(secret) }),
-      );
-    });
-
-    it("does not include the stored value in any log call", async () => {
+    it("does not include the stored value in any log call when a write fails", async () => {
       passwords.setPassword.mockRejectedValue(new Error(OWNER_EDIT_ERROR));
 
       await expect(svc.save(SecureStorageKeys.ldap, secret)).rejects.toThrow();

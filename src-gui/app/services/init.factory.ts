@@ -20,12 +20,6 @@ export function initFactory(injector: Injector): () => Promise<void> {
 
     // If auth tokens exist but org config is missing (e.g. data.json was deleted),
     // clear tokens so the user is forced back to the login screen.
-    //
-    // This cleanup is best-effort housekeeping and must never block startup: secure storage can
-    // reject for reasons outside our control (on macOS, a keychain item whose ACL no longer
-    // trusts this process). Letting that escape would reject the APP_INITIALIZER and leave the
-    // user with a blank window instead of the login screen. The check is idempotent, so a
-    // failure here simply retries on the next launch.
     const accessToken = await stateService.getAccessToken();
     const organizationId = await stateService.getOrganizationId();
     if (accessToken != null && organizationId == null) {
