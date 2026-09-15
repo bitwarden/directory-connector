@@ -805,7 +805,7 @@ describe("DefaultStateService", () => {
 
         it("does not include token values in the aggregate error", async () => {
           // Distinct from the key name, which legitimately appears in the message.
-          const tokenValue = "eyJ0b2tlbiI6InNlY3JldC12YWx1ZSJ9";
+          const tokenValue = "secret";
           await stateService.setAccessToken(tokenValue);
           rejectRemovalOf(SecureStorageKeys.accessToken);
 

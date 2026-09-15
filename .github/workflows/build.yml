@@ -6,7 +6,6 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
-      - "test-branch"
   workflow_dispatch: {}
   workflow_call: {}
 

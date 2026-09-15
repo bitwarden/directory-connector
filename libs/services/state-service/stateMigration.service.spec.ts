@@ -955,7 +955,7 @@ describe("StateMigrationService", () => {
       });
 
       it("does not log secret values", async () => {
-        const secret = "eyJ0b2tlbiI6InNlY3JldC12YWx1ZSJ9";
+        const secret = "secret";
         secureStorage.store.set(SecureStorageKeys.accessToken, secret);
         jest.spyOn(secureStorage, "save").mockRejectedValue(new Error("keychain failure"));
 
