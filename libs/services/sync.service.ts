@@ -16,7 +16,7 @@ import { SingleRequestBuilder } from "./single-request-builder";
 
 export interface HashResult {
   hash: string;
-  hashLegacy: string;
+  hashLegacy: string
 }
 
 export const batchSize = 2000;
