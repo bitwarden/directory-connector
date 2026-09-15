@@ -377,26 +377,13 @@ export class StateMigrationService {
   /**
    * Migrate from State v8 to v9 — re-home macOS keychain items to the main process.
    *
-   * Secure storage used to be accessed from the renderer process, so every keychain item was
-   * created by the renderer helper binary. macOS binds a keychain item's ACL to whichever binary
-   * created it, and the underlying Security.framework wrapper stores generic passwords without an
-   * explicit access list, so the default ACL trusts *only* that binary. Secure storage now runs
-   * in the main process, whose binary is not on those ACLs — reads still succeed, but the first
-   * write or delete fails with errSecInvalidOwnerEdit ("Invalid attempt to change the owner of
-   * this item"), which previously aborted startup and prevented logout from completing.
+   * Items created while secure storage ran in the renderer carry an ACL that trusts only that
+   * binary, so main can read them but not modify or delete them (errSecInvalidOwnerEdit).
+   * Reading each value and writing it back recreates the item under main, which then owns it.
    *
-   * Reading a value and writing it back re-creates the item under the main process, so main owns
-   * it from then on. The error code is deliberately not inspected: it is only reachable from
-   * native code, and the message Security.framework returns is localized, so matching on it would
-   * silently fail on non-English systems. Re-homing unconditionally once per install avoids
-   * needing to classify the error at all.
-   *
-   * Only the keys the app currently uses are re-homed. Legacy `{userId}_*` keytar-era keys are
-   * out of scope; they were already handled by the 3->5 and 6->7 migrations.
-   *
-   * A key is skipped unless it reads back non-null, so a value that cannot be read is never
-   * deleted. Per-key failures are logged by key name and never abort the migration or the app —
-   * an unre-homed item keeps working for reads and surfaces an actionable error on next write.
+   * Auth tokens only. Directory secrets are keyed by a configuration id held in data.json, so
+   * they cannot be found when it is absent, and they already recover on their own: saving a
+   * configuration writes the secret afresh under whichever key that save resolves to.
    */
   protected async migrateStateFrom8To9(): Promise<void> {
     if (!this.useSecureStorageForSecrets || process.platform !== "darwin") {
@@ -410,7 +397,6 @@ export class StateMigrationService {
       SecureStorageKeys.apiKeyClientId,
       SecureStorageKeys.apiKeyClientSecret,
       SecureStorageKeys.twoFactorToken,
-      ...(await this.currentDirectorySecretKeys()),
     ];
 
     for (const key of keys) {
@@ -420,6 +406,7 @@ export class StateMigrationService {
           continue;
         }
 
+        // Skipped unless it reads back, so a value that cannot be read is never deleted.
         // Logged before the remove so an interrupted migration is diagnosable from the log.
         this.logService.info(`StateMigrationService: re-homing secure storage key "${key}"`);
         await this.secureStorageService.remove(key);
@@ -435,43 +422,6 @@ export class StateMigrationService {
 
     await this.set(StorageKeys.stateVersion, StateVersion.Nine);
   }
-
-  /**
-   * Resolves the secure storage key each directory type's secret is currently stored under.
-   *
-   * Directory secrets are scoped per configuration as `${legacyKey}:${id}`, where `id` lives on
-   * the configuration in data.json. Both forms are returned when a configuration has an `id`: a
-   * value may still exist under the unscoped key on an install that has not re-saved that
-   * configuration since scoping was introduced, and reads fall back to it, so leaving it behind
-   * would orphan a live value. Keys that hold nothing are skipped by the caller.
-   */
-  private async currentDirectorySecretKeys(): Promise<string[]> {
-    const directories: { storageKey: StorageKey; secretKey: SecureStorageKey }[] = [
-      { storageKey: StorageKeys.directoryLdap, secretKey: SecureStorageKeys.ldap },
-      { storageKey: StorageKeys.directoryGsuite, secretKey: SecureStorageKeys.gsuite },
-      { storageKey: StorageKeys.directoryEntra, secretKey: SecureStorageKeys.entra },
-      { storageKey: StorageKeys.directoryOkta, secretKey: SecureStorageKeys.okta },
-      { storageKey: StorageKeys.directoryOnelogin, secretKey: SecureStorageKeys.oneLogin },
-    ];
-
-    const keys: string[] = [];
-    for (const { storageKey, secretKey } of directories) {
-      const config = await this.get<{ id?: string }>(storageKey);
-      if (config?.id != null) {
-        keys.push(`${secretKey}:${config.id}`);
-      }
-      keys.push(secretKey);
-    }
-
-    // secretAzure predates the Entra rename and was never scoped by configuration id.
-    keys.push(SecureStorageKeys.azure);
-
-    return keys;
-  }
-
-  // ===================================================================
-  // Helper Methods
-  // ===================================================================
 
   protected get options(): StorageOptions {
     return { htmlStorageLocation: HtmlStorageLocation.Local };

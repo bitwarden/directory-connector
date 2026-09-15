@@ -926,43 +926,6 @@ describe("StateMigrationService", () => {
         expect(removeSpy).not.toHaveBeenCalled();
       });
 
-      it("uses the configuration-scoped key when a directory config has an id", async () => {
-        storage.store.set(StorageKeys.directoryLdap, { id: "ldap-id-1" });
-        secureStorage.store.set(`${SecureStorageKeys.ldap}:ldap-id-1`, "ldap-secret");
-        const saveSpy = jest.spyOn(secureStorage, "save");
-
-        await svc.migrate();
-
-        expect(saveSpy).toHaveBeenCalledWith(`${SecureStorageKeys.ldap}:ldap-id-1`, "ldap-secret");
-      });
-
-      it("re-homes both the scoped and unscoped keys when a value exists under each", async () => {
-        // A value can remain under the unscoped key on an install that has not re-saved the
-        // configuration since key scoping was introduced, and reads still fall back to it.
-        storage.store.set(StorageKeys.directoryLdap, { id: "ldap-id-1" });
-        secureStorage.store.set(`${SecureStorageKeys.ldap}:ldap-id-1`, "scoped-secret");
-        secureStorage.store.set(SecureStorageKeys.ldap, "unscoped-secret");
-        const saveSpy = jest.spyOn(secureStorage, "save");
-
-        await svc.migrate();
-
-        expect(saveSpy).toHaveBeenCalledWith(
-          `${SecureStorageKeys.ldap}:ldap-id-1`,
-          "scoped-secret",
-        );
-        expect(saveSpy).toHaveBeenCalledWith(SecureStorageKeys.ldap, "unscoped-secret");
-      });
-
-      it("falls back to the unscoped key when a directory config has no id", async () => {
-        storage.store.set(StorageKeys.directoryOkta, { orgUrl: "https://example.okta.com" });
-        secureStorage.store.set(SecureStorageKeys.okta, "okta-token");
-        const saveSpy = jest.spyOn(secureStorage, "save");
-
-        await svc.migrate();
-
-        expect(saveSpy).toHaveBeenCalledWith(SecureStorageKeys.okta, "okta-token");
-      });
-
       it("continues past a key that fails and still re-homes the others", async () => {
         secureStorage.store.set(SecureStorageKeys.accessToken, "access");
         secureStorage.store.set(SecureStorageKeys.refreshToken, "refresh");
@@ -992,9 +955,8 @@ describe("StateMigrationService", () => {
       });
 
       it("does not log secret values", async () => {
-        const secret = "sup3r-s3cret-ldap-p@ssword";
-        storage.store.set(StorageKeys.directoryLdap, { id: "ldap-id-1" });
-        secureStorage.store.set(`${SecureStorageKeys.ldap}:ldap-id-1`, secret);
+        const secret = "eyJ0b2tlbiI6InNlY3JldC12YWx1ZSJ9";
+        secureStorage.store.set(SecureStorageKeys.accessToken, secret);
         jest.spyOn(secureStorage, "save").mockRejectedValue(new Error("keychain failure"));
 
         await svc.migrate();
@@ -1005,6 +967,21 @@ describe("StateMigrationService", () => {
           (logService.warning as jest.Mock).mock.calls,
         ]);
         expect(logged).not.toContain(secret);
+      });
+
+      it("leaves directory secrets untouched", async () => {
+        // Directory secrets are keyed by a configuration id and recover on next save, so the
+        // migration deliberately does not delete and rewrite them.
+        storage.store.set(StorageKeys.directoryLdap, { id: "ldap-id-1" });
+        secureStorage.store.set(`${SecureStorageKeys.ldap}:ldap-id-1`, "ldap-secret");
+        secureStorage.store.set(SecureStorageKeys.okta, "okta-token");
+        const removeSpy = jest.spyOn(secureStorage, "remove");
+
+        await svc.migrate();
+
+        expect(removeSpy).not.toHaveBeenCalled();
+        expect(secureStorage.store.get(`${SecureStorageKeys.ldap}:ldap-id-1`)).toBe("ldap-secret");
+        expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
       });
 
       it("bumps stateVersion to Nine", async () => {
