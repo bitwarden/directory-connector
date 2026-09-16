@@ -33,48 +33,12 @@ import { RendererStorageService } from "@/src-gui/services/electron/rendererStor
 import { RendererSyncService } from "@/src-gui/services/electron/rendererSync.service";
 
 import { AuthGuardService } from "./auth-guard.service";
+import { initFactory } from "./init.factory";
 import { SafeInjectionToken, SECURE_STORAGE, WINDOW } from "./injection-tokens";
 import { LaunchGuardService } from "./launch-guard.service";
 import { SafeProvider, safeProvider } from "./safe-provider";
 
-export function initFactory(injector: Injector): () => Promise<void> {
-  return async () => {
-    const stateService = injector.get(StateService);
-    const i18nService = injector.get(I18nServiceAbstraction);
-    const platformUtilsService = injector.get(PlatformUtilsServiceAbstraction);
-    const environmentService = injector.get(EnvironmentServiceAbstraction);
-
-    await stateService.init();
-
-    // If auth tokens exist but org config is missing (e.g. data.json was deleted),
-    // clear tokens so the user is forced back to the login screen.
-    const accessToken = await stateService.getAccessToken();
-    const organizationId = await stateService.getOrganizationId();
-    if (accessToken != null && organizationId == null) {
-      await stateService.clearAuthTokens();
-    }
-
-    await environmentService.setUrlsFromStorage();
-    await (i18nService as RendererI18nService).init();
-    const htmlEl = window.document.documentElement;
-    htmlEl.classList.add("os_" + platformUtilsService.getDeviceString());
-    htmlEl.classList.add("locale_" + i18nService.translationLocale);
-    window.document.title = i18nService.t("bitwardenDirectoryConnector");
-
-    let installAction = null;
-    const installedVersion = await stateService.getInstalledVersion();
-    const currentVersion = await platformUtilsService.getApplicationVersion();
-    if (installedVersion == null) {
-      installAction = "install";
-    } else if (installedVersion !== currentVersion) {
-      installAction = "update";
-    }
-
-    if (installAction != null) {
-      await stateService.setInstalledVersion(currentVersion);
-    }
-  };
-}
+export { initFactory };
 
 export const servicesProviders: (Provider | EnvironmentProviders)[] = [
   safeProvider({

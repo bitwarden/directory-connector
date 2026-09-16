@@ -70,6 +70,9 @@ export class StateMigrationService {
         case StateVersion.Seven:
           await this.migrateStateFrom7To8();
           break;
+        case StateVersion.Eight:
+          await this.migrateStateFrom8To9();
+          break;
       }
       currentStateVersion += 1;
     }
@@ -371,9 +374,54 @@ export class StateMigrationService {
     await this.set(StorageKeys.stateVersion, StateVersion.Eight);
   }
 
-  // ===================================================================
-  // Helper Methods
-  // ===================================================================
+  /**
+   * Migrate from State v8 to v9 — re-home macOS keychain items to the main process.
+   *
+   * Items created while secure storage ran in the renderer carry an ACL that trusts only that
+   * binary, so main can read them but not modify or delete them (errSecInvalidOwnerEdit).
+   * Reading each value and writing it back recreates the item under main, which then owns it.
+   *
+   * Auth tokens only. Directory secrets are keyed by a configuration id held in data.json, so
+   * they cannot be found when it is absent, and they already recover on their own: saving a
+   * configuration writes the secret afresh under whichever key that save resolves to.
+   */
+  protected async migrateStateFrom8To9(): Promise<void> {
+    if (!this.useSecureStorageForSecrets || process.platform !== "darwin") {
+      await this.set(StorageKeys.stateVersion, StateVersion.Nine);
+      return;
+    }
+
+    const keys: string[] = [
+      SecureStorageKeys.accessToken,
+      SecureStorageKeys.refreshToken,
+      SecureStorageKeys.apiKeyClientId,
+      SecureStorageKeys.apiKeyClientSecret,
+      SecureStorageKeys.twoFactorToken,
+    ];
+
+    for (const key of keys) {
+      try {
+        const value = await this.secureStorageService.get<unknown>(key);
+        if (value == null) {
+          continue;
+        }
+
+        // Skipped unless it reads back, so a value that cannot be read is never deleted.
+        // Logged before the remove so an interrupted migration is diagnosable from the log.
+        this.logService.info(`StateMigrationService: re-homing secure storage key "${key}"`);
+        await this.secureStorageService.remove(key);
+        await this.secureStorageService.save(key, value);
+      } catch (e) {
+        this.logService.error(
+          `StateMigrationService: failed to re-home secure storage key "${key}": ${
+            e instanceof Error ? e.message : String(e)
+          }`,
+        );
+      }
+    }
+
+    await this.set(StorageKeys.stateVersion, StateVersion.Nine);
+  }
 
   protected get options(): StorageOptions {
     return { htmlStorageLocation: HtmlStorageLocation.Local };
