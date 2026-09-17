@@ -13,7 +13,7 @@
   "path_patterns": {
     "t:feature": [],
     "t:tech-debt": [],
-    "t:ci": [".checkmarx/", ".github/"],
+    "t:ci": [".github/"],
     "t:docs": ["README.md", "CONTRIBUTING.md", "SECURITY.md"],
     "t:deps": [],
     "t:llm": [".claude/"]
