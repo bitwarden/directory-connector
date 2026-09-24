@@ -10,6 +10,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "lib": ["es5", "es6", "es7", "dom"],
+    "types": ["node", "jest"],
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
