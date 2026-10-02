@@ -146,7 +146,7 @@
     "@angular/core": "21.2.23",
     "@angular/forms": "21.2.23",
     "@angular/platform-browser": "21.2.23",
-    "@angular/router": "21.2.23",
+    "@angular/router": "21.2.24",
     "@microsoft/microsoft-graph-client": "3.0.7",
     "bootstrap": "5.3.8",
     "browser-hrtime": "1.1.8",
