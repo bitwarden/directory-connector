@@ -103,10 +103,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
 
     while (true) {
       this.logService.info("Querying deleted users - nextPageToken:" + nextPageToken);
-      const p = Object.assign(
-        { showDeleted: true, query: query, pageToken: nextPageToken },
-        this.authParams,
-      );
+      const p = Object.assign({ showDeleted: true, pageToken: nextPageToken }, this.authParams);
       const delRes = await this.service.users.list(p);
       if (delRes.status !== 200) {
         throw new Error("Deleted user list API failed: " + delRes.statusText);
