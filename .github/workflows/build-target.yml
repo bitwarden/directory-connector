@@ -2,7 +2,7 @@
 # available for signing artifacts. The check-run gate ensures that fork PRs are reviewed before
 # any untrusted code is allowed to run with access to repository secrets.
 
-name: Build on PR Target
+name: Build (Fork PR)
 
 on:
   pull_request_target:
