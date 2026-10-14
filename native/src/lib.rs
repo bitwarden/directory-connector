@@ -8,23 +8,27 @@ pub const PASSWORD_NOT_FOUND: &str = desktop_core::password::PASSWORD_NOT_FOUND;
 
 /// Fetch the stored password from the keychain.
 /// Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
+/// On Windows, reads both UTF-8 blobs and the UTF-16 blobs written by desktop_core.
 #[napi(namespace = "passwords")]
 pub async fn get_password(service: String, account: String) -> napi::Result<String> {
-    desktop_core::password::get_password(&service, &account)
-        .await
-        .map_err(|e| napi::Error::from_reason(e.to_string()))
+    #[cfg(windows)]
+    let result = credential::get_password(&service, &account);
+    #[cfg(not(windows))]
+    let result = desktop_core::password::get_password(&service, &account).await;
+
+    result.map_err(|e| napi::Error::from_reason(e.to_string()))
 }
 
 /// Save the password to the keychain. Adds an entry if none exists, otherwise updates it.
+/// On Windows, stores a UTF-8 blob (see encoding.rs for why desktop_core is bypassed).
 #[napi(namespace = "passwords")]
-pub async fn set_password(
-    service: String,
-    account: String,
-    password: String,
-) -> napi::Result<()> {
-    desktop_core::password::set_password(&service, &account, &password)
-        .await
-        .map_err(|e| napi::Error::from_reason(e.to_string()))
+pub async fn set_password(service: String, account: String, password: String) -> napi::Result<()> {
+    #[cfg(windows)]
+    let result = credential::set_password(&service, &account, &password);
+    #[cfg(not(windows))]
+    let result = desktop_core::password::set_password(&service, &account, &password).await;
+
+    result.map_err(|e| napi::Error::from_reason(e.to_string()))
 }
 
 /// Delete the stored password from the keychain.
@@ -66,24 +70,26 @@ pub async fn read_keytar_password(
     }
 }
 
-/// Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
-/// used by desktop_core on Windows. No-ops on non-Windows platforms.
+/// Re-encode a Windows credential written as UTF-16 by desktop_core as UTF-8. No-ops on
+/// non-Windows platforms.
 ///
-/// Returns `{ migrated: true }` if a migration was performed.
-/// Returns `{ migrated: false }` if the credential does not exist or is already in the correct
-/// format. Returns `{ migrated: false, error: "<reason>" }` if a Credential Manager failure
-/// prevented migration. Never throws.
+/// Returns `{ migrated: true }` if the credential was rewritten.
+/// Returns `{ migrated: false }` if the credential does not exist or is already UTF-8.
+/// Returns `{ migrated: false, error: "<reason>" }` if a Credential Manager failure prevented
+/// migration. Never throws.
 #[napi(namespace = "passwords")]
-pub async fn migrate_keytar_password(
+pub async fn migrate_password_to_utf8(
     service: String,
     account: String,
-) -> napi::Result<MigrateKeytarResult> {
+) -> napi::Result<MigratePasswordResult> {
     #[cfg(windows)]
     {
-        let result = migration::migrate_keytar_password(&service, &account).await;
-        match result {
-            Ok(migrated) => Ok(MigrateKeytarResult { migrated, error: None }),
-            Err(e) => Ok(MigrateKeytarResult {
+        match credential::migrate_to_utf8(&service, &account) {
+            Ok(migrated) => Ok(MigratePasswordResult {
+                migrated,
+                error: None,
+            }),
+            Err(e) => Ok(MigratePasswordResult {
                 migrated: false,
                 error: Some(e.to_string()),
             }),
@@ -92,15 +98,25 @@ pub async fn migrate_keytar_password(
     #[cfg(not(windows))]
     {
         let _ = (service, account);
-        Ok(MigrateKeytarResult { migrated: false, error: None })
+        Ok(MigratePasswordResult {
+            migrated: false,
+            error: None,
+        })
     }
 }
 
 #[napi(object)]
-pub struct MigrateKeytarResult {
+pub struct MigratePasswordResult {
     pub migrated: bool,
     pub error: Option<String>,
 }
+
+// Only used at runtime on Windows; compiled everywhere so its unit tests run on every platform.
+#[cfg_attr(not(windows), allow(dead_code))]
+mod encoding;
+
+#[cfg(windows)]
+mod credential;
 
 #[cfg(windows)]
 mod migration;

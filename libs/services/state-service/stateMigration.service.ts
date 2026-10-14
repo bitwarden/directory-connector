@@ -73,6 +73,9 @@ export class StateMigrationService {
         case StateVersion.Eight:
           await this.migrateStateFrom8To9();
           break;
+        case StateVersion.Nine:
+          await this.migrateStateFrom9To10();
+          break;
       }
       currentStateVersion += 1;
     }
@@ -159,7 +162,6 @@ export class StateMigrationService {
     // Migrate secrets from {userId}_* to their new flat keys.
     // The old key names are the legacy values used before this migration.
     // Old keys are intentionally kept — they will be removed in a future migration.
-    // Note: keytar encoding conversion (UTF-8 → UTF-16) is handled separately in migrateStateFrom5To6.
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
@@ -241,47 +243,13 @@ export class StateMigrationService {
   }
 
   /**
-   * Migrate from State v5 to v6 — convert any Windows Credential Manager entries that were
-   * written by keytar (UTF-8 via CredWriteA) to the UTF-16 format used by desktop_core
-   * (CredWriteW). This is a no-op on macOS and Linux; migrateKeytarPassword returns
-   * `{ migrated: false }` immediately on those platforms.
-   *
-   * Keys migrated:
-   *   • All current flat SecureStorageKeys (secret_*, accessToken, etc.)
-   *   • Non-sensitive sync metadata keys (StorageKeys.userDelta/groupDelta/lastUserSync/lastGroupSync)
-   *     which were previously written to keytar but are now stored in regular storage
+   * Migrate from State v5 to v6 — originally re-encoded keytar's UTF-8 Windows Credential Manager
+   * entries as UTF-16 for desktop_core. Secrets are stored as UTF-8 again (see
+   * migrateStateFrom9To10), so keytar's entries are already in the right format and this step
+   * only bumps the version. Converting them would also fail for secrets too large to fit as
+   * UTF-16, such as Google Workspace private keys.
    */
   protected async migrateStateFrom5To6(): Promise<void> {
-    // All keys that may have been written by keytar in previous versions and need re-encoding
-    // from UTF-8 (CredWriteA) to UTF-16 (CredWriteW) for desktop_core compatibility.
-    const credentialKeys: string[] = [
-      SecureStorageKeys.ldap,
-      SecureStorageKeys.gsuite,
-      SecureStorageKeys.azure,
-      SecureStorageKeys.entra,
-      SecureStorageKeys.okta,
-      SecureStorageKeys.oneLogin,
-      SecureStorageKeys.accessToken,
-      SecureStorageKeys.refreshToken,
-      SecureStorageKeys.apiKeyClientId,
-      SecureStorageKeys.apiKeyClientSecret,
-      SecureStorageKeys.twoFactorToken,
-    ];
-
-    const results = await Promise.all(
-      credentialKeys.map((key) =>
-        passwords.migrateKeytarPassword(SECURE_STORAGE_SERVICE_NAME, key),
-      ),
-    );
-
-    for (let i = 0; i < results.length; i++) {
-      if (results[i].error) {
-        this.logService.error(
-          `StateMigrationService: failed to re-encode credential "${credentialKeys[i]}": ${results[i].error}`,
-        );
-      }
-    }
-
     await this.set(StorageKeys.stateVersion, StateVersion.Six);
   }
 
@@ -421,6 +389,56 @@ export class StateMigrationService {
     }
 
     await this.set(StorageKeys.stateVersion, StateVersion.Nine);
+  }
+
+  /**
+   * Migrate from State v9 to v10 — re-encode Windows Credential Manager entries as UTF-8.
+   *
+   * Directory Connector 2026.6.0 through 2026.10.0 wrote secrets through desktop_core, which
+   * stores them as UTF-16. That doubles their size, and Credential Manager rejects anything over
+   * 2560 bytes, so Google Workspace private keys could not be saved. Secrets are now written as
+   * UTF-8; this rewrites the UTF-16 entries those versions left behind.
+   *
+   * Reads accept both encodings, so a secret this migration cannot find (for example one scoped
+   * to a configuration id from a different data.json) keeps working, and is rewritten as UTF-8
+   * the next time it is saved.
+   */
+  protected async migrateStateFrom9To10(): Promise<void> {
+    if (!this.useSecureStorageForSecrets || process.platform !== "win32") {
+      await this.set(StorageKeys.stateVersion, StateVersion.Ten);
+      return;
+    }
+
+    const keys: string[] = Object.values(SecureStorageKeys);
+
+    // Directory secrets are also stored under keys scoped to their configuration's id.
+    const scopedSecrets: { config: StorageKey; secretKeys: SecureStorageKey[] }[] = [
+      { config: StorageKeys.directoryLdap, secretKeys: [SecureStorageKeys.ldap] },
+      { config: StorageKeys.directoryGsuite, secretKeys: [SecureStorageKeys.gsuite] },
+      {
+        config: StorageKeys.directoryEntra,
+        secretKeys: [SecureStorageKeys.entra, SecureStorageKeys.azure],
+      },
+      { config: StorageKeys.directoryOkta, secretKeys: [SecureStorageKeys.okta] },
+      { config: StorageKeys.directoryOnelogin, secretKeys: [SecureStorageKeys.oneLogin] },
+    ];
+    for (const { config, secretKeys } of scopedSecrets) {
+      const id = (await this.get<{ id?: string }>(config))?.id;
+      if (id != null) {
+        keys.push(...secretKeys.map((secretKey) => `${secretKey}:${id}`));
+      }
+    }
+
+    for (const key of keys) {
+      const result = await passwords.migratePasswordToUtf8(SECURE_STORAGE_SERVICE_NAME, key);
+      if (result.error) {
+        this.logService.error(
+          `StateMigrationService: failed to re-encode credential "${key}": ${result.error}`,
+        );
+      }
+    }
+
+    await this.set(StorageKeys.stateVersion, StateVersion.Ten);
   }
 
   protected get options(): StorageOptions {
