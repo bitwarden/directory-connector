@@ -85,7 +85,18 @@ export class EncryptedSecretStore {
     const key = await this.getOrCreateEncryptionKey(id);
     await this.storageService.save(this.keys.encryptedSecret, await encryptSecret(value, key));
     // Only removed once the encrypted copy is saved, so an interrupted save loses nothing.
-    await this.removeLegacySecret(id);
+    // Best-effort: reads prefer the encrypted copy, so a leftover legacy secret is never used, and
+    // failing here would block the save (e.g. macOS keychain items owned by the old renderer
+    // process cannot be deleted by main - errSecInvalidOwnerEdit).
+    try {
+      await this.removeLegacySecret(id);
+    } catch (e) {
+      this.logService.warning(
+        `EncryptedSecretStore: could not remove legacy secret for "${this.keys.encryptedSecret}": ${
+          e instanceof Error ? e.message : String(e)
+        }`,
+      );
+    }
   }
 
   /** Removes the encrypted secret, its encryption key and any legacy unencrypted secret. */

@@ -446,6 +446,37 @@ describe("DefaultStateService", () => {
         expect(storedEncryptedPrivateKey()).toBeTruthy();
         expect(result.privateKey).toBe("legacy-private-key");
       });
+
+      // Regression: on macOS, keychain items created by the renderer can't be deleted by main, so
+      // removing the legacy key threw and every Google Workspace save failed before the config
+      // was written.
+      it("still saves the config when the legacy private key cannot be removed", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, {
+          ...gsuiteConfig,
+          privateKey: StoredSecurely,
+        });
+        secureStorage.store.set(SecureStorageKeys.gsuite, "legacy-private-key");
+        const remove = secureStorage.remove.bind(secureStorage);
+        jest.spyOn(secureStorage, "remove").mockImplementation(async (key: string) => {
+          if (key === SecureStorageKeys.gsuite) {
+            throw new Error("errSecInvalidOwnerEdit");
+          }
+          return remove(key);
+        });
+
+        await stateService.setDirectory(DirectoryType.GSuite, {
+          ...gsuiteConfig,
+          domain: "updated.example.com",
+          privateKey: "new-private-key",
+        });
+        const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+        expect(result.domain).toBe("updated.example.com");
+        expect(result.privateKey).toBe("new-private-key");
+        expect(noopLog.warning).toHaveBeenCalledWith(
+          expect.stringContaining("could not remove legacy secret"),
+        );
+      });
     });
 
     // Regression: Windows Credential Manager rejects values over 2560 bytes, so saving a Google
