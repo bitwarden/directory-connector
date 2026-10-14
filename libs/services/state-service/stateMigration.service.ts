@@ -11,6 +11,8 @@ import {
   StorageKeys,
 } from "@/libs/models/state.model";
 
+import { createGsuiteSecretStore } from "./encrypted-secret-store";
+
 import { passwords } from "dc-native";
 
 // The original implementation of migrate() overrode the jslib implementation and never actually went up
@@ -72,6 +74,9 @@ export class StateMigrationService {
           break;
         case StateVersion.Eight:
           await this.migrateStateFrom8To9();
+          break;
+        case StateVersion.Nine:
+          await this.migrateStateFrom9To10();
           break;
       }
       currentStateVersion += 1;
@@ -421,6 +426,36 @@ export class StateMigrationService {
     }
 
     await this.set(StorageKeys.stateVersion, StateVersion.Nine);
+  }
+
+  /**
+   * Migrate from State v9 to v10 — encrypt the Google Workspace private key.
+   *
+   * The private key is too large for Windows Credential Manager, so it is now encrypted and stored
+   * on disk, with only its encryption key in secure storage (see encrypted-secret-store.ts). This
+   * moves a private key saved by an earlier version - possible on macOS and Linux - to the new
+   * format. On failure the legacy key is left in place: it is still read as a fallback and is
+   * converted the next time the configuration is saved.
+   */
+  protected async migrateStateFrom9To10(): Promise<void> {
+    const config = await this.get<{ id?: string }>(StorageKeys.directoryGsuite);
+    if (this.useSecureStorageForSecrets && config != null) {
+      try {
+        await createGsuiteSecretStore(
+          this.storageService,
+          this.secureStorageService,
+          this.logService,
+        ).migrateLegacySecret(config.id);
+      } catch (e) {
+        this.logService.error(
+          `StateMigrationService: failed to encrypt the Google Workspace private key: ${
+            e instanceof Error ? e.message : String(e)
+          }`,
+        );
+      }
+    }
+
+    await this.set(StorageKeys.stateVersion, StateVersion.Ten);
   }
 
   protected get options(): StorageOptions {

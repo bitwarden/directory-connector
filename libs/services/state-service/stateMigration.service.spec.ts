@@ -1,8 +1,10 @@
 import { LogService } from "@/libs/abstractions/log.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { StateVersion } from "@/libs/enums/stateVersion";
+import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
 import { SecureStorageKeys, StorageKeys } from "@/libs/models/state.model";
 
+import { DefaultStateService } from "./default-state.service";
 import { StateMigrationService } from "./stateMigration.service";
 
 jest.mock("dc-native", () => ({
@@ -24,6 +26,19 @@ function makeLogService(): LogService {
     time: jest.fn(),
     timeEnd: jest.fn(),
   } as unknown as LogService;
+}
+
+/** Reads the Google Workspace private key the way the app does, decrypting it if needed. */
+async function readGsuitePrivateKey(
+  storage: FakeStorageService,
+  secureStorage: FakeStorageService,
+): Promise<string | null> {
+  const stateService = new DefaultStateService(storage, secureStorage, makeLogService(), {
+    needsMigration: () => Promise.resolve(false),
+    migrate: () => Promise.resolve(),
+    stampVersion: () => Promise.resolve(),
+  });
+  return (await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite)).privateKey;
 }
 
 function makeService(
@@ -66,8 +81,8 @@ describe("StateMigrationService", () => {
       expect(await svc.needsMigration()).toBe(true);
     });
 
-    it("returns false when stateVersion is StateVersion.Nine (Latest)", async () => {
-      storage.store.set(StorageKeys.stateVersion, StateVersion.Nine);
+    it("returns false when stateVersion is StateVersion.Latest", async () => {
+      storage.store.set(StorageKeys.stateVersion, StateVersion.Latest);
 
       expect(await svc.needsMigration()).toBe(false);
     });
@@ -78,8 +93,8 @@ describe("StateMigrationService", () => {
       expect(await svc.needsMigration()).toBe(true);
     });
 
-    it("returns false when globals.stateVersion is StateVersion.Nine (Latest)", async () => {
-      storage.store.set("global", { stateVersion: StateVersion.Nine });
+    it("returns false when globals.stateVersion is StateVersion.Latest", async () => {
+      storage.store.set("global", { stateVersion: StateVersion.Latest });
 
       expect(await svc.needsMigration()).toBe(false);
     });
@@ -105,7 +120,7 @@ describe("StateMigrationService", () => {
 
       await svc.migrate();
 
-      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
     });
 
     it("runs remaining migrations when stateVersion is StateVersion.Five", async () => {
@@ -113,7 +128,7 @@ describe("StateMigrationService", () => {
 
       await svc.migrate();
 
-      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
     });
 
     it("runs migrateStateFrom6To7 when stateVersion is StateVersion.Six", async () => {
@@ -121,11 +136,11 @@ describe("StateMigrationService", () => {
 
       await svc.migrate();
 
-      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
     });
 
-    it("does nothing (no extra writes) when stateVersion is already StateVersion.Nine", async () => {
-      storage.store.set(StorageKeys.stateVersion, StateVersion.Nine);
+    it("does nothing (no extra writes) when stateVersion is already StateVersion.Latest", async () => {
+      storage.store.set(StorageKeys.stateVersion, StateVersion.Latest);
       const storeSnapshot = new Map(storage.store);
 
       await svc.migrate();
@@ -136,13 +151,13 @@ describe("StateMigrationService", () => {
 
   describe("migrateStateFrom4To5()", () => {
     describe("no account (null activeUserId)", () => {
-      it("writes only stateVersion = Nine, no other keys", async () => {
+      it("writes only stateVersion = Latest, no other keys", async () => {
         // Seed stateVersion = Four, but no activeUserId and no account data
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
 
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
         // Only stateVersion written — nothing else
         expect(storage.store.size).toBe(1);
         expect(secureStorage.store.size).toBe(0);
@@ -269,7 +284,9 @@ describe("StateMigrationService", () => {
 
         // New flat keys present
         expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("ldap-pass");
-        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("gsuite-key");
+        // The Google Workspace private key is then encrypted on disk by the 9→10 migration
+        expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
+        expect(await readGsuitePrivateKey(storage, secureStorage)).toBe("gsuite-key");
         expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("entra-key");
         expect(secureStorage.store.get(SecureStorageKeys.azure)).toBe("azure-key");
         expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
@@ -292,15 +309,15 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.get(SecureStorageKeys.apiKeyClientSecret)).toBe("client-secret");
       });
 
-      it("sets stateVersion to StateVersion.Nine after all migrations", async () => {
+      it("sets stateVersion to StateVersion.Latest after all migrations", async () => {
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
     });
 
     describe("GSuite privateKey in prefixed secure storage", () => {
-      it("migrates privateKey from prefixed secure storage key to flat key", async () => {
+      it("migrates privateKey from prefixed secure storage key and encrypts it", async () => {
         const userId = "user-gsuite-key";
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
         storage.store.set("activeUserId", userId);
@@ -323,7 +340,8 @@ describe("StateMigrationService", () => {
 
         await svc.migrate();
 
-        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(
+        expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
+        expect(await readGsuitePrivateKey(storage, secureStorage)).toBe(
           "-----BEGIN RSA PRIVATE KEY-----\nMIIEo...",
         );
         const gsuiteConfig = storage.store.get(StorageKeys.directoryGsuite) as any;
@@ -542,7 +560,7 @@ describe("StateMigrationService", () => {
         // No window settings written
         expect(storage.store.has(StorageKeys.window)).toBe(false);
         // stateVersion still updated
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
     });
 
@@ -623,10 +641,10 @@ describe("StateMigrationService", () => {
         expect(badKeys).toHaveLength(0);
       });
 
-      it("bumps stateVersion to Nine (5→6→7→8→9)", async () => {
+      it("bumps stateVersion to Latest", async () => {
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
 
       it("logs an error when migrateKeytarPassword returns an error field", async () => {
@@ -755,10 +773,10 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.has(`${userId}_oktaToken`)).toBe(true);
       });
 
-      it("bumps stateVersion to Nine (Latest)", async () => {
+      it("bumps stateVersion to Latest", async () => {
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
 
       it("does not overwrite an existing flat key with an old {userId}_* value", async () => {
@@ -776,7 +794,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store).toEqual(secureSnapshot);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
 
       it("skips writing a key when readKeytarPassword returns null (credential not found)", async () => {
@@ -785,7 +803,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store.has(SecureStorageKeys.ldap)).toBe(false);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
 
       it("skips all secure storage work and just bumps version on non-Windows", async () => {
@@ -795,7 +813,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store).toEqual(secureSnapshot);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
 
       it("skips readKeytarPassword and does not write secrets when useSecureStorageForSecrets = false (plaintext mode)", async () => {
@@ -806,7 +824,7 @@ describe("StateMigrationService", () => {
 
         expect(passwords.readKeytarPassword).not.toHaveBeenCalled();
         expect(secureStorage.store).toEqual(secureSnapshot);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
     });
 
@@ -825,7 +843,7 @@ describe("StateMigrationService", () => {
           groups: true,
           inviteUsersAfterProvisioning: true,
         });
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
 
       it("leaves an explicit inviteUsersAfterProvisioning = false untouched", async () => {
@@ -854,7 +872,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(storage.store.has(StorageKeys.sync)).toBe(false);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
     });
 
@@ -940,7 +958,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store.get(SecureStorageKeys.refreshToken)).toBe("refresh");
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
 
       it("logs a failure by key name without throwing", async () => {
@@ -984,10 +1002,10 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
       });
 
-      it("bumps stateVersion to Nine", async () => {
+      it("bumps stateVersion to Latest", async () => {
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
 
       it("touches no secure storage on non-macOS platforms", async () => {
@@ -998,7 +1016,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(removeSpy).not.toHaveBeenCalled();
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
 
       it("touches no secure storage when useSecureStorageForSecrets is false", async () => {
@@ -1009,7 +1027,106 @@ describe("StateMigrationService", () => {
         await plaintextSvc.migrate();
 
         expect(removeSpy).not.toHaveBeenCalled();
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
+      });
+    });
+
+    describe("migrateStateFrom9To10()", () => {
+      const legacyConfig = {
+        domain: "example.com",
+        id: "gsuite-id",
+        privateKey: "[STORED SECURELY]",
+      };
+
+      beforeEach(() => {
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Nine);
+      });
+
+      it("encrypts a scoped legacy private key and removes it from secure storage", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, legacyConfig);
+        secureStorage.store.set(`${SecureStorageKeys.gsuite}:gsuite-id`, "legacy-private-key");
+
+        await svc.migrate();
+
+        expect(storage.store.get(StorageKeys.directoryGsuiteEncryptedPrivateKey)).toBeTruthy();
+        expect([...secureStorage.store.keys()]).toEqual([
+          `${SecureStorageKeys.gsuiteEncryptionKey}:gsuite-id`,
+        ]);
+        expect(await readGsuitePrivateKey(storage, secureStorage)).toBe("legacy-private-key");
+      });
+
+      it("encrypts an unscoped legacy private key for configs without an id", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, { domain: "example.com" });
+        secureStorage.store.set(SecureStorageKeys.gsuite, "legacy-private-key");
+
+        await svc.migrate();
+
+        expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
+        expect(await readGsuitePrivateKey(storage, secureStorage)).toBe("legacy-private-key");
+      });
+
+      it("does nothing when no Google Workspace private key is stored", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, legacyConfig);
+
+        await svc.migrate();
+
+        expect(storage.store.has(StorageKeys.directoryGsuiteEncryptedPrivateKey)).toBe(false);
+        expect(secureStorage.store.size).toBe(0);
+      });
+
+      it("does nothing when there is no Google Workspace configuration", async () => {
+        secureStorage.store.set(SecureStorageKeys.gsuite, "orphaned-private-key");
+
+        await svc.migrate();
+
+        expect(storage.store.has(StorageKeys.directoryGsuiteEncryptedPrivateKey)).toBe(false);
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("orphaned-private-key");
+      });
+
+      it("keeps the legacy private key and still bumps the version when encryption fails", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, legacyConfig);
+        secureStorage.store.set(`${SecureStorageKeys.gsuite}:gsuite-id`, "legacy-private-key");
+        jest.spyOn(secureStorage, "save").mockRejectedValue(new Error("keychain failure"));
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(`${SecureStorageKeys.gsuite}:gsuite-id`)).toBe(
+          "legacy-private-key",
+        );
+        expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("keychain failure"));
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
+      it("does not log the private key", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, legacyConfig);
+        secureStorage.store.set(`${SecureStorageKeys.gsuite}:gsuite-id`, "legacy-private-key");
+        jest.spyOn(secureStorage, "save").mockRejectedValue(new Error("keychain failure"));
+
+        await svc.migrate();
+
+        const logged = JSON.stringify([
+          (logService.error as jest.Mock).mock.calls,
+          (logService.warning as jest.Mock).mock.calls,
+          (logService.info as jest.Mock).mock.calls,
+        ]);
+        expect(logged).not.toContain("legacy-private-key");
+      });
+
+      it("leaves secure storage untouched when useSecureStorageForSecrets is false", async () => {
+        const plaintextSvc = makeService(storage, secureStorage, false, logService);
+        storage.store.set(StorageKeys.directoryGsuite, legacyConfig);
+        secureStorage.store.set(`${SecureStorageKeys.gsuite}:gsuite-id`, "legacy-private-key");
+
+        await plaintextSvc.migrate();
+
+        expect(storage.store.has(StorageKeys.directoryGsuiteEncryptedPrivateKey)).toBe(false);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
+      it("bumps stateVersion to Ten", async () => {
+        await svc.migrate();
+
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
     });
 
@@ -1017,7 +1134,7 @@ describe("StateMigrationService", () => {
       it("writes stateVersion = Latest when stateVersion is absent (fresh install)", async () => {
         await svc.stampVersion();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Latest);
       });
 
       it("does not overwrite an existing stateVersion", async () => {
@@ -1036,7 +1153,7 @@ describe("StateMigrationService", () => {
       });
 
       it("prefers flat stateVersion key over globals.stateVersion", async () => {
-        storage.store.set(StorageKeys.stateVersion, StateVersion.Nine);
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Latest);
         storage.store.set("global", { stateVersion: StateVersion.Four });
 
         // Flat key wins → at latest → no migration needed

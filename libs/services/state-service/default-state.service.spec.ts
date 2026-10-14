@@ -277,41 +277,192 @@ describe("DefaultStateService", () => {
       customer: "customer-id",
     };
 
-    it("round-trips GSuite config; privateKey is in secure storage, not regular storage", async () => {
+    function storedGsuite(): GSuiteConfiguration {
+      return storage.store.get(StorageKeys.directoryGsuite) as GSuiteConfiguration;
+    }
+
+    function storedEncryptedPrivateKey(): string {
+      return storage.store.get(StorageKeys.directoryGsuiteEncryptedPrivateKey) as string;
+    }
+
+    function encryptionKeyName(): string {
+      return scopedSecretKey(SecureStorageKeys.gsuiteEncryptionKey, storedGsuite());
+    }
+
+    it("round-trips the GSuite config and private key", async () => {
       await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
       const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
 
-      expect(result.privateKey).toBe("private-key-content");
-      const stored = storage.store.get(StorageKeys.directoryGsuite) as GSuiteConfiguration;
-      expect(stored.privateKey).toBe(StoredSecurely);
-      expect(stored.id).toBeTruthy();
-      expect(secureStorage.store.get(scopedSecretKey(SecureStorageKeys.gsuite, stored))).toBe(
+      expect(result).toEqual(expect.objectContaining(gsuiteConfig));
+      expect(storedGsuite().privateKey).toBe(StoredSecurely);
+      expect(storedGsuite().id).toBeTruthy();
+    });
+
+    it("stores the private key encrypted on disk, not in plaintext", async () => {
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+
+      expect(storedEncryptedPrivateKey()).toMatch(/^2\.[^|]+\|[^|]+\|[^|]+$/);
+      expect(JSON.stringify([...storage.store.values()])).not.toContain("private-key-content");
+    });
+
+    it("keeps only the encryption key in secure storage, scoped to the config id", async () => {
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+
+      expect([...secureStorage.store.keys()]).toEqual([encryptionKeyName()]);
+      expect(JSON.stringify([...secureStorage.store.values()])).not.toContain(
         "private-key-content",
       );
     });
 
     it("normalizes escaped newlines in privateKey", async () => {
-      const keyWithEscapedNewlines = "line1\\nline2\\nline3";
       await stateService.setDirectory(DirectoryType.GSuite, {
         ...gsuiteConfig,
-        privateKey: keyWithEscapedNewlines,
+        privateKey: "line1\\nline2\\nline3",
       });
-      const stored = storage.store.get(StorageKeys.directoryGsuite) as GSuiteConfiguration;
+      const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
 
-      expect(secureStorage.store.get(scopedSecretKey(SecureStorageKeys.gsuite, stored))).toBe(
-        "line1\nline2\nline3",
-      );
+      expect(result.privateKey).toBe("line1\nline2\nline3");
     });
 
-    it("removes secret from secure storage when privateKey is null", async () => {
+    it("reuses the encryption key when the private key is saved again", async () => {
       await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
-      const stored = storage.store.get(StorageKeys.directoryGsuite) as GSuiteConfiguration;
-      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig, privateKey: null });
+      const key = secureStorage.store.get(encryptionKeyName());
 
-      expect(secureStorage.store.has(scopedSecretKey(SecureStorageKeys.gsuite, stored))).toBe(
-        false,
+      await stateService.setDirectory(DirectoryType.GSuite, {
+        ...gsuiteConfig,
+        privateKey: "rotated-private-key",
+      });
+      const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+      expect(secureStorage.store.get(encryptionKeyName())).toBe(key);
+      expect(result.privateKey).toBe("rotated-private-key");
+    });
+
+    it("uses a fresh IV for every save", async () => {
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+      const first = storedEncryptedPrivateKey();
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+
+      expect(storedEncryptedPrivateKey()).not.toBe(first);
+    });
+
+    it("removes the encrypted key and encryption key when privateKey is null", async () => {
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig, privateKey: null });
+      const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+      expect(storage.store.has(StorageKeys.directoryGsuiteEncryptedPrivateKey)).toBe(false);
+      expect(secureStorage.store.size).toBe(0);
+      expect(result.privateKey).toBeNull();
+    });
+
+    it("returns a null private key when the encryption key is missing (data.json from another machine)", async () => {
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+      secureStorage.store.clear();
+
+      const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+      expect(result.domain).toBe(gsuiteConfig.domain);
+      expect(result.privateKey).toBeNull();
+    });
+
+    it("returns a null private key and logs when the encrypted key has been tampered with", async () => {
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+      const [type, iv, data, mac] = storedEncryptedPrivateKey().split(/[.|]/);
+      const tamperedData = (data[0] === "A" ? "B" : "A") + data.slice(1);
+      storage.store.set(
+        StorageKeys.directoryGsuiteEncryptedPrivateKey,
+        `${type}.${iv}|${tamperedData}|${mac}`,
       );
-      expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
+
+      const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+      expect(result.privateKey).toBeNull();
+      expect(noopLog.error).toHaveBeenCalledWith(expect.stringContaining("integrity check"));
+    });
+
+    it("does not log the private key", async () => {
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+      secureStorage.store.clear();
+      await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+      const logged = JSON.stringify([
+        (noopLog.warning as jest.Mock).mock.calls,
+        (noopLog.error as jest.Mock).mock.calls,
+      ]);
+      expect(logged).not.toContain("private-key-content");
+    });
+
+    it("fails the save when the new encryption key cannot be read back from secure storage", async () => {
+      jest.spyOn(secureStorage, "get").mockResolvedValue(null);
+
+      await expect(
+        stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig }),
+      ).rejects.toThrow("could not be read back");
+      expect(storage.store.has(StorageKeys.directoryGsuiteEncryptedPrivateKey)).toBe(false);
+    });
+
+    describe("private keys stored in secure storage by earlier versions", () => {
+      it("reads a legacy scoped private key until it is next saved", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, {
+          ...gsuiteConfig,
+          id: "legacy-id",
+          privateKey: StoredSecurely,
+        });
+        secureStorage.store.set(`${SecureStorageKeys.gsuite}:legacy-id`, "legacy-private-key");
+
+        const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+        expect(result.privateKey).toBe("legacy-private-key");
+      });
+
+      it("reads a legacy unscoped private key", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, {
+          ...gsuiteConfig,
+          privateKey: StoredSecurely,
+        });
+        secureStorage.store.set(SecureStorageKeys.gsuite, "legacy-private-key");
+
+        const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+        expect(result.privateKey).toBe("legacy-private-key");
+      });
+
+      it("encrypts the private key and removes the legacy copies on save", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, {
+          ...gsuiteConfig,
+          id: "legacy-id",
+          privateKey: StoredSecurely,
+        });
+        secureStorage.store.set(`${SecureStorageKeys.gsuite}:legacy-id`, "legacy-private-key");
+        secureStorage.store.set(SecureStorageKeys.gsuite, "older-private-key");
+
+        const loaded = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+        await stateService.setDirectory(DirectoryType.GSuite, loaded);
+        const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+        expect(secureStorage.store.has(`${SecureStorageKeys.gsuite}:legacy-id`)).toBe(false);
+        expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
+        expect(storedEncryptedPrivateKey()).toBeTruthy();
+        expect(result.privateKey).toBe("legacy-private-key");
+      });
+    });
+
+    // Regression: Windows Credential Manager rejects values over 2560 bytes, so saving a Google
+    // Workspace private key (~1.7KB, stored as UTF-16) failed and the settings were never
+    // persisted - the form appeared cleared after switching tabs.
+    it("saves a full-size service account private key when secure storage enforces the Windows size limit", async () => {
+      const windowsSecureStorage = new WindowsSizeLimitedStorageService();
+      const service = makeStateService(storage, windowsSecureStorage);
+      const privateKey =
+        "-----BEGIN PRIVATE KEY-----\n" +
+        Array.from({ length: 26 }, () => "A".repeat(64)).join("\n") +
+        "\n-----END PRIVATE KEY-----\n";
+
+      await service.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig, privateKey });
+      const result = await service.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+      expect(result).toEqual(expect.objectContaining({ ...gsuiteConfig, privateKey }));
     });
   });
 
@@ -940,3 +1091,19 @@ describe("DefaultStateService", () => {
     });
   });
 });
+
+/** Windows Credential Manager's maximum credential blob size. */
+const WINDOWS_MAX_CREDENTIAL_BYTES = 2560;
+
+/**
+ * Secure storage that rejects values too large for Windows Credential Manager, sized the way
+ * desktop_core stores them (JSON, UTF-16).
+ */
+class WindowsSizeLimitedStorageService extends FakeStorageService {
+  async save(key: string, obj: unknown): Promise<void> {
+    if (JSON.stringify(obj).length * 2 > WINDOWS_MAX_CREDENTIAL_BYTES) {
+      throw new Error("The parameter is incorrect. (0x80070057)");
+    }
+    await super.save(key as never, obj);
+  }
+}

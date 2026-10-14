@@ -17,6 +17,7 @@ import {
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 
 import { StateService } from "./default-state.service";
+import { createGsuiteSecretStore, EncryptedSecretStore } from "./encrypted-secret-store";
 import {
   entraConfigsShareIdentity,
   generateConfigId,
@@ -24,6 +25,7 @@ import {
   ldapConfigsShareIdentity,
   oktaConfigsShareIdentity,
   oneLoginConfigsShareIdentity,
+  scopedSecureStorageKey,
 } from "./secret-storage-key.util";
 /**
  * Minimal interface for state migration required by {@link DefaultStateService}.
@@ -38,13 +40,22 @@ export interface StateMigrator {
 }
 
 export class DefaultStateService implements StateService {
+  /** The Google Workspace private key is too large for secure storage, so it is encrypted on disk. */
+  private gsuiteSecretStore: EncryptedSecretStore;
+
   constructor(
     protected storageService: StorageService,
     protected secureStorageService: StorageService,
     protected logService: LogService,
     protected stateMigrationService: StateMigrator,
     protected useSecureStorageForSecrets = true,
-  ) {}
+  ) {
+    this.gsuiteSecretStore = createGsuiteSecretStore(
+      storageService,
+      secureStorageService,
+      logService,
+    );
+  }
 
   async init(): Promise<void> {
     if (await this.stateMigrationService.needsMigration()) {
@@ -82,8 +93,8 @@ export class DefaultStateService implements StateService {
           (configWithSecrets as any).token = await this.getOktaSecret(config as OktaConfiguration);
           break;
         case DirectoryType.GSuite:
-          (configWithSecrets as any).privateKey = await this.getGsuiteSecret(
-            config as GSuiteConfiguration,
+          (configWithSecrets as any).privateKey = await this.gsuiteSecretStore.get(
+            (config as GSuiteConfiguration).id,
           );
           break;
         case DirectoryType.OneLogin:
@@ -154,10 +165,10 @@ export class DefaultStateService implements StateService {
             gsuiteConfigsShareIdentity(previous, gsuiteConfig),
           );
           if (gsuiteConfig.privateKey == null) {
-            await this.setGsuiteSecret(gsuiteConfig, null);
+            await this.gsuiteSecretStore.set(gsuiteConfig.id, null);
           } else {
             const normalizedPrivateKey = gsuiteConfig.privateKey.replace(/\\n/g, "\n");
-            await this.setGsuiteSecret(gsuiteConfig, normalizedPrivateKey);
+            await this.gsuiteSecretStore.set(gsuiteConfig.id, normalizedPrivateKey);
             gsuiteConfig.privateKey = StoredSecurely;
           }
           await this.setGsuiteConfiguration(gsuiteConfig);
@@ -233,23 +244,13 @@ export class DefaultStateService implements StateService {
     return generateConfigId();
   }
 
-  /**
-   * Builds a secure storage key scoped to a specific configuration's `id`, falling back to the
-   * given legacy/unscoped key when no id is available. This keeps secrets for distinct
-   * configurations (e.g. two AD service accounts) from colliding in OS secure storage. See
-   * secret-storage-key.util.ts for details.
-   */
-  private scopedSecretKey(legacyKey: SecureStorageKey, id: string): SecureStorageKey {
-    return `${legacyKey}:${id}` as SecureStorageKey;
-  }
-
   private async getScopedSecret(
     legacyKey: SecureStorageKey,
     id: string | null | undefined,
   ): Promise<string | null> {
     if (id != null) {
       const scoped = await this.secureStorageService.get<string>(
-        this.scopedSecretKey(legacyKey, id),
+        scopedSecureStorageKey(legacyKey, id),
       );
       if (scoped != null) {
         return scoped;
@@ -265,7 +266,7 @@ export class DefaultStateService implements StateService {
     id: string | null | undefined,
     value: string,
   ): Promise<void> {
-    const key = id != null ? this.scopedSecretKey(legacyKey, id) : legacyKey;
+    const key = id != null ? scopedSecureStorageKey(legacyKey, id) : legacyKey;
     if (value == null) {
       await this.secureStorageService.remove(key);
       // Also clear the legacy unscoped key so clearing a secret always fully clears it,
@@ -284,14 +285,6 @@ export class DefaultStateService implements StateService {
 
   private async setLdapSecret(config: LdapConfiguration, value: string): Promise<void> {
     await this.setScopedSecret(SecureStorageKeys.ldap, config.id, value);
-  }
-
-  private async getGsuiteSecret(config: GSuiteConfiguration): Promise<string> {
-    return await this.getScopedSecret(SecureStorageKeys.gsuite, config?.id);
-  }
-
-  private async setGsuiteSecret(config: GSuiteConfiguration, value: string): Promise<void> {
-    await this.setScopedSecret(SecureStorageKeys.gsuite, config.id, value);
   }
 
   private async getEntraSecret(config: EntraIdConfiguration): Promise<string> {

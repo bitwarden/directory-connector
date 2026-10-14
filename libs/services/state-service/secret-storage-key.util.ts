@@ -3,6 +3,7 @@ import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
 import { OktaConfiguration } from "@/libs/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
+import { SecureStorageKey } from "@/libs/models/state.model";
 
 /**
  * `data.json` can be freely copied between machines/environments to manage multiple directory
@@ -32,6 +33,11 @@ import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
  */
 export function generateConfigId(): string {
   return globalThis.crypto.randomUUID();
+}
+
+/** Builds the secure storage key for `key` scoped to a specific configuration's `id`. */
+export function scopedSecureStorageKey(key: SecureStorageKey, id: string): SecureStorageKey {
+  return `${key}:${id}` as SecureStorageKey;
 }
 
 function fieldsMatch(a: unknown, b: unknown): boolean {

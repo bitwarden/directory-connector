@@ -11,6 +11,8 @@ export const StorageKeys = {
   organizationId: "organizationId",
   directoryLdap: "directoryLdap",
   directoryGsuite: "directoryGsuite",
+  // Google Workspace private key, encrypted with SecureStorageKeys.gsuiteEncryptionKey
+  directoryGsuiteEncryptedPrivateKey: "directoryGsuiteEncryptedPrivateKey",
   directoryEntra: "directoryEntra",
   directoryOkta: "directoryOkta",
   directoryOnelogin: "directoryOnelogin",
@@ -49,7 +51,10 @@ export const StorageKeys = {
 export const SecureStorageKeys = {
   // Directory service credentials
   ldap: "secretLdap",
+  // Legacy: the Google Workspace private key itself. It is too large for Windows Credential
+  // Manager, so it is now encrypted on disk and only its encryption key is kept here.
   gsuite: "secretGsuite",
+  gsuiteEncryptionKey: "secretGsuiteEncryptionKey",
   // Azure Active Directory was renamed to Entra ID, but we've kept the old property name
   // to be backwards compatible with existing configurations.
   azure: "secretAzure",
