@@ -6,7 +6,8 @@
 /// characters - less than a Google Workspace service account private key.
 ///
 /// Blobs written as UTF-16 by desktop_core (Directory Connector 2026.6.0 and later) are still read,
-/// so existing secrets keep working before and after the state migration re-encodes them.
+/// so existing secrets keep working. There is no state migration to re-encode them; each one is
+/// rewritten as UTF-8 the next time it is saved.
 ///
 /// This module is platform independent so it can be unit tested anywhere; only the Windows
 /// credential code uses it at runtime.
@@ -29,6 +30,8 @@ pub fn encode_credential_blob(value: &str) -> Result<&[u8]> {
     if value.contains('\0') {
         bail!("Secret contains a NUL character and cannot be stored.");
     }
+    // All Rust strings are UTF-8 encoded, so no encoding is actually required. Just convert to a
+    // byte array.
     let bytes = value.as_bytes();
     if bytes.len() > MAX_CREDENTIAL_BLOB_SIZE {
         bail!(

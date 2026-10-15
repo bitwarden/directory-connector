@@ -12,7 +12,7 @@ pub const PASSWORD_NOT_FOUND: &str = desktop_core::password::PASSWORD_NOT_FOUND;
 #[napi(namespace = "passwords")]
 pub async fn get_password(service: String, account: String) -> napi::Result<String> {
     #[cfg(windows)]
-    let result = credential::get_password(&service, &account);
+    let result = windows::get_password(&service, &account);
     #[cfg(not(windows))]
     let result = desktop_core::password::get_password(&service, &account).await;
 
@@ -24,7 +24,7 @@ pub async fn get_password(service: String, account: String) -> napi::Result<Stri
 #[napi(namespace = "passwords")]
 pub async fn set_password(service: String, account: String, password: String) -> napi::Result<()> {
     #[cfg(windows)]
-    let result = credential::set_password(&service, &account, &password);
+    let result = windows::set_password(&service, &account, &password);
     #[cfg(not(windows))]
     let result = desktop_core::password::set_password(&service, &account, &password).await;
 
@@ -70,26 +70,24 @@ pub async fn read_keytar_password(
     }
 }
 
-/// Re-encode a Windows credential written as UTF-16 by desktop_core as UTF-8. No-ops on
-/// non-Windows platforms.
+/// Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
+/// used by desktop_core on Windows. No-ops on non-Windows platforms.
 ///
-/// Returns `{ migrated: true }` if the credential was rewritten.
-/// Returns `{ migrated: false }` if the credential does not exist or is already UTF-8.
-/// Returns `{ migrated: false, error: "<reason>" }` if a Credential Manager failure prevented
-/// migration. Never throws.
+/// Returns `{ migrated: true }` if a migration was performed.
+/// Returns `{ migrated: false }` if the credential does not exist or is already in the correct
+/// format. Returns `{ migrated: false, error: "<reason>" }` if a Credential Manager failure
+/// prevented migration. Never throws.
 #[napi(namespace = "passwords")]
-pub async fn migrate_password_to_utf8(
+pub async fn migrate_keytar_password(
     service: String,
     account: String,
-) -> napi::Result<MigratePasswordResult> {
+) -> napi::Result<MigrateKeytarResult> {
     #[cfg(windows)]
     {
-        match credential::migrate_to_utf8(&service, &account) {
-            Ok(migrated) => Ok(MigratePasswordResult {
-                migrated,
-                error: None,
-            }),
-            Err(e) => Ok(MigratePasswordResult {
+        let result = migration::migrate_keytar_password(&service, &account).await;
+        match result {
+            Ok(migrated) => Ok(MigrateKeytarResult { migrated, error: None }),
+            Err(e) => Ok(MigrateKeytarResult {
                 migrated: false,
                 error: Some(e.to_string()),
             }),
@@ -98,15 +96,12 @@ pub async fn migrate_password_to_utf8(
     #[cfg(not(windows))]
     {
         let _ = (service, account);
-        Ok(MigratePasswordResult {
-            migrated: false,
-            error: None,
-        })
+        Ok(MigrateKeytarResult { migrated: false, error: None })
     }
 }
 
 #[napi(object)]
-pub struct MigratePasswordResult {
+pub struct MigrateKeytarResult {
     pub migrated: bool,
     pub error: Option<String>,
 }
@@ -116,7 +111,7 @@ pub struct MigratePasswordResult {
 mod encoding;
 
 #[cfg(windows)]
-mod credential;
+mod windows;
 
 #[cfg(windows)]
 mod migration;

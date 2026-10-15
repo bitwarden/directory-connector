@@ -16,14 +16,14 @@ use windows::{
     },
 };
 
-use crate::encoding::{decode_credential_blob, encode_credential_blob, BlobEncoding};
+use crate::encoding::{decode_credential_blob, encode_credential_blob};
 
 fn target_name(service: &str, account: &str) -> String {
     format!("{}/{}", service, account)
 }
 
 /// Returns the raw credential blob, or `None` if the credential does not exist.
-pub fn read_blob(service: &str, account: &str) -> Result<Option<Vec<u8>>> {
+fn read_blob(service: &str, account: &str) -> Result<Option<Vec<u8>>> {
     let target_name = U16CString::from_str(target_name(service, account))?;
     let mut credential: *mut CREDENTIALW = std::ptr::null_mut();
 
@@ -97,23 +97,6 @@ pub fn set_password(service: &str, account: &str, password: &str) -> Result<()> 
     write_blob(service, account, encode_credential_blob(password)?)
 }
 
-/// Re-encodes a credential stored as UTF-16 (by desktop_core) as UTF-8.
-/// Returns `true` if the credential was rewritten, `false` if it does not exist or is already UTF-8.
-pub fn migrate_to_utf8(service: &str, account: &str) -> Result<bool> {
-    let blob = match read_blob(service, account)? {
-        Some(blob) => blob,
-        None => return Ok(false),
-    };
-
-    let (value, encoding) = decode_credential_blob(&blob)?;
-    if encoding == BlobEncoding::Utf8 {
-        return Ok(false);
-    }
-
-    set_password(service, account, &value)?;
-    Ok(true)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -146,21 +129,21 @@ mod tests {
     }
 
     #[test]
-    fn reads_and_migrates_a_secret_written_by_desktop_core() {
+    fn reads_a_secret_written_by_desktop_core_and_rewrites_it_as_utf8_on_save() {
         let account = "utf16-secret";
         let value = "\"legacy-secret\"";
         write_utf16(account, value);
 
         let read_before = get_password(SERVICE, account);
-        let migrated = migrate_to_utf8(SERVICE, account);
-        let migrated_again = migrate_to_utf8(SERVICE, account);
+        let saved = set_password(SERVICE, account, value);
         let blob = read_blob(SERVICE, account);
+        let read_after = get_password(SERVICE, account);
         cleanup(account);
 
         assert_eq!(read_before.unwrap(), value);
-        assert!(migrated.unwrap());
-        assert!(!migrated_again.unwrap());
+        saved.unwrap();
         assert_eq!(blob.unwrap().unwrap(), value.as_bytes());
+        assert_eq!(read_after.unwrap(), value);
     }
 
     #[test]
