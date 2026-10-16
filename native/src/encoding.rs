@@ -276,6 +276,36 @@ mod tests {
     }
 
     #[test]
+    fn reads_and_resaves_secrets_after_the_keytar_migration() {
+        let values = [
+            "\"secret\"".to_owned(),
+            "\"pässwörd 漢字 🔑\"".to_owned(),
+            "{\"password\":\"äöü\",\"url\":\"ldaps://ldap.example.com\"}".to_owned(),
+            google_private_key_json(),
+        ];
+
+        for value in values {
+            // The migration rewrites keytar blobs through desktop_core, leaving them as they were
+            // if the result is over the size limit.
+            let migrated = desktop_core_blob(&value, &vec![0xD800; value.len()]);
+            let stored = if migrated.len() <= MAX_CREDENTIAL_BLOB_SIZE {
+                migrated
+            } else {
+                value.as_bytes().to_vec()
+            };
+
+            let (read, _) = decode_credential_blob(&stored).unwrap();
+            let resaved = encode_credential_blob(&read).unwrap();
+
+            assert_eq!(read, value);
+            assert_eq!(
+                decode_credential_blob(&resaved).unwrap(),
+                (value, BlobVersion::CURRENT)
+            );
+        }
+    }
+
+    #[test]
     fn decodes_empty_blob_as_empty_legacy_value() {
         assert_eq!(
             decode_credential_blob(&[]).unwrap(),
