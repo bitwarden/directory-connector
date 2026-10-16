@@ -1,10 +1,6 @@
-//! Windows-only: reads and writes Credential Manager entries with versioned blobs.
-//!
-//! desktop_core's Windows implementation writes UTF-16 blobs, which halves how much fits under
-//! Credential Manager's 2560-byte limit. Reads and writes go through here instead so secrets are
-//! stored in the current blob version, which is UTF-8 (see `encoding.rs`). Entries use the same target name, user name and persistence
-//! as desktop_core, so this reads and overwrites entries that desktop_core created. Deletion is
-//! encoding-agnostic and still goes through desktop_core.
+//! Windows-only: reads and writes Credential Manager entries using `encoding.rs` instead of
+//! desktop_core, which only writes UTF-16. Entries match desktop_core's target name, user name and
+//! persistence, so either can read the other's entries. Deletion still goes through desktop_core.
 
 use anyhow::{anyhow, Result};
 use widestring::U16CString;
@@ -23,7 +19,6 @@ fn target_name(service: &str, account: &str) -> String {
     format!("{}/{}", service, account)
 }
 
-/// Returns the raw credential blob, or `None` if the credential does not exist.
 fn read_blob(service: &str, account: &str) -> Result<Option<Vec<u8>>> {
     let target_name = U16CString::from_str(target_name(service, account))?;
     let mut credential: *mut CREDENTIALW = std::ptr::null_mut();
@@ -84,8 +79,6 @@ fn write_blob(service: &str, account: &str, blob: &[u8]) -> Result<()> {
     Ok(())
 }
 
-/// Returns the stored secret, decoding any blob version, including legacy UTF-8 and UTF-16 blobs.
-/// Fails with `PASSWORD_NOT_FOUND` if the credential does not exist, matching desktop_core.
 pub fn get_password(service: &str, account: &str) -> Result<String> {
     let blob = read_blob(service, account)?
         .ok_or_else(|| anyhow!(desktop_core::password::PASSWORD_NOT_FOUND))?;
@@ -93,8 +86,6 @@ pub fn get_password(service: &str, account: &str) -> Result<String> {
     Ok(value)
 }
 
-/// Stores the secret in the current blob version, adding the credential or overwriting an existing
-/// one.
 pub fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
     write_blob(service, account, &encode_credential_blob(password)?)
 }
@@ -111,7 +102,6 @@ mod tests {
         let _ = unsafe { CredDeleteW(PCWSTR(target_name.as_ptr()), CRED_TYPE_GENERIC, None) };
     }
 
-    /// Writes a credential the way desktop_core does: as a UTF-16LE blob.
     fn write_utf16(account: &str, value: &str) {
         let blob: Vec<u8> = value.encode_utf16().flat_map(u16::to_le_bytes).collect();
         write_blob(SERVICE, account, &blob).unwrap();

@@ -8,7 +8,6 @@ pub const PASSWORD_NOT_FOUND: &str = desktop_core::password::PASSWORD_NOT_FOUND;
 
 /// Fetch the stored password from the keychain.
 /// Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
-/// On Windows, reads every blob version, including the UTF-16 blobs written by desktop_core.
 #[napi(namespace = "passwords")]
 pub async fn get_password(service: String, account: String) -> napi::Result<String> {
     #[cfg(windows)]
@@ -20,7 +19,6 @@ pub async fn get_password(service: String, account: String) -> napi::Result<Stri
 }
 
 /// Save the password to the keychain. Adds an entry if none exists, otherwise updates it.
-/// On Windows, stores a versioned UTF-8 blob (see encoding.rs for why desktop_core is bypassed).
 #[napi(namespace = "passwords")]
 pub async fn set_password(service: String, account: String, password: String) -> napi::Result<()> {
     #[cfg(windows)]
@@ -86,10 +84,7 @@ pub async fn migrate_keytar_password(
     {
         let result = migration::migrate_keytar_password(&service, &account).await;
         match result {
-            Ok(migrated) => Ok(MigrateKeytarResult {
-                migrated,
-                error: None,
-            }),
+            Ok(migrated) => Ok(MigrateKeytarResult { migrated, error: None }),
             Err(e) => Ok(MigrateKeytarResult {
                 migrated: false,
                 error: Some(e.to_string()),
@@ -99,10 +94,7 @@ pub async fn migrate_keytar_password(
     #[cfg(not(windows))]
     {
         let _ = (service, account);
-        Ok(MigrateKeytarResult {
-            migrated: false,
-            error: None,
-        })
+        Ok(MigrateKeytarResult { migrated: false, error: None })
     }
 }
 

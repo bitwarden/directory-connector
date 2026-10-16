@@ -14,7 +14,6 @@ export declare namespace passwords {
   /**
    * Fetch the stored password from the keychain.
    * Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
-   * On Windows, reads every blob version, including the UTF-16 blobs written by desktop_core.
    */
   export function getPassword(service: string, account: string): Promise<string>
   /** Check if OS secure storage is available. */
@@ -41,9 +40,6 @@ export declare namespace passwords {
    * can distinguish "not present" from "read error". No-op on non-Windows platforms (returns null).
    */
   export function readKeytarPassword(service: string, account: string): Promise<string | null>
-  /**
-   * Save the password to the keychain. Adds an entry if none exists, otherwise updates it.
-   * On Windows, stores a versioned UTF-8 blob (see encoding.rs for why desktop_core is bypassed).
-   */
+  /** Save the password to the keychain. Adds an entry if none exists, otherwise updates it. */
   export function setPassword(service: string, account: string, password: string): Promise<void>
 }
