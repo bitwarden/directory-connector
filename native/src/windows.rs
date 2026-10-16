@@ -1,10 +1,11 @@
-/// Windows-only: reads and writes Credential Manager entries with UTF-8 blobs.
-///
-/// desktop_core's Windows implementation writes UTF-16 blobs, which halves how much fits under
-/// Credential Manager's 2560-byte limit. Reads and writes go through here instead so secrets are
-/// stored as UTF-8 (see `encoding.rs`). Entries use the same target name, user name and persistence
-/// as desktop_core, so this reads and overwrites entries that desktop_core created. Deletion is
-/// encoding-agnostic and still goes through desktop_core.
+//! Windows-only: reads and writes Credential Manager entries with versioned blobs.
+//!
+//! desktop_core's Windows implementation writes UTF-16 blobs, which halves how much fits under
+//! Credential Manager's 2560-byte limit. Reads and writes go through here instead so secrets are
+//! stored in the current blob version, which is UTF-8 (see `encoding.rs`). Entries use the same target name, user name and persistence
+//! as desktop_core, so this reads and overwrites entries that desktop_core created. Deletion is
+//! encoding-agnostic and still goes through desktop_core.
+
 use anyhow::{anyhow, Result};
 use widestring::U16CString;
 use windows::{
@@ -83,7 +84,7 @@ fn write_blob(service: &str, account: &str, blob: &[u8]) -> Result<()> {
     Ok(())
 }
 
-/// Returns the stored secret, decoding either UTF-8 or legacy UTF-16 blobs.
+/// Returns the stored secret, decoding any blob version, including legacy UTF-8 and UTF-16 blobs.
 /// Fails with `PASSWORD_NOT_FOUND` if the credential does not exist, matching desktop_core.
 pub fn get_password(service: &str, account: &str) -> Result<String> {
     let blob = read_blob(service, account)?
@@ -92,9 +93,10 @@ pub fn get_password(service: &str, account: &str) -> Result<String> {
     Ok(value)
 }
 
-/// Stores the secret as a UTF-8 blob, adding the credential or overwriting an existing one.
+/// Stores the secret in the current blob version, adding the credential or overwriting an existing
+/// one.
 pub fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
-    write_blob(service, account, encode_credential_blob(password)?)
+    write_blob(service, account, &encode_credential_blob(password)?)
 }
 
 #[cfg(test)]
@@ -129,7 +131,7 @@ mod tests {
     }
 
     #[test]
-    fn reads_a_secret_written_by_desktop_core_and_rewrites_it_as_utf8_on_save() {
+    fn reads_a_secret_written_by_desktop_core_and_rewrites_it_in_the_current_version_on_save() {
         let account = "utf16-secret";
         let value = "\"legacy-secret\"";
         write_utf16(account, value);
@@ -142,7 +144,10 @@ mod tests {
 
         assert_eq!(read_before.unwrap(), value);
         saved.unwrap();
-        assert_eq!(blob.unwrap().unwrap(), value.as_bytes());
+        assert_eq!(
+            blob.unwrap().unwrap(),
+            encode_credential_blob(value).unwrap()
+        );
         assert_eq!(read_after.unwrap(), value);
     }
 
