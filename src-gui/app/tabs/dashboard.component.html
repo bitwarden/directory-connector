@@ -23,22 +23,27 @@
         <strong class="text-danger">{{ "stopped" | i18n }}</strong>
       }
     </p>
-    <form #startForm [appApiAction]="startPromise()" class="d-inline">
+    <form #startForm="appApiAction" [appApiAction]="startPromise()" class="d-inline">
       <button
         type="button"
         (click)="start()"
         class="btn btn-primary"
-        [disabled]="startForm.loading"
+        [disabled]="startForm.loading()"
       >
-        <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!startForm.loading"></i>
+        <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!startForm.loading()"></i>
         {{ "startSync" | i18n }}
       </button>
     </form>
     <button type="button" (click)="stop()" class="btn btn-danger text-white">
       {{ "stopSync" | i18n }}
     </button>
-    <form #syncForm [appApiAction]="syncPromise()" class="d-inline">
-      <button type="button" (click)="sync()" class="btn btn-primary" [disabled]="syncForm.loading">
+    <form #syncForm="appApiAction" [appApiAction]="syncPromise()" class="d-inline">
+      <button
+        type="button"
+        (click)="sync()"
+        class="btn btn-primary"
+        [disabled]="syncForm.loading()"
+      >
         {{ "syncNow" | i18n }}
       </button>
     </form>
@@ -48,14 +53,14 @@
   <h3 class="card-header">{{ "testing" | i18n }}</h3>
   <div class="card-body">
     <p>{{ "testingDesc" | i18n }}</p>
-    <form #simForm [appApiAction]="simPromise()" class="d-inline">
+    <form #simForm="appApiAction" [appApiAction]="simPromise()" class="d-inline">
       <button
         type="button"
         (click)="simulate()"
         class="btn btn-primary"
-        [disabled]="simForm.loading"
+        [disabled]="simForm.loading()"
       >
-        <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!simForm.loading"></i>
+        <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!simForm.loading()"></i>
         {{ "testNow" | i18n }}
       </button>
     </form>
@@ -69,7 +74,7 @@
       />
       <label class="form-check-label" for="simSinceLast">{{ "testLastSync" | i18n }}</label>
     </div>
-    @if (!simForm.loading && (simUsers() || simGroups())) {
+    @if (!simForm.loading() && (simUsers() || simGroups())) {
       <hr />
       <div class="row">
         <div class="col-lg">
