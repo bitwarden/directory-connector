@@ -189,7 +189,10 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
         ? endpoint
         : `https://api.${this.dirConfig.region}.onelogin.com/api/1/${endpoint}`;
     const response = await this.apiGetCall(url);
-    if (response == null || response.status == null || response.data == null) {
+    if (response == null) {
+      throw new Error("API call failed.");
+    }
+    if (response.status == null || response.data == null) {
       return currentData;
     }
     if (response.status.code !== 200) {
