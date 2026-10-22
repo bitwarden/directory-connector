@@ -241,9 +241,9 @@ export class StateMigrationService {
   }
 
   /**
-   * Migrate from State v5 to v6 — convert any Windows Credential Manager entries that were
-   * written by keytar (UTF-8 via CredWriteA) to the UTF-16 format used by desktop_core
-   * (CredWriteW). This is a no-op on macOS and Linux; migrateKeytarPassword returns
+   * Migrate from State v5 to v6 — rewrite any Windows Credential Manager entries that were
+   * written by keytar (UTF-8) or desktop_core (UTF-16) in the current versioned format (see
+   * native/src/encoding.rs). This is a no-op on macOS and Linux; migrateKeytarPassword returns
    * `{ migrated: false }` immediately on those platforms.
    *
    * Keys migrated:
@@ -252,8 +252,7 @@ export class StateMigrationService {
    *     which were previously written to keytar but are now stored in regular storage
    */
   protected async migrateStateFrom5To6(): Promise<void> {
-    // All keys that may have been written by keytar in previous versions and need re-encoding
-    // from UTF-8 (CredWriteA) to UTF-16 (CredWriteW) for desktop_core compatibility.
+    // All keys that may have been written by keytar in previous versions.
     const credentialKeys: string[] = [
       SecureStorageKeys.ldap,
       SecureStorageKeys.gsuite,

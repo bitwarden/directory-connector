@@ -19,8 +19,8 @@ export declare namespace passwords {
   /** Check if OS secure storage is available. */
   export function isAvailable(): Promise<boolean>
   /**
-   * Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
-   * used by desktop_core on Windows. No-ops on non-Windows platforms.
+   * Rewrite a credential stored by keytar (UTF-8) or desktop_core (UTF-16) in the current
+   * versioned format used on Windows. No-ops on non-Windows platforms.
    *
    * Returns `{ migrated: true }` if a migration was performed.
    * Returns `{ migrated: false }` if the credential does not exist or is already in the correct
@@ -34,9 +34,9 @@ export declare namespace passwords {
    */
   export const PASSWORD_NOT_FOUND: string
   /**
-   * Read a credential that was stored by keytar (UTF-8 blob) and return the correctly
-   * re-encoded string value without writing anything. Returns null if the credential does
-   * not exist (ERROR_NOT_FOUND). Throws on a real Credential Manager failure so callers
+   * Read a credential stored by any earlier version (keytar UTF-8, desktop_core UTF-16 or a
+   * versioned blob) and return its value without writing anything. Returns null if the credential
+   * does not exist (ERROR_NOT_FOUND). Throws on a real Credential Manager failure so callers
    * can distinguish "not present" from "read error". No-op on non-Windows platforms (returns null).
    */
   export function readKeytarPassword(service: string, account: string): Promise<string | null>

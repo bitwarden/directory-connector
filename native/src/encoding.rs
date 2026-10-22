@@ -80,6 +80,9 @@ pub enum BlobVersion {
     LegacyUtf8,
     /// Written by desktop_core.
     LegacyUtf16,
+    /// Written by Directory Connector: a `[VERSION_MARKER, V1_HEADER]` header followed by UTF-8.
+    /// Unlike the legacy formats, the header identifies the encoding, and UTF-8 keeps secrets such
+    /// as Google Workspace private keys under `MAX_CREDENTIAL_BLOB_SIZE`.
     V1,
 }
 
@@ -133,6 +136,15 @@ pub fn encode_credential_blob(value: &str) -> Result<Vec<u8>> {
 pub fn decode_credential_blob(blob: &[u8]) -> Result<(String, BlobVersion)> {
     let (version, payload) = BlobVersion::detect(blob)?;
     Ok((version.decode(payload)?, version))
+}
+
+/// Returns the blob rewritten as `BlobVersion::CURRENT`, or `None` if it already is.
+pub fn upgrade_credential_blob(blob: &[u8]) -> Result<Option<Vec<u8>>> {
+    let (value, version) = decode_credential_blob(blob)?;
+    if version == BlobVersion::CURRENT {
+        return Ok(None);
+    }
+    encode_credential_blob(&value).map(Some)
 }
 
 #[cfg(test)]
@@ -303,6 +315,41 @@ mod tests {
                 (value, BlobVersion::CURRENT)
             );
         }
+    }
+
+    #[test]
+    fn upgrades_legacy_blobs_to_the_current_version() {
+        let values = [
+            "\"secret\"".to_owned(),
+            "\"pässwörd 漢字 🔑\"".to_owned(),
+            google_private_key_json(),
+        ];
+
+        for value in values {
+            let keytar = value.as_bytes().to_vec();
+            let desktop_core = desktop_core_blob(&value, &vec![0xD800; value.len()]);
+
+            for legacy in [keytar, desktop_core] {
+                let upgraded = upgrade_credential_blob(&legacy).unwrap().unwrap();
+
+                assert_eq!(
+                    decode_credential_blob(&upgraded).unwrap(),
+                    (value.clone(), BlobVersion::CURRENT)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn does_not_upgrade_blobs_already_in_the_current_version() {
+        let blob = encode_credential_blob("\"secret\"").unwrap();
+
+        assert_eq!(upgrade_credential_blob(&blob).unwrap(), None);
+    }
+
+    #[test]
+    fn upgrade_rejects_unsupported_versions() {
+        assert!(upgrade_credential_blob(&[VERSION_MARKER, 2, b'a']).is_err());
     }
 
     #[test]

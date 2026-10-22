@@ -46,9 +46,9 @@ pub async fn is_available() -> napi::Result<bool> {
         .map_err(|e| napi::Error::from_reason(e.to_string()))
 }
 
-/// Read a credential that was stored by keytar (UTF-8 blob) and return the correctly
-/// re-encoded string value without writing anything. Returns null if the credential does
-/// not exist (ERROR_NOT_FOUND). Throws on a real Credential Manager failure so callers
+/// Read a credential stored by any earlier version (keytar UTF-8, desktop_core UTF-16 or a
+/// versioned blob) and return its value without writing anything. Returns null if the credential
+/// does not exist (ERROR_NOT_FOUND). Throws on a real Credential Manager failure so callers
 /// can distinguish "not present" from "read error". No-op on non-Windows platforms (returns null).
 #[napi(namespace = "passwords")]
 pub async fn read_keytar_password(
@@ -58,7 +58,6 @@ pub async fn read_keytar_password(
     #[cfg(windows)]
     {
         migration::read_keytar_password(&service, &account)
-            .await
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
     #[cfg(not(windows))]
@@ -68,8 +67,8 @@ pub async fn read_keytar_password(
     }
 }
 
-/// Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
-/// used by desktop_core on Windows. No-ops on non-Windows platforms.
+/// Rewrite a credential stored by keytar (UTF-8) or desktop_core (UTF-16) in the current
+/// versioned format used on Windows. No-ops on non-Windows platforms.
 ///
 /// Returns `{ migrated: true }` if a migration was performed.
 /// Returns `{ migrated: false }` if the credential does not exist or is already in the correct
@@ -82,9 +81,12 @@ pub async fn migrate_keytar_password(
 ) -> napi::Result<MigrateKeytarResult> {
     #[cfg(windows)]
     {
-        let result = migration::migrate_keytar_password(&service, &account).await;
+        let result = migration::migrate_keytar_password(&service, &account);
         match result {
-            Ok(migrated) => Ok(MigrateKeytarResult { migrated, error: None }),
+            Ok(migrated) => Ok(MigrateKeytarResult {
+                migrated,
+                error: None,
+            }),
             Err(e) => Ok(MigrateKeytarResult {
                 migrated: false,
                 error: Some(e.to_string()),
@@ -94,7 +96,10 @@ pub async fn migrate_keytar_password(
     #[cfg(not(windows))]
     {
         let _ = (service, account);
-        Ok(MigrateKeytarResult { migrated: false, error: None })
+        Ok(MigrateKeytarResult {
+            migrated: false,
+            error: None,
+        })
     }
 }
 

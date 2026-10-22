@@ -19,7 +19,7 @@ fn target_name(service: &str, account: &str) -> String {
     format!("{}/{}", service, account)
 }
 
-fn read_blob(service: &str, account: &str) -> Result<Option<Vec<u8>>> {
+pub(crate) fn read_blob(service: &str, account: &str) -> Result<Option<Vec<u8>>> {
     let target_name = U16CString::from_str(target_name(service, account))?;
     let mut credential: *mut CREDENTIALW = std::ptr::null_mut();
 
@@ -55,7 +55,7 @@ fn read_blob(service: &str, account: &str) -> Result<Option<Vec<u8>>> {
     Ok(Some(blob))
 }
 
-fn write_blob(service: &str, account: &str, blob: &[u8]) -> Result<()> {
+pub(crate) fn write_blob(service: &str, account: &str, blob: &[u8]) -> Result<()> {
     let mut target_name = U16CString::from_str(target_name(service, account))?;
     let mut user_name = U16CString::from_str(account)?;
 
