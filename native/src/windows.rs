@@ -19,7 +19,7 @@ fn target_name(service: &str, account: &str) -> String {
     format!("{}/{}", service, account)
 }
 
-pub(crate) fn read_blob(service: &str, account: &str) -> Result<Option<Vec<u8>>> {
+fn read_blob(service: &str, account: &str) -> Result<Option<Vec<u8>>> {
     let target_name = U16CString::from_str(target_name(service, account))?;
     let mut credential: *mut CREDENTIALW = std::ptr::null_mut();
 
@@ -55,7 +55,7 @@ pub(crate) fn read_blob(service: &str, account: &str) -> Result<Option<Vec<u8>>>
     Ok(Some(blob))
 }
 
-pub(crate) fn write_blob(service: &str, account: &str, blob: &[u8]) -> Result<()> {
+fn write_blob(service: &str, account: &str, blob: &[u8]) -> Result<()> {
     let mut target_name = U16CString::from_str(target_name(service, account))?;
     let mut user_name = U16CString::from_str(account)?;
 
@@ -155,6 +155,54 @@ mod tests {
         cleanup(account);
 
         assert_eq!(read.unwrap(), value);
+    }
+
+    /// The keytar migration is async but never awaits anything, so one poll completes it.
+    fn block_on<F: std::future::Future>(future: F) -> F::Output {
+        let mut future = std::pin::pin!(future);
+        let mut context = std::task::Context::from_waker(std::task::Waker::noop());
+        match future.as_mut().poll(&mut context) {
+            std::task::Poll::Ready(output) => output,
+            std::task::Poll::Pending => panic!("migration did not complete synchronously"),
+        }
+    }
+
+    /// Runs the unchanged 5→6 keytar migration against `stored` and reads the result back. The
+    /// migration may fail; all that matters is that the secret is still readable afterwards.
+    fn read_after_keytar_migration(account: &str, stored: &[u8]) -> Result<String> {
+        write_blob(SERVICE, account, stored).unwrap();
+
+        let _ = block_on(crate::migration::migrate_keytar_password(SERVICE, account));
+        let read = get_password(SERVICE, account);
+        cleanup(account);
+
+        read
+    }
+
+    #[test]
+    fn secrets_saved_by_the_3_to_5_migration_survive_the_5_to_6_migration() {
+        for (account, value) in [
+            ("migrated-secret", "\"pässwörd\"".to_owned()),
+            ("migrated-google-key", format!("\"{}\"", "A".repeat(1730))),
+        ] {
+            set_password(SERVICE, account, &value).unwrap();
+            let saved = read_blob(SERVICE, account).unwrap().unwrap();
+
+            assert_eq!(read_after_keytar_migration(account, &saved).unwrap(), value);
+        }
+    }
+
+    #[test]
+    fn keytar_secrets_survive_the_5_to_6_migration() {
+        for (account, value) in [
+            ("keytar-secret", "\"pässwörd\"".to_owned()),
+            ("keytar-google-key", format!("\"{}\"", "A".repeat(1730))),
+        ] {
+            assert_eq!(
+                read_after_keytar_migration(account, value.as_bytes()).unwrap(),
+                value
+            );
+        }
     }
 
     #[test]
