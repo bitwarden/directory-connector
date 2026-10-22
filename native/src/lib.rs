@@ -67,8 +67,8 @@ pub async fn read_keytar_password(
     }
 }
 
-/// Rewrite a credential stored by keytar (UTF-8) or desktop_core (UTF-16) in the current
-/// versioned format used on Windows. No-ops on non-Windows platforms.
+/// Rewrite a credential stored by keytar (UTF-8) the way `set_password` stores it on Windows
+/// (UTF-16, or a versioned UTF-8 blob if too large). No-ops on non-Windows platforms.
 ///
 /// Returns `{ migrated: true }` if a migration was performed.
 /// Returns `{ migrated: false }` if the credential does not exist or is already in the correct

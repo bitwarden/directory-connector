@@ -1,20 +1,22 @@
 //! Encoding of secrets stored as Windows Credential Manager blobs.
 //!
-//! desktop_core stores blobs as UTF-16, which doubles the size of ASCII text. Credential Manager
-//! caps blobs at 2560 bytes, which is less than a Google Workspace private key needs as UTF-16, so
-//! blobs are written as UTF-8 instead.
+//! Secrets are written as UTF-16, as desktop_core writes them, so earlier versions of Directory
+//! Connector can still read them after a downgrade. Credential Manager caps blobs at 2560 bytes,
+//! which is less than a Google Workspace private key needs as UTF-16; values that don't fit are
+//! written as `BlobVersion::V1` (UTF-8) instead. Earlier versions could never save such values, so
+//! nothing they could read is lost.
 //!
-//! Legacy blobs (keytar UTF-8, desktop_core UTF-16) have no header and are still read; each is
-//! rewritten as `BlobVersion::CURRENT` the next time it is saved. To add a version, add a
-//! `BlobFormat`, a `BlobVersion` variant and header number, and update `CURRENT`. Never change or
-//! reuse an existing version.
+//! Blobs without a header (keytar UTF-8, desktop_core UTF-16) are told apart by their content. To
+//! add a version, add a `BlobFormat`, a `BlobVersion` variant and header number, and update
+//! `BlobVersion::for_value`. Never change or reuse an existing version.
 
 use anyhow::{anyhow, bail, Result};
 
 /// `CRED_MAX_CREDENTIAL_BLOB_SIZE` from wincred.h.
 pub const MAX_CREDENTIAL_BLOB_SIZE: usize = 5 * 512;
 
-/// Never the first byte of a legacy blob, as stored values are JSON and start with printable ASCII.
+/// Never the first byte of a headerless blob, as stored values are JSON and start with printable
+/// ASCII.
 const VERSION_MARKER: u8 = 0x01;
 
 const V1_HEADER: u8 = 1;
@@ -24,9 +26,9 @@ trait BlobFormat {
     fn decode(payload: &[u8]) -> Result<String>;
 }
 
-struct LegacyUtf8Format;
+struct Utf8Format;
 
-impl BlobFormat for LegacyUtf8Format {
+impl BlobFormat for Utf8Format {
     fn encode(value: &str) -> Vec<u8> {
         value.as_bytes().to_vec()
     }
@@ -38,9 +40,11 @@ impl BlobFormat for LegacyUtf8Format {
     }
 }
 
-struct LegacyUtf16Format;
+struct Utf16Format;
 
-impl BlobFormat for LegacyUtf16Format {
+impl BlobFormat for Utf16Format {
+    /// Unlike desktop_core, sized by UTF-16 length, so non-ASCII values are stored without a
+    /// terminator or trailing memory. desktop_core reads these back unchanged.
     fn encode(value: &str) -> Vec<u8> {
         value.encode_utf16().flat_map(u16::to_le_bytes).collect()
     }
@@ -76,36 +80,56 @@ impl BlobFormat for V1Format {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BlobVersion {
-    /// Written by keytar.
-    LegacyUtf8,
-    /// Written by desktop_core.
-    LegacyUtf16,
-    /// Written by Directory Connector: a `[VERSION_MARKER, V1_HEADER]` header followed by UTF-8.
-    /// Unlike the legacy formats, the header identifies the encoding, and UTF-8 keeps secrets such
-    /// as Google Workspace private keys under `MAX_CREDENTIAL_BLOB_SIZE`.
+    /// No header. Written by keytar; no longer written.
+    Utf8,
+    /// No header. Written by desktop_core, and by Directory Connector for values that fit.
+    Utf16,
+    /// A `[VERSION_MARKER, V1_HEADER]` header followed by UTF-8. Written by Directory Connector for
+    /// values too large for UTF-16, such as Google Workspace private keys. Earlier versions of
+    /// Directory Connector cannot read it.
     V1,
 }
 
 impl BlobVersion {
-    pub const CURRENT: BlobVersion = BlobVersion::V1;
+    /// The version `value` is saved as.
+    pub fn for_value(value: &str) -> Self {
+        if value.encode_utf16().count() * 2 <= MAX_CREDENTIAL_BLOB_SIZE {
+            Self::Utf16
+        } else {
+            Self::V1
+        }
+    }
 
-    fn encode(self, value: &str) -> Vec<u8> {
-        match self {
-            Self::LegacyUtf8 => LegacyUtf8Format::encode(value),
-            Self::LegacyUtf16 => LegacyUtf16Format::encode(value),
+    /// Encodes `value` as this version, including its header.
+    pub fn encode(self, value: &str) -> Result<Vec<u8>> {
+        let blob = match self {
+            Self::Utf8 => Utf8Format::encode(value),
+            Self::Utf16 => Utf16Format::encode(value),
             Self::V1 => [&[VERSION_MARKER, V1_HEADER][..], &V1Format::encode(value)].concat(),
+        };
+        if blob.len() > MAX_CREDENTIAL_BLOB_SIZE {
+            bail!(
+                "Secret is too large for Windows Credential Manager ({} bytes, maximum is {}).",
+                blob.len(),
+                MAX_CREDENTIAL_BLOB_SIZE
+            );
         }
+        Ok(blob)
     }
 
-    fn decode(self, payload: &[u8]) -> Result<String> {
-        match self {
-            Self::LegacyUtf8 => LegacyUtf8Format::decode(payload),
-            Self::LegacyUtf16 => LegacyUtf16Format::decode(payload),
+    /// Detects the version of `blob` and decodes it. The version is returned so that migrations
+    /// can tell whether a blob needs rewriting.
+    pub fn decode(blob: &[u8]) -> Result<(String, Self)> {
+        let (version, payload) = Self::detect(blob)?;
+        let value = match version {
+            Self::Utf8 => Utf8Format::decode(payload),
+            Self::Utf16 => Utf16Format::decode(payload),
             Self::V1 => V1Format::decode(payload),
-        }
+        }?;
+        Ok((value, version))
     }
 
-    /// Legacy UTF-16 blobs contain a NUL byte per ASCII character; legacy UTF-8 JSON never does.
+    /// UTF-16 blobs contain a NUL byte per ASCII character; keytar's UTF-8 JSON never does.
     fn detect(blob: &[u8]) -> Result<(Self, &[u8])> {
         match blob {
             [VERSION_MARKER, version, payload @ ..] => match *version {
@@ -115,36 +139,10 @@ impl BlobVersion {
                     version
                 ),
             },
-            _ if blob.contains(&0) => Ok((Self::LegacyUtf16, blob)),
-            _ => Ok((Self::LegacyUtf8, blob)),
+            _ if blob.contains(&0) => Ok((Self::Utf16, blob)),
+            _ => Ok((Self::Utf8, blob)),
         }
     }
-}
-
-pub fn encode_credential_blob(value: &str) -> Result<Vec<u8>> {
-    let blob = BlobVersion::CURRENT.encode(value);
-    if blob.len() > MAX_CREDENTIAL_BLOB_SIZE {
-        bail!(
-            "Secret is too large for Windows Credential Manager ({} bytes, maximum is {}).",
-            blob.len(),
-            MAX_CREDENTIAL_BLOB_SIZE
-        );
-    }
-    Ok(blob)
-}
-
-pub fn decode_credential_blob(blob: &[u8]) -> Result<(String, BlobVersion)> {
-    let (version, payload) = BlobVersion::detect(blob)?;
-    Ok((version.decode(payload)?, version))
-}
-
-/// Returns the blob rewritten as `BlobVersion::CURRENT`, or `None` if it already is.
-pub fn upgrade_credential_blob(blob: &[u8]) -> Result<Option<Vec<u8>>> {
-    let (value, version) = decode_credential_blob(blob)?;
-    if version == BlobVersion::CURRENT {
-        return Ok(None);
-    }
-    encode_credential_blob(&value).map(Some)
 }
 
 #[cfg(test)]
@@ -180,86 +178,120 @@ mod tests {
         blob
     }
 
-    #[test]
-    fn encodes_as_a_v1_header_followed_by_utf8() {
-        let value = "\"pässwörd\"";
+    /// How desktop_core reads a blob: `size / 2` UTF-16 units, lossily.
+    fn desktop_core_read(blob: &[u8]) -> String {
+        let units: Vec<u16> = blob
+            .chunks_exact(2)
+            .map(|pair| u16::from_le_bytes([pair[0], pair[1]]))
+            .collect();
+        String::from_utf16_lossy(&units)
+    }
 
-        let blob = encode_credential_blob(value).unwrap();
-
-        assert_eq!(&blob[..HEADER_LEN], &[VERSION_MARKER, V1_HEADER]);
-        assert_eq!(&blob[HEADER_LEN..], value.as_bytes());
+    fn save(value: &str) -> Vec<u8> {
+        BlobVersion::for_value(value).encode(value).unwrap()
     }
 
     #[test]
-    fn google_private_key_fits_in_the_current_version() {
+    fn saves_values_that_fit_as_utf16() {
+        let value = "{\"password\":\"pässwörd\"}";
+
+        assert_eq!(BlobVersion::for_value(value), BlobVersion::Utf16);
+        assert_eq!(save(value), Utf16Format::encode(value));
+    }
+
+    #[test]
+    fn saves_google_private_key_as_v1() {
         let key = google_private_key_json();
 
-        let blob = encode_credential_blob(&key).unwrap();
+        let blob = save(&key);
 
+        assert_eq!(BlobVersion::for_value(&key), BlobVersion::V1);
+        assert_eq!(&blob[..HEADER_LEN], &[VERSION_MARKER, V1_HEADER]);
+        assert_eq!(&blob[HEADER_LEN..], key.as_bytes());
         assert!(blob.len() <= MAX_CREDENTIAL_BLOB_SIZE);
     }
 
     #[test]
     fn google_private_key_does_not_fit_as_utf16() {
-        assert!(
-            BlobVersion::LegacyUtf16
-                .encode(&google_private_key_json())
-                .len()
-                > MAX_CREDENTIAL_BLOB_SIZE
+        assert!(BlobVersion::Utf16
+            .encode(&google_private_key_json())
+            .is_err());
+    }
+
+    #[test]
+    fn saves_values_at_the_utf16_size_limit_as_utf16() {
+        let value = "a".repeat(MAX_CREDENTIAL_BLOB_SIZE / 2);
+
+        assert_eq!(BlobVersion::for_value(&value), BlobVersion::Utf16);
+        assert_eq!(
+            BlobVersion::for_value(&format!("{}a", value)),
+            BlobVersion::V1
         );
     }
 
     #[test]
-    fn round_trips_google_private_key() {
-        let key = google_private_key_json();
-
-        let blob = encode_credential_blob(&key).unwrap();
-
-        assert_eq!(
-            decode_credential_blob(&blob).unwrap(),
-            (key, BlobVersion::CURRENT)
-        );
+    fn utf16_blobs_are_readable_by_desktop_core() {
+        for value in ["\"secret\"", "\"pässwörd 漢字 🔑\""] {
+            assert_eq!(desktop_core_read(&save(value)), value);
+        }
     }
 
     #[test]
-    fn round_trips_non_ascii_values() {
-        let value = "\"pässwörd 漢字 🔑\"";
+    fn round_trips_values() {
+        let values = [
+            "\"secret\"".to_owned(),
+            "\"pässwörd 漢字 🔑\"".to_owned(),
+            google_private_key_json(),
+        ];
 
-        let blob = encode_credential_blob(value).unwrap();
+        for value in values {
+            let version = BlobVersion::for_value(&value);
 
-        assert_eq!(
-            decode_credential_blob(&blob).unwrap(),
-            (value.to_owned(), BlobVersion::CURRENT)
-        );
+            assert_eq!(
+                BlobVersion::decode(&save(&value)).unwrap(),
+                (value, version)
+            );
+        }
     }
 
     #[test]
     fn round_trips_empty_values() {
-        let blob = encode_credential_blob("").unwrap();
+        let (value, _) = BlobVersion::decode(&save("")).unwrap();
 
-        assert_eq!(
-            decode_credential_blob(&blob).unwrap(),
-            (String::new(), BlobVersion::CURRENT)
-        );
+        assert_eq!(value, "");
     }
 
     #[test]
-    fn decodes_legacy_utf8_blobs_written_by_keytar() {
+    fn round_trips_each_version() {
+        let value = "\"pässwörd 漢字 🔑\"";
+
+        for version in [BlobVersion::Utf8, BlobVersion::Utf16, BlobVersion::V1] {
+            let blob = version.encode(value).unwrap();
+
+            assert_eq!(
+                BlobVersion::decode(&blob).unwrap(),
+                (value.to_owned(), version)
+            );
+        }
+    }
+
+    #[test]
+    fn decodes_utf8_blobs_written_by_keytar() {
         let value = "\"pässwörd 漢字 🔑\"";
 
         assert_eq!(
-            decode_credential_blob(value.as_bytes()).unwrap(),
-            (value.to_owned(), BlobVersion::LegacyUtf8)
+            BlobVersion::decode(value.as_bytes()).unwrap(),
+            (value.to_owned(), BlobVersion::Utf8)
         );
     }
 
     #[test]
-    fn decodes_legacy_utf16_blobs_written_by_desktop_core() {
+    fn decodes_utf16_blobs_written_by_desktop_core() {
         let value = "\"secret\"";
 
         assert_eq!(
-            decode_credential_blob(&desktop_core_blob(value, &[])).unwrap(),
-            (value.to_owned(), BlobVersion::LegacyUtf16)
+            BlobVersion::decode(&desktop_core_blob(value, &[])).unwrap(),
+            (value.to_owned(), BlobVersion::Utf16)
         );
     }
 
@@ -270,8 +302,8 @@ mod tests {
         let blob = desktop_core_blob(value, &[]);
 
         assert_eq!(
-            decode_credential_blob(&blob).unwrap(),
-            (value.to_owned(), BlobVersion::LegacyUtf16)
+            BlobVersion::decode(&blob).unwrap(),
+            (value.to_owned(), BlobVersion::Utf16)
         );
     }
 
@@ -282,8 +314,8 @@ mod tests {
         let blob = desktop_core_blob(value, &[0xD800, 0x0041]);
 
         assert_eq!(
-            decode_credential_blob(&blob).unwrap(),
-            (value.to_owned(), BlobVersion::LegacyUtf16)
+            BlobVersion::decode(&blob).unwrap(),
+            (value.to_owned(), BlobVersion::Utf16)
         );
     }
 
@@ -297,8 +329,8 @@ mod tests {
         ];
 
         for value in values {
-            // The migration rewrites keytar blobs through desktop_core, leaving them as they were
-            // if the result is over the size limit.
+            // The migration rewrote keytar blobs through desktop_core, leaving them as they were
+            // if the result was over the size limit.
             let migrated = desktop_core_blob(&value, &vec![0xD800; value.len()]);
             let stored = if migrated.len() <= MAX_CREDENTIAL_BLOB_SIZE {
                 migrated
@@ -306,63 +338,28 @@ mod tests {
                 value.as_bytes().to_vec()
             };
 
-            let (read, _) = decode_credential_blob(&stored).unwrap();
-            let resaved = encode_credential_blob(&read).unwrap();
+            let (read, _) = BlobVersion::decode(&stored).unwrap();
+            let resaved = save(&read);
 
             assert_eq!(read, value);
             assert_eq!(
-                decode_credential_blob(&resaved).unwrap(),
-                (value, BlobVersion::CURRENT)
+                BlobVersion::decode(&resaved).unwrap(),
+                (value.clone(), BlobVersion::for_value(&value))
             );
         }
     }
 
     #[test]
-    fn upgrades_legacy_blobs_to_the_current_version() {
-        let values = [
-            "\"secret\"".to_owned(),
-            "\"pässwörd 漢字 🔑\"".to_owned(),
-            google_private_key_json(),
-        ];
-
-        for value in values {
-            let keytar = value.as_bytes().to_vec();
-            let desktop_core = desktop_core_blob(&value, &vec![0xD800; value.len()]);
-
-            for legacy in [keytar, desktop_core] {
-                let upgraded = upgrade_credential_blob(&legacy).unwrap().unwrap();
-
-                assert_eq!(
-                    decode_credential_blob(&upgraded).unwrap(),
-                    (value.clone(), BlobVersion::CURRENT)
-                );
-            }
-        }
-    }
-
-    #[test]
-    fn does_not_upgrade_blobs_already_in_the_current_version() {
-        let blob = encode_credential_blob("\"secret\"").unwrap();
-
-        assert_eq!(upgrade_credential_blob(&blob).unwrap(), None);
-    }
-
-    #[test]
-    fn upgrade_rejects_unsupported_versions() {
-        assert!(upgrade_credential_blob(&[VERSION_MARKER, 2, b'a']).is_err());
-    }
-
-    #[test]
-    fn decodes_empty_blob_as_empty_legacy_value() {
+    fn decodes_empty_blob_as_empty_value() {
         assert_eq!(
-            decode_credential_blob(&[]).unwrap(),
-            (String::new(), BlobVersion::LegacyUtf8)
+            BlobVersion::decode(&[]).unwrap(),
+            (String::new(), BlobVersion::Utf8)
         );
     }
 
     #[test]
     fn rejects_unsupported_versions() {
-        let err = decode_credential_blob(&[VERSION_MARKER, 2, b'a']).unwrap_err();
+        let err = BlobVersion::decode(&[VERSION_MARKER, 2, b'a']).unwrap_err();
 
         assert!(err.to_string().contains("unsupported format version 2"));
     }
@@ -371,7 +368,7 @@ mod tests {
     fn rejects_values_over_the_size_limit() {
         let value = "a".repeat(MAX_CREDENTIAL_BLOB_SIZE - HEADER_LEN + 1);
 
-        let err = encode_credential_blob(&value).unwrap_err();
+        let err = BlobVersion::for_value(&value).encode(&value).unwrap_err();
 
         assert!(err.to_string().contains("too large"));
     }
@@ -380,30 +377,30 @@ mod tests {
     fn accepts_values_at_the_size_limit() {
         let value = "a".repeat(MAX_CREDENTIAL_BLOB_SIZE - HEADER_LEN);
 
-        assert!(encode_credential_blob(&value).is_ok());
+        assert!(BlobVersion::for_value(&value).encode(&value).is_ok());
     }
 
     #[test]
     fn size_error_does_not_include_the_secret() {
         let value = "s3cret".repeat(MAX_CREDENTIAL_BLOB_SIZE);
 
-        let err = encode_credential_blob(&value).unwrap_err();
+        let err = BlobVersion::for_value(&value).encode(&value).unwrap_err();
 
         assert!(!err.to_string().contains("s3cret"));
     }
 
     #[test]
     fn rejects_odd_length_blobs_containing_nul() {
-        assert!(decode_credential_blob(&[b'a', 0, b'b']).is_err());
+        assert!(BlobVersion::decode(&[b'a', 0, b'b']).is_err());
     }
 
     #[test]
-    fn rejects_invalid_utf8_in_legacy_blobs() {
-        assert!(decode_credential_blob(&[0xff, 0xfe, 0xfd]).is_err());
+    fn rejects_invalid_utf8_in_keytar_blobs() {
+        assert!(BlobVersion::decode(&[0xff, 0xfe, 0xfd]).is_err());
     }
 
     #[test]
     fn rejects_invalid_utf8_in_v1_blobs() {
-        assert!(decode_credential_blob(&[VERSION_MARKER, V1_HEADER, 0xff, 0xfe]).is_err());
+        assert!(BlobVersion::decode(&[VERSION_MARKER, V1_HEADER, 0xff, 0xfe]).is_err());
     }
 }

@@ -242,8 +242,8 @@ export class StateMigrationService {
 
   /**
    * Migrate from State v5 to v6 — rewrite any Windows Credential Manager entries that were
-   * written by keytar (UTF-8) or desktop_core (UTF-16) in the current versioned format (see
-   * native/src/encoding.rs). This is a no-op on macOS and Linux; migrateKeytarPassword returns
+   * written by keytar (UTF-8) the way setPassword stores them: UTF-16, or a versioned UTF-8 blob
+   * for values too large for UTF-16 (see native/src/encoding.rs). This is a no-op on macOS and Linux; migrateKeytarPassword returns
    * `{ migrated: false }` immediately on those platforms.
    *
    * Keys migrated:

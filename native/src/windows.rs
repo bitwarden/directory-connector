@@ -1,5 +1,5 @@
 //! Windows-only: reads and writes Credential Manager entries using `encoding.rs` instead of
-//! desktop_core, which only writes UTF-16. Entries match desktop_core's target name, user name and
+//! desktop_core, which can only write UTF-16. Entries match desktop_core's target name, user name and
 //! persistence, so either can read the other's entries. Deletion still goes through desktop_core.
 
 use anyhow::{anyhow, Result};
@@ -13,7 +13,7 @@ use windows::{
     },
 };
 
-use crate::encoding::{decode_credential_blob, encode_credential_blob};
+use crate::encoding::BlobVersion;
 
 fn target_name(service: &str, account: &str) -> String {
     format!("{}/{}", service, account)
@@ -82,12 +82,16 @@ pub(crate) fn write_blob(service: &str, account: &str, blob: &[u8]) -> Result<()
 pub fn get_password(service: &str, account: &str) -> Result<String> {
     let blob = read_blob(service, account)?
         .ok_or_else(|| anyhow!(desktop_core::password::PASSWORD_NOT_FOUND))?;
-    let (value, _) = decode_credential_blob(&blob)?;
+    let (value, _) = BlobVersion::decode(&blob)?;
     Ok(value)
 }
 
 pub fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
-    write_blob(service, account, &encode_credential_blob(password)?)
+    write_blob(
+        service,
+        account,
+        &BlobVersion::for_value(password).encode(password)?,
+    )
 }
 
 #[cfg(test)]
@@ -108,37 +112,49 @@ mod tests {
     }
 
     #[test]
-    fn stores_a_google_private_key_sized_secret() {
+    fn stores_a_google_private_key_sized_secret_as_v1() {
         let account = "large-secret";
         let value = format!("\"{}\"", "A".repeat(1730));
 
         let saved = set_password(SERVICE, account, &value);
+        let blob = read_blob(SERVICE, account);
         let read = get_password(SERVICE, account);
         cleanup(account);
 
         saved.unwrap();
+        assert_eq!(
+            BlobVersion::decode(&blob.unwrap().unwrap()).unwrap().1,
+            BlobVersion::V1
+        );
         assert_eq!(read.unwrap(), value);
     }
 
     #[test]
-    fn reads_a_secret_written_by_desktop_core_and_rewrites_it_in_the_current_version_on_save() {
+    fn stores_secrets_that_fit_as_utf16_so_earlier_versions_can_read_them() {
         let account = "utf16-secret";
+        let value = "\"pässwörd\"";
+
+        let saved = set_password(SERVICE, account, value);
+        let blob = read_blob(SERVICE, account);
+        let read = get_password(SERVICE, account);
+        cleanup(account);
+
+        saved.unwrap();
+        let expected: Vec<u8> = value.encode_utf16().flat_map(u16::to_le_bytes).collect();
+        assert_eq!(blob.unwrap().unwrap(), expected);
+        assert_eq!(read.unwrap(), value);
+    }
+
+    #[test]
+    fn reads_a_secret_written_by_desktop_core() {
+        let account = "desktop-core-secret";
         let value = "\"legacy-secret\"";
         write_utf16(account, value);
 
-        let read_before = get_password(SERVICE, account);
-        let saved = set_password(SERVICE, account, value);
-        let blob = read_blob(SERVICE, account);
-        let read_after = get_password(SERVICE, account);
+        let read = get_password(SERVICE, account);
         cleanup(account);
 
-        assert_eq!(read_before.unwrap(), value);
-        saved.unwrap();
-        assert_eq!(
-            blob.unwrap().unwrap(),
-            encode_credential_blob(value).unwrap()
-        );
-        assert_eq!(read_after.unwrap(), value);
+        assert_eq!(read.unwrap(), value);
     }
 
     #[test]
