@@ -10,21 +10,23 @@ pub const PASSWORD_NOT_FOUND: &str = desktop_core::password::PASSWORD_NOT_FOUND;
 /// Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
 #[napi(namespace = "passwords")]
 pub async fn get_password(service: String, account: String) -> napi::Result<String> {
-    desktop_core::password::get_password(&service, &account)
-        .await
-        .map_err(|e| napi::Error::from_reason(e.to_string()))
+    #[cfg(windows)]
+    let result = windows::get_password(&service, &account);
+    #[cfg(not(windows))]
+    let result = desktop_core::password::get_password(&service, &account).await;
+
+    result.map_err(|e| napi::Error::from_reason(e.to_string()))
 }
 
 /// Save the password to the keychain. Adds an entry if none exists, otherwise updates it.
 #[napi(namespace = "passwords")]
-pub async fn set_password(
-    service: String,
-    account: String,
-    password: String,
-) -> napi::Result<()> {
-    desktop_core::password::set_password(&service, &account, &password)
-        .await
-        .map_err(|e| napi::Error::from_reason(e.to_string()))
+pub async fn set_password(service: String, account: String, password: String) -> napi::Result<()> {
+    #[cfg(windows)]
+    let result = windows::set_password(&service, &account, &password);
+    #[cfg(not(windows))]
+    let result = desktop_core::password::set_password(&service, &account, &password).await;
+
+    result.map_err(|e| napi::Error::from_reason(e.to_string()))
 }
 
 /// Delete the stored password from the keychain.
@@ -101,6 +103,13 @@ pub struct MigrateKeytarResult {
     pub migrated: bool,
     pub error: Option<String>,
 }
+
+// Only used at runtime on Windows; compiled everywhere so its unit tests run on every platform.
+#[cfg_attr(not(windows), allow(dead_code))]
+mod encoding;
+
+#[cfg(windows)]
+mod windows;
 
 #[cfg(windows)]
 mod migration;
