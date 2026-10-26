@@ -5,7 +5,9 @@ jest.mock("dc-native", () => ({
   passwords: {
     PASSWORD_NOT_FOUND: "Password not found.",
     getPassword: jest.fn(),
+    getPasswordVNext: jest.fn(),
     setPassword: jest.fn(),
+    setPasswordVNext: jest.fn(),
     deletePassword: jest.fn(),
   },
 }));
@@ -40,6 +42,7 @@ describe("NativeSecureStorageService", () => {
     logService = makeLogService();
     svc = new NativeSecureStorageService(SERVICE_NAME, logService);
     passwords.setPassword.mockResolvedValue(undefined);
+    passwords.setPasswordVNext.mockResolvedValue(undefined);
     passwords.deletePassword.mockResolvedValue(undefined);
   });
 
@@ -146,6 +149,84 @@ describe("NativeSecureStorageService", () => {
       passwords.getPassword.mockRejectedValue(new Error("keychain unavailable"));
 
       await expect(svc.get(SecureStorageKeys.accessToken)).rejects.toThrow("keychain unavailable");
+    });
+
+    it("does not use the vNext read", async () => {
+      passwords.getPassword.mockResolvedValue(JSON.stringify("token-value"));
+
+      await svc.get(SecureStorageKeys.gsuite);
+
+      expect(passwords.getPasswordVNext).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getVNext()", () => {
+    it("reads with getPasswordVNext and parses the stored JSON value", async () => {
+      passwords.getPasswordVNext.mockResolvedValue(JSON.stringify("private-key"));
+
+      await expect(svc.getVNext(SecureStorageKeys.gsuite)).resolves.toBe("private-key");
+      expect(passwords.getPasswordVNext).toHaveBeenCalledWith(
+        SERVICE_NAME,
+        SecureStorageKeys.gsuite,
+      );
+      expect(passwords.getPassword).not.toHaveBeenCalled();
+    });
+
+    it("returns null when the password does not exist", async () => {
+      passwords.getPasswordVNext.mockRejectedValue(new Error(passwords.PASSWORD_NOT_FOUND));
+
+      await expect(svc.getVNext(SecureStorageKeys.gsuite)).resolves.toBeNull();
+    });
+
+    it("returns null and warns when the stored value is not valid JSON", async () => {
+      passwords.getPasswordVNext.mockResolvedValue("not-json");
+
+      await expect(svc.getVNext(SecureStorageKeys.gsuite)).resolves.toBeNull();
+      expect(logService.warning).toHaveBeenCalled();
+    });
+
+    it("rethrows unexpected read errors", async () => {
+      passwords.getPasswordVNext.mockRejectedValue(new Error("unsupported format version 2"));
+
+      await expect(svc.getVNext(SecureStorageKeys.gsuite)).rejects.toThrow(
+        "unsupported format version 2",
+      );
+    });
+  });
+
+  describe("saveVNext()", () => {
+    it("stores the value as JSON with setPasswordVNext", async () => {
+      await svc.saveVNext(SecureStorageKeys.gsuite, "private-key");
+
+      expect(passwords.setPasswordVNext).toHaveBeenCalledWith(
+        SERVICE_NAME,
+        SecureStorageKeys.gsuite,
+        JSON.stringify("private-key"),
+      );
+      expect(passwords.setPassword).not.toHaveBeenCalled();
+    });
+
+    it("delegates to remove() when the value is null", async () => {
+      await svc.saveVNext(SecureStorageKeys.gsuite, null);
+
+      expect(passwords.deletePassword).toHaveBeenCalledWith(SERVICE_NAME, SecureStorageKeys.gsuite);
+      expect(passwords.setPasswordVNext).not.toHaveBeenCalled();
+    });
+
+    it("rethrows when the underlying write fails", async () => {
+      passwords.setPasswordVNext.mockRejectedValue(new Error("Secret is too large"));
+
+      await expect(svc.saveVNext(SecureStorageKeys.gsuite, "private-key")).rejects.toThrow(
+        "Secret is too large",
+      );
+    });
+  });
+
+  describe("save()", () => {
+    it("does not use the vNext write", async () => {
+      await svc.save(SecureStorageKeys.gsuite, "private-key");
+
+      expect(passwords.setPasswordVNext).not.toHaveBeenCalled();
     });
   });
 });

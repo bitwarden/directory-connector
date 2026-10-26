@@ -1,5 +1,5 @@
 import { LogService } from "@/libs/abstractions/log.service";
-import { StorageService } from "@/libs/abstractions/storage.service";
+import { SecureStorageService, StorageService } from "@/libs/abstractions/storage.service";
 import { APPLICATION_NAME } from "@/libs/constants";
 import { HtmlStorageLocation } from "@/libs/enums/htmlStorageLocation";
 import { StateVersion } from "@/libs/enums/stateVersion";
@@ -23,7 +23,7 @@ const SECURE_STORAGE_SERVICE_NAME = APPLICATION_NAME;
 export class StateMigrationService {
   constructor(
     protected storageService: StorageService,
-    protected secureStorageService: StorageService,
+    protected secureStorageService: SecureStorageService,
     protected logService: LogService,
     protected useSecureStorageForSecrets = true,
   ) {}
@@ -72,6 +72,9 @@ export class StateMigrationService {
           break;
         case StateVersion.Eight:
           await this.migrateStateFrom8To9();
+          break;
+        case StateVersion.Nine:
+          await this.migrateStateFrom9To10();
           break;
       }
       currentStateVersion += 1;
@@ -421,6 +424,76 @@ export class StateMigrationService {
     }
 
     await this.set(StorageKeys.stateVersion, StateVersion.Nine);
+  }
+
+  /**
+   * Migrate from State v9 to v10 (Windows only): copy the Google Workspace private key from its
+   * keytar-era key to SecureStorageKeys.gsuite, written with saveVNext this time.
+   *
+   * Earlier migrations (3→5, 5→6, 6→7) wrote it as UTF-16 through desktop_core, which is too
+   * large for Credential Manager, so it never reached the new key. Customers who downgraded to a
+   * keytar version to keep using Google Workspace have also kept saving it under the old key.
+   *
+   * Skipped if the current gsuite secret already reads back, so a key saved by this version is
+   * never replaced by the older keytar value.
+   */
+  protected async migrateStateFrom9To10(): Promise<void> {
+    if (!this.useSecureStorageForSecrets || process.platform !== "win32") {
+      await this.set(StorageKeys.stateVersion, StateVersion.Ten);
+      return;
+    }
+
+    const clientId = await this.storageService.get<string>("activeUserId");
+
+    if (clientId && !(await this.hasGsuiteSecret())) {
+      const oldKey = `${clientId}_gsuitePrivateKey`;
+      try {
+        const raw = await passwords.readKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
+        if (raw != null) {
+          // raw is the keytar blob verbatim (JSON.stringify'd by the old KeytarSecureStorageService).
+          // Parse it once so saveVNext doesn't double-encode it.
+          let value: unknown;
+          try {
+            value = JSON.parse(raw);
+          } catch {
+            value = raw;
+          }
+          await this.secureStorageService.saveVNext(SecureStorageKeys.gsuite, value);
+        }
+      } catch (e) {
+        this.logService.error(
+          `StateMigrationService: failed to migrate legacy credential "${oldKey}": ${
+            e instanceof Error ? e.message : String(e)
+          }`,
+        );
+      }
+    }
+
+    await this.set(StorageKeys.stateVersion, StateVersion.Ten);
+  }
+
+  /**
+   * Whether DefaultStateService would find a Google Workspace private key: under the active
+   * configuration's scoped key, or else the legacy unscoped key. A key that cannot be read
+   * counts as absent.
+   */
+  private async hasGsuiteSecret(): Promise<boolean> {
+    const config = await this.get<{ id?: string }>(StorageKeys.directoryGsuite);
+    const keys = [
+      ...(config?.id != null ? [`${SecureStorageKeys.gsuite}:${config.id}`] : []),
+      SecureStorageKeys.gsuite,
+    ] as SecureStorageKey[];
+
+    for (const key of keys) {
+      try {
+        if ((await this.secureStorageService.getVNext(key)) != null) {
+          return true;
+        }
+      } catch {
+        // Unreadable, so not a key the user can use.
+      }
+    }
+    return false;
   }
 
   protected get options(): StorageOptions {

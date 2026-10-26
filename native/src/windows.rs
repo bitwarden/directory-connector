@@ -1,6 +1,7 @@
-//! Windows-only: reads and writes Credential Manager entries using `encoding.rs` instead of
-//! desktop_core, which can only write UTF-16. Entries match desktop_core's target name, user name and
-//! persistence, so either can read the other's entries. Deletion still goes through desktop_core.
+//! Windows-only: the `v_next` password functions, used only for the Google Workspace private key.
+//! They read and write Credential Manager entries using `encoding.rs` instead of desktop_core, which
+//! can only write UTF-16. Entries match desktop_core's target name, user name and persistence.
+//! Deletion still goes through desktop_core.
 
 use anyhow::{anyhow, Result};
 use widestring::U16CString;
@@ -79,19 +80,15 @@ fn write_blob(service: &str, account: &str, blob: &[u8]) -> Result<()> {
     Ok(())
 }
 
-pub fn get_password(service: &str, account: &str) -> Result<String> {
+pub fn get_password_v_next(service: &str, account: &str) -> Result<String> {
     let blob = read_blob(service, account)?
         .ok_or_else(|| anyhow!(desktop_core::password::PASSWORD_NOT_FOUND))?;
     let (value, _) = BlobVersion::decode(&blob)?;
     Ok(value)
 }
 
-pub fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
-    write_blob(
-        service,
-        account,
-        &BlobVersion::for_value(password).encode(password)?,
-    )
+pub fn set_password_v_next(service: &str, account: &str, password: &str) -> Result<()> {
+    write_blob(service, account, &BlobVersion::LATEST.encode(password)?)
 }
 
 #[cfg(test)]
@@ -111,14 +108,29 @@ mod tests {
         write_blob(SERVICE, account, &blob).unwrap();
     }
 
-    #[test]
-    fn stores_a_google_private_key_sized_secret_as_v1() {
-        let account = "large-secret";
-        let value = format!("\"{}\"", "A".repeat(1730));
+    fn google_private_key_json() -> String {
+        format!("\"{}\"", "A".repeat(1730))
+    }
 
-        let saved = set_password(SERVICE, account, &value);
+    /// The keytar functions in `migration.rs` are async but never await anything, so one poll
+    /// completes them.
+    fn block_on<F: std::future::Future>(future: F) -> F::Output {
+        let mut future = std::pin::pin!(future);
+        let mut context = std::task::Context::from_waker(std::task::Waker::noop());
+        match future.as_mut().poll(&mut context) {
+            std::task::Poll::Ready(output) => output,
+            std::task::Poll::Pending => panic!("future did not complete synchronously"),
+        }
+    }
+
+    #[test]
+    fn stores_a_google_private_key_as_v1() {
+        let account = "google-key";
+        let value = google_private_key_json();
+
+        let saved = set_password_v_next(SERVICE, account, &value);
         let blob = read_blob(SERVICE, account);
-        let read = get_password(SERVICE, account);
+        let read = get_password_v_next(SERVICE, account);
         cleanup(account);
 
         saved.unwrap();
@@ -130,18 +142,20 @@ mod tests {
     }
 
     #[test]
-    fn stores_secrets_that_fit_as_utf16_so_earlier_versions_can_read_them() {
-        let account = "utf16-secret";
+    fn stores_small_secrets_as_v1() {
+        let account = "small-secret";
         let value = "\"pässwörd\"";
 
-        let saved = set_password(SERVICE, account, value);
+        let saved = set_password_v_next(SERVICE, account, value);
         let blob = read_blob(SERVICE, account);
-        let read = get_password(SERVICE, account);
+        let read = get_password_v_next(SERVICE, account);
         cleanup(account);
 
         saved.unwrap();
-        let expected: Vec<u8> = value.encode_utf16().flat_map(u16::to_le_bytes).collect();
-        assert_eq!(blob.unwrap().unwrap(), expected);
+        assert_eq!(
+            BlobVersion::decode(&blob.unwrap().unwrap()).unwrap().1,
+            BlobVersion::V1
+        );
         assert_eq!(read.unwrap(), value);
     }
 
@@ -151,63 +165,49 @@ mod tests {
         let value = "\"legacy-secret\"";
         write_utf16(account, value);
 
-        let read = get_password(SERVICE, account);
+        let read = get_password_v_next(SERVICE, account);
         cleanup(account);
 
         assert_eq!(read.unwrap(), value);
     }
 
-    /// The keytar migration is async but never awaits anything, so one poll completes it.
-    fn block_on<F: std::future::Future>(future: F) -> F::Output {
-        let mut future = std::pin::pin!(future);
-        let mut context = std::task::Context::from_waker(std::task::Waker::noop());
-        match future.as_mut().poll(&mut context) {
-            std::task::Poll::Ready(output) => output,
-            std::task::Poll::Pending => panic!("migration did not complete synchronously"),
-        }
+    #[test]
+    fn migrates_a_keytar_google_private_key_to_v1() {
+        let old_account = "keytar-google-key";
+        let new_account = "migrated-google-key";
+        let value = google_private_key_json();
+        write_blob(SERVICE, old_account, value.as_bytes()).unwrap();
+
+        let keytar = block_on(crate::migration::read_keytar_password(SERVICE, old_account));
+        let saved = match &keytar {
+            Ok(Some(v)) => set_password_v_next(SERVICE, new_account, v),
+            _ => Ok(()),
+        };
+        let read = get_password_v_next(SERVICE, new_account);
+        cleanup(old_account);
+        cleanup(new_account);
+
+        assert_eq!(keytar.unwrap(), Some(value.clone()));
+        saved.unwrap();
+        assert_eq!(read.unwrap(), value);
     }
 
-    /// Runs the unchanged 5→6 keytar migration against `stored` and reads the result back. The
-    /// migration may fail; all that matters is that the secret is still readable afterwards.
-    fn read_after_keytar_migration(account: &str, stored: &[u8]) -> Result<String> {
-        write_blob(SERVICE, account, stored).unwrap();
+    #[test]
+    fn google_private_key_survives_the_5_to_6_migration() {
+        let account = "migrated-v1-google-key";
+        let value = google_private_key_json();
+        set_password_v_next(SERVICE, account, &value).unwrap();
 
         let _ = block_on(crate::migration::migrate_keytar_password(SERVICE, account));
-        let read = get_password(SERVICE, account);
+        let read = get_password_v_next(SERVICE, account);
         cleanup(account);
 
-        read
-    }
-
-    #[test]
-    fn secrets_saved_by_the_3_to_5_migration_survive_the_5_to_6_migration() {
-        for (account, value) in [
-            ("migrated-secret", "\"pässwörd\"".to_owned()),
-            ("migrated-google-key", format!("\"{}\"", "A".repeat(1730))),
-        ] {
-            set_password(SERVICE, account, &value).unwrap();
-            let saved = read_blob(SERVICE, account).unwrap().unwrap();
-
-            assert_eq!(read_after_keytar_migration(account, &saved).unwrap(), value);
-        }
-    }
-
-    #[test]
-    fn keytar_secrets_survive_the_5_to_6_migration() {
-        for (account, value) in [
-            ("keytar-secret", "\"pässwörd\"".to_owned()),
-            ("keytar-google-key", format!("\"{}\"", "A".repeat(1730))),
-        ] {
-            assert_eq!(
-                read_after_keytar_migration(account, value.as_bytes()).unwrap(),
-                value
-            );
-        }
+        assert_eq!(read.unwrap(), value);
     }
 
     #[test]
     fn reports_password_not_found_for_missing_credentials() {
-        let err = get_password(SERVICE, "does-not-exist").unwrap_err();
+        let err = get_password_v_next(SERVICE, "does-not-exist").unwrap_err();
 
         assert_eq!(err.to_string(), desktop_core::password::PASSWORD_NOT_FOUND);
     }

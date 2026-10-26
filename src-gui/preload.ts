@@ -50,10 +50,14 @@ const ipcBridge = {
   secureStorage: {
     get: <T>(key: string): Promise<T> =>
       ipcRenderer.invoke("secureStorageService", { action: "get", key }),
+    getVNext: <T>(key: string): Promise<T> =>
+      ipcRenderer.invoke("secureStorageService", { action: "getVNext", key }),
     has: (key: string): Promise<boolean> =>
       ipcRenderer.invoke("secureStorageService", { action: "has", key }),
     save: (key: string, obj: any): Promise<void> =>
       ipcRenderer.invoke("secureStorageService", { action: "save", key, obj }),
+    saveVNext: (key: string, obj: any): Promise<void> =>
+      ipcRenderer.invoke("secureStorageService", { action: "saveVNext", key, obj }),
     remove: (key: string): Promise<void> =>
       ipcRenderer.invoke("secureStorageService", { action: "remove", key }),
   },

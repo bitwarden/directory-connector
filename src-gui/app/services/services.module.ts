@@ -13,7 +13,10 @@ import { I18nService as I18nServiceAbstraction } from "@/libs/abstractions/i18n.
 import { LogService as LogServiceAbstraction } from "@/libs/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/libs/abstractions/platformUtils.service";
-import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
+import {
+  SecureStorageService,
+  StorageService as StorageServiceAbstraction,
+} from "@/libs/abstractions/storage.service";
 import { DefaultEnvironmentService as EnvironmentServiceImplementation } from "@/libs/services/environment/environment.service";
 import {
   DefaultStateService,
@@ -108,7 +111,7 @@ export const servicesProviders: (Provider | EnvironmentProviders)[] = [
     provide: StateService,
     useFactory: (
       storageService: StorageServiceAbstraction,
-      secureStorageService: StorageServiceAbstraction,
+      secureStorageService: SecureStorageService,
       logService: LogServiceAbstraction,
     ) =>
       // TODO: Remove renderer-side StateService entirely — it proxies all reads/writes over
