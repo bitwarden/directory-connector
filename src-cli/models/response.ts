@@ -9,7 +9,9 @@ export class Response {
     } else {
       res.message =
         error.message != null
-          ? error.message
+          ? error.cause != null
+            ? `${error.message} (${String(error.cause)})`
+            : error.message
           : error.toString() === "[object Object]"
             ? JSON.stringify(error)
             : error.toString();
