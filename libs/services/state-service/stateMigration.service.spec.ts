@@ -788,6 +788,29 @@ describe("StateMigrationService", () => {
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
+      it("logs a save failure by key name and still migrates the other keys", async () => {
+        const save = secureStorage.save.bind(secureStorage);
+        jest
+          .spyOn(secureStorage, "save")
+          .mockImplementation((key, obj) =>
+            key === SecureStorageKeys.ldap
+              ? Promise.reject(new Error("too large for Credential Manager"))
+              : save(key, obj),
+          );
+
+        await expect(svc.migrate()).resolves.toBeUndefined();
+
+        expect(logService.error).toHaveBeenCalledWith(
+          expect.stringContaining(`${userId}_ldapPassword`),
+        );
+        expect(JSON.stringify((logService.error as jest.Mock).mock.calls)).not.toContain(
+          "ldap-pass",
+        );
+        expect(secureStorage.store.has(SecureStorageKeys.ldap)).toBe(false);
+        expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
       it("skips all secure storage work and just bumps version on non-Windows", async () => {
         Object.defineProperty(process, "platform", { value: "darwin", configurable: true });
         const secureSnapshot = new Map(secureStorage.store);
@@ -1167,6 +1190,50 @@ describe("StateMigrationService", () => {
         expect(saveSpy).toHaveBeenCalledWith(SecureStorageKeys.gsuite, privateKey);
         expect(saveVNextSpy).not.toHaveBeenCalled();
       });
+
+      it("writes when the active configuration's scoped secret and the legacy secret are both absent", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, { id: "gsuite-id-1" });
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(privateKey);
+      });
+
+      it("does not write when both the scoped and legacy secrets can be read", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, { id: "gsuite-id-1" });
+        secureStorage.store.set(`${SecureStorageKeys.gsuite}:gsuite-id-1`, "scoped-key");
+        secureStorage.store.set(SecureStorageKeys.gsuite, "legacy-key");
+        const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+
+        await svc.migrate();
+
+        expect(saveVNextSpy).not.toHaveBeenCalled();
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("legacy-key");
+      });
+
+      it.each([StateVersion.Four, StateVersion.Five, StateVersion.Six])(
+        "recovers the private key from v%s when 6→7 cannot save it as UTF-16",
+        async (startVersion) => {
+          // On Windows, save() writes UTF-16 through desktop_core, and a Google Workspace private
+          // key is too large for Credential Manager at that size, so the write rejects.
+          storage.store.set(StorageKeys.stateVersion, startVersion);
+          const save = secureStorage.save.bind(secureStorage);
+          jest
+            .spyOn(secureStorage, "save")
+            .mockImplementation((key, obj) =>
+              key === SecureStorageKeys.gsuite
+                ? Promise.reject(new Error("too large for Credential Manager"))
+                : save(key, obj),
+            );
+          const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+
+          await expect(svc.migrate()).resolves.toBeUndefined();
+
+          expect(saveVNextSpy).toHaveBeenCalledWith(SecureStorageKeys.gsuite, privateKey);
+          expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(privateKey);
+          expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+        },
+      );
     });
 
     describe("stampVersion()", () => {

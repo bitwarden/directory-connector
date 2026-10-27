@@ -348,8 +348,18 @@ export class StateMigrationService {
             // than a JSON-encoded value, so use it as is.
             value = raw;
           }
-          await this.secureStorageService.save(newKey, value);
-          written.add(newKey);
+          try {
+            await this.secureStorageService.save(newKey, value);
+            written.add(newKey);
+          } catch (e) {
+            // On Windows a Google Workspace private key is too large to save as UTF-16. Continue
+            // so the state version still advances and migrateStateFrom9To10 can recover it.
+            this.logService.error(
+              `StateMigrationService: failed to migrate legacy credential "${oldKey}": ${
+                e instanceof Error ? e.message : String(e)
+              }`,
+            );
+          }
         }
       }
     }
