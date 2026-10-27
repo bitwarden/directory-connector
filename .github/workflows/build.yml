@@ -86,7 +86,7 @@ jobs:
           platform: Linux
 
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
 
       - name: Install
         run: npm ci
@@ -157,7 +157,7 @@ jobs:
           platform: macOS
 
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           targets: aarch64-apple-darwin
 
@@ -289,7 +289,7 @@ jobs:
           platform: Windows
 
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           targets: x86_64-pc-windows-msvc
 
@@ -352,7 +352,7 @@ jobs:
           platform: Windows
 
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           targets: x86_64-pc-windows-msvc
 
@@ -464,7 +464,7 @@ jobs:
           platform: Linux
 
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
 
       - name: NPM Install
         run: npm ci
@@ -517,7 +517,7 @@ jobs:
           platform: macOS
 
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
 
       - name: Print environment
         run: |
@@ -651,7 +651,7 @@ jobs:
           platform: macOS
 
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           targets: aarch64-apple-darwin
 
