@@ -280,7 +280,7 @@ export class StateMigrationService {
     for (let i = 0; i < results.length; i++) {
       if (results[i].error) {
         this.logService.error(
-          `StateMigrationService: failed to re-encode credential "${credentialKeys[i]}": ${results[i].error}`,
+          `StateMigrationService (v5 to v6): failed to re-encode credential "${credentialKeys[i]}": ${results[i].error}`,
         );
       }
     }
@@ -332,7 +332,7 @@ export class StateMigrationService {
           raw = await passwords.readKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
         } catch (e) {
           this.logService.error(
-            `StateMigrationService: failed to read legacy credential "${oldKey}": ${e}`,
+            `StateMigrationService (v6 to v7): failed to read legacy credential "${oldKey}": ${e}`,
           );
           continue;
         }
@@ -355,7 +355,7 @@ export class StateMigrationService {
             // On Windows a Google Workspace private key is too large to save as UTF-16. Continue
             // so the state version still advances and migrateStateFrom9To10 can recover it.
             this.logService.error(
-              `StateMigrationService: failed to migrate legacy credential "${oldKey}": ${
+              `StateMigrationService (v6 to v7): failed to migrate legacy credential "${oldKey}": ${
                 e instanceof Error ? e.message : String(e)
               }`,
             );
@@ -426,7 +426,7 @@ export class StateMigrationService {
         await this.secureStorageService.save(key, value);
       } catch (e) {
         this.logService.error(
-          `StateMigrationService: failed to re-home secure storage key "${key}": ${
+          `StateMigrationService (v8 to v9): failed to re-home secure storage key "${key}": ${
             e instanceof Error ? e.message : String(e)
           }`,
         );
@@ -472,7 +472,7 @@ export class StateMigrationService {
         }
       } catch (e) {
         this.logService.error(
-          `StateMigrationService: failed to migrate legacy credential "${oldKey}": ${
+          `StateMigrationService (v9 to v10): failed to migrate legacy credential "${oldKey}": ${
             e instanceof Error ? e.message : String(e)
           }`,
         );
