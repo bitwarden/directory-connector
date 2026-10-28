@@ -73,3 +73,29 @@ jobs:
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           report_type: test_results
+
+  rust:
+    name: Run Rust tests - ${{ matrix.os }}
+    if: ${{ startsWith(github.head_ref, 'version_bump_') == false }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Windows is required: the Credential Manager and migration tests are cfg(windows)
+        os: [ubuntu-24.04, macos-15, windows-2022]
+
+    defaults:
+      run:
+        working-directory: native
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+
+      - name: Run tests
+        run: cargo test --locked
