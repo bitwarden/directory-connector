@@ -3,7 +3,7 @@ import * as path from "path";
 
 import { DirectoryFactoryService } from "@/libs/abstractions/directory-factory.service";
 import { EnvironmentService } from "@/libs/abstractions/environment.service";
-import { StorageService as StorageServiceAbstraction } from "@/libs/abstractions/storage.service";
+import { SecureStorageService } from "@/libs/abstractions/storage.service";
 import { TokenService } from "@/libs/abstractions/token.service";
 import { APPLICATION_NAME } from "@/libs/constants";
 import { ClientType } from "@/libs/enums/clientType";
@@ -42,7 +42,7 @@ export class Main {
 
   messagingService: NoopMessagingService;
   storageService: LowdbStorageService;
-  secureStorageService: StorageServiceAbstraction;
+  secureStorageService: SecureStorageService;
   i18nService: I18nService;
   platformUtilsService: CliPlatformUtilsService;
   tokenService: TokenService;

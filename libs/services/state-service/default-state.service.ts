@@ -1,5 +1,5 @@
 import { LogService } from "@/libs/abstractions/log.service";
-import { StorageService } from "@/libs/abstractions/storage.service";
+import { SecureStorageService, StorageService } from "@/libs/abstractions/storage.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { IConfiguration } from "@/libs/models/IConfiguration";
 import { EnvironmentUrls } from "@/libs/models/domain/environmentUrls";
@@ -40,7 +40,7 @@ export interface StateMigrator {
 export class DefaultStateService implements StateService {
   constructor(
     protected storageService: StorageService,
-    protected secureStorageService: StorageService,
+    protected secureStorageService: SecureStorageService,
     protected logService: LogService,
     protected stateMigrationService: StateMigrator,
     protected useSecureStorageForSecrets = true,
@@ -243,27 +243,36 @@ export class DefaultStateService implements StateService {
     return `${legacyKey}:${id}` as SecureStorageKey;
   }
 
+  /**
+   * `vNext` reads and writes through {@link SecureStorageService.getVNext}/`saveVNext`, which
+   * must only be used for the Google Workspace private key.
+   */
   private async getScopedSecret(
     legacyKey: SecureStorageKey,
     id: string | null | undefined,
+    vNext = false,
   ): Promise<string | null> {
+    const get = (key: SecureStorageKey) =>
+      vNext
+        ? this.secureStorageService.getVNext<string>(key)
+        : this.secureStorageService.get<string>(key);
+
     if (id != null) {
-      const scoped = await this.secureStorageService.get<string>(
-        this.scopedSecretKey(legacyKey, id),
-      );
+      const scoped = await get(this.scopedSecretKey(legacyKey, id));
       if (scoped != null) {
         return scoped;
       }
     }
     // Fall back to the legacy, unscoped key for installs upgrading from a version that stored
     // a single shared secret per directory type, regardless of which configuration was active.
-    return await this.secureStorageService.get<string>(legacyKey);
+    return await get(legacyKey);
   }
 
   private async setScopedSecret(
     legacyKey: SecureStorageKey,
     id: string | null | undefined,
     value: string,
+    vNext = false,
   ): Promise<void> {
     const key = id != null ? this.scopedSecretKey(legacyKey, id) : legacyKey;
     if (value == null) {
@@ -273,6 +282,8 @@ export class DefaultStateService implements StateService {
       if (id != null) {
         await this.secureStorageService.remove(legacyKey);
       }
+    } else if (vNext) {
+      await this.secureStorageService.saveVNext(key, value);
     } else {
       await this.secureStorageService.save(key, value);
     }
@@ -287,11 +298,11 @@ export class DefaultStateService implements StateService {
   }
 
   private async getGsuiteSecret(config: GSuiteConfiguration): Promise<string> {
-    return await this.getScopedSecret(SecureStorageKeys.gsuite, config?.id);
+    return await this.getScopedSecret(SecureStorageKeys.gsuite, config?.id, true);
   }
 
   private async setGsuiteSecret(config: GSuiteConfiguration, value: string): Promise<void> {
-    await this.setScopedSecret(SecureStorageKeys.gsuite, config.id, value);
+    await this.setScopedSecret(SecureStorageKeys.gsuite, config.id, value, true);
   }
 
   private async getEntraSecret(config: EntraIdConfiguration): Promise<string> {

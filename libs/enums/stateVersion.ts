@@ -8,5 +8,6 @@ export enum StateVersion {
   Seven = 7, // Re-run legacy keytar credential migration for machines stuck at v6 with un-migrated {userId}_* credentials
   Eight = 8, // Backfill inviteUsersAfterProvisioning=true onto existing sync configs to preserve behavior
   Nine = 9, // macOS: re-home keychain items orphaned by the renderer -> main process ownership change
-  Latest = Nine,
+  Ten = 10, // Windows: re-migrate the keytar Google Workspace private key, which never fit in Credential Manager as UTF-16
+  Latest = Ten,
 }

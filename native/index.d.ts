@@ -16,6 +16,12 @@ export declare namespace passwords {
    * Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
    */
   export function getPassword(service: string, account: string): Promise<string>
+  /**
+   * Like `get_password`, but on Windows also reads secrets saved by `set_password_v_next`.
+   * Only use for the Google Workspace private key.
+   * Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
+   */
+  export function getPasswordVNext(service: string, account: string): Promise<string>
   /** Check if OS secure storage is available. */
   export function isAvailable(): Promise<boolean>
   /**
@@ -42,4 +48,11 @@ export declare namespace passwords {
   export function readKeytarPassword(service: string, account: string): Promise<string | null>
   /** Save the password to the keychain. Adds an entry if none exists, otherwise updates it. */
   export function setPassword(service: string, account: string, password: string): Promise<void>
+  /**
+   * Like `set_password`, but on Windows saves the secret as UTF-8 with a version header, so values
+   * too large for Credential Manager as UTF-16 still fit. Earlier versions of Directory Connector
+   * cannot read these. Only use for the Google Workspace private key, and read it back with
+   * `get_password_v_next`.
+   */
+  export function setPasswordVNext(service: string, account: string, password: string): Promise<void>
 }

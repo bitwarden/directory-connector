@@ -313,6 +313,57 @@ describe("DefaultStateService", () => {
       );
       expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
     });
+
+    it("saves privateKey with saveVNext, not save", async () => {
+      const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+      const saveSpy = jest.spyOn(secureStorage, "save");
+
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+      const stored = storage.store.get(StorageKeys.directoryGsuite) as GSuiteConfiguration;
+
+      expect(saveVNextSpy).toHaveBeenCalledWith(
+        scopedSecretKey(SecureStorageKeys.gsuite, stored),
+        "private-key-content",
+      );
+      expect(saveSpy).not.toHaveBeenCalled();
+    });
+
+    it("reads privateKey with getVNext, not get", async () => {
+      await stateService.setDirectory(DirectoryType.GSuite, { ...gsuiteConfig });
+      const getVNextSpy = jest.spyOn(secureStorage, "getVNext");
+      const getSpy = jest.spyOn(secureStorage, "get");
+
+      await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+      expect(getVNextSpy).toHaveBeenCalled();
+      expect(getSpy).not.toHaveBeenCalled();
+    });
+
+    it("falls back to the legacy unscoped key with getVNext", async () => {
+      storage.store.set(StorageKeys.directoryGsuite, {
+        ...gsuiteConfig,
+        id: "gsuite-id-1",
+        privateKey: StoredSecurely,
+      });
+      secureStorage.store.set(SecureStorageKeys.gsuite, "legacy-private-key");
+      const getVNextSpy = jest.spyOn(secureStorage, "getVNext");
+
+      const result = await stateService.getDirectory<GSuiteConfiguration>(DirectoryType.GSuite);
+
+      expect(result.privateKey).toBe("legacy-private-key");
+      expect(getVNextSpy).toHaveBeenCalledWith(SecureStorageKeys.gsuite);
+    });
+
+    it("does not use vNext for other directory secrets", async () => {
+      const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+      const getVNextSpy = jest.spyOn(secureStorage, "getVNext");
+
+      await stateService.setDirectory(DirectoryType.Ldap, { ...ldapConfig });
+      await stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
+
+      expect(saveVNextSpy).not.toHaveBeenCalled();
+      expect(getVNextSpy).not.toHaveBeenCalled();
+    });
   });
 
   // -------------------------------------------------------------------------

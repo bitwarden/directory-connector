@@ -156,10 +156,14 @@ export class Main {
         switch (options.action) {
           case "get":
             return secureStorageService.get(options.key as any);
+          case "getVNext":
+            return secureStorageService.getVNext(options.key as any);
           case "has":
             return secureStorageService.has(options.key as any);
           case "save":
             return secureStorageService.save(options.key as any, options.obj);
+          case "saveVNext":
+            return secureStorageService.saveVNext(options.key as any, options.obj);
           case "remove":
             return secureStorageService.remove(options.key as any);
           default:

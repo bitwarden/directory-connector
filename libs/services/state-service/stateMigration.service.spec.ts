@@ -66,8 +66,8 @@ describe("StateMigrationService", () => {
       expect(await svc.needsMigration()).toBe(true);
     });
 
-    it("returns false when stateVersion is StateVersion.Nine (Latest)", async () => {
-      storage.store.set(StorageKeys.stateVersion, StateVersion.Nine);
+    it("returns false when stateVersion is StateVersion.Ten (Latest)", async () => {
+      storage.store.set(StorageKeys.stateVersion, StateVersion.Ten);
 
       expect(await svc.needsMigration()).toBe(false);
     });
@@ -78,8 +78,8 @@ describe("StateMigrationService", () => {
       expect(await svc.needsMigration()).toBe(true);
     });
 
-    it("returns false when globals.stateVersion is StateVersion.Nine (Latest)", async () => {
-      storage.store.set("global", { stateVersion: StateVersion.Nine });
+    it("returns false when globals.stateVersion is StateVersion.Ten (Latest)", async () => {
+      storage.store.set("global", { stateVersion: StateVersion.Ten });
 
       expect(await svc.needsMigration()).toBe(false);
     });
@@ -105,7 +105,7 @@ describe("StateMigrationService", () => {
 
       await svc.migrate();
 
-      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
     });
 
     it("runs remaining migrations when stateVersion is StateVersion.Five", async () => {
@@ -113,7 +113,7 @@ describe("StateMigrationService", () => {
 
       await svc.migrate();
 
-      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
     });
 
     it("runs migrateStateFrom6To7 when stateVersion is StateVersion.Six", async () => {
@@ -121,11 +121,11 @@ describe("StateMigrationService", () => {
 
       await svc.migrate();
 
-      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+      expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
     });
 
-    it("does nothing (no extra writes) when stateVersion is already StateVersion.Nine", async () => {
-      storage.store.set(StorageKeys.stateVersion, StateVersion.Nine);
+    it("does nothing (no extra writes) when stateVersion is already StateVersion.Ten", async () => {
+      storage.store.set(StorageKeys.stateVersion, StateVersion.Ten);
       const storeSnapshot = new Map(storage.store);
 
       await svc.migrate();
@@ -136,13 +136,13 @@ describe("StateMigrationService", () => {
 
   describe("migrateStateFrom4To5()", () => {
     describe("no account (null activeUserId)", () => {
-      it("writes only stateVersion = Nine, no other keys", async () => {
+      it("writes only stateVersion = Ten, no other keys", async () => {
         // Seed stateVersion = Four, but no activeUserId and no account data
         storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
 
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
         // Only stateVersion written — nothing else
         expect(storage.store.size).toBe(1);
         expect(secureStorage.store.size).toBe(0);
@@ -292,10 +292,10 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.get(SecureStorageKeys.apiKeyClientSecret)).toBe("client-secret");
       });
 
-      it("sets stateVersion to StateVersion.Nine after all migrations", async () => {
+      it("sets stateVersion to StateVersion.Ten after all migrations", async () => {
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
     });
 
@@ -542,7 +542,7 @@ describe("StateMigrationService", () => {
         // No window settings written
         expect(storage.store.has(StorageKeys.window)).toBe(false);
         // stateVersion still updated
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
     });
 
@@ -623,10 +623,10 @@ describe("StateMigrationService", () => {
         expect(badKeys).toHaveLength(0);
       });
 
-      it("bumps stateVersion to Nine (5→6→7→8→9)", async () => {
+      it("bumps stateVersion to Ten (5→6→7→8→9→10)", async () => {
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
       it("logs an error when migrateKeytarPassword returns an error field", async () => {
@@ -755,10 +755,10 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.has(`${userId}_oktaToken`)).toBe(true);
       });
 
-      it("bumps stateVersion to Nine (Latest)", async () => {
+      it("bumps stateVersion to Ten (Latest)", async () => {
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
       it("does not overwrite an existing flat key with an old {userId}_* value", async () => {
@@ -776,7 +776,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store).toEqual(secureSnapshot);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
       it("skips writing a key when readKeytarPassword returns null (credential not found)", async () => {
@@ -785,7 +785,30 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store.has(SecureStorageKeys.ldap)).toBe(false);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
+      it("logs a save failure by key name and still migrates the other keys", async () => {
+        const save = secureStorage.save.bind(secureStorage);
+        jest
+          .spyOn(secureStorage, "save")
+          .mockImplementation((key, obj) =>
+            key === SecureStorageKeys.ldap
+              ? Promise.reject(new Error("too large for Credential Manager"))
+              : save(key, obj),
+          );
+
+        await expect(svc.migrate()).resolves.toBeUndefined();
+
+        expect(logService.error).toHaveBeenCalledWith(
+          expect.stringContaining(`${userId}_ldapPassword`),
+        );
+        expect(JSON.stringify((logService.error as jest.Mock).mock.calls)).not.toContain(
+          "ldap-pass",
+        );
+        expect(secureStorage.store.has(SecureStorageKeys.ldap)).toBe(false);
+        expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
       it("skips all secure storage work and just bumps version on non-Windows", async () => {
@@ -795,7 +818,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store).toEqual(secureSnapshot);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
       it("skips readKeytarPassword and does not write secrets when useSecureStorageForSecrets = false (plaintext mode)", async () => {
@@ -806,7 +829,7 @@ describe("StateMigrationService", () => {
 
         expect(passwords.readKeytarPassword).not.toHaveBeenCalled();
         expect(secureStorage.store).toEqual(secureSnapshot);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
     });
 
@@ -825,7 +848,7 @@ describe("StateMigrationService", () => {
           groups: true,
           inviteUsersAfterProvisioning: true,
         });
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
       it("leaves an explicit inviteUsersAfterProvisioning = false untouched", async () => {
@@ -854,7 +877,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(storage.store.has(StorageKeys.sync)).toBe(false);
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
     });
 
@@ -940,7 +963,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(secureStorage.store.get(SecureStorageKeys.refreshToken)).toBe("refresh");
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
       it("logs a failure by key name without throwing", async () => {
@@ -984,10 +1007,10 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store.get(SecureStorageKeys.okta)).toBe("okta-token");
       });
 
-      it("bumps stateVersion to Nine", async () => {
+      it("bumps stateVersion to Ten", async () => {
         await svc.migrate();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
       it("touches no secure storage on non-macOS platforms", async () => {
@@ -998,7 +1021,7 @@ describe("StateMigrationService", () => {
         await svc.migrate();
 
         expect(removeSpy).not.toHaveBeenCalled();
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
       it("touches no secure storage when useSecureStorageForSecrets is false", async () => {
@@ -1009,15 +1032,215 @@ describe("StateMigrationService", () => {
         await plaintextSvc.migrate();
 
         expect(removeSpy).not.toHaveBeenCalled();
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
+    });
+
+    describe("migrateStateFrom9To10()", () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { passwords } = require("dc-native");
+      const userId = "user-at-v9";
+      const oldKey = `${userId}_gsuitePrivateKey`;
+      const privateKey = "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n";
+      const originalPlatform = process.platform;
+
+      function setPlatform(platform: string) {
+        Object.defineProperty(process, "platform", { value: platform, configurable: true });
+      }
+
+      beforeEach(() => {
+        jest.clearAllMocks();
+        jest.restoreAllMocks();
+        setPlatform("win32");
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Nine);
+        storage.store.set("activeUserId", userId);
+
+        // The raw keytar blob: JSON.stringify'd by the old KeytarSecureStorageService.
+        passwords.readKeytarPassword.mockImplementation((_service: string, account: string) =>
+          Promise.resolve(account === oldKey ? JSON.stringify(privateKey) : null),
+        );
+      });
+
+      afterEach(() => {
+        setPlatform(originalPlatform);
+        passwords.readKeytarPassword.mockResolvedValue(null);
+      });
+
+      it("reads the keytar Google Workspace private key from its old key", async () => {
+        await svc.migrate();
+
+        expect(passwords.readKeytarPassword).toHaveBeenCalledWith(expect.any(String), oldKey);
+      });
+
+      it("writes the private key to SecureStorageKeys.gsuite with saveVNext", async () => {
+        const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+        const saveSpy = jest.spyOn(secureStorage, "save");
+
+        await svc.migrate();
+
+        expect(saveVNextSpy).toHaveBeenCalledWith(SecureStorageKeys.gsuite, privateKey);
+        expect(saveSpy).not.toHaveBeenCalled();
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(privateKey);
+      });
+
+      it("uses the keytar value as is when it is not JSON", async () => {
+        passwords.readKeytarPassword.mockResolvedValue(privateKey);
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(privateKey);
+      });
+
+      it("does not replace a legacy gsuite secret that can be read", async () => {
+        secureStorage.store.set(SecureStorageKeys.gsuite, "current-key");
+
+        await svc.migrate();
+
+        expect(passwords.readKeytarPassword).not.toHaveBeenCalled();
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("current-key");
+      });
+
+      it("does not write when the active configuration's scoped secret can be read", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, { id: "gsuite-id-1" });
+        secureStorage.store.set(`${SecureStorageKeys.gsuite}:gsuite-id-1`, "current-key");
+        const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+
+        await svc.migrate();
+
+        expect(saveVNextSpy).not.toHaveBeenCalled();
+        expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
+      });
+
+      it("replaces a gsuite secret that cannot be read", async () => {
+        secureStorage.store.set(SecureStorageKeys.gsuite, "unreadable");
+        jest.spyOn(secureStorage, "getVNext").mockRejectedValue(new Error("not valid UTF-16"));
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(privateKey);
+      });
+
+      it("writes nothing when there is no keytar private key", async () => {
+        passwords.readKeytarPassword.mockResolvedValue(null);
+        const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+
+        await svc.migrate();
+
+        expect(saveVNextSpy).not.toHaveBeenCalled();
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
+      it("logs a failure by key name without throwing or logging the secret", async () => {
+        jest.spyOn(secureStorage, "saveVNext").mockRejectedValue(new Error("too large"));
+
+        await expect(svc.migrate()).resolves.toBeUndefined();
+
+        expect(logService.error).toHaveBeenCalledWith(expect.stringContaining(oldKey));
+        expect(JSON.stringify((logService.error as jest.Mock).mock.calls)).not.toContain("abc");
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
+      it("logs a keytar read failure without throwing", async () => {
+        passwords.readKeytarPassword.mockRejectedValue(new Error("Credential Manager failure"));
+
+        await expect(svc.migrate()).resolves.toBeUndefined();
+
+        expect(logService.error).toHaveBeenCalledWith(expect.stringContaining(oldKey));
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
+      it("does nothing when activeUserId is absent", async () => {
+        storage.store.delete("activeUserId");
+
+        await svc.migrate();
+
+        expect(passwords.readKeytarPassword).not.toHaveBeenCalled();
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
+      it("touches no secure storage on non-Windows platforms", async () => {
+        setPlatform("darwin");
+
+        await svc.migrate();
+
+        expect(passwords.readKeytarPassword).not.toHaveBeenCalled();
+        expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
+      it("touches no secure storage when useSecureStorageForSecrets is false", async () => {
+        const plaintextSvc = makeService(storage, secureStorage, false, logService);
+
+        await plaintextSvc.migrate();
+
+        expect(passwords.readKeytarPassword).not.toHaveBeenCalled();
+        expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
+      it("is the only migration that uses vNext", async () => {
+        // From v6, the 6→7 migration copies the same keytar key with save(). Earlier migrations
+        // must keep doing so, and 9→10 then finds the key readable and leaves it alone.
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Six);
+        const saveSpy = jest.spyOn(secureStorage, "save");
+        const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+
+        await svc.migrate();
+
+        expect(saveSpy).toHaveBeenCalledWith(SecureStorageKeys.gsuite, privateKey);
+        expect(saveVNextSpy).not.toHaveBeenCalled();
+      });
+
+      it("writes when the active configuration's scoped secret and the legacy secret are both absent", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, { id: "gsuite-id-1" });
+
+        await svc.migrate();
+
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(privateKey);
+      });
+
+      it("does not write when both the scoped and legacy secrets can be read", async () => {
+        storage.store.set(StorageKeys.directoryGsuite, { id: "gsuite-id-1" });
+        secureStorage.store.set(`${SecureStorageKeys.gsuite}:gsuite-id-1`, "scoped-key");
+        secureStorage.store.set(SecureStorageKeys.gsuite, "legacy-key");
+        const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+
+        await svc.migrate();
+
+        expect(saveVNextSpy).not.toHaveBeenCalled();
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("legacy-key");
+      });
+
+      it.each([StateVersion.Four, StateVersion.Five, StateVersion.Six])(
+        "recovers the private key from v%s when 6→7 cannot save it as UTF-16",
+        async (startVersion) => {
+          // On Windows, save() writes UTF-16 through desktop_core, and a Google Workspace private
+          // key is too large for Credential Manager at that size, so the write rejects.
+          storage.store.set(StorageKeys.stateVersion, startVersion);
+          const save = secureStorage.save.bind(secureStorage);
+          jest
+            .spyOn(secureStorage, "save")
+            .mockImplementation((key, obj) =>
+              key === SecureStorageKeys.gsuite
+                ? Promise.reject(new Error("too large for Credential Manager"))
+                : save(key, obj),
+            );
+          const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+
+          await expect(svc.migrate()).resolves.toBeUndefined();
+
+          expect(saveVNextSpy).toHaveBeenCalledWith(SecureStorageKeys.gsuite, privateKey);
+          expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(privateKey);
+          expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+        },
+      );
     });
 
     describe("stampVersion()", () => {
       it("writes stateVersion = Latest when stateVersion is absent (fresh install)", async () => {
         await svc.stampVersion();
 
-        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Nine);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
       it("does not overwrite an existing stateVersion", async () => {
@@ -1036,7 +1259,7 @@ describe("StateMigrationService", () => {
       });
 
       it("prefers flat stateVersion key over globals.stateVersion", async () => {
-        storage.store.set(StorageKeys.stateVersion, StateVersion.Nine);
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Ten);
         storage.store.set("global", { stateVersion: StateVersion.Four });
 
         // Flat key wins → at latest → no migration needed

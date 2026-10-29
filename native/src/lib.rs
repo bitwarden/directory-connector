@@ -27,6 +27,37 @@ pub async fn set_password(
         .map_err(|e| napi::Error::from_reason(e.to_string()))
 }
 
+/// Like `get_password`, but on Windows also reads secrets saved by `set_password_v_next`.
+/// Only use for the Google Workspace private key.
+/// Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
+#[napi(namespace = "passwords")]
+pub async fn get_password_v_next(service: String, account: String) -> napi::Result<String> {
+    #[cfg(windows)]
+    let result = windows::get_password_v_next(&service, &account);
+    #[cfg(not(windows))]
+    let result = desktop_core::password::get_password(&service, &account).await;
+
+    result.map_err(|e| napi::Error::from_reason(e.to_string()))
+}
+
+/// Like `set_password`, but on Windows saves the secret as UTF-8 with a version header, so values
+/// too large for Credential Manager as UTF-16 still fit. Earlier versions of Directory Connector
+/// cannot read these. Only use for the Google Workspace private key, and read it back with
+/// `get_password_v_next`.
+#[napi(namespace = "passwords")]
+pub async fn set_password_v_next(
+    service: String,
+    account: String,
+    password: String,
+) -> napi::Result<()> {
+    #[cfg(windows)]
+    let result = windows::set_password_v_next(&service, &account, &password);
+    #[cfg(not(windows))]
+    let result = desktop_core::password::set_password(&service, &account, &password).await;
+
+    result.map_err(|e| napi::Error::from_reason(e.to_string()))
+}
+
 /// Delete the stored password from the keychain.
 /// Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
 #[napi(namespace = "passwords")]
@@ -101,6 +132,13 @@ pub struct MigrateKeytarResult {
     pub migrated: bool,
     pub error: Option<String>,
 }
+
+// Only used at runtime on Windows; compiled everywhere so its unit tests run on every platform.
+#[cfg_attr(not(windows), allow(dead_code))]
+mod encoding;
+
+#[cfg(windows)]
+mod windows;
 
 #[cfg(windows)]
 mod migration;
