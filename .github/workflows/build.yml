@@ -12,6 +12,11 @@ on:
 permissions:
   contents: read
 
+env:
+  # actions/checkout refuses fork PR code under pull_request_target. Only allow it for fork PRs that a user
+  # with write access reviewed and labeled (see build-target.yml). Same-repo PRs don't need it.
+  _ALLOW_FORK_PR_CHECKOUT: ${{ github.event.action == 'labeled' && github.event.label.name == 'ci:signed-build' }}
+
 jobs:
   setup:
     name: Setup
@@ -28,7 +33,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
+          allow-unsafe-pr-checkout: ${{ env._ALLOW_FORK_PR_CHECKOUT }}
 
       - name: Get Package Version
         id: retrieve-version
@@ -77,7 +82,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
+          allow-unsafe-pr-checkout: ${{ env._ALLOW_FORK_PR_CHECKOUT }}
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -148,7 +153,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
+          allow-unsafe-pr-checkout: ${{ env._ALLOW_FORK_PR_CHECKOUT }}
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -161,6 +166,16 @@ jobs:
         with:
           targets: aarch64-apple-darwin
 
+      - name: Install
+        run: npm ci
+
+      - name: Build native module
+        run: npm run build:native:release
+
+      - name: Package CLI
+        run: npm run dist:cli:mac:arm64
+
+      # Retrieve signing secrets only after dependencies are installed and the build has finished.
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -194,6 +209,7 @@ jobs:
           security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          rm -rf "$HOME/certificates"
 
       - name: Set up private auth key
         env:
@@ -203,15 +219,6 @@ jobs:
           cat << EOF > ~/private_keys/AuthKey_KP9P89S243.p8
           ${_APP_STORE_CONNECT_AUTH_KEY}
           EOF
-
-      - name: Install
-        run: npm ci
-
-      - name: Build native module
-        run: npm run build:native:release
-
-      - name: Package CLI
-        run: npm run dist:cli:mac:arm64
 
       - name: Sign CLI binary and native addons
         run: |
@@ -237,6 +244,13 @@ jobs:
             --key-id KP9P89S243 \
             --issuer "$APP_STORE_CONNECT_TEAM_ISSUER" \
             --wait
+
+      # Remove signing material before the version test runs the built binary.
+      - name: Clean up signing files
+        if: always()
+        run: |
+          security delete-keychain build.keychain || true
+          rm -rf "$HOME/certificates" "$HOME/private_keys"
 
       - name: Version Test
         run: |
@@ -277,7 +291,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
+          allow-unsafe-pr-checkout: ${{ env._ALLOW_FORK_PR_CHECKOUT }}
 
       - name: Setup Windows builder
         run: choco install checksum --no-progress
@@ -343,7 +357,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
+          allow-unsafe-pr-checkout: ${{ env._ALLOW_FORK_PR_CHECKOUT }}
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -455,7 +469,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
+          allow-unsafe-pr-checkout: ${{ env._ALLOW_FORK_PR_CHECKOUT }}
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -508,7 +522,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
+          allow-unsafe-pr-checkout: ${{ env._ALLOW_FORK_PR_CHECKOUT }}
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -526,6 +540,10 @@ jobs:
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
 
+      - name: Install Node dependencies
+        run: npm ci
+
+      # Retrieve signing secrets only after dependencies are installed.
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -574,9 +592,7 @@ jobs:
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
-
-      - name: Install Node dependencies
-        run: npm ci
+          rm -rf "$HOME/certificates"
 
       - name: Set up private auth key
         env:
@@ -594,6 +610,12 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: KP9P89S243
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_KP9P89S243.p8
           CSC_FOR_PULL_REQUEST: true
+
+      - name: Clean up signing files
+        if: always()
+        run: |
+          security delete-keychain build.keychain || true
+          rm -rf "$HOME/certificates" "$HOME/private_keys"
 
       - name: Upload .zip artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
@@ -642,7 +664,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
+          allow-unsafe-pr-checkout: ${{ env._ALLOW_FORK_PR_CHECKOUT }}
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -662,6 +684,10 @@ jobs:
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
 
+      - name: Install Node dependencies
+        run: npm ci
+
+      # Retrieve signing secrets only after dependencies are installed.
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -710,9 +736,7 @@ jobs:
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
-
-      - name: Install Node dependencies
-        run: npm ci
+          rm -rf "$HOME/certificates"
 
       - name: Set up private auth key
         env:
@@ -730,6 +754,12 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: KP9P89S243
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_KP9P89S243.p8
           CSC_FOR_PULL_REQUEST: true
+
+      - name: Clean up signing files
+        if: always()
+        run: |
+          security delete-keychain build.keychain || true
+          rm -rf "$HOME/certificates" "$HOME/private_keys"
 
       - name: Upload .zip artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
