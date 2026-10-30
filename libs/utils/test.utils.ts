@@ -9,18 +9,3 @@ function newGuid() {
 export function GetUniqueString(prefix = "") {
   return prefix + "_" + newGuid();
 }
-
-export function BuildTestObject<T, K extends keyof T = keyof T>(
-  def: Partial<Pick<T, K>> | T,
-  constructor?: new () => T,
-): T {
-  return Object.assign(constructor === null ? {} : new constructor(), def) as T;
-}
-
-export function makeStaticByteArray(length: number, start = 0) {
-  const arr = new Uint8Array(length);
-  for (let i = 0; i < length; i++) {
-    arr[i] = start + i;
-  }
-  return arr.buffer;
-}

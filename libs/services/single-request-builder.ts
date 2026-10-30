@@ -33,6 +33,7 @@ export class SingleRequestBuilder implements RequestBuilder {
         }),
         overwriteExisting: options.overwriteExisting,
         largeImport: false,
+        inviteUsersAfterProvisioning: options.inviteUsersAfterProvisioning,
       }),
     ];
   }

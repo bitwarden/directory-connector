@@ -13,9 +13,13 @@ export class DefaultEnvironmentService implements EnvironmentService {
   private apiUrl: string;
   private identityUrl: string;
 
-  constructor(private stateService: StateService) {
-    this.setUrlsFromStorage();
-  }
+  /**
+   * Callers must `await setUrlsFromStorage()` before issuing requests. Loading the URLs cannot
+   * happen here: a constructor cannot await, so a fire-and-forget call left the getters
+   * returning the Bitwarden cloud defaults until it settled, which silently sent self-hosted
+   * logins to identity.bitwarden.com.
+   */
+  constructor(private stateService: StateService) {}
 
   hasBaseUrl() {
     return this.baseUrl != null;

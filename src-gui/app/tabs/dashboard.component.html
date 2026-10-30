@@ -45,15 +45,15 @@
         </div>
       </dl>
       <div class="flex flex-wrap items-center gap-3">
-        <form #startForm [appApiAction]="startPromise()">
+        <form #startForm="appApiAction" [appApiAction]="startPromise()">
           <button
             type="button"
             (click)="start()"
-            [disabled]="startForm.loading"
+            [disabled]="startForm.loading()"
             class="btn-primary"
           >
-            <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!startForm.loading"></i>
-            <i class="bwi bwi-play bwi-fw" [hidden]="startForm.loading"></i>
+            <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!startForm.loading()"></i>
+            <i class="bwi bwi-play bwi-fw" [hidden]="startForm.loading()"></i>
             {{ "startSync" | i18n }}
           </button>
         </form>
@@ -61,14 +61,14 @@
           <i class="bwi bwi-stop bwi-fw"></i>
           {{ "stopSync" | i18n }}
         </button>
-        <form #syncForm [appApiAction]="syncPromise()">
+        <form #syncForm="appApiAction" [appApiAction]="syncPromise()">
           <button
             type="button"
             (click)="sync()"
-            [disabled]="syncForm.loading"
+            [disabled]="syncForm.loading()"
             class="btn-secondary"
           >
-            <i class="bwi bwi-refresh bwi-fw" [ngClass]="{ 'bwi-spin': syncForm.loading }"></i>
+            <i class="bwi bwi-refresh bwi-fw" [ngClass]="{ 'bwi-spin': syncForm.loading() }"></i>
             {{ "syncNow" | i18n }}
           </button>
         </form>
@@ -83,14 +83,14 @@
     <div class="surface-card-body">
       <p class="text-sm text-gray-500 dark:text-gray-400">{{ "testingDesc" | i18n }}</p>
       <div class="mt-4 flex flex-wrap items-center gap-4">
-        <form #simForm [appApiAction]="simPromise()">
+        <form #simForm="appApiAction" [appApiAction]="simPromise()">
           <button
             type="button"
             (click)="simulate()"
-            [disabled]="simForm.loading"
+            [disabled]="simForm.loading()"
             class="btn-primary"
           >
-            <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!simForm.loading"></i>
+            <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!simForm.loading()"></i>
             {{ "testNow" | i18n }}
           </button>
         </form>
@@ -105,7 +105,7 @@
         </label>
       </div>
 
-      @if (!simForm.loading && (simUsers() || simGroups())) {
+      @if (!simForm.loading() && (simUsers() || simGroups())) {
         <div
           class="mt-6 grid grid-cols-1 gap-8 border-t border-gray-100 pt-6 lg:grid-cols-2 dark:border-gray-800"
         >

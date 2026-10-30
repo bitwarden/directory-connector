@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": "build",
+    "declaration": false,
+    "target": "ES2022",
+    "sourceMap": false
+  },
+  "include": ["src-gui/preload.ts"]
+}

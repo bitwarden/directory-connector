@@ -23,6 +23,14 @@ const UserControlAccountDisabled = 2;
  */
 const ActiveDirectoryExternalId = "objectGUID";
 
+/**
+ * ldapts defaults a search's server-side time limit to 10 seconds, which the server enforces
+ * and which is too short for expensive but legitimate filters (e.g. LDAP_MATCHING_RULE_IN_CHAIN
+ * over nested groups). We override it to a much more generous 5 minutes so slow-but-valid
+ * queries can complete, while still bounding a truly runaway query rather than waiting forever.
+ */
+export const LdapSearchTimeLimitSeconds = 5 * 60;
+
 export class LdapDirectoryService implements IDirectoryService {
   private client: ldapts.Client;
   private dirConfig: LdapConfiguration;
@@ -408,6 +416,7 @@ export class LdapDirectoryService implements IDirectoryService {
       filter: filter,
       scope: "sub",
       paged: this.dirConfig.pagedSearch,
+      timeLimit: LdapSearchTimeLimitSeconds,
       // We need to expressly tell ldapts what attributes to return as Buffer objects,
       // otherwise they are returned as strings
       explicitBufferAttributes: [ActiveDirectoryExternalId],

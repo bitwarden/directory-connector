@@ -1,9 +1,10 @@
-import { JWT } from "google-auth-library";
 import { admin_directory_v1, google } from "googleapis";
+import { JWT } from "googleapis-common";
 
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
 import { StateService } from "@/libs/abstractions/state.service";
+import { Utils } from "@/libs/utils/utils";
 
 import { DirectoryType } from "../../enums/directoryType";
 import { GroupEntry } from "../../models/groupEntry";
@@ -102,10 +103,7 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
 
     while (true) {
       this.logService.info("Querying deleted users - nextPageToken:" + nextPageToken);
-      const p = Object.assign(
-        { showDeleted: true, query: query, pageToken: nextPageToken },
-        this.authParams,
-      );
+      const p = Object.assign({ showDeleted: true, pageToken: nextPageToken }, this.authParams);
       const delRes = await this.service.users.list(p);
       if (delRes.status !== 200) {
         throw new Error("Deleted user list API failed: " + delRes.statusText);
@@ -235,7 +233,8 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
       this.dirConfig.clientEmail == null ||
       this.dirConfig.privateKey == null ||
       this.dirConfig.adminUser == null ||
-      this.dirConfig.domain == null
+      (Utils.isNullOrWhitespace(this.dirConfig.domain) &&
+        Utils.isNullOrWhitespace(this.dirConfig.customer))
     ) {
       throw new Error(this.i18nService.t("dirConfigIncomplete"));
     }
@@ -265,10 +264,12 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     this.authParams = {
       auth: this.client,
     };
-    if (this.dirConfig.domain != null && this.dirConfig.domain.trim() !== "") {
+    // The Directory API treats `domain` and `customer` as mutually exclusive and prefers
+    // `domain` when both are supplied, so exactly one is sent, with `domain` keeping
+    // precedence to preserve the sync scope of existing configurations.
+    if (!Utils.isNullOrWhitespace(this.dirConfig.domain)) {
       this.authParams.domain = this.dirConfig.domain;
-    }
-    if (this.dirConfig.customer != null && this.dirConfig.customer.trim() !== "") {
+    } else if (!Utils.isNullOrWhitespace(this.dirConfig.customer)) {
       this.authParams.customer = this.dirConfig.customer;
     }
   }

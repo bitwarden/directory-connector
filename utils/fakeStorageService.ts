@@ -1,14 +1,19 @@
-import { StorageService } from "@/libs/abstractions/storage.service";
+import { SecureStorageService } from "@/libs/abstractions/storage.service";
 import { SecureStorageKey, StorageKey } from "@/libs/models/state.model";
 
 /**
  * In-memory StorageService for use in unit tests.
- * Allows round-trip tests and direct store introspection via `.store`.
+ * Allows round-trip tests and direct store introspection via `.store`. vNext reads and writes share
+ * the same store; spy on getVNext/saveVNext to assert which path was used.
  */
-export class FakeStorageService implements StorageService {
+export class FakeStorageService implements SecureStorageService {
   readonly store = new Map<string, unknown>();
 
   async get<T>(key: StorageKey | SecureStorageKey): Promise<T> {
+    return (this.store.get(key) as T) ?? null;
+  }
+
+  async getVNext<T>(key: SecureStorageKey): Promise<T> {
     return (this.store.get(key) as T) ?? null;
   }
 
@@ -17,6 +22,10 @@ export class FakeStorageService implements StorageService {
   }
 
   async save(key: StorageKey | SecureStorageKey, obj: unknown): Promise<void> {
+    this.store.set(key, obj);
+  }
+
+  async saveVNext(key: SecureStorageKey, obj: unknown): Promise<void> {
     this.store.set(key, obj);
   }
 

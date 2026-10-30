@@ -1,5 +1,5 @@
 import { LogService } from "@/libs/abstractions/log.service";
-import { StorageService } from "@/libs/abstractions/storage.service";
+import { SecureStorageService, StorageService } from "@/libs/abstractions/storage.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { IConfiguration } from "@/libs/models/IConfiguration";
 import {
@@ -30,14 +30,24 @@ import {
   oktaConfigsShareIdentity,
   oneLoginConfigsShareIdentity,
 } from "./secret-storage-key.util";
-import { StateMigrationService } from "./stateMigration.service";
+/**
+ * Minimal interface for state migration required by {@link DefaultStateService}.
+ *
+ * Decoupled from the concrete {@link StateMigrationService} so the renderer process
+ * can satisfy it with a no-op without pulling in `dc-native` (a Node-only native module, doesn't work with nodeIntegration: false).
+ */
+export interface StateMigrator {
+  needsMigration(): Promise<boolean>;
+  migrate(): Promise<void>;
+  stampVersion(): Promise<void>;
+}
 
 export class DefaultStateService implements StateService {
   constructor(
     protected storageService: StorageService,
-    protected secureStorageService: StorageService,
+    protected secureStorageService: SecureStorageService,
     protected logService: LogService,
-    protected stateMigrationService: StateMigrationService,
+    protected stateMigrationService: StateMigrator,
     protected useSecureStorageForSecrets = true,
   ) {}
 
@@ -238,27 +248,36 @@ export class DefaultStateService implements StateService {
     return `${legacyKey}:${id}` as SecureStorageKey;
   }
 
+  /**
+   * `vNext` reads and writes through {@link SecureStorageService.getVNext}/`saveVNext`, which
+   * must only be used for the Google Workspace private key.
+   */
   private async getScopedSecret(
     legacyKey: SecureStorageKey,
     id: string | null | undefined,
+    vNext = false,
   ): Promise<string | null> {
+    const get = (key: SecureStorageKey) =>
+      vNext
+        ? this.secureStorageService.getVNext<string>(key)
+        : this.secureStorageService.get<string>(key);
+
     if (id != null) {
-      const scoped = await this.secureStorageService.get<string>(
-        this.scopedSecretKey(legacyKey, id),
-      );
+      const scoped = await get(this.scopedSecretKey(legacyKey, id));
       if (scoped != null) {
         return scoped;
       }
     }
     // Fall back to the legacy, unscoped key for installs upgrading from a version that stored
     // a single shared secret per directory type, regardless of which configuration was active.
-    return await this.secureStorageService.get<string>(legacyKey);
+    return await get(legacyKey);
   }
 
   private async setScopedSecret(
     legacyKey: SecureStorageKey,
     id: string | null | undefined,
     value: string,
+    vNext = false,
   ): Promise<void> {
     const key = id != null ? this.scopedSecretKey(legacyKey, id) : legacyKey;
     if (value == null) {
@@ -268,6 +287,8 @@ export class DefaultStateService implements StateService {
       if (id != null) {
         await this.secureStorageService.remove(legacyKey);
       }
+    } else if (vNext) {
+      await this.secureStorageService.saveVNext(key, value);
     } else {
       await this.secureStorageService.save(key, value);
     }
@@ -282,11 +303,11 @@ export class DefaultStateService implements StateService {
   }
 
   private async getGsuiteSecret(config: GSuiteConfiguration): Promise<string> {
-    return await this.getScopedSecret(SecureStorageKeys.gsuite, config?.id);
+    return await this.getScopedSecret(SecureStorageKeys.gsuite, config?.id, true);
   }
 
   private async setGsuiteSecret(config: GSuiteConfiguration, value: string): Promise<void> {
-    await this.setScopedSecret(SecureStorageKeys.gsuite, config.id, value);
+    await this.setScopedSecret(SecureStorageKeys.gsuite, config.id, value, true);
   }
 
   private async getEntraSecret(config: EntraIdConfiguration): Promise<string> {
@@ -755,12 +776,43 @@ export class DefaultStateService implements StateService {
     await this.storageService.save(StorageKeys.alwaysShowDock, value);
   }
 
+  /**
+   * Removes every auth token from secure storage.
+   *
+   * Each removal is attempted independently via `Promise.allSettled` rather than sequentially
+   * awaited: a single failing key (for example a macOS keychain item whose ACL no longer trusts
+   * this process) must not prevent the remaining tokens from being cleared, which would leave
+   * credentials behind and make a partially-completed logout look like a successful one.
+   *
+   * Failures are logged by key name and then rethrown as one aggregate error so callers can tell
+   * an incomplete logout from a clean one. Token values are never logged.
+   */
   async clearAuthTokens(): Promise<void> {
-    await this.secureStorageService.remove(SecureStorageKeys.accessToken);
-    await this.secureStorageService.remove(SecureStorageKeys.refreshToken);
-    await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientId);
-    await this.secureStorageService.remove(SecureStorageKeys.apiKeyClientSecret);
-    await this.secureStorageService.remove(SecureStorageKeys.twoFactorToken);
+    const keys: SecureStorageKey[] = [
+      SecureStorageKeys.accessToken,
+      SecureStorageKeys.refreshToken,
+      SecureStorageKeys.apiKeyClientId,
+      SecureStorageKeys.apiKeyClientSecret,
+      SecureStorageKeys.twoFactorToken,
+    ];
+
+    const results = await Promise.allSettled(
+      keys.map((key) => this.secureStorageService.remove(key)),
+    );
+
+    const failures: string[] = [];
+    results.forEach((result, i) => {
+      if (result.status === "rejected") {
+        const reason =
+          result.reason instanceof Error ? result.reason.message : String(result.reason);
+        this.logService.error(`Failed to remove secure storage key "${keys[i]}": ${reason}`);
+        failures.push(`${keys[i]} (${reason})`);
+      }
+    });
+
+    if (failures.length > 0) {
+      throw new Error(`Failed to clear ${failures.length} auth token(s): ${failures.join("; ")}`);
+    }
   }
 
   async getAccessToken(): Promise<string> {

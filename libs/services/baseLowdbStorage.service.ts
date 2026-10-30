@@ -5,14 +5,14 @@ import { LowSync } from "lowdb";
 import { JSONFileSync } from "lowdb/node";
 
 import { LogService } from "@/libs/abstractions/log.service";
-import { StorageService } from "@/libs/abstractions/storage.service";
+import { SecureStorageService } from "@/libs/abstractions/storage.service";
 import { NodeUtils } from "@/libs/utils/nodeUtils";
 import { sequentialize } from "@/libs/utils/sequentialize";
 import { Utils } from "@/libs/utils/utils";
 
 import { SecureStorageKey, StorageKey } from "../models/state.model";
 
-export class LowdbStorageService implements StorageService {
+export class LowdbStorageService implements SecureStorageService {
   protected dataFilePath: string;
   private db: LowSync<Record<string, any>>;
   private defaults: any;
@@ -109,6 +109,12 @@ export class LowdbStorageService implements StorageService {
     });
   }
 
+  // Used as secure storage when secrets are stored in plaintext, which has no size limit to work
+  // around, so vNext is the same as get and save.
+  getVNext<T>(key: SecureStorageKey): Promise<T> {
+    return this.get<T>(key);
+  }
+
   has(key: StorageKey | SecureStorageKey): Promise<boolean> {
     return this.get(key).then((v) => v != null);
   }
@@ -122,6 +128,10 @@ export class LowdbStorageService implements StorageService {
       this.logService.debug(`Successfully wrote ${key} to db`);
       return;
     });
+  }
+
+  saveVNext(key: SecureStorageKey, obj: any): Promise<any> {
+    return this.save(key, obj);
   }
 
   async remove(key: StorageKey | SecureStorageKey): Promise<any> {

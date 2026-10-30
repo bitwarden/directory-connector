@@ -1,5 +1,10 @@
 <div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10 dark:bg-gray-950">
-  <form #form (ngSubmit)="submit()" [appApiAction]="formPromise()" class="w-full max-w-sm">
+  <form
+    #form="appApiAction"
+    (ngSubmit)="submit()"
+    [appApiAction]="formPromise()"
+    class="w-full max-w-sm"
+  >
     <div class="mb-6 flex flex-col items-center text-center">
       <div
         class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white shadow-sm"
@@ -46,9 +51,13 @@
           </div>
         </div>
         <div class="flex items-center gap-3">
-          <button type="submit" class="btn-primary flex-1 justify-center" [disabled]="form.loading">
-            <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!form.loading"></i>
-            <i class="bwi bwi-sign-in bwi-fw" [hidden]="form.loading"></i>
+          <button
+            type="submit"
+            class="btn-primary flex-1 justify-center"
+            [disabled]="form.loading()"
+          >
+            <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!form.loading()"></i>
+            <i class="bwi bwi-sign-in bwi-fw" [hidden]="form.loading()"></i>
             {{ "logIn" | i18n }}
           </button>
           <button

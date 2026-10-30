@@ -5,6 +5,7 @@ import { UserEntry } from "@/libs/models/userEntry";
 export interface RequestBuilderOptions {
   removeDisabled: boolean;
   overwriteExisting: boolean;
+  inviteUsersAfterProvisioning: boolean;
 }
 
 export abstract class RequestBuilder {
