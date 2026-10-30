@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, output, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+
+import {
+  ButtonModule,
+  DialogModule,
+  DialogRef,
+  FormFieldModule,
+  SectionComponent,
+  TypographyModule,
+} from "@bitwarden/components";
 
 import { EnvironmentService, EnvironmentUrls } from "@/libs/abstractions/environment.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
@@ -13,11 +22,17 @@ import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
   templateUrl: "environment.component.html",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, I18nPipe],
+  imports: [
+    ButtonModule,
+    DialogModule,
+    FormFieldModule,
+    FormsModule,
+    I18nPipe,
+    SectionComponent,
+    TypographyModule,
+  ],
 })
 export class EnvironmentComponent implements OnInit {
-  onSaved = output();
-
   identityUrl = signal("");
   apiUrl = signal("");
   webVaultUrl = signal("");
@@ -28,6 +43,7 @@ export class EnvironmentComponent implements OnInit {
   private environmentService = inject(EnvironmentService);
   private i18nService = inject(I18nService);
   private stateService = inject(StateService);
+  private dialogRef = inject(DialogRef);
 
   async ngOnInit(): Promise<void> {
     const urls = await this.stateService.getEnvironmentUrls();
@@ -56,7 +72,7 @@ export class EnvironmentComponent implements OnInit {
     this.webVaultUrl.set(normalizedUrls?.webVault || "");
 
     this.platformUtilsService.showToast("success", null, this.i18nService.t("environmentSaved"));
-    this.onSaved.emit();
+    this.dialogRef.close();
   }
 
   toggleCustom(): void {

@@ -1,11 +1,6 @@
-import {
-  APP_INITIALIZER,
-  ApplicationRef,
-  ComponentFactoryResolver,
-  EnvironmentProviders,
-  Injector,
-  Provider,
-} from "@angular/core";
+import { APP_INITIALIZER, EnvironmentProviders, Injector, Provider } from "@angular/core";
+
+import { DialogService } from "@bitwarden/components";
 
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@/libs/abstractions/broadcaster.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@/libs/abstractions/environment.service";
@@ -24,7 +19,6 @@ import {
 } from "@/libs/services/state-service/default-state.service";
 
 import { BroadcasterService as BroadcasterServiceImplementation } from "@/src-gui/angular/services/broadcaster.service";
-import { ModalService } from "@/src-gui/angular/services/modal.service";
 import { ValidationService } from "@/src-gui/angular/services/validation.service";
 import { RendererAuthService } from "@/src-gui/services/electron/rendererAuth.service";
 import { RendererI18nService } from "@/src-gui/services/electron/rendererI18n.service";
@@ -132,11 +126,7 @@ export const servicesProviders: (Provider | EnvironmentProviders)[] = [
   }),
   safeProvider(AuthGuardService),
   safeProvider(LaunchGuardService),
-  safeProvider({
-    provide: ModalService,
-    useClass: ModalService,
-    deps: [ComponentFactoryResolver, ApplicationRef, Injector],
-  }),
+  safeProvider(DialogService),
   safeProvider({
     provide: ValidationService,
     useClass: ValidationService,

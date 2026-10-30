@@ -11,3 +11,6 @@ src/locales
 
 # Native module (auto-generated)
 native
+
+# Vendored from bitwarden/clients
+src-gui/bitwarden/components

@@ -1,4 +1,4 @@
-import { DatePipe, NgClass } from "@angular/common";
+import { DatePipe, NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -9,6 +9,18 @@ import {
   signal,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+
+import {
+  BadgeModule,
+  ButtonModule,
+  CardComponent,
+  CheckboxModule,
+  FormControlModule,
+  IconTileComponent,
+  SectionComponent,
+  SectionHeaderComponent,
+  TypographyModule,
+} from "@bitwarden/components";
 
 import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
@@ -32,7 +44,22 @@ const BroadcasterSubscriptionId = "DashboardComponent";
   templateUrl: "dashboard.component.html",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ApiActionDirective, DatePipe, FormsModule, I18nPipe, NgClass],
+  imports: [
+    ApiActionDirective,
+    BadgeModule,
+    ButtonModule,
+    CardComponent,
+    CheckboxModule,
+    DatePipe,
+    FormControlModule,
+    FormsModule,
+    I18nPipe,
+    IconTileComponent,
+    NgTemplateOutlet,
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+  ],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   simGroups = signal<GroupEntry[]>(null);

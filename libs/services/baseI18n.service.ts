@@ -109,11 +109,11 @@ export class I18nService implements I18nServiceAbstraction {
     }
   }
 
-  t(id: string, p1?: string, p2?: string, p3?: string): string {
+  t(id: string, p1?: string | number, p2?: string | number, p3?: string | number): string {
     return this.translate(id, p1, p2, p3);
   }
 
-  translate(id: string, p1?: string, p2?: string, p3?: string): string {
+  translate(id: string, p1?: string | number, p2?: string | number, p3?: string | number): string {
     let result: string;
     // eslint-disable-next-line
     if (this.localeMessages.hasOwnProperty(id) && this.localeMessages[id]) {
@@ -127,13 +127,13 @@ export class I18nService implements I18nServiceAbstraction {
 
     if (result !== "") {
       if (p1 != null) {
-        result = result.split("__$1__").join(p1);
+        result = result.split("__$1__").join(String(p1));
       }
       if (p2 != null) {
-        result = result.split("__$2__").join(p2);
+        result = result.split("__$2__").join(String(p2));
       }
       if (p3 != null) {
-        result = result.split("__$3__").join(p3);
+        result = result.split("__$3__").join(String(p3));
       }
     }
 

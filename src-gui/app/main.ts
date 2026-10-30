@@ -3,9 +3,10 @@ import { bootstrapApplication } from "@angular/platform-browser";
 import { provideAnimations } from "@angular/platform-browser/animations";
 import { provideRouter, withHashLocation } from "@angular/router";
 
+import { ToastModule } from "@bitwarden/components";
+
 import { LogLevelType } from "@/libs/enums/logLevelType";
 
-import { BitwardenToastModule } from "@/src-gui/angular/components/toastr.component";
 import "../scss/styles.scss";
 
 import { routes } from "./app-routing.module";
@@ -21,13 +22,7 @@ bootstrapApplication(AppComponent, {
     provideZonelessChangeDetection(),
     provideAnimations(),
     provideRouter(routes, withHashLocation()),
-    importProvidersFrom(
-      BitwardenToastModule.forRoot({
-        maxOpened: 5,
-        autoDismiss: true,
-        closeButton: true,
-      }),
-    ),
+    importProvidersFrom(ToastModule.forRoot()),
     ...servicesProviders,
   ],
 }).catch((e: unknown) => {

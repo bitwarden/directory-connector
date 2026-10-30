@@ -4,6 +4,7 @@ import { EnvironmentService as EnvironmentServiceAbstraction } from "@/libs/abst
 import { I18nService as I18nServiceAbstraction } from "@/libs/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@/libs/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@/libs/abstractions/platformUtils.service";
+import { ThemeType } from "@/libs/enums/themeType";
 import { StateService } from "@/libs/services/state-service/default-state.service";
 
 import { RendererI18nService } from "@/src-gui/services/electron/rendererI18n.service";
@@ -38,6 +39,7 @@ export function initFactory(injector: Injector): () => Promise<void> {
     const htmlEl = window.document.documentElement;
     htmlEl.classList.add("os_" + platformUtilsService.getDeviceString());
     htmlEl.classList.add("locale_" + i18nService.translationLocale);
+    followSystemTheme(htmlEl);
     window.document.title = i18nService.t("bitwardenDirectoryConnector");
 
     let installAction = null;
@@ -53,4 +55,19 @@ export function initFactory(injector: Injector): () => Promise<void> {
       await stateService.setInstalledVersion(currentVersion);
     }
   };
+}
+
+/**
+ * The Bitwarden component library styles light/dark mode from a `theme_light`/`theme_dark` class
+ * on the root element, so mirror the OS color scheme there and keep it in sync as it changes.
+ */
+function followSystemTheme(htmlEl: HTMLElement): void {
+  const darkScheme = window.matchMedia?.("(prefers-color-scheme: dark)");
+  const apply = () => {
+    const theme = darkScheme?.matches ? ThemeType.Dark : ThemeType.Light;
+    htmlEl.classList.remove(`theme_${ThemeType.Light}`, `theme_${ThemeType.Dark}`);
+    htmlEl.classList.add(`theme_${theme}`);
+  };
+  apply();
+  darkScheme?.addEventListener("change", apply);
 }

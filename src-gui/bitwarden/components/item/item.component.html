@@ -1,0 +1,13 @@
+<bit-item-action class="tw-flex tw-flex-1 tw-overflow-hidden" data-item-main-content>
+  <ng-content></ng-content>
+</bit-item-action>
+
+<div
+  #endSlot
+  data-bit-item-end-slot
+  class="tw-flex tw-items-center"
+  [class]="endSlotPaddingClass()"
+  [hidden]="!endSlotHasChildren()"
+>
+  <ng-content select="[slot=end]"></ng-content>
+</div>

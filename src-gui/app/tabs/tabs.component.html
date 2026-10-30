@@ -1,46 +1,44 @@
-<div class="flex h-screen min-h-0 bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
-  <aside
-    class="flex w-56 shrink-0 flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+<div class="tw-flex tw-h-screen tw-min-h-0">
+  <!-- Mirrors the look of the clients' bit-side-nav, which isn't vendored (it depends on
+  feature flags and global state that Directory Connector doesn't have). -->
+  <nav
+    class="tw-flex tw-w-60 tw-shrink-0 tw-flex-col tw-bg-bg-nav tw-text-fg-nav"
+    [attr.aria-label]="'bitwardenDirectoryConnector' | i18n"
   >
-    <div class="flex items-center gap-2.5 px-5 py-5">
-      <div
-        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white"
-      >
-        <i class="bwi bwi-shield text-base" aria-hidden="true"></i>
-      </div>
-      <span class="text-[13px] font-semibold leading-tight text-gray-900 dark:text-white">
-        Directory<br />Connector
+    <div
+      class="tw-flex tw-h-16 tw-shrink-0 tw-items-center tw-gap-2 tw-border-0 tw-border-b tw-border-solid tw-border-border-nav-divider tw-px-5"
+    >
+      <i class="bwi bwi-shield tw-text-2xl" aria-hidden="true"></i>
+      <span class="tw-font-semibold tw-leading-tight">
+        {{ "bitwardenDirectoryConnector" | i18n }}
       </span>
     </div>
-    <nav class="flex-1 space-y-1 px-3">
+    <ul class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-gap-1 tw-p-3">
       @for (item of navItems; track item.path) {
-        <a
-          [routerLink]="item.path"
-          routerLinkActive
-          #rla="routerLinkActive"
-          [ngClass]="
-            rla.isActive
-              ? 'bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-light'
-              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
-          "
-          class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-        >
-          <i class="bwi {{ item.icon }} bwi-fw text-base" aria-hidden="true"></i>
-          {{ item.label | i18n }}
-        </a>
+        <li>
+          <a
+            [routerLink]="item.path"
+            routerLinkActive
+            #rla="routerLinkActive"
+            ariaCurrentWhenActive="page"
+            class="tw-flex tw-h-10 tw-items-center tw-gap-3 tw-rounded-xl tw-px-3 !tw-text-fg-nav tw-no-underline hover:tw-bg-bg-nav-hover focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-nav-focus"
+            [ngClass]="{ 'tw-bg-bg-nav-hover tw-font-semibold': rla.isActive }"
+          >
+            <i class="bwi {{ item.icon }} bwi-fw tw-text-lg" aria-hidden="true"></i>
+            {{ item.label | i18n }}
+          </a>
+        </li>
       }
-    </nav>
-  </aside>
-  <main class="flex min-w-0 flex-1 flex-col">
+    </ul>
+  </nav>
+  <main class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-bg-background-alt">
     <header
-      class="flex shrink-0 items-center border-b border-gray-200 bg-white px-8 py-4 dark:border-gray-800 dark:bg-gray-900"
+      class="tw-flex tw-h-16 tw-shrink-0 tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-bg-background tw-px-8"
     >
-      <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
-        {{ pageTitle() | i18n }}
-      </h1>
+      <h1 bitTypography="h3" noMargin>{{ pageTitle() | i18n }}</h1>
     </header>
-    <div class="min-h-0 flex-1 overflow-y-auto">
-      <div class="mx-auto max-w-5xl px-8 py-8">
+    <div class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto">
+      <div class="tw-mx-auto tw-max-w-5xl tw-px-8 tw-py-6">
         <router-outlet></router-outlet>
       </div>
     </div>

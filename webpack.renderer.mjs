@@ -46,6 +46,10 @@ const common = {
   resolve: {
     extensions: [".tsx", ".ts", ".js", ".json"],
     plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
+    alias: {
+      // The vendored theme.css loads its font as "~@bitwarden/components/src/webfonts/...".
+      "@bitwarden/components/src": path.resolve(__dirname, "src-gui/bitwarden/components"),
+    },
     symlinks: false,
     modules: [path.resolve("node_modules")],
   },
@@ -130,7 +134,9 @@ const renderer = {
             },
           },
           "css-loader",
-          "postcss-loader",
+          // Rebases relative url()s in files pulled in through postcss-import, as clients does.
+          "resolve-url-loader",
+          { loader: "postcss-loader", options: { sourceMap: true } },
         ],
       },
       // Hide System.import warnings. ref: https://github.com/angular/angular/issues/21560

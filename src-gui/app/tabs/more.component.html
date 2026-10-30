@@ -1,43 +1,47 @@
-<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-  <div class="surface-card">
-    <div class="surface-card-header">
-      <h2 class="surface-card-title">{{ "about" | i18n }}</h2>
-    </div>
-    <div class="surface-card-body">
-      <div class="mb-5 flex items-center gap-3">
-        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
-          <i class="bwi bwi-shield text-lg" aria-hidden="true"></i>
-        </div>
-        <div class="text-sm text-gray-600 dark:text-gray-300">
-          <p class="font-medium text-gray-900 dark:text-white">
+<div class="tw-grid tw-grid-cols-1 tw-gap-x-6 lg:tw-grid-cols-2">
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "about" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card>
+      <div class="tw-mb-4 tw-flex tw-items-center tw-gap-4">
+        <bit-icon-tile icon="bwi-shield" size="lg" emphasis="bold"></bit-icon-tile>
+        <div>
+          <p bitTypography="body1" class="tw-mb-0 tw-font-medium">
             {{ "bitwardenDirectoryConnector" | i18n }}
           </p>
-          <p>{{ "version" | i18n: version() }}</p>
-          <p class="text-xs text-gray-400">&copy; Bitwarden Inc. LLC 2015-{{ year() }}</p>
+          <p bitTypography="body2" class="tw-mb-0 tw-text-muted">
+            {{ "version" | i18n: version() }}
+          </p>
         </div>
       </div>
-      <button class="btn-primary" type="button" (click)="update()" [disabled]="checkingForUpdate()">
-        <i class="bwi bwi-download bwi-fw" [hidden]="checkingForUpdate()"></i>
-        <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!checkingForUpdate()"></i>
+      <p bitTypography="helper" class="tw-text-muted">
+        &copy; Bitwarden Inc. LLC 2015-{{ year() }}
+      </p>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        [loading]="checkingForUpdate()"
+        (click)="update()"
+      >
         {{ "checkForUpdates" | i18n }}
       </button>
-    </div>
-  </div>
-  <div class="surface-card">
-    <div class="surface-card-header">
-      <h2 class="surface-card-title">{{ "other" | i18n }}</h2>
-    </div>
-    <div class="surface-card-body">
-      <div class="flex flex-wrap gap-3">
-        <button class="btn-secondary" type="button" (click)="logOut()">
-          <i class="bwi bwi-sign-out bwi-fw"></i>
+    </bit-card>
+  </bit-section>
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "other" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card>
+      <div class="tw-flex tw-flex-wrap tw-gap-2">
+        <button type="button" bitButton buttonType="secondary" (click)="logOut()">
           {{ "logOut" | i18n }}
         </button>
-        <button class="btn-secondary" type="button" (click)="clearCache()">
-          <i class="bwi bwi-refresh bwi-fw"></i>
+        <button type="button" bitButton buttonType="secondary" (click)="clearCache()">
           {{ "clearSyncCache" | i18n }}
         </button>
       </div>
-    </div>
-  </div>
+    </bit-card>
+  </bit-section>
 </div>

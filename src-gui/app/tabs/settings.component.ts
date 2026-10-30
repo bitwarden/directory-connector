@@ -1,4 +1,4 @@
-import { NgClass } from "@angular/common";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,6 +9,19 @@ import {
   signal,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+
+import {
+  ButtonModule,
+  CardComponent,
+  CheckboxModule,
+  FormFieldModule,
+  IconButtonModule,
+  LinkModule,
+  RadioButtonModule,
+  SectionComponent,
+  SectionHeaderComponent,
+  TypographyModule,
+} from "@bitwarden/components";
 
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
@@ -27,12 +40,29 @@ import { ConnectorUtils } from "@/libs/utils";
 import { A11yTitleDirective } from "@/src-gui/angular/directives/a11y-title.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
 
+type LdapCertPathField = "tlsCaPath" | "sslCertPath" | "sslKeyPath" | "sslCaPath";
+
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [A11yTitleDirective, FormsModule, I18nPipe, NgClass],
+  imports: [
+    A11yTitleDirective,
+    ButtonModule,
+    CardComponent,
+    CheckboxModule,
+    FormFieldModule,
+    FormsModule,
+    I18nPipe,
+    IconButtonModule,
+    LinkModule,
+    NgTemplateOutlet,
+    RadioButtonModule,
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+  ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
   directory = signal<DirectoryType>(null);
@@ -46,11 +76,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   okta = signal(new OktaConfiguration());
   oneLogin = signal(new OneLoginConfiguration());
   sync = signal(new SyncConfiguration());
-
-  showLdapPassword = signal(false);
-  showEntraKey = signal(false);
-  showOktaKey = signal(false);
-  showOneLoginSecret = signal(false);
 
   profiles = signal<DirectoryConnectorProfileSummary[]>([]);
   activeProfileId = signal<string>(null);
@@ -173,6 +198,39 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.loadForm();
   }
 
+  readonly usernameHint = computed(() =>
+    this.exampleHint(this.ldap().ad ? "company\\admin" : "cn=admin,dc=company,dc=com"),
+  );
+
+  readonly userFilterHint = computed(() => {
+    switch (this.directory()) {
+      case DirectoryType.Ldap:
+        return this.exampleHint("(&(givenName=John)(|(l=Dallas)(l=Austin)))");
+      case DirectoryType.EntraID:
+        return this.exampleHint("exclude:joe@company.com");
+      case DirectoryType.Okta:
+        return this.exampleHint('exclude:joe@company.com | profile.firstName eq "John"');
+      case DirectoryType.GSuite:
+        return this.exampleHint("exclude:joe@company.com | orgUnitPath=/Engineering");
+      default:
+        return "";
+    }
+  });
+
+  readonly groupFilterHint = computed(() => {
+    switch (this.directory()) {
+      case DirectoryType.Ldap:
+        return this.exampleHint("(&(objectClass=group)(!(cn=Sales*))(!(cn=IT*)))");
+      case DirectoryType.EntraID:
+      case DirectoryType.GSuite:
+        return this.exampleHint("include:Sales,IT");
+      case DirectoryType.Okta:
+        return this.exampleHint('include:Sales,IT | type eq "APP_GROUP"');
+      default:
+        return "";
+    }
+  });
+
   userFilterHelp = computed(() => {
     switch (this.directory()) {
       case DirectoryType.Ldap:
@@ -237,7 +295,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
     };
   }
 
-  setSslPath(id: string) {
+  ldapPath(id: LdapCertPathField): string {
+    return this.ldap()[id];
+  }
+
+  setLdapPath(id: LdapCertPathField, path: string) {
+    this.ldap.update((current) => ({ ...current, [id]: path }));
+  }
+
+  setSslPath(id: LdapCertPathField) {
     const filePicker = document.getElementById(id + "_file") as HTMLInputElement;
     if (filePicker.files == null || filePicker.files.length < 0) {
       return;
@@ -252,23 +318,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     filePicker.value = "";
   }
 
-  toggleLdapPassword() {
-    this.showLdapPassword.update((v) => !v);
-    document.getElementById("password").focus();
-  }
-
-  toggleEntraKey() {
-    this.showEntraKey.update((v) => !v);
-    document.getElementById("secretKey").focus();
-  }
-
-  toggleOktaKey() {
-    this.showOktaKey.update((v) => !v);
-    document.getElementById("oktaToken").focus();
-  }
-
-  toggleOneLoginSecret() {
-    this.showOneLoginSecret.update((v) => !v);
-    document.getElementById("oneLoginClientSecret").focus();
+  private exampleHint(example: string): string {
+    return `${this.i18nService.t("ex")} ${example}`;
   }
 }

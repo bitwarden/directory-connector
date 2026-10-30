@@ -1,922 +1,777 @@
-<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-  <div class="lg:col-span-2">
-    <div class="surface-card">
-      <div class="surface-card-header">
-        <h2 class="surface-card-title">{{ "profile" | i18n }}</h2>
-      </div>
-      <div class="surface-card-body">
-        <div class="flex flex-wrap items-end gap-3">
-          <div class="min-w-[12rem] flex-1">
-            <label for="activeProfile" class="field-label">{{ "profile" | i18n }}</label>
-            <select
-              class="field-input"
-              id="activeProfile"
-              name="ActiveProfile"
-              [ngModel]="activeProfileId()"
-              (ngModelChange)="selectProfile($event)"
-            >
-              @for (p of profiles(); track p.id) {
-                <option [ngValue]="p.id">{{ p.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="min-w-[12rem] flex-1">
-            <label for="profileName" class="field-label">{{ "profileName" | i18n }}</label>
-            <input
-              type="text"
-              class="field-input"
-              id="profileName"
-              name="ProfileName"
-              [ngModel]="activeProfileName()"
-              (ngModelChange)="activeProfileName.set($event)"
-            />
-          </div>
-          <div class="flex gap-2">
-            <button type="button" class="btn-secondary" (click)="createProfile()">
-              {{ "newProfile" | i18n }}
-            </button>
-            <button type="button" class="btn-danger-outline" (click)="deleteActiveProfile()">
-              {{ "deleteProfile" | i18n }}
-            </button>
-          </div>
-        </div>
+<bit-section>
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "profile" | i18n }}</h2>
+  </bit-section-header>
+  <bit-card>
+    <div class="tw-flex tw-flex-wrap tw-items-end tw-gap-3">
+      <bit-form-field disableMargin class="tw-min-w-[12rem] tw-flex-1">
+        <bit-label>{{ "profile" | i18n }}</bit-label>
+        <select
+          bitInput
+          id="activeProfile"
+          name="ActiveProfile"
+          [ngModel]="activeProfileId()"
+          (ngModelChange)="selectProfile($event)"
+        >
+          @for (p of profiles(); track p.id) {
+            <option [ngValue]="p.id">{{ p.name }}</option>
+          }
+        </select>
+      </bit-form-field>
+      <bit-form-field disableMargin class="tw-min-w-[12rem] tw-flex-1">
+        <bit-label>{{ "profileName" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          id="profileName"
+          name="ProfileName"
+          [ngModel]="activeProfileName()"
+          (ngModelChange)="activeProfileName.set($event)"
+        />
+      </bit-form-field>
+      <div class="tw-flex tw-gap-2">
+        <button type="button" bitButton buttonType="secondary" (click)="createProfile()">
+          {{ "newProfile" | i18n }}
+        </button>
+        <button type="button" bitButton buttonType="danger" (click)="deleteActiveProfile()">
+          {{ "deleteProfile" | i18n }}
+        </button>
       </div>
     </div>
-  </div>
-  <div>
-    <div class="surface-card">
-      <div class="surface-card-header">
-        <h2 class="surface-card-title">{{ "directory" | i18n }}</h2>
-      </div>
-      <div class="surface-card-body">
-        <div class="mb-4">
-          <label for="directory" class="field-label">{{ "type" | i18n }}</label>
-          <select
-            class="field-input"
-            id="directory"
-            name="Directory"
-            [ngModel]="directory()"
-            (ngModelChange)="directory.set($event)"
+  </bit-card>
+</bit-section>
+
+<div class="tw-grid tw-grid-cols-1 tw-gap-x-6 lg:tw-grid-cols-2">
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "directory" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card>
+      <bit-form-field>
+        <bit-label>{{ "type" | i18n }}</bit-label>
+        <select
+          bitInput
+          id="directory"
+          name="Directory"
+          [ngModel]="directory()"
+          (ngModelChange)="directory.set($event)"
+        >
+          @for (o of directoryOptions; track o) {
+            <option [ngValue]="o.value">{{ o.name }}</option>
+          }
+        </select>
+      </bit-form-field>
+
+      <!-- LDAP -->
+      <div [hidden]="directory() != directoryType.Ldap">
+        <bit-form-field>
+          <bit-label>{{ "serverHostname" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="hostname"
+            name="Hostname"
+            [ngModel]="ldap().hostname"
+            (ngModelChange)="ldap.update((v) => ({ ...v, hostname: $event }))"
+          />
+          <bit-hint>{{ "ex" | i18n }} ad.company.com</bit-hint>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "port" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="port"
+            name="Port"
+            [ngModel]="ldap().port"
+            (ngModelChange)="ldap.update((v) => ({ ...v, port: $event }))"
+          />
+          <bit-hint>{{ "ex" | i18n }} 389</bit-hint>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "rootPath" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="rootPath"
+            name="RootPath"
+            [ngModel]="ldap().rootPath"
+            (ngModelChange)="ldap.update((v) => ({ ...v, rootPath: $event }))"
+          />
+          <bit-hint>{{ "ex" | i18n }} dc=company,dc=com</bit-hint>
+        </bit-form-field>
+        <bit-form-control>
+          <input
+            type="checkbox"
+            bitCheckbox
+            id="ad"
+            name="AD"
+            [ngModel]="ldap().ad"
+            (ngModelChange)="ldap.update((v) => ({ ...v, ad: $event }))"
+          />
+          <bit-label>{{ "ldapAd" | i18n }}</bit-label>
+        </bit-form-control>
+        @if (!ldap().ad) {
+          <bit-form-control>
+            <input
+              type="checkbox"
+              bitCheckbox
+              id="pagedSearch"
+              name="PagedSearch"
+              [ngModel]="ldap().pagedSearch"
+              (ngModelChange)="ldap.update((v) => ({ ...v, pagedSearch: $event }))"
+            />
+            <bit-label>{{ "ldapPagedResults" | i18n }}</bit-label>
+          </bit-form-control>
+        }
+        <bit-form-control>
+          <input
+            type="checkbox"
+            bitCheckbox
+            id="ldapEncrypted"
+            name="Encrypted"
+            [ngModel]="ldap().ssl"
+            (ngModelChange)="ldap.update((v) => ({ ...v, ssl: $event }))"
+          />
+          <bit-label>{{ "ldapEncrypted" | i18n }}</bit-label>
+        </bit-form-control>
+        @if (ldap().ssl) {
+          <div
+            class="tw-mb-4 tw-ms-2 tw-border-0 tw-border-s-2 tw-border-solid tw-border-secondary-300 tw-ps-4"
           >
-            @for (o of directoryOptions; track o) {
-              <option [ngValue]="o.value">
-                {{ o.name }}
-              </option>
+            <bit-radio-group
+              name="SslMode"
+              [ngModel]="ldap().startTls"
+              (ngModelChange)="ldap.update((v) => ({ ...v, startTls: $event }))"
+            >
+              <bit-radio-button id="ssl" [value]="false">
+                <bit-label>{{ "ldapSsl" | i18n }}</bit-label>
+              </bit-radio-button>
+              <bit-radio-button id="startTls" [value]="true">
+                <bit-label>{{ "ldapTls" | i18n }}</bit-label>
+              </bit-radio-button>
+            </bit-radio-group>
+            @if (ldap().startTls) {
+              <p bitTypography="body2" class="tw-text-muted">
+                {{ "ldapTlsUntrustedDesc" | i18n }}
+              </p>
+              <ng-container
+                *ngTemplateOutlet="
+                  certPath;
+                  context: { id: 'tlsCaPath', name: 'TLSCaPath', label: 'ldapTlsCa' }
+                "
+              ></ng-container>
+            } @else {
+              <p bitTypography="body2" class="tw-text-muted">
+                {{ "ldapSslUntrustedDesc" | i18n }}
+              </p>
+              <ng-container
+                *ngTemplateOutlet="
+                  certPath;
+                  context: { id: 'sslCertPath', name: 'SSLCertPath', label: 'ldapSslCert' }
+                "
+              ></ng-container>
+              <ng-container
+                *ngTemplateOutlet="
+                  certPath;
+                  context: { id: 'sslKeyPath', name: 'SSLKeyPath', label: 'ldapSslKey' }
+                "
+              ></ng-container>
+              <ng-container
+                *ngTemplateOutlet="
+                  certPath;
+                  context: { id: 'sslCaPath', name: 'SSLCaPath', label: 'ldapSslCa' }
+                "
+              ></ng-container>
             }
+            <bit-form-control disableMargin>
+              <input
+                type="checkbox"
+                bitCheckbox
+                id="certDoNotVerify"
+                name="CertDoNoVerify"
+                [ngModel]="ldap().sslAllowUnauthorized"
+                (ngModelChange)="ldap.update((v) => ({ ...v, sslAllowUnauthorized: $event }))"
+              />
+              <bit-label>{{ "ldapCertDoNotVerify" | i18n }}</bit-label>
+            </bit-form-control>
+          </div>
+        }
+        <div [hidden]="true">
+          <bit-form-control>
+            <input
+              type="checkbox"
+              bitCheckbox
+              id="currentUser"
+              name="CurrentUser"
+              [ngModel]="ldap().currentUser"
+              (ngModelChange)="ldap.update((v) => ({ ...v, currentUser: $event }))"
+            />
+            <bit-label>{{ "currentUser" | i18n }}</bit-label>
+          </bit-form-control>
+        </div>
+        <div [hidden]="ldap().currentUser">
+          <bit-form-field>
+            <bit-label>{{ "username" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="text"
+              id="username"
+              name="Username"
+              [ngModel]="ldap().username"
+              (ngModelChange)="ldap.update((v) => ({ ...v, username: $event }))"
+            />
+            <bit-hint>{{ usernameHint() }}</bit-hint>
+          </bit-form-field>
+          <bit-form-field disableMargin>
+            <bit-label>{{ "password" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="password"
+              id="password"
+              name="Password"
+              [ngModel]="ldap().password"
+              (ngModelChange)="ldap.update((v) => ({ ...v, password: $event }))"
+            />
+            <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+          </bit-form-field>
+        </div>
+      </div>
+
+      <!-- Entra ID -->
+      <div [hidden]="directory() != directoryType.EntraID">
+        <bit-form-field>
+          <bit-label>{{ "identityAuthority" | i18n }}</bit-label>
+          <select
+            bitInput
+            id="identityAuthority"
+            name="IdentityAuthority"
+            [ngModel]="entra().identityAuthority"
+            (ngModelChange)="entra.update((v) => ({ ...v, identityAuthority: $event }))"
+          >
+            <option value="login.microsoftonline.com">Entra Id Public</option>
+            <option value="login.microsoftonline.us">Entra Id Government</option>
           </select>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "tenant" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="tenant"
+            name="Tenant"
+            [ngModel]="entra().tenant"
+            (ngModelChange)="entra.update((v) => ({ ...v, tenant: $event }))"
+          />
+          <bit-hint>{{ "ex" | i18n }} companyad.onmicrosoft.com</bit-hint>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "applicationId" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="applicationId"
+            name="ApplicationId"
+            [ngModel]="entra().applicationId"
+            (ngModelChange)="entra.update((v) => ({ ...v, applicationId: $event }))"
+          />
+        </bit-form-field>
+        <bit-form-field disableMargin>
+          <bit-label>{{ "secretKey" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="password"
+            id="secretKey"
+            name="SecretKey"
+            [ngModel]="entra().key"
+            (ngModelChange)="entra.update((v) => ({ ...v, key: $event }))"
+          />
+          <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        </bit-form-field>
+      </div>
+
+      <!-- Okta -->
+      <div [hidden]="directory() != directoryType.Okta">
+        <bit-form-field>
+          <bit-label>{{ "organizationUrl" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="orgUrl"
+            name="OrgUrl"
+            [ngModel]="okta().orgUrl"
+            (ngModelChange)="okta.update((v) => ({ ...v, orgUrl: $event }))"
+          />
+          <bit-hint>{{ "ex" | i18n }} https://mycompany.okta.com/</bit-hint>
+        </bit-form-field>
+        <bit-form-field disableMargin>
+          <bit-label>{{ "token" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="password"
+            id="oktaToken"
+            name="OktaToken"
+            [ngModel]="okta().token"
+            (ngModelChange)="okta.update((v) => ({ ...v, token: $event }))"
+          />
+          <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        </bit-form-field>
+      </div>
+
+      <!-- OneLogin -->
+      <div [hidden]="directory() != directoryType.OneLogin">
+        <bit-form-field>
+          <bit-label>{{ "clientId" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="oneLoginClientId"
+            name="OneLoginClientId"
+            [ngModel]="oneLogin().clientId"
+            (ngModelChange)="oneLogin.update((v) => ({ ...v, clientId: $event }))"
+          />
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "clientSecret" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="password"
+            id="oneLoginClientSecret"
+            name="OneLoginClientSecret"
+            [ngModel]="oneLogin().clientSecret"
+            (ngModelChange)="oneLogin.update((v) => ({ ...v, clientSecret: $event }))"
+          />
+          <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        </bit-form-field>
+        <bit-form-field disableMargin>
+          <bit-label>{{ "region" | i18n }}</bit-label>
+          <select
+            bitInput
+            id="oneLoginRegion"
+            name="OneLoginRegion"
+            [ngModel]="oneLogin().region"
+            (ngModelChange)="oneLogin.update((v) => ({ ...v, region: $event }))"
+          >
+            <option value="us">US</option>
+            <option value="eu">EU</option>
+          </select>
+        </bit-form-field>
+      </div>
+
+      <!-- Google Workspace -->
+      <div [hidden]="directory() != directoryType.GSuite">
+        <bit-form-field>
+          <bit-label>{{ "domain" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="domain"
+            name="Domain"
+            [ngModel]="gsuite().domain"
+            (ngModelChange)="gsuite.update((v) => ({ ...v, domain: $event }))"
+          />
+          <bit-hint>{{ "ex" | i18n }} company.com</bit-hint>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "adminUser" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="adminUser"
+            name="AdminUser"
+            [ngModel]="gsuite().adminUser"
+            (ngModelChange)="gsuite.update((v) => ({ ...v, adminUser: $event }))"
+          />
+          <bit-hint>{{ "ex" | i18n }} admin&#64;company.com</bit-hint>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "customerId" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="customerId"
+            name="CustomerId"
+            [ngModel]="gsuite().customer"
+            (ngModelChange)="gsuite.update((v) => ({ ...v, customer: $event }))"
+          />
+          <bit-hint>{{ "ex" | i18n }} 39204722352</bit-hint>
+        </bit-form-field>
+        <div class="tw-mb-4">
+          <p bitTypography="body2" class="tw-mb-1 tw-font-medium">{{ "jsonKeyFile" | i18n }}</p>
+          <input
+            #keyFile
+            type="file"
+            id="keyFile"
+            accept=".json"
+            class="tw-hidden"
+            (change)="parseKeyFile()"
+          />
+          <button type="button" bitButton buttonType="secondary" (click)="keyFile.click()">
+            {{ "chooseFile" | i18n }}
+          </button>
+          <p bitTypography="helper" class="tw-mt-1 tw-text-muted">
+            {{ "ex" | i18n }} My Project-jksd3jd223.json
+          </p>
         </div>
-        <div [hidden]="directory() != directoryType.Ldap">
-          <div class="mb-4">
-            <label for="hostname" class="field-label">{{ "serverHostname" | i18n }}</label>
+        <div [hidden]="!gsuite().clientEmail">
+          <bit-form-field>
+            <bit-label>{{ "clientEmail" | i18n }}</bit-label>
             <input
+              bitInput
               type="text"
-              class="field-input"
-              id="hostname"
-              name="Hostname"
-              [ngModel]="ldap().hostname"
-              (ngModelChange)="ldap.update((v) => ({ ...v, hostname: $event }))"
-            />
-            <div class="field-hint">{{ "ex" | i18n }} ad.company.com</div>
-          </div>
-          <div class="mb-4">
-            <label for="port" class="field-label">{{ "port" | i18n }}</label>
-            <input
-              type="text"
-              class="field-input"
-              id="port"
-              name="Port"
-              [ngModel]="ldap().port"
-              (ngModelChange)="ldap.update((v) => ({ ...v, port: $event }))"
-            />
-            <div class="field-hint">{{ "ex" | i18n }} 389</div>
-          </div>
-          <div class="mb-4">
-            <label for="rootPath" class="field-label">{{ "rootPath" | i18n }}</label>
-            <input
-              type="text"
-              class="field-input"
-              id="rootPath"
-              name="RootPath"
-              [ngModel]="ldap().rootPath"
-              (ngModelChange)="ldap.update((v) => ({ ...v, rootPath: $event }))"
-            />
-            <div class="field-hint">{{ "ex" | i18n }} dc=company,dc=com</div>
-          </div>
-          <div class="mb-4">
-            <label class="checkbox-row">
-              <input
-                class="checkbox-input"
-                type="checkbox"
-                id="ad"
-                [ngModel]="ldap().ad"
-                (ngModelChange)="ldap.update((v) => ({ ...v, ad: $event }))"
-                name="AD"
-              />
-              {{ "ldapAd" | i18n }}
-            </label>
-          </div>
-          @if (!ldap().ad) {
-            <div class="mb-4">
-              <label class="checkbox-row">
-                <input
-                  class="checkbox-input"
-                  type="checkbox"
-                  id="pagedSearch"
-                  [ngModel]="ldap().pagedSearch"
-                  (ngModelChange)="ldap.update((v) => ({ ...v, pagedSearch: $event }))"
-                  name="PagedSearch"
-                />
-                {{ "ldapPagedResults" | i18n }}
-              </label>
-            </div>
-          }
-          <div class="mb-4">
-            <label class="checkbox-row">
-              <input
-                class="checkbox-input"
-                type="checkbox"
-                id="ldapEncrypted"
-                [ngModel]="ldap().ssl"
-                (ngModelChange)="ldap.update((v) => ({ ...v, ssl: $event }))"
-                name="Encrypted"
-              />
-              {{ "ldapEncrypted" | i18n }}
-            </label>
-          </div>
-          @if (ldap().ssl) {
-            <div class="mb-4 ml-4 space-y-3 border-l-2 border-gray-100 pl-4 dark:border-gray-800">
-              <label class="checkbox-row">
-                <input
-                  class="radio-input"
-                  type="radio"
-                  [value]="false"
-                  id="ssl"
-                  [ngModel]="ldap().startTls"
-                  (ngModelChange)="ldap.update((v) => ({ ...v, startTls: $event }))"
-                  name="SSL"
-                />
-                {{ "ldapSsl" | i18n }}
-              </label>
-              <label class="checkbox-row">
-                <input
-                  class="radio-input"
-                  type="radio"
-                  [value]="true"
-                  id="startTls"
-                  [ngModel]="ldap().startTls"
-                  (ngModelChange)="ldap.update((v) => ({ ...v, startTls: $event }))"
-                  name="StartTLS"
-                />
-                {{ "ldapTls" | i18n }}
-              </label>
-              @if (ldap().startTls) {
-                <div class="ml-1 space-y-3">
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ "ldapTlsUntrustedDesc" | i18n }}
-                  </p>
-                  <div>
-                    <label for="tlsCaPath" class="field-label">{{ "ldapTlsCa" | i18n }}</label>
-                    <input
-                      type="file"
-                      class="field-input mb-2"
-                      id="tlsCaPath_file"
-                      (change)="setSslPath('tlsCaPath')"
-                    />
-                    <input
-                      type="text"
-                      class="field-input"
-                      id="tlsCaPath"
-                      name="TLSCaPath"
-                      [ngModel]="ldap().tlsCaPath"
-                      (ngModelChange)="ldap.update((v) => ({ ...v, tlsCaPath: $event }))"
-                    />
-                  </div>
-                </div>
-              }
-              @if (!ldap().startTls) {
-                <div class="ml-1 space-y-3">
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ "ldapSslUntrustedDesc" | i18n }}
-                  </p>
-                  <div>
-                    <label for="sslCertPath" class="field-label">{{ "ldapSslCert" | i18n }}</label>
-                    <input
-                      type="file"
-                      class="field-input mb-2"
-                      id="sslCertPath_file"
-                      (change)="setSslPath('sslCertPath')"
-                    />
-                    <input
-                      type="text"
-                      class="field-input"
-                      id="sslCertPath"
-                      name="SSLCertPath"
-                      [ngModel]="ldap().sslCertPath"
-                      (ngModelChange)="ldap.update((v) => ({ ...v, sslCertPath: $event }))"
-                    />
-                  </div>
-                  <div>
-                    <label for="sslKeyPath" class="field-label">{{ "ldapSslKey" | i18n }}</label>
-                    <input
-                      type="file"
-                      class="field-input mb-2"
-                      id="sslKeyPath_file"
-                      (change)="setSslPath('sslKeyPath')"
-                    />
-                    <input
-                      type="text"
-                      class="field-input"
-                      id="sslKeyPath"
-                      name="SSLKeyPath"
-                      [ngModel]="ldap().sslKeyPath"
-                      (ngModelChange)="ldap.update((v) => ({ ...v, sslKeyPath: $event }))"
-                    />
-                  </div>
-                  <div>
-                    <label for="sslCaPath" class="field-label">{{ "ldapSslCa" | i18n }}</label>
-                    <input
-                      type="file"
-                      class="field-input mb-2"
-                      id="sslCaPath_file"
-                      (change)="setSslPath('sslCaPath')"
-                    />
-                    <input
-                      type="text"
-                      class="field-input"
-                      id="sslCaPath"
-                      name="SSLCaPath"
-                      [ngModel]="ldap().sslCaPath"
-                      (ngModelChange)="ldap.update((v) => ({ ...v, sslCaPath: $event }))"
-                    />
-                  </div>
-                </div>
-              }
-              <div>
-                <label class="checkbox-row">
-                  <input
-                    class="checkbox-input"
-                    type="checkbox"
-                    id="certDoNotVerify"
-                    [ngModel]="ldap().sslAllowUnauthorized"
-                    (ngModelChange)="ldap.update((v) => ({ ...v, sslAllowUnauthorized: $event }))"
-                    name="CertDoNoVerify"
-                  />
-                  {{ "ldapCertDoNotVerify" | i18n }}
-                </label>
-              </div>
-            </div>
-          }
-          <div class="mb-4" [hidden]="true">
-            <label class="checkbox-row">
-              <input
-                class="checkbox-input"
-                type="checkbox"
-                id="currentUser"
-                [ngModel]="ldap().currentUser"
-                (ngModelChange)="ldap.update((v) => ({ ...v, currentUser: $event }))"
-                name="CurrentUser"
-              />
-              {{ "currentUser" | i18n }}
-            </label>
-          </div>
-          <div [hidden]="ldap().currentUser">
-            <div class="mb-4">
-              <label for="username" class="field-label">{{ "username" | i18n }}</label>
-              <input
-                type="text"
-                class="field-input"
-                id="username"
-                name="Username"
-                [ngModel]="ldap().username"
-                (ngModelChange)="ldap.update((v) => ({ ...v, username: $event }))"
-              />
-              @if (ldap().ad) {
-                <div class="field-hint">{{ "ex" | i18n }} company\admin</div>
-              }
-              @if (!ldap().ad) {
-                <div class="field-hint">{{ "ex" | i18n }} cn=admin,dc=company,dc=com</div>
-              }
-            </div>
-            <div class="mb-4">
-              <label for="password" class="field-label">{{ "password" | i18n }}</label>
-              <div class="flex gap-2">
-                <input
-                  type="{{ showLdapPassword() ? 'text' : 'password' }}"
-                  class="field-input"
-                  id="password"
-                  name="Password"
-                  [ngModel]="ldap().password"
-                  (ngModelChange)="ldap.update((v) => ({ ...v, password: $event }))"
-                />
-                <button
-                  type="button"
-                  class="btn-icon"
-                  appA11yTitle="{{ 'toggleVisibility' | i18n }}"
-                  (click)="toggleLdapPassword()"
-                >
-                  <i
-                    class="bwi bwi-lg"
-                    aria-hidden="true"
-                    [ngClass]="showLdapPassword() ? 'bwi-eye-slash' : 'bwi-eye'"
-                  ></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div [hidden]="directory() != directoryType.EntraID">
-          <div class="mb-4">
-            <label for="identityAuthority" class="field-label">{{
-              "identityAuthority" | i18n
-            }}</label>
-            <select
-              class="field-input"
-              id="identityAuthority"
-              name="IdentityAuthority"
-              [ngModel]="entra().identityAuthority"
-              (ngModelChange)="entra.update((v) => ({ ...v, identityAuthority: $event }))"
-            >
-              <option value="login.microsoftonline.com">Entra Id Public</option>
-              <option value="login.microsoftonline.us">Entra Id Government</option>
-            </select>
-          </div>
-          <div class="mb-4">
-            <label for="tenant" class="field-label">{{ "tenant" | i18n }}</label>
-            <input
-              type="text"
-              class="field-input"
-              id="tenant"
-              name="Tenant"
-              [ngModel]="entra().tenant"
-              (ngModelChange)="entra.update((v) => ({ ...v, tenant: $event }))"
-            />
-            <div class="field-hint">{{ "ex" | i18n }} companyad.onmicrosoft.com</div>
-          </div>
-          <div class="mb-4">
-            <label for="applicationId" class="field-label">{{ "applicationId" | i18n }}</label>
-            <input
-              type="text"
-              class="field-input"
-              id="applicationId"
-              name="ApplicationId"
-              [ngModel]="entra().applicationId"
-              (ngModelChange)="entra.update((v) => ({ ...v, applicationId: $event }))"
-            />
-          </div>
-          <div class="mb-4">
-            <label for="secretKey" class="field-label">{{ "secretKey" | i18n }}</label>
-            <div class="flex gap-2">
-              <input
-                type="{{ showEntraKey() ? 'text' : 'password' }}"
-                class="field-input"
-                id="secretKey"
-                name="SecretKey"
-                [ngModel]="entra().key"
-                (ngModelChange)="entra.update((v) => ({ ...v, key: $event }))"
-              />
-              <button
-                type="button"
-                class="btn-icon"
-                appA11yTitle="{{ 'toggleVisibility' | i18n }}"
-                (click)="toggleEntraKey()"
-              >
-                <i
-                  class="bwi bwi-lg"
-                  aria-hidden="true"
-                  [ngClass]="showEntraKey() ? 'bwi-eye-slash' : 'bwi-eye'"
-                ></i>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div [hidden]="directory() != directoryType.Okta">
-          <div class="mb-4">
-            <label for="orgUrl" class="field-label">{{ "organizationUrl" | i18n }}</label>
-            <input
-              type="text"
-              class="field-input"
-              id="orgUrl"
-              name="OrgUrl"
-              [ngModel]="okta().orgUrl"
-              (ngModelChange)="okta.update((v) => ({ ...v, orgUrl: $event }))"
-            />
-            <div class="field-hint">{{ "ex" | i18n }} https://mycompany.okta.com/</div>
-          </div>
-          <div class="mb-4">
-            <label for="oktaToken" class="field-label">{{ "token" | i18n }}</label>
-            <div class="flex gap-2">
-              <input
-                type="{{ showOktaKey() ? 'text' : 'password' }}"
-                class="field-input"
-                id="oktaToken"
-                name="OktaToken"
-                [ngModel]="okta().token"
-                (ngModelChange)="okta.update((v) => ({ ...v, token: $event }))"
-              />
-              <button
-                type="button"
-                class="btn-icon"
-                appA11yTitle="{{ 'toggleVisibility' | i18n }}"
-                (click)="toggleOktaKey()"
-              >
-                <i
-                  class="bwi bwi-lg"
-                  aria-hidden="true"
-                  [ngClass]="showOktaKey() ? 'bwi-eye-slash' : 'bwi-eye'"
-                ></i>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div [hidden]="directory() != directoryType.OneLogin">
-          <div class="mb-4">
-            <label for="oneLoginClientId" class="field-label">{{ "clientId" | i18n }}</label>
-            <input
-              type="text"
-              class="field-input"
-              id="oneLoginClientId"
-              name="OneLoginClientId"
-              [ngModel]="oneLogin().clientId"
-              (ngModelChange)="oneLogin.update((v) => ({ ...v, clientId: $event }))"
-            />
-          </div>
-          <div class="mb-4">
-            <label for="oneLoginClientSecret" class="field-label">{{
-              "clientSecret" | i18n
-            }}</label>
-            <div class="flex gap-2">
-              <input
-                type="{{ showOneLoginSecret() ? 'text' : 'password' }}"
-                class="field-input"
-                id="oneLoginClientSecret"
-                name="OneLoginClientSecret"
-                [ngModel]="oneLogin().clientSecret"
-                (ngModelChange)="oneLogin.update((v) => ({ ...v, clientSecret: $event }))"
-              />
-              <button
-                type="button"
-                class="btn-icon"
-                appA11yTitle="{{ 'toggleVisibility' | i18n }}"
-                (click)="toggleOneLoginSecret()"
-              >
-                <i
-                  class="bwi bwi-lg"
-                  aria-hidden="true"
-                  [ngClass]="showOneLoginSecret() ? 'bwi-eye-slash' : 'bwi-eye'"
-                ></i>
-              </button>
-            </div>
-          </div>
-          <div class="mb-4">
-            <label for="oneLoginRegion" class="field-label">{{ "region" | i18n }}</label>
-            <select
-              class="field-input"
-              id="oneLoginRegion"
-              name="OneLoginRegion"
-              [ngModel]="oneLogin().region"
-              (ngModelChange)="oneLogin.update((v) => ({ ...v, region: $event }))"
-            >
-              <option value="us">US</option>
-              <option value="eu">EU</option>
-            </select>
-          </div>
-        </div>
-        <div [hidden]="directory() != directoryType.GSuite">
-          <div class="mb-4">
-            <label for="domain" class="field-label">{{ "domain" | i18n }}</label>
-            <input
-              type="text"
-              class="field-input"
-              id="domain"
-              name="Domain"
-              [ngModel]="gsuite().domain"
-              (ngModelChange)="gsuite.update((v) => ({ ...v, domain: $event }))"
-            />
-            <div class="field-hint">{{ "ex" | i18n }} company.com</div>
-          </div>
-          <div class="mb-4">
-            <label for="adminUser" class="field-label">{{ "adminUser" | i18n }}</label>
-            <input
-              type="text"
-              class="field-input"
-              id="adminUser"
-              name="AdminUser"
-              [ngModel]="gsuite().adminUser"
-              (ngModelChange)="gsuite.update((v) => ({ ...v, adminUser: $event }))"
-            />
-            <div class="field-hint">{{ "ex" | i18n }} admin&#64;company.com</div>
-          </div>
-          <div class="mb-4">
-            <label for="customerId" class="field-label">{{ "customerId" | i18n }}</label>
-            <input
-              type="text"
-              class="field-input"
-              id="customerId"
-              name="CustomerId"
-              [ngModel]="gsuite().customer"
-              (ngModelChange)="gsuite.update((v) => ({ ...v, customer: $event }))"
-            />
-            <div class="field-hint">{{ "ex" | i18n }} 39204722352</div>
-          </div>
-          <div class="mb-4">
-            <label for="keyFile" class="field-label">{{ "jsonKeyFile" | i18n }}</label>
-            <input
-              type="file"
-              class="field-input"
-              id="keyFile"
-              accept=".json"
-              (change)="parseKeyFile()"
-            />
-            <div class="field-hint">{{ "ex" | i18n }} My Project-jksd3jd223.json</div>
-          </div>
-          <div class="mb-4" [hidden]="!gsuite().clientEmail">
-            <label for="clientEmail" class="field-label">{{ "clientEmail" | i18n }}</label>
-            <input
-              type="text"
-              class="field-input"
               id="clientEmail"
               name="ClientEmail"
               [ngModel]="gsuite().clientEmail"
               (ngModelChange)="gsuite.update((v) => ({ ...v, clientEmail: $event }))"
             />
-          </div>
-          <div class="mb-4" [hidden]="!gsuite().privateKey">
-            <label for="privateKey" class="field-label">{{ "privateKey" | i18n }}</label>
+          </bit-form-field>
+        </div>
+        <div [hidden]="!gsuite().privateKey">
+          <bit-form-field disableMargin>
+            <bit-label>{{ "privateKey" | i18n }}</bit-label>
             <textarea
-              class="field-input font-mono"
+              bitInput
+              rows="4"
+              class="tw-font-mono"
               id="privateKey"
               name="PrivateKey"
               [ngModel]="gsuite().privateKey"
               (ngModelChange)="gsuite.update((v) => ({ ...v, privateKey: $event }))"
-            >
-            </textarea>
-          </div>
+            ></textarea>
+          </bit-form-field>
         </div>
       </div>
-    </div>
-  </div>
-  <div>
-    <div class="surface-card">
-      <div class="surface-card-header">
-        <h2 class="surface-card-title">{{ "sync" | i18n }}</h2>
-      </div>
-      <div class="surface-card-body">
-        <div class="mb-4">
-          <label for="interval" class="field-label">{{ "interval" | i18n }}</label>
+    </bit-card>
+  </bit-section>
+
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "sync" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card>
+      <bit-form-field>
+        <bit-label>{{ "interval" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="number"
+          min="5"
+          id="interval"
+          name="Interval"
+          [ngModel]="sync().interval"
+          (ngModelChange)="sync.update((v) => ({ ...v, interval: $event }))"
+        />
+        <bit-hint>{{ "intervalMin" | i18n }}</bit-hint>
+      </bit-form-field>
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          id="removeDisabled"
+          name="RemoveDisabled"
+          [ngModel]="sync().removeDisabled"
+          (ngModelChange)="sync.update((v) => ({ ...v, removeDisabled: $event }))"
+        />
+        <bit-label>{{ "removeDisabled" | i18n }}</bit-label>
+      </bit-form-control>
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          id="largeImport"
+          name="LargeImport"
+          [ngModel]="sync().largeImport"
+          (ngModelChange)="sync.update((v) => ({ ...v, largeImport: $event }))"
+        />
+        <bit-label>{{ "largeImport" | i18n }}</bit-label>
+      </bit-form-control>
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          id="inviteUsersAfterProvisioning"
+          name="InviteUsersAfterProvisioning"
+          [ngModel]="sync().inviteUsersAfterProvisioning ?? false"
+          (ngModelChange)="sync.update((v) => ({ ...v, inviteUsersAfterProvisioning: $event }))"
+        />
+        <bit-label>{{ "inviteUsersAfterProvisioning" | i18n }}</bit-label>
+      </bit-form-control>
+
+      <div [hidden]="directory() != directoryType.Ldap || ldap().ad">
+        <bit-form-field>
+          <bit-label>{{ "memberAttribute" | i18n }}</bit-label>
           <input
-            type="number"
-            min="5"
-            class="field-input"
-            id="interval"
-            name="Interval"
-            [ngModel]="sync().interval"
-            (ngModelChange)="sync.update((v) => ({ ...v, interval: $event }))"
+            bitInput
+            type="text"
+            id="memberAttribute"
+            name="MemberAttribute"
+            [ngModel]="sync().memberAttribute"
+            (ngModelChange)="sync.update((v) => ({ ...v, memberAttribute: $event }))"
           />
-          <div class="field-hint">{{ "intervalMin" | i18n }}</div>
-        </div>
-        <div class="mb-4">
-          <label class="checkbox-row">
-            <input
-              class="checkbox-input"
-              type="checkbox"
-              id="removeDisabled"
-              [ngModel]="sync().removeDisabled"
-              (ngModelChange)="sync.update((v) => ({ ...v, removeDisabled: $event }))"
-              name="RemoveDisabled"
-            />
-            {{ "removeDisabled" | i18n }}
-          </label>
-        </div>
-        <div class="mb-4">
-          <label class="checkbox-row">
-            <input
-              class="checkbox-input"
-              type="checkbox"
-              id="largeImport"
-              [ngModel]="sync().largeImport"
-              (ngModelChange)="sync.update((v) => ({ ...v, largeImport: $event }))"
-              name="LargeImport"
-            />
-            {{ "largeImport" | i18n }}
-          </label>
-        </div>
-        <div class="mb-3">
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="inviteUsersAfterProvisioning"
-              [ngModel]="sync().inviteUsersAfterProvisioning ?? false"
-              (ngModelChange)="sync.update((v) => ({ ...v, inviteUsersAfterProvisioning: $event }))"
-              name="InviteUsersAfterProvisioning"
-            />
-            <label class="form-check-label" for="inviteUsersAfterProvisioning">{{
-              "inviteUsersAfterProvisioning" | i18n
-            }}</label>
-          </div>
-        </div>
-        <div [hidden]="directory() != directoryType.Ldap">
-          <div [hidden]="ldap().ad">
-            <div class="mb-4">
-              <label for="memberAttribute" class="field-label">{{
-                "memberAttribute" | i18n
-              }}</label>
+          <bit-hint>{{ "ex" | i18n }} uniqueMember</bit-hint>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "creationDateAttribute" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="creationDateAttribute"
+            name="CreationDateAttribute"
+            [ngModel]="sync().creationDateAttribute"
+            (ngModelChange)="sync.update((v) => ({ ...v, creationDateAttribute: $event }))"
+          />
+          <bit-hint>{{ "ex" | i18n }} whenCreated</bit-hint>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "revisionDateAttribute" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="revisionDateAttribute"
+            name="RevisionDateAttribute"
+            [ngModel]="sync().revisionDateAttribute"
+            (ngModelChange)="sync.update((v) => ({ ...v, revisionDateAttribute: $event }))"
+          />
+          <bit-hint>{{ "ex" | i18n }} whenChanged</bit-hint>
+        </bit-form-field>
+      </div>
+
+      <div [hidden]="directory() != directoryType.Ldap && directory() != directoryType.OneLogin">
+        <bit-form-control>
+          <input
+            type="checkbox"
+            bitCheckbox
+            id="useEmailPrefixSuffix"
+            name="UseEmailPrefixSuffix"
+            [ngModel]="sync().useEmailPrefixSuffix"
+            (ngModelChange)="sync.update((v) => ({ ...v, useEmailPrefixSuffix: $event }))"
+          />
+          <bit-label>{{ "useEmailPrefixSuffix" | i18n }}</bit-label>
+        </bit-form-control>
+        <div [hidden]="!sync().useEmailPrefixSuffix">
+          <div [hidden]="ldap().ad || directory() != directoryType.Ldap">
+            <bit-form-field>
+              <bit-label>{{ "emailPrefixAttribute" | i18n }}</bit-label>
               <input
+                bitInput
                 type="text"
-                class="field-input"
-                id="memberAttribute"
-                name="MemberAttribute"
-                [ngModel]="sync().memberAttribute"
-                (ngModelChange)="sync.update((v) => ({ ...v, memberAttribute: $event }))"
-              />
-              <div class="field-hint">{{ "ex" | i18n }} uniqueMember</div>
-            </div>
-            <div class="mb-4">
-              <label for="creationDateAttribute" class="field-label">{{
-                "creationDateAttribute" | i18n
-              }}</label>
-              <input
-                type="text"
-                class="field-input"
-                id="creationDateAttribute"
-                name="CreationDateAttribute"
-                [ngModel]="sync().creationDateAttribute"
-                (ngModelChange)="sync.update((v) => ({ ...v, creationDateAttribute: $event }))"
-              />
-              <div class="field-hint">{{ "ex" | i18n }} whenCreated</div>
-            </div>
-            <div class="mb-4">
-              <label for="revisionDateAttribute" class="field-label">{{
-                "revisionDateAttribute" | i18n
-              }}</label>
-              <input
-                type="text"
-                class="field-input"
-                id="revisionDateAttribute"
-                name="RevisionDateAttribute"
-                [ngModel]="sync().revisionDateAttribute"
-                (ngModelChange)="sync.update((v) => ({ ...v, revisionDateAttribute: $event }))"
-              />
-              <div class="field-hint">{{ "ex" | i18n }} whenChanged</div>
-            </div>
-          </div>
-        </div>
-        <div [hidden]="directory() != directoryType.Ldap && directory() != directoryType.OneLogin">
-          <div class="mb-4">
-            <label class="checkbox-row">
-              <input
-                class="checkbox-input"
-                type="checkbox"
-                id="useEmailPrefixSuffix"
-                [ngModel]="sync().useEmailPrefixSuffix"
-                (ngModelChange)="sync.update((v) => ({ ...v, useEmailPrefixSuffix: $event }))"
-                name="UseEmailPrefixSuffix"
-              />
-              {{ "useEmailPrefixSuffix" | i18n }}
-            </label>
-          </div>
-          <div [hidden]="!sync().useEmailPrefixSuffix">
-            <div class="mb-4" [hidden]="ldap().ad || directory() != directoryType.Ldap">
-              <label for="emailPrefixAttribute" class="field-label">{{
-                "emailPrefixAttribute" | i18n
-              }}</label>
-              <input
-                type="text"
-                class="field-input"
                 id="emailPrefixAttribute"
                 name="EmailPrefixAttribute"
                 [ngModel]="sync().emailPrefixAttribute"
                 (ngModelChange)="sync.update((v) => ({ ...v, emailPrefixAttribute: $event }))"
               />
-              <div class="field-hint">{{ "ex" | i18n }} accountName</div>
-            </div>
-            <div class="mb-4">
-              <label for="emailSuffix" class="field-label">{{ "emailSuffix" | i18n }}</label>
-              <input
-                type="text"
-                class="field-input"
-                id="emailSuffix"
-                name="EmailSuffix"
-                [ngModel]="sync().emailSuffix"
-                (ngModelChange)="sync.update((v) => ({ ...v, emailSuffix: $event }))"
-              />
-              <div class="field-hint">{{ "ex" | i18n }} &#64;company.com</div>
-            </div>
+              <bit-hint>{{ "ex" | i18n }} accountName</bit-hint>
+            </bit-form-field>
           </div>
-        </div>
-
-        <div class="mb-4">
-          <label class="checkbox-row">
+          <bit-form-field>
+            <bit-label>{{ "emailSuffix" | i18n }}</bit-label>
             <input
-              class="checkbox-input"
-              type="checkbox"
-              id="syncUsers"
-              [ngModel]="sync().users"
-              (ngModelChange)="sync.update((v) => ({ ...v, users: $event }))"
-              name="SyncUsers"
-            />
-            {{ "syncUsers" | i18n }}
-          </label>
-        </div>
-        <div [hidden]="!sync().users">
-          <div class="mb-4">
-            <label for="userFilter" class="field-label">
-              {{ "userFilter" | i18n }}
-              @if (directory() != null) {
-                <i
-                  class="bwi bwi-question-circle ms-1 cursor-help text-gray-400"
-                  [attr.title]="userFilterHelp()"
-                  [attr.aria-label]="userFilterHelp()"
-                ></i>
-              }
-            </label>
-            <textarea
-              class="field-input"
-              id="userFilter"
-              name="UserFilter"
-              [ngModel]="sync().userFilter"
-              (ngModelChange)="sync.update((v) => ({ ...v, userFilter: $event }))"
-            ></textarea>
-            @if (directory() === directoryType.Ldap) {
-              <div class="field-hint">
-                {{ "ex" | i18n }} (&amp;(givenName=John)(|(l=Dallas)(l=Austin)))
-              </div>
-            }
-            @if (directory() === directoryType.EntraID) {
-              <div class="field-hint">{{ "ex" | i18n }} exclude:joe&#64;company.com</div>
-            }
-            @if (directory() === directoryType.Okta) {
-              <div class="field-hint">
-                {{ "ex" | i18n }} exclude:joe&#64;company.com | profile.firstName eq "John"
-              </div>
-            }
-            @if (directory() === directoryType.GSuite) {
-              <div class="field-hint">
-                {{ "ex" | i18n }} exclude:joe&#64;company.com | orgUnitPath=/Engineering
-              </div>
-            }
-          </div>
-          <div class="mb-4" [hidden]="directory() != directoryType.Ldap">
-            <label for="userPath" class="field-label">{{ "userPath" | i18n }}</label>
-            <input
+              bitInput
               type="text"
-              class="field-input"
+              id="emailSuffix"
+              name="EmailSuffix"
+              [ngModel]="sync().emailSuffix"
+              (ngModelChange)="sync.update((v) => ({ ...v, emailSuffix: $event }))"
+            />
+            <bit-hint>{{ "ex" | i18n }} &#64;company.com</bit-hint>
+          </bit-form-field>
+        </div>
+      </div>
+
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          id="syncUsers"
+          name="SyncUsers"
+          [ngModel]="sync().users"
+          (ngModelChange)="sync.update((v) => ({ ...v, users: $event }))"
+        />
+        <bit-label>{{ "syncUsers" | i18n }}</bit-label>
+      </bit-form-control>
+      <div [hidden]="!sync().users">
+        <bit-form-field>
+          <bit-label>
+            {{ "userFilter" | i18n }}
+            @if (directory() != null) {
+              <i
+                class="bwi bwi-question-circle tw-ms-1 tw-cursor-help tw-text-muted"
+                [attr.title]="userFilterHelp()"
+                [attr.aria-label]="userFilterHelp()"
+              ></i>
+            }
+          </bit-label>
+          <textarea
+            bitInput
+            rows="3"
+            id="userFilter"
+            name="UserFilter"
+            [ngModel]="sync().userFilter"
+            (ngModelChange)="sync.update((v) => ({ ...v, userFilter: $event }))"
+          ></textarea>
+          <bit-hint>{{ userFilterHint() }}</bit-hint>
+        </bit-form-field>
+        <div [hidden]="directory() != directoryType.Ldap">
+          <bit-form-field>
+            <bit-label>{{ "userPath" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="text"
               id="userPath"
               name="UserPath"
               [ngModel]="sync().userPath"
               (ngModelChange)="sync.update((v) => ({ ...v, userPath: $event }))"
             />
-            <div class="field-hint">{{ "ex" | i18n }} CN=Users</div>
-          </div>
-          <div [hidden]="directory() != directoryType.Ldap || ldap().ad">
-            <div class="mb-4">
-              <label for="userObjectClass" class="field-label">{{
-                "userObjectClass" | i18n
-              }}</label>
-              <input
-                type="text"
-                class="field-input"
-                id="userObjectClass"
-                name="UserObjectClass"
-                [ngModel]="sync().userObjectClass"
-                (ngModelChange)="sync.update((v) => ({ ...v, userObjectClass: $event }))"
-              />
-              <div class="field-hint">{{ "ex" | i18n }} inetOrgPerson</div>
-            </div>
-            <div class="mb-4">
-              <label for="userEmailAttribute" class="field-label">{{
-                "userEmailAttribute" | i18n
-              }}</label>
-              <input
-                type="text"
-                class="field-input"
-                id="userEmailAttribute"
-                name="UserEmailAttribute"
-                [ngModel]="sync().userEmailAttribute"
-                (ngModelChange)="sync.update((v) => ({ ...v, userEmailAttribute: $event }))"
-              />
-              <div class="field-hint">{{ "ex" | i18n }} mail</div>
-            </div>
-          </div>
+            <bit-hint>{{ "ex" | i18n }} CN=Users</bit-hint>
+          </bit-form-field>
         </div>
-
-        <div class="mb-4">
-          <label class="checkbox-row">
+        <div [hidden]="directory() != directoryType.Ldap || ldap().ad">
+          <bit-form-field>
+            <bit-label>{{ "userObjectClass" | i18n }}</bit-label>
             <input
-              class="checkbox-input"
-              type="checkbox"
-              id="syncGroups"
-              [ngModel]="sync().groups"
-              (ngModelChange)="sync.update((v) => ({ ...v, groups: $event }))"
-              name="SyncGroups"
+              bitInput
+              type="text"
+              id="userObjectClass"
+              name="UserObjectClass"
+              [ngModel]="sync().userObjectClass"
+              (ngModelChange)="sync.update((v) => ({ ...v, userObjectClass: $event }))"
             />
-            {{
-              (directory() !== directoryType.OneLogin ? "syncGroups" : "syncGroupsOneLogin") | i18n
-            }}
-          </label>
+            <bit-hint>{{ "ex" | i18n }} inetOrgPerson</bit-hint>
+          </bit-form-field>
+          <bit-form-field>
+            <bit-label>{{ "userEmailAttribute" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="text"
+              id="userEmailAttribute"
+              name="UserEmailAttribute"
+              [ngModel]="sync().userEmailAttribute"
+              (ngModelChange)="sync.update((v) => ({ ...v, userEmailAttribute: $event }))"
+            />
+            <bit-hint>{{ "ex" | i18n }} mail</bit-hint>
+          </bit-form-field>
         </div>
-        <div [hidden]="!sync().groups">
-          <div class="mb-4">
-            <label for="groupFilter" class="field-label">{{
+      </div>
+
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          id="syncGroups"
+          name="SyncGroups"
+          [ngModel]="sync().groups"
+          (ngModelChange)="sync.update((v) => ({ ...v, groups: $event }))"
+        />
+        <bit-label>
+          {{
+            (directory() !== directoryType.OneLogin ? "syncGroups" : "syncGroupsOneLogin") | i18n
+          }}
+        </bit-label>
+      </bit-form-control>
+      <div [hidden]="!sync().groups">
+        <bit-form-field>
+          <bit-label>
+            {{
               (directory() !== directoryType.OneLogin ? "groupFilter" : "groupFilterOneLogin")
                 | i18n
-            }}</label>
-            <textarea
-              class="field-input"
-              id="groupFilter"
-              name="GroupFilter"
-              [ngModel]="sync().groupFilter"
-              (ngModelChange)="sync.update((v) => ({ ...v, groupFilter: $event }))"
-            ></textarea>
-            @if (directory() === directoryType.Ldap) {
-              <div class="field-hint">
-                {{ "ex" | i18n }} (&amp;(objectClass=group)(!(cn=Sales*))(!(cn=IT*)))
-              </div>
-            }
-            @if (directory() === directoryType.EntraID) {
-              <div class="field-hint">{{ "ex" | i18n }} include:Sales,IT</div>
-            }
-            @if (directory() === directoryType.Okta) {
-              <div class="field-hint">{{ "ex" | i18n }} include:Sales,IT | type eq "APP_GROUP"</div>
-            }
-            @if (directory() === directoryType.GSuite) {
-              <div class="field-hint">{{ "ex" | i18n }} include:Sales,IT</div>
-            }
-          </div>
-          <div class="mb-4" [hidden]="directory() != directoryType.Ldap">
-            <label for="groupPath" class="field-label">{{ "groupPath" | i18n }}</label>
+            }}
+          </bit-label>
+          <textarea
+            bitInput
+            rows="3"
+            id="groupFilter"
+            name="GroupFilter"
+            [ngModel]="sync().groupFilter"
+            (ngModelChange)="sync.update((v) => ({ ...v, groupFilter: $event }))"
+          ></textarea>
+          <bit-hint>{{ groupFilterHint() }}</bit-hint>
+        </bit-form-field>
+        <div [hidden]="directory() != directoryType.Ldap">
+          <bit-form-field>
+            <bit-label>{{ "groupPath" | i18n }}</bit-label>
             <input
+              bitInput
               type="text"
-              class="field-input"
               id="groupPath"
               name="GroupPath"
               [ngModel]="sync().groupPath"
               (ngModelChange)="sync.update((v) => ({ ...v, groupPath: $event }))"
             />
-            @if (!ldap().ad) {
-              <div class="field-hint">{{ "ex" | i18n }} CN=Groups</div>
-            }
-            @if (ldap().ad) {
-              <div class="field-hint">{{ "ex" | i18n }} CN=Users</div>
-            }
-          </div>
-          <div [hidden]="directory() != directoryType.Ldap || ldap().ad">
-            <div class="mb-4">
-              <label for="groupObjectClass" class="field-label">{{
-                "groupObjectClass" | i18n
-              }}</label>
-              <input
-                type="text"
-                class="field-input"
-                id="groupObjectClass"
-                name="GroupObjectClass"
-                [ngModel]="sync().groupObjectClass"
-                (ngModelChange)="sync.update((v) => ({ ...v, groupObjectClass: $event }))"
-              />
-              <div class="field-hint">{{ "ex" | i18n }} groupOfUniqueNames</div>
-            </div>
-            <div class="mb-4">
-              <label for="groupNameAttribute" class="field-label">{{
-                "groupNameAttribute" | i18n
-              }}</label>
-              <input
-                type="text"
-                class="field-input"
-                id="groupNameAttribute"
-                name="GroupNameAttribute"
-                [ngModel]="sync().groupNameAttribute"
-                (ngModelChange)="sync.update((v) => ({ ...v, groupNameAttribute: $event }))"
-              />
-              <div class="field-hint">{{ "ex" | i18n }} name</div>
-            </div>
-          </div>
+            <bit-hint>{{ "ex" | i18n }} {{ ldap().ad ? "CN=Users" : "CN=Groups" }}</bit-hint>
+          </bit-form-field>
         </div>
-        <div class="mb-1">
-          <label class="checkbox-row items-start">
+        <div [hidden]="directory() != directoryType.Ldap || ldap().ad">
+          <bit-form-field>
+            <bit-label>{{ "groupObjectClass" | i18n }}</bit-label>
             <input
-              class="checkbox-input mt-0.5"
-              type="checkbox"
-              id="overwriteExisting"
-              [ngModel]="sync().overwriteExisting"
-              (ngModelChange)="sync.update((v) => ({ ...v, overwriteExisting: $event }))"
-              name="OverwriteExisting"
+              bitInput
+              type="text"
+              id="groupObjectClass"
+              name="GroupObjectClass"
+              [ngModel]="sync().groupObjectClass"
+              (ngModelChange)="sync.update((v) => ({ ...v, groupObjectClass: $event }))"
             />
-            <span
-              >{{ "overwriteExisting" | i18n }}
-              <a
-                bitLink
-                href="https://bitwarden.com/help/user-group-filters/#overwriting-syncs"
-                target="_blank"
-                rel="noreferrer"
-                appA11yTitle="{{ 'overwriteExistingTooltip' | i18n }}"
-                class="ml-1 inline-flex align-middle text-gray-400 hover:text-primary"
-              >
-                <i class="bwi bwi-question-circle"></i>
-              </a>
-            </span>
-          </label>
+            <bit-hint>{{ "ex" | i18n }} groupOfUniqueNames</bit-hint>
+          </bit-form-field>
+          <bit-form-field>
+            <bit-label>{{ "groupNameAttribute" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="text"
+              id="groupNameAttribute"
+              name="GroupNameAttribute"
+              [ngModel]="sync().groupNameAttribute"
+              (ngModelChange)="sync.update((v) => ({ ...v, groupNameAttribute: $event }))"
+            />
+            <bit-hint>{{ "ex" | i18n }} name</bit-hint>
+          </bit-form-field>
         </div>
       </div>
-    </div>
-  </div>
+
+      <bit-form-control disableMargin>
+        <input
+          type="checkbox"
+          bitCheckbox
+          id="overwriteExisting"
+          name="OverwriteExisting"
+          [ngModel]="sync().overwriteExisting"
+          (ngModelChange)="sync.update((v) => ({ ...v, overwriteExisting: $event }))"
+        />
+        <bit-label>
+          {{ "overwriteExisting" | i18n }}
+          <a
+            bitLink
+            href="https://bitwarden.com/help/user-group-filters/#overwriting-syncs"
+            target="_blank"
+            rel="noreferrer"
+            appA11yTitle="{{ 'overwriteExistingTooltip' | i18n }}"
+          >
+            <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+          </a>
+        </bit-label>
+      </bit-form-control>
+    </bit-card>
+  </bit-section>
 </div>
+
+<!-- A read-only-friendly path field with a "choose file" button for an LDAP certificate. -->
+<ng-template #certPath let-id="id" let-name="name" let-label="label">
+  <input #filePicker type="file" class="tw-hidden" [id]="id + '_file'" (change)="setSslPath(id)" />
+  <bit-form-field>
+    <bit-label>{{ label | i18n }}</bit-label>
+    <input
+      bitInput
+      type="text"
+      [id]="id"
+      [name]="name"
+      [ngModel]="ldapPath(id)"
+      (ngModelChange)="setLdapPath(id, $event)"
+    />
+    <button
+      type="button"
+      bitIconButton="bwi-folder"
+      bitSuffix
+      [label]="'chooseFile' | i18n"
+      (click)="filePicker.click()"
+    ></button>
+  </bit-form-field>
+</ng-template>

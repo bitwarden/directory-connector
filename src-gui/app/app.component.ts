@@ -2,14 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
-  SecurityContext,
   ViewChild,
   ViewContainerRef,
   inject,
 } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
 import { Router, RouterOutlet } from "@angular/router";
-import { IndividualConfig, ToastrService } from "ngx-toastr";
+
+import { ToastModule, ToastService } from "@bitwarden/components";
 
 import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
@@ -27,10 +26,11 @@ const BroadcasterSubscriptionId = "AppComponent";
   selector: "app-root",
   styles: [],
   template: ` <ng-template #settings></ng-template>
-    <router-outlet></router-outlet>`,
+    <router-outlet></router-outlet>
+    <bit-toast-container></bit-toast-container>`,
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ToastModule],
 })
 export class AppComponent implements OnInit {
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
@@ -39,9 +39,8 @@ export class AppComponent implements OnInit {
   private authService = inject(RendererAuthService);
   private syncService = inject(RendererSyncService);
   private router = inject(Router);
-  private toastrService = inject(ToastrService);
+  private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
-  private sanitizer = inject(DomSanitizer);
   private platformUtilsService = inject(PlatformUtilsService);
   private messagingService = inject(MessagingService);
   private stateService = inject(StateService);
@@ -124,30 +123,11 @@ export class AppComponent implements OnInit {
   }
 
   private showToast(msg: any) {
-    let message = "";
-
-    const options: Partial<IndividualConfig> = {};
-
-    if (typeof msg.text === "string") {
-      message = msg.text;
-    } else if (msg.text.length === 1) {
-      message = msg.text[0];
-    } else {
-      msg.text.forEach(
-        (t: string) =>
-          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>"),
-      );
-      options.enableHtml = true;
-    }
-    if (msg.options != null) {
-      if (msg.options.trustedHtml === true) {
-        options.enableHtml = true;
-      }
-      if (msg.options.timeout != null && msg.options.timeout > 0) {
-        options.timeOut = msg.options.timeout;
-      }
-    }
-
-    this.toastrService.show(message, msg.title, options, "toast-" + msg.type);
+    this.toastService.showToast({
+      variant: msg.type,
+      title: msg.title,
+      message: msg.text,
+      timeout: msg.options?.timeout,
+    });
   }
 }

@@ -7,6 +7,15 @@ import {
   signal,
 } from "@angular/core";
 
+import {
+  ButtonModule,
+  CardComponent,
+  IconTileComponent,
+  SectionComponent,
+  SectionHeaderComponent,
+  TypographyModule,
+} from "@bitwarden/components";
+
 import { BroadcasterService } from "@/libs/abstractions/broadcaster.service";
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { MessagingService } from "@/libs/abstractions/messaging.service";
@@ -22,7 +31,15 @@ const BroadcasterSubscriptionId = "MoreComponent";
   templateUrl: "more.component.html",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [I18nPipe],
+  imports: [
+    ButtonModule,
+    CardComponent,
+    I18nPipe,
+    IconTileComponent,
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+  ],
 })
 export class MoreComponent implements OnInit, OnDestroy {
   version = signal("");

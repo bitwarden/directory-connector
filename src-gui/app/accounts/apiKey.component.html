@@ -1,75 +1,48 @@
-<div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10 dark:bg-gray-950">
+<div
+  class="tw-flex tw-min-h-screen tw-items-center tw-justify-center tw-bg-background-alt tw-px-4 tw-py-10"
+>
   <form
     #form="appApiAction"
     (ngSubmit)="submit()"
     [appApiAction]="formPromise()"
-    class="w-full max-w-sm"
+    class="tw-w-full tw-max-w-md"
   >
-    <div class="mb-6 flex flex-col items-center text-center">
-      <div
-        class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white shadow-sm"
-      >
-        <i class="bwi bwi-shield text-2xl" aria-hidden="true"></i>
-      </div>
-      <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ "welcome" | i18n }}</p>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ "logInDesc" | i18n }}</p>
+    <div class="tw-mb-6 tw-flex tw-flex-col tw-items-center tw-text-center">
+      <bit-icon-tile icon="bwi-shield" size="xl" emphasis="bold" class="tw-mb-4"></bit-icon-tile>
+      <h1 bitTypography="h3">{{ "welcome" | i18n }}</h1>
+      <p bitTypography="body2" class="tw-text-muted">{{ "logInDesc" | i18n }}</p>
     </div>
-    <div class="surface-card">
-      <div class="surface-card-header">
-        <h2 class="surface-card-title">{{ "logIn" | i18n }}</h2>
-      </div>
-      <div class="surface-card-body">
-        <div class="mb-4">
-          <label for="client_id" class="field-label">{{ "clientId" | i18n }}</label>
-          <input
-            id="client_id"
-            name="ClientId"
-            [ngModel]="clientId()"
-            (ngModelChange)="clientId.set($event)"
-            class="field-input"
-          />
-        </div>
-        <div class="mb-5">
-          <label for="client_secret" class="field-label">{{ "clientSecret" | i18n }}</label>
-          <div class="flex gap-2">
-            <input
-              type="{{ showSecret() ? 'text' : 'password' }}"
-              id="client_secret"
-              name="ClientSecret"
-              [ngModel]="clientSecret()"
-              (ngModelChange)="clientSecret.set($event)"
-              class="field-input"
-            />
-            <button
-              type="button"
-              class="btn-icon"
-              appA11yTitle="{{ 'toggleVisibility' | i18n }}"
-              (click)="toggleSecret()"
-            >
-              <i class="bwi" [ngClass]="showSecret() ? 'bwi-eye-slash' : 'bwi-eye'"></i>
-            </button>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <button
-            type="submit"
-            class="btn-primary flex-1 justify-center"
-            [disabled]="form.loading()"
-          >
-            <i class="bwi bwi-spinner bwi-fw bwi-spin" [hidden]="!form.loading()"></i>
-            <i class="bwi bwi-sign-in bwi-fw" [hidden]="form.loading()"></i>
-            {{ "logIn" | i18n }}
-          </button>
-          <button
-            type="button"
-            class="text-sm font-medium text-gray-500 hover:text-primary dark:text-gray-400"
-            (click)="settings()"
-          >
-            {{ "settings" | i18n }}
-          </button>
-        </div>
-      </div>
+    <bit-card>
+      <bit-form-field>
+        <bit-label>{{ "clientId" | i18n }}</bit-label>
+        <input
+          bitInput
+          id="client_id"
+          name="ClientId"
+          [ngModel]="clientId()"
+          (ngModelChange)="clientId.set($event)"
+        />
+      </bit-form-field>
+      <bit-form-field>
+        <bit-label>{{ "clientSecret" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="password"
+          id="client_secret"
+          name="ClientSecret"
+          [ngModel]="clientSecret()"
+          (ngModelChange)="clientSecret.set($event)"
+        />
+        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+      </bit-form-field>
+      <button type="submit" bitButton buttonType="primary" block [loading]="form.loading()">
+        {{ "logIn" | i18n }}
+      </button>
+    </bit-card>
+    <div class="tw-mt-4 tw-text-center">
+      <button type="button" bitLink linkType="primary" (click)="settings()">
+        {{ "settings" | i18n }}
+      </button>
     </div>
   </form>
 </div>
-<ng-template #environment></ng-template>

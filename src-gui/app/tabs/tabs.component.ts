@@ -4,6 +4,8 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
 import { filter, map } from "rxjs";
 
+import { TypographyModule } from "@bitwarden/components";
+
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
 
 @Component({
@@ -11,7 +13,7 @@ import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
   templateUrl: "tabs.component.html",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgClass, RouterLink, RouterLinkActive, RouterOutlet, I18nPipe],
+  imports: [NgClass, RouterLink, RouterLinkActive, RouterOutlet, I18nPipe, TypographyModule],
 })
 export class TabsComponent {
   private router = inject(Router);

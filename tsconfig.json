@@ -9,7 +9,7 @@
     "noImplicitAny": true,
     "target": "ES2022",
     "module": "ES2022",
-    "lib": ["es5", "es6", "es7", "dom"],
+    "lib": ["es5", "es6", "es7", "es2022", "dom"],
     "types": ["node", "jest"],
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
@@ -23,7 +23,26 @@
       "@/*": ["./*"],
       "@/src-gui/*": ["./src-gui/*"],
       "@/src-cli/*": ["./src-cli/*"],
-      "@/libs/*": ["./libs/*"]
+      "@/libs/*": ["./libs/*"],
+      "@bitwarden/components": ["./src-gui/bitwarden/components"],
+      "@bitwarden/common/auth/abstractions/auth.service": [
+        "./src-gui/bitwarden/shims/auth.service"
+      ],
+      "@bitwarden/common/auth/enums/authentication-status": [
+        "./src-gui/bitwarden/shims/authentication-status"
+      ],
+      "@bitwarden/common/platform/abstractions/i18n.service": [
+        "./src-gui/bitwarden/shims/i18n.service"
+      ],
+      "@bitwarden/common/platform/abstractions/log.service": [
+        "./src-gui/bitwarden/shims/log.service"
+      ],
+      "@bitwarden/common/platform/abstractions/validation.service": [
+        "./src-gui/bitwarden/shims/validation.service"
+      ],
+      "@bitwarden/common/platform/misc/utils": ["./src-gui/bitwarden/shims/utils"],
+      "@bitwarden/logging": ["./src-gui/bitwarden/shims/log.service"],
+      "@bitwarden/ui-common": ["./src-gui/bitwarden/shims/ui-common"]
     },
     "useDefineForClassFields": false
   },

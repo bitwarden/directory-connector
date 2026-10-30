@@ -25,6 +25,8 @@ export default [
       "scripts/**",
       "**/node_modules/**",
       "native/**",
+      // Vendored from bitwarden/clients; kept as close to upstream as possible.
+      "src-gui/bitwarden/components/**",
     ],
   },
 
@@ -91,6 +93,11 @@ export default [
           },
           "newlines-between": "always",
           pathGroups: [
+            {
+              pattern: "@bitwarden/**",
+              group: "external",
+              position: "after",
+            },
             {
               pattern: "@/libs/**",
               group: "external",
