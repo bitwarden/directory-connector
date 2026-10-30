@@ -7,14 +7,16 @@ export class Response {
     if (typeof error === "string") {
       res.message = error;
     } else {
-      res.message =
-        error.message != null
-          ? error.cause != null
-            ? `${error.message} (${String(error.cause)})`
-            : error.message
-          : error.toString() === "[object Object]"
-            ? JSON.stringify(error)
-            : error.toString();
+      if (error.message != null) {
+        res.message = error.message;
+        if (error.cause != null) {
+          res.message = `${error.message} (${String(error.cause)})`;
+        }
+      } else if (error.toString() === "[object Object]") {
+        res.message = JSON.stringify(error);
+      } else {
+        res.message = error.toString();
+      }
     }
     res.data = data;
     return res;
