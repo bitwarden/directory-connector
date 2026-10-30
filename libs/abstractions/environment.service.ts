@@ -7,6 +7,7 @@ export abstract class EnvironmentService {
   abstract setUrlsFromStorage(): Promise<void>;
 
   abstract hasBaseUrl(): boolean;
+  abstract isCloud(): boolean;
   abstract getApiUrl(): string;
   abstract getIdentityUrl(): string;
   abstract getWebVaultUrl(): string;

@@ -1,5 +1,5 @@
+import { net } from "electron";
 import FormData from "form-data";
-import { HttpsProxyAgent } from "https-proxy-agent";
 
 import { AppIdService } from "@/libs/abstractions/appId.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
@@ -29,10 +29,6 @@ export class NodeApiService extends ApiService {
   }
 
   nativeFetch(request: Request): Promise<Response> {
-    const proxy = process.env.http_proxy || process.env.https_proxy;
-    if (proxy) {
-      (request as any).agent = new HttpsProxyAgent(proxy);
-    }
-    return fetch(request);
+    return net.fetch(request);
   }
 }

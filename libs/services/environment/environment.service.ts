@@ -25,6 +25,13 @@ export class DefaultEnvironmentService implements EnvironmentService {
     return this.baseUrl != null;
   }
 
+  isCloud() {
+    return (
+      this.getApiUrl() === "https://api.bitwarden.com" &&
+      this.getIdentityUrl() === "https://identity.bitwarden.com"
+    );
+  }
+
   getWebVaultUrl() {
     if (this.webVaultUrl != null) {
       return this.webVaultUrl;
