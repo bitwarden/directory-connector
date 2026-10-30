@@ -1,172 +1,174 @@
-<div class="tw-mb-6 tw-grid tw-grid-cols-1 tw-gap-4 md:tw-grid-cols-3">
-  <bit-card class="tw-flex tw-items-center tw-gap-4">
-    <bit-icon-tile
-      [icon]="syncRunning() ? 'bwi-check-circle' : 'bwi-clock'"
-      [variant]="syncRunning() ? 'success' : 'dark'"
-      size="lg"
-    ></bit-icon-tile>
-    <div class="tw-min-w-0">
-      <p bitTypography="helper" class="tw-mb-0 tw-text-muted">{{ "sync" | i18n }}</p>
-      <p bitTypography="body1" class="tw-mb-0 tw-font-medium">
-        {{ (syncRunning() ? "running" : "stopped") | i18n }}
-      </p>
-    </div>
-  </bit-card>
-  <bit-card class="tw-flex tw-items-center tw-gap-4">
-    <bit-icon-tile icon="bwi-users" size="lg"></bit-icon-tile>
-    <div class="tw-min-w-0">
-      <p bitTypography="helper" class="tw-mb-0 tw-text-muted">{{ "lastGroupSync" | i18n }}</p>
-      <p bitTypography="body1" class="tw-mb-0 tw-truncate tw-font-medium">
-        @if (!lastGroupSync()) {
-          &mdash;
-        } @else {
-          {{ lastGroupSync() | date: "medium" }}
-        }
-      </p>
-    </div>
-  </bit-card>
-  <bit-card class="tw-flex tw-items-center tw-gap-4">
-    <bit-icon-tile icon="bwi-user" size="lg"></bit-icon-tile>
-    <div class="tw-min-w-0">
-      <p bitTypography="helper" class="tw-mb-0 tw-text-muted">{{ "lastUserSync" | i18n }}</p>
-      <p bitTypography="body1" class="tw-mb-0 tw-truncate tw-font-medium">
-        @if (!lastUserSync()) {
-          &mdash;
-        } @else {
-          {{ lastUserSync() | date: "medium" }}
-        }
-      </p>
-    </div>
-  </bit-card>
-</div>
-
-<bit-section>
-  <bit-section-header>
-    <h2 bitTypography="h6">{{ "sync" | i18n }}</h2>
-  </bit-section-header>
-  <bit-card>
-    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-      <form #startForm="appApiAction" [appApiAction]="startPromise()">
-        <button
-          type="button"
-          bitButton
-          buttonType="primary"
-          [loading]="startForm.loading()"
-          (click)="start()"
-        >
-          {{ "startSync" | i18n }}
-        </button>
-      </form>
-      <form #syncForm="appApiAction" [appApiAction]="syncPromise()">
-        <button
-          type="button"
-          bitButton
-          buttonType="secondary"
-          startIcon="bwi-refresh"
-          [loading]="syncForm.loading()"
-          (click)="sync()"
-        >
-          {{ "syncNow" | i18n }}
-        </button>
-      </form>
-      <button type="button" bitButton buttonType="dangerGhost" class="tw-ms-auto" (click)="stop()">
-        {{ "stopSync" | i18n }}
-      </button>
-    </div>
-  </bit-card>
-</bit-section>
-
-<bit-section>
-  <bit-section-header>
-    <h2 bitTypography="h6">{{ "testing" | i18n }}</h2>
-  </bit-section-header>
-  <bit-card>
-    <p bitTypography="body2" class="tw-text-muted">{{ "testingDesc" | i18n }}</p>
-    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-4">
-      <form #simForm="appApiAction" [appApiAction]="simPromise()">
-        <button
-          type="button"
-          bitButton
-          buttonType="primary"
-          [loading]="simForm.loading()"
-          (click)="simulate()"
-        >
-          {{ "testNow" | i18n }}
-        </button>
-      </form>
-      <bit-form-control disableMargin>
-        <input
-          type="checkbox"
-          bitCheckbox
-          name="SimSinceLast"
-          [ngModel]="simSinceLast()"
-          (ngModelChange)="simSinceLast.set($event)"
-        />
-        <bit-label>{{ "testLastSync" | i18n }}</bit-label>
-      </bit-form-control>
-    </div>
-
-    @if (!simForm.loading() && (simUsers() || simGroups())) {
-      <div
-        class="tw-mt-6 tw-grid tw-grid-cols-1 tw-gap-8 tw-border-0 tw-border-t tw-border-solid tw-border-secondary-300 tw-pt-6 lg:tw-grid-cols-2"
-      >
-        <div class="tw-max-h-[28rem] tw-overflow-y-auto tw-pe-2">
-          <ng-container
-            *ngTemplateOutlet="userList; context: { title: 'users', users: simEnabledUsers() }"
-          ></ng-container>
-          <ng-container
-            *ngTemplateOutlet="
-              userList;
-              context: { title: 'disabledUsers', users: simDisabledUsers() }
-            "
-          ></ng-container>
-          <ng-container
-            *ngTemplateOutlet="
-              userList;
-              context: { title: 'deletedUsers', users: simDeletedUsers(), deleted: true }
-            "
-          ></ng-container>
-        </div>
-        <div class="tw-max-h-[28rem] tw-overflow-y-auto tw-pe-2">
-          <h3
-            bitTypography="h6"
-            class="tw-sticky tw-top-0 tw-z-10 tw-flex tw-items-center tw-gap-2 tw-bg-background tw-py-1"
-          >
-            {{ "groups" | i18n }}
-            <span bitBadge variant="subtle">{{ simGroups()?.length ?? 0 }}</span>
-          </h3>
-          @if (simGroups() && simGroups().length) {
-            <ul class="tw-m-0 tw-list-none tw-p-0">
-              @for (g of simGroups(); track g) {
-                <li title="{{ g.referenceId }}" class="tw-py-1">
-                  <div bitTypography="body2" class="tw-flex tw-items-center tw-gap-2">
-                    <i class="bwi bwi-users bwi-fw tw-text-muted" aria-hidden="true"></i>
-                    {{ g.displayName }}
-                  </div>
-                  @if (g.users && g.users.length) {
-                    <ul class="tw-mb-0 tw-ms-6 tw-mt-1 tw-list-none tw-p-0">
-                      @for (u of g.users; track u) {
-                        <li
-                          bitTypography="helper"
-                          title="{{ u.referenceId }}"
-                          class="tw-text-muted"
-                        >
-                          {{ u.displayName }}
-                        </li>
-                      }
-                    </ul>
-                  }
-                </li>
-              }
-            </ul>
-          } @else {
-            <p bitTypography="body2" class="tw-text-muted">{{ "noGroups" | i18n }}</p>
-          }
-        </div>
+<div class="tw-flex tw-flex-col tw-gap-6">
+  <div class="tw-grid tw-grid-cols-1 tw-gap-4 md:tw-grid-cols-3">
+    <bit-card class="tw-flex tw-items-center tw-gap-4">
+      <bit-icon-tile
+        [icon]="syncRunning() ? 'bwi-check-circle' : 'bwi-pause-circle'"
+        [variant]="syncRunning() ? 'success' : 'warning'"
+        size="lg"
+      ></bit-icon-tile>
+      <div class="tw-min-w-0">
+        <p bitTypography="helper" class="tw-mb-0 tw-text-muted">{{ "sync" | i18n }}</p>
+        <p bitTypography="body1" class="tw-mb-0 tw-font-medium">
+          {{ (syncRunning() ? "running" : "stopped") | i18n }}
+        </p>
       </div>
-    }
-  </bit-card>
-</bit-section>
+    </bit-card>
+    <bit-card class="tw-flex tw-items-center tw-gap-4">
+      <bit-icon-tile icon="bwi-users" size="lg"></bit-icon-tile>
+      <div class="tw-min-w-0">
+        <p bitTypography="helper" class="tw-mb-0 tw-text-muted">{{ "lastGroupSync" | i18n }}</p>
+        <p bitTypography="body1" class="tw-mb-0 tw-truncate tw-font-medium">
+          @if (!lastGroupSync()) {
+            &mdash;
+          } @else {
+            {{ lastGroupSync() | date: "MMM d, y, h:mm a" }}
+          }
+        </p>
+      </div>
+    </bit-card>
+    <bit-card class="tw-flex tw-items-center tw-gap-4">
+      <bit-icon-tile icon="bwi-user" size="lg"></bit-icon-tile>
+      <div class="tw-min-w-0">
+        <p bitTypography="helper" class="tw-mb-0 tw-text-muted">{{ "lastUserSync" | i18n }}</p>
+        <p bitTypography="body1" class="tw-mb-0 tw-truncate tw-font-medium">
+          @if (!lastUserSync()) {
+            &mdash;
+          } @else {
+            {{ lastUserSync() | date: "MMM d, y, h:mm a" }}
+          }
+        </p>
+      </div>
+    </bit-card>
+  </div>
+
+  <bit-section disableMargin>
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "sync" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card>
+      <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+        <form #startForm="appApiAction" [appApiAction]="startPromise()">
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            [loading]="startForm.loading()"
+            (click)="start()"
+          >
+            {{ "startSync" | i18n }}
+          </button>
+        </form>
+        <form #syncForm="appApiAction" [appApiAction]="syncPromise()">
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            startIcon="bwi-refresh"
+            [loading]="syncForm.loading()"
+            (click)="sync()"
+          >
+            {{ "syncNow" | i18n }}
+          </button>
+        </form>
+        <button type="button" bitButton buttonType="dangerOutline" (click)="stop()">
+          {{ "stopSync" | i18n }}
+        </button>
+      </div>
+    </bit-card>
+  </bit-section>
+
+  <bit-section disableMargin>
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "testing" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card>
+      <p bitTypography="body2" class="tw-text-muted">{{ "testingDesc" | i18n }}</p>
+      <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-4">
+        <form #simForm="appApiAction" [appApiAction]="simPromise()">
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            [loading]="simForm.loading()"
+            (click)="simulate()"
+          >
+            {{ "testNow" | i18n }}
+          </button>
+        </form>
+        <bit-form-control disableMargin>
+          <input
+            type="checkbox"
+            bitCheckbox
+            name="SimSinceLast"
+            [ngModel]="simSinceLast()"
+            (ngModelChange)="simSinceLast.set($event)"
+          />
+          <bit-label>{{ "testLastSync" | i18n }}</bit-label>
+        </bit-form-control>
+      </div>
+
+      @if (!simForm.loading() && (simUsers() || simGroups())) {
+        <div
+          class="tw-mt-6 tw-grid tw-grid-cols-1 tw-gap-8 tw-border-0 tw-border-t tw-border-solid tw-border-secondary-300 tw-pt-6 lg:tw-grid-cols-2"
+        >
+          <div class="tw-max-h-[28rem] tw-overflow-y-auto tw-pe-2">
+            <ng-container
+              *ngTemplateOutlet="userList; context: { title: 'users', users: simEnabledUsers() }"
+            ></ng-container>
+            <ng-container
+              *ngTemplateOutlet="
+                userList;
+                context: { title: 'disabledUsers', users: simDisabledUsers() }
+              "
+            ></ng-container>
+            <ng-container
+              *ngTemplateOutlet="
+                userList;
+                context: { title: 'deletedUsers', users: simDeletedUsers(), deleted: true }
+              "
+            ></ng-container>
+          </div>
+          <div class="tw-max-h-[28rem] tw-overflow-y-auto tw-pe-2">
+            <h3
+              bitTypography="h6"
+              class="tw-sticky tw-top-0 tw-z-10 tw-flex tw-items-center tw-gap-2 tw-bg-background tw-py-1"
+            >
+              {{ "groups" | i18n }}
+              <span bitBadge variant="subtle">{{ simGroups()?.length ?? 0 }}</span>
+            </h3>
+            @if (simGroups() && simGroups().length) {
+              <ul class="tw-m-0 tw-list-none tw-p-0">
+                @for (g of simGroups(); track g) {
+                  <li title="{{ g.referenceId }}" class="tw-py-1">
+                    <div bitTypography="body2" class="tw-flex tw-items-center tw-gap-2">
+                      <i class="bwi bwi-users bwi-fw tw-text-muted" aria-hidden="true"></i>
+                      {{ g.displayName }}
+                    </div>
+                    @if (g.users && g.users.length) {
+                      <ul class="tw-mb-0 tw-ms-6 tw-mt-1 tw-list-none tw-p-0">
+                        @for (u of g.users; track u) {
+                          <li
+                            bitTypography="helper"
+                            title="{{ u.referenceId }}"
+                            class="tw-text-muted"
+                          >
+                            {{ u.displayName }}
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p bitTypography="body2" class="tw-text-muted">{{ "noGroups" | i18n }}</p>
+            }
+          </div>
+        </div>
+      }
+    </bit-card>
+  </bit-section>
+</div>
 
 <ng-template #userList let-title="title" let-users="users" let-deleted="deleted">
   <h3
