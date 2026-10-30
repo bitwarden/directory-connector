@@ -8,11 +8,15 @@ import { DirectoryType } from "@/libs/enums/directoryType";
 import { GroupEntry } from "@/libs/models/groupEntry";
 import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
+import { SyncHistoryEntry } from "@/libs/models/syncHistoryEntry";
+import { SyncPreview } from "@/libs/models/syncPreview";
 import { UserEntry } from "@/libs/models/userEntry";
 import { Utils } from "@/libs/utils/utils";
 
 import { BatchRequestBuilder } from "./batch-request-builder";
+import { IDirectoryService } from "./directory-services/directory.service";
 import { SingleRequestBuilder } from "./single-request-builder";
+import { computeSyncPreview } from "./sync-preview";
 
 export interface HashResult {
   hash: string;
@@ -20,6 +24,22 @@ export interface HashResult {
 }
 
 export const batchSize = 2000;
+
+/** Longest error message kept in sync history. */
+const MaxHistoryErrorLength = 500;
+
+function describeSyncError(error: unknown): string {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : // ErrorResponse from the Bitwarden API
+          ((error as { getSingleMessage?: () => string })?.getSingleMessage?.() ?? String(error));
+  return message.length > MaxHistoryErrorLength
+    ? message.slice(0, MaxHistoryErrorLength) + "…"
+    : message;
+}
 
 export class SyncService {
   private dirType: DirectoryType;
@@ -36,35 +56,24 @@ export class SyncService {
   ) {}
 
   async sync(force: boolean, test: boolean): Promise<[GroupEntry[], UserEntry[]]> {
-    this.dirType = await this.stateService.getDirectoryType();
-    if (this.dirType == null) {
-      throw new Error("No directory configured.");
-    }
-
-    const directoryService = this.directoryFactory.createService(this.dirType);
-    if (directoryService == null) {
-      throw new Error("Cannot load directory service.");
-    }
-
-    const syncConfig = await this.stateService.getSync();
+    const { directoryService, syncConfig } = await this.getDirectory();
     const startingGroupDelta = await this.stateService.getGroupDelta();
     const startingUserDelta = await this.stateService.getUserDelta();
     const now = new Date();
+    const history: Pick<SyncHistoryEntry, "userCount" | "groupCount"> = {
+      userCount: null,
+      groupCount: null,
+    };
 
     this.messagingService.send("dirSyncStarted");
     try {
-      const entries = await directoryService.getEntries(
+      let [groups, users] = await this.readEntries(
+        directoryService,
         force || syncConfig.overwriteExisting,
         test,
       );
-      let groups = entries[0];
-      let users = this.filterUnsupportedUsers(entries[1]);
-
-      if (groups != null && groups.length > 0) {
-        this.flattenUsersToGroups(groups, groups);
-      }
-
-      users = this.removeDuplicateUsers(users);
+      history.userCount = users?.length ?? 0;
+      history.groupCount = groups?.length ?? 0;
 
       if (
         test ||
@@ -74,6 +83,7 @@ export class SyncService {
       ) {
         if (!test) {
           await this.saveSyncTimes(syncConfig, now);
+          await this.recordHistory(now, "noChanges", history);
         }
 
         this.messagingService.send("dirSyncCompleted", { successfully: true });
@@ -89,9 +99,11 @@ export class SyncService {
           await this.apiService.postPublicImportDirectory(req);
         }
         await this.stateService.setLastSyncHash(result.hash);
+        await this.recordHistory(now, "success", history);
       } else {
         groups = null;
         users = null;
+        await this.recordHistory(now, "noChanges", history);
       }
 
       await this.saveSyncTimes(syncConfig, now);
@@ -101,11 +113,108 @@ export class SyncService {
       if (!test) {
         await this.stateService.setGroupDelta(startingGroupDelta);
         await this.stateService.setUserDelta(startingUserDelta);
+        await this.recordHistory(now, "failed", history, e);
       }
 
       this.messagingService.send("dirSyncCompleted", { successfully: false });
       throw e;
     }
+  }
+
+  /**
+   * Reads the directory the way the next sync would (without saving delta tokens) and compares
+   * the result against the organization's current members and groups.
+   */
+  async preview(): Promise<SyncPreview> {
+    const { directoryService, syncConfig } = await this.getDirectory();
+    const [groups, users] = await this.readEntries(
+      directoryService,
+      syncConfig.overwriteExisting,
+      true,
+    );
+    const reqs = this.buildRequest(groups, users, syncConfig);
+
+    const [members, orgGroups] = await Promise.all([
+      this.apiService.getPublicMembers(),
+      this.apiService.getPublicGroups(),
+    ]);
+
+    // Membership is only needed for groups the import would update.
+    const importedGroupIds = new Set(reqs.flatMap((r) => r.groups.map((g) => g.externalId)));
+    for (const group of orgGroups) {
+      if (group.externalId != null && importedGroupIds.has(group.externalId)) {
+        group.memberIds = await this.apiService.getPublicGroupMemberIds(group.id);
+      }
+    }
+
+    return computeSyncPreview(reqs, members, orgGroups);
+  }
+
+  /** Checks that the active directory configuration can authenticate. */
+  async testConnection(): Promise<void> {
+    const { directoryService } = await this.getDirectory();
+    await directoryService.testConnection();
+  }
+
+  private async getDirectory(): Promise<{
+    directoryService: IDirectoryService;
+    syncConfig: SyncConfiguration;
+  }> {
+    this.dirType = await this.stateService.getDirectoryType();
+    if (this.dirType == null) {
+      throw new Error("No directory configured.");
+    }
+
+    const directoryService = this.directoryFactory.createService(this.dirType);
+    if (directoryService == null) {
+      throw new Error("Cannot load directory service.");
+    }
+
+    return { directoryService, syncConfig: await this.stateService.getSync() };
+  }
+
+  private async readEntries(
+    directoryService: IDirectoryService,
+    force: boolean,
+    test: boolean,
+  ): Promise<[GroupEntry[], UserEntry[]]> {
+    const entries = await directoryService.getEntries(force, test);
+    const groups = entries[0];
+    let users = this.filterUnsupportedUsers(entries[1]);
+
+    if (groups != null && groups.length > 0) {
+      this.flattenUsersToGroups(groups, groups);
+    }
+
+    users = this.removeDuplicateUsers(users);
+    return [groups, users];
+  }
+
+  private async recordHistory(
+    startedAt: Date,
+    status: SyncHistoryEntry["status"],
+    counts: Pick<SyncHistoryEntry, "userCount" | "groupCount">,
+    error?: unknown,
+  ): Promise<void> {
+    // History is informational, so never let recording it change the outcome of a sync.
+    try {
+      await this.stateService.addSyncHistoryEntry({
+        startedAt: startedAt.toISOString(),
+        durationMs: Date.now() - startedAt.getTime(),
+        profileName: await this.getActiveProfileName(),
+        status,
+        ...counts,
+        error: error == null ? undefined : describeSyncError(error),
+      });
+    } catch {
+      // Ignored; see above.
+    }
+  }
+
+  private async getActiveProfileName(): Promise<string | undefined> {
+    const activeId = await this.stateService.getActiveDirectoryProfileId();
+    const profiles = await this.stateService.getDirectoryProfiles();
+    return profiles?.find((p) => p.id === activeId)?.name;
   }
 
   async generateHash(reqs: OrganizationImportRequest[]): Promise<HashResult> {

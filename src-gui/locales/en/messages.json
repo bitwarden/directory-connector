@@ -899,5 +899,121 @@
   },
   "chooseFile": {
     "message": "Choose File"
+  },
+  "testConnection": {
+    "message": "Test connection"
+  },
+  "testConnectionDesc": {
+    "message": "Saves these settings and checks that Directory Connector can sign in to your directory."
+  },
+  "testConnectionSuccess": {
+    "message": "Connected to your directory successfully."
+  },
+  "invalidUrl": {
+    "message": "Enter a valid URL."
+  },
+  "invalidHttpsUrl": {
+    "message": "Enter a URL that starts with https://."
+  },
+  "invalidPort": {
+    "message": "Enter a port number between 1 and 65535."
+  },
+  "searchResults": {
+    "message": "Search users and groups"
+  },
+  "exportCsv": {
+    "message": "Export CSV"
+  },
+  "previewChanges": {
+    "message": "Preview changes"
+  },
+  "previewChangesDesc": {
+    "message": "Compare your directory with your Bitwarden organization to see what the next sync would change. Nothing is changed."
+  },
+  "previewNoChanges": {
+    "message": "The next sync won't change anything"
+  },
+  "previewUnchanged": {
+    "message": "$USERS$ user(s) and $GROUPS$ group(s) already match your organization.",
+    "placeholders": {
+      "users": {
+        "content": "$1",
+        "example": "10"
+      },
+      "groups": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "previewUsersToInvite": {
+    "message": "Users to invite"
+  },
+  "previewUsersToStage": {
+    "message": "Users to add without an invite"
+  },
+  "previewUsersToRemove": {
+    "message": "Members to remove"
+  },
+  "previewUsersToLink": {
+    "message": "Existing members to link"
+  },
+  "previewGroupChanges": {
+    "message": "Group changes"
+  },
+  "previewNewGroup": {
+    "message": "New"
+  },
+  "previewRenamedFrom": {
+    "message": "Renamed from $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "none": {
+    "message": "None"
+  },
+  "syncHistory": {
+    "message": "Sync history"
+  },
+  "noSyncHistory": {
+    "message": "Syncs will appear here once they run."
+  },
+  "syncStatusSuccess": {
+    "message": "Synced"
+  },
+  "syncStatusFailed": {
+    "message": "Failed"
+  },
+  "syncStatusNoChanges": {
+    "message": "No changes"
+  },
+  "syncHistoryCounts": {
+    "message": "$USERS$ user(s), $GROUPS$ group(s)",
+    "placeholders": {
+      "users": {
+        "content": "$1",
+        "example": "10"
+      },
+      "groups": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "syncHistoryDuration": {
+    "message": "$SECONDS$s",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "2.5"
+      }
+    }
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

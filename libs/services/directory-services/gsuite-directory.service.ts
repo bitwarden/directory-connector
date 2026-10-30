@@ -66,6 +66,17 @@ export class GSuiteDirectoryService extends BaseDirectoryService implements IDir
     return [groups, users];
   }
 
+  async testConnection(): Promise<void> {
+    this.dirConfig = await this.stateService.getDirectory<GSuiteConfiguration>(
+      DirectoryType.GSuite,
+    );
+    if (this.dirConfig == null) {
+      throw new Error(this.i18nService.t("dirConfigIncomplete"));
+    }
+
+    await this.auth();
+  }
+
   private async getUsers(): Promise<UserEntry[]> {
     const entries: UserEntry[] = [];
     const query = this.createDirectoryQuery(this.syncConfig.userFilter);

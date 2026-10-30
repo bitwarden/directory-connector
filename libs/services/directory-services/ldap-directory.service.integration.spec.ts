@@ -156,4 +156,22 @@ describe("ldapDirectoryService", () => {
       expect(result).toEqual([[redTeam], undefined]);
     });
   });
+
+  describe("testConnection", () => {
+    it("succeeds with valid credentials", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.Ldap)
+        .mockResolvedValue(getLdapConfiguration());
+
+      await expect(directoryService.testConnection()).resolves.toBeUndefined();
+    });
+
+    it("fails with an invalid password", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.Ldap)
+        .mockResolvedValue(getLdapConfiguration({ password: "wrong-password" }));
+
+      await expect(directoryService.testConnection()).rejects.toThrow();
+    });
+  });
 });

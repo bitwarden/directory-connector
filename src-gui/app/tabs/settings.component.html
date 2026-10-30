@@ -76,6 +76,7 @@
               bitInput
               type="text"
               id="hostname"
+              required
               name="Hostname"
               [ngModel]="ldap().hostname"
               (ngModelChange)="ldap.update((v) => ({ ...v, hostname: $event }))"
@@ -88,6 +89,8 @@
               bitInput
               type="text"
               id="port"
+              required
+              appPort
               name="Port"
               [ngModel]="ldap().port"
               (ngModelChange)="ldap.update((v) => ({ ...v, port: $event }))"
@@ -223,6 +226,7 @@
                 bitInput
                 type="text"
                 id="username"
+                required
                 name="Username"
                 [ngModel]="ldap().username"
                 (ngModelChange)="ldap.update((v) => ({ ...v, username: $event }))"
@@ -235,6 +239,7 @@
                 bitInput
                 type="password"
                 id="password"
+                required
                 name="Password"
                 [ngModel]="ldap().password"
                 (ngModelChange)="ldap.update((v) => ({ ...v, password: $event }))"
@@ -265,6 +270,7 @@
               bitInput
               type="text"
               id="tenant"
+              required
               name="Tenant"
               [ngModel]="entra().tenant"
               (ngModelChange)="entra.update((v) => ({ ...v, tenant: $event }))"
@@ -277,6 +283,7 @@
               bitInput
               type="text"
               id="applicationId"
+              required
               name="ApplicationId"
               [ngModel]="entra().applicationId"
               (ngModelChange)="entra.update((v) => ({ ...v, applicationId: $event }))"
@@ -288,6 +295,7 @@
               bitInput
               type="password"
               id="secretKey"
+              required
               name="SecretKey"
               [ngModel]="entra().key"
               (ngModelChange)="entra.update((v) => ({ ...v, key: $event }))"
@@ -304,6 +312,8 @@
               bitInput
               type="text"
               id="orgUrl"
+              required
+              appUrl="https"
               name="OrgUrl"
               [ngModel]="okta().orgUrl"
               (ngModelChange)="okta.update((v) => ({ ...v, orgUrl: $event }))"
@@ -316,6 +326,7 @@
               bitInput
               type="password"
               id="oktaToken"
+              required
               name="OktaToken"
               [ngModel]="okta().token"
               (ngModelChange)="okta.update((v) => ({ ...v, token: $event }))"
@@ -332,6 +343,7 @@
               bitInput
               type="text"
               id="oneLoginClientId"
+              required
               name="OneLoginClientId"
               [ngModel]="oneLogin().clientId"
               (ngModelChange)="oneLogin.update((v) => ({ ...v, clientId: $event }))"
@@ -343,6 +355,7 @@
               bitInput
               type="password"
               id="oneLoginClientSecret"
+              required
               name="OneLoginClientSecret"
               [ngModel]="oneLogin().clientSecret"
               (ngModelChange)="oneLogin.update((v) => ({ ...v, clientSecret: $event }))"
@@ -384,6 +397,7 @@
               bitInput
               type="text"
               id="adminUser"
+              required
               name="AdminUser"
               [ngModel]="gsuite().adminUser"
               (ngModelChange)="gsuite.update((v) => ({ ...v, adminUser: $event }))"
@@ -447,6 +461,27 @@
             </bit-form-field>
           </div>
         </div>
+
+        @if (directory() != null) {
+          <form
+            #testForm="appApiAction"
+            [appApiAction]="testConnectionPromise()"
+            class="tw-mt-6 tw-flex tw-flex-col tw-items-start tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-secondary-300 tw-pt-4"
+          >
+            <button
+              type="button"
+              bitButton
+              buttonType="secondary"
+              [loading]="testForm.loading()"
+              (click)="testConnection()"
+            >
+              {{ "testConnection" | i18n }}
+            </button>
+            <span bitTypography="helper" class="tw-text-muted">
+              {{ "testConnectionDesc" | i18n }}
+            </span>
+          </form>
+        }
       </bit-card>
     </bit-section>
 
@@ -462,6 +497,7 @@
             type="number"
             min="5"
             id="interval"
+            required
             name="Interval"
             [ngModel]="sync().interval"
             (ngModelChange)="sync.update((v) => ({ ...v, interval: $event }))"

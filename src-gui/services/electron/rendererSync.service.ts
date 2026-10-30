@@ -1,6 +1,7 @@
 import type { Jsonify } from "type-fest";
 
 import type { GroupEntry } from "@/libs/models/groupEntry";
+import type { SyncPreview } from "@/libs/models/syncPreview";
 import type { UserEntry } from "@/libs/models/userEntry";
 
 export class RendererSyncService {
@@ -9,5 +10,13 @@ export class RendererSyncService {
     test: boolean,
   ): Promise<[Jsonify<GroupEntry>[] | null, Jsonify<UserEntry>[] | null]> {
     return ipc.sync.run(force, test);
+  }
+
+  preview(): Promise<SyncPreview> {
+    return ipc.sync.preview();
+  }
+
+  testConnection(): Promise<void> {
+    return ipc.sync.testConnection();
   }
 }

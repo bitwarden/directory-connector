@@ -63,6 +63,18 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
     return [groups, users];
   }
 
+  async testConnection(): Promise<void> {
+    this.dirConfig = await this.stateService.getDirectory<OktaConfiguration>(DirectoryType.Okta);
+    if (this.dirConfig?.orgUrl == null || this.dirConfig.token == null) {
+      throw new Error(this.i18nService.t("dirConfigIncomplete"));
+    }
+
+    const response = await this.apiGetCall(`${this.dirConfig.orgUrl}/api/v1/users?limit=1`);
+    if (response == null) {
+      throw new Error(this.i18nService.t("authenticationFailed"));
+    }
+  }
+
   private async getUsers(force: boolean): Promise<UserEntry[]> {
     const entries: UserEntry[] = [];
     const lastSync = await this.stateService.getLastUserSync();
@@ -185,50 +197,55 @@ export class OktaDirectoryService extends BaseDirectoryService implements IDirec
   private async apiGetCall(url: string): Promise<[any, Map<string, string | string[]>]> {
     const u = new URL(url);
     return new Promise((resolve) => {
-      https.get(
-        {
-          hostname: u.hostname,
-          path: u.pathname + u.search,
-          port: 443,
-          headers: {
-            Authorization: "SSWS " + this.dirConfig.token,
-            Accept: "application/json",
+      https
+        .get(
+          {
+            hostname: u.hostname,
+            path: u.pathname + u.search,
+            port: 443,
+            headers: {
+              Authorization: "SSWS " + this.dirConfig.token,
+              Accept: "application/json",
+            },
           },
-        },
-        (res) => {
-          let body = "";
+          (res) => {
+            let body = "";
 
-          res.on("data", (chunk) => {
-            body += chunk;
-          });
+            res.on("data", (chunk) => {
+              body += chunk;
+            });
 
-          res.on("end", () => {
-            if (res.statusCode !== 200) {
-              resolve(null);
-              return;
-            }
-
-            const responseJson = JSON.parse(body);
-            if (res.headers != null) {
-              const headersMap = new Map<string, string | string[]>();
-              for (const key in res.headers) {
-                // eslint-disable-next-line
-                if (res.headers.hasOwnProperty(key)) {
-                  const val = res.headers[key];
-                  headersMap.set(key.toLowerCase(), val);
-                }
+            res.on("end", () => {
+              if (res.statusCode !== 200) {
+                resolve(null);
+                return;
               }
-              resolve([responseJson, headersMap]);
-              return;
-            }
-            resolve([responseJson, null]);
-          });
 
-          res.on("error", () => {
-            resolve(null);
-          });
-        },
-      );
+              const responseJson = JSON.parse(body);
+              if (res.headers != null) {
+                const headersMap = new Map<string, string | string[]>();
+                for (const key in res.headers) {
+                  // eslint-disable-next-line
+                  if (res.headers.hasOwnProperty(key)) {
+                    const val = res.headers[key];
+                    headersMap.set(key.toLowerCase(), val);
+                  }
+                }
+                resolve([responseJson, headersMap]);
+                return;
+              }
+              resolve([responseJson, null]);
+            });
+
+            res.on("error", () => {
+              resolve(null);
+            });
+          },
+        )
+        // Connection-level failures (DNS, refused, TLS) are emitted on the request, not the response.
+        .on("error", () => {
+          resolve(null);
+        });
     });
   }
 

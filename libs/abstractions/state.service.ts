@@ -7,6 +7,7 @@ import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
 import { OktaConfiguration } from "@/libs/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
+import { SyncHistoryEntry } from "@/libs/models/syncHistoryEntry";
 
 export abstract class StateService {
   abstract getDirectory<IConfiguration>(type: DirectoryType): Promise<IConfiguration>;
@@ -48,6 +49,8 @@ export abstract class StateService {
   abstract getSyncingDir(): Promise<boolean>;
   abstract setSyncingDir(value: boolean): Promise<void>;
   abstract clearSyncSettings(syncHashToo: boolean): Promise<void>;
+  abstract getSyncHistory(): Promise<SyncHistoryEntry[]>;
+  abstract addSyncHistoryEntry(entry: SyncHistoryEntry): Promise<void>;
 
   // Directory connector profiles (multiple saved configurations)
   abstract getDirectoryProfiles(): Promise<DirectoryConnectorProfileSummary[]>;

@@ -8,6 +8,7 @@ import { OktaConfiguration } from "@/libs/models/oktaConfiguration";
 import { OneLoginConfiguration } from "@/libs/models/oneLoginConfiguration";
 import { SecureStorageKeys, StorageKeys, StoredSecurely } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
+import { MaxSyncHistoryEntries, SyncHistoryEntry } from "@/libs/models/syncHistoryEntry";
 
 import { DefaultStateService } from "./default-state.service";
 import { StateMigrationService } from "./stateMigration.service";
@@ -143,6 +144,41 @@ describe("DefaultStateService", () => {
       await stateService.setOrganizationId("test-org-123");
 
       expect(await stateService.getOrganizationId()).toBe("test-org-123");
+    });
+  });
+
+  describe("Sync history", () => {
+    const entry = (startedAt: string): SyncHistoryEntry => ({
+      startedAt,
+      durationMs: 1000,
+      status: "success",
+      userCount: 1,
+      groupCount: 0,
+    });
+
+    it("returns an empty list when nothing has been recorded", async () => {
+      expect(await stateService.getSyncHistory()).toEqual([]);
+    });
+
+    it("keeps the newest entry first", async () => {
+      await stateService.addSyncHistoryEntry(entry("2026-01-01T00:00:00.000Z"));
+      await stateService.addSyncHistoryEntry(entry("2026-01-02T00:00:00.000Z"));
+
+      const history = await stateService.getSyncHistory();
+      expect(history.map((h) => h.startedAt)).toEqual([
+        "2026-01-02T00:00:00.000Z",
+        "2026-01-01T00:00:00.000Z",
+      ]);
+    });
+
+    it("drops the oldest entries beyond the limit", async () => {
+      for (let i = 0; i < MaxSyncHistoryEntries + 5; i++) {
+        await stateService.addSyncHistoryEntry(entry(`run-${i}`));
+      }
+
+      const history = await stateService.getSyncHistory();
+      expect(history).toHaveLength(MaxSyncHistoryEntries);
+      expect(history[0].startedAt).toBe(`run-${MaxSyncHistoryEntries + 4}`);
     });
   });
 

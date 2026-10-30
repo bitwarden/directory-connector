@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, webUtils } from "electron";
 import type { Jsonify } from "type-fest";
 
 import type { GroupEntry } from "@/libs/models/groupEntry";
+import type { SyncPreview } from "@/libs/models/syncPreview";
 import type { UserEntry } from "@/libs/models/userEntry";
 
 const ipcBridge = {
@@ -72,6 +73,8 @@ const ipcBridge = {
       test: boolean,
     ): Promise<[Jsonify<GroupEntry>[] | null, Jsonify<UserEntry>[] | null]> =>
       ipcRenderer.invoke("sync:run", { force, test }),
+    preview: (): Promise<SyncPreview> => ipcRenderer.invoke("sync:preview"),
+    testConnection: (): Promise<void> => ipcRenderer.invoke("directory:testConnection"),
   },
 };
 

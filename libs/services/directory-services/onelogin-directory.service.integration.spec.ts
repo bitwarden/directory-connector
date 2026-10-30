@@ -182,4 +182,18 @@ describe("oneLoginDirectoryService", () => {
       );
     });
   });
+
+  describe("testConnection", () => {
+    it("succeeds with valid credentials", async () => {
+      await expect(directoryService.testConnection()).resolves.toBeUndefined();
+    });
+
+    it("fails with an invalid client secret", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.OneLogin)
+        .mockResolvedValue(getOneLoginConfiguration({ clientSecret: "bad-secret" }));
+
+      await expect(directoryService.testConnection()).rejects.toThrow("authenticationFailed");
+    });
+  });
 });

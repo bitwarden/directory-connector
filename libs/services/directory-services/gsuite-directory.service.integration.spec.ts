@@ -86,4 +86,14 @@ describe("gsuiteDirectoryService", () => {
 
     expect(result).toEqual([groupFixtures, userFixtures]);
   });
+
+  describe("testConnection", () => {
+    it("succeeds with valid credentials", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.GSuite)
+        .mockResolvedValue(getGSuiteConfiguration());
+
+      await expect(directoryService.testConnection()).resolves.toBeUndefined();
+    });
+  });
 });

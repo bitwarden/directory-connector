@@ -1,10 +1,11 @@
-import { DatePipe, NgTemplateOutlet } from "@angular/common";
+import { DatePipe, DecimalPipe, NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   OnDestroy,
   OnInit,
+  computed,
   inject,
   signal,
 } from "@angular/core";
@@ -14,8 +15,10 @@ import {
   BadgeModule,
   ButtonModule,
   CardComponent,
+  CalloutModule,
   CheckboxModule,
   FormControlModule,
+  FormFieldModule,
   IconTileComponent,
   SectionComponent,
   SectionHeaderComponent,
@@ -28,11 +31,14 @@ import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { GroupEntry } from "@/libs/models/groupEntry";
+import { SyncHistoryEntry } from "@/libs/models/syncHistoryEntry";
+import { SyncPreview } from "@/libs/models/syncPreview";
 import { UserEntry } from "@/libs/models/userEntry";
 import { ConnectorUtils } from "@/libs/utils";
 
 import { ApiActionDirective } from "@/src-gui/angular/directives/api-action.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
+import { downloadFile, toCsv } from "@/src-gui/angular/utils/csv";
 import { RendererSyncService } from "@/src-gui/services/electron/rendererSync.service";
 
 type SyncResult = Awaited<ReturnType<RendererSyncService["run"]>>;
@@ -49,9 +55,12 @@ const BroadcasterSubscriptionId = "DashboardComponent";
     BadgeModule,
     ButtonModule,
     CardComponent,
+    CalloutModule,
     CheckboxModule,
     DatePipe,
+    DecimalPipe,
     FormControlModule,
+    FormFieldModule,
     FormsModule,
     I18nPipe,
     IconTileComponent,
@@ -75,6 +84,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
   lastUserSync = signal<Date>(null);
   syncRunning = signal(false);
 
+  simSearch = signal("");
+  readonly filteredEnabledUsers = computed(() => this.filterUsers(this.simEnabledUsers()));
+  readonly filteredDisabledUsers = computed(() => this.filterUsers(this.simDisabledUsers()));
+  readonly filteredDeletedUsers = computed(() => this.filterUsers(this.simDeletedUsers()));
+  readonly filteredGroups = computed(() => {
+    const query = this.simSearch().trim().toLowerCase();
+    const groups = this.simGroups() ?? [];
+    return query === ""
+      ? groups
+      : groups.filter(
+          (g) =>
+            matches(g.displayName, query) ||
+            matches(g.referenceId, query) ||
+            g.users?.some((u) => matches(u.displayName, query)),
+        );
+  });
+
+  previewPromise = signal<Promise<SyncPreview>>(null);
+  preview = signal<SyncPreview>(null);
+  readonly previewHasChanges = computed(() => {
+    const p = this.preview();
+    return (
+      p != null &&
+      p.usersToAdd.length +
+        p.usersToLink.length +
+        p.usersToRemove.length +
+        p.groupsToCreate.length +
+        p.groupsToUpdate.length >
+        0
+    );
+  });
+
+  readonly historyPreviewCount = 10;
+  history = signal<SyncHistoryEntry[]>([]);
+  showAllHistory = signal(false);
+  readonly visibleHistory = computed(() =>
+    this.showAllHistory() ? this.history() : this.history().slice(0, this.historyPreviewCount),
+  );
+
   private cdr = inject(ChangeDetectorRef);
   private syncService = inject(RendererSyncService);
   private i18nService = inject(I18nService);
@@ -88,6 +136,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       switch (message.command) {
         case "dirSyncCompleted":
           await this.updateLastSync();
+          await this.loadHistory();
           break;
         default:
           break;
@@ -96,6 +145,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.syncRunning.set(!!(await this.stateService.getSyncingDir()));
     await this.updateLastSync();
+    await this.loadHistory();
   }
 
   async ngOnDestroy() {
@@ -157,8 +207,53 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  async runPreview() {
+    this.preview.set(null);
+    const promise = this.syncService.preview();
+    this.previewPromise.set(promise);
+    try {
+      this.preview.set(await promise);
+    } catch {
+      // appApiAction shows the error to the user.
+    }
+  }
+
+  exportCsv() {
+    const status = (u: UserEntry) => (u.deleted ? "deleted" : u.disabled ? "disabled" : "enabled");
+    const rows: (string | number)[][] = [["Type", "Name", "External ID", "Status", "Members"]];
+    for (const u of this.simUsers() ?? []) {
+      rows.push(["user", u.displayName, u.externalId, status(u), ""]);
+    }
+    for (const g of this.simGroups() ?? []) {
+      rows.push([
+        "group",
+        g.displayName,
+        g.externalId,
+        "",
+        (g.users ?? []).map((u) => u.displayName).join("; "),
+      ]);
+    }
+    const date = new Date().toISOString().slice(0, 10);
+    downloadFile(`directory-connector-test-${date}.csv`, toCsv(rows), "text/csv;charset=utf-8");
+  }
+
+  private filterUsers(users: UserEntry[]): UserEntry[] {
+    const query = this.simSearch().trim().toLowerCase();
+    return query === ""
+      ? users
+      : users.filter((u) => matches(u.displayName, query) || matches(u.referenceId, query));
+  }
+
+  private async loadHistory() {
+    this.history.set(await this.stateService.getSyncHistory());
+  }
+
   private async updateLastSync() {
     this.lastGroupSync.set(await this.stateService.getLastGroupSync());
     this.lastUserSync.set(await this.stateService.getLastUserSync());
   }
+}
+
+function matches(value: string | null | undefined, query: string): boolean {
+  return value?.toLowerCase().includes(query) ?? false;
 }

@@ -137,4 +137,18 @@ describe("entraIdDirectoryService", () => {
 
     await expect(directoryService.getEntries(true, true)).rejects.toThrow();
   });
+
+  describe("testConnection", () => {
+    it("succeeds with valid credentials", async () => {
+      await expect(directoryService.testConnection()).resolves.toBeUndefined();
+    });
+
+    it("fails with invalid credentials", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.EntraID)
+        .mockResolvedValue(getEntraIdConfiguration({ key: "bad-secret" }));
+
+      await expect(directoryService.testConnection()).rejects.toThrow();
+    });
+  });
 });

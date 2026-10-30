@@ -348,4 +348,116 @@ describe("SyncService", () => {
       await expect(syncService.sync(true, true)).rejects.toThrow();
     });
   });
+
+  describe("sync history", () => {
+    beforeEach(() => {
+      stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
+      stateService.getActiveDirectoryProfileId.mockResolvedValue("p1");
+      stateService.getDirectoryProfiles.mockResolvedValue([{ id: "p1", name: "Corporate AD" }]);
+      cryptoFunctionService.hash.mockResolvedValue(new ArrayBuffer(1));
+      singleRequestBuilder.buildRequest.mockReturnValue([
+        new OrganizationImportRequest({
+          groups: [],
+          users: [],
+          overwriteExisting: false,
+          largeImport: false,
+        }),
+      ]);
+    });
+
+    it("should record a successful run with counts and the active profile name", async () => {
+      stateService.getLastSyncHash.mockResolvedValue("unique hash");
+
+      await syncService.sync(true, false);
+
+      expect(stateService.addSyncHistoryEntry).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: "success",
+          profileName: "Corporate AD",
+          userCount: expect.any(Number),
+          groupCount: expect.any(Number),
+        }),
+      );
+    });
+
+    it("should record a run that found nothing new as having no changes", async () => {
+      stateService.getLastSyncHash.mockResolvedValue("AA==");
+
+      await syncService.sync(true, false);
+
+      expect(stateService.addSyncHistoryEntry).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "noChanges" }),
+      );
+    });
+
+    it("should record a failed run with its error message", async () => {
+      stateService.getLastSyncHash.mockResolvedValue("unique hash");
+      apiService.postPublicImportDirectory.mockRejectedValue(new Error("Server unavailable"));
+
+      await expect(syncService.sync(true, false)).rejects.toThrow("Server unavailable");
+
+      expect(stateService.addSyncHistoryEntry).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "failed", error: "Server unavailable" }),
+      );
+    });
+
+    it("should not record test runs", async () => {
+      await syncService.sync(true, true);
+
+      expect(stateService.addSyncHistoryEntry).not.toHaveBeenCalled();
+    });
+
+    it("should still complete the sync when recording history fails", async () => {
+      stateService.getLastSyncHash.mockResolvedValue("unique hash");
+      stateService.addSyncHistoryEntry.mockRejectedValue(new Error("disk full"));
+
+      await expect(syncService.sync(true, false)).resolves.toBeDefined();
+    });
+  });
+
+  describe("preview", () => {
+    it("should read the directory in test mode and compare it with the organization without posting", async () => {
+      stateService.getSync.mockResolvedValue(getSyncConfiguration({ groups: true, users: true }));
+      singleRequestBuilder.buildRequest.mockReturnValue([
+        new OrganizationImportRequest({
+          groups: [{ name: "G", externalId: "g", memberExternalIds: [] }],
+          users: [{ email: "new@x.com", externalId: "new", deleted: false }],
+          overwriteExisting: false,
+          largeImport: false,
+          inviteUsersAfterProvisioning: true,
+        }),
+      ]);
+      apiService.getPublicMembers.mockResolvedValue([]);
+      apiService.getPublicGroups.mockResolvedValue([
+        { id: "g1", name: "G", externalId: "g" },
+        { id: "g2", name: "Manual", externalId: null },
+      ]);
+      apiService.getPublicGroupMemberIds.mockResolvedValue([]);
+
+      const preview = await syncService.preview();
+
+      const directoryService = directoryFactory.createService(DirectoryType.Ldap);
+      expect(directoryService.getEntries).toHaveBeenCalledWith(expect.any(Boolean), true);
+      expect(apiService.postPublicImportDirectory).not.toHaveBeenCalled();
+      // Membership is only fetched for groups the import touches.
+      expect(apiService.getPublicGroupMemberIds).toHaveBeenCalledTimes(1);
+      expect(apiService.getPublicGroupMemberIds).toHaveBeenCalledWith("g1");
+      expect(preview.usersToAdd).toEqual([{ email: "new@x.com", externalId: "new" }]);
+    });
+  });
+
+  describe("testConnection", () => {
+    it("should delegate to the active directory service", async () => {
+      await syncService.testConnection();
+
+      const directoryService = directoryFactory.createService(DirectoryType.Ldap);
+      expect(directoryService.testConnection).toHaveBeenCalled();
+    });
+
+    it("should fail when no directory is configured", async () => {
+      stateService.getDirectoryType.mockResolvedValue(null);
+
+      await expect(syncService.testConnection()).rejects.toThrow("No directory configured.");
+    });
+  });
 });

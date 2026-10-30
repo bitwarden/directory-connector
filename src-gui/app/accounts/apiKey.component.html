@@ -18,6 +18,7 @@
         <input
           bitInput
           id="client_id"
+          required
           name="ClientId"
           [ngModel]="clientId()"
           (ngModelChange)="clientId.set($event)"
@@ -29,6 +30,7 @@
           bitInput
           type="password"
           id="client_secret"
+          required
           name="ClientSecret"
           [ngModel]="clientSecret()"
           (ngModelChange)="clientSecret.set($event)"

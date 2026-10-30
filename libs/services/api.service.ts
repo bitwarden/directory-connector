@@ -14,6 +14,7 @@ import { ErrorResponse } from "@/libs/models/response/errorResponse";
 import { IdentityCaptchaResponse } from "@/libs/models/response/identityCaptchaResponse";
 import { IdentityTokenResponse } from "@/libs/models/response/identityTokenResponse";
 import { IdentityTwoFactorResponse } from "@/libs/models/response/identityTwoFactorResponse";
+import { OrganizationGroup, OrganizationMember } from "@/libs/models/syncPreview";
 import { Utils } from "@/libs/utils/utils";
 
 export class ApiService implements ApiServiceAbstraction {
@@ -105,6 +106,36 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postPublicImportDirectory(request: OrganizationImportRequest): Promise<any> {
     return this.send("POST", "/public/organization/import", request, true, false);
+  }
+
+  async getPublicMembers(): Promise<OrganizationMember[]> {
+    const response = await this.send("GET", "/public/members", null, true, true);
+    return listData(response).map((m) => ({
+      id: prop(m, "id"),
+      email: prop(m, "email") ?? null,
+      externalId: prop(m, "externalId") ?? null,
+      type: prop(m, "type"),
+    }));
+  }
+
+  async getPublicGroups(): Promise<OrganizationGroup[]> {
+    const response = await this.send("GET", "/public/groups", null, true, true);
+    return listData(response).map((g) => ({
+      id: prop(g, "id"),
+      name: prop(g, "name"),
+      externalId: prop(g, "externalId") ?? null,
+    }));
+  }
+
+  async getPublicGroupMemberIds(groupId: string): Promise<string[]> {
+    const response = await this.send(
+      "GET",
+      `/public/groups/${encodeURIComponent(groupId)}/member-ids`,
+      null,
+      true,
+      true,
+    );
+    return Array.isArray(response) ? response : [];
   }
 
   // Helpers
@@ -334,4 +365,14 @@ export class ApiService implements ApiServiceAbstraction {
     const typeHeader = response.headers.get("content-type");
     return typeHeader != null && typeHeader.indexOf("text") > -1;
   }
+}
+
+/** Reads a property from a public API response, which may be camelCase or PascalCase. */
+function prop(obj: Record<string, any>, name: string): any {
+  return obj?.[name] ?? obj?.[name.charAt(0).toUpperCase() + name.slice(1)];
+}
+
+function listData(response: unknown): Record<string, any>[] {
+  const data = prop(response as Record<string, any>, "data");
+  return Array.isArray(data) ? data : [];
 }

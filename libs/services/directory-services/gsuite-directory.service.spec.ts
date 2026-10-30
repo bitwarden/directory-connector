@@ -118,4 +118,22 @@ describe("gsuiteDirectoryService", () => {
       expect(usersListParams()).not.toHaveProperty("customer");
     });
   });
+
+  describe("testConnection", () => {
+    it("should authenticate without listing users", async () => {
+      setConfiguration(getConfiguration("example.com", null));
+
+      await directoryService.testConnection();
+
+      expect(usersList).not.toHaveBeenCalled();
+    });
+
+    it("should reject when the configuration is incomplete", async () => {
+      const config = getConfiguration("example.com", null);
+      config.privateKey = null;
+      setConfiguration(config);
+
+      await expect(directoryService.testConnection()).rejects.toThrow("dirConfigIncomplete");
+    });
+  });
 });

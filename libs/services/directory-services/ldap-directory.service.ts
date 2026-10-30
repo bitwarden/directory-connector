@@ -85,6 +85,17 @@ export class LdapDirectoryService implements IDirectoryService {
     return [groups, users];
   }
 
+  async testConnection(): Promise<void> {
+    this.dirConfig = await this.stateService.getDirectory<LdapConfiguration>(DirectoryType.Ldap);
+    if (this.dirConfig == null) {
+      throw new Error(this.i18nService.t("dirConfigIncomplete"));
+    }
+
+    // bind() unbinds on failure itself.
+    await this.bind();
+    await this.client.unbind();
+  }
+
   private async getUsers(force: boolean, test: boolean): Promise<UserEntry[]> {
     const lastSync = await this.stateService.getLastUserSync();
     let filter = this.buildBaseFilter(this.syncConfig.userObjectClass, this.syncConfig.userFilter);

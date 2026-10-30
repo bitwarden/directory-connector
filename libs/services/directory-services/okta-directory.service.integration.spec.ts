@@ -100,4 +100,18 @@ describe("oktaDirectoryService", () => {
 
     await expect(directoryService.getEntries(true, true)).rejects.toThrow();
   });
+
+  describe("testConnection", () => {
+    it("succeeds with valid credentials", async () => {
+      await expect(directoryService.testConnection()).resolves.toBeUndefined();
+    });
+
+    it("fails with an invalid token", async () => {
+      stateService.getDirectory
+        .calledWith(DirectoryType.Okta)
+        .mockResolvedValue(getOktaConfiguration({ token: "bad-token-00000" }));
+
+      await expect(directoryService.testConnection()).rejects.toThrow("authenticationFailed");
+    });
+  });
 });

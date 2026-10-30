@@ -96,3 +96,45 @@ describe("LdapDirectoryService search time limit", () => {
     }
   });
 });
+
+describe("LdapDirectoryService testConnection", () => {
+  let i18nService: MockProxy<I18nService>;
+  let stateService: MockProxy<StateService>;
+  let directoryService: LdapDirectoryService;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    bindMock.mockResolvedValue(undefined);
+    unbindMock.mockResolvedValue(undefined);
+
+    i18nService = mock();
+    stateService = mock();
+    i18nService.t.mockImplementation((id) => id);
+    stateService.getDirectory
+      .calledWith(DirectoryType.Ldap)
+      .mockResolvedValue(getLdapConfiguration());
+
+    directoryService = new LdapDirectoryService(mock(), i18nService, stateService);
+  });
+
+  it("should bind and unbind without searching the directory", async () => {
+    await directoryService.testConnection();
+
+    expect(bindMock).toHaveBeenCalledTimes(1);
+    expect(unbindMock).toHaveBeenCalled();
+    expect(searchMock).not.toHaveBeenCalled();
+  });
+
+  it("should reject with the bind error when the credentials are wrong", async () => {
+    bindMock.mockRejectedValue(new Error("Invalid Credentials"));
+
+    await expect(directoryService.testConnection()).rejects.toThrow("Invalid Credentials");
+    expect(unbindMock).toHaveBeenCalled();
+  });
+
+  it("should reject when no LDAP configuration has been saved", async () => {
+    stateService.getDirectory.calledWith(DirectoryType.Ldap).mockResolvedValue(null);
+
+    await expect(directoryService.testConnection()).rejects.toThrow("dirConfigIncomplete");
+  });
+});

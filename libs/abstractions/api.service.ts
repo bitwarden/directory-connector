@@ -5,10 +5,14 @@ import { OrganizationImportRequest } from "@/libs/models/request/organizationImp
 import { IdentityCaptchaResponse } from "@/libs/models/response/identityCaptchaResponse";
 import { IdentityTokenResponse } from "@/libs/models/response/identityTokenResponse";
 import { IdentityTwoFactorResponse } from "@/libs/models/response/identityTwoFactorResponse";
+import { OrganizationGroup, OrganizationMember } from "@/libs/models/syncPreview";
 
 export abstract class ApiService {
   postIdentityToken: (
     request: PasswordTokenRequest | SsoTokenRequest | ApiTokenRequest,
   ) => Promise<IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse>;
   postPublicImportDirectory: (request: OrganizationImportRequest) => Promise<any>;
+  getPublicMembers: () => Promise<OrganizationMember[]>;
+  getPublicGroups: () => Promise<OrganizationGroup[]>;
+  getPublicGroupMemberIds: (groupId: string) => Promise<string[]>;
 }

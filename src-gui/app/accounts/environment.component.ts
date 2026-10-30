@@ -15,6 +15,7 @@ import { I18nService } from "@/libs/abstractions/i18n.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
 
+import { UrlValidatorDirective } from "@/src-gui/angular/directives/validators.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
 
 @Component({
@@ -30,6 +31,7 @@ import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
     I18nPipe,
     SectionComponent,
     TypographyModule,
+    UrlValidatorDirective,
   ],
 })
 export class EnvironmentComponent implements OnInit {

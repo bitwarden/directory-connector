@@ -38,7 +38,13 @@ import { SyncConfiguration } from "@/libs/models/syncConfiguration";
 import { ConnectorUtils } from "@/libs/utils";
 
 import { A11yTitleDirective } from "@/src-gui/angular/directives/a11y-title.directive";
+import { ApiActionDirective } from "@/src-gui/angular/directives/api-action.directive";
+import {
+  PortValidatorDirective,
+  UrlValidatorDirective,
+} from "@/src-gui/angular/directives/validators.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
+import { RendererSyncService } from "@/src-gui/services/electron/rendererSync.service";
 
 type LdapCertPathField = "tlsCaPath" | "sslCertPath" | "sslKeyPath" | "sslCaPath";
 
@@ -49,6 +55,7 @@ type LdapCertPathField = "tlsCaPath" | "sslCertPath" | "sslKeyPath" | "sslCaPath
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     A11yTitleDirective,
+    ApiActionDirective,
     ButtonModule,
     CardComponent,
     CheckboxModule,
@@ -58,10 +65,12 @@ type LdapCertPathField = "tlsCaPath" | "sslCertPath" | "sslKeyPath" | "sslCaPath
     IconButtonModule,
     LinkModule,
     NgTemplateOutlet,
+    PortValidatorDirective,
     RadioButtonModule,
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
+    UrlValidatorDirective,
   ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
@@ -85,6 +94,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private logService = inject(LogService);
   private platformUtilsService = inject(PlatformUtilsService);
   private stateService = inject(StateService);
+  private syncService = inject(RendererSyncService);
+
+  testConnectionPromise = signal<Promise<void>>(null);
 
   constructor() {
     this.directoryOptions = [
@@ -104,6 +116,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async ngOnDestroy() {
     await this.submit();
+  }
+
+  async testConnection() {
+    // Save first so the test uses what's on screen rather than the last saved configuration.
+    const promise = this.submit().then(() => this.syncService.testConnection());
+    this.testConnectionPromise.set(promise);
+    try {
+      await promise;
+      this.platformUtilsService.showToast(
+        "success",
+        null,
+        this.i18nService.t("testConnectionSuccess"),
+      );
+    } catch (e) {
+      // appApiAction shows the error to the user.
+      this.logService.error(`Directory connection test failed: ${(e as Error)?.message ?? e}`);
+    }
   }
 
   private async loadForm() {

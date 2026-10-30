@@ -22,6 +22,7 @@ export const StorageKeys = {
   activeDirectoryProfileId: "activeDirectoryProfileId",
   syncingDir: "syncingDir",
   lastSyncHash: "lastSyncHash",
+  syncHistory: "syncHistory",
 
   // Window/Tray settings
   window: "window",

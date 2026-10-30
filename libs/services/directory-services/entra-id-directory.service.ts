@@ -85,6 +85,18 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     return [groups, users];
   }
 
+  async testConnection(): Promise<void> {
+    this.dirConfig = await this.stateService.getDirectory<EntraIdConfiguration>(
+      DirectoryType.EntraID,
+    );
+    if (this.dirConfig == null) {
+      throw new Error(this.i18nService.t("dirConfigIncomplete"));
+    }
+
+    // Forces a token request and checks the app can read users, which every sync needs.
+    await this.client.api("/users").top(1).select("id").get();
+  }
+
   private async getCurrentUsers(): Promise<UserEntry[]> {
     let entries: UserEntry[] = [];
     let users: User[];

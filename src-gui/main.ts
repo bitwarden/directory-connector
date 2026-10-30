@@ -188,6 +188,10 @@ export class Main {
       return [groups?.map((g) => g.toJSON()) ?? null, users?.map((u) => u.toJSON()) ?? null];
     });
 
+    handle("sync:preview", () => syncService.preview());
+
+    handle("directory:testConnection", () => syncService.testConnection());
+
     this.windowMain = new WindowMain(
       this.stateService,
       this.logService,

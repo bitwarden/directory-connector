@@ -70,6 +70,19 @@ export class OneLoginDirectoryService extends BaseDirectoryService implements ID
     return [groups, users];
   }
 
+  async testConnection(): Promise<void> {
+    this.dirConfig = await this.stateService.getDirectory<OneLoginConfiguration>(
+      DirectoryType.OneLogin,
+    );
+    if (this.dirConfig?.clientId == null || this.dirConfig.clientSecret == null) {
+      throw new Error(this.i18nService.t("dirConfigIncomplete"));
+    }
+
+    if ((await this.getAccessToken()) == null) {
+      throw new Error(this.i18nService.t("authenticationFailed"));
+    }
+  }
+
   private async getUsers(force: boolean): Promise<UserEntry[]> {
     const entries: UserEntry[] = [];
     const query = this.createDirectoryQuery(this.syncConfig.userFilter);

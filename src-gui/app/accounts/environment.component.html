@@ -1,4 +1,4 @@
-<form (ngSubmit)="submit()">
+<form #envForm="ngForm" (ngSubmit)="envForm.form.markAllAsTouched(); envForm.valid && submit()">
   <bit-dialog [title]="'settings' | i18n">
     <ng-container bitDialogContent>
       <bit-section>
@@ -12,6 +12,7 @@
             bitInput
             type="text"
             id="baseUrl"
+            appUrl
             name="BaseUrl"
             [ngModel]="baseUrl()"
             (ngModelChange)="baseUrl.set($event)"
@@ -30,6 +31,7 @@
             bitInput
             type="text"
             id="webVaultUrl"
+            appUrl
             name="WebVaultUrl"
             [ngModel]="webVaultUrl()"
             (ngModelChange)="webVaultUrl.set($event)"
@@ -41,6 +43,7 @@
             bitInput
             type="text"
             id="apiUrl"
+            appUrl
             name="ApiUrl"
             [ngModel]="apiUrl()"
             (ngModelChange)="apiUrl.set($event)"
@@ -52,6 +55,7 @@
             bitInput
             type="text"
             id="identityUrl"
+            appUrl
             name="IdentityUrl"
             [ngModel]="identityUrl()"
             (ngModelChange)="identityUrl.set($event)"

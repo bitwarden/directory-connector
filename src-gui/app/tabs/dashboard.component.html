@@ -17,11 +17,15 @@
       <bit-icon-tile icon="bwi-users" size="lg"></bit-icon-tile>
       <div class="tw-min-w-0">
         <p bitTypography="helper" class="tw-mb-0 tw-text-muted">{{ "lastGroupSync" | i18n }}</p>
-        <p bitTypography="body1" class="tw-mb-0 tw-truncate tw-font-medium">
+        <p
+          bitTypography="body1"
+          class="tw-mb-0 tw-truncate tw-font-medium"
+          [title]="lastGroupSync() | date: 'medium'"
+        >
           @if (!lastGroupSync()) {
             &mdash;
           } @else {
-            {{ lastGroupSync() | date: "MMM d, y, h:mm a" }}
+            {{ lastGroupSync() | date: "MMM d, h:mm a" }}
           }
         </p>
       </div>
@@ -30,11 +34,15 @@
       <bit-icon-tile icon="bwi-user" size="lg"></bit-icon-tile>
       <div class="tw-min-w-0">
         <p bitTypography="helper" class="tw-mb-0 tw-text-muted">{{ "lastUserSync" | i18n }}</p>
-        <p bitTypography="body1" class="tw-mb-0 tw-truncate tw-font-medium">
+        <p
+          bitTypography="body1"
+          class="tw-mb-0 tw-truncate tw-font-medium"
+          [title]="lastUserSync() | date: 'medium'"
+        >
           @if (!lastUserSync()) {
             &mdash;
           } @else {
-            {{ lastUserSync() | date: "MMM d, y, h:mm a" }}
+            {{ lastUserSync() | date: "MMM d, h:mm a" }}
           }
         </p>
       </div>
@@ -109,22 +117,47 @@
 
       @if (!simForm.loading() && (simUsers() || simGroups())) {
         <div
-          class="tw-mt-6 tw-grid tw-grid-cols-1 tw-gap-8 tw-border-0 tw-border-t tw-border-solid tw-border-secondary-300 tw-pt-6 lg:tw-grid-cols-2"
+          class="tw-mt-6 tw-flex tw-flex-wrap tw-items-end tw-gap-3 tw-border-0 tw-border-t tw-border-solid tw-border-secondary-300 tw-pt-6"
         >
+          <bit-form-field disableMargin class="tw-min-w-[14rem] tw-flex-1">
+            <bit-label>{{ "searchResults" | i18n }}</bit-label>
+            <i class="bwi bwi-search" bitPrefix aria-hidden="true"></i>
+            <input
+              bitInput
+              type="search"
+              name="SimSearch"
+              [ngModel]="simSearch()"
+              (ngModelChange)="simSearch.set($event)"
+            />
+          </bit-form-field>
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            startIcon="bwi-download"
+            (click)="exportCsv()"
+          >
+            {{ "exportCsv" | i18n }}
+          </button>
+        </div>
+        <div class="tw-mt-6 tw-grid tw-grid-cols-1 tw-gap-8 lg:tw-grid-cols-2">
           <div class="tw-max-h-[28rem] tw-overflow-y-auto tw-pe-2">
-            <ng-container
-              *ngTemplateOutlet="userList; context: { title: 'users', users: simEnabledUsers() }"
-            ></ng-container>
             <ng-container
               *ngTemplateOutlet="
                 userList;
-                context: { title: 'disabledUsers', users: simDisabledUsers() }
+                context: { title: 'users', users: filteredEnabledUsers() }
               "
             ></ng-container>
             <ng-container
               *ngTemplateOutlet="
                 userList;
-                context: { title: 'deletedUsers', users: simDeletedUsers(), deleted: true }
+                context: { title: 'disabledUsers', users: filteredDisabledUsers() }
+              "
+            ></ng-container>
+            <ng-container
+              *ngTemplateOutlet="
+                userList;
+                context: { title: 'deletedUsers', users: filteredDeletedUsers(), deleted: true }
               "
             ></ng-container>
           </div>
@@ -134,11 +167,11 @@
               class="tw-sticky tw-top-0 tw-z-10 tw-flex tw-items-center tw-gap-2 tw-bg-background tw-py-1"
             >
               {{ "groups" | i18n }}
-              <span bitBadge variant="subtle">{{ simGroups()?.length ?? 0 }}</span>
+              <span bitBadge variant="subtle">{{ filteredGroups().length }}</span>
             </h3>
-            @if (simGroups() && simGroups().length) {
+            @if (filteredGroups().length) {
               <ul class="tw-m-0 tw-list-none tw-p-0">
-                @for (g of simGroups(); track g) {
+                @for (g of filteredGroups(); track g) {
                   <li title="{{ g.referenceId }}" class="tw-py-1">
                     <div bitTypography="body2" class="tw-flex tw-items-center tw-gap-2">
                       <i class="bwi bwi-users bwi-fw tw-text-muted" aria-hidden="true"></i>
@@ -168,7 +201,229 @@
       }
     </bit-card>
   </bit-section>
+
+  <bit-section disableMargin>
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "previewChanges" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card>
+      <p bitTypography="body2" class="tw-text-muted">{{ "previewChangesDesc" | i18n }}</p>
+      <form #previewForm="appApiAction" [appApiAction]="previewPromise()">
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          [loading]="previewForm.loading()"
+          (click)="runPreview()"
+        >
+          {{ "previewChanges" | i18n }}
+        </button>
+      </form>
+
+      @if (preview(); as p) {
+        <div
+          class="tw-mt-6 tw-border-0 tw-border-t tw-border-solid tw-border-secondary-300 tw-pt-6"
+        >
+          @if (!previewHasChanges()) {
+            <bit-callout type="success" [title]="'previewNoChanges' | i18n">
+              {{
+                "previewUnchanged"
+                  | i18n: p.unchangedUserCount.toString() : p.unchangedGroupCount.toString()
+              }}
+            </bit-callout>
+          } @else {
+            <p bitTypography="body2" class="tw-text-muted">
+              {{
+                "previewUnchanged"
+                  | i18n: p.unchangedUserCount.toString() : p.unchangedGroupCount.toString()
+              }}
+            </p>
+            <div class="tw-grid tw-grid-cols-1 tw-gap-6 lg:tw-grid-cols-2">
+              <ng-container
+                *ngTemplateOutlet="
+                  previewUsers;
+                  context: {
+                    title: p.inviteNewUsers ? 'previewUsersToInvite' : 'previewUsersToStage',
+                    users: p.usersToAdd,
+                    icon: 'bwi-plus-circle',
+                    variant: 'success',
+                  }
+                "
+              ></ng-container>
+              <ng-container
+                *ngTemplateOutlet="
+                  previewUsers;
+                  context: {
+                    title: 'previewUsersToRemove',
+                    users: p.usersToRemove,
+                    icon: 'bwi-minus-circle',
+                    variant: 'danger',
+                  }
+                "
+              ></ng-container>
+              <ng-container
+                *ngTemplateOutlet="
+                  previewUsers;
+                  context: {
+                    title: 'previewUsersToLink',
+                    users: p.usersToLink,
+                    icon: 'bwi-user',
+                    variant: 'primary',
+                  }
+                "
+              ></ng-container>
+              <div>
+                <h3 bitTypography="h6" class="tw-flex tw-items-center tw-gap-2">
+                  {{ "previewGroupChanges" | i18n }}
+                  <span bitBadge variant="subtle">
+                    {{ p.groupsToCreate.length + p.groupsToUpdate.length }}
+                  </span>
+                </h3>
+                @if (p.groupsToCreate.length + p.groupsToUpdate.length === 0) {
+                  <p bitTypography="body2" class="tw-text-muted">{{ "none" | i18n }}</p>
+                } @else {
+                  <ul class="tw-m-0 tw-max-h-72 tw-list-none tw-overflow-y-auto tw-p-0">
+                    @for (g of p.groupsToCreate; track g.externalId) {
+                      <ng-container
+                        *ngTemplateOutlet="previewGroup; context: { group: g, created: true }"
+                      ></ng-container>
+                    }
+                    @for (g of p.groupsToUpdate; track g.externalId) {
+                      <ng-container
+                        *ngTemplateOutlet="previewGroup; context: { group: g, created: false }"
+                      ></ng-container>
+                    }
+                  </ul>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </bit-card>
+  </bit-section>
+
+  <bit-section disableMargin>
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "syncHistory" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card>
+      @if (history().length === 0) {
+        <p bitTypography="body2" class="tw-mb-0 tw-text-muted">{{ "noSyncHistory" | i18n }}</p>
+      } @else {
+        <ul class="tw-m-0 tw-list-none tw-p-0">
+          @for (h of visibleHistory(); track h.startedAt) {
+            <li
+              class="tw-flex tw-flex-wrap tw-items-center tw-gap-x-4 tw-gap-y-1 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-100 tw-py-3 last:tw-border-b-0"
+            >
+              <span
+                bitBadge
+                [variant]="
+                  h.status === 'success' ? 'success' : h.status === 'failed' ? 'danger' : 'subtle'
+                "
+              >
+                {{
+                  (h.status === "success"
+                    ? "syncStatusSuccess"
+                    : h.status === "failed"
+                      ? "syncStatusFailed"
+                      : "syncStatusNoChanges"
+                  ) | i18n
+                }}
+              </span>
+              <span bitTypography="body2" class="tw-font-medium">
+                {{ h.startedAt | date: "MMM d, y, h:mm a" }}
+              </span>
+              @if (h.userCount != null) {
+                <span bitTypography="body2" class="tw-text-muted">
+                  {{
+                    "syncHistoryCounts"
+                      | i18n: h.userCount.toString() : (h.groupCount ?? 0).toString()
+                  }}
+                </span>
+              }
+              <span bitTypography="body2" class="tw-text-muted">
+                {{ "syncHistoryDuration" | i18n: (h.durationMs / 1000 | number: "1.0-1") }}
+              </span>
+              @if (h.profileName) {
+                <span bitTypography="helper" class="tw-ms-auto tw-text-muted">
+                  {{ h.profileName }}
+                </span>
+              }
+              @if (h.error) {
+                <p bitTypography="helper" class="tw-mb-0 tw-w-full tw-text-danger">
+                  {{ h.error }}
+                </p>
+              }
+            </li>
+          }
+        </ul>
+        @if (history().length > historyPreviewCount) {
+          <button
+            type="button"
+            bitLink
+            class="tw-mt-3"
+            (click)="showAllHistory.set(!showAllHistory())"
+          >
+            {{ (showAllHistory() ? "showLess" : "showAll") | i18n }}
+          </button>
+        }
+      }
+    </bit-card>
+  </bit-section>
 </div>
+
+<ng-template
+  #previewUsers
+  let-title="title"
+  let-users="users"
+  let-icon="icon"
+  let-variant="variant"
+>
+  <div>
+    <h3 bitTypography="h6" class="tw-flex tw-items-center tw-gap-2">
+      <bit-icon-tile [icon]="icon" [variant]="variant" size="xs"></bit-icon-tile>
+      {{ title | i18n }}
+      <span bitBadge variant="subtle">{{ users.length }}</span>
+    </h3>
+    @if (users.length) {
+      <ul class="tw-m-0 tw-max-h-72 tw-list-none tw-overflow-y-auto tw-p-0">
+        @for (u of users; track u.externalId) {
+          <li bitTypography="body2" class="tw-py-1" [title]="u.externalId">{{ u.email }}</li>
+        }
+      </ul>
+    } @else {
+      <p bitTypography="body2" class="tw-text-muted">{{ "none" | i18n }}</p>
+    }
+  </div>
+</ng-template>
+
+<ng-template #previewGroup let-g="group" let-created="created">
+  <li class="tw-py-2" [title]="g.externalId">
+    <div bitTypography="body2" class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+      <i class="bwi bwi-users bwi-fw tw-text-muted" aria-hidden="true"></i>
+      <span class="tw-font-medium">{{ g.name }}</span>
+      @if (created) {
+        <span bitBadge variant="success">{{ "previewNewGroup" | i18n }}</span>
+      }
+      @if (g.previousName) {
+        <span bitTypography="helper" class="tw-text-muted">
+          {{ "previewRenamedFrom" | i18n: g.previousName }}
+        </span>
+      }
+    </div>
+    @if (g.addedMembers.length) {
+      <p bitTypography="helper" class="tw-mb-0 tw-ms-6 tw-text-success">
+        + {{ g.addedMembers.join(", ") }}
+      </p>
+    }
+    @if (g.removedMembers.length) {
+      <p bitTypography="helper" class="tw-mb-0 tw-ms-6 tw-text-danger">
+        − {{ g.removedMembers.join(", ") }}
+      </p>
+    }
+  </li>
+</ng-template>
 
 <ng-template #userList let-title="title" let-users="users" let-deleted="deleted">
   <h3

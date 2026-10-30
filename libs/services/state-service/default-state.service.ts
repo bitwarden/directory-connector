@@ -20,6 +20,7 @@ import {
   StoredSecurely,
 } from "@/libs/models/state.model";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
+import { MaxSyncHistoryEntries, SyncHistoryEntry } from "@/libs/models/syncHistoryEntry";
 
 import { StateService } from "./default-state.service";
 import {
@@ -459,6 +460,18 @@ export class DefaultStateService implements StateService {
   async setLastSyncHash(value: string): Promise<void> {
     await this.storageService.save(StorageKeys.lastSyncHash, value);
     await this.mirrorToActiveProfile({ lastSyncHash: value });
+  }
+
+  async getSyncHistory(): Promise<SyncHistoryEntry[]> {
+    return (await this.storageService.get<SyncHistoryEntry[]>(StorageKeys.syncHistory)) ?? [];
+  }
+
+  async addSyncHistoryEntry(entry: SyncHistoryEntry): Promise<void> {
+    const history = await this.getSyncHistory();
+    await this.storageService.save(
+      StorageKeys.syncHistory,
+      [entry, ...history].slice(0, MaxSyncHistoryEntries),
+    );
   }
 
   async getSyncingDir(): Promise<boolean> {
