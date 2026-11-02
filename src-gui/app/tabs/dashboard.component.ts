@@ -20,6 +20,7 @@ import {
   FormControlModule,
   FormFieldModule,
   IconTileComponent,
+  LinkModule,
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
@@ -39,6 +40,7 @@ import { ConnectorUtils } from "@/libs/utils";
 import { ApiActionDirective } from "@/src-gui/angular/directives/api-action.directive";
 import { I18nPipe } from "@/src-gui/angular/pipes/i18n.pipe";
 import { downloadFile, toCsv } from "@/src-gui/angular/utils/csv";
+import { getNextSyncDue } from "@/src-gui/angular/utils/sync-schedule";
 import { RendererSyncService } from "@/src-gui/services/electron/rendererSync.service";
 
 type SyncResult = Awaited<ReturnType<RendererSyncService["run"]>>;
@@ -64,6 +66,7 @@ const BroadcasterSubscriptionId = "DashboardComponent";
     FormsModule,
     I18nPipe,
     IconTileComponent,
+    LinkModule,
     NgTemplateOutlet,
     SectionComponent,
     SectionHeaderComponent,
@@ -83,6 +86,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   lastGroupSync = signal<Date>(null);
   lastUserSync = signal<Date>(null);
   syncRunning = signal(false);
+  syncIntervalMinutes = signal<number>(null);
+
+  /** Ticks so the next-sync countdown stays current. */
+  private now = signal(Date.now());
+  private nowTimer: ReturnType<typeof setInterval>;
+  readonly nextSyncLabel = computed(() => {
+    if (!this.syncRunning()) {
+      return null;
+    }
+    const due = getNextSyncDue(
+      this.syncIntervalMinutes(),
+      this.lastGroupSync(),
+      this.lastUserSync(),
+    );
+    if (due == null) {
+      return null;
+    }
+    const minutes = Math.ceil((due.getTime() - this.now()) / 60_000);
+    return minutes <= 1
+      ? this.i18nService.t("nextSyncSoon")
+      : this.i18nService.t("nextSyncIn", minutes.toString());
+  });
 
   simSearch = signal("");
   readonly filteredEnabledUsers = computed(() => this.filterUsers(this.simEnabledUsers()));
@@ -119,6 +144,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   readonly historyPreviewCount = 10;
   history = signal<SyncHistoryEntry[]>([]);
   showAllHistory = signal(false);
+  private expandedHistory = signal(new Set<string>());
   readonly visibleHistory = computed(() =>
     this.showAllHistory() ? this.history() : this.history().slice(0, this.historyPreviewCount),
   );
@@ -146,10 +172,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.syncRunning.set(!!(await this.stateService.getSyncingDir()));
     await this.updateLastSync();
     await this.loadHistory();
+    this.nowTimer = setInterval(() => this.now.set(Date.now()), 30_000);
   }
 
   async ngOnDestroy() {
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
+    clearInterval(this.nowTimer);
   }
 
   async start() {
@@ -237,6 +265,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     downloadFile(`directory-connector-test-${date}.csv`, toCsv(rows), "text/csv;charset=utf-8");
   }
 
+  isHistoryExpanded(entry: SyncHistoryEntry): boolean {
+    return this.expandedHistory().has(entry.startedAt);
+  }
+
+  toggleHistory(entry: SyncHistoryEntry) {
+    this.expandedHistory.update((expanded) => {
+      const next = new Set(expanded);
+      if (!next.delete(entry.startedAt)) {
+        next.add(entry.startedAt);
+      }
+      return next;
+    });
+  }
+
   private filterUsers(users: UserEntry[]): UserEntry[] {
     const query = this.simSearch().trim().toLowerCase();
     return query === ""
@@ -251,6 +293,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private async updateLastSync() {
     this.lastGroupSync.set(await this.stateService.getLastGroupSync());
     this.lastUserSync.set(await this.stateService.getLastUserSync());
+    this.syncIntervalMinutes.set((await this.stateService.getSync())?.interval ?? null);
+    this.now.set(Date.now());
   }
 }
 

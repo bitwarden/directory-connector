@@ -1015,5 +1015,53 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "nextSyncIn": {
+    "message": "Next sync in about $MINUTES$ min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nextSyncSoon": {
+    "message": "Next sync within a minute"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "serverCloudUs": {
+    "message": "Bitwarden cloud (US)"
+  },
+  "serverCloudEu": {
+    "message": "Bitwarden cloud (EU)"
+  },
+  "organizationId": {
+    "message": "Organization ID"
+  },
+  "showDetails": {
+    "message": "Show details"
+  },
+  "hideDetails": {
+    "message": "Hide details"
+  },
+  "syncHistorySentDesc": {
+    "message": "What this sync sent to Bitwarden. Syncs that only send changes since the last run list just those changes."
+  },
+  "syncHistoryOverwrite": {
+    "message": "Existing users and groups were overwritten."
+  },
+  "syncHistoryRemoved": {
+    "message": "Marked for removal"
+  },
+  "andMoreCount": {
+    "message": "and $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
   }
 }

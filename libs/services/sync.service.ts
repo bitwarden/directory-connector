@@ -8,7 +8,11 @@ import { DirectoryType } from "@/libs/enums/directoryType";
 import { GroupEntry } from "@/libs/models/groupEntry";
 import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { SyncConfiguration } from "@/libs/models/syncConfiguration";
-import { SyncHistoryEntry } from "@/libs/models/syncHistoryEntry";
+import {
+  MaxSyncHistoryDetailItems,
+  SyncHistoryDetails,
+  SyncHistoryEntry,
+} from "@/libs/models/syncHistoryEntry";
 import { SyncPreview } from "@/libs/models/syncPreview";
 import { UserEntry } from "@/libs/models/userEntry";
 import { Utils } from "@/libs/utils/utils";
@@ -27,6 +31,24 @@ export const batchSize = 2000;
 
 /** Longest error message kept in sync history. */
 const MaxHistoryErrorLength = 500;
+
+/** Summarizes what a sync sends. Defensive because history must never break a sync. */
+function summarizeRequests(reqs: OrganizationImportRequest[] | null): SyncHistoryDetails {
+  reqs = reqs ?? [];
+  const members = reqs.flatMap((r) => r?.members ?? []);
+  const users = members.filter((m) => !m.deleted).map((m) => m.email ?? m.externalId);
+  const removedUsers = members.filter((m) => m.deleted).map((m) => m.email ?? m.externalId);
+  const groups = reqs.flatMap((r) => r?.groups ?? []).map((g) => g.name ?? g.externalId);
+  return {
+    userCount: users.length,
+    removedUserCount: removedUsers.length,
+    groupCount: groups.length,
+    users: users.slice(0, MaxSyncHistoryDetailItems),
+    removedUsers: removedUsers.slice(0, MaxSyncHistoryDetailItems),
+    groups: groups.slice(0, MaxSyncHistoryDetailItems),
+    overwriteExisting: reqs.some((r) => r?.overwriteExisting),
+  };
+}
 
 function describeSyncError(error: unknown): string {
   const message =
@@ -60,7 +82,7 @@ export class SyncService {
     const startingGroupDelta = await this.stateService.getGroupDelta();
     const startingUserDelta = await this.stateService.getUserDelta();
     const now = new Date();
-    const history: Pick<SyncHistoryEntry, "userCount" | "groupCount"> = {
+    const history: Pick<SyncHistoryEntry, "userCount" | "groupCount" | "details"> = {
       userCount: null,
       groupCount: null,
     };
@@ -91,6 +113,7 @@ export class SyncService {
       }
 
       const reqs = this.buildRequest(groups, users, syncConfig);
+      history.details = summarizeRequests(reqs);
 
       const result: HashResult = await this.generateHash(reqs);
 
@@ -103,7 +126,8 @@ export class SyncService {
       } else {
         groups = null;
         users = null;
-        await this.recordHistory(now, "noChanges", history);
+        // Nothing was sent, so there's nothing to describe.
+        await this.recordHistory(now, "noChanges", { ...history, details: undefined });
       }
 
       await this.saveSyncTimes(syncConfig, now);
@@ -193,7 +217,7 @@ export class SyncService {
   private async recordHistory(
     startedAt: Date,
     status: SyncHistoryEntry["status"],
-    counts: Pick<SyncHistoryEntry, "userCount" | "groupCount">,
+    counts: Pick<SyncHistoryEntry, "userCount" | "groupCount" | "details">,
     error?: unknown,
   ): Promise<void> {
     // History is informational, so never let recording it change the outcome of a sync.

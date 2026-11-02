@@ -11,6 +11,9 @@
         <p bitTypography="body1" class="tw-mb-0 tw-font-medium">
           {{ (syncRunning() ? "running" : "stopped") | i18n }}
         </p>
+        @if (nextSyncLabel(); as label) {
+          <p bitTypography="helper" class="tw-mb-0 tw-text-muted">{{ label }}</p>
+        }
       </div>
     </bit-card>
     <bit-card class="tw-flex tw-items-center tw-gap-4">
@@ -355,6 +358,51 @@
                   {{ h.error }}
                 </p>
               }
+              @if (h.details; as d) {
+                <button
+                  type="button"
+                  bitLink
+                  class="tw-w-full tw-text-start"
+                  [attr.aria-expanded]="isHistoryExpanded(h)"
+                  (click)="toggleHistory(h)"
+                >
+                  {{ (isHistoryExpanded(h) ? "hideDetails" : "showDetails") | i18n }}
+                </button>
+                @if (isHistoryExpanded(h)) {
+                  <div class="tw-w-full tw-rounded-lg tw-bg-background-alt tw-p-4">
+                    <p bitTypography="helper" class="tw-text-muted">
+                      {{ "syncHistorySentDesc" | i18n }}
+                      @if (d.overwriteExisting) {
+                        {{ "syncHistoryOverwrite" | i18n }}
+                      }
+                    </p>
+                    <div class="tw-grid tw-grid-cols-1 tw-gap-4 md:tw-grid-cols-3">
+                      <ng-container
+                        *ngTemplateOutlet="
+                          historyList;
+                          context: { title: 'users', items: d.users, total: d.userCount }
+                        "
+                      ></ng-container>
+                      <ng-container
+                        *ngTemplateOutlet="
+                          historyList;
+                          context: {
+                            title: 'syncHistoryRemoved',
+                            items: d.removedUsers,
+                            total: d.removedUserCount,
+                          }
+                        "
+                      ></ng-container>
+                      <ng-container
+                        *ngTemplateOutlet="
+                          historyList;
+                          context: { title: 'groups', items: d.groups, total: d.groupCount }
+                        "
+                      ></ng-container>
+                    </div>
+                  </div>
+                }
+              }
             </li>
           }
         </ul>
@@ -450,4 +498,27 @@
   } @else {
     <p bitTypography="body2" class="tw-text-muted">{{ "noUsers" | i18n }}</p>
   }
+</ng-template>
+
+<ng-template #historyList let-title="title" let-items="items" let-total="total">
+  <div>
+    <h4 bitTypography="h6" class="tw-flex tw-items-center tw-gap-2">
+      {{ title | i18n }}
+      <span bitBadge variant="subtle">{{ total }}</span>
+    </h4>
+    @if (items.length) {
+      <ul class="tw-m-0 tw-list-none tw-p-0">
+        @for (item of items; track $index) {
+          <li bitTypography="helper" class="tw-truncate" [title]="item">{{ item }}</li>
+        }
+      </ul>
+      @if (total > items.length) {
+        <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
+          {{ "andMoreCount" | i18n: (total - items.length).toString() }}
+        </p>
+      }
+    } @else {
+      <p bitTypography="helper" class="tw-mb-0 tw-text-muted">{{ "none" | i18n }}</p>
+    }
+  </div>
 </ng-template>

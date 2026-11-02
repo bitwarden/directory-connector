@@ -6,6 +6,7 @@ import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { StateService } from "@/libs/abstractions/state.service";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
+import { MaxSyncHistoryDetailItems } from "@/libs/models/syncHistoryEntry";
 import { ApiService } from "@/libs/services/api.service";
 
 import { getSyncConfiguration } from "../../utils/openldap/config-fixtures";
@@ -378,6 +379,60 @@ describe("SyncService", () => {
           groupCount: expect.any(Number),
         }),
       );
+    });
+
+    it("should record what a successful run sent to Bitwarden", async () => {
+      stateService.getLastSyncHash.mockResolvedValue("unique hash");
+      singleRequestBuilder.buildRequest.mockReturnValue([
+        new OrganizationImportRequest({
+          groups: [{ name: "Engineering", externalId: "eng", memberExternalIds: [] }],
+          users: [
+            { email: "a@x.com", externalId: "a", deleted: false },
+            { email: "gone@x.com", externalId: "gone", deleted: true },
+          ],
+          overwriteExisting: false,
+          largeImport: false,
+        }),
+      ]);
+
+      await syncService.sync(true, false);
+
+      expect(stateService.addSyncHistoryEntry).toHaveBeenCalledWith(
+        expect.objectContaining({
+          details: {
+            userCount: 1,
+            removedUserCount: 1,
+            groupCount: 1,
+            users: ["a@x.com"],
+            removedUsers: ["gone@x.com"],
+            groups: ["Engineering"],
+            overwriteExisting: false,
+          },
+        }),
+      );
+    });
+
+    it("should cap the example names kept for a run while keeping the full counts", async () => {
+      stateService.getLastSyncHash.mockResolvedValue("unique hash");
+      const users = Array.from({ length: MaxSyncHistoryDetailItems + 10 }, (_, i) => ({
+        email: `u${i}@x.com`,
+        externalId: `u${i}`,
+        deleted: false,
+      }));
+      singleRequestBuilder.buildRequest.mockReturnValue([
+        new OrganizationImportRequest({
+          groups: [],
+          users,
+          overwriteExisting: false,
+          largeImport: false,
+        }),
+      ]);
+
+      await syncService.sync(true, false);
+
+      const entry = stateService.addSyncHistoryEntry.mock.calls[0][0];
+      expect(entry.details.userCount).toBe(MaxSyncHistoryDetailItems + 10);
+      expect(entry.details.users).toHaveLength(MaxSyncHistoryDetailItems);
     });
 
     it("should record a run that found nothing new as having no changes", async () => {

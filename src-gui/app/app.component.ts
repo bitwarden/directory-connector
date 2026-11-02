@@ -17,6 +17,7 @@ import { MessagingService } from "@/libs/abstractions/messaging.service";
 import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
 
+import { getNextSyncDue } from "@/src-gui/angular/utils/sync-schedule";
 import { RendererAuthService } from "@/src-gui/services/electron/rendererAuth.service";
 import { RendererSyncService } from "@/src-gui/services/electron/rendererSync.service";
 
@@ -59,32 +60,16 @@ export class AppComponent implements OnInit {
         case "checkDirSync":
           try {
             const syncConfig = await this.stateService.getSync();
-            if (syncConfig.interval == null || syncConfig.interval < 5) {
+            const nextSyncDue = getNextSyncDue(
+              syncConfig.interval,
+              await this.stateService.getLastGroupSync(),
+              await this.stateService.getLastUserSync(),
+            );
+            if (nextSyncDue == null) {
               return;
             }
 
-            const syncInterval = syncConfig.interval * 60000;
-            const lastGroupSync = await this.stateService.getLastGroupSync();
-            const lastUserSync = await this.stateService.getLastUserSync();
-            let lastSync: Date = null;
-            if (lastGroupSync != null && lastUserSync == null) {
-              lastSync = lastGroupSync;
-            } else if (lastGroupSync == null && lastUserSync != null) {
-              lastSync = lastUserSync;
-            } else if (lastGroupSync != null && lastUserSync != null) {
-              if (lastGroupSync.getTime() < lastUserSync.getTime()) {
-                lastSync = lastGroupSync;
-              } else {
-                lastSync = lastUserSync;
-              }
-            }
-
-            let lastSyncAgo = syncInterval + 1;
-            if (lastSync != null) {
-              lastSyncAgo = new Date().getTime() - lastSync.getTime();
-            }
-
-            if (lastSyncAgo >= syncInterval) {
+            if (Date.now() >= nextSyncDue.getTime()) {
               await this.syncService.run(false, false);
             }
           } catch (e) {
