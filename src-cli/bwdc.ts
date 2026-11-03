@@ -30,6 +30,7 @@ import { CliPlatformUtilsService } from "@/src-cli/services/cliPlatformUtils.ser
 import { ConsoleLogService } from "@/src-cli/services/consoleLog.service";
 import { NodeApiService } from "@/src-cli/services/node/nodeApi.service";
 import { NodeCryptoFunctionService } from "@/src-cli/services/node/nodeCryptoFunction.service";
+import { trustSystemCaCertificates } from "@/src-cli/services/node/trustSystemCaCertificates";
 
 import packageJson from "../package.json";
 
@@ -180,6 +181,9 @@ export class Main {
     await this.storageService.init();
     await this.stateService.init();
     await this.environmentService.setUrlsFromStorage();
+    if (!this.environmentService.isCloud()) {
+      trustSystemCaCertificates(this.logService);
+    }
     // Dev Server URLs. Comment out the line above.
     // this.apiService.setUrls({
     //     base: null,

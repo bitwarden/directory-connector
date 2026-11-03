@@ -12,6 +12,16 @@ describe("describeError", () => {
     expect(describeError(new Error("boom"))).toBe("boom");
   });
 
+  it("appends the cause when an Error carries one", () => {
+    // A fetch failure wraps the underlying TLS/network error in `cause`; without surfacing it,
+    // a certificate trust failure just reports "fetch failed" with no indication of why.
+    const error = Object.assign(new Error("fetch failed"), {
+      cause: new Error("self-signed certificate"),
+    });
+
+    expect(describeError(error)).toBe("fetch failed (Error: self-signed certificate)");
+  });
+
   it("reports the status and body for an OAuth error with no Message field", () => {
     // The shape returned for a bad API key — the case that produced "[object Object]".
     const error = new ErrorResponse({ error: "invalid_client" }, 400, true);

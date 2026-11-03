@@ -13,7 +13,8 @@ import { Utils } from "@/libs/utils/utils";
  */
 export function describeError(e: unknown): string {
   if (e instanceof Error) {
-    return e.message;
+    const cause = (e as Error & { cause?: unknown }).cause;
+    return cause != null ? `${e.message} (${String(cause)})` : e.message;
   }
 
   if (e != null && typeof e === "object") {
