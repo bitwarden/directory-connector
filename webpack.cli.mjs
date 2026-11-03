@@ -30,6 +30,9 @@ const plugins = [
   new CopyWebpackPlugin({
     patterns: [{ from: "./src-gui/locales", to: "locales" }],
   }),
+  new webpack.IgnorePlugin({
+    resourceRegExp: /^kerberos$/,
+  }),
   new webpack.DefinePlugin({
     "process.env.BWCLI_ENV": JSON.stringify(ENV),
   }),
