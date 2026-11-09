@@ -900,6 +900,27 @@ describe("StateMigrationService", () => {
         expect(secureStorage.store).toEqual(secureSnapshot);
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
+
+      it("does not throw and recovers from keytar when has(newKey) rejects on an undecodable legacy blob", async () => {
+        secureStorage.store.set(`${userId}_gsuitePrivateKey`, "undecodable-blob");
+        passwords.readKeytarPassword.mockImplementation((_service: string, account: string) => {
+          const values: Record<string, string> = {
+            [`${userId}_gsuitePrivateKey`]: JSON.stringify("gsuite-key"),
+          };
+          return Promise.resolve(values[account] ?? null);
+        });
+        jest.spyOn(secureStorage, "has").mockImplementation(async (key) => {
+          if (key === SecureStorageKeys.gsuite) {
+            throw new Error("Credential blob is not valid UTF-16.");
+          }
+          return secureStorage.store.has(key as string);
+        });
+
+        await expect(svc.migrate()).resolves.not.toThrow();
+
+        expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("gsuite-key");
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
     });
 
     describe("migrateStateFrom7To8()", () => {

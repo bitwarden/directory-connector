@@ -321,7 +321,7 @@ export class StateMigrationService {
           continue;
         }
 
-        const alreadyExists = await this.secureStorageService.has(newKey);
+        const alreadyExists = await this.hasSecurely(newKey);
         if (alreadyExists) {
           written.add(newKey);
           continue;
