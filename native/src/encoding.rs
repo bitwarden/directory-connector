@@ -21,7 +21,7 @@ pub const MAX_CREDENTIAL_BLOB_SIZE: usize = 5 * 512;
 
 /// Never the first byte of a UTF-16 blob, as stored values are JSON and start with printable
 /// ASCII.
-const VERSION_MARKER: u8 = 0x01;
+pub(crate) const VERSION_MARKER: u8 = 0x01;
 
 const V1_HEADER: u8 = 1;
 
@@ -119,6 +119,13 @@ impl BlobVersion {
             _ => Ok((Self::Utf16, blob)),
         }
     }
+}
+
+/// Whether `value` is a keytar-read string that already carries the V1 version marker, meaning
+/// it was written by this build's `windows::set_password` rather than legacy keytar. Used by
+/// `migration::migrate_keytar_password` to avoid double-encoding an already-migrated blob.
+pub(crate) fn is_already_migrated(value: &str) -> bool {
+    value.as_bytes().first() == Some(&VERSION_MARKER)
 }
 
 #[cfg(test)]
@@ -311,5 +318,20 @@ mod tests {
     #[test]
     fn rejects_invalid_utf8_in_v1_blobs() {
         assert!(BlobVersion::decode(&[VERSION_MARKER, V1_HEADER, 0xff, 0xfe]).is_err());
+    }
+
+    #[test]
+    fn is_already_migrated_detects_the_v1_version_marker() {
+        assert!(is_already_migrated("\u{1}\u{1}\"secret\""));
+    }
+
+    #[test]
+    fn is_already_migrated_is_false_for_plain_keytar_json() {
+        assert!(!is_already_migrated("\"secret\""));
+    }
+
+    #[test]
+    fn is_already_migrated_is_false_for_an_empty_value() {
+        assert!(!is_already_migrated(""));
     }
 }

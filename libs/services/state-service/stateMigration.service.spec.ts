@@ -470,6 +470,75 @@ describe("StateMigrationService", () => {
       });
     });
 
+    describe("legacy keytar blob that cannot be decoded (Windows odd-length/invalid UTF-16)", () => {
+      it("does not throw, skips the unreadable key, and still migrates the others when has() rejects", async () => {
+        const userId = "user-undecodable-blob";
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
+        storage.store.set("activeUserId", userId);
+        storage.store.set(userId, {
+          profile: {},
+          keys: {},
+          directoryConfigurations: {
+            ldap: { hostname: "ldap.example.com" },
+          },
+          directorySettings: {},
+          settings: {},
+        });
+        secureStorage.store.set(`${userId}_gsuitePrivateKey`, "undecodable-blob");
+        secureStorage.store.set(`${userId}_ldapPassword`, "ldap-pass");
+        jest.spyOn(secureStorage, "has").mockImplementation(async (key) => {
+          if (key === `${userId}_gsuitePrivateKey`) {
+            throw new Error("Credential blob is not valid UTF-16.");
+          }
+          return secureStorage.store.has(key);
+        });
+
+        await expect(svc.migrate()).resolves.not.toThrow();
+
+        expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
+        expect(secureStorage.store.get(SecureStorageKeys.ldap)).toBe("ldap-pass");
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
+      it("does not throw and skips the key when get() rejects after has() succeeds", async () => {
+        const userId = "user-undecodable-get";
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
+        storage.store.set("activeUserId", userId);
+        storage.store.set(userId, { profile: {}, keys: {} });
+        secureStorage.store.set(`${userId}_azureKey`, "undecodable-blob");
+        jest.spyOn(secureStorage, "get").mockImplementation(async (key) => {
+          if (key === `${userId}_azureKey`) {
+            throw new Error("Credential blob is not valid UTF-16.");
+          }
+          return secureStorage.store.get(key);
+        });
+
+        await expect(svc.migrate()).resolves.not.toThrow();
+
+        expect(secureStorage.store.has(SecureStorageKeys.azure)).toBe(false);
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+
+      it("falls back to _entraKey when has(_entraIdKey) rejects", async () => {
+        const userId = "user-entra-has-rejects";
+        storage.store.set(StorageKeys.stateVersion, StateVersion.Four);
+        storage.store.set("activeUserId", userId);
+        storage.store.set(userId, { profile: {}, keys: {} });
+        secureStorage.store.set(`${userId}_entraKey`, "entra-fallback-value");
+        jest.spyOn(secureStorage, "has").mockImplementation(async (key) => {
+          if (key === `${userId}_entraIdKey`) {
+            throw new Error("Credential blob is not valid UTF-16.");
+          }
+          return secureStorage.store.has(key);
+        });
+
+        await expect(svc.migrate()).resolves.not.toThrow();
+
+        expect(secureStorage.store.get(SecureStorageKeys.entra)).toBe("entra-fallback-value");
+        expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
+      });
+    });
+
     describe("azure fallback (no entra, only azure in directoryConfigurations)", () => {
       it("populates directoryEntra from azure config when entra is absent", async () => {
         const userId = "user-abc-123";

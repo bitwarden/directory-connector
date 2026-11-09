@@ -73,8 +73,8 @@ pub async fn read_keytar_password(
     }
 }
 
-/// Migrate a credential that was stored by keytar (UTF-8 blob) to the new UTF-16 format
-/// used by desktop_core on Windows. No-ops on non-Windows platforms.
+/// Migrate a credential that was stored by keytar (UTF-8 blob) to the versioned V1 format
+/// written by `windows::set_password` on Windows. No-ops on non-Windows platforms.
 ///
 /// Returns `{ migrated: true }` if a migration was performed.
 /// Returns `{ migrated: false }` if the credential does not exist or is already in the correct

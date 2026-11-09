@@ -162,7 +162,7 @@ export class StateMigrationService {
     // Migrate secrets from {userId}_* to their new flat keys.
     // The old key names are the legacy values used before this migration.
     // Old keys are intentionally kept — they will be removed in a future migration.
-    // Note: keytar encoding conversion (UTF-8 → UTF-16) is handled separately in migrateStateFrom5To6.
+    // Note: keytar encoding conversion to the versioned V1 format is handled separately in migrateStateFrom5To6.
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
@@ -171,7 +171,7 @@ export class StateMigrationService {
         // _entraIdKey is the canonical old key; _entraKey was used by the runtime state service
         // prior to the v4→v5 migration. Only one should be present, but prefer _entraIdKey.
         {
-          old: (await this.secureStorageService.has(`${clientId}_entraIdKey`))
+          old: (await this.hasSecurely(`${clientId}_entraIdKey`))
             ? `${clientId}_entraIdKey`
             : `${clientId}_entraKey`,
           new: SecureStorageKeys.entra,
@@ -184,8 +184,8 @@ export class StateMigrationService {
       ];
 
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        if (await this.secureStorageService.has(oldKey)) {
-          const value = await this.secureStorageService.get(oldKey);
+        if (await this.hasSecurely(oldKey)) {
+          const value = await this.getSecurely(oldKey);
           if (value) {
             await this.secureStorageService.save(newKey, value);
           }
@@ -529,6 +529,40 @@ export class StateMigrationService {
 
   protected async getGlobals(): Promise<any> {
     return await this.get<any>("global");
+  }
+
+  /**
+   * Like secureStorageService.has(), but a decode failure (an undecodable legacy blob) counts as
+   * absent instead of throwing.
+   */
+  private async hasSecurely(key: string): Promise<boolean> {
+    try {
+      return await this.secureStorageService.has(key);
+    } catch (e) {
+      this.logService.error(
+        `StateMigrationService: could not read legacy credential "${key}": ${
+          e instanceof Error ? e.message : String(e)
+        }`,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Like secureStorageService.get(), but a decode failure (an undecodable legacy blob) counts as
+   * absent instead of throwing.
+   */
+  private async getSecurely(key: string): Promise<unknown> {
+    try {
+      return await this.secureStorageService.get(key);
+    } catch (e) {
+      this.logService.error(
+        `StateMigrationService: could not read legacy credential "${key}": ${
+          e instanceof Error ? e.message : String(e)
+        }`,
+      );
+      return null;
+    }
   }
 
   protected async getCurrentStateVersion(): Promise<StateVersion> {
