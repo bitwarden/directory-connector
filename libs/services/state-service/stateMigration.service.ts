@@ -540,7 +540,7 @@ export class StateMigrationService {
       return await this.secureStorageService.has(key);
     } catch (e) {
       this.logService.error(
-        `StateMigrationService: could not read legacy credential "${key}": ${
+        `StateMigrationService: could not read a legacy credential: ${
           e instanceof Error ? e.message : String(e)
         }`,
       );
@@ -557,7 +557,7 @@ export class StateMigrationService {
       return await this.secureStorageService.get(key);
     } catch (e) {
       this.logService.error(
-        `StateMigrationService: could not read legacy credential "${key}": ${
+        `StateMigrationService: could not read a legacy credential: ${
           e instanceof Error ? e.message : String(e)
         }`,
       );
