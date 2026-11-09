@@ -9,12 +9,8 @@ export abstract class StorageService {
 }
 
 /**
- * Secure storage with an additional `vNext` read/write path. Only use `vNext` for the Google
- * Workspace private key: on Windows it saves secrets in a format that fits Credential Manager's
- * size limit but that earlier versions of Directory Connector cannot read. Never call it from
- * existing state migrations.
+ * Storage backed by OS secure storage. Kept as a distinct type from {@link StorageService} so
+ * callers that must store secrets cannot be given plaintext storage by mistake, and so it can be
+ * used as its own Angular injection token.
  */
-export abstract class SecureStorageService extends StorageService {
-  getVNext: <T>(key: SecureStorageKey) => Promise<T>;
-  saveVNext: (key: SecureStorageKey, obj: any) => Promise<any>;
-}
+export abstract class SecureStorageService extends StorageService {}

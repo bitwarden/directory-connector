@@ -109,12 +109,6 @@ export class LowdbStorageService implements SecureStorageService {
     });
   }
 
-  // Used as secure storage when secrets are stored in plaintext, which has no size limit to work
-  // around, so vNext is the same as get and save.
-  getVNext<T>(key: SecureStorageKey): Promise<T> {
-    return this.get<T>(key);
-  }
-
   has(key: StorageKey | SecureStorageKey): Promise<boolean> {
     return this.get(key).then((v) => v != null);
   }
@@ -128,10 +122,6 @@ export class LowdbStorageService implements SecureStorageService {
       this.logService.debug(`Successfully wrote ${key} to db`);
       return;
     });
-  }
-
-  saveVNext(key: SecureStorageKey, obj: any): Promise<any> {
-    return this.save(key, obj);
   }
 
   async remove(key: StorageKey | SecureStorageKey): Promise<any> {

@@ -15,10 +15,6 @@ export class NativeSecureStorageService implements SecureStorageService {
     return this.parse<T>(key, passwords.getPassword(this.serviceName, key));
   }
 
-  async getVNext<T>(key: SecureStorageKey): Promise<T> {
-    return this.parse<T>(key, passwords.getPasswordVNext(this.serviceName, key));
-  }
-
   async has(key: StorageKey | SecureStorageKey): Promise<boolean> {
     return (await this.get(key)) != null;
   }
@@ -28,13 +24,6 @@ export class NativeSecureStorageService implements SecureStorageService {
       return this.remove(key);
     }
     return passwords.setPassword(this.serviceName, key, JSON.stringify(obj));
-  }
-
-  async saveVNext(key: SecureStorageKey, obj: any): Promise<any> {
-    if (obj == null) {
-      return this.remove(key);
-    }
-    return passwords.setPasswordVNext(this.serviceName, key, JSON.stringify(obj));
   }
 
   async remove(key: StorageKey | SecureStorageKey): Promise<any> {

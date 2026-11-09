@@ -6,52 +6,28 @@ extern crate napi_derive;
 #[napi(namespace = "passwords")]
 pub const PASSWORD_NOT_FOUND: &str = desktop_core::password::PASSWORD_NOT_FOUND;
 
-/// Fetch the stored password from the keychain.
+/// Fetch the stored password from the keychain. On Windows this reads both the versioned UTF-8
+/// format this version writes and the older UTF-16 format written by desktop_core.
 /// Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
 #[napi(namespace = "passwords")]
 pub async fn get_password(service: String, account: String) -> napi::Result<String> {
-    desktop_core::password::get_password(&service, &account)
-        .await
-        .map_err(|e| napi::Error::from_reason(e.to_string()))
-}
-
-/// Save the password to the keychain. Adds an entry if none exists, otherwise updates it.
-#[napi(namespace = "passwords")]
-pub async fn set_password(
-    service: String,
-    account: String,
-    password: String,
-) -> napi::Result<()> {
-    desktop_core::password::set_password(&service, &account, &password)
-        .await
-        .map_err(|e| napi::Error::from_reason(e.to_string()))
-}
-
-/// Like `get_password`, but on Windows also reads secrets saved by `set_password_v_next`.
-/// Only use for the Google Workspace private key.
-/// Throws an Error with message PASSWORD_NOT_FOUND if the password does not exist.
-#[napi(namespace = "passwords")]
-pub async fn get_password_v_next(service: String, account: String) -> napi::Result<String> {
     #[cfg(windows)]
-    let result = windows::get_password_v_next(&service, &account);
+    let result = windows::get_password(&service, &account);
     #[cfg(not(windows))]
     let result = desktop_core::password::get_password(&service, &account).await;
 
     result.map_err(|e| napi::Error::from_reason(e.to_string()))
 }
 
-/// Like `set_password`, but on Windows saves the secret as UTF-8 with a version header, so values
-/// too large for Credential Manager as UTF-16 still fit. Earlier versions of Directory Connector
-/// cannot read these. Only use for the Google Workspace private key, and read it back with
-/// `get_password_v_next`.
+/// Save the password to the keychain. Adds an entry if none exists, otherwise updates it.
+///
+/// On Windows the secret is saved as UTF-8 with a version header, so values too large for
+/// Credential Manager as UTF-16 still fit. Earlier versions of Directory Connector cannot read
+/// these.
 #[napi(namespace = "passwords")]
-pub async fn set_password_v_next(
-    service: String,
-    account: String,
-    password: String,
-) -> napi::Result<()> {
+pub async fn set_password(service: String, account: String, password: String) -> napi::Result<()> {
     #[cfg(windows)]
-    let result = windows::set_password_v_next(&service, &account, &password);
+    let result = windows::set_password(&service, &account, &password);
     #[cfg(not(windows))]
     let result = desktop_core::password::set_password(&service, &account, &password).await;
 

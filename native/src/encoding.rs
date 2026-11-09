@@ -1,10 +1,15 @@
-//! Encoding of secrets stored as Windows Credential Manager blobs by the `v_next` password
-//! functions, which are only used for the Google Workspace private key.
+//! Encoding of secrets stored as Windows Credential Manager blobs by the password functions in
+//! `windows.rs`, which handle every secret Directory Connector stores on Windows.
 //!
 //! Credential Manager caps blobs at 2560 bytes, which is less than a Google Workspace private key
-//! needs as UTF-16 (the encoding desktop_core writes). `v_next` therefore always writes
+//! needs as UTF-16 (the encoding desktop_core writes). Every secret is therefore written as
 //! `BlobVersion::V1`: a header followed by UTF-8. Blobs without a header are UTF-16, as written by
-//! desktop_core.
+//! desktop_core or keytar, and are still readable; they convert to V1 the next time they are
+//! written.
+//!
+//! Downgrade impact: because every secret is now written as V1, a build of Directory Connector
+//! older than this change cannot read any Windows secret written by this or a newer build, not
+//! just the Google Workspace private key.
 //!
 //! To add a version, add a `BlobFormat`, a `BlobVersion` variant and header number, and update
 //! `BlobVersion::LATEST`. Never change or reuse an existing version.
@@ -73,7 +78,7 @@ pub enum BlobVersion {
 }
 
 impl BlobVersion {
-    /// The version `v_next` writes.
+    /// The version every Windows secret is written as.
     pub const LATEST: Self = Self::V1;
 
     /// Encodes `value` as this version, including its header.

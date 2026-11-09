@@ -1072,14 +1072,12 @@ describe("StateMigrationService", () => {
         expect(passwords.readKeytarPassword).toHaveBeenCalledWith(expect.any(String), oldKey);
       });
 
-      it("writes the private key to SecureStorageKeys.gsuite with saveVNext", async () => {
-        const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+      it("writes the private key to SecureStorageKeys.gsuite", async () => {
         const saveSpy = jest.spyOn(secureStorage, "save");
 
         await svc.migrate();
 
-        expect(saveVNextSpy).toHaveBeenCalledWith(SecureStorageKeys.gsuite, privateKey);
-        expect(saveSpy).not.toHaveBeenCalled();
+        expect(saveSpy).toHaveBeenCalledWith(SecureStorageKeys.gsuite, privateKey);
         expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(privateKey);
       });
 
@@ -1103,17 +1101,17 @@ describe("StateMigrationService", () => {
       it("does not write when the active configuration's scoped secret can be read", async () => {
         storage.store.set(StorageKeys.directoryGsuite, { id: "gsuite-id-1" });
         secureStorage.store.set(`${SecureStorageKeys.gsuite}:gsuite-id-1`, "current-key");
-        const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+        const saveSpy = jest.spyOn(secureStorage, "save");
 
         await svc.migrate();
 
-        expect(saveVNextSpy).not.toHaveBeenCalled();
+        expect(saveSpy).not.toHaveBeenCalled();
         expect(secureStorage.store.has(SecureStorageKeys.gsuite)).toBe(false);
       });
 
       it("replaces a gsuite secret that cannot be read", async () => {
         secureStorage.store.set(SecureStorageKeys.gsuite, "unreadable");
-        jest.spyOn(secureStorage, "getVNext").mockRejectedValue(new Error("not valid UTF-16"));
+        jest.spyOn(secureStorage, "get").mockRejectedValue(new Error("not valid UTF-16"));
 
         await svc.migrate();
 
@@ -1122,16 +1120,16 @@ describe("StateMigrationService", () => {
 
       it("writes nothing when there is no keytar private key", async () => {
         passwords.readKeytarPassword.mockResolvedValue(null);
-        const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+        const saveSpy = jest.spyOn(secureStorage, "save");
 
         await svc.migrate();
 
-        expect(saveVNextSpy).not.toHaveBeenCalled();
+        expect(saveSpy).not.toHaveBeenCalled();
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
       it("logs a failure by key name without throwing or logging the secret", async () => {
-        jest.spyOn(secureStorage, "saveVNext").mockRejectedValue(new Error("too large"));
+        jest.spyOn(secureStorage, "save").mockRejectedValue(new Error("too large"));
 
         await expect(svc.migrate()).resolves.toBeUndefined();
 
@@ -1178,17 +1176,18 @@ describe("StateMigrationService", () => {
         expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
       });
 
-      it("is the only migration that uses vNext", async () => {
-        // From v6, the 6→7 migration copies the same keytar key with save(). Earlier migrations
-        // must keep doing so, and 9→10 then finds the key readable and leaves it alone.
+      it("leaves the key alone when 6→7 already copied it", async () => {
+        // From v6, the 6→7 migration copies the same keytar key with save(), and 9→10 then finds
+        // the key readable and leaves it alone.
         storage.store.set(StorageKeys.stateVersion, StateVersion.Six);
         const saveSpy = jest.spyOn(secureStorage, "save");
-        const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
 
         await svc.migrate();
 
         expect(saveSpy).toHaveBeenCalledWith(SecureStorageKeys.gsuite, privateKey);
-        expect(saveVNextSpy).not.toHaveBeenCalled();
+        expect(saveSpy.mock.calls.filter(([key]) => key === SecureStorageKeys.gsuite)).toHaveLength(
+          1,
+        );
       });
 
       it("writes when the active configuration's scoped secret and the legacy secret are both absent", async () => {
@@ -1203,33 +1202,34 @@ describe("StateMigrationService", () => {
         storage.store.set(StorageKeys.directoryGsuite, { id: "gsuite-id-1" });
         secureStorage.store.set(`${SecureStorageKeys.gsuite}:gsuite-id-1`, "scoped-key");
         secureStorage.store.set(SecureStorageKeys.gsuite, "legacy-key");
-        const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+        const saveSpy = jest.spyOn(secureStorage, "save");
 
         await svc.migrate();
 
-        expect(saveVNextSpy).not.toHaveBeenCalled();
+        expect(saveSpy).not.toHaveBeenCalled();
         expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe("legacy-key");
       });
 
       it.each([StateVersion.Four, StateVersion.Five, StateVersion.Six])(
         "recovers the private key from v%s when 6→7 cannot save it as UTF-16",
         async (startVersion) => {
-          // On Windows, save() writes UTF-16 through desktop_core, and a Google Workspace private
-          // key is too large for Credential Manager at that size, so the write rejects.
+          // Installs upgrading from an older build wrote the key as UTF-16 through desktop_core,
+          // and a Google Workspace private key is too large for Credential Manager at that size,
+          // so the 6→7 write rejected. 9→10 retries it, now that writes are UTF-8.
           storage.store.set(StorageKeys.stateVersion, startVersion);
           const save = secureStorage.save.bind(secureStorage);
-          jest
-            .spyOn(secureStorage, "save")
-            .mockImplementation((key, obj) =>
-              key === SecureStorageKeys.gsuite
-                ? Promise.reject(new Error("too large for Credential Manager"))
-                : save(key, obj),
-            );
-          const saveVNextSpy = jest.spyOn(secureStorage, "saveVNext");
+          let firstGsuiteWrite = true;
+          const saveSpy = jest.spyOn(secureStorage, "save").mockImplementation((key, obj) => {
+            if (key === SecureStorageKeys.gsuite && firstGsuiteWrite) {
+              firstGsuiteWrite = false;
+              return Promise.reject(new Error("too large for Credential Manager"));
+            }
+            return save(key, obj);
+          });
 
           await expect(svc.migrate()).resolves.toBeUndefined();
 
-          expect(saveVNextSpy).toHaveBeenCalledWith(SecureStorageKeys.gsuite, privateKey);
+          expect(saveSpy).toHaveBeenCalledWith(SecureStorageKeys.gsuite, privateKey);
           expect(secureStorage.store.get(SecureStorageKeys.gsuite)).toBe(privateKey);
           expect(storage.store.get(StorageKeys.stateVersion)).toBe(StateVersion.Ten);
         },
