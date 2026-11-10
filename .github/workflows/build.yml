@@ -1,6 +1,30 @@
+# This workflow runs in the context of the PR's source branch.
+# On a PR from a fork, the workflow has no access to secrets, so the jobs that need them are skipped.
+# To build and sign a fork PR, review it and add the "ci:signed-build" label to run build-target.yml.
+
 name: Build
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'src-cli/**'
+      - 'libs/**'
+      - 'native/**'
+      - 'jslib/**'
+      - 'resources/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'angular.json'
+      - '.github/workflows/build.yml'
+      - '.github/actions/**'
+      - '!*.md'
+      - '!*.txt'
   push:
     branches:
       - "main"
