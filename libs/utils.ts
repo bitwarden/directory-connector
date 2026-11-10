@@ -99,7 +99,10 @@ export class ConnectorUtils {
     if (!value) {
       return false;
     }
-    return new TextEncoder().encode(value).length > MAX_WINDOWS_CREDENTIAL_SECRET_BYTES;
+    // NativeSecureStorageService.save stores JSON.stringify(value); measure the stored payload.
+    return (
+      new TextEncoder().encode(JSON.stringify(value)).length > MAX_WINDOWS_CREDENTIAL_SECRET_BYTES
+    );
   }
 
   private static sortEntries(arr: Entry[], i18nService: I18nService) {
