@@ -261,6 +261,7 @@
                 <input
                   type="{{ showLdapPassword() ? 'text' : 'password' }}"
                   class="form-control"
+                  [class.is-invalid]="ldapPasswordTooLarge()"
                   id="password"
                   name="Password"
                   [ngModel]="ldap().password"
@@ -279,6 +280,9 @@
                   ></i>
                 </button>
               </div>
+              @if (ldapPasswordTooLarge()) {
+                <div class="invalid-feedback d-block">{{ "secretTooLargeForWindows" | i18n }}</div>
+              }
             </div>
           </div>
         </div>
@@ -327,6 +331,7 @@
               <input
                 type="{{ showEntraKey() ? 'text' : 'password' }}"
                 class="form-control"
+                [class.is-invalid]="entraKeyTooLarge()"
                 id="secretKey"
                 name="SecretKey"
                 [ngModel]="entra().key"
@@ -345,6 +350,9 @@
                 ></i>
               </button>
             </div>
+            @if (entraKeyTooLarge()) {
+              <div class="invalid-feedback d-block">{{ "secretTooLargeForWindows" | i18n }}</div>
+            }
           </div>
         </div>
         <div [hidden]="directory() != directoryType.Okta">
@@ -366,6 +374,7 @@
               <input
                 type="{{ showOktaKey() ? 'text' : 'password' }}"
                 class="form-control"
+                [class.is-invalid]="oktaTokenTooLarge()"
                 id="oktaToken"
                 name="OktaToken"
                 [ngModel]="okta().token"
@@ -384,6 +393,9 @@
                 ></i>
               </button>
             </div>
+            @if (oktaTokenTooLarge()) {
+              <div class="invalid-feedback d-block">{{ "secretTooLargeForWindows" | i18n }}</div>
+            }
           </div>
         </div>
         <div [hidden]="directory() != directoryType.OneLogin">
@@ -404,6 +416,7 @@
               <input
                 type="{{ showOneLoginSecret() ? 'text' : 'password' }}"
                 class="form-control"
+                [class.is-invalid]="oneLoginSecretTooLarge()"
                 id="oneLoginClientSecret"
                 name="OneLoginClientSecret"
                 [ngModel]="oneLogin().clientSecret"
@@ -422,6 +435,9 @@
                 ></i>
               </button>
             </div>
+            @if (oneLoginSecretTooLarge()) {
+              <div class="invalid-feedback d-block">{{ "secretTooLargeForWindows" | i18n }}</div>
+            }
           </div>
           <div class="mb-3">
             <label for="oneLoginRegion" class="form-label">{{ "region" | i18n }}</label>
@@ -500,12 +516,16 @@
             <label for="privateKey" class="form-label">{{ "privateKey" | i18n }}</label>
             <textarea
               class="form-control text-monospace"
+              [class.is-invalid]="gsuitePrivateKeyTooLarge()"
               id="privateKey"
               name="PrivateKey"
               [ngModel]="gsuite().privateKey"
               (ngModelChange)="gsuite.update((v) => ({ ...v, privateKey: $event }))"
             >
             </textarea>
+            @if (gsuitePrivateKeyTooLarge()) {
+              <div class="invalid-feedback d-block">{{ "secretTooLargeForWindows" | i18n }}</div>
+            }
           </div>
         </div>
       </div>

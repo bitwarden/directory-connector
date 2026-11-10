@@ -12,7 +12,9 @@ import { FormsModule } from "@angular/forms";
 
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
+import { PlatformUtilsService } from "@/libs/abstractions/platformUtils.service";
 import { StateService } from "@/libs/abstractions/state.service";
+import { DeviceType } from "@/libs/enums/deviceType";
 import { DirectoryType } from "@/libs/enums/directoryType";
 import { EntraIdConfiguration } from "@/libs/models/entraIdConfiguration";
 import { GSuiteConfiguration } from "@/libs/models/gsuiteConfiguration";
@@ -53,6 +55,30 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private i18nService = inject(I18nService);
   private logService = inject(LogService);
   private stateService = inject(StateService);
+  private platformUtilsService = inject(PlatformUtilsService);
+
+  isWindows = computed(() => this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop);
+
+  ldapPasswordTooLarge = computed(
+    () =>
+      this.isWindows() && ConnectorUtils.exceedsWindowsCredentialByteLimit(this.ldap().password),
+  );
+  entraKeyTooLarge = computed(
+    () => this.isWindows() && ConnectorUtils.exceedsWindowsCredentialByteLimit(this.entra().key),
+  );
+  oktaTokenTooLarge = computed(
+    () => this.isWindows() && ConnectorUtils.exceedsWindowsCredentialByteLimit(this.okta().token),
+  );
+  oneLoginSecretTooLarge = computed(
+    () =>
+      this.isWindows() &&
+      ConnectorUtils.exceedsWindowsCredentialByteLimit(this.oneLogin().clientSecret),
+  );
+  gsuitePrivateKeyTooLarge = computed(
+    () =>
+      this.isWindows() &&
+      ConnectorUtils.exceedsWindowsCredentialByteLimit(this.gsuite().privateKey),
+  );
 
   constructor() {
     this.directoryOptions = [
