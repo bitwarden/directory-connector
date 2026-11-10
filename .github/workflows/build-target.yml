@@ -1,6 +1,5 @@
-# This workflow runs all pull requests through the target branch context so that secrets are
-# available for signing artifacts.
-# Same-repo PRs build automatically on open, push, and reopen.
+# This workflow builds fork PRs in the context of the target branch, so that secrets are available
+# for signing artifacts. Same-repo PRs build through build.yml's pull_request trigger instead.
 # Fork PRs only build when a user with write access adds the "ci:signed-build" label. Pushes to the PR
 # branch (including "Update branch") do not trigger it. The label is removed once the build starts, so
 # every new commit needs to be reviewed and labeled again.
@@ -11,7 +10,7 @@ name: Build (Fork PR)
 
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened, labeled]
+    types: [labeled]
     branches:
       - main
     paths:
@@ -66,15 +65,6 @@ jobs:
   run-workflow:
     name: Run Build
     needs: check-run
-    # Fork PRs need the labeled check-run to pass. Same-repo PRs skip check-run, since only users and apps
-    # with write access can push their branches, and ignore labeled events so they don't build twice.
-    if: >-
-      ${{ !cancelled() && (
-        needs.check-run.result == 'success' ||
-        (needs.check-run.result == 'skipped'
-          && github.event.pull_request.head.repo.full_name == github.repository
-          && github.event.action != 'labeled')
-      ) }}
     uses: ./.github/workflows/build.yml
     secrets: inherit
     permissions:
