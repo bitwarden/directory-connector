@@ -6,9 +6,7 @@ export default async function (configuration) {
     execSync(
       `azuresigntool sign ` +
         `-kvu ${process.env.SIGNING_VAULT_URL} ` +
-        `-kvi ${process.env.SIGNING_CLIENT_ID} ` +
-        `-kvt ${process.env.SIGNING_TENANT_ID} ` +
-        `-kvs ${process.env.SIGNING_CLIENT_SECRET} ` +
+        `-kva ${process.env.SIGNING_ACCESS_TOKEN} ` +
         `-kvc ${process.env.SIGNING_CERT_NAME} ` +
         `-fd ${configuration.hash} ` +
         `-du ${configuration.site} ` +
