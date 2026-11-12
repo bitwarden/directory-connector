@@ -3,8 +3,7 @@ import { SecureStorageKey, StorageKey } from "@/libs/models/state.model";
 
 /**
  * In-memory StorageService for use in unit tests.
- * Allows round-trip tests and direct store introspection via `.store`. vNext reads and writes share
- * the same store; spy on getVNext/saveVNext to assert which path was used.
+ * Allows round-trip tests and direct store introspection via `.store`.
  */
 export class FakeStorageService implements SecureStorageService {
   readonly store = new Map<string, unknown>();
@@ -13,19 +12,11 @@ export class FakeStorageService implements SecureStorageService {
     return (this.store.get(key) as T) ?? null;
   }
 
-  async getVNext<T>(key: SecureStorageKey): Promise<T> {
-    return (this.store.get(key) as T) ?? null;
-  }
-
   async has(key: StorageKey | SecureStorageKey): Promise<boolean> {
     return this.store.has(key);
   }
 
   async save(key: StorageKey | SecureStorageKey, obj: unknown): Promise<void> {
-    this.store.set(key, obj);
-  }
-
-  async saveVNext(key: SecureStorageKey, obj: unknown): Promise<void> {
     this.store.set(key, obj);
   }
 

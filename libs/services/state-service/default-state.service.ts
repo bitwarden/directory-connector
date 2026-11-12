@@ -243,19 +243,11 @@ export class DefaultStateService implements StateService {
     return `${legacyKey}:${id}` as SecureStorageKey;
   }
 
-  /**
-   * `vNext` reads and writes through {@link SecureStorageService.getVNext}/`saveVNext`, which
-   * must only be used for the Google Workspace private key.
-   */
   private async getScopedSecret(
     legacyKey: SecureStorageKey,
     id: string | null | undefined,
-    vNext = false,
   ): Promise<string | null> {
-    const get = (key: SecureStorageKey) =>
-      vNext
-        ? this.secureStorageService.getVNext<string>(key)
-        : this.secureStorageService.get<string>(key);
+    const get = (key: SecureStorageKey) => this.secureStorageService.get<string>(key);
 
     if (id != null) {
       const scoped = await get(this.scopedSecretKey(legacyKey, id));
@@ -272,7 +264,6 @@ export class DefaultStateService implements StateService {
     legacyKey: SecureStorageKey,
     id: string | null | undefined,
     value: string,
-    vNext = false,
   ): Promise<void> {
     const key = id != null ? this.scopedSecretKey(legacyKey, id) : legacyKey;
     if (value == null) {
@@ -282,8 +273,6 @@ export class DefaultStateService implements StateService {
       if (id != null) {
         await this.secureStorageService.remove(legacyKey);
       }
-    } else if (vNext) {
-      await this.secureStorageService.saveVNext(key, value);
     } else {
       await this.secureStorageService.save(key, value);
     }
@@ -298,11 +287,11 @@ export class DefaultStateService implements StateService {
   }
 
   private async getGsuiteSecret(config: GSuiteConfiguration): Promise<string> {
-    return await this.getScopedSecret(SecureStorageKeys.gsuite, config?.id, true);
+    return await this.getScopedSecret(SecureStorageKeys.gsuite, config?.id);
   }
 
   private async setGsuiteSecret(config: GSuiteConfiguration, value: string): Promise<void> {
-    await this.setScopedSecret(SecureStorageKeys.gsuite, config.id, value, true);
+    await this.setScopedSecret(SecureStorageKeys.gsuite, config.id, value);
   }
 
   private async getEntraSecret(config: EntraIdConfiguration): Promise<string> {

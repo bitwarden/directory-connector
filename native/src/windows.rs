@@ -1,6 +1,7 @@
-//! Windows-only: the `v_next` password functions, used only for the Google Workspace private key.
-//! They read and write Credential Manager entries using `encoding.rs` instead of desktop_core, which
-//! can only write UTF-16. Entries match desktop_core's target name, user name and persistence.
+//! Windows-only: the password read and write functions for every secret Directory Connector
+//! stores. They read and write Credential Manager entries using `encoding.rs` instead of
+//! desktop_core, which can only write UTF-16 and so cannot fit larger secrets such as the Google
+//! Workspace private key. Entries match desktop_core's target name, user name and persistence.
 //! Deletion still goes through desktop_core.
 
 use anyhow::{anyhow, Result};
@@ -80,14 +81,14 @@ fn write_blob(service: &str, account: &str, blob: &[u8]) -> Result<()> {
     Ok(())
 }
 
-pub fn get_password_v_next(service: &str, account: &str) -> Result<String> {
+pub fn get_password(service: &str, account: &str) -> Result<String> {
     let blob = read_blob(service, account)?
         .ok_or_else(|| anyhow!(desktop_core::password::PASSWORD_NOT_FOUND))?;
     let (value, _) = BlobVersion::decode(&blob)?;
     Ok(value)
 }
 
-pub fn set_password_v_next(service: &str, account: &str, password: &str) -> Result<()> {
+pub fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
     write_blob(service, account, &BlobVersion::LATEST.encode(password)?)
 }
 
@@ -124,13 +125,13 @@ mod tests {
     }
 
     #[test]
-    fn stores_a_google_private_key_as_v1() {
+    fn stores_a_large_secret_as_v1() {
         let account = "google-key";
         let value = google_private_key_json();
 
-        let saved = set_password_v_next(SERVICE, account, &value);
+        let saved = set_password(SERVICE, account, &value);
         let blob = read_blob(SERVICE, account);
-        let read = get_password_v_next(SERVICE, account);
+        let read = get_password(SERVICE, account);
         cleanup(account);
 
         saved.unwrap();
@@ -146,9 +147,9 @@ mod tests {
         let account = "small-secret";
         let value = "\"pässwörd\"";
 
-        let saved = set_password_v_next(SERVICE, account, value);
+        let saved = set_password(SERVICE, account, value);
         let blob = read_blob(SERVICE, account);
-        let read = get_password_v_next(SERVICE, account);
+        let read = get_password(SERVICE, account);
         cleanup(account);
 
         saved.unwrap();
@@ -165,10 +166,30 @@ mod tests {
         let value = "\"legacy-secret\"";
         write_utf16(account, value);
 
-        let read = get_password_v_next(SERVICE, account);
+        let read = get_password(SERVICE, account);
         cleanup(account);
 
         assert_eq!(read.unwrap(), value);
+    }
+
+    #[test]
+    fn converts_a_secret_written_by_desktop_core_to_v1_on_the_next_write() {
+        let account = "converted-secret";
+        let original = "\"legacy-secret\"";
+        let updated = "\"new-secret\"";
+        write_utf16(account, original);
+
+        let saved = set_password(SERVICE, account, updated);
+        let blob = read_blob(SERVICE, account);
+        let read = get_password(SERVICE, account);
+        cleanup(account);
+
+        saved.unwrap();
+        assert_eq!(
+            BlobVersion::decode(&blob.unwrap().unwrap()).unwrap().1,
+            BlobVersion::V1
+        );
+        assert_eq!(read.unwrap(), updated);
     }
 
     #[test]
@@ -180,10 +201,10 @@ mod tests {
 
         let keytar = block_on(crate::migration::read_keytar_password(SERVICE, old_account));
         let saved = match &keytar {
-            Ok(Some(v)) => set_password_v_next(SERVICE, new_account, v),
+            Ok(Some(v)) => set_password(SERVICE, new_account, v),
             _ => Ok(()),
         };
-        let read = get_password_v_next(SERVICE, new_account);
+        let read = get_password(SERVICE, new_account);
         cleanup(old_account);
         cleanup(new_account);
 
@@ -193,13 +214,13 @@ mod tests {
     }
 
     #[test]
-    fn google_private_key_survives_the_5_to_6_migration() {
+    fn v1_secret_survives_the_5_to_6_migration() {
         let account = "migrated-v1-google-key";
         let value = google_private_key_json();
-        set_password_v_next(SERVICE, account, &value).unwrap();
+        set_password(SERVICE, account, &value).unwrap();
 
         let _ = block_on(crate::migration::migrate_keytar_password(SERVICE, account));
-        let read = get_password_v_next(SERVICE, account);
+        let read = get_password(SERVICE, account);
         cleanup(account);
 
         assert_eq!(read.unwrap(), value);
@@ -207,7 +228,7 @@ mod tests {
 
     #[test]
     fn reports_password_not_found_for_missing_credentials() {
-        let err = get_password_v_next(SERVICE, "does-not-exist").unwrap_err();
+        let err = get_password(SERVICE, "does-not-exist").unwrap_err();
 
         assert_eq!(err.to_string(), desktop_core::password::PASSWORD_NOT_FOUND);
     }

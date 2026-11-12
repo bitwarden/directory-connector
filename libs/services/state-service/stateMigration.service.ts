@@ -162,7 +162,7 @@ export class StateMigrationService {
     // Migrate secrets from {userId}_* to their new flat keys.
     // The old key names are the legacy values used before this migration.
     // Old keys are intentionally kept — they will be removed in a future migration.
-    // Note: keytar encoding conversion (UTF-8 → UTF-16) is handled separately in migrateStateFrom5To6.
+    // Note: keytar encoding conversion to the versioned V1 format is handled separately in migrateStateFrom5To6.
     if (useSecureStorageForSecrets) {
       const oldSecretKeys = [
         { old: `${clientId}_ldapPassword`, new: SecureStorageKeys.ldap },
@@ -171,7 +171,7 @@ export class StateMigrationService {
         // _entraIdKey is the canonical old key; _entraKey was used by the runtime state service
         // prior to the v4→v5 migration. Only one should be present, but prefer _entraIdKey.
         {
-          old: (await this.secureStorageService.has(`${clientId}_entraIdKey`))
+          old: (await this.hasSecurely(`${clientId}_entraIdKey`))
             ? `${clientId}_entraIdKey`
             : `${clientId}_entraKey`,
           new: SecureStorageKeys.entra,
@@ -184,8 +184,8 @@ export class StateMigrationService {
       ];
 
       for (const { old: oldKey, new: newKey } of oldSecretKeys) {
-        if (await this.secureStorageService.has(oldKey)) {
-          const value = await this.secureStorageService.get(oldKey);
+        if (await this.hasSecurely(oldKey)) {
+          const value = await this.getSecurely(oldKey);
           if (value) {
             await this.secureStorageService.save(newKey, value);
           }
@@ -321,7 +321,7 @@ export class StateMigrationService {
           continue;
         }
 
-        const alreadyExists = await this.secureStorageService.has(newKey);
+        const alreadyExists = await this.hasSecurely(newKey);
         if (alreadyExists) {
           written.add(newKey);
           continue;
@@ -438,14 +438,20 @@ export class StateMigrationService {
 
   /**
    * Migrate from State v9 to v10 (Windows only): copy the Google Workspace private key from its
-   * keytar-era key to SecureStorageKeys.gsuite, written with saveVNext this time.
+   * keytar-era key to SecureStorageKeys.gsuite.
    *
    * Earlier migrations (3→5, 5→6, 6→7) wrote it as UTF-16 through desktop_core, which is too
-   * large for Credential Manager, so it never reached the new key. Customers who downgraded to a
+   * large for Credential Manager, so it never reached the new key. Secrets are now written as
+   * UTF-8, so the key fits. Customers who downgraded to a
    * keytar version to keep using Google Workspace have also kept saving it under the old key.
    *
+   * On this build, 6→7 now writes the key as UTF-8 and succeeds, so for installs upgrading from
+   * ≤v6 this step is a no-op. It remains the only recovery path for installs an earlier release
+   * already stamped at v7–v9, where 6→7 ran under the old UTF-16 write and left the key missing.
+   *
    * Skipped if the current gsuite secret already reads back, so a key saved by this version is
-   * never replaced by the older keytar value.
+   * never replaced by the older keytar value. This also makes the step idempotent: re-running it
+   * after a successful migration — or after 6→7 already recovered the key — is a no-op.
    */
   protected async migrateStateFrom9To10(): Promise<void> {
     if (!this.useSecureStorageForSecrets || process.platform !== "win32") {
@@ -461,14 +467,14 @@ export class StateMigrationService {
         const raw = await passwords.readKeytarPassword(SECURE_STORAGE_SERVICE_NAME, oldKey);
         if (raw != null) {
           // raw is the keytar blob verbatim (JSON.stringify'd by the old KeytarSecureStorageService).
-          // Parse it once so saveVNext doesn't double-encode it.
+          // Parse it once so save doesn't double-encode it.
           let value: unknown;
           try {
             value = JSON.parse(raw);
           } catch {
             value = raw;
           }
-          await this.secureStorageService.saveVNext(SecureStorageKeys.gsuite, value);
+          await this.secureStorageService.save(SecureStorageKeys.gsuite, value);
         }
       } catch (e) {
         this.logService.error(
@@ -496,7 +502,7 @@ export class StateMigrationService {
 
     for (const key of keys) {
       try {
-        if ((await this.secureStorageService.getVNext(key)) != null) {
+        if ((await this.secureStorageService.get(key)) != null) {
           return true;
         }
       } catch {
@@ -523,6 +529,40 @@ export class StateMigrationService {
 
   protected async getGlobals(): Promise<any> {
     return await this.get<any>("global");
+  }
+
+  /**
+   * Like secureStorageService.has(), but a decode failure (an undecodable legacy blob) counts as
+   * absent instead of throwing.
+   */
+  private async hasSecurely(key: string): Promise<boolean> {
+    try {
+      return await this.secureStorageService.has(key);
+    } catch (e) {
+      this.logService.error(
+        `StateMigrationService: could not read a legacy credential: ${
+          e instanceof Error ? e.message : String(e)
+        }`,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Like secureStorageService.get(), but a decode failure (an undecodable legacy blob) counts as
+   * absent instead of throwing.
+   */
+  private async getSecurely(key: string): Promise<unknown> {
+    try {
+      return await this.secureStorageService.get(key);
+    } catch (e) {
+      this.logService.error(
+        `StateMigrationService: could not read a legacy credential: ${
+          e instanceof Error ? e.message : String(e)
+        }`,
+      );
+      return null;
+    }
   }
 
   protected async getCurrentStateVersion(): Promise<StateVersion> {

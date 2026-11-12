@@ -29,6 +29,9 @@
   "clientSecretRequired": {
     "message": "Client Secret is required."
   },
+  "secretTooLargeForWindows": {
+    "message": "This value is too large to store on Windows. Please shorten it."
+  },
   "orgApiKeyRequired": {
     "message": "Api Key must belong to an Organization"
   },

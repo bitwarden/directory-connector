@@ -1,4 +1,5 @@
 import { I18nService } from "@/libs/abstractions/i18n.service";
+import { MAX_WINDOWS_CREDENTIAL_SECRET_BYTES } from "@/libs/constants";
 import { Entry } from "@/libs/models/entry";
 import { GroupEntry } from "@/libs/models/groupEntry";
 import { LdapConfiguration } from "@/libs/models/ldapConfiguration";
@@ -92,6 +93,16 @@ export class ConnectorUtils {
         sync.interval = 5;
       }
     }
+  }
+
+  static exceedsWindowsCredentialByteLimit(value: string): boolean {
+    if (!value) {
+      return false;
+    }
+    // NativeSecureStorageService.save stores JSON.stringify(value); measure the stored payload.
+    return (
+      new TextEncoder().encode(JSON.stringify(value)).length > MAX_WINDOWS_CREDENTIAL_SECRET_BYTES
+    );
   }
 
   private static sortEntries(arr: Entry[], i18nService: I18nService) {
