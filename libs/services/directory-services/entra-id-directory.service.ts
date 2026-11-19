@@ -3,11 +3,10 @@ import { stringify } from "node:querystring";
 
 import { Client, GraphRequest } from "@microsoft/microsoft-graph-client";
 import { User, Group } from "@microsoft/microsoft-graph-types";
-import { HttpsProxyAgent } from "https-proxy-agent";
-import { EnvHttpProxyAgent } from "undici";
 
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
+import { NodeUtils } from "@/libs/utils/nodeUtils";
 
 import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
@@ -530,25 +529,9 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
     return entry;
   }
 
-  private getProxyUrl(): string | undefined {
-    return (
-      process.env.https_proxy ||
-      process.env.HTTPS_PROXY ||
-      process.env.http_proxy ||
-      process.env.HTTP_PROXY ||
-      undefined
-    );
-  }
-
   private init() {
-    const proxyUrl = this.getProxyUrl();
     this.client = Client.init({
-      // Graph requests go through the global fetch, which ignores the proxy
-      // environment variables, so hand it a dispatcher that honors them.
-      // `dispatcher` is an undici extension that RequestInit doesn't declare.
-      ...(proxyUrl != null
-        ? { fetchOptions: { dispatcher: new EnvHttpProxyAgent() } as RequestInit }
-        : {}),
+      fetchOptions: NodeUtils.getFetchOptions(),
       authProvider: (done) => {
         if (
           this.dirConfig.applicationId == null ||
@@ -591,7 +574,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
             host: identityAuthority,
             path: "/" + this.dirConfig.tenant + "/oauth2/v2.0/token",
             method: "POST",
-            agent: proxyUrl != null ? new HttpsProxyAgent(proxyUrl) : undefined,
+            agent: NodeUtils.getProxyAgent(),
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
               "Content-Length": Buffer.byteLength(data),
