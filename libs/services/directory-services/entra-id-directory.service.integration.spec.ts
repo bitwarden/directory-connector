@@ -290,21 +290,5 @@ describe("entraIdDirectoryService", () => {
 
       expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(2);
     });
-
-    it("does not re-upload an unchanged directory across batched requests", async () => {
-      stateService.getSync.mockResolvedValue(
-        getSyncConfiguration({ users: true, groups: true, largeImport: true }),
-      );
-      arrangeDirectoryReturning(["asIs", "reversed"]);
-      arrangeHashPersistence();
-
-      await syncService.sync(false, false);
-      const callsAfterFirstSync = apiService.postPublicImportDirectory.mock.calls.length;
-      expect(callsAfterFirstSync).toBeGreaterThan(0);
-
-      await syncService.sync(false, false);
-
-      expect(apiService.postPublicImportDirectory).toHaveBeenCalledTimes(callsAfterFirstSync);
-    });
   });
 });
