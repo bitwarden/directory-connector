@@ -162,6 +162,7 @@
     "ngx-toastr": "20.0.5",
     "proper-lockfile": "4.1.2",
     "rxjs": "7.8.2",
+    "undici": "8.12.4",
     "zone.js": "0.16.1"
   },
   "engines": {
@@ -169,6 +170,6 @@
     "npm": "~11"
   },
   "overrides": {
-    "undici": "8.12.2"
+    "undici": "8.12.4"
   }
 }

@@ -6,6 +6,7 @@ import { User, Group } from "@microsoft/microsoft-graph-types";
 
 import { I18nService } from "@/libs/abstractions/i18n.service";
 import { LogService } from "@/libs/abstractions/log.service";
+import { NodeUtils } from "@/libs/utils/nodeUtils";
 
 import { StateService } from "../../abstractions/state.service";
 import { DirectoryType } from "../../enums/directoryType";
@@ -530,6 +531,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
 
   private init() {
     this.client = Client.init({
+      fetchOptions: NodeUtils.getFetchOptions(),
       authProvider: (done) => {
         if (
           this.dirConfig.applicationId == null ||
@@ -572,6 +574,7 @@ export class EntraIdDirectoryService extends BaseDirectoryService implements IDi
             host: identityAuthority,
             path: "/" + this.dirConfig.tenant + "/oauth2/v2.0/token",
             method: "POST",
+            agent: NodeUtils.getProxyAgent(),
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
               "Content-Length": Buffer.byteLength(data),
