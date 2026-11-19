@@ -3,6 +3,8 @@ import { GroupEntry } from "@/libs/models/groupEntry";
 import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { UserEntry } from "@/libs/models/userEntry";
 
+import { sortGroups, sortUsers } from "./request-sorting";
+
 /**
  * This class is responsible for building small (<2k users) syncs as a single
  * request to the /import endpoint. This is done to be backwards compatible with
@@ -17,20 +19,24 @@ export class SingleRequestBuilder implements RequestBuilder {
   ): OrganizationImportRequest[] {
     return [
       new OrganizationImportRequest({
-        groups: (groups ?? []).map((g) => {
-          return {
-            name: g.name,
-            externalId: g.externalId,
-            memberExternalIds: Array.from(g.userMemberExternalIds),
-          };
-        }),
-        users: (users ?? []).map((u) => {
-          return {
-            email: u.email,
-            externalId: u.externalId,
-            deleted: u.deleted || (options.removeDisabled && u.disabled),
-          };
-        }),
+        groups: sortGroups(
+          (groups ?? []).map((g) => {
+            return {
+              name: g.name,
+              externalId: g.externalId,
+              memberExternalIds: Array.from(g.userMemberExternalIds),
+            };
+          }),
+        ),
+        users: sortUsers(
+          (users ?? []).map((u) => {
+            return {
+              email: u.email,
+              externalId: u.externalId,
+              deleted: u.deleted || (options.removeDisabled && u.disabled),
+            };
+          }),
+        ),
         overwriteExisting: options.overwriteExisting,
         largeImport: false,
         inviteUsersAfterProvisioning: options.inviteUsersAfterProvisioning,

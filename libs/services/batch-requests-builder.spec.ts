@@ -60,11 +60,13 @@ describe("BatchRequestBuilder", () => {
     const options = { ...defaultOptions, removeDisabled: true };
     const requests = batchRequestBuilder.buildRequest(mockGroups, mockUsers, options);
 
-    expect(requests[0].members).toContainEqual({ email: disabledUserEmail1, deleted: true });
-    expect(requests[1].members.find((m) => m.deleted)).toBeUndefined();
-    expect(requests[3].members.find((m) => m.deleted)).toBeUndefined();
-    expect(requests[4].members.find((m) => m.deleted)).toBeUndefined();
-    expect(requests[5].members).toContainEqual({ email: disabledUserEmail2, deleted: true });
+    const allMembers = requests.flatMap((r) => r.members);
+    expect(
+      allMembers
+        .filter((m) => m.deleted)
+        .map((m) => m.email)
+        .sort(),
+    ).toEqual([disabledUserEmail1, disabledUserEmail2].sort());
   });
 
   it("BatchRequestBuilder retuns an empty array when there are no users or groups", () => {
