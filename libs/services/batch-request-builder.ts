@@ -3,6 +3,7 @@ import { GroupEntry } from "@/libs/models/groupEntry";
 import { OrganizationImportRequest } from "@/libs/models/request/organizationImportRequest";
 import { UserEntry } from "@/libs/models/userEntry";
 
+import { sortGroups, sortUsers } from "./request-sorting";
 import { batchSize } from "./sync.service";
 
 /**
@@ -25,13 +26,15 @@ export class BatchRequestBuilder implements RequestBuilder {
     const requests: OrganizationImportRequest[] = [];
 
     if (users?.length > 0) {
-      const usersRequest = users.map((u) => {
-        return {
-          email: u.email,
-          externalId: u.externalId,
-          deleted: u.deleted || (options.removeDisabled && u.disabled),
-        };
-      });
+      const usersRequest = sortUsers(
+        users.map((u) => {
+          return {
+            email: u.email,
+            externalId: u.externalId,
+            deleted: u.deleted || (options.removeDisabled && u.disabled),
+          };
+        }),
+      );
 
       // Partition users
       for (let i = 0; i < usersRequest.length; i += batchSize) {
@@ -48,13 +51,15 @@ export class BatchRequestBuilder implements RequestBuilder {
     }
 
     if (groups?.length > 0) {
-      const groupRequest = groups.map((g) => {
-        return {
-          name: g.name,
-          externalId: g.externalId,
-          memberExternalIds: Array.from(g.userMemberExternalIds),
-        };
-      });
+      const groupRequest = sortGroups(
+        groups.map((g) => {
+          return {
+            name: g.name,
+            externalId: g.externalId,
+            memberExternalIds: Array.from(g.userMemberExternalIds),
+          };
+        }),
+      );
 
       // Partition groups
       for (let i = 0; i < groupRequest.length; i += batchSize) {
