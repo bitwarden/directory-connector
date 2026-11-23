@@ -1,4 +1,5 @@
 import { RequestBuilderOptions } from "@/libs/abstractions/request-builder.service";
+import { GroupEntry } from "@/libs/models/groupEntry";
 import { UserEntry } from "@/libs/models/userEntry";
 import { GetUniqueString } from "@/libs/utils/test.utils";
 
@@ -52,7 +53,7 @@ describe("SingleRequestBuilder", () => {
     const request = singleRequestBuilder.buildRequest(mockGroups, mockUsers, options)[0];
 
     expect(request.members.length).toEqual(201);
-    expect(request.members.pop()).toEqual(
+    expect(request.members.find((m) => m.email === disabledUserEmail)).toEqual(
       expect.objectContaining({ email: disabledUserEmail, deleted: true }),
     );
     expect(request.overwriteExisting).toBe(false);
@@ -75,7 +76,7 @@ describe("SingleRequestBuilder", () => {
     };
     const request = singleRequestBuilder.buildRequest(mockGroups, mockUsers, options)[0];
 
-    expect(request.members.pop()).toEqual(
+    expect(request.members.find((m) => m.email === disabledUserEmail)).toEqual(
       expect.objectContaining({ email: disabledUserEmail, deleted: true }),
     );
     expect(request.overwriteExisting).toBe(true);
@@ -100,5 +101,38 @@ describe("SingleRequestBuilder", () => {
     const request = singleRequestBuilder.buildRequest(mockGroups, mockUsers, options)[0];
 
     expect(request.inviteUsersAfterProvisioning).toBe(false);
+  });
+
+  it("SingleRequestBuilder produces an identical request when the directory is returned in a different order", () => {
+    const buildGroup = (name: string, externalId: string, members: string[]) => {
+      const group = new GroupEntry();
+      group.name = name;
+      group.externalId = externalId;
+      group.userMemberExternalIds = new Set(members);
+      return group;
+    };
+    const buildUser = (email: string, externalId: string) => {
+      const user = new UserEntry();
+      user.email = email;
+      user.externalId = externalId;
+      return user;
+    };
+
+    const groupsA = [
+      buildGroup("Engineering", "cn=eng", ["u2", "u1"]),
+      buildGroup("Sales", "cn=sales", ["u3"]),
+    ];
+    const usersA = [buildUser("b@example.com", "u2"), buildUser("a@example.com", "u1")];
+
+    const groupsB = [
+      buildGroup("Sales", "cn=sales", ["u3"]),
+      buildGroup("Engineering", "cn=eng", ["u1", "u2"]),
+    ];
+    const usersB = [buildUser("a@example.com", "u1"), buildUser("b@example.com", "u2")];
+
+    const requestA = singleRequestBuilder.buildRequest(groupsA, usersA, defaultOptions);
+    const requestB = singleRequestBuilder.buildRequest(groupsB, usersB, defaultOptions);
+
+    expect(JSON.stringify(requestA)).toEqual(JSON.stringify(requestB));
   });
 });
